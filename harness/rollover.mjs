@@ -340,9 +340,12 @@ async function advanceToBoundary(api, maxDays = 500) {
   check("every player aged exactly one year per season boundary",
     known.length > 0 && correct.length === known.length && intakeCorrect.length === fromIntake.length,
     `${correct.length}/${known.length} with a baseline, ${intakeCorrect.length}/${fromIntake.length} from an academy intake, after ${boundaries} boundaries`);
+  // Update 1, item 4c: AI originals now leave AI clubs (left out of the ageing count above), so they are
+  // traced as originals; anyone else must have a baseline or an intake.
+  const originalsAway = list.filter((p) => p.status !== "ai_club" && p.poolPlayerId != null && !ages0.has(p.id));
   check("every senior has a baseline or came from an academy intake (nobody appeared from nowhere)",
-    known.length + fromIntake.length + list.filter((p) => p.status === "ai_club").length === list.length,
-    `${known.length} + ${fromIntake.length} intake + ${list.filter((p) => p.status === "ai_club").length} at AI clubs of ${list.length} traceable`);
+    known.length + fromIntake.length + originalsAway.length + list.filter((p) => p.status === "ai_club").length + list.filter((p) => p.status !== "ai_club" && p.poolPlayerId != null && ages0.has(p.id)).length === list.length,
+    `${known.length} + ${fromIntake.length} intake + ${list.filter((p) => p.status === "ai_club").length} at AI clubs + ${list.filter((p) => p.status !== "ai_club" && p.poolPlayerId != null).length} AI originals away of ${list.length} traceable`);
 
   check(`rolled through ${WALK_BOUNDARIES} boundaries`, seen.length === WALK_BOUNDARIES,
     seen.map((r) => `${r.fromSeason}->${r.toSeason}`).join(", "));

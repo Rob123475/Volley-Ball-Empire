@@ -179,6 +179,8 @@ try {
     prev = nowMap;
     if (r.data?.seasonRollover && r.data.seasonRollover.kind !== "none") {
       const t = lastTable ?? seasonTable(season, Number(today.slice(0, 4)), counters);
+      // The season's final standings are written at the rollover, after the table was taken.
+      t.champion = q(`SELECT competitor_name AS n FROM season_final_standings WHERE season_year = ? AND rank = 1 LIMIT 1`, t.year)[0]?.n ?? t.champion;
       tables.push(t); printTable(t);
       w(`UPDATE board_seasons SET grade = 'met' WHERE career_save_id = ? AND grade = 'failed'`, cid);
       season++; counters = { injuries: 0, longReleased: 0 }; lastTable = null;

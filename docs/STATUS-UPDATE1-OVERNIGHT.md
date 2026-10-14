@@ -102,6 +102,20 @@ settings; club-kits extended. A soak script, harness/long-career-update1.mjs (no
     pair wears white with its own primary as the trim (near-black if the home kit is near white).
     *Change:* KITS.tooAlike in utils/kits.ts.
 
+24. **Re-scouting: one scout at a time on a player.** A second scout while one is out is refused, as
+    before; once a report is in, scout her again any time. While a re-scout is out her card keeps the
+    old report.
+25. **The Watch list stars the senior market's cards** (every senior at any club or none); the youth
+    pool's cards have no star.
+26. **A game that has never picked a window size still opens maximised**, as it always has; picking
+    a size makes it a window of that size.
+27. **The Controls panel's PlayStation pause button is "Options"** (the pad's Menu button); the court's
+    proof names Esc/Menu.
+28. **Part 9: the typecheck ran once on its own before the one full build**, so a compile error
+    couldn't stop the build before the harness. It was clean.
+29. **Part 9: tests that expected the game before 4a/4b/4c were changed to the new rules**, never the
+    game to suit an old test (the table in part 9 lists every one).
+
 ## Skipped, and why
 
 - **Match sound volume** (part 8): the 3D court takes no volume message; it needs a Unity method and a
@@ -138,6 +152,54 @@ runs in the off-season and must end before the club's first match of next season
 an Olympic or qualifying date. No length is withheld for them.
 
 ## 5-season soak tables
+
+**Medium, Established, 5 seasons** (harness/long-career-update1.mjs; a new career through the Day 1 draft;
+camps Altitude 4w, Power House 4w, Rest, Beach Academy 4w, Altitude 4w; 5.1 minutes):
+
+| Season | AI avg rating | AI top 5 | Player's squad | Over-cap AI adders | AI clubs with 3 seniors | with coach + medic | Stats outside 1–99 | AI injuries | Free agents | AI balances (lowest / median / below 0) | Champion |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| 1 (2026) | 76.7 | Fernanda Silva 91, Beatriz Costa 91, Ashley Carter 88, Carolina Souza 88, Taylor Brooks 87 | Lani Faumuina 66 (26), Nurul Ain 67 (28), Camila Santiago 79 (28) | 0 | 48 of 60 | 8 | 0 | 98 | 141 | −$52,791 / $290,051 / 1 | LA Beach Legends |
+| 2 (2027) | 77.9 | Beatriz Costa 93, Fernanda Silva 91, Ashley Carter 89, Taylor Brooks 89, Carolina Souza 89 | Lani Faumuina 67 (27), Nurul Ain 67 (29), Camila Santiago 79 (29), Amara Persaud 55 (18) | 0 | 42 of 60 | 9 | 0 | 116 | 147 | −$383,432 / $46,699 / 24 | Bogotá Altitude Queens |
+| 3 (2028) | 76.5 | Fernanda Silva 93, Taylor Brooks 91, Amanda Lima 90, Jasmine Washington 89, Sophie Müller 88 | Lani Faumuina 68 (28), Nurul Ain 67 (30), Camila Santiago 80 (30), María Hernández 53 (18) | 0 | 24 of 60 | 8 | 0 | 92 | 196 | −$738,417 / −$115,995 / 47 | Bondi Beach Legends |
+| 4 (2029) | 77.6 | Fernanda Silva 95, Taylor Brooks 92, Amanda Lima 92, Jasmine Washington 91, Sophie Müller 89 | Lani Faumuina 68 (29), Nurul Ain 65 (31), Camila Santiago 80 (31), Kayla Brown 53 (18), Sofía Pérez 52 (19), Niah Brown 52 (19) | 0 | 16 of 60 | 8 | 0 | 105 | 224 | −$765,593 / −$195,968 / 55 | Honolulu Aloha Warriors |
+| 5 (2030) | 77.1 | Fernanda Silva 96, Amanda Lima 94, Jasmine Washington 93, Sophie Müller 91, Camila Gómez 90 | Lani Faumuina 68 (30), Nurul Ain 65 (32), Camila Santiago 81 (32), María Rivera 47 (18) | 0 | 5 of 60 | 5 | 0 | 112 | 259 | −$800,453 / −$281,925 / 59 | Havana Salsa Spikers |
+
+Long-injured AI seniors released to the market: 0 counted. (A released one is usually signed at once by another
+AI club taking the injured gamble, so she never shows as a free agent between two days; ai-injuries.mjs
+proves the release itself.)
+
+**What runs away: the AI clubs' money.** The average AI club opened the seasons on $500,000, $253,546,
+$28,282, −$116,746, −$224,976; by season 5, 59 of 60 were below zero, and season 5's review sold most of
+them (the 2031 openings average $403,362, the new owners' balances). Why: AI seniors now average **$21,400
+a month** (the rise above rating 77 included), and since 4c every AI club refills to **three** seniors, so a
+club's senior wages are about $60,000 a month (one sampled: $23,502 + $11,500 + $24,937), about **$250,000
+a year more** than with two. AI camps cost them $1,325,000 in all over the five off-seasons (52 camps);
+staff are few (8 clubs). Because the third senior is signed only with three months of her wage in the
+bank, clubs stop refilling as their money goes: 48 clubs held three in season 1, 5 in season 5, and the free
+agents grew from 141 to 259. Ratings did **not** run away (AI average 76.7 → 77.1; the best player 91 → 96),
+nobody went outside 1–99, no AI club over the cap added anyone, and a different club won each season.
+
+
+**Easy, Medium and Hard compared, seasons 1–2** (Medium from the run above):
+
+| Difficulty | Season | AI avg rating | AI best | AI clubs with 3 | AI injuries | AI balances (lowest / median / below 0) | Champion |
+|---|---|---|---|---|---|---|---|
+| Easy | 1 | 75.7 | Nyasha Ncube 90 | 47 | 85 | −$100,675 / $307,813 / 2 | Gold Coast Thunderbirds |
+| Easy | 2 | 76.3 | Nyasha Ncube 90 | 46 | 88 | −$436,361 / $49,533 / 26 | Accra Goldcoast Waves |
+| Medium | 1 | 76.7 | Fernanda Silva 91 | 48 | 98 | −$52,791 / $290,051 / 1 | LA Beach Legends |
+| Medium | 2 | 77.9 | Beatriz Costa 93 | 42 | 116 | −$383,432 / $46,699 / 24 | Bogotá Altitude Queens |
+| Hard | 1 | 78.5 | Fernanda Silva 93 | 48 | 114 | −$22,216 / $269,573 / 1 | Athens Aegean Stars |
+| Hard | 2 | 80.3 | Beatriz Costa 96 | 39 | 88 | −$419,143 / $17,413 / 28 | Nairobi Savannah Stars |
+
+Difficulty does what it says: after two seasons the AI average is 76.3 on Easy, 77.9 on Medium and 80.3 on
+Hard (the best player 90 / 93 / 96). The money slide is the same on all three (it comes from the third
+senior's wage, not from training); Hard's camps make it a little steeper.
+
+**Suggestions for Rob (not done):** any one of these would hold the AI books near level:
+- the AI clubs' interchange on a lower wage (for example half, as an injured player's), or the third
+  senior only for a club with, say, 12 months of her wage in the bank instead of 3;
+- more AI income (sponsor money or the flat weekly sum) to match a three-player squad;
+- a lower salary cap or a flatter wage rise above 77 (both lower every club's wages).
 
 ## Rob's on-screen check list for all of Update 1
 
@@ -376,3 +438,29 @@ page's preview (aliased `@shared/ageing`, as money.ts is now `@shared/money`).
 - New suite **harness/settings.mjs** (run-all 98m), headless (no Electron window, no save touched).
 - Not updated: the three GPU proof scripts in scripts/webgl-proof/ still click the old match-screen
   button (they are run by hand, not by the build).
+
+### Part 9: build, test, fix
+
+**Build 1: 92 of 112 suites passed, 20 failed.** Each failure, its cause and the fix (re-run alone):
+
+| Suite | Cause | Fix | Re-run |
+|---|---|---|---|
+| ai staff, ai injuries, preseason camp (part), soak script | My suites read `SELECT current_date`: unquoted, SQLite gives the real date, not the column | Quoted the column | 21/21, 16/16 |
+| scouting history, ai injuries | Read the market from `/players` (the squad) instead of `/players/market-all` | Market endpoint | 12/12 |
+| ai injuries | A released long-injured AI senior is signed at once by another AI club (the 4c gamble, at her 50% wage); a walkover check counted a match played before the injuries | The check allows the gamble and tests the 50% on a hurt free agent; only later matches counted | 16/16 |
+| preseason camp | The longest camp ended on 31 Dec, the rollover day, so Rest couldn't be tried after it | Books the shortest camp | 18/18 |
+| ledger words | The camp's ledger category "training" had no words | "Training" added to the ledger's words | 6/6 |
+| game dates | The Pre-season page showed raw dates | Game-style dates (page and the camp's refusals) | 4/4 |
+| salary cap | Written in 4a, before the draft: the drafted squad already has an interchange; 4c's asking-wage picker; AI clubs now sign a released player at once | Roles and checks follow the draft and 4c | 16/16 |
+| board review | Its Established career was assumed the strongest; under the cap the draft no longer gives that | The scene maxes that squad (the check is about the board, not the draft) | 60/60 |
+| contract terms, olympic tournament, smoke | They release the drafted squad, which since Rob's 4b-2 answer pays the contracts out, leaving the club broke | The scene puts the money back after the release | 40/40, 75/75 |
+| olympic tournament, academy intake | Their maxed (99) squads can't renew under the cap (a 99 asks about $46,500), so the squad expired and the careers were sacked; the draft and AI refills also take most Australian free agents | The scene's contracts run past the run; Australians freed from AI clubs if needed | 24/24 |
+| money pass, youth ratings, ai buyable, ai club economy | Since the draft (4b), the AI clubs' pool players are career seniors from Day 1 (pool contracts read "moved") | Read the career seniors | 22/22, 13/13, 25/25 |
+| ai buyable | Buying her broke the cap | Room made under the cap (not this suite's subject) | 25/25 |
+| player pictures | AI clubs now also hold free agents (shipped seniors), some sharing a name with a pool player | The picture check is for the originals | 35/35 |
+| ai job market | Its takeover check expected an AI club to have no staff | The AI club's staff come with it (part 1a) | 30/30 |
+| ai club economy | The to-the-dollar week now includes Day 8's staff signing fees; sales come later than season 5 | A club with no staff is measured; each sale's own five seasons are read | (running) |
+| youth rebirth | A harness club now has failed seasons, so the board sacked it and the career moved clubs; the census kept counting the old club's (empty) academy | Failed grades planted as met, as ai-club-economy does | (running) |
+| season rollover | Renewals re-priced over the cap are refused (C-4, intended); AI originals now leave AI clubs and age only while away | Cap refusals counted apart; originals left out of the ageing count | (running) |
+
+Every one of these was a test expecting the game before items 4a/4b/4c or the AI staff; no game code was changed to make a test pass except the two real gaps (the ledger's words, the raw dates).
