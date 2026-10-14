@@ -67,14 +67,15 @@ const w = (sql, ...a) => { const d = new DatabaseSync(DB); try { return d.prepar
 
 let teamId = null, cid = null;
 /** The player's seniors on the books (C-2 A), as the database holds them. */
-const mySeniors = () => q(`SELECT s.player_id AS id, s.salary, s.power, s.speed, s.defense, s.serve, s.block, s.stamina FROM career_player_state s JOIN players p ON p.id = s.player_id
+const mySeniors = () => q(`SELECT s.player_id AS id, s.squad_role AS role, s.salary, s.power, s.speed, s.defense, s.serve, s.block, s.stamina FROM career_player_state s JOIN players p ON p.id = s.player_id
   WHERE s.career_save_id = ? AND s.team_id = ? AND s.is_retired = 0 AND (p.player_type = 'senior' OR s.is_promoted = 1)`, cid, teamId);
 const setWage = (playerId, wage) => {
   w(`UPDATE career_player_state SET salary = ? WHERE career_save_id = ? AND player_id = ?`, wage, cid, playerId);
   w(`UPDATE contracts SET salary = ? WHERE player_id = ? AND team_id = ? AND status = 'active'`, wage, playerId, teamId);
 };
 const freeAgents = async () => ((await api("GET", "/players/market-all")).data ?? []).filter((p) => p.status === "free_agent" && p.age >= 19 && p.priceRange);
-const sign = (p, salary = p.salary) => api("POST", "/contracts", { playerId: p.id, salary, bonusPerWin: 0, squadRole: "interchange", length: "1s", confirm: true });
+// Update 1, item 4b: the drafted squad has its interchange; a signing here plays (a starter) unless told otherwise.
+const sign = (p, salary = p.salary, squadRole = "starter") => api("POST", "/contracts", { playerId: p.id, salary, bonusPerWin: 0, squadRole, length: "1s", confirm: true });
 const lastSalary = () => q(`SELECT last_salary_date AS d FROM calendar_state WHERE team_id = ?`, teamId)[0]?.d;
 async function toNextWeek() {
   const was = lastSalary();
@@ -128,15 +129,15 @@ try {
   // ── 2. A signing that fits, and one that doesn't ───────────────────────────
   console.log("\n2. A SIGNING THAT FITS GOES THROUGH; ONE THAT DOESN'T IS REFUSED");
   // One senior kept, on $30,000; the rest released (free in the first week).
-  const keep = mySeniors()[0];
-  for (const p of mySeniors().slice(1)) await api("POST", `/players/${p.id}/release`, {});
+  const keep = mySeniors().find((p) => p.role === "starter") ?? mySeniors()[0];
+  for (const p of mySeniors().filter((x) => x.id !== keep.id)) { const r = await api("POST", `/players/${p.id}/release`, {}); if (r.status >= 300) console.log(`  INFO  release ${p.id}: ${r.status} ${JSON.stringify(r.data).slice(0, 200)}`); }
   setWage(keep.id, 30_000);
   const fas = (await freeAgents()).sort((a, b) => a.salary - b.salary);
   const cheap = fas.find((p) => p.salary <= 20_000);
-  const fits = await sign(cheap);
+  const fits = await sign(cheap, cheap.salary, "interchange");
   const billNow = 30_000 + cheap.salary;
   check("a signing that fits under the cap goes through", fits.status === 201 && (await api("GET", "/contracts/wage-cap")).data?.seniorWages === billNow,
-    `${cheap.name} at ${$(cheap.salary)}: HTTP ${fits.status}, wages ${$(billNow)}`);
+    `${cheap.name} at ${$(cheap.salary)}: HTTP ${fits.status} ${fits.data?.error ?? ""}, wages ${$(billNow)}`);
   const dear = fas.find((p) => p.id !== cheap.id && p.salary > CAP - billNow);
   const refused = await sign(dear);
   check("one that doesn't is refused, in Rob's words, and nothing changes",
@@ -204,8 +205,10 @@ try {
   check("an AI club below two, with no room, signs no free agent (it may only promote its own youth)", joinedX.length === 0, `${joinedX.length} free agents joined club ${X}`);
   const yNow = q(`SELECT pool_team_id AS club, team_id AS team, salary, contract_end_date AS ends FROM career_player_state WHERE career_save_id = ? AND player_id = ?`, cid, y1.id)[0];
   const onMarket = ((await api("GET", "/players/market-all")).data ?? []).find((p) => p.id === y1.id);
-  check("an AI club that can't fit a renewal (re-priced to her rating) lets her go: a free agent asking that wage",
-    yNow.club == null && yNow.team == null && Number(yNow.salary) === yAsk && onMarket?.status === "free_agent",
+  // Item 4c: AI clubs refill to three, so another AI club may sign her at once, on the same wage for her rating.
+  check("an AI club that can't fit a renewal (re-priced to her rating) lets her go: a free agent asking that wage (or signed straight away by another AI club on it)",
+    yNow.club !== Y && yNow.team == null && Number(yNow.salary) === yAsk
+      && (yNow.club == null ? onMarket?.status === "free_agent" : onMarket?.status === "ai_club"),
     `club ${yNow.club}, ${$(yNow.salary)} (rating asks ${$(yAsk)}), market: ${onMarket?.status}`);
   const zNow = q(`SELECT pool_team_id AS club, salary, contract_end_date AS ends FROM career_player_state WHERE career_save_id = ? AND player_id = ?`, cid, z1.id)[0];
   check("one that fits renews, re-priced to the wage for her rating (not her old wage for ever)",
@@ -213,7 +216,8 @@ try {
   const aiSrc = fs.readFileSync(path.join(REPO, "artifacts", "api-server", "src", "utils", "aiSquads.ts"), "utf8");
   check("(source) an AI club only buys a player who fits; refilling picks the best affordable who fits (one picker); selling counts the departing wage",
     /balance >= fee \+ AI_BUY_RESERVE && fitsUnderCap\(bill, monthlySalaryFor\(m\.rating\)\)/.test(aiSrc)
-      && /balance >= 3 \* monthlySalaryFor\(f\.rating\) && fitsUnderCap\(bill, monthlySalaryFor\(f\.rating\)\)/.test(aiSrc)
+      // Item 4c: the wage is her asking wage (an injured free agent's is less).
+      && /const wage = askingWage\(monthlySalaryFor\(f\.rating\), 1, f\.injuryWeeks\);\s*return balance >= 3 \* wage && fitsUnderCap\(bill, wage\);/.test(aiSrc)
       && (aiSrc.match(/function bestAffordableFreeAgent/g) ?? []).length === 1 && /canSellTx\(w\.tx, careerSaveId, m\.poolTeamId, names\.get\(m\.poolTeamId\) \?\? "", m\.salary\)/.test(aiSrc));
   const overAi = clubs.filter((c) => {
     const bill = aiSquad(c).reduce((s, p) => s + Number(p.salary), 0);
