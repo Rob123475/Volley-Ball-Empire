@@ -646,10 +646,10 @@ export const contractsTable = sqliteTable("contracts", {
   bonusPerWin: real("bonus_per_win").notNull().default(0),
   status: text("status").notNull().default("active"),
   createdAt: integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
-  // P-05: "starting_squad" for the contracts a new career opens with
-  // (utils/seedStartingSquad.ts); null for every contract signed after. The
-  // start date cannot tell them apart - a player signed on day one has the
-  // same one - and only the starting squad may leave for free in week 1.
+  // P-05 wrote "starting_squad" here for the automatic starting squad, which
+  // could leave for free in week 1. Update 1, item 4b (Rob, 14 Oct) deleted
+  // both: nothing writes or reads it now (older careers' rows keep the value).
+  // Kept rather than dropped, so no save needs a column migration.
   origin: text("origin"),
 });
 
@@ -1431,6 +1431,12 @@ export const careerSavesTable = sqliteTable("career_saves", {
    * Null for a career made before the draft: it never sees one.
    */
   day1Draft:         text("day1_draft"),
+  /**
+   * Update 1, item 4a (Rob, 14 Oct, 4a-3): when this career's free agents were
+   * re-priced to the wage rise above rating 77 (utils/freeAgentWages.ts), once.
+   * "new career" for a career made since, whose free agents start on it.
+   */
+  freeAgentWagePassAt: text("free_agent_wage_pass_at"),
   lastPlayedAt: integer("last_played_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
   createdAt:    integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });

@@ -30,7 +30,7 @@ import { getActiveSeason } from "../lib/getActiveSeason.js";
 import { loadPlayers, loadStaff, requireCareerSaveId, updatePlayerState, updateTeamPlayerState, withCareerStateTx } from "../lib/playerDto.js";
 import { aiAcademiesWeekTx, loansTx, recordTeamLoanWeekTx, returnDueLoansTx, teamLoanWeekTx } from "../utils/youthLoans.js";
 import { materializeAiSeniorsTx, aiSeniorsTrainWeekTx, aiTransfersWeekTx } from "../utils/aiSquads.js";
-import { day1DraftOpen } from "../utils/day1Draft.js";
+import { day1DraftOpen, finishDay1DraftTx } from "../utils/day1Draft.js";
 import { loadLeagueSeasons } from "../lib/regionalLeague.js";
 import {
   rolloverSeason, yearForSeasonNumber, type RolloverResult,
@@ -47,7 +47,7 @@ import { seniorMonthlyWage } from "../utils/wageCurve.js";
 import { overallRating } from "../utils/overallRating.js";
 import { ACADEMY_CAP, academyWeeklyWage } from "../utils/academy.js";
 import { SEASON_LENGTH, seasonPhase, CONTINENTAL_ROUNDS, WORLD_TOUR_ROUNDS, FINALS_ROUNDS } from "../utils/seasonPhase.js";
-import { updateCareerStats, checkAchievements } from "../utils/check-achievements.js";
+import { updateCareerStats, checkAchievements, developedPlayers } from "../utils/check-achievements.js";
 import { weeklyRunningCost, runningCostDescription } from "../utils/runningCosts.js";
 // Rob, 23 Sep: one set of rules for every club. These are the rules — the
 // player's club is charged by the same functions that charge the other sixty
@@ -340,9 +340,15 @@ type DayResult = { status: number; body: Record<string, any> };
 async function advanceOneDay(req: Request): Promise<DayResult> {
   const team = await getActiveTeam(req);
   if (!team) return { status: 401, body: { error: "No active team" } };
-  // Update 1, item 4b: no day is played until the Day 1 draft is done.
+  // Update 1, item 4b (Rob, 14 Oct): the calendar does not move on from Day 1
+  // until he has drafted 2 or 3 seniors; playing on then closes the draft (Day
+  // 2: the AI clubs fill from what is left, the managers' faces are dealt).
   if (day1DraftOpen(req.activeCareerSaveId)) {
-    return { status: 409, body: { error: "Pick your seniors first: the Day 1 draft is open.", day1Draft: true } };
+    const cid = requireCareerSaveId(req.activeCareerSaveId);
+    const refused = withCareerStateTx((w) => finishDay1DraftTx(w, cid, team.id));
+    if (refused) return { status: 409, body: { error: refused, day1Draft: true } };
+    // Item 21: the starting squad's ratings as they join (Future Superstar).
+    await developedPlayers(team.id);
   }
 
   const season = await getActiveSeason(req);

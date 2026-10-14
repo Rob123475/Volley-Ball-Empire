@@ -9,7 +9,7 @@
  * the cap can't be made, and the card says why. He takes 2 or 3 (2 to play, an
  * optional interchange) and chooses each one's contract length. Each pick
  * signs through POST /contracts; one taken back is released (free in the
- * starting squad's first week).
+ * draft is open, an undo; an AI club's player goes back to her club).
  */
 import { useMemo, useState } from "react";
 import { useLocation } from "wouter";
@@ -112,13 +112,14 @@ export default function Day1Draft() {
   };
 
   return (
-    <div className="min-h-screen bg-background p-4 md:p-8">
-      <div className="max-w-6xl mx-auto space-y-6">
+    <div>
+      <div className="space-y-6">
         <div className="space-y-1">
           <h1 className="text-3xl font-black tracking-tight text-primary">Day 1 draft</h1>
           <p className="text-muted-foreground">
             Pick your seniors from every senior in the world: {min} to play and an optional interchange. On Day 1 nobody owns anyone, so there is no
-            transfer fee, only her wage.
+            transfer fee, only her wage. You can look round the game first; the calendar moves on from Day 1 once you have {min} or {max}, and playing on
+            closes the draft.
           </p>
           <p className={cn("text-sm", (data.wageCap?.seniorWages ?? 0) > (data.wageCap?.cap ?? 0) ? "text-red-500" : "text-muted-foreground")} data-testid="draft-wage-cap">
             Senior wages <span className="font-semibold text-foreground">{money(data.wageCap?.seniorWages ?? 0)}</span> of {money(data.wageCap?.cap ?? 0)}
@@ -130,7 +131,7 @@ export default function Day1Draft() {
             <div className="flex flex-wrap items-center justify-between gap-2">
               <p className="font-bold">Your picks ({picks.length} of {max})</p>
               <Button onClick={finish} disabled={busy || picks.length < min || picks.length > max} data-testid="draft-finish">
-                {picks.length < min ? `Pick ${min - picks.length} more to start` : "Start the season"}
+                {picks.length < min ? `Pick ${min - picks.length} more to start` : "Close the draft"}
               </Button>
             </div>
             {picks.length === 0 && <p className="text-sm text-muted-foreground">Nobody yet.</p>}

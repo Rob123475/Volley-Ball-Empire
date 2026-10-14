@@ -1,6 +1,7 @@
 import { convertRealWorldDates } from "./utils/realWorldDates.js";
 import { convertNationalitiesToCountries } from "./utils/nationalityNames.js";
 import { dealFacesToOlderCareers } from "./utils/managerFaces.js";
+import { repriceFreeAgentsOnce } from "./utils/freeAgentWages.js";
 import { giveOpenStaffContractsAnEnd } from "./utils/staffContractBackfill.js";
 import { refileScoutingLines } from "./utils/ledgerRefile.js";
 import { renameLedgerRounds } from "./utils/ledgerRoundNames.js";
@@ -286,6 +287,15 @@ try {
   if (dealt > 0) logger.info({ dealt }, "manager faces dealt to careers made before them");
 } catch (err) {
   logger.error({ err }, "dealing manager faces failed");
+}
+
+// Update 1, item 4a (Rob, 14 Oct, 4a-3): an existing career's free agents are
+// re-priced once to the wage rise above rating 77; contracts keep their wage.
+try {
+  const repriced = repriceFreeAgentsOnce();
+  if (repriced > 0) logger.info({ repriced }, "free agents re-priced to the wage rise above 77");
+} catch (err) {
+  logger.error({ err }, "re-pricing free agents failed");
 }
 
 // Overnight 30 Sep item 33b: a staff or medical hire with no contract end

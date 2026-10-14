@@ -279,8 +279,8 @@ export default function TeamRoster() {
 
   const handleRelease = (playerId: number) => {
     releaseMutation.mutate({ id: playerId }, {
-      // P-05: the server says what the release cost - nothing in a new
-      // career's first week for the starting squad, the rest of the contract after.
+      // P-05: the server says what the release cost: the rest of the contract
+      // (nothing for a Day 1 draft pick taken back while the draft is open).
       onSuccess: (data) => {
         invalidate();
         const payout = Number((data as { payout?: number }).payout ?? 0);
@@ -1035,7 +1035,7 @@ export default function TeamRoster() {
                   <AlertDialogDescription>
                     {role === "reserve"
                       ? "Are you sure you want to release this player? They will be removed from the Youth Academy and free one slot. No transfer fee is received."
-                      : "This ends their contract immediately. In a new career your starting squad can leave for free during the first game week; after that, the rest of the contract is paid out from your balance."}
+                      : "This ends their contract immediately. While the Day 1 draft is open, taking a pick back costs nothing; otherwise the rest of the contract is paid out from your balance."}
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>

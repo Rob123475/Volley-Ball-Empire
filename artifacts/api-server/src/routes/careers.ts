@@ -246,6 +246,8 @@ router.post("/careers", async (req, res) => {
       // Overnight 1 Oct, N-41: built on Rob's money numbers from the start, so the
       // boot pass for older saves (utils/moneyPass.ts) never raises it again.
       moneyPassAt:         "new career",
+      // Update 1, item 4a: its free agents start on the wage rise above 77.
+      freeAgentWagePassAt: "new career",
       lastPlayedAt:        new Date(),
     })
     .returning();

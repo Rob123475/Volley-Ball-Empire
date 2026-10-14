@@ -15,7 +15,7 @@ import { getGameDate, gameDateText } from "../utils/gameDate.js";
 import { getActiveSeason } from "../lib/getActiveSeason.js";
 import { seasonEndsFrom } from "../utils/seasonDates.js";
 import {
-  contractEndDate, renewalEndDate, releasePayout, readContractLength, STARTING_SQUAD,
+  contractEndDate, renewalEndDate, terminationPayout, readContractLength,
 } from "../utils/contractTerms.js";
 import { financeTransactionsTable } from "@workspace/db";
 import { marketPrice, youthPrice, isRevealed } from "../utils/marketScouting.js";
@@ -23,7 +23,7 @@ import { askingWage } from "../utils/wageCurve.js";
 import { monthlySalaryFor } from "../utils/clubFinances.js";
 import { overallRating } from "../utils/overallRating.js";
 import { seniorWageBill, wageCapRefusal, wageCapView } from "../utils/salaryCap.js";
-import { day1DraftOpen } from "../utils/day1Draft.js";
+import { day1DraftOpen, undoDraftPickTx } from "../utils/day1Draft.js";
 import { specialityFactor } from "../utils/managerFaces.js";
 
 const router = Router();
@@ -261,9 +261,6 @@ router.post("/contracts", async (req, res) => {
     startDate: today,
     endDate: actualEnd,
     bonusPerWin: Number(bonusPerWin ?? 0),
-    // Update 1, item 4b: a Day 1 pick is the starting squad (Rob's 28 Sep rule:
-    // it can be changed for free in the first game week).
-    ...(draftOpen ? { origin: STARTING_SQUAD } : {}),
   }).returning();
 
   // Squad membership is career state, not a property of the athlete.
@@ -488,13 +485,16 @@ router.delete("/contracts/:id", async (req, res) => {
 
   // L-02a, Rob's rule: "Club ends a contract early -> the remainder of the
   // contract is paid out from the club balance." Before this, tearing up a deal
-  // cost the club nothing at all, so there was no reason not to. P-05: except
-  // the starting squad in a new career's first game week (releasePayout).
+  // cost the club nothing at all, so there was no reason not to. Update 1, item
+  // 4b (Rob, 14 Oct): the one exception is a Day 1 draft pick taken back while
+  // the draft is open, an undo (and a player from an AI club goes back to it).
   const today = await getGameDate(team.id);
-  const payout = releasePayout(contract, today);
+  const draftUndo = day1DraftOpen(requireCareerSaveId(req.activeCareerSaveId));
+  const payout = draftUndo ? 0 : terminationPayout(Number(contract.salary), today, contract.endDate);
 
   const [terminated] = await db.update(contractsTable).set({ status: "terminated" }).where(eq(contractsTable.id, id)).returning();
   await updatePlayerState(requireCareerSaveId(req.activeCareerSaveId), contract.playerId, { teamId: null, contractEndDate: null, isActive: false, squadRole: "reserve" });
+  if (draftUndo) withCareerStateTx((w) => undoDraftPickTx(w, requireCareerSaveId(req.activeCareerSaveId), contract.playerId));
 
   if (payout > 0) {
     await db.update(teamsTable)

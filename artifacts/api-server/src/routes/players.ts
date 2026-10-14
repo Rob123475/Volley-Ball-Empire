@@ -24,7 +24,8 @@ import { specialityFactor } from "../utils/managerFaces.js";
 import { cannotAffordScout, chargeScout } from "../utils/scoutingCharge.js";
 import { generateDevelopment } from "../utils/player-development";
 import { getGameDate, gameDateText } from "../utils/gameDate.js";
-import { releasePayout } from "../utils/contractTerms.js";
+import { terminationPayout } from "../utils/contractTerms.js";
+import { day1DraftOpen, undoDraftPickTx } from "../utils/day1Draft.js";
 
 const router = Router();
 
@@ -508,11 +509,14 @@ router.post("/players/:id/release", async (req, res) => {
   // "no longer in your squad" refusal when the club tried to renew it.
   //
   // P-05: and it is paid out, on the same rule as terminating it from the
-  // Contracts page (releasePayout) — free for the starting squad in a new
-  // career's first game week, the rest of the contract after that. Release
-  // used to cost nothing at all, whenever it happened, which made it the way
-  // round the 22 Sep payout rule. An academy player's release stays free, as
-  // it always has been: the academy's own terms, not a squad contract.
+  // Contracts page: the rest of the contract. Release used to cost nothing at
+  // all, whenever it happened, which made it the way round the 22 Sep payout
+  // rule. An academy player's release stays free, as it always has been: the
+  // academy's own terms, not a squad contract. Update 1, item 4b (Rob, 14 Oct):
+  // a Day 1 draft pick taken back while the draft is open is an undo, free, and
+  // a player from an AI club goes back to it (the old free first-week release
+  // for the automatic starting squad is gone).
+  const draftUndo = day1DraftOpen(requireCareerSaveId(req.activeCareerSaveId));
   let payout = 0;
   if (before?.teamId != null) {
     const [open] = await db.select().from(contractsTable).where(and(
@@ -522,7 +526,7 @@ router.post("/players/:id/release", async (req, res) => {
     ));
     if (open && before.academyContractYears == null) {
       const today = await getGameDate(before.teamId);
-      payout = releasePayout(open, today);
+      payout = draftUndo ? 0 : terminationPayout(Number(open.salary), today, open.endDate);
       if (payout > 0) {
         const [club] = await db.select({ budget: teamsTable.budget }).from(teamsTable).where(eq(teamsTable.id, before.teamId));
         await db.update(teamsTable).set({ budget: Number(club?.budget ?? 0) - payout }).where(eq(teamsTable.id, before.teamId));
@@ -544,6 +548,8 @@ router.post("/players/:id/release", async (req, res) => {
         eq(contractsTable.status, "active"),
       ));
   }
+
+  if (draftUndo && before?.teamId != null) withCareerStateTx((w) => undoDraftPickTx(w, requireCareerSaveId(req.activeCareerSaveId), id));
 
   const player = await loadPlayer(requireCareerSaveId(req.activeCareerSaveId), id);
 

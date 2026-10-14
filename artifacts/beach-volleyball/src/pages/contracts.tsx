@@ -248,7 +248,7 @@ export default function Contracts() {
                             <AlertDialogHeader>
                               <AlertDialogTitle>Terminate Contract?</AlertDialogTitle>
                               <AlertDialogDescription>
-                                Are you sure you want to terminate {c.player?.name ?? "this player"}'s contract? In a new career your starting squad can leave for free during the first game week; after that, the rest of the contract is paid out from your balance.
+                                Are you sure you want to terminate {c.player?.name ?? "this player"}'s contract? While the Day 1 draft is open, taking a pick back costs nothing; otherwise the rest of the contract is paid out from your balance.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>

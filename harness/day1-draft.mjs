@@ -2,12 +2,16 @@
  * Update 1, item 4b (Rob, 14 Oct, C-5 B; docs/UPDATE1-SALARY-CAP-BRIEF.md):
  * the Day 1 draft.
  *
- *   1. a new career has no automatic squad, and no day is played until he drafts
+ *   1. a new career has no automatic squad, and the calendar won't move on
+ *      from Day 1 until he has 2 or 3 (the screen is not forced: the
+ *      Dashboard warns); playing on then closes the draft (Rob, 14 Oct)
  *   2. the draft list holds every senior in the world: the free agents and every
  *      AI club's seniors, each with her rating, nationality, age and wage (10%
  *      less for a Contracts Expert)
  *   3. a pick over the salary cap is refused; more than three, or closing with
- *      fewer than two, too
+ *      fewer than two, too; a pick taken back while the draft is open is a free
+ *      undo, and one from an AI club goes back to it (Rob, 14 Oct); after Day 1
+ *      a release pays out as normal (the old free first week is gone)
  *   4. he can take an AI club's star, for her wage and no fee; that club then
  *      fills its gap from the free agents
  *   5. no player ends up at two clubs
@@ -134,10 +138,25 @@ try {
   const budget0 = Number((await A("GET", "/team")).data.budget);
   check("no transfer fee on Day 1: the budget is untouched by the picks", q(`SELECT COUNT(*) AS n FROM finance_transactions WHERE team_id = ? AND category = 'signing_fee'`, a.teamId)[0].n === 0);
   await A("POST", `/players/${big2.id}/release`, {});
-  check("a pick taken back is free (the starting squad's first week) and back on the list",
+  check("a pick taken back while the draft is open is an undo: free, and she is back on the list",
     Number((await A("GET", "/team")).data.budget) === budget0 && (await A("GET", "/day1-draft")).data.players.some((c) => c.id === big2.id));
+  // Rob, 14 Oct (4b-1): one taken from an AI club goes back to that club, on her wage there.
+  const aiPick = [...d0.players].filter((c) => c.club != null && c.wage <= CAP - big1.wage).sort((x, y) => x.wage - y.wage)[0];
+  const aiPickWas = world.find((p) => p.id === aiPick.id);
+  await pick(A, aiPick, "starter");
+  await A("DELETE", `/contracts/${((await A("GET", "/contracts")).data ?? []).find((c) => c.playerId === aiPick.id)?.id}`);
+  const aiPickNow = q(`SELECT team_id AS team, pool_team_id AS club, salary FROM career_player_state WHERE career_save_id = ? AND player_id = ?`, a.cid, aiPick.id)[0];
+  check("a pick taken back from an AI club goes back to that club, on her wage there, free (Terminate on the Contracts page too)",
+    aiPickNow.team == null && aiPickNow.club === aiPickWas.club && Number(aiPickNow.salary) === Number(aiPickWas.salary) && Number((await A("GET", "/team")).data.budget) === budget0,
+    `${aiPick.name}: club ${aiPickWas.club} -> ${aiPickNow.club}, ${$(aiPickNow.salary)}`);
   const shortFinish = await A("POST", "/day1-draft/finish", {});
   check("closing with fewer than two is refused", shortFinish.status === 422 && /Pick 2 or 3/.test(shortFinish.data?.error ?? ""), shortFinish.data?.error);
+  const shortDay = await A("POST", "/calendar/advance", {});
+  check("and the calendar won't move on from Day 1 with fewer than two", shortDay.status === 409 && shortDay.data?.day1Draft === true && /Pick 2 or 3/.test(shortDay.data?.error ?? ""), shortDay.data?.error);
+  const shellSrc = fs.readFileSync(path.join(REPO, "artifacts", "beach-volleyball", "src", "components", "layout", "shell.tsx"), "utf8");
+  const dashSrc = fs.readFileSync(path.join(REPO, "artifacts", "beach-volleyball", "src", "pages", "dashboard.tsx"), "utf8");
+  check("(source) the draft screen is not forced; the Dashboard warns, with a button to it",
+    !/day1-draft/.test(shellSrc) && /data-testid="day1-draft-warning"/.test(dashSrc) && /navigate\("\/day1-draft"\)/.test(dashSrc));
 
   // ── 4. An AI club's star ───────────────────────────────────────────────────
   console.log("\n4. HE CAN TAKE AN AI CLUB'S STAR; HER CLUB FILLS ITS GAP FROM THE FREE AGENTS");
@@ -158,6 +177,9 @@ try {
     starClubNow.length >= 2 && !starClubNow.some((p) => p.id === star.id) && !!filler && world.find((p) => p.id === filler.id)?.club == null,
     `club now ${starClubNow.length} seniors, the new one ${filler?.id}`);
   check("and the calendar runs now", (await A("POST", "/calendar/advance", {})).status === 200);
+  // After Day 1 the normal release rules apply (the old free first week is gone).
+  const release = await A("POST", `/players/${big1.id}/release`, {});
+  check("after the draft, releasing a pick pays out the rest of her contract", release.status === 200 && Number(release.data?.payout ?? 0) > 0, `payout ${$(release.data?.payout ?? 0)}`);
   check("the AI managers' faces were dealt after the draft", q(`SELECT COUNT(*) AS n FROM career_pool_team_state WHERE career_save_id = ? AND manager_face_id IS NOT NULL AND manager_name IS NOT NULL`, a.cid)[0].n === 60);
 
   // ── 5 and 6. The world after ───────────────────────────────────────────────
@@ -189,6 +211,19 @@ try {
     `fourth: HTTP ${fourth.status} ${fourth.data?.error ?? ""}`);
 
   // ── 7. An old save ─────────────────────────────────────────────────────────
+  // ── Playing on closes the draft (Rob, 14 Oct) ──────────────────────────────
+  console.log("\n6b. PLAYING ON FROM DAY 1 CLOSES THE DRAFT");
+  const C = session();
+  const c = await newCareer(C, "Draft C");
+  const dC = (await C("GET", "/day1-draft")).data;
+  for (const [i, p] of [...dC.players].filter((x) => x.club == null).sort((x, y) => x.wage - y.wage).slice(0, 2).entries()) await pick(C, p, i < 2 ? "starter" : "interchange");
+  const day2 = await C("POST", "/calendar/advance", {});
+  const squadsC = aiSquads(c.cid);
+  check("with two drafted, the calendar moves on to Day 2 and that closes the draft: the AI clubs fill, the faces are dealt",
+    day2.status === 200 && q(`SELECT day1_draft AS d FROM career_saves WHERE id = ?`, c.cid)[0].d === "done" && [...squadsC.values()].every((l) => l.length >= 2)
+      && q(`SELECT COUNT(*) AS n FROM career_pool_team_state WHERE career_save_id = ? AND manager_face_id IS NOT NULL`, c.cid)[0].n === 60,
+    `HTTP ${day2.status} ${day2.data?.error ?? ""}`);
+
   console.log("\n7. A CAREER MADE BEFORE THE DRAFT NEVER SEES IT");
   w(`UPDATE career_saves SET day1_draft = NULL WHERE id = ?`, b.cid);
   check("its draft is closed to it, and its calendar runs", (await B("GET", "/day1-draft")).data?.open === false && (await B("POST", "/calendar/advance", {})).status === 200);

@@ -66,6 +66,7 @@ import {
   Home,
 } from "lucide-react";
 import { CareerOptionsMenu } from "@/components/career/CareerOptionsMenu";
+import { useDay1Draft } from "@/pages/day1-draft";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -275,6 +276,8 @@ function OlympicDashboardWidget() {
 // ── Main Dashboard ─────────────────────────────────────────────────────────────
 export default function Dashboard() {
   const [, navigate] = useLocation();
+  // Update 1, item 4b: the Day 1 draft is not forced; the Dashboard says so.
+  const { data: day1Draft } = useDay1Draft();
   const queryClient = useQueryClient();
   const [showCareerOptions, setShowCareerOptions] = useState(false);
   const [facilitiesOpen,   setFacilitiesOpen]   = useState(false);
@@ -394,6 +397,21 @@ export default function Dashboard() {
   return (
     <>
     <div className="space-y-5">
+
+      {day1Draft?.open && (
+        <Card className="border-amber-500/50 bg-amber-500/10" data-testid="day1-draft-warning">
+          <CardContent className="p-4 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="font-bold">Day 1: pick your seniors</p>
+              <p className="text-sm text-muted-foreground">
+                The calendar won't move on until you have drafted {day1Draft.min ?? 2} or {day1Draft.max ?? 3} seniors (you have {day1Draft.picks?.length ?? 0}).
+                Playing on from Day 1 then closes the draft and the AI clubs fill from what's left.
+              </p>
+            </div>
+            <Button onClick={() => navigate("/day1-draft")} data-testid="day1-draft-go">Go to the Day 1 draft</Button>
+          </CardContent>
+        </Card>
+      )}
 
       {/* ══════════════════════════════════════════════════════════════
           THE BOARD — always shown (R-53): what it expects this season and

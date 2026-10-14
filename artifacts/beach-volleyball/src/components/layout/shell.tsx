@@ -34,7 +34,6 @@ import {
 } from "@workspace/api-client-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useState, useEffect, useRef } from "react";
-import { useDay1Draft } from "@/pages/day1-draft";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useToast } from "@/hooks/use-toast";
 import { MusicBar } from "@/components/music/music-bar";
@@ -375,21 +374,9 @@ function AchievementWatcher() {
   return null;
 }
 
-/**
- * Update 1, item 4b: while the active career's Day 1 draft is open, no screen
- * but the draft: the player picks his seniors before the first day.
- */
-function Day1DraftGate() {
-  const [, navigate] = useLocation();
-  const { data } = useDay1Draft();
-  useEffect(() => { if (data?.open) navigate("/day1-draft"); }, [data?.open, navigate]);
-  return null;
-}
-
 export function Shell({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex flex-col lg:flex-row min-h-screen bg-background">
-      <Day1DraftGate />
       <AchievementWatcher />
       <MatchDayModal />
       <Sidebar />

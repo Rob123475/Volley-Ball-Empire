@@ -151,12 +151,6 @@ function Router() {
       <Route path="/career-end" component={CareerEnd} />
       {/* L-02e: the club was sold. The career is not over — this is where it carries on. */}
       <Route path="/job-market" component={JobMarket} />
-      {/* Update 1, item 4b: the Day 1 draft, full screen, before the first day. */}
-      <Route path="/day1-draft">
-        <AuthGuard>
-          <Day1Draft />
-        </AuthGuard>
-      </Route>
       {/* Court page rendered outside Shell — full viewport, no sidebar */}
       <Route path="/court">
         <AuthGuard>
@@ -174,6 +168,8 @@ function Router() {
             <Switch>
               {/* ── Primary hub routes (sidebar links) ── */}
               <Route path="/"            component={Dashboard}    />
+              {/* Update 1, item 4b: the Day 1 draft (not forced: the Dashboard warns, the calendar waits). */}
+              <Route path="/day1-draft"  component={Day1Draft}    />
               <Route path="/team"        component={TeamHub}      />
               <Route path="/players"     component={PlayerMarket} />
               <Route path="/staff"       component={StaffHub}     />

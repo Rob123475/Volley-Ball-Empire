@@ -326,10 +326,9 @@ runSuite("staff bonuses", path.join(REPO, "harness", "staff-bonuses.mjs"));
 console.log("\n########## 46/100  STAFF RENAMES REACH EXISTING SAVES (P-11) ##########");
 runSuite("staff name sync", path.join(REPO, "harness", "staff-name-sync.mjs"));
 
-// P-05: a new career's starting squad can be changed for free in week 1, and
-// only then - both ways of dropping a player, measured in the balance.
-console.log("\n########## 47/100  STARTING SQUAD: FREE CHANGES IN WEEK 1 ONLY (P-05) ##########");
-runSuite("starting squad release", path.join(REPO, "harness", "starting-squad-release.mjs"));
+// P-05's free week-1 release was for the automatic starting squad, which
+// Update 1, item 4b deleted (Rob, 14 Oct): harness/day1-draft.mjs tests the
+// draft's undo and the normal payout after Day 1 (starting-squad-release.mjs is gone).
 
 // D-1: a building under construction is never offered as "Upgrade Ready", and
 // a finished build is collected by the clock, not by opening the Facilities

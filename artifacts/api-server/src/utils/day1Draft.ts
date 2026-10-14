@@ -7,7 +7,13 @@
  * seniors. On Day 1 no club owns anyone, so there is no transfer fee, only the
  * wage (her asking wage, 10% less for a Contracts Expert), and the salary cap
  * holds. Each pick signs through POST /contracts (routes/contracts.ts, which
- * knows the draft is open). He must take 2 or 3.
+ * knows the draft is open). He must take 2 or 3; a pick taken back while the
+ * draft is open is an undo (undoDraftPickTx).
+ *
+ * Rob, 14 Oct: the draft screen is not forced; the Dashboard warns, and the
+ * calendar does not move on from Day 1 until he has 2 or 3 (routes/calendar.ts).
+ * Playing on closes it (finishDay1DraftTx; POST /day1-draft/finish does the
+ * same without playing a day).
  *
  * Then (Day 2) each AI club keeps the seniors he did not take, and every club
  * with a gap fills it from what is left by item 4a's rule (keepAiSquadsTx:
@@ -17,7 +23,7 @@
  * A career made before the draft (career_saves.day1_draft null) never sees it.
  */
 import {
-  db, careerSavesTable, careerPlayerStateTable, playersTable, continentalPoolTeamsTable, seasonsTable,
+  db, careerSavesTable, careerPlayerStateTable, playersTable, continentalPoolTeamsTable, seasonsTable, poolPlayerContractsTable,
 } from "@workspace/db";
 import { and, asc, eq, isNull, or } from "drizzle-orm";
 import type { CareerStateTx } from "../lib/playerDto.js";
@@ -113,4 +119,25 @@ export function finishDay1DraftTx(w: CareerStateTx, careerSaveId: number, teamId
   recordFreeFacesTx(w.tx, careerSaveId, season.start);
   w.tx.update(careerSavesTable).set({ day1Draft: "done" }).where(eq(careerSavesTable.id, careerSaveId)).run();
   return null;
+}
+
+/**
+ * Rob, 14 Oct (4b-1, 4b-2): while the draft is open a pick can be taken back,
+ * as an undo: it costs nothing, and a player who came from an AI club goes back
+ * to that club on the wage she was on there. (The old free first-week release,
+ * for the automatic starting squad, is gone; after Day 1 the normal release
+ * rules apply.) Call after her contract has ended.
+ */
+export function undoDraftPickTx(w: CareerStateTx, careerSaveId: number, playerId: number): void {
+  const row = w.tx.select({ poolPlayerId: careerPlayerStateTable.poolPlayerId }).from(careerPlayerStateTable)
+    .where(and(eq(careerPlayerStateTable.careerSaveId, careerSaveId), eq(careerPlayerStateTable.playerId, playerId))).get();
+  if (row?.poolPlayerId == null) return;
+  const club = w.tx.select({ poolTeamId: poolPlayerContractsTable.poolTeamId, salary: poolPlayerContractsTable.salary, endDate: poolPlayerContractsTable.endDate })
+    .from(poolPlayerContractsTable).where(and(
+      eq(poolPlayerContractsTable.careerSaveId, careerSaveId), eq(poolPlayerContractsTable.poolPlayerId, row.poolPlayerId))).get();
+  if (!club) return;
+  w.setPlayerState(careerSaveId, playerId, {
+    teamId: null, poolTeamId: club.poolTeamId, salary: Number(club.salary), contractEndDate: club.endDate || null,
+    isActive: false, squadRole: "starter", poolJoinedOn: null,
+  });
 }
