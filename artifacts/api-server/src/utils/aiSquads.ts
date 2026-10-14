@@ -383,7 +383,8 @@ function signToAiClub(w: CareerStateTx, careerSaveId: number, poolTeamId: number
   const length = lengthForRating(clubRating(w.tx, poolTeamId));
   w.setPlayerState(careerSaveId, playerId, {
     teamId: null, poolTeamId, salary: askingWage(monthlySalaryFor(rating), 1, injuryWeeks), contractEndDate: contractEndDate(length, today, seasonEnds),
-    isActive: false, squadRole: "starter", academyRole: null, scoutStartedOn: null, scoutReportBy: null,
+    // Overnight part 4 (B-3): the player's scout reports on her stay with her.
+    isActive: false, squadRole: "starter", academyRole: null,
     poolJoinedOn: today,
   });
 }

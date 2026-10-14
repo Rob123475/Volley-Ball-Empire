@@ -32,6 +32,7 @@ import { aiAcademiesWeekTx, loansTx, recordTeamLoanWeekTx, returnDueLoansTx, tea
 import { materializeAiSeniorsTx, aiSeniorsTrainWeekTx, aiTransfersWeekTx } from "../utils/aiSquads.js";
 import { day1DraftOpen, finishDay1DraftTx } from "../utils/day1Draft.js";
 import { aiStaffDayTx, STAFF_BACK_ON_MARKET } from "../utils/aiStaff.js";
+import { applyDueScoutReportsTx } from "../utils/scoutReports.js";
 import { loadLeagueSeasons } from "../lib/regionalLeague.js";
 import {
   rolloverSeason, yearForSeasonNumber, type RolloverResult,
@@ -795,6 +796,8 @@ async function advanceOneDay(req: Request): Promise<DayResult> {
   // coach and a medical member each from the market; every day after, their
   // ended contracts go back to the market and a club with a gap fills it.
   withCareerStateTx((w) => aiStaffDayTx(w, expiryCareerId, nextDate));
+  // 5d. Update 1, overnight part 4 (B-3): a re-scout whose report is in becomes her report.
+  withCareerStateTx((w) => applyDueScoutReportsTx(w, expiryCareerId, nextDate));
 
   // 6. Advance the date
   await db.update(calendarStateTable)

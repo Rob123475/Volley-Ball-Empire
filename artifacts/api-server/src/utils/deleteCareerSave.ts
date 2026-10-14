@@ -10,6 +10,8 @@ import {
   boardSeasonsTable,
   poolClubSeasonsTable,
   careerManagerFacesTable,
+  careerScoutReportsTable,
+  careerWatchListTable,
   poolPlayerContractsTable,
   careerHistoryEntriesTable,
   olympicTournamentsTable,
@@ -63,6 +65,9 @@ export function deleteCareerSave(careerSaveId: number, tx?: DbTx): void {
     t.delete(poolPlayerContractsTable).where(eq(poolPlayerContractsTable.careerSaveId, careerSaveId)).run();
     t.delete(poolClubSeasonsTable).where(eq(poolClubSeasonsTable.careerSaveId, careerSaveId)).run();
     t.delete(careerManagerFacesTable).where(eq(careerManagerFacesTable.careerSaveId, careerSaveId)).run();
+    // Update 1, overnight part 4 (B-3): the scout reports and the watch list (NOT NULL).
+    t.delete(careerScoutReportsTable).where(eq(careerScoutReportsTable.careerSaveId, careerSaveId)).run();
+    t.delete(careerWatchListTable).where(eq(careerWatchListTable.careerSaveId, careerSaveId)).run();
     // R-61: the Olympic tournaments reference the save (NOT NULL); medals and
     // matches reference their tournament, so they go first.
     t.delete(olympicMedalsTable).where(eq(olympicMedalsTable.careerSaveId, careerSaveId)).run();

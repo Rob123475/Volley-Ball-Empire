@@ -551,6 +551,34 @@ export const careerManagerFacesTable = sqliteTable("career_manager_faces", {
 ]);
 
 /**
+ * Update 1, overnight part 4 (Rob, 14 Oct, B-3): every scout report on a
+ * player, kept for good: the game date the scout was sent and the date the
+ * report is in (5 game days on), her rating when he was sent and his reading of
+ * her potential. The card shows the history ("Mar 2027 71 → Jun 73 → Sep 76").
+ * The latest report in is what career_player_state.scouted_potential holds.
+ */
+export const careerScoutReportsTable = sqliteTable("career_scout_reports", {
+  id:           integer("id").primaryKey({ autoIncrement: true }),
+  careerSaveId: integer("career_save_id").notNull().references(() => careerSavesTable.id),
+  playerId:     integer("player_id").notNull().references(() => playersTable.id),
+  startedOn:    text("started_on").notNull(),
+  readyOn:      text("ready_on").notNull(),
+  rating:       integer("rating").notNull(),
+  potential:    text("potential").notNull(),
+  scoutName:    text("scout_name"),
+});
+
+/** Update 1, overnight part 4 (B-3): the players this career's manager watches (a star on any card). */
+export const careerWatchListTable = sqliteTable("career_watch_list", {
+  id:           integer("id").primaryKey({ autoIncrement: true }),
+  careerSaveId: integer("career_save_id").notNull().references(() => careerSavesTable.id),
+  playerId:     integer("player_id").notNull().references(() => playersTable.id),
+  addedOn:      text("added_on"),
+}, (t) => [
+  uniqueIndex("career_watch_list_unique").on(t.careerSaveId, t.playerId),
+]);
+
+/**
  * An AI club's player, under contract, on one of the three lengths.
  *
  * Rob's rule is that every player at every club is on a 6m/1s/2s deal, and a

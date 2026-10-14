@@ -22,6 +22,8 @@ import { marketView, marketPrice, scoutState, youthPrice, SCOUT_DAYS, SCOUT_COST
 import { askingWage, freeAgentInjuryWeeks } from "../utils/wageCurve.js";
 import { specialityFactor } from "../utils/managerFaces.js";
 import { cannotAffordScout, chargeScout } from "../utils/scoutingCharge.js";
+import { overallRating } from "../utils/overallRating.js";
+import { recordScoutReportTx, scoutReportsByPlayerTx, scoutHistoryView, watchedTx, setWatchedTx } from "../utils/scoutReports.js";
 import { generateDevelopment } from "../utils/player-development";
 import { getGameDate, gameDateText } from "../utils/gameDate.js";
 import { terminationPayout } from "../utils/contractTerms.js";
@@ -398,6 +400,9 @@ router.get("/players/market-all", async (req, res) => {
   // ones it pays (utils/marketScouting.ts marketPrice, utils/wageCurve.ts askingWage).
   const negotiator = specialityFactor(myTeamId, "Negotiator");
   const contractsExpert = specialityFactor(myTeamId, "Contracts Expert");
+  // Update 1, overnight part 4 (B-3): every scout report she has had, and the watch list's star.
+  const reports = db.transaction((tx) => scoutReportsByPlayerTx(tx, careerSaveId));
+  const watched = db.transaction((tx) => watchedTx(tx, careerSaveId));
   const result = all.map(p => {
     let status: "signed" | "free_agent" | "player_pool" | "transfer_available" | "ai_club";
     if (p.poolTeamId != null && !p.teamId) {
@@ -423,6 +428,8 @@ router.get("/players/market-all", async (req, res) => {
       currentTeamId: p.teamId ?? null,
       /** U-6: the AI club she plays for, when she is at one. */
       aiClubId: p.teamId ? null : (p.poolTeamId ?? null),
+      ...scoutHistoryView(reports.get(p.id), currentDate),
+      watched: watched.has(p.id),
     };
   });
 
@@ -621,6 +628,30 @@ router.post("/players/:id/retire", async (req, res) => {
   res.json(serializePlayer(retired));
 });
 
+/**
+ * Update 1, overnight part 4 (B-3): the Watch list. A star on any player's
+ * card, at any club or none: { watch: true } stars her, { watch: false } takes
+ * the star off. GET /watch-list lists the ids.
+ */
+router.get("/watch-list", async (req, res) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const cid = requireCareerSaveId(req.activeCareerSaveId);
+  res.json({ playerIds: [...db.transaction((tx) => watchedTx(tx, cid))] });
+});
+
+router.post("/players/:id/watch", async (req, res) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const cid = requireCareerSaveId(req.activeCareerSaveId);
+  const playerId = parseInt(req.params.id);
+  const player = await loadPlayer(cid, playerId);
+  if (!player) { res.status(404).json({ error: "Player not found" }); return; }
+  const team = await getActiveTeam(req);
+  const today = team ? await getGameDate(team.id) : "0000-01-01";
+  const watch = req.body?.watch !== false;
+  db.transaction((tx) => setWatchedTx(tx, cid, playerId, watch, today));
+  res.json({ playerId, watched: watch });
+});
+
 router.post("/players/:id/scout", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
 
@@ -651,15 +682,21 @@ router.post("/players/:id/scout", async (req, res) => {
   }
 
   // Unity brief item 15: scouting takes SCOUT_DAYS game days; then her exact
-  // price, attributes and potential show on her card. It was instant, free and
-  // could be repeated to re-roll the potential.
+  // price, attributes and potential show on her card. Update 1, overnight part
+  // 4 (B-3): once a report is in she can be scouted again whenever the club
+  // likes, same price and days; every report is kept (utils/scoutReports.ts).
+  // One scout at a time on her.
   if (player.teamId === team.id) { res.status(400).json({ error: `${player.name} is already in your squad.` }); return; }
+  const cid = requireCareerSaveId(req.activeCareerSaveId);
   const today = await getGameDate(team.id);
   const now = scoutState(player, today);
-  if (now.state !== "none") {
-    res.status(409).json({ error: now.state === "done" ? `${player.name} has already been scouted.` : `${player.name} is already being scouted: ${now.daysLeft} day${now.daysLeft === 1 ? "" : "s"} left.`, scouting: now });
+  const out = now.state === "in_progress" ? now
+    : scoutHistoryView(db.transaction((tx) => scoutReportsByPlayerTx(tx, cid)).get(playerId), today).rescouting;
+  if (out) {
+    res.status(409).json({ error: `${player.name} is already being scouted: ${out.daysLeft} day${out.daysLeft === 1 ? "" : "s"} left.`, scouting: { state: "in_progress", readyOn: out.readyOn, daysLeft: out.daysLeft } });
     return;
   }
+  const rescout = now.state === "done";
 
   // Overnight 30 Sep, item 4: a scout costs SCOUT_COST, charged when sent;
   // overnight 1 Oct, N-34: a youth costs YOUTH_SCOUT_COST ($500).
@@ -674,12 +711,16 @@ router.post("/players/:id/scout", async (req, res) => {
   const scoutReportBy = `${bestScout.name} (Scouting ${scoutRating})`;
 
   const budgetAfter = chargeScout(team, `Scouting: ${player.name}`, today, cost);
-  await updatePlayerState(requireCareerSaveId(req.activeCareerSaveId), playerId, { scoutedPotential, scoutStartedOn: today, scoutReportBy });
+  // B-3: the report is kept. A first scout starts her clock as before; a
+  // re-scout leaves her card as it is until the new report is in.
+  db.transaction((tx) => recordScoutReportTx(tx, cid, playerId, { startedOn: today, rating: overallRating(player), potential: scoutedPotential, scoutName: scoutReportBy }));
+  if (!rescout) await updatePlayerState(cid, playerId, { scoutedPotential, scoutStartedOn: today, scoutReportBy });
   const scouting = scoutState({ scoutStartedOn: today, scoutedPotential }, today);
 
   res.json({
     playerId,
     scouting,
+    rescout,
     days:        SCOUT_DAYS,
     cost,
     budgetAfter,

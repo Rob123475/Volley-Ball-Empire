@@ -604,6 +604,10 @@ runSuite("ai staff", path.join(REPO, "harness", "ai-staff.mjs"));
 console.log("\n########## 98i/100  AI INJURIES AND THE INJURED BARGAIN (UPDATE 1, ITEM 4c) ##########");
 runSuite("ai injuries", path.join(REPO, "harness", "ai-injuries.mjs"));
 
+// Update 1, overnight part 4 (B-3): the Watch list, re-scouting and every report kept.
+console.log("\n########## 98j/100  THE WATCH LIST AND SCOUTING HISTORY (UPDATE 1, OVERNIGHT B-3) ##########");
+runSuite("scouting history", path.join(REPO, "harness", "scouting-history.mjs"));
+
 // ── Smoke needs a server; boot one on a throwaway copy of the shipped DB ─────
 console.log("\n########## 99/100  GAMEPLAY SMOKE ##########");
 {

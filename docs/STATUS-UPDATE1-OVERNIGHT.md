@@ -185,3 +185,24 @@ page's preview (aliased `@shared/ageing`, as money.ts is now `@shared/money`).
 - Suites changed knowingly: ai-training.mjs's XP oracle now uses the age table, the profile, serious
   injuries and the AI club's staff bonus; its "nothing else moved" check no longer includes injuries
   (AI players are hurt in matches now).
+
+### Part 4, B-3: watching players (done, not yet run)
+
+- **Watch list:** a star on every Player Market card (any club or none), and a **Watch List** tab on
+  the Player Market. Stored per career (`career_watch_list`; `GET /watch-list`,
+  `POST /players/:id/watch {watch}`).
+- **Re-scouting** whenever the club likes once a report is in, at the same price and 5 days. One scout
+  at a time on a player (a second while one is out is refused, as before).
+- **Every report is kept** (`career_scout_reports`: sent, in, her rating, the scout's potential reading).
+  The card shows the history, oldest first ("Mar 2027 71 → Jun 73 → Sep 76", then the latest potential
+  reading). While a re-scout is out the card keeps the old report and says the new one is coming; when
+  it is in it becomes her report (`applyDueScoutReportsTx`, every game day).
+- **Reports no longer lapse:** `lapseMarketScouting` and its call in the rollover are deleted. (Staff
+  and medical scouting still lapse, as the brief didn't mention them.)
+- **AI clubs' players and moved players:** scouting is per career and player, whoever she plays for, so
+  an AI club's player is scouted like a free agent. **One thing was wrong:** when an AI club signed a
+  player, it cleared the player's scouting (`signToAiClub`), so a scouted free agent who moved to an AI
+  club lost her report. That clearing is removed. New suite **harness/scouting-history.mjs** (run-all 98j)
+  checks both; player-market.mjs's season-end check now expects the report kept (knowingly changed).
+- The Watch list stars the senior market's cards; the youth pool's cards don't have one (the youth pool
+  is its own list).
