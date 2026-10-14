@@ -27,10 +27,10 @@
  */
 import {
   careerPlayerStateTable, playersTable, youthLoansTable, careerPoolTeamStateTable,
-  continentalPoolTeamsTable, teamsTable, CORE_NATIONS, type ContinentKey,
+  continentalPoolTeamsTable, teamsTable, contractsTable, calendarStateTable, CORE_NATIONS, type ContinentKey,
 } from "@workspace/db";
 import { and, eq, inArray, isNotNull, isNull, or } from "drizzle-orm";
-import type { CareerStateTx } from "../lib/playerDto.js";
+import { withCareerStateTx, type CareerStateTx } from "../lib/playerDto.js";
 import { ACADEMY_CAP, ACADEMY_YOUTH_TEAM, RESERVE_COURT_SHARE } from "./squadRules.js";
 import { academyWeeklyWage } from "./academy.js";
 import { academyWeek } from "./academyDevelopment.js";
@@ -471,4 +471,46 @@ export function withdrawGraduatedListingsTx(tx: Tx, careerSaveId: number, player
     eq(youthLoansTable.careerSaveId, careerSaveId), eq(youthLoansTable.status, "listed"),
     inArray(youthLoansTable.playerId, playerIds),
   )).run();
+}
+
+/**
+ * Update 1, 15 Oct (O-5): an academy youth's academy deal in years, from today to
+ * her contract's end (the Team page's academy card counts it down, as a renewal
+ * sets it in routes/contracts.ts). Null for anyone who is not an academy youth.
+ */
+export function academyYearsFor(
+  p: { playerType?: string | null; isPromoted?: boolean | null; academyRole?: string | null },
+  endDate: string, today: string,
+): number | null {
+  if (p.playerType !== "youth" || p.isPromoted || p.academyRole == null) return null;
+  return Number(Math.max(0, (Date.parse(`${endDate}T00:00:00Z`) - Date.parse(`${today}T00:00:00Z`)) / (365 * 86_400_000)).toFixed(2));
+}
+
+/**
+ * Boot (Update 1, 15 Oct, O-5): a save that took over a club before the fix has
+ * its academy youths on ordinary contracts; each is given the academy's terms
+ * (academyContractYears to her contract's end), once. Returns how many.
+ */
+export function repairTakeoverYouthContracts(): number {
+  return withCareerStateTx((w) => {
+    const rows = w.tx.select({
+      cid: careerPlayerStateTable.careerSaveId, id: careerPlayerStateTable.playerId, teamId: careerPlayerStateTable.teamId,
+      academyRole: careerPlayerStateTable.academyRole, isPromoted: careerPlayerStateTable.isPromoted,
+      playerType: playersTable.playerType, endDate: contractsTable.endDate, today: calendarStateTable.currentDate,
+    }).from(careerPlayerStateTable)
+      .innerJoin(playersTable, eq(playersTable.id, careerPlayerStateTable.playerId))
+      .innerJoin(contractsTable, and(eq(contractsTable.playerId, careerPlayerStateTable.playerId), eq(contractsTable.teamId, careerPlayerStateTable.teamId), eq(contractsTable.status, "active")))
+      .innerJoin(calendarStateTable, eq(calendarStateTable.teamId, careerPlayerStateTable.teamId))
+      .where(and(isNotNull(careerPlayerStateTable.teamId), isNull(careerPlayerStateTable.academyContractYears),
+        isNotNull(careerPlayerStateTable.academyRole), eq(careerPlayerStateTable.isPromoted, false), eq(playersTable.playerType, "youth")))
+      .all();
+    let n = 0;
+    for (const r of rows) {
+      const years = academyYearsFor(r, r.endDate, r.today);
+      if (years == null) continue;
+      w.setPlayerState(r.cid, r.id, { academyContractYears: years });
+      n++;
+    }
+    return n;
+  });
 }

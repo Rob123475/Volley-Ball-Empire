@@ -213,6 +213,25 @@ try {
   check("same career, same manager, no 'seeking a club' state", save.team_id === team.id && save.manager_name === "Rob Bonner" && save.retired_at == null && save.seeking_club_since == null);
   check("his achievements and level came with him", q(`SELECT COUNT(*) AS n FROM achievements WHERE team_id = ?`, team.id)[0].n >= achBefore && q(`SELECT manager_rep_points AS p FROM teams WHERE id = ?`, team.id)[0].p >= 1500, `${achBefore} before, ${q(`SELECT COUNT(*) AS n FROM achievements WHERE team_id = ?`, team.id)[0].n} now (the season's end may add one)`);
   check("with two starters at the new club", q(`SELECT COUNT(*) AS n FROM career_player_state WHERE career_save_id = ? AND team_id = ? AND squad_role = 'starter'`, cid, team.id)[0].n === 2);
+  // Update 1, 15 Oct (O-5): the takeover path on purpose. The AI club's academy youths come on the
+  // academy's terms, not as ordinary contracts; one sent out (as a loan moves her) is then no
+  // "no longer in your squad" renewal: the Contracts page doesn't offer her as an ordinary deal.
+  {
+    const youths = q(`SELECT s.player_id AS id, s.academy_contract_years AS y FROM career_player_state s JOIN players p ON p.id = s.player_id
+      WHERE s.career_save_id = ? AND s.team_id = ? AND p.player_type = 'youth' AND s.is_promoted = 0 AND s.academy_role IS NOT NULL`, cid, team.id);
+    check("the taken-over club's academy youths came on the academy's terms (academyContractYears), not as ordinary contracts",
+      youths.length > 0 && youths.every((y) => y.y != null), `${youths.length} youths: ${youths.map((y) => y.y).join(", ")}`);
+    if (youths.length > 0) {
+      const lent = youths[0].id;
+      const other = q(`SELECT pool_team_id AS c FROM career_pool_team_state WHERE career_save_id = ? AND taken_over_at IS NULL LIMIT 1`, cid)[0].c;
+      w(`UPDATE career_player_state SET team_id = NULL, pool_team_id = ? WHERE career_save_id = ? AND player_id = ?`, other, cid, lent);
+      const listed = ((await api("GET", "/contracts")).data ?? []);
+      const away = listed.filter((c) => c.playerId === lent);
+      check("with one of them away (as a loan moves her), the Contracts page offers her no ordinary renewal (the rollover's stale row)",
+        away.every((c) => c.player?.academyContractYears != null), `${away.length} row(s): academyContractYears ${away.map((c) => c.player?.academyContractYears).join(", ")}`);
+      w(`UPDATE career_player_state SET team_id = ?, pool_team_id = NULL WHERE career_save_id = ? AND player_id = ?`, team.id, cid, lent);
+    }
+  }
   const history = (await api("GET", "/careers/history")).data ?? [];
   check("the Manager History names both clubs", history.some((h) => h.clubName === oldName) && history.some((h) => h.clubName === first?.name && h.type === "joined_club"),
     history.slice(0, 3).map((h) => `${h.type}: ${h.clubName}`).join(" · "));

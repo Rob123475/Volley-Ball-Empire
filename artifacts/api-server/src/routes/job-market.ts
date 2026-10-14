@@ -50,7 +50,7 @@ import { endCareer, loseClub } from "../utils/careerLifecycle.js";
 import { ensureAiManagersTx, vacanciesTx, decideApplication } from "../utils/aiManagers.js";
 import { LEAVE_MID_SEASON, activeSeasonYearOf, seasonOverFor, boardVerdict, offersTx, destinationTx, swapOutOfFieldTx, repPointsOf } from "../utils/managerMoves.js";
 import { aiSquadsTx } from "../utils/aiSquads.js";
-import { academyAtTx } from "../utils/youthLoans.js";
+import { academyAtTx, academyYearsFor } from "../utils/youthLoans.js";
 import { worldTourFieldTx } from "../utils/worldTour.js";
 import { withCareerStateTx, loadPlayers, updatePlayerState, loadStaffTx } from "../lib/playerDto.js";
 import { overallRating } from "../utils/overallRating.js";
@@ -373,8 +373,14 @@ async function takeOverClub(req: any, save: typeof careerSavesTable.$inferSelect
     {
       const term = oneSeasonContract(season);
       for (const p of (await loadPlayers(save.id, { teamId: newTeam!.id }))) {
-        await db.insert(contractsTable).values({ playerId: p.id, teamId: newTeam!.id, salary: p.salary, startDate: term.startDate, endDate: p.contractEndDate ?? term.endDate, bonusPerWin: 0 });
-        if (!p.contractEndDate) await updatePlayerState(save.id, p.id, { contractEndDate: term.endDate });
+        const endDate = p.contractEndDate ?? term.endDate;
+        await db.insert(contractsTable).values({ playerId: p.id, teamId: newTeam!.id, salary: p.salary, startDate: term.startDate, endDate, bonusPerWin: 0 });
+        // Update 1, 15 Oct (O-5): an academy youth comes on the academy's terms, as the club's own
+        // academy players are (academyContractYears counts down to her deal's end), not as an
+        // ordinary contract: one of those was offered Renew on the Contracts page (refused), and
+        // when she went out on loan it read as a player "no longer in your squad".
+        const academyYears = academyYearsFor(p, endDate, term.startDate);
+        await updatePlayerState(save.id, p.id, { contractEndDate: endDate, ...(academyYears != null ? { academyContractYears: academyYears } : {}) });
       }
     }
     // Two on the sand and an interchange, as every club starts: a club that
