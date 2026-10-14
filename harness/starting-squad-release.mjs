@@ -24,7 +24,7 @@ import os from "node:os";
 
 import { requireElectronBinary } from "./electron-binary.mjs";
 import { forkServer, stopServer } from "./server-harness.mjs";
-import { startCareer } from "./harness-club.mjs";
+import { startCareer, makeCapRoom } from "./harness-club.mjs";
 
 const REPO = path.join(import.meta.dirname, "..");
 const SHIPPED = path.join(REPO, "lib", "db", "volleyball-empire.sqlite");
@@ -86,6 +86,8 @@ async function newCareer(name) {
     budget: club.startingBudget, difficulty: "established", primaryColor: "#1e3a8a", secondaryColor: "#f59e0b", crestShapeIndex: 0,
   });
   if (c.status >= 300) throw new Error(`career for ${name}: HTTP ${c.status}`);
+  // Update 1, item 4a: room under the salary cap for the week-1 signing below (the cap is salary-cap.mjs's subject).
+  makeCapRoom(dbFile, (await api("GET", "/team")).data?.id);
   return api;
 }
 const balance = async (api) => Number((await api("GET", "/team")).data?.budget ?? 0);
