@@ -21,6 +21,36 @@ export function saveControlMode(mode: ControlMode): void {
 }
 
 /**
+ * Update 1, 15 Oct (O-5): the court's match sound, two volumes from 0 to 1:
+ * the crowd (its murmur, reactions and the buzzer) and the commentary. Chosen
+ * on the Settings page and remembered like the music's volume (one JSON object
+ * in localStorage); the court page sends them to the court when it has loaded
+ * and whenever they change (court.tsx, through the court's own page,
+ * unity-build/index.html, to MatchManager.SetCrowdVolume / SetCommentaryVolume).
+ */
+export type MatchVolume = { crowd: number; commentary: number };
+export const MATCH_VOLUME_KEY = "vbe-court-volume";
+/** Fired on this window when the volumes are saved (localStorage's own event only reaches other windows). */
+export const MATCH_VOLUME_EVENT = "vbe-court-volume-changed";
+
+const clamp01 = (v: unknown, fallback: number) =>
+  typeof v === "number" && Number.isFinite(v) ? Math.min(1, Math.max(0, v)) : fallback;
+
+export function readMatchVolume(): MatchVolume {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(MATCH_VOLUME_KEY) ?? "null") as Partial<MatchVolume> | null;
+    return { crowd: clamp01(parsed?.crowd, 1), commentary: clamp01(parsed?.commentary, 1) };
+  } catch {
+    return { crowd: 1, commentary: 1 };
+  }
+}
+
+export function saveMatchVolume(volume: MatchVolume): void {
+  try { localStorage.setItem(MATCH_VOLUME_KEY, JSON.stringify(volume)); } catch { /* not remembered, still used */ }
+  window.dispatchEvent(new Event(MATCH_VOLUME_EVENT));
+}
+
+/**
  * The 3D court's controls in Manual, as the court itself binds them (Unity
  * ManualControl.cs, Input System; proved key by key and button by button on 5
  * Oct, docs/STATUS-05OCT.md item C, and listed for Rob's check on 6 Oct). In

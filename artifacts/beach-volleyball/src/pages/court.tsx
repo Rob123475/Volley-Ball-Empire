@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { readControlMode, saveControlMode, type ControlMode } from "@/lib/court-settings";
+import { readControlMode, saveControlMode, readMatchVolume, MATCH_VOLUME_EVENT, MATCH_VOLUME_KEY, type ControlMode } from "@/lib/court-settings";
 import { useLocation } from "wouter";
 import { useQueryClient } from "@tanstack/react-query";
 import { Monitor, UploadCloud, Loader2, LogOut } from "lucide-react";
@@ -86,6 +86,7 @@ export default function ThreeDCourt() {
     function handleMessage(e: MessageEvent) {
       if (e.data === "unity-loaded") {
         setUnityLoaded(true);
+        sendMatchVolume();
         // Part C: the keyboard goes to the court, so WASD, Tab and the rest work at once.
         iframeRef.current?.focus();
         iframeRef.current?.contentWindow?.focus();
@@ -102,6 +103,22 @@ export default function ThreeDCourt() {
     window.addEventListener("message", handleMessage);
     return () => window.removeEventListener("message", handleMessage);
   }, [navigate, queryClient]);
+
+  // Update 1, O-5: the match sound's volumes (Settings > Sound) go to the
+  // court when it has loaded and whenever they change, the way the control
+  // mode's message goes (unity-build/index.html passes it to MatchManager).
+  function sendMatchVolume() {
+    iframeRef.current?.contentWindow?.postMessage({ type: "vbe-volume", ...readMatchVolume() }, "*");
+  }
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => { if (e.key === MATCH_VOLUME_KEY) sendMatchVolume(); };
+    window.addEventListener(MATCH_VOLUME_EVENT, sendMatchVolume);
+    window.addEventListener("storage", onStorage);
+    return () => {
+      window.removeEventListener(MATCH_VOLUME_EVENT, sendMatchVolume);
+      window.removeEventListener("storage", onStorage);
+    };
+  }, []);
 
   // Unity brief item 5: the only way out used to be closing the game. Leaving
   // mid-match finishes it from the last score the court sent (item 4) and goes

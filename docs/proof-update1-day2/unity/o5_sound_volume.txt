@@ -1,0 +1,10 @@
+O-5 match sound volume proof (V19 in Play, normal speed, scene not saved)
+Each step: SendMessage("MatchManager", "SetCrowdVolume" / "SetCommentaryVolume", value), as the page sends it.
+  crowd  commentary  frames  crowd sources right  voice right  points reacted  heard RMS  heard peak
+  1      1            12969       12969 of 12969  12969 of 12969               0    0.05755     0.28684
+  0.5    0.5          13344       13344 of 13344  13344 of 13344               1    0.05077     0.45298
+  0      0            12939       12939 of 12939  12939 of 12939               1    0.00000     0.00000
+  1      1            13256       13256 of 13256  13256 of 13256               1    0.09721     0.97676
+heard at 0.5 / heard at 1 (information only: the play rises and falls too): 0.88
+silent at 0: yes, every sample 0, through 1 point reaction(s)
+RESULT: PASS

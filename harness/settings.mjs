@@ -12,7 +12,12 @@
  *      match screen's button is gone; the controls panel lists the court's keys
  *   4. (source) the gear in the sidebar and on the title screen; Settings needs no career
  *   5. the Rules page names everything new in Update 1
- *   6. (report) match sound volume: the court takes no volume message
+ *   6. (source) match sound (Update 1, 15 Oct, O-5): a crowd and a commentary
+ *      slider in Settings > Sound, stored like the music's volume; the court page
+ *      sends both when the court has loaded and when they change, and the
+ *      court's page passes them to MatchManager.SetCrowdVolume /
+ *      SetCommentaryVolume the way it passes the control mode (the Unity side is
+ *      proved by its batch proof SoundVolumeProof)
  */
 import fs from "node:fs";
 import os from "node:os";
@@ -97,9 +102,23 @@ check("and \"On Day 8 the AI clubs take\" staff is said in plain words", /On Day
 // ── 6. Match sound ───────────────────────────────────────────────────────────
 console.log("\n6. MATCH SOUND");
 const unityHtml = fs.readFileSync(path.join(REPO, "artifacts", "beach-volleyball", "public", "unity-build", "index.html"), "utf8");
-check("(report) the court listens for one message, the control mode: no volume message without a Unity rebuild, so it is left out",
-  /SetControlMode/.test(unityHtml) && !/volume/i.test(unityHtml));
-info("match sound volume needs a Unity method (e.g. MatchManager.SetVolume) and a rebuild: reported, not built");
+const courtSettings = FE("lib/court-settings.ts"), courtPage = FE("pages/court.tsx");
+check("(source) Settings > Sound has a crowd and a commentary slider, stored in one JSON object like the music's volume",
+  settings.includes("saveMatchVolume(next)") && settings.includes(`["crowd", "Crowd volume"`) && settings.includes(`["commentary", "Commentary volume"`)
+    && courtSettings.includes("localStorage.setItem(MATCH_VOLUME_KEY, JSON.stringify(volume))"));
+check("(source) the court page sends them when the court has loaded and whenever they change",
+  /if \(e\.data === "unity-loaded"\) \{\s*setUnityLoaded\(true\);\s*sendMatchVolume\(\);/.test(courtPage)
+    && courtPage.includes("addEventListener(MATCH_VOLUME_EVENT, sendMatchVolume)") && courtPage.includes(`postMessage({ type: "vbe-volume", ...readMatchVolume() }`));
+check("(source) the court's page passes them to MatchManager the way it passes the control mode",
+  unityHtml.includes(`SendMessage("MatchManager", "SetControlMode"`) && unityHtml.includes(`d.type !== "vbe-volume"`)
+    && unityHtml.includes(`SendMessage("MatchManager", "SetCrowdVolume"`) && unityHtml.includes(`SendMessage("MatchManager", "SetCommentaryVolume"`));
+// The court's WebGL build must carry the two methods the page calls (Unity's
+// method names are in the metadata inside the .data file).
+const unityBuild = path.join(REPO, "artifacts", "beach-volleyball", "public", "unity-build", "Build");
+const dataFile = fs.readdirSync(unityBuild).find((f) => f.endsWith(".data"));
+const data = dataFile ? fs.readFileSync(path.join(unityBuild, dataFile)) : Buffer.alloc(0);
+check("the court's WebGL build carries SetCrowdVolume and SetCommentaryVolume",
+  data.indexOf("SetCrowdVolume") >= 0 && data.indexOf("SetCommentaryVolume") >= 0, dataFile ?? "no .data");
 
 console.log(`\n${checks - failures}/${checks} checks passed`);
 process.exit(failures === 0 ? 0 : 1);

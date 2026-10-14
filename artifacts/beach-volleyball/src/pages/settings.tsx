@@ -5,11 +5,9 @@
  * desktop game in a small file in its user-data folder (electron/
  * window-settings.js, through electron/preload.js); the rest in localStorage
  * (the music's volume and mute, the same as the music bar's; Auto or Manual on
- * the court, the same key as before).
- *
- * Match sound (the court's crowd and commentary) has no volume here: the 3D
- * court takes no volume message without a Unity rebuild (it listens for one
- * message, the control mode), so it is left out (docs/STATUS-UPDATE1-OVERNIGHT.md).
+ * the court, the same key as before; since 15 Oct (O-5) the match sound's two
+ * volumes, the crowd and the commentary, which the court page sends to the 3D
+ * court).
  */
 import { useEffect, useState } from "react";
 import { Link } from "wouter";
@@ -17,7 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Monitor, Volume2, VolumeX, Gamepad2, BookOpen, ArrowLeft } from "lucide-react";
 import { useMusic } from "@/components/music/music-provider";
-import { COURT_CONTROLS, COURT_OTHER_CONTROLS, readControlMode, saveControlMode, type ControlMode } from "@/lib/court-settings";
+import { COURT_CONTROLS, COURT_OTHER_CONTROLS, readControlMode, saveControlMode, readMatchVolume, saveMatchVolume, type ControlMode, type MatchVolume } from "@/lib/court-settings";
 import { cn } from "@/lib/utils";
 
 type WindowSettings = { mode: "windowed" | "fullscreen"; size: string | null; zoom: number; sizes?: string[]; defaultSize?: string; zoomMin?: number; zoomMax?: number };
@@ -38,6 +36,12 @@ export default function SettingsPage() {
     setWin((w) => ({ ...(w ?? {}), ...next }));
   };
   const chooseMode = (m: ControlMode) => { setMode(m); saveControlMode(m); };
+  const [matchVolume, setMatchVolume] = useState<MatchVolume>(readMatchVolume);
+  const setMatch = (patch: Partial<MatchVolume>) => {
+    const next = { ...matchVolume, ...patch };
+    setMatchVolume(next);
+    saveMatchVolume(next);
+  };
 
   return (
     <div className="min-h-screen bg-background p-4 sm:p-8" data-testid="settings-page">
@@ -91,7 +95,7 @@ export default function SettingsPage() {
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2"><Volume2 className="h-4 w-4" /> Sound</CardTitle>
-            <CardDescription>The music, the same as the music bar (which is still there for skipping songs).</CardDescription>
+            <CardDescription>The music, the same as the music bar (which is still there for skipping songs), and the match sound on the 3D court.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             {music ? (
@@ -106,7 +110,15 @@ export default function SettingsPage() {
             ) : (
               <p className="text-sm text-muted-foreground">The music isn't playing here.</p>
             )}
-            <p className="text-xs text-muted-foreground">Match sound (the crowd and commentary on the court) has its own volume inside the 3D court for now.</p>
+            {([["crowd", "Crowd volume", "The crowd, its cheers and the buzzer."], ["commentary", "Commentary volume", "The two commentators."]] as const).map(([key, label, about]) => (
+              <div key={key} className="flex flex-wrap items-center gap-3">
+                <span className="text-sm w-40">{label} {Math.round(matchVolume[key] * 100)}%</span>
+                <input type="range" min={0} max={100} step={5} value={Math.round(matchVolume[key] * 100)}
+                  onChange={(e) => setMatch({ [key]: Number(e.target.value) / 100 })} className="w-full max-w-xs"
+                  aria-label={label} data-testid={`sound-${key}-volume`} />
+                <span className="text-xs text-muted-foreground">{about}</span>
+              </div>
+            ))}
           </CardContent>
         </Card>
 

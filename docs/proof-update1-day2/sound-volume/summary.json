@@ -1,0 +1,82 @@
+{
+  "checks": [
+    {
+      "label": "Next match, then Watch Match",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "when the court loaded, the page sent the stored volumes (crowd 0.50, commentary 0.25)",
+      "pass": true,
+      "detail": "[Sound] crowd volume 0.50\n | [Sound] commentary volume 0.25\n"
+    },
+    {
+      "label": "changed while the court plays: 1 and 1 reach the court",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "changed again: 0 and 0 reach the court",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "the court is heard at 1",
+      "pass": true,
+      "detail": "peak 0.93696, 1 tap(s), running"
+    },
+    {
+      "label": "the court is silent at 0",
+      "pass": true,
+      "detail": "peak 0 over 143 reads"
+    },
+    {
+      "label": "and heard again at 1",
+      "pass": true,
+      "detail": "peak 0.89506"
+    },
+    {
+      "label": "no page errors",
+      "pass": true,
+      "detail": ""
+    }
+  ],
+  "levels": [
+    {
+      "label": "crowd 1, commentary 1",
+      "peak": 0.93696,
+      "rms": 0.07151,
+      "samples": 118,
+      "taps": 1,
+      "state": "running"
+    },
+    {
+      "label": "crowd 0, commentary 0",
+      "peak": 0,
+      "rms": 0,
+      "samples": 143,
+      "taps": 1,
+      "state": "running"
+    },
+    {
+      "label": "back to 1 and 1",
+      "peak": 0.89506,
+      "rms": 0.05542,
+      "samples": 114,
+      "taps": 1,
+      "state": "running"
+    }
+  ],
+  "console": [
+    "[Sound] crowd volume 0.50\n",
+    "[Sound] commentary volume 0.25\n",
+    "[MatchManager] match starts after 4.4s: match data applied; home point chance 0.4989\n",
+    "[Sound] crowd volume 1.00\n",
+    "[Sound] commentary volume 1.00\n",
+    "[Sound] crowd volume 0.00\n",
+    "[Sound] commentary volume 0.00\n",
+    "[Sound] crowd volume 1.00\n",
+    "[Sound] commentary volume 1.00\n"
+  ],
+  "errors": []
+}

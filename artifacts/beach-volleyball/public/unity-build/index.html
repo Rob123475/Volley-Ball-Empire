@@ -82,6 +82,17 @@
         try { window.__vbeUnity.SendMessage("MatchManager", "SetControlMode", d.mode === "manual" ? "manual" : "auto"); }
         catch (err) { console.warn(err); }
       });
+
+      // Update 1, 15 Oct (O-5): the match sound's volumes, 0-1, from the game's Settings.
+      window.addEventListener("message", function (e) {
+        var d = e.data;
+        if (!d || d.type !== "vbe-volume" || !window.__vbeUnity) return;
+        var v = function (x) { return String(Math.min(1, Math.max(0, Number(x)))); };
+        try {
+          if (typeof d.crowd === "number") window.__vbeUnity.SendMessage("MatchManager", "SetCrowdVolume", v(d.crowd));
+          if (typeof d.commentary === "number") window.__vbeUnity.SendMessage("MatchManager", "SetCommentaryVolume", v(d.commentary));
+        } catch (err) { console.warn(err); }
+      });
     </script>
   </body>
 </html>
