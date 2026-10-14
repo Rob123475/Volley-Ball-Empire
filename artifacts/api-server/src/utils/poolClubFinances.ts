@@ -43,6 +43,7 @@ import {
 } from "@workspace/db";
 import { and, asc, desc, eq, inArray, isNull, isNotNull, lt, sql } from "drizzle-orm";
 import { aiSquadsTx } from "./aiSquads.js";
+import { seniorWageBillTx, fitsUnderCap } from "./salaryCap.js";
 import { WORLD_TOUR } from "../data/worldTour.js";
 import { prizeFor } from "./prizeDistribution.js";
 import { purseAccessFor, tierForPoints, type Tier } from "./tierQualification.js";
@@ -198,6 +199,13 @@ export function lengthForRating(clubRating: number): ContractLength {
  * changes club, so her contract row is the deal she is on. The new term is
  * measured from the day the old one ended, which is renewalEndDate's rule, the
  * same one the player's club renews on (utils/contractTerms.ts).
+ *
+ * Update 1, item 4a (C-4): she is re-priced to the wage for her rating, and
+ * renews only if that fits under the club's salary cap. If it does not, her
+ * deal stays run out: the weekly block makes her a career senior
+ * (materializeAiSeniorsTx), whose renewal (utils/aiSquads.ts keepAiSquadsTx)
+ * then lets her go to the market. (Every pool player is a career senior after
+ * a career's first week, so a pool deal runs out only before that.)
  */
 export function renewExpiredPoolContractsTx(
   tx: Tx, careerSaveId: number, today: string, seasonEnds: readonly string[],
@@ -206,8 +214,13 @@ export function renewExpiredPoolContractsTx(
     id:      poolPlayerContractsTable.id,
     length:  poolPlayerContractsTable.length,
     endDate: poolPlayerContractsTable.endDate,
+    salary:  poolPlayerContractsTable.salary,
+    poolTeamId: poolPlayerContractsTable.poolTeamId,
+    speed: continentalPoolPlayersTable.speed, power: continentalPoolPlayersTable.power, defense: continentalPoolPlayersTable.defense,
+    serve: continentalPoolPlayersTable.serve, block: continentalPoolPlayersTable.block, stamina: continentalPoolPlayersTable.stamina,
   })
     .from(poolPlayerContractsTable)
+    .innerJoin(continentalPoolPlayersTable, eq(continentalPoolPlayersTable.id, poolPlayerContractsTable.poolPlayerId))
     .where(and(
       eq(poolPlayerContractsTable.careerSaveId, careerSaveId),
       eq(poolPlayerContractsTable.status, "active"),
@@ -215,14 +228,19 @@ export function renewExpiredPoolContractsTx(
     )).all();
   if (expired.length === 0) return 0;
 
+  let renewed = 0;
   for (const c of expired) {
+    const wage = monthlySalaryFor(overallRating(c));
+    if (!fitsUnderCap(seniorWageBillTx(tx, careerSaveId, { poolTeamId: c.poolTeamId }), wage - Number(c.salary))) continue;
     const length = isContractLength(c.length) ? c.length : CONTRACT_LENGTHS[0];
     tx.update(poolPlayerContractsTable).set({
       startDate: c.endDate,
       endDate:   renewalEndDate(length, c.endDate, seasonEnds),
+      salary:    wage,
     }).where(eq(poolPlayerContractsTable.id, c.id)).run();
+    renewed++;
   }
-  return expired.length;
+  return renewed;
 }
 
 // ── A week of being a club ───────────────────────────────────────────────────
