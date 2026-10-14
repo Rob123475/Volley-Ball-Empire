@@ -11,6 +11,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { gameDateText } from "@/lib/game-date";
 
 type LengthRow = { length: "1w" | "2w" | "4w"; endsOn: string; allowed: boolean; reason: string | null };
 type Preseason = {
@@ -73,8 +74,8 @@ export default function PreseasonPage() {
       <div className="space-y-1">
         <h1 className="text-3xl font-black tracking-tight text-primary">Pre-season</h1>
         <p className="text-muted-foreground">
-          Your first match of next season is on {data.firstMatchOn}. A camp must end before it. Seniors only: the academy carries on as normal.
-          {!data.open && !c && ` The choice opens on ${data.choiceOn}.`}
+          Your first match of next season is on {gameDateText(data.firstMatchOn)}. A camp must end before it. Seniors only: the academy carries on as normal.
+          {!data.open && !c && ` The choice opens on ${gameDateText(data.choiceOn)}.`}
         </p>
       </div>
 
@@ -82,7 +83,7 @@ export default function PreseasonPage() {
         <Card data-testid="preseason-chosen">
           <CardContent className="p-4">
             {c.choice === "camp" ? (
-              <p><span className="font-bold">{data.locations?.[c.location ?? ""]?.name}</span>, {data.lengthTable?.[c.length ?? ""]?.label}: {c.startsOn} to {c.endsOn} ({money(c.cost)}).
+              <p><span className="font-bold">{data.locations?.[c.location ?? ""]?.name}</span>, {data.lengthTable?.[c.length ?? ""]?.label}: {gameDateText(c.startsOn)} to {gameDateText(c.endsOn)} ({money(c.cost)}).
                 {c.done ? " Done." : " No normal training for your seniors while they are there."}</p>
             ) : c.choice === "rest" ? (
               <p><span className="font-bold">Rest.</span> No training for the rest of the off-season; every senior who isn't injured starts the season at fitness 100, fatigue 0 and morale +5.</p>
@@ -113,7 +114,7 @@ export default function PreseasonPage() {
                   return (
                     <div key={l.length} className="rounded-lg border p-3 space-y-1 text-sm">
                       <p className="font-semibold">{t?.label}</p>
-                      <p className="text-xs text-muted-foreground">{t?.sessions} sessions at ×{t?.xp} XP · {money(t?.cost ?? 0)} · fatigue +{t?.fatigue} at the end · ends {l.endsOn}</p>
+                      <p className="text-xs text-muted-foreground">{t?.sessions} sessions at ×{t?.xp} XP · {money(t?.cost ?? 0)} · fatigue +{t?.fatigue} at the end · ends {gameDateText(l.endsOn)}</p>
                       {l.reason && <p className="text-[11px] text-red-500">{l.reason}</p>}
                       <Button size="sm" className="w-full" disabled={busy || !l.allowed} onClick={() => choose({ choice: "camp", location, length: l.length })} data-testid={`book-${l.length}`}>
                         Book

@@ -60,7 +60,7 @@ const q = (sql, ...a) => { const d = new DatabaseSync(DB, { readOnly: true }); t
 const w = (sql, ...a) => { const d = new DatabaseSync(DB); try { return d.prepare(sql).run(...a); } finally { d.close(); } };
 
 let teamId = null, cid = null;
-const today = () => q(`SELECT current_date AS d FROM calendar_state WHERE team_id = ?`, teamId)[0]?.d;
+const today = () => q(`SELECT "current_date" AS d FROM calendar_state WHERE team_id = ?`, teamId)[0]?.d;
 async function day() {
   healAllSquads(DB);
   keepClubSolvent(DB, teamId);
@@ -129,7 +129,8 @@ try {
 
   // ── 4. A camp ──────────────────────────────────────────────────────────────
   console.log("\n4. A CAMP: PAID, NO TRAINING WHILE THERE, XP AND FATIGUE AT THE END");
-  const len = [...(st?.lengths ?? [])].reverse().find((l) => l.allowed);
+  // The shortest it can book, so the camp ends with off-season left to try Rest after it.
+  const len = (st?.lengths ?? []).find((l) => l.allowed);
   const L = PRESEASON.lengths[len?.length ?? "1w"];
   const budget0 = q(`SELECT budget FROM teams WHERE id = ?`, teamId)[0].budget;
   const booked = await api("POST", "/preseason", { choice: "camp", location: "power_house", length: len?.length });

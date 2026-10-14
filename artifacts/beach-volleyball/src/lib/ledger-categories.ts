@@ -16,6 +16,8 @@ export const LEDGER_CATEGORY_LABELS: Record<string, string> = {
   running_costs:     "Running costs",
   facilities:        "Facilities",
   scouting:          "Scouting",
+  // Update 1, overnight part 5: the pre-season camp is filed as training.
+  training:          "Training",
   youth_academy:     "Youth academy",
   signing_fee:       "Signing fee",
   transfer_fee:      "Transfer fee",

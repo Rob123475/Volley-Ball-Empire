@@ -1,4 +1,5 @@
 import { scoreText } from "@/lib/match-score";
+import { gameDateText } from "@/lib/game-date";
 import { managerLevelFor } from "@shared/manager-levels";
 import { continentLabel, continentKeyFrom } from "@shared/continents";
 import { ClubCrest } from "@/components/club-crest";
@@ -422,7 +423,7 @@ export default function Dashboard() {
             <div>
               <p className="font-bold">Pre-season: a camp, Rest or Skip</p>
               <p className="text-sm text-muted-foreground">
-                Send your seniors to a camp (it must end before your first match on {preseason.firstMatchOn}), let them rest, or skip it.
+                Send your seniors to a camp (it must end before your first match on {gameDateText(preseason.firstMatchOn)}), let them rest, or skip it.
               </p>
             </div>
             <Button onClick={() => navigate("/preseason")} data-testid="preseason-go">Choose</Button>

@@ -66,7 +66,7 @@ const q = (sql, ...a) => { const d = new DatabaseSync(DB, { readOnly: true }); t
 const w = (sql, ...a) => { const d = new DatabaseSync(DB); try { return d.prepare(sql).run(...a); } finally { d.close(); } };
 
 let teamId = null, cid = null;
-const today = () => q(`SELECT current_date AS d FROM calendar_state WHERE team_id = ?`, teamId)[0]?.d;
+const today = () => q(`SELECT "current_date" AS d FROM calendar_state WHERE team_id = ?`, teamId)[0]?.d;
 async function day() {
   healAllSquads(DB);
   const r = await api("POST", "/calendar/advance", {});
@@ -110,9 +110,9 @@ try {
   console.log("\n1. BEFORE DAY 8 NO AI CLUB HAS STAFF; ON DAY 8 EACH GETS A COACH AND A MEDICAL MEMBER");
   check("a new career's deal date is Day 8 (7 days after its first day) and it has not been dealt", dealOn.d === "2026-01-08" && dealOn.at == null, `deal on ${dealOn.d}`);
   let guard = 0;
-  while (today() < "2026-01-07" && guard++ < 20) await day();
+  while ((today() ?? "") < "2026-01-07" && guard++ < 20) await day();
   check("on Day 7 no AI club has staff", aiStaff().length === 0, `${aiStaff().length} at AI clubs on ${today()}`);
-  while (today() < "2026-01-08" && guard++ < 30) await day();
+  while ((today() ?? "") < "2026-01-08" && guard++ < 30) await day();
   const dealt = aiStaff();
   const clubs = q(`SELECT pool_team_id AS club FROM career_pool_team_state WHERE career_save_id = ? AND taken_over_at IS NULL`, cid).map((r) => r.club);
   const per = new Map(clubs.map((c) => [c, dealt.filter((s) => s.club === c)]));

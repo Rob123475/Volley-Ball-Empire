@@ -70,7 +70,7 @@ const q = (sql, ...a) => { const d = new DatabaseSync(DB, { readOnly: true }); t
 const w = (sql, ...a) => { const d = new DatabaseSync(DB); try { return d.prepare(sql).run(...a); } finally { d.close(); } };
 
 let teamId = null, cid = null;
-const today = () => q(`SELECT current_date AS d FROM calendar_state WHERE team_id = ?`, teamId)[0]?.d;
+const today = () => q(`SELECT "current_date" AS d FROM calendar_state WHERE team_id = ?`, teamId)[0]?.d;
 const lastSalary = () => q(`SELECT last_salary_date AS d FROM calendar_state WHERE team_id = ?`, teamId)[0]?.d;
 /** Only the player's own club is healed (harness-club's healAllSquads would heal the AI clubs too). */
 const healMine = () => w(`UPDATE career_player_state SET injury_status = 'Healthy', injury_weeks_remaining = 0, is_injured = 0 WHERE team_id = ?`, teamId);
@@ -145,6 +145,7 @@ try {
   const [xClub, xSquad] = [...byClub.entries()].find(([c, l]) => l.length === 3 && regionalClubs.has(c)) ?? [null, []];
   for (const s of xSquad.slice(0, 2)) w(`UPDATE career_player_state SET is_injured = 1, injury_status = 'Unavailable', injury_weeks_remaining = 6 WHERE career_save_id = ? AND player_id = ?`, cid, s.id);
   const xHurt = new Set(xSquad.slice(0, 2).map((s) => s.id));
+  const xResultsBefore = new Set(q(`SELECT r.id FROM regional_league_results r WHERE r.career_save_id = ?`, cid).map((r) => r.id));
   const startDate = today();
   let prev = new Map(aiSeniors().map((s) => [s.id, s]));
   let newInjuries = 0, healedSteps = 0, healChecks = 0, longRelease = 0;
@@ -179,10 +180,11 @@ try {
 
   console.log("\n3. INJURED AI PLAYERS HEAL ON THE WEEKLY CLOCK AND ARE NOT PICKED");
   check("each week every injured AI player was a week (or more, with a medic) nearer fit", healChecks > 0 && healedSteps === healChecks, `${healedSteps} of ${healChecks}`);
-  const xResults = xClub == null ? [] : q(`SELECT r.home_sets AS hs, r.away_sets AS as_, f.home_pool_team_id AS home, f.away_pool_team_id AS away, f.round
+  const xResults = xClub == null ? [] : q(`SELECT r.id, r.home_sets AS hs, r.away_sets AS as_, f.home_pool_team_id AS home, f.away_pool_team_id AS away, f.round
     FROM regional_league_results r JOIN regional_league_fixtures f ON f.id = r.fixture_id
     WHERE r.career_save_id = ? AND (f.home_pool_team_id = ? OR f.away_pool_team_id = ?) ORDER BY f.round`, cid, xClub, xClub);
-  const xEarly = xResults.slice(0, 4);
+  // Only the matches played after the two were hurt (one may already have been played that day).
+  const xEarly = xResults.filter((r) => !xResultsBefore.has(r.id)).slice(0, 4);
   check("a club with two of its three out 6 weeks forfeited its next matches (0 sets, a walkover)",
     xEarly.length > 0 && xEarly.every((r) => (r.home === xClub ? r.hs : r.as_) === 0), `${xEarly.map((r) => `${r.hs}-${r.as_}`).join(" ")}`);
   const xNow = aiSeniors().filter((s) => xHurt.has(s.id));
@@ -193,7 +195,7 @@ try {
   const aiSrc = SRC("utils/aiSquads.ts");
   check("(source) the AI roll is the player's roll, with the club's manager's Fitness Guru, and Fitness Guru counts for AI clubs",
     /const fitnessGuru = specialityFactor\(\{ careerSaveId, poolTeamId \}, "Fitness Guru"\);/.test(aiSrc)
-      && /matchInjuryRoll\(\{ stamina: m\.stamina \}, \{ weatherMultiplier, fitnessGuru \}, random\)/.test(aiSrc)
+      && /matchInjuryRoll\(\{ stamina: m\.stamina, development: m\.development \}, \{ weatherMultiplier, fitnessGuru \}, random\)/.test(aiSrc)
       && /AI_CLUB_SPECIALITIES: readonly Speciality\[\] = \[[^\]]*"Fitness Guru"/.test(SRC("utils/managerFaces.ts")));
 
   // ── 5. A long injury at renewal ────────────────────────────────────────────
@@ -206,11 +208,18 @@ try {
   const gone = q(`SELECT team_id AS t, pool_team_id AS p, salary, injury_weeks_remaining AS weeks,
     speed, power, defense, serve, block, stamina FROM career_player_state WHERE career_save_id = ? AND player_id = ?`, cid, pick.id)[0];
   const wage = monthlySalaryFor(overallRating(gone));   // her rating now (the week's AI training ran first)
-  check("she was not renewed: a free agent now, on the wage for her rating", gone.t == null && gone.p == null && gone.salary === wage, `club ${gone.p}, wage ${gone.salary} (rating wage ${wage})`);
-  const market = (await api("GET", "/players")).data ?? [];
-  const card = market.find((p) => p.id === pick.id);
-  check("the Player Market shows her injured, at 50% of her wage", card && card.salary === Math.round(wage * 0.5) && card.injuryWeeksRemaining >= LONG_WEEKS,
-    card ? `asks ${card.salary}, out ${card.injuryWeeksRemaining} weeks` : "not listed");
+  // Released, she may be signed at once by another AI club taking the injured gamble (4c-5), at her injured wage.
+  const freeNow = gone.t == null && gone.p == null && gone.salary === wage;
+  const gambled = gone.t == null && gone.p != null && gone.p !== pick.club && gone.salary === Math.round(wage * 0.5);
+  check("her club did not renew her: she is a free agent on the wage for her rating, or another AI club took the gamble at half of it",
+    freeNow || gambled, `club ${gone.p} (was ${pick.club}), wage ${gone.salary} (rating wage ${wage})`);
+  // The market's half wage, on a free agent hurt for 6 weeks.
+  const hurtFa = freeAgents().find((f) => !injured(f));
+  w(`UPDATE career_player_state SET is_injured = 1, injury_status = 'Unavailable', injury_weeks_remaining = 6 WHERE career_save_id = ? AND player_id = ?`, cid, hurtFa.id);
+  const market = (await api("GET", "/players/market-all")).data ?? [];
+  const card = market.find((p) => p.id === hurtFa.id);
+  check("the Player Market shows an injured free agent (6 weeks out) at 50% of her wage", card && card.salary === Math.round(hurtFa.salary * 0.5) && card.injuryWeeksRemaining >= LONG_WEEKS,
+    card ? `asks ${card.salary} of ${hurtFa.salary}, out ${card.injuryWeeksRemaining} weeks` : "not listed");
   makeCapRoom(DB, teamId);
   // A place for her: the player's interchange goes (three seniors is the most a club holds).
   const mine = q(`SELECT s.player_id AS id FROM career_player_state s JOIN players p ON p.id = s.player_id
@@ -218,9 +227,9 @@ try {
   if (mine.length >= 3) await api("POST", `/players/${mine[0].id}/release`, {});
   const lowball = await api("POST", "/contracts", { playerId: market.find((p) => p.status === "free_agent" && !p.isInjured && (p.injuryStatus ?? "Healthy") === "Healthy")?.id, salary: 1, bonusPerWin: 0, squadRole: "interchange", length: "1s", confirm: true });
   check("(a fit free agent still refuses less than her full asking wage)", lowball.status === 422, `${lowball.status}`);
-  const signed = await api("POST", "/contracts", { playerId: pick.id, salary: card?.salary, bonusPerWin: 0, squadRole: "interchange", length: "1s", confirm: true });
+  const signed = await api("POST", "/contracts", { playerId: hurtFa.id, salary: card?.salary, bonusPerWin: 0, squadRole: "interchange", length: "1s", confirm: true });
   const after = q(`SELECT s.salary, c.salary AS contract FROM career_player_state s JOIN contracts c ON c.player_id = s.player_id AND c.status = 'active'
-    WHERE s.career_save_id = ? AND s.player_id = ?`, cid, pick.id)[0];
+    WHERE s.career_save_id = ? AND s.player_id = ?`, cid, hurtFa.id)[0];
   check("she signs at that wage, and the contract keeps it", signed.status === 201 && after?.salary === card?.salary && after?.contract === card?.salary,
     `${signed.status}: ${after?.salary} / contract ${after?.contract}`);
 
@@ -228,7 +237,7 @@ try {
   console.log("\n6. A SHORT INJURY (UNDER 4 WEEKS) SHOWS 75%");
   const fa = freeAgents().find((f) => !injured(f));
   w(`UPDATE career_player_state SET is_injured = 1, injury_status = 'Minor Injury', injury_weeks_remaining = 2 WHERE career_save_id = ? AND player_id = ?`, cid, fa.id);
-  const card2 = ((await api("GET", "/players")).data ?? []).find((p) => p.id === fa.id);
+  const card2 = ((await api("GET", "/players/market-all")).data ?? []).find((p) => p.id === fa.id);
   check("a free agent out 2 weeks asks 75% of her wage", card2 && card2.salary === Math.round(fa.salary * 0.75), card2 ? `${card2.salary} of ${fa.salary}` : "not listed");
   check("(source) the one asking-wage path takes the share (MONEY.salaryCap.injuredLongWeeks = 4)",
     /injuredLongWeeks: 4/.test(fs.readFileSync(path.join(REPO, "lib", "db", "src", "schema", "money.ts"), "utf8"))

@@ -162,7 +162,7 @@ try {
       console.log(`  season ${season} pre-season: ${JSON.stringify(body)} -> ${r.status}${r.status >= 400 ? " " + r.data?.error : ""}`);
       chosen++;
     }
-    const today = q(`SELECT current_date AS d FROM calendar_state WHERE team_id = ?`, myTeam())[0]?.d ?? "";
+    const today = q(`SELECT "current_date" AS d FROM calendar_state WHERE team_id = ?`, myTeam())[0]?.d ?? "";
     if (today.slice(5) >= "12-30") lastTable = seasonTable(season, Number(today.slice(0, 4)), counters);
     const r = await api("POST", "/calendar/advance", {});
     if (r.status >= 400) { stopped = `advance HTTP ${r.status}: ${JSON.stringify(r.data).slice(0, 200)}`; break; }

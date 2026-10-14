@@ -29,7 +29,14 @@ settings; club-kits extended. A soak script, harness/long-career-update1.mjs (no
 
 ## Build counts
 
-Not run yet (part 9).
+- Typecheck (the build's first step, run once on its own first so the build could reach the harness):
+  clean on the first try.
+- **Full build 1** (`pnpm run build`, 14 Oct 23:10 – 15 Oct 00:43): **92 of 112 suites passed, 20 failed**:
+  board review, olympic tournament, academy intake, contract terms, youth rebirth, ledger words, ai club
+  economy, money pass, youth ratings, game dates, player pictures, ai buyable, ai job market, salary cap,
+  ai staff, ai injuries, scouting history, preseason camp, gameplay smoke, season rollover. Many were
+  never run against items 4a/4b (the cap and the draft), which were built without a build on 14 Oct.
+  Each failure's cause and fix is in part 9 below.
 
 ## Decisions made overnight
 

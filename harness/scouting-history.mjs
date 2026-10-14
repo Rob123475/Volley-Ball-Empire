@@ -60,7 +60,7 @@ async function day() {
   if (id) { await api("POST", `/matches/${id}/simulate`); await api("POST", r.data?.blocked === "pending_match" ? "/calendar/skip-match" : "/calendar/dismiss-match"); }
   return r;
 }
-const market = async () => (await api("GET", "/players")).data ?? [];
+const market = async () => (await api("GET", "/players/market-all")).data ?? [];
 const card = async (id) => (await market()).find((p) => p.id === id);
 
 let child = null;

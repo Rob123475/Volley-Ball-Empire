@@ -40,6 +40,7 @@ import { trainingStaffBonuses } from "./staffBonuses.js";
 import { specialityFactor } from "./managerFaces.js";
 import { roundToDate } from "./roundDates.js";
 import { isInjured } from "./condition.js";
+import { gameDateText } from "./gameDate.js";
 
 type Tx = CareerStateTx["tx"];
 export type CampClub = { teamId: number } | { poolTeamId: number };
@@ -99,7 +100,7 @@ export function preseasonStateTx(tx: Tx, careerSaveId: number, teamId: number, t
   const lengths = PRESEASON_LENGTHS.map((length) => {
     const L = PRESEASON.lengths[length];
     const endsOn = addDays(today, L.days);
-    const reason = endsOn >= firstMatchOn ? `It would end on ${endsOn}, after your first match of next season (${firstMatchOn}).`
+    const reason = endsOn >= firstMatchOn ? `It would end on ${gameDateText(endsOn)}, after your first match of next season (${gameDateText(firstMatchOn)}).`
       : balance < L.cost ? `It costs $${L.cost.toLocaleString("en-US")}; the club has $${Math.round(balance).toLocaleString("en-US")}.`
       : null;
     return { length, endsOn, allowed: reason == null, reason };
@@ -120,7 +121,7 @@ export function choosePreseasonTx(
   const st = preseasonStateTx(w.tx, careerSaveId, teamId, today);
   if (!st) return "It is not the off-season.";
   if (st.choice) return "You have already chosen for this off-season.";
-  if (today < st.choiceOn) return `The pre-season choice opens on ${st.choiceOn}, day ${PRESEASON.choiceDay} of the off-season.`;
+  if (today < st.choiceOn) return `The pre-season choice opens on ${gameDateText(st.choiceOn)}, day ${PRESEASON.choiceDay} of the off-season.`;
   if (pick.choice === "camp") {
     if (!(PRESEASON_LOCATIONS as readonly string[]).includes(pick.location ?? "")) return "Pick a camp: Altitude Camp, Power House or Beach Academy.";
     const len = st.lengths.find((l) => l.length === pick.length);
@@ -274,7 +275,7 @@ export function preseasonTrainingBlockTx(tx: Tx, careerSaveId: number, teamId: n
   if (!row) return null;
   if (row.choice === "rest") return "Your squad is resting for the rest of the off-season: no training until the new season.";
   if (row.choice === "camp" && !row.done && row.startsOn != null && row.startsOn <= today) {
-    return `Your seniors are at ${PRESEASON.locations[row.location as PreseasonLocation].name} until ${row.endsOn}: no normal training while at camp.`;
+    return `Your seniors are at ${PRESEASON.locations[row.location as PreseasonLocation].name} until ${gameDateText(row.endsOn)}: no normal training while at camp.`;
   }
   return null;
 }
