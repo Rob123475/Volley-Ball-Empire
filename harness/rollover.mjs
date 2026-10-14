@@ -333,11 +333,9 @@ async function advanceToBoundary(api, maxDays = 500) {
   const rosterN = (await A("GET", "/players/market-all?playerType=senior")).data;
   const list = Array.isArray(rosterN) ? rosterN : [];
   const boundaries = seen.length;
-  // U-6 (feat-ai-buyable): an AI club's pool-made senior does not age while she plays for it.
-  // Update 1, item 4c: an AI club's original now also leaves it mid-run (released for the cap, for a
-  // long injury, or for a better buy), and ages only while she is away from an AI club; so originals
-  // (pool-made seniors) are left out, like the AI clubs' players.
-  const known = list.filter((p) => ages0.has(p.id) && p.status !== "ai_club" && p.poolPlayerId == null);
+  // Update 1, 15 Oct (O-4): everyone ages now, the AI clubs' originals and players included (the U-6
+  // timeless-original exception is gone).
+  const known = list.filter((p) => ages0.has(p.id));
   const correct = known.filter((p) => p.age === ages0.get(p.id) + boundaries);
   // R-62: each boundary that opens a season brings an academy intake. Those
   // players are traced to the intake that created them (boundary i + 1) and age
@@ -349,15 +347,12 @@ async function advanceToBoundary(api, maxDays = 500) {
   check("every player aged exactly one year per season boundary",
     known.length > 0 && correct.length === known.length && intakeCorrect.length === fromIntake.length,
     `${correct.length}/${known.length} with a baseline, ${intakeCorrect.length}/${fromIntake.length} from an academy intake, after ${boundaries} boundaries`);
-  // Update 1, item 4c: AI originals now leave AI clubs (left out of the ageing count above), so they are
-  // traced as originals; anyone else must have a baseline or an intake.
-  const originalsAway = list.filter((p) => p.status !== "ai_club" && p.poolPlayerId != null && !ages0.has(p.id));
-  // And an AI academy's youth an AI club promoted (a broke club steps one up, utils/aiSquads.ts), later on
-  // the market: a graduate of an AI academy, not from this club's intake.
-  const aiGraduates = list.filter((p) => p.status !== "ai_club" && p.poolPlayerId == null && !ages0.has(p.id) && !intakeAge.has(p.id) && p.playerType === "youth");
+  // Anyone without a baseline or an intake is an AI academy's youth an AI club promoted (a broke club steps
+  // one up, utils/aiSquads.ts): a graduate of an AI academy.
+  const aiGraduates = list.filter((p) => !ages0.has(p.id) && !intakeAge.has(p.id) && p.playerType === "youth");
   check("every senior has a baseline or came from an academy intake (nobody appeared from nowhere)",
-    known.length + fromIntake.length + originalsAway.length + aiGraduates.length + list.filter((p) => p.status === "ai_club").length + list.filter((p) => p.status !== "ai_club" && p.poolPlayerId != null && ages0.has(p.id)).length === list.length,
-    `${known.length} + ${fromIntake.length} intake + ${list.filter((p) => p.status === "ai_club").length} at AI clubs + ${list.filter((p) => p.status !== "ai_club" && p.poolPlayerId != null).length} AI originals away + ${aiGraduates.length} AI academy graduates of ${list.length} traceable; untraced: ${list.filter((p) => !(ages0.has(p.id) || intakeAge.has(p.id) || p.status === "ai_club" || p.poolPlayerId != null || p.playerType === "youth")).slice(0, 3).map((p) => `${p.name} (${p.status}, ${p.playerType})`).join(", ")}`);
+    known.length + fromIntake.length + aiGraduates.length === list.length,
+    `${known.length} + ${fromIntake.length} intake + ${aiGraduates.length} AI academy graduates of ${list.length}; untraced: ${list.filter((p) => !ages0.has(p.id) && !intakeAge.has(p.id) && p.playerType !== "youth").slice(0, 3).map((p) => `${p.name} (${p.status})`).join(", ")}`);
 
   check(`rolled through ${WALK_BOUNDARIES} boundaries`, seen.length === WALK_BOUNDARIES,
     seen.map((r) => `${r.fromSeason}->${r.toSeason}`).join(", "));

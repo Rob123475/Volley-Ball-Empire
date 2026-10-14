@@ -39,6 +39,8 @@
  * two-player club being wiped out mid-suite by a dice roll that the suite was
  * never trying to measure.
  */
+import fs from "node:fs";
+import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
 
 /**
@@ -331,4 +333,34 @@ export function makeCapRoom(dbPath, teamId, wage = 1_000) {
   } finally {
     db.close();
   }
+}
+
+/**
+ * Update 1, 15 Oct (day brief parts 1 and 6): until Rob's 90 staff portraits
+ * are installed, a long run's world has 120 staff, too few for 60 AI clubs to
+ * hold a coach and a medic each, and money suites measured there read a world
+ * that will not ship. This stands 90 in for them in a throwaway database before
+ * its server boots: the same 25 + 25 coaches and 10 of each medical role, each
+ * a copy of an existing member of the role, at the ids the installer gives
+ * Rob's people (data/staff-ids.json). Once the portraits are in (any staff at
+ * those ids), it adds nothing. Returns how many it added.
+ */
+export const STAND_IN_ROLES = { "Head Coach": 25, "Assistant Coach": 25, Doctor: 10, Physiotherapist: 10, "Massage Therapist": 10, "Medical Specialist": 10 };
+export function addStandInStaff(dbPath) {
+  const from = JSON.parse(fs.readFileSync(path.join(import.meta.dirname, "..", "artifacts", "api-server", "src", "data", "staff-ids.json"), "utf8")).starterOnlyFrom;
+  const d = new DatabaseSync(dbPath);
+  try {
+    if (d.prepare(`SELECT COUNT(*) n FROM staff WHERE id >= ?`).get(from).n > 0) return 0;
+    const cols = d.prepare(`PRAGMA table_info(staff)`).all().map((c) => c.name).filter((c) => c !== "id");
+    let nextId = from, added = 0;
+    for (const [role, n] of Object.entries(STAND_IN_ROLES)) {
+      const src = d.prepare(`SELECT id FROM staff WHERE role = ? AND id < ? ORDER BY id`).all(role, from).map((r) => r.id);
+      for (let i = 0; i < n; i++) {
+        const sel = cols.map((c) => (c === "name" ? `name || ' (stand-in ${i + 1})'` : `"${c}"`)).join(", ");
+        d.prepare(`INSERT INTO staff (id, ${cols.map((c) => `"${c}"`).join(", ")}) SELECT ?, ${sel} FROM staff WHERE id = ?`).run(nextId++, src[i % src.length]);
+        added++;
+      }
+    }
+    return added;
+  } finally { d.close(); }
 }

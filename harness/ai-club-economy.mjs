@@ -43,7 +43,7 @@ import os from "node:os";
 import { DatabaseSync } from "node:sqlite";
 import { requireElectronBinary } from "./electron-binary.mjs";
 import { forkServer, stopServer } from "./server-harness.mjs";
-import { healAllSquads, keepSideFielded, renewExpiringContracts, keepClubSolvent, startCareer } from "./harness-club.mjs";
+import { healAllSquads, keepSideFielded, renewExpiringContracts, keepClubSolvent, startCareer, addStandInStaff } from "./harness-club.mjs";
 // Overnight 1 Oct, N-41: Rob's money numbers, read from the one config file (Node strips the types).
 import { MONEY, managerSalaryFor } from "../lib/db/src/schema/money.ts";
 
@@ -85,14 +85,14 @@ console.log("=".repeat(78));
 
 const dbFile = path.join(WORK, "world.sqlite");
 fs.copyFileSync(SHIPPED, dbFile);
-const out = fs.openSync(path.join(WORK, "server.log"), "w");
-const child = forkServer({
-  server: SERVER, electron: ELECTRON, out,
+const boot = (starter) => forkServer({
+  server: SERVER, electron: ELECTRON, out: fs.openSync(path.join(WORK, starter ? "server-2.log" : "server.log"), "w"),
   env: {
     ...process.env, ELECTRON_RUN_AS_NODE: "1", DB_PATH: dbFile, PORT: String(PORT),
-    NODE_ENV: "development", SESSION_SECRET: "ai-club-economy",
+    NODE_ENV: "development", SESSION_SECRET: "ai-club-economy", ...(starter ? { STARTER_DB_PATH: starter } : {}),
   },
 });
+let child = boot(null);
 
 const BASE = `http://localhost:${PORT}/api`;
 let cookie = "";
@@ -243,6 +243,28 @@ try {
     `sale after ${TO_SALE}, base ${money(BASE_COST)}, per player ${money(PER_PLAYER)}, ` +
       `${money(PER_REP)} a week per point of reputation`);
 
+  // Update 1, 15 Oct: the world the sponsor bonus was worked out for (day 2, part 1) has Rob's 90
+  // staff portraits. Until they are installed, 90 stand in for them (harness-club.mjs), given to this
+  // world after the week above (which measures a club with no staff) the way an existing save gets
+  // new staff: a reboot on a starter DB that has them (ensureReferenceData, Pass 3b). The AI clubs then
+  // fill their gaps from them day by day (fillAiStaffTx). Nothing is added once the portraits are in.
+  {
+    const starter = path.join(WORK, "starter-with-stand-ins.sqlite");
+    fs.copyFileSync(SHIPPED, starter);
+    const standIns = addStandInStaff(starter);
+    if (standIns > 0) {
+      await stopServer(child);
+      child = boot(starter);
+      for (const dl = Date.now() + 40000; ;) {
+        if (Date.now() > dl) throw new Error("server never came back up");
+        try { await fetch(`${BASE}/healthz`); break; } catch { await new Promise((r) => setTimeout(r, 250)); }
+      }
+      await api("POST", `/profiles/${prof.data.id}/select`);
+      const given = read(`SELECT COUNT(*) n FROM career_staff_state WHERE career_save_id = ? AND staff_id IN (SELECT id FROM staff WHERE name LIKE '%(stand-in %')`, careerSaveId)[0].n;
+      console.log(`  (stand-in staff for the portraits not yet installed, given to this world on a reboot: ${given} of ${standIns})`);
+    }
+  }
+
   // ── 3. Thirty seasons of the whole world ──────────────────────────────────
   console.log(`\n3. ${SEASONS} SEASONS`);
   const balances = new Map();   // poolTeamId -> [balance per season]
@@ -272,6 +294,10 @@ try {
   };
   const moves = [];
   let seasonStart = budgetOf();
+  // Update 1, 15 Oct: which clubs held a league place going into each boundary,
+  // so a sale's league place is only looked for when the club had one.
+  const leagueNow = () => new Set(read(`SELECT pool_team_id AS id FROM career_pool_team_state WHERE career_save_id = ? AND is_active_in_league = 1`, careerSaveId).map((x) => x.id));
+  let inLeagueBefore = leagueNow();
 
   for (let i = 0; i < 20000 && seasons < SEASONS; i++) {
     healAllSquads(dbFile);
@@ -312,7 +338,7 @@ try {
         `SELECT is_active_in_league AS l FROM career_pool_team_state
           WHERE career_save_id = ? AND pool_team_id = ?`,
         careerSaveId, s.replacementPoolTeamId)[0]?.l === 1;
-      sales.push({ ...s, season: seasons, tookItsPlace: tookIt });
+      sales.push({ ...s, season: seasons, tookItsPlace: tookIt, heldPlace: inLeagueBefore.has(s.poolTeamId) });
       const list = soldIn.get(s.poolTeamId) ?? [];
       list.push(seasons);
       soldIn.set(s.poolTeamId, list);
@@ -322,6 +348,7 @@ try {
          JOIN continental_pool_teams t ON t.id = s.pool_team_id
         WHERE s.career_save_id = ? AND s.is_active_in_league = 1 GROUP BY t.continent`,
       careerSaveId).map((x) => `${x.c}:${x.n}`).join(" "));
+    inLeagueBefore = leagueNow();
     if (r.data.clubSold) { stopped = "the player's own club was sold"; break; }
   }
   check(`the world played ${SEASONS} seasons`, seasons === SEASONS,
@@ -380,7 +407,12 @@ try {
       upTo.map((b) => money(b)).join(" > "));
 
     const replaced = sales.filter((s) => s.replacementName != null);
-    check("a club that gave up a league place had it taken by another club of this world",
+    // Update 1, 15 Oct: since the sponsor bonus was worked out (day 2, part 1) sales
+    // are rare (1 in 30 seasons in one run), and a club outside the league has no
+    // place to give up, so this is asked only when a sold club held one.
+    const heldPlaces = sales.filter((s) => s.heldPlace);
+    if (heldPlaces.length === 0) console.log(`  INFO  no club sold this run held a league place (${sales.length} sale(s)), so none was to be taken`);
+    else check("a club that gave up a league place had it taken by another club of this world",
       replaced.length > 0,
       replaced.slice(0, 4).map((s) => `${s.name} -> ${s.replacementName}`).join(" · ") || "none did");
 

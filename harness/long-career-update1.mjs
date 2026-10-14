@@ -36,7 +36,7 @@ import { DatabaseSync } from "node:sqlite";
 
 import { requireElectronBinary } from "./electron-binary.mjs";
 import { forkServer, stopServer } from "./server-harness.mjs";
-import { startCareer, keepSideFielded, renewExpiringContracts } from "./harness-club.mjs";
+import { startCareer, keepSideFielded, renewExpiringContracts, addStandInStaff } from "./harness-club.mjs";
 
 const SEASONS = Number(process.env.SEASONS ?? 5);
 const DIFFICULTY = process.env.DIFFICULTY ?? "medium";
@@ -143,22 +143,7 @@ let child = null;
 const tables = [];
 try {
   fs.copyFileSync(SHIPPED, DB);
-  if (process.env.STAND_INS) {
-    const d = new DatabaseSync(DB);
-    const roles = { "Head Coach": 25, "Assistant Coach": 25, Doctor: 10, Physiotherapist: 10, "Massage Therapist": 10, "Medical Specialist": 10 };
-    // At the ids scripts/install-staff-portraits.cjs gives Rob's people (data/staff-ids.json).
-    let nextId = STAND_IN_FROM;
-    for (const [role, n] of Object.entries(roles)) {
-      const src = d.prepare(`SELECT id FROM staff WHERE role = ? ORDER BY id`).all(role).map((r) => r.id);
-      for (let i = 0; i < n; i++) {
-        const cols = d.prepare(`PRAGMA table_info(staff)`).all().map((c) => c.name).filter((c) => c !== "id");
-        const sel = cols.map((c) => (c === "name" ? `name || ' (stand-in ${i + 1})'` : `"${c}"`)).join(", ");
-        d.prepare(`INSERT INTO staff (id, ${cols.map((c) => `"${c}"`).join(", ")}) SELECT ?, ${sel} FROM staff WHERE id = ?`).run(nextId++, src[i % src.length]);
-      }
-    }
-    d.close();
-    console.log("Stand-ins: 90 staff added (25 + 25 coaches, 10 of each medical role)");
-  }
+  if (process.env.STAND_INS) console.log(`Stand-ins: ${addStandInStaff(DB)} staff added (none once Rob's portraits are in)`);
   const out = fs.openSync(path.join(WORK, "server.log"), "w");
   child = forkServer({ server: SERVER, electron: ELECTRON, out,
     env: { ...process.env, ELECTRON_RUN_AS_NODE: "1", DB_PATH: DB, PORT: String(PORT), NODE_ENV: "development", SESSION_SECRET: "soak", STARTER_DB_PATH: SHIPPED } });

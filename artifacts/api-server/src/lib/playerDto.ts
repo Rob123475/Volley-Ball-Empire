@@ -5,6 +5,7 @@ import { db, playersTable, careerPlayerStateTable, staffTable, careerStaffStateT
   playerRetirementsTable, clubHallOfFameTable, careerGraduatePortraitsTable, nationName } from "@workspace/db";
 import type { CareerPlayerState, CareerStaffState, CareerPoolTeamState } from "@workspace/db";
 import { and, eq, gte, isNull, isNotNull, or, sql, type SQL } from "drizzle-orm";
+import staffIds from "../data/staff-ids.json";
 
 /**
  * The single place a player is assembled from its two halves.
@@ -447,7 +448,12 @@ export async function createCareerStaff(
   reference: typeof staffTable.$inferInsert,
   state: Partial<CareerStaffFields> = {},
 ): Promise<StaffDTO> {
-  const [created] = await db.insert(staffTable).values({ ...reference, nationality: asCountry(reference.nationality) }).returning();
+  // Update 1, O-2: below the starter DB's own ids (data/staff-ids.json), never
+  // the next free id, which is past them once a save has been given Rob's
+  // portrait staff (ensureReferenceData, Pass 3b).
+  const below = db.get<{ next: number }>(sql`SELECT coalesce(max(id), 0) + 1 AS next FROM staff WHERE id < ${staffIds.starterOnlyFrom}`);
+  const id = below && below.next < staffIds.starterOnlyFrom ? below.next : undefined;
+  const [created] = await db.insert(staffTable).values({ ...reference, id, nationality: asCountry(reference.nationality) }).returning();
   const [st] = await db.insert(careerStaffStateTable)
     .values({
       careerSaveId,
@@ -539,18 +545,6 @@ export type CareerStateTx = {
   tx: Parameters<Parameters<typeof db.transaction>[0]>[0];
 };
 
-/**
- * Daytime 2 Oct, U-6: an AI club's senior made from a continental pool player
- * (utils/aiSquads.ts), still at an AI club. She keeps the pool player's
- * timelessness there: she does not age or retire while she plays for an AI
- * club, exactly as the pool player never did (the AI world's strength holds over
- * thirty seasons). Bought by the player or released, she ages like anyone.
- */
-const notAiPoolSenior = or(
-  isNull(careerPlayerStateTable.poolPlayerId),
-  isNull(careerPlayerStateTable.poolTeamId),
-  isNotNull(careerPlayerStateTable.teamId),
-)!;
 
 export function withCareerStateTx<T>(fn: (w: CareerStateTx) => T): T {
   return db.transaction((tx) => fn({
@@ -610,7 +604,6 @@ export function withCareerStateTx<T>(fn: (w: CareerStateTx) => T): T {
         .where(and(
           eq(careerPlayerStateTable.careerSaveId, careerSaveId),
           eq(careerPlayerStateTable.isRetired, false),
-          notAiPoolSenior,
         ))
         .run();
       return Number((r as { changes?: number }).changes ?? 0);
@@ -642,7 +635,6 @@ export function withCareerStateTx<T>(fn: (w: CareerStateTx) => T): T {
           eq(careerPlayerStateTable.careerSaveId, careerSaveId),
           eq(careerPlayerStateTable.isRetired, false),
           gte(careerPlayerStateTable.age, minAge),
-          notAiPoolSenior,
         ))
         .all();
 

@@ -6,9 +6,8 @@
  * AI clubs' and the free agents included; never below 1. Staff and medical
  * never change.
  *
- * An AI club's original (a continental pool player) does not age while she
- * plays for an AI club (lib/playerDto.ts notAiPoolSenior, U-6), but she fades
- * at the age she is, like everyone: the rule is for every player.
+ * Update 1, 15 Oct (O-4): an AI club's original (a continental pool player)
+ * ages and retires like everyone now (the U-6 exception is gone).
  */
 import { careerPlayerStateTable, playersTable, seasonFade, type AgeingStat } from "@workspace/db";
 import { and, eq } from "drizzle-orm";

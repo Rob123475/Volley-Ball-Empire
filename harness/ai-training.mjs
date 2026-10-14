@@ -199,13 +199,22 @@ try {
   const rose = both.filter((id) => s1.get(id).tp > s0.get(id).tp);
   check("after a week, every AI senior's training points went up", weekRan && both.length > 100 && rose.length === both.length, `${rose.length} of ${both.length}`);
   const coachOf = (club) => (specialityOf(faces0.get(club)) === "Coach" ? 1.1 : 1);
-  const programmeOk = both.filter((id) => {
-    const a = s0.get(id), b = s1.get(id), prog = PROGRAMMES[aiProgrammeFor(a)];
-    const moved = STATS.filter((k) => b[k] !== a[k]);
-    const m = prog.xp * devFactor(a, prog.primary) * potentialMultiplier(a.potential) * coachOf(a.club) * staffOf(a.club);
+  // A serious injury in a match that week (B-2) takes 1 off speed and stamina at once and 5% off her XP,
+  // and can change which stat is her lowest before she trains: both readings are allowed for her.
+  const fits = (a, b, before) => {
+    const prog = PROGRAMMES[aiProgrammeFor(before)];
+    const moved = STATS.filter((k) => b[k] !== before[k]);
+    const m = prog.xp * devFactor(before, prog.primary) * potentialMultiplier(a.potential) * coachOf(a.club) * staffOf(a.club);
     const gain = b.tp - a.tp;
     return moved.every((k) => k === prog.primary || k === prog.secondary) && gain >= Math.round(25 * m) && gain <= Math.round(35 * m);
+  };
+  const programmeOk = both.filter((id) => {
+    const a = s0.get(id), b = s1.get(id);
+    if (fits(a, b, a)) return true;
+    return (b.serious ?? 0) > (a.serious ?? 0) && fits(a, b, { ...a, speed: a.speed - 1, stamina: a.stamina - 1, serious: b.serious });
   });
+  const off = both.filter((id) => !programmeOk.includes(id)).slice(0, 2).map((id) => JSON.stringify({ a: s0.get(id), b: s1.get(id) }));
+  if (off.length) console.log(`  INFO  outside: ${off.join(" | ")}`);
   check("each trained the programme for her lowest of power, speed, defense, serve, block (only its stats moved; XP in its range)",
     programmeOk.length === both.length, `${programmeOk.length} of ${both.length}`);
   // Item 4c: AI players are injured in their matches now; training still moves none of these.
