@@ -30,17 +30,20 @@
  *                           month (utils/salaryCap.ts seniorWageBill); every club,
  *                           the player's and the sixty AI clubs
  *     injuredLongWageShare  what an injured free agent out for
- *                           `injuredLongMonths` or more asks, as a share of her
+ *                           `injuredLongWeeks` or more asks, as a share of her
  *                           normal wage
  *     injuredShortWageShare the same, for one out for less than that
- *     injuredLongMonths     where "long" starts
+ *     injuredLongWeeks      where "long" starts. Overnight brief part 1b (Rob,
+ *                           14 Oct): 4 weeks, the B-2 "serious injury" line (the
+ *                           longest injury is 6 weeks, so 3 months never came).
+ *                           An AI club does not renew a senior out this long.
  */
 export const MONEY = {
   managerSalaryMonthly: { min: 16_000, max: 20_000 },
   headCoachSalaryMonthlyMax: 20_000,
   playerWageRiseMonthly: { min: 5_000, max: 10_000, atRating: { min: 66, max: 77 }, perPointAbove: 1_000 },
   sponsorWeeklyBonus: 10_000,
-  salaryCap: { monthlyCap: 60_000, injuredLongWageShare: 0.5, injuredShortWageShare: 0.75, injuredLongMonths: 3 },
+  salaryCap: { monthlyCap: 60_000, injuredLongWageShare: 0.5, injuredShortWageShare: 0.75, injuredLongWeeks: 4 },
 } as const;
 
 /** A fixed number in [0, 1) for a key (FNV-1a), so a manager's salary never re-rolls. */

@@ -19,6 +19,23 @@ Not run yet (part 9).
 
 ## Images Rob must make
 
+**Staff portraits (part 1a), 90 in all,** so every one of the 60 AI clubs can have a coach and a medical
+member on Day 8 while 5 of every role stay on the market:
+
+| Role | Have | Must make |
+|---|---|---|
+| Head Coach | 10 | 25 |
+| Assistant Coach | 10 | 25 |
+| Doctor | 10 | 10 |
+| Physiotherapist | 10 | 10 |
+| Massage Therapist | 10 | 10 |
+| Medical Specialist | 10 | 10 |
+
+(The coaches can be split any way between Head and Assistant, 50 in all. Add one more of a role for each
+of that role the player hires in his first week, if Rob wants 5 left even then.) Each new member needs a
+name, nationality, age, skill and wage too, as in utils/staff-generator.ts; once the pictures exist, the
+new people go in the staff data and the deal takes them with no code change (AI_STAFF.marketFloor stays 5).
+
 ## Olympic clashes with the pre-season camp
 
 ## 5-season soak tables
@@ -68,3 +85,9 @@ What is built (utils/aiStaff.ts, one constants block `AI_STAFF`):
 **How many clubs get staff today:** 10 of the 60 AI clubs get a coach (5 Head + 5 Assistant are
 spare) and 20 get a medical member (5 of each of the four roles are spare), fewer if the player
 hires a coach or medic in his first week.
+
+### Part 1b: injured players come cheap, in weeks (done)
+
+`MONEY.salaryCap.injuredLongMonths = 3` is now `injuredLongWeeks = 4` (lib/db/src/schema/money.ts).
+Out 4 weeks or more: 50% of her wage; less: 75%. The AI no-renewal rule reads the same number. Nothing
+read the old constant yet: both rules are built in part 2 (4c items 3 and 4), on this one.
