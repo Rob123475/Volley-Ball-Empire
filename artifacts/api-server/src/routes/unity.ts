@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { awayKit } from "../utils/kits.js";
 import {
   db, matchesTable, locationsTable, playersTable, teamsTable, matchLiveStateTable, careerSavesTable,
   worldTourFixturesTable, competitorsTable, continentalPoolTeamsTable, continentalPoolPlayersTable,
@@ -352,11 +353,17 @@ router.get("/unity/match-state", async (req, res): Promise<void> => {
     };
   }
 
+  const homeSide = homePlayers.map((p) => serializeMatchPlayer(p, homeLabel));
+  const awaySide = poolOpponent
+    ? poolOpponent.pair.map((pp) => serializePoolPlayer(pp, poolOpponent!.team, awayLabel))
+    : awayPlayers.map((p) => serializeMatchPlayer(p, awayLabel));
+  // Update 1, overnight part 7 (K-1 A): kits too alike, the away pair wears
+  // white (utils/kits.ts, the one rule). Unity paints what it is sent.
+  const homePrimary = homeSide.find((p) => p.primaryColor)?.primaryColor ?? null;
+  const awayChange = awayKit(homePrimary, { primary: awaySide.find((p) => p.primaryColor)?.primaryColor ?? null, secondary: awaySide.find((p) => p.secondaryColor)?.secondaryColor ?? null });
   const players = [
-    ...homePlayers.map((p) => serializeMatchPlayer(p, homeLabel)),
-    ...(poolOpponent
-      ? poolOpponent.pair.map((pp) => serializePoolPlayer(pp, poolOpponent!.team, awayLabel))
-      : awayPlayers.map((p) => serializeMatchPlayer(p, awayLabel))),
+    ...homeSide,
+    ...(awayChange.changed ? awaySide.map((p) => ({ ...p, primaryColor: awayChange.primary, secondaryColor: awayChange.secondary })) : awaySide),
   ];
 
   // The kit fallback is for a genuinely missing kit only, and it is never silent.
@@ -423,6 +430,8 @@ router.get("/unity/match-state", async (req, res): Promise<void> => {
     currentSet:           liveState?.currentSet ?? 1,
     matchTime:            liveState?.matchTimeSeconds ?? 0,
     players,
+    /** Overnight part 7: the away pair is in its change kit (the clubs' kits were too alike). */
+    awayKitChanged: awayChange.changed,
   });
 });
 

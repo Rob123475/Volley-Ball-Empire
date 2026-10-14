@@ -54,6 +54,9 @@ function luminance(hex) {
     .map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
   return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
 }
+// Update 1, overnight part 7: "too alike" as utils/kits.ts states it (RGB distance under 100).
+const rgbOf = (h) => { const n = parseInt(String(h ?? "").replace("#", ""), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
+const tooAlike = (a, b) => { if (!a || !b) return false; const [x, y] = [rgbOf(a), rgbOf(b)]; return Math.hypot(x[0] - y[0], x[1] - y[1], x[2] - y[2]) < 100; };
 const contrast = (a, b) => { const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x); return (hi + 0.05) / (lo + 0.05); };
 
 console.log("=".repeat(72));
@@ -188,11 +191,16 @@ try {
     const away = p.data.players.slice(2);
     const squad = opp ? squadOf.all(cid, opp.pool_team_id, cid, opp.pool_team_id).map((r) => r.name) : [];
     const names = opp ? squad.join(" & ") : "(no fixture)";
+    // Update 1, overnight part 7: kits too alike (utils/kits.ts), the away pair wears white, its primary the trim.
+    const clash = opp && tooAlike(WIZARD.primaryColor, opp.primary_color);
+    const wantPrimary = clash ? (tooAlike(WIZARD.primaryColor, "#FFFFFF") ? "#111111" : "#FFFFFF") : opp?.primary_color;
+    const wantSecondary = clash ? opp.primary_color : opp?.secondary_color;
     const ok = !!opp && away.length === 2 && away.every((a) => squad.includes(a.name)) && away.every((a) => a.source === "pool"
-      && a.primaryColor === opp.primary_color && a.secondaryColor === opp.secondary_color && a.team === p.data.awayTeam);
+      && a.primaryColor === wantPrimary && a.secondaryColor === wantSecondary && a.team === p.data.awayTeam)
+      && p.data.awayKitChanged === !!clash;
     if (ok) right++; else wrong.push(`match ${p.match.id}: sent ${away.map((a) => `${a.name} ${a.primaryColor}/${a.secondaryColor}`).join(", ")}; fixture ${names}`);
     if (opp) {
-      const kit = `${away[0]?.primaryColor}/${away[0]?.secondaryColor}`;
+      const kit = `${opp.primary_color}/${opp.secondary_color}`;
       kitByClub.set(opp.team_name, [...new Set([...(kitByClub.get(opp.team_name) ?? []), kit])]);
     }
   }
@@ -206,9 +214,36 @@ try {
   console.log(`  REPORT  first match: ${sample?.homeTeam} ${sample?.players[0].primaryColor}/${sample?.players[0].secondaryColor} vs ${sample?.awayTeam} ${sample?.players[2].primaryColor}/${sample?.players[2].secondaryColor} (${sample?.players[2].name}, ${sample?.players[3].name})`);
   check("no kit warning was logged for a season of matches", !/kit colours missing/.test(readLog(srv.logFile)));
 
+  // ── 2b. Kits too alike, and the ladder's dots (Update 1, overnight part 7) ──
+  console.log("\n2b. KITS TOO ALIKE: THE AWAY PAIR WEARS WHITE; THE LADDER'S DOTS ARE THE REAL KITS");
+  const target = served[0];
+  {
+    const dd = new DatabaseSync(dbFile);
+    dd.exec("PRAGMA busy_timeout = 5000");
+    const opp = dd.prepare(`SELECT p.primary_color AS c FROM world_tour_fixtures f JOIN competitors c ON c.id IN (f.home_competitor_id, f.away_competitor_id) AND c.pool_team_id IS NOT NULL
+      JOIN continental_pool_teams p ON p.id = c.pool_team_id WHERE f.match_id = ?`).get(target.match.id);
+    const teamId = dd.prepare("SELECT team_id AS t FROM career_saves WHERE id = ?").get(cid).t;
+    dd.prepare("UPDATE teams SET logo_color = ? WHERE id = ?").run(opp.c, teamId);
+    dd.close();
+    const same = await api("GET", `/unity/match-state?matchId=${target.match.id}`);
+    const aw = same.data?.players?.slice(2) ?? [];
+    check("the same primary colour on both sides: the away pair wears white, with its own primary as the trim",
+      same.data?.awayKitChanged === true && aw.length === 2 && aw.every((a) => a.primaryColor === "#FFFFFF" && a.secondaryColor === opp.c),
+      aw.map((a) => `${a.primaryColor}/${a.secondaryColor}`).join(", "));
+    const dw = new DatabaseSync(dbFile);
+    dw.prepare("UPDATE teams SET logo_color = ? WHERE id = ?").run(WIZARD.primaryColor, teamId);
+    const seasonId = dw.prepare("SELECT id FROM seasons WHERE career_save_id = ? AND status = 'active'").get(cid)?.id;
+    const poolKits = new Map(dw.prepare("SELECT team_name AS n, primary_color AS c FROM continental_pool_teams").all().map((r) => [r.n, r.c]));
+    dw.close();
+    const ladder = (await api("GET", `/seasons/${seasonId}/ladder`)).data ?? [];
+    const dotsOk = ladder.length > 0 && ladder.every((e) => e.kitColor === (e.isPlayer ? WIZARD.primaryColor : poolKits.get(e.teamName)));
+    check("every ladder dot is its club's real kit primary colour", dotsOk, `${ladder.length} clubs`);
+    check("(source) the name-hash colour is deleted from the ladders",
+      !/function teamColor\(/.test(fs.readFileSync(path.join(REPO, "artifacts", "beach-volleyball", "src", "pages", "league-ladders.tsx"), "utf8")));
+  }
+
   // ── 3. A club with no kit ─────────────────────────────────────────────────
   console.log("\n3. A GENUINELY NULL KIT IS SENT AS NULL AND WARNED ABOUT");
-  const target = served[0];
   {
     const w = new DatabaseSync(dbFile);
     w.exec("PRAGMA busy_timeout = 5000");

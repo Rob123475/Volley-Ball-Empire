@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { kitColours } from "../utils/kits.js";
 import { db } from "@workspace/db";
 import { seasonsTable, matchesTable, teamsTable, seasonFinalStandingsTable, careerHistoryEntriesTable, competitorRankingsTable, competitorsTable, trophiesTable, playerRetirementsTable } from "@workspace/db";
 import { eq, desc, and } from "drizzle-orm";
@@ -179,7 +180,10 @@ router.get("/seasons/:id/ladder", async (req, res) => {
   // "goals" were `wins * 2 + teamId % 10` — deterministic, but not data.
   // goalsFor/goalsAgainst now carry real sets won and lost from
   // world_tour_fixtures; the names stay so the API shape does not move.
-  const ladder = worldTourStandings(cid, season.year).map((s) => ({
+  const standings = worldTourStandings(cid, season.year);
+  // Update 1, overnight part 7: each club's real kit colour for its dot (utils/kits.ts).
+  const kits = kitColours(standings.flatMap((s) => (s.teamId != null ? [s.teamId] : [])), standings.flatMap((s) => (s.poolTeamId != null ? [s.poolTeamId] : [])));
+  const ladder = standings.map((s) => ({
     rank:         s.rank,
     competitorId: s.competitorId,
     teamId:       s.teamId,
@@ -191,6 +195,7 @@ router.get("/seasons/:id/ladder", async (req, res) => {
     goalsFor:     s.setsFor,
     goalsAgainst: s.setsAgainst,
     form:         s.form,
+    kitColor:     (s.teamId != null ? kits.team.get(s.teamId) : s.poolTeamId != null ? kits.pool.get(s.poolTeamId) : null) ?? null,
   }));
   res.json(ladder);
 });

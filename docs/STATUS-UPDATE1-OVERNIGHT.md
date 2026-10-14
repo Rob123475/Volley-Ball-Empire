@@ -68,6 +68,9 @@ Not run yet (part 9).
 21. **The AI clubs choose on the player's day 7** (one moment for the whole world), and only camps that
     end before the next season's first round.
 22. **If the player never chooses, it's a Skip.**
+23. **Kits "too alike":** RGB distance under 100 (of 441) between the two primary colours. The away
+    pair wears white with its own primary as the trim (near-black if the home kit is near white).
+    *Change:* KITS.tooAlike in utils/kits.ts.
 17. **B-2, "read from the injury history":** the injury_history table only holds the player's club, so
     each player's serious injuries are counted on her career state (serious_injuries) when they
     happen, for every club. Older injuries aren't counted backwards.
@@ -269,3 +272,16 @@ page's preview (aliased `@shared/ageing`, as money.ts is now `@shared/money`).
 - `AI_TRAIN_EVERY_WEEKS` is gone; AI training reads the career's difficulty (no second knob).
 - The API spec and its generated types gained `gameDifficulty` (hand-edited like `managerFaceId` was).
 - New suite **harness/difficulty.mjs** (run-all 98l).
+
+### Part 7: kits (done, not yet run)
+
+- **Too alike → the away pair wears white**, one rule in **utils/kits.ts** (`KITS`): the two clubs'
+  primary colours less than 100 apart in RGB (straight-line distance, 0 to 441). The away pair then
+  wears white with its own primary colour as the trim; if the home kit is itself close to white, it
+  wears near-black instead. It rides on `/unity/match-state`'s per-player colours (plus
+  `awayKitChanged: true`), so **no Unity change is needed**.
+- **Ladder dots** are each club's real kit primary colour: the season ladder, the history standings and
+  the club Hall of Fame bubbles now carry `kitColor` from the server; the name hash (`teamColor`) is
+  deleted (it was the only copy). Player cards keep their national colours.
+- harness/club-kits.mjs extended (section 2b: a forced clash goes white; every ladder dot is the real
+  kit; the hash is gone), and its away-kit check now allows the change kit (knowingly changed).

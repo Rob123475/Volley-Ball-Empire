@@ -32,15 +32,11 @@ function teamInitials(name: string): string {
   return (words[0][0] + words[words.length - 1][0]).toUpperCase();
 }
 
-function teamColor(name: string): string {
-  const COLORS = [
-    "bg-rose-500",    "bg-orange-500", "bg-amber-500",  "bg-yellow-500",
-    "bg-lime-500",    "bg-green-500",  "bg-emerald-500","bg-teal-500",
-    "bg-cyan-500",    "bg-sky-500",    "bg-blue-500",   "bg-indigo-500",
-    "bg-violet-500",  "bg-purple-500", "bg-fuchsia-500","bg-pink-500",
-  ];
-  const hash = name.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
-  return COLORS[hash % COLORS.length];
+// Update 1, overnight part 7: a club's dot is its real kit primary colour
+// (the server's kitColor, utils/kits.ts). It was a colour hashed from the name.
+const NO_KIT = "#9CA3AF";
+function kitDot(color: string | null | undefined): { backgroundColor: string } {
+  return { backgroundColor: color || NO_KIT };
 }
 
 function rankDisplay(rank: number) {
@@ -145,7 +141,7 @@ function SeniorsLadder({ myTeamName }: { myTeamName: string }) {
               // the club's name, so a club with no results showed five losses.
               const form = entry.form;
               const initials = teamInitials(entry.teamName);
-              const color = teamColor(entry.teamName);
+              const color = kitDot((entry as { kitColor?: string | null }).kitColor);
               return (
                 <tr
                   key={entry.competitorId}
@@ -157,7 +153,7 @@ function SeniorsLadder({ myTeamName }: { myTeamName: string }) {
                 >
                   <td className="px-2 py-2">{rankDisplay(entry.rank)}</td>
                   <td className="px-1 py-2">
-                    <div className={cn("h-6 w-6 rounded-full flex items-center justify-center text-[10px] font-bold text-white shrink-0", color)}>
+                    <div className="h-6 w-6 rounded-full flex items-center justify-center text-[10px] font-bold text-white shrink-0" style={color}>
                       {initials}
                     </div>
                   </td>
@@ -203,7 +199,7 @@ function HistoryStandingsTable({
   rows,
   cols,
 }: {
-  rows: { rank: number; name: string; isPlayer: boolean; wins: number; losses: number; points: number; setDiff?: number }[];
+  rows: { rank: number; name: string; isPlayer: boolean; wins: number; losses: number; points: number; setDiff?: number; kitColor?: string | null }[];
   cols: { key: string; label: string }[];
 }) {
   if (rows.length === 0) return null;
@@ -227,7 +223,7 @@ function HistoryStandingsTable({
         <tbody>
           {rows.map((entry) => {
             const initials = teamInitials(entry.name);
-            const color = teamColor(entry.name);
+            const color = kitDot(entry.kitColor);
             return (
               <tr
                 key={entry.rank}
@@ -239,7 +235,7 @@ function HistoryStandingsTable({
               >
                 <td className="px-2 py-2">{rankDisplay(entry.rank)}</td>
                 <td className="px-1 py-2">
-                  <div className={cn("h-6 w-6 rounded-full flex items-center justify-center text-[10px] font-bold text-white shrink-0", color)}>
+                  <div className="h-6 w-6 rounded-full flex items-center justify-center text-[10px] font-bold text-white shrink-0" style={color}>
                     {initials}
                   </div>
                 </td>
@@ -381,6 +377,7 @@ function HistorySeasonArchive() {
   const seniorRows = standings?.seniors.map((r) => ({
     rank: r.rank,
     name: r.competitorName,
+    kitColor: (r as { kitColor?: string | null }).kitColor ?? null,
     isPlayer: r.isPlayer,
     wins: r.wins,
     losses: r.losses,
@@ -601,10 +598,8 @@ function HistoryHallOfFame() {
             {hof!.players.map((p) => (
               <div key={p.id} className="rounded-xl border bg-card p-4 space-y-3">
                 <div className="flex items-start gap-3">
-                  <div className={cn(
-                    "h-10 w-10 rounded-full flex items-center justify-center text-sm font-bold text-white shrink-0",
-                    teamColor(p.name)
-                  )}>
+                  <div className="h-10 w-10 rounded-full flex items-center justify-center text-sm font-bold text-white shrink-0"
+                    style={kitDot((p as { kitColor?: string | null }).kitColor)}>
                     {teamInitials(p.name)}
                   </div>
                   <div className="flex-1 min-w-0">

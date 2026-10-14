@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { kitColourByName } from "../utils/kits.js";
 import { db } from "@workspace/db";
 import {
   teamsTable,
@@ -58,11 +59,14 @@ router.get("/history/seasons/:year/standings", async (req, res) => {
     .orderBy(asc(seasonFinalStandingsTable.rank));
 
   const hasSnapshot = seniorRows.length > 0;
+  // Update 1, overnight part 7: each club's real kit colour for its dot (utils/kits.ts).
+  const kits = kitColourByName(seniorRows.map((r) => r.competitorName), { name: team.name, logoColor: team.logoColor ?? null });
 
   res.json({
     seniors: seniorRows.map((r) => ({
       rank: r.rank,
       competitorName: r.competitorName,
+      kitColor: (r.isPlayer ? team.logoColor : kits.get(r.competitorName)) ?? null,
       isPlayer: r.isPlayer,
       wins: r.wins,
       losses: r.losses,
@@ -249,6 +253,8 @@ router.get("/history/hall-of-fame", async (req, res) => {
       worldTitles: hofStats.championshipsWon,
       careerWins: team.wins,
       retiredSeason: "Retired",
+      // Overnight part 7: her club's kit colour (it is this club's hall).
+      kitColor: team.logoColor ?? null,
     })),
     managerEntries: managerEntries.map((e) => ({
       managerName: e.managerName,
