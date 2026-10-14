@@ -91,3 +91,13 @@ hires a coach or medic in his first week.
 `MONEY.salaryCap.injuredLongMonths = 3` is now `injuredLongWeeks = 4` (lib/db/src/schema/money.ts).
 Out 4 weeks or more: 50% of her wage; less: 75%. The AI no-renewal rule reads the same number. Nothing
 read the old constant yet: both rules are built in part 2 (4c items 3 and 4), on this one.
+
+### Part 2: item 4c in full (done, not yet run)
+
+All of 4c, the full-club buy and part 1b, as written in docs/STATUS-UPDATE1-SALARY-CAP.md
+("Overnight 14–15 Oct"). In short: AI clubs refill to 3 seniors (a third only if they can afford and fit
+her); AI players get the player's own injury roll after their matches (Fitness Guru counts for AI
+managers now) and heal on the same weekly clock, free agents too; an AI club with fewer than two fit
+forfeits; an injured free agent asks 50% (4+ weeks out) or 75% through the one asking-wage path, and
+signs at it; a long-injured AI senior isn't renewed; AI clubs gamble on an injured free agent only with
+two fit; a full AI club buys by releasing its weakest. Suite harness/ai-injuries.mjs (run-all 98i).

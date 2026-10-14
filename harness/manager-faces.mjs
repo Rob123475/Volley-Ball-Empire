@@ -335,18 +335,21 @@ try {
   setFace(cidA, FG); const fg = (await A("GET", "/manager")).data?.injuryRiskFactor;
   setFace(cidA, COACH); const nfg = (await A("GET", "/manager")).data?.injuryRiskFactor;
   const matchesSrc = src("artifacts/api-server/src/routes/matches.ts");
-  check("Fitness Guru: match injury risk x0.8 (x1 for anyone else), through injuryRisk's one call",
+  // Item 4c: the roll is the shared matchInjuryRoll (utils/condition.ts), the AI clubs' too.
+  check("Fitness Guru: match injury risk x0.8 (x1 for anyone else), through the one injury roll",
     fg === 0.8 && nfg === 1 && /const fitnessGuru = specialityFactor\(teamId, "Fitness Guru"\);/.test(matchesSrc)
-      && /injuryRisk\([^)]*\) \* wx\.injuryRiskMultiplier \* fitnessGuru/.test(matchesSrc),
+      && /matchInjuryRoll\(player, \{ sportsLabLevel, hasRecoveryCamp, weatherMultiplier: wx\.injuryRiskMultiplier, fitnessGuru \}\)/.test(matchesSrc)
+      && /\* \(ctx\.weatherMultiplier \?\? 1\) \* \(ctx\.fitnessGuru \?\? 1\)/.test(src("artifacts/api-server/src/utils/condition.ts")),
     `factor ${fg} / ${nfg}`);
   check("and the Medical page's injury risk takes the same factor", /calcInjuryRisk\(fitness, fatigue, riskFactor\)/.test(src("artifacts/beach-volleyball/src/pages/medical.tsx")));
 
   // M-6: an AI manager's speciality is shown, not used, but for Coach and
-  // Youth Developer since item 3 (harness/ai-training.mjs tests those two).
+  // Youth Developer since item 3 (harness/ai-training.mjs tests those two), and
+  // Fitness Guru since item 4c (harness/ai-injuries.mjs).
   const facesSrc = src("artifacts/api-server/src/utils/managerFaces.ts");
-  check("(source) the one multiplier reads the player's manager by the club's teams row, and for an AI club only Coach and Youth Developer count",
+  check("(source) the one multiplier reads the player's manager by the club's teams row, and for an AI club only Coach, Youth Developer and Fitness Guru count",
     /if \(typeof club === "number"\) \{[\s\S]*?careerSavesTable\.teamId, club\)/.test(facesSrc)
-      && /export const AI_CLUB_SPECIALITIES: readonly Speciality\[\] = \["Coach", "Youth Developer"\];/.test(facesSrc)
+      && /export const AI_CLUB_SPECIALITIES: readonly Speciality\[\] = \["Coach", "Youth Developer", "Fitness Guru"\];/.test(facesSrc)
       && /if \(club != null && typeof club === "object" && !AI_CLUB_SPECIALITIES\.includes\(speciality\)\) return 1;/.test(facesSrc));
   check("(source) an AI club's purchases take no speciality; an AI academy's week only its Youth Developer",
     /marketPrice\(careerSaveId, \{ \.\.\.m, askingPrice: null \}\)\.price/.test(src("artifacts/api-server/src/utils/aiSquads.ts"))

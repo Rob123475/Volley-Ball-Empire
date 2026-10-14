@@ -39,7 +39,7 @@ import {
 import { boardDay } from "../utils/board-confidence.js";
 import { endCareer, loseClub } from "../utils/careerLifecycle.js";
 import { isOlympicYear, olympicDate } from "../utils/olympics.js";
-import { REST_RECOVERY, applyWeeklyInjuryRecovery, isInjured, selectPair, PAIR_SIZE } from "../utils/condition.js";
+import { REST_RECOVERY, applyWeeklyInjuryRecovery, aiInjuryRecoveryWeekTx, isInjured, selectPair, PAIR_SIZE } from "../utils/condition.js";
 import { staffAbsenceDayTx } from "../utils/staffIllness.js";
 import { substituteInjuredMatchPlayers, substitutionNotes } from "../utils/matchDaySubstitution.js";
 import { finishDueTrainingSessions } from "./training.js";
@@ -711,7 +711,9 @@ async function advanceOneDay(req: Request): Promise<DayResult> {
     // R-50: injuries heal a week every 7 game days — the off-season included.
     // They used to tick only for a player who sat out a match, which a club
     // whose whole active squad played every match never did.
-    const recovered = await applyWeeklyInjuryRecovery(careerSaveId, team.id);
+    const recovered = applyWeeklyInjuryRecovery(careerSaveId, team.id);
+    // Item 4c: the AI clubs' players and the free agents heal on the same clock.
+    withCareerStateTx((w) => aiInjuryRecoveryWeekTx(w, careerSaveId));
     if (recovered.length > 0) {
       events.push(`Back from injury: ${recovered.join(", ")}`);
     }

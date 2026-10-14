@@ -19,7 +19,7 @@ import {
 const SENIOR_AGE_MIN = 18;
 import { eq, isNull, isNotNull, and, sql, inArray } from "drizzle-orm";
 import { marketView, marketPrice, scoutState, youthPrice, SCOUT_DAYS, SCOUT_COST, YOUTH_SCOUT_COST } from "../utils/marketScouting.js";
-import { askingWage } from "../utils/wageCurve.js";
+import { askingWage, freeAgentInjuryWeeks } from "../utils/wageCurve.js";
 import { specialityFactor } from "../utils/managerFaces.js";
 import { cannotAffordScout, chargeScout } from "../utils/scoutingCharge.js";
 import { generateDevelopment } from "../utils/player-development";
@@ -416,7 +416,8 @@ router.get("/players/market-all", async (req, res) => {
       (c, pl) => marketPrice(c, pl, negotiator));
     return {
       ...view,
-      ...(onMarket && !isYouthPlayer(p) ? { salary: askingWage(view.salary, contractsExpert) } : {}),
+      // Item 4c (C-6): an injured free agent asks less (askingWage's injury share).
+      ...(onMarket && !isYouthPlayer(p) ? { salary: askingWage(view.salary, contractsExpert, freeAgentInjuryWeeks(p)) } : {}),
       status,
       currentTeamName: p.teamId ? (teamMap[p.teamId] ?? null) : p.poolTeamId != null ? (aiClubNames.get(p.poolTeamId) ?? null) : null,
       currentTeamId: p.teamId ?? null,

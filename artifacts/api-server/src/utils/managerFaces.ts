@@ -39,8 +39,8 @@ export type Speciality = typeof SPECIALITIES[number];
  * (the new-career card shows it), and its size: a multiplier on the number the
  * game already works out, or (Leader) points added to the board's starting
  * confidence. M-6: an AI manager's speciality is shown, and since item 3 used
- * only for Coach and Youth Developer (AI_CLUB_SPECIALITIES); the other six are
- * the player's club's only.
+ * for Coach and Youth Developer, and since 4c Fitness Guru (AI_CLUB_SPECIALITIES);
+ * the other five are the player's club's only.
  */
 export const SPECIALITY_EFFECTS: Record<Speciality, { effect: string; factor: number }> = {
   "Talent Recruiter": { effect: "Scouting missions cost 25% less", factor: 0.75 },
@@ -79,9 +79,11 @@ export type ClubRef = number | null | undefined | { careerSaveId: number; poolTe
 /**
  * Update 1, item 3 (Rob, 14 Oct): M-6 switched on for AI clubs for exactly
  * these two: an AI club's own manager's Coach (its seniors' training) and Youth
- * Developer (its academy). The other six stay the player's club's only.
+ * Developer (its academy). Item 4c (overnight part 2): Fitness Guru too, now
+ * that the AI clubs' players get injured in their matches (utils/condition.ts
+ * matchInjuryRoll). The other five stay the player's club's only.
  */
-export const AI_CLUB_SPECIALITIES: readonly Speciality[] = ["Coach", "Youth Developer"];
+export const AI_CLUB_SPECIALITIES: readonly Speciality[] = ["Coach", "Youth Developer", "Fitness Guru"];
 
 /**
  * The speciality of the manager who runs this club: the player's (career_saves,

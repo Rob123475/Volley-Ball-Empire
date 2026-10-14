@@ -599,6 +599,11 @@ runSuite("day1 draft", path.join(REPO, "harness", "day1-draft.mjs"));
 console.log("\n########## 98h/100  THE AI CLUBS' STAFF (UPDATE 1, OVERNIGHT 1a) ##########");
 runSuite("ai staff", path.join(REPO, "harness", "ai-staff.mjs"));
 
+// Update 1, item 4c (Rob, 14 Oct): AI clubs hold three seniors, get injured in
+// their matches, and an injured free agent asks less.
+console.log("\n########## 98i/100  AI INJURIES AND THE INJURED BARGAIN (UPDATE 1, ITEM 4c) ##########");
+runSuite("ai injuries", path.join(REPO, "harness", "ai-injuries.mjs"));
+
 // ── Smoke needs a server; boot one on a throwaway copy of the shipped DB ─────
 console.log("\n########## 99/100  GAMEPLAY SMOKE ##########");
 {

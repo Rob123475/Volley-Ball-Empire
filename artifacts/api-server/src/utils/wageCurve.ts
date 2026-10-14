@@ -27,7 +27,7 @@
  * would worsen I3, which is already at 35% against a 15% target — the single
  * World Final is 35% of the season's prize money. Prizes are Phase 3.
  */
-import { playerWageRise } from "@workspace/db";
+import { playerWageRise, MONEY } from "@workspace/db";
 
 /** Asking price below which the curve is untouched. */
 export const WAGE_KNEE = 100_000;
@@ -70,8 +70,36 @@ export function seniorMonthlyWage(askingPrice: number | null | undefined, overal
  * utils/managerFaces.ts). The market shows it, the offer starts at it, and an
  * offer below it is refused. Contracts already signed keep their wages.
  */
-export function askingWage(salary: number | string | null | undefined, factor = 1): number {
-  return Math.round(Number(salary ?? 0) * factor);
+export function askingWage(salary: number | string | null | undefined, factor = 1, injuryWeeks = 0): number {
+  return Math.round(Number(salary ?? 0) * factor * injuredWageShare(injuryWeeks));
+}
+
+/**
+ * Update 1, item 4c (C-6) and overnight part 1b: an injured FREE AGENT asks
+ * less. Out MONEY.salaryCap.injuredLongWeeks (4) or more: injuredLongWageShare
+ * (50%) of her wage; out less: injuredShortWageShare (75%); fit: all of it.
+ * The caller passes her weeks out only when she is a free agent; she signs at
+ * that wage for the whole contract.
+ */
+export function injuredWageShare(injuryWeeks: number | null | undefined): number {
+  const weeks = Number(injuryWeeks ?? 0);
+  const { injuredLongWeeks, injuredLongWageShare, injuredShortWageShare } = MONEY.salaryCap;
+  return weeks <= 0 ? 1 : weeks >= injuredLongWeeks ? injuredLongWageShare : injuredShortWageShare;
+}
+
+/**
+ * The weeks an injured FREE AGENT is still out (0 for anyone fit, or at a
+ * club): what askingWage's `injuryWeeks` is given, so a player at a club
+ * never asks less for being hurt. Injured as utils/condition.ts isInjured
+ * reads it (either flag).
+ */
+export function freeAgentInjuryWeeks(p: {
+  teamId?: number | null; poolTeamId?: number | null;
+  isInjured?: boolean | null; injuryStatus?: string | null; injuryWeeksRemaining?: number | string | null;
+}): number {
+  if (p.teamId != null || p.poolTeamId != null) return 0;
+  const injured = !!p.isInjured || (p.injuryStatus ?? "Healthy") !== "Healthy";
+  return injured ? Math.max(0, Number(p.injuryWeeksRemaining ?? 0)) : 0;
 }
 
 /** Monthly wage for an athlete with this asking price. */

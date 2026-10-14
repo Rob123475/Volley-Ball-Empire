@@ -20,7 +20,8 @@ import {
 import { eq, and, inArray, isNotNull } from "drizzle-orm";
 import { generateDoubleRoundRobin } from "./fixtures.js";
 import { pointProbability, simulateMatch } from "./matchEngine.js";
-import { poolClubRatings } from "./worldTour.js";
+import { poolClubMatchRatingsTx } from "./worldTour.js";
+import { aiMatchInjuriesTx } from "./aiSquads.js";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -378,7 +379,9 @@ export async function simulateRegionalRound(
   // `100 - (poolRanking - 1) * 8`, a formula over a frozen seed ranking that
   // rated a continent's top club 100 and its tenth 28, against players
   // averaging 83 and 72.
-  const ratingByTeamId = poolClubRatings(careerSaveId);
+  // Item 4c: only a club with two fit seniors has a rating today; one without
+  // forfeits (the walkover below), as the player's club does.
+  const ratingByTeamId = db.transaction((tx) => poolClubMatchRatingsTx(tx, careerSaveId));
   const takenOver = new Set((await db.select({ id: careerPoolTeamStateTable.poolTeamId }).from(careerPoolTeamStateTable)
     .where(and(eq(careerPoolTeamStateTable.careerSaveId, careerSaveId), isNotNull(careerPoolTeamStateTable.takenOverAt)))).map((r) => r.id));
 
@@ -394,7 +397,8 @@ export async function simulateRegionalRound(
 
   // Synchronous callback — see the note on the transaction in
   // resolveRegionalSeason() above for why (better-sqlite3 requirement).
-  withCareerStateTx(({ insertLeagueResult, setFixtureResult }) => {
+  withCareerStateTx((w) => {
+    const { insertLeagueResult, setFixtureResult } = w;
     for (const fixture of fixtures) {
       const homeRating = ratingByTeamId.get(fixture.homePoolTeamId);
       const awayRating = ratingByTeamId.get(fixture.awayPoolTeamId);
@@ -417,6 +421,9 @@ export async function simulateRegionalRound(
         continue;
       }
       const result = simulateFixtureResult(homeRating, awayRating);
+      // Item 4c: both pairs get the player's injury roll (a regional match has no weather).
+      aiMatchInjuriesTx(w, careerSaveId, fixture.homePoolTeamId);
+      aiMatchInjuriesTx(w, careerSaveId, fixture.awayPoolTeamId);
 
       const winnerId =
         result.winnerId === "home" ? fixture.homePoolTeamId : fixture.awayPoolTeamId;

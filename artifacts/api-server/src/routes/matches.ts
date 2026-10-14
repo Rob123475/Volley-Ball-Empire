@@ -22,7 +22,7 @@ import { recordBoardForfeit, ABANDONMENT_DAYS } from "../utils/board-confidence.
 import { endCareer, loseClub } from "../utils/careerLifecycle.js";
 import { MAX_STARTERS } from "../utils/squadRules.js";
 import {
-  selectPair, pairSideRating, isAvailable, matchCosts, injuryRisk, rollInjury,
+  selectPair, pairSideRating, isAvailable, matchCosts, matchInjuryRoll,
 } from "../utils/condition.js";
 import {
   worldTourGate, recordPlayerMatchResult, fixtureForMatch, competitorRating, worldTourStandings,
@@ -219,12 +219,9 @@ export async function applyPostMatchEffects(
       updates.fitness = Math.max(0, (player.fitness ?? 100) - cost.fitness);
       updates.consecutiveMatchesPlayed = consecutive + 1;
 
-      const risk = Math.min(
-        injuryRisk(player.fatigue ?? 0, player.stamina, consecutive, sportsLabLevel, hasRecoveryCamp) * wx.injuryRiskMultiplier * fitnessGuru,
-        0.70,
-      );
-      if (Math.random() < risk) {
-        const inj = rollInjury();
+      // Item 4c: the one roll every club's players get (utils/condition.ts).
+      const inj = matchInjuryRoll(player, { sportsLabLevel, hasRecoveryCamp, weatherMultiplier: wx.injuryRiskMultiplier, fitnessGuru });
+      if (inj) {
         updates.injuryStatus         = inj.status;
         updates.injuryWeeksRemaining = inj.weeks;
         updates.isInjured            = true;

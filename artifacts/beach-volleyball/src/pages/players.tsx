@@ -1,4 +1,6 @@
 import { normaliseRole } from "@shared/staff-roles";
+import { MONEY } from "@shared/money";
+
 import { WAGE_CAP_QUERY_KEY } from "@/lib/wage-cap";
 import { youthWageText } from "@/lib/youth-wage";
 import { ContractModal, type ContractOffer } from "@/components/contract-offer-dialog";
@@ -55,6 +57,9 @@ import { format } from "date-fns";
 import { CONTRACT_LENGTHS, CONTRACT_LENGTH_LABELS, type ContractLength } from "@/lib/contract-lengths";
 import { cn } from "@/lib/utils";
 import { serverMessage } from "@/lib/api-error";
+
+/** Update 1, item 4c: out this long or more, an injured free agent asks half her wage. */
+const INJURED_LONG_WEEKS = MONEY.salaryCap.injuredLongWeeks;
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -348,6 +353,15 @@ function MarketPlayerCard({
             <span className="text-amber-500 font-medium">
               Expires {new Date(player.contractEndDate).toLocaleDateString("en-GB", { month: "short", year: "numeric" })}
             </span>
+          </div>
+        )}
+
+        {/* Update 1, item 4c (C-6): an injured free agent asks less (the server's askingWage). */}
+        {!player.currentTeamName && (player.isInjured || (player.injuryStatus ?? "Healthy") !== "Healthy") && (
+          <div className="rounded-md border border-red-500/40 bg-red-500/10 px-2 py-1.5 text-xs" data-testid={`injured-${player.id}`}>
+            <span className="font-semibold text-red-500">{player.injuryStatus && player.injuryStatus !== "Healthy" ? player.injuryStatus : "Injured"}</span>
+            {", out "}{Math.ceil(Number(player.injuryWeeksRemaining ?? 0))} week{Math.ceil(Number(player.injuryWeeksRemaining ?? 0)) === 1 ? "" : "s"}.
+            {" "}She asks {Number(player.injuryWeeksRemaining ?? 0) >= INJURED_LONG_WEEKS ? "half" : "three quarters"} of her wage, for the whole contract.
           </div>
         )}
 

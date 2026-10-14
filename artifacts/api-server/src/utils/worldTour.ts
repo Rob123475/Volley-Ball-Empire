@@ -39,7 +39,7 @@ import {
 } from "@workspace/db";
 import { and, asc, eq, gte, inArray, isNull, lte } from "drizzle-orm";
 import { sideRating, pointProbability, simulateMatch, type SetScore, type MatchResult } from "./matchEngine.js";
-import { aiClubRatingsTx } from "./aiSquads.js";
+import { aiClubRatingsTx, aiMatchRatingsTx, aiMatchInjuriesTx } from "./aiSquads.js";
 import { creditCompetitorTx } from "./rankingPoints.js";
 import { competitorIdForTeamTx, competitorIdForPoolTeamTx } from "./competitors.js";
 import { WORLD_TOUR_START, WORLD_TOUR_END, FINALS_START, FINALS_END, REGIONAL_END } from "./calendarSlots.js";
@@ -49,7 +49,7 @@ import { getWeatherEffects } from "../routes/matches.js";
 import { loadLeagueSeasons } from "../lib/regionalLeague.js";
 import { simulateRegionalRound, resolveRegionalSeason } from "./regionalSeason.js";
 import { playOlympicsTx, type OlympicOutcome } from "./olympics.js";
-import { updatePlayerState } from "../lib/playerDto.js";
+import { updatePlayerState, withCareerStateTx, type CareerStateTx } from "../lib/playerDto.js";
 
 type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
@@ -84,9 +84,13 @@ export function poolClubRatingsTx(tx: Tx, careerSaveId: number): Map<number, num
   return aiClubRatingsTx(tx, careerSaveId);
 }
 
-/** Async form for callers outside a transaction (the regional league). */
-export function poolClubRatings(careerSaveId: number): Map<number, number> {
-  return db.transaction((tx) => poolClubRatingsTx(tx, careerSaveId));
+/**
+ * Item 4c: the strength of each pool club that can play a match today (two fit
+ * seniors, utils/aiSquads.ts aiMatchRatingsTx). A club missing from the map
+ * forfeits, the walkover both the World Tour and the regional league play.
+ */
+export function poolClubMatchRatingsTx(tx: Tx, careerSaveId: number): Map<number, number> {
+  return aiMatchRatingsTx(tx, careerSaveId);
 }
 
 // ── Field ────────────────────────────────────────────────────────────────────
@@ -363,8 +367,9 @@ function totalPoints(sets: SetScore[]): { home: number; away: number } {
  * round, which is the same beach on the same day.
  */
 export function playWorldTourUpToTx(
-  tx: Tx, careerSaveId: number, seasonYear: number, playerTeamId: number, upToRound: number,
+  w: CareerStateTx, careerSaveId: number, seasonYear: number, playerTeamId: number, upToRound: number,
 ): number {
+  const tx = w.tx;
   const due = tx.select().from(worldTourFixturesTable).where(and(
     eq(worldTourFixturesTable.careerSaveId, careerSaveId),
     eq(worldTourFixturesTable.seasonYear, seasonYear),
@@ -374,7 +379,7 @@ export function playWorldTourUpToTx(
   )).orderBy(asc(worldTourFixturesTable.round), asc(worldTourFixturesTable.id)).all();
   if (due.length === 0) return 0;
 
-  const ratings = poolClubRatingsTx(tx, careerSaveId);
+  const ratings = poolClubMatchRatingsTx(tx, careerSaveId);
   const poolOf = poolTeamByCompetitorTx(tx, [
     ...new Set(due.flatMap((f) => [f.homeCompetitorId, f.awayCompetitorId])),
   ]);
@@ -386,9 +391,9 @@ export function playWorldTourUpToTx(
     eq(matchesTable.homeTeamId, playerTeamId),
     eq(matchesTable.season, seasonYear),
   )).all();
-  const weatherPenaltyByRound = new Map(weatherRows.map((w) => [
-    w.round,
-    getWeatherEffects(w.weather, Number(w.windSpeed ?? 0), Number(w.temperature ?? 25)).performancePenalty,
+  const weatherByRound = new Map(weatherRows.map((r) => [
+    r.round,
+    getWeatherEffects(r.weather, Number(r.windSpeed ?? 0), Number(r.temperature ?? 25)),
   ]));
 
   for (const fx of due) {
@@ -408,9 +413,16 @@ export function playWorldTourUpToTx(
     });
     const result = home == null || away == null ? walkover(home != null) : simulateMatch(pointProbability(home, away, {
       homeAdvantage:  true,
-      weatherPenalty: weatherPenaltyByRound.get(fx.round) ?? 0,
+      weatherPenalty: weatherByRound.get(fx.round)?.performancePenalty ?? 0,
     }));
     const points = totalPoints(result.sets);
+    // Item 4c: a match played (not a walkover) gives both pairs the player's
+    // injury roll, on the event's weather.
+    if (home != null && away != null) {
+      const weatherMultiplier = weatherByRound.get(fx.round)?.injuryRiskMultiplier ?? 1;
+      aiMatchInjuriesTx(w, careerSaveId, homePool, weatherMultiplier);
+      aiMatchInjuriesTx(w, careerSaveId, awayPool, weatherMultiplier);
+    }
 
     tx.update(worldTourFixturesTable).set({
       status:     "completed",
@@ -440,7 +452,7 @@ export function playWorldTourUpToTx(
  * credited by the caller, exactly as before. Returns false when the match is
  * not a World Tour fixture (a friendly) or was already recorded.
  */
-export function recordPlayerMatchResultTx(tx: Tx, args: {
+export function recordPlayerMatchResultTx(w: CareerStateTx, args: {
   careerSaveId: number;
   matchId: number;
   playerWon: boolean;
@@ -450,9 +462,19 @@ export function recordPlayerMatchResultTx(tx: Tx, args: {
   awaySets: number | null;
   sets?: SetScore[] | null;
 }): boolean {
+  const tx = w.tx;
   const fx = tx.select().from(worldTourFixturesTable)
     .where(eq(worldTourFixturesTable.matchId, args.matchId)).get();
   if (!fx || fx.status !== "scheduled") return false;
+  // Item 4c: the club the player played (not a forfeit) gets its pair's injury
+  // roll after the match, on the match's weather, as the player's own pair does.
+  const opponentPool = poolTeamByCompetitorTx(tx, [fx.awayCompetitorId]).get(fx.awayCompetitorId);
+  if (opponentPool != null && args.sets) {
+    const m = tx.select({ weather: matchesTable.weather, windSpeed: matchesTable.windSpeed, temperature: matchesTable.temperature })
+      .from(matchesTable).where(eq(matchesTable.id, args.matchId)).get();
+    const weatherMultiplier = m ? getWeatherEffects(m.weather, Number(m.windSpeed ?? 0), Number(m.temperature ?? 25)).injuryRiskMultiplier : 1;
+    aiMatchInjuriesTx(w, args.careerSaveId, opponentPool, weatherMultiplier);
+  }
 
   const points = args.sets ? totalPoints(args.sets) : null;
   tx.update(worldTourFixturesTable).set({
@@ -479,7 +501,7 @@ export function recordPlayerMatchResultTx(tx: Tx, args: {
 }
 
 export function recordPlayerMatchResult(args: Parameters<typeof recordPlayerMatchResultTx>[1]): boolean {
-  return db.transaction((tx) => recordPlayerMatchResultTx(tx, args));
+  return withCareerStateTx((w) => recordPlayerMatchResultTx(w, args));
 }
 
 /** The World Tour fixture behind a player match, if it is one. */
@@ -766,7 +788,8 @@ export async function advanceWorldTour(opts: {
     await catchUpRegionalSeason(careerSaveId, seasonYear);
   }
 
-  const progress = db.transaction((tx): WorldTourProgress => {
+  const progress = withCareerStateTx((w): WorldTourProgress => {
+    const tx = w.tx;
     const draw = drawWorldTourTx(tx, careerSaveId, seasonYear, playerTeamId);
     if (!draw.drawn) {
       return {
@@ -776,7 +799,7 @@ export async function advanceWorldTour(opts: {
       };
     }
 
-    let aiPlayed = playWorldTourUpToTx(tx, careerSaveId, seasonYear, playerTeamId,
+    let aiPlayed = playWorldTourUpToTx(w, careerSaveId, seasonYear, playerTeamId,
       Math.min(upToRound, WORLD_TOUR_END));
     let olympics: OlympicOutcome | null = null;
     if (upToRound >= FINALS_START) {
@@ -785,11 +808,11 @@ export async function advanceWorldTour(opts: {
       // qualifying is on the regular season's points (utils/olympics.ts).
       olympics = playOlympicsTx(tx, careerSaveId, seasonYear, playerTeamId);
       seedWorldFinalsTx(tx, careerSaveId, seasonYear, playerTeamId);
-      aiPlayed += playWorldTourUpToTx(tx, careerSaveId, seasonYear, playerTeamId, FINALS_START);
+      aiPlayed += playWorldTourUpToTx(w, careerSaveId, seasonYear, playerTeamId, FINALS_START);
     }
     if (upToRound >= FINALS_END) {
       seedWorldFinalTx(tx, careerSaveId, seasonYear, playerTeamId);
-      aiPlayed += playWorldTourUpToTx(tx, careerSaveId, seasonYear, playerTeamId, FINALS_END);
+      aiPlayed += playWorldTourUpToTx(w, careerSaveId, seasonYear, playerTeamId, FINALS_END);
     }
     return { drawn: true, blocked: null, aiPlayed, olympics };
   });

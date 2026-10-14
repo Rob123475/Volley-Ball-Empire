@@ -19,7 +19,7 @@ import {
 } from "../utils/contractTerms.js";
 import { financeTransactionsTable } from "@workspace/db";
 import { marketPrice, youthPrice, isRevealed } from "../utils/marketScouting.js";
-import { askingWage } from "../utils/wageCurve.js";
+import { askingWage, freeAgentInjuryWeeks } from "../utils/wageCurve.js";
 import { monthlySalaryFor } from "../utils/clubFinances.js";
 import { overallRating } from "../utils/overallRating.js";
 import { seniorWageBill, wageCapRefusal, wageCapView } from "../utils/salaryCap.js";
@@ -201,7 +201,8 @@ router.post("/contracts", async (req, res) => {
   // asking wage (her wage, less 10% at a Contracts Expert's club: the figure
   // the market shows and the offer starts at).
   if (!isYouth) {
-    const asks = askingWage(player.salary, specialityFactor(team.id, "Contracts Expert"));
+    // Item 4c (C-6): an injured free agent asks her injured wage, and signs on it for the whole contract.
+    const asks = askingWage(player.salary, specialityFactor(team.id, "Contracts Expert"), freeAgentInjuryWeeks(player));
     const offered = Number(salary);
     if (!Number.isFinite(offered) || offered < asks) {
       const turned = Number.isFinite(offered) ? `$${Math.round(offered).toLocaleString()}` : "an offer with no wage";

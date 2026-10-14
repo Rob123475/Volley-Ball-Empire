@@ -138,3 +138,48 @@ Real monthly wages, read-only from a copy of the starter database through the ga
 
 **4c:** a full AI club may buy a player at least `AI_BUY_GAP` better than its weakest senior, by releasing its weakest to the market (the cap still applies). Recorded; built in 4c. **4c is stopped:** the injury-length question (no injury in the game lasts 3 months, so the 50% wage tier and the long-injury release can't happen) still needs Rob's answer (A, B or C).
 
+
+## Overnight 14–15 Oct: the two stops answered, and 4c built (docs/UPDATE1-OVERNIGHT-BRIEF.md parts 1–2)
+
+**Day 8 AI staff (stop 1):** built on the brief's second path (new staff would need new portraits):
+the deal takes only what is spare and leaves 5 of every role on the market. Today 10 clubs get a
+coach and 20 a medical member; the rest fill one coach and one medical member at a time as
+contracts end. Details and the portraits Rob would need in docs/STATUS-UPDATE1-OVERNIGHT.md (part 1a).
+
+**Injury length (stop 2):** `MONEY.salaryCap.injuredLongWeeks = 4` (was `injuredLongMonths = 3`).
+
+**4c, as built (not yet run):**
+1. **Three seniors.** First, the count: the world has 312 seniors (120 AI originals + 192), so 60 clubs ×
+   3 + the player's 3 = 183 leaves about 129 free agents. `keepAiSquadsTx` refills to `AI_MAX_SQUAD`
+   (3). The first two come by any means as before (a free agent it can afford and fit, its academy's
+   best youth, or the cheapest who fits, on credit); the third only if it can afford her (three months'
+   wage) and fit her under the cap. So a club the cap or the bank stops holds 2 (about 17 clubs at the
+   start, the 4a measurement).
+2. **AI injuries.** One roll, `matchInjuryRoll` (utils/condition.ts), for the player's pair
+   (routes/matches.ts) and the AI pairs (utils/aiSquads.ts `aiMatchInjuriesTx`): same base risk, the
+   event's weather (World Tour; a regional match has none), and the AI manager's Fitness Guru ×0.8
+   (switched on: `AI_CLUB_SPECIALITIES` now includes Fitness Guru). It runs after every AI-vs-AI World Tour
+   match, every regional match, and for the AI club the player has just played (not after a walkover).
+   condition.ts lets injuries run without fitness and fatigue (the roll takes fatigue 0 and no run of
+   matches), so **fitness and fatigue stay off for AI players**. Healing: one function for everyone,
+   `injuryRecoveryWeekTx`, every 7 game days: the player's club (as before), every AI club (with its own
+   medics, no Medical Centre), and **the free agents** (no medic; before this a hurt free agent never
+   healed).
+   - **squad-forfeit, what the player's club does with fewer than two available:** it forfeits the match
+     (R-48). So an AI club plays its best two available; with fewer than two fit it has no match rating
+     (`aiMatchRatingsTx`) and forfeits, the walkover the World Tour and regional league already played for
+     a club with nobody.
+3. **Injured free agents come cheap**, through the one asking-wage path: `askingWage(salary, factor,
+   injuryWeeks)` × `injuredWageShare` (50% at 4+ weeks out, 75% under). Only a free agent's weeks are
+   passed (`freeAgentInjuryWeeks`), so a player at a club never asks less. The Player Market and the
+   signing floor read it; she signs at that wage for the whole contract (the contract's wage is the
+   offer). The market card shows the injury, the weeks out and the share.
+4. **A long-injured AI senior at renewal** (out 4+ weeks) is not renewed: she goes to the market on the
+   wage for her rating, so she asks 50% there.
+5. **The AI gamble:** refilling, an AI club may sign an injured free agent (at her injured wage) only if
+   it would still have two fit seniors. The on-credit last resort only signs a fit one.
+6. **Rob's answer, a full club buys:** a full AI club may buy a fit player at least `AI_BUY_GAP` better
+   than its WEAKEST senior and releases its weakest to the market; the cap is checked with her wage gone.
+   A club with room still compares with its weaker starter. An AI club never buys an injured player.
+- New suite **harness/ai-injuries.mjs** (run-all 98i). manager-faces.mjs's two source checks follow the
+  shared roll and the third AI speciality (knowingly changed).
