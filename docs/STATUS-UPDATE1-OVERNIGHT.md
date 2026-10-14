@@ -31,6 +31,7 @@ settings; club-kits extended. A soak script, harness/long-career-update1.mjs (no
 
 - Typecheck (the build's first step, run once on its own first so the build could reach the harness):
   clean on the first try.
+- **Full build 2** started 15 Oct 02:26 (counts below when it finishes).
 - **Full build 1** (`pnpm run build`, 14 Oct 23:10 – 15 Oct 00:43): **92 of 112 suites passed, 20 failed**:
   board review, olympic tournament, academy intake, contract terms, youth rebirth, ledger words, ai club
   economy, money pass, youth ratings, game dates, player pictures, ai buyable, ai job market, salary cap,
@@ -194,6 +195,10 @@ nobody went outside 1–99, no AI club over the cap added anyone, and a differen
 Difficulty does what it says: after two seasons the AI average is 76.3 on Easy, 77.9 on Medium and 80.3 on
 Hard (the best player 90 / 93 / 96). The money slide is the same on all three (it comes from the third
 senior's wage, not from training); Hard's camps make it a little steeper.
+
+**AI originals move a lot now:** in the rollover suite's five-season walk, 79 of the 120 AI originals had left
+their clubs (released for the cap, for a long injury, or by a full club buying better). They don't age at
+AI clubs (U-6) but do once they leave.
 
 **The player's club too:** the youth-rebirth suite's three harness careers (passive: no transfers, no
 sponsor deals) were each sold for five loss-making seasons, around season 10–11 and again later. The same
@@ -465,6 +470,6 @@ page's preview (aliased `@shared/ageing`, as money.ts is now `@shared/money`).
 | ai job market | Its takeover check expected an AI club to have no staff | The AI club's staff come with it (part 1a) | 30/30 |
 | ai club economy | The to-the-dollar week now includes Day 8's staff signing fees; sales come later than season 5 | A club with no staff is measured; each sale's own five seasons are read | 22/22 |
 | youth rebirth | The harness club, playing passively, now loses money every season, so it was **sold** after five (around season 10–11, again around 20–27) and the career moved club; the census kept counting the old club's empty academy | The census follows the career's club, and the suite keeps its club from a loss-making season (a harness grant in the season's last days), since it counts one club's academy over thirty seasons | 19/19 |
-| season rollover | Renewals re-priced over the cap are refused (C-4, intended); AI originals now leave AI clubs (and age only while away), and broke AI clubs promote academy youths who later reach the market | Cap refusals counted apart; originals left out of the ageing count; originals and AI graduates traced | 89/90, then (running) |
+| season rollover | Renewals re-priced over the cap are refused (C-4, intended); AI originals now leave AI clubs (and age only while away), and broke AI clubs promote academy youths who later reach the market | Cap refusals counted apart; originals left out of the ageing count; originals and AI graduates traced. A second re-run then hit "review carries a final table: 0 rows" once: the walk's weaker drafted club was sacked and moved, so the review read the new club; the walk now plants met grades | 89/90 → 89/90 (a different, random check) → in build 2 |
 
 Every one of these was a test expecting the game before items 4a/4b/4c or the AI staff; no game code was changed to make a test pass except the two real gaps (the ledger's words, the raw dates).

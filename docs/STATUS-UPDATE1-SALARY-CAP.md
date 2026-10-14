@@ -183,3 +183,11 @@ contracts end. Details and the portraits Rob would need in docs/STATUS-UPDATE1-O
    A club with room still compares with its weaker starter. An AI club never buys an injured player.
 - New suite **harness/ai-injuries.mjs** (run-all 98i). manager-faces.mjs's two source checks follow the
   shared roll and the third AI speciality (knowingly changed).
+
+**The soak's money finding (overnight part 10, details in docs/STATUS-UPDATE1-OVERNIGHT.md):** with three
+seniors at today's wages (AI seniors average about $21,400 a month), the AI clubs lose about $250,000 a
+year more than with two. Over 5 Medium seasons the average AI club's opening balance went $500,000 →
+$253,546 → $28,282 → −$116,746 → −$224,976, and most were sold at season 5. Only 5 clubs could still
+afford a third senior by then. Also seen: 79 AI originals left their clubs in 5 seasons (released for the
+cap, for a long injury, or for a better buy). Rob to decide (suggestions in the overnight report); not
+retuned.
