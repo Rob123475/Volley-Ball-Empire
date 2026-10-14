@@ -50,6 +50,7 @@ import os from "node:os";
 
 import { requireElectronBinary } from "./electron-binary.mjs";
 import { forkServer, stopServer } from "./server-harness.mjs";
+import { startCareer } from "./harness-club.mjs";
 
 const REPO = path.join(import.meta.dirname, "..");
 const SHIPPED = path.join(REPO, "lib", "db", "volleyball-empire.sqlite");
@@ -121,7 +122,7 @@ if (!up) {
 try {
   const profileRes = await api("POST", "/profiles", { name: "UnityPayloadTest" });
   await api("POST", `/profiles/${profileRes.data.id}/select`);
-  const careerRes = await api("POST", "/careers", { managerFaceId: 8,
+  const careerRes = await startCareer(api, { managerFaceId: 8,
     slotNumber: 1, managerName: "UnityPayloadTest", managerNationality: "Australia",
     clubName: "Unity Payload FC", originalClubName: "Unity Payload FC", season: "Season 1",
     budget: "500000", locationId: 1, primaryColor: "#123456", secondaryColor: "#abcdef",

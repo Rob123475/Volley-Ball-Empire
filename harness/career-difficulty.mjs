@@ -19,6 +19,7 @@ import os from "node:os";
 
 import { requireElectronBinary } from "./electron-binary.mjs";
 import { forkServer, stopServer } from "./server-harness.mjs";
+import { startCareer } from "./harness-club.mjs";
 
 const REPO = path.join(import.meta.dirname, "..");
 const SHIPPED = path.join(REPO, "lib", "db", "volleyball-empire.sqlite");
@@ -101,7 +102,7 @@ try {
   await api("POST", `/profiles/${profileRes.data.id}/select`);
 
   // ── UNDERDOG career (slot 1) ──────────────────────────────────────────────
-  const underdogRes = await api("POST", "/careers", { managerFaceId: 8,
+  const underdogRes = await startCareer(api, { managerFaceId: 8,
     slotNumber: 1, managerName: "Underdog Manager", managerNationality: "Australia",
     clubName: "Underdog FC", originalClubName: "Underdog FC", season: "Season 1",
     budget: "999999", // deliberately wrong, to prove the server overrides it by difficulty
@@ -115,7 +116,7 @@ try {
   const underdogFixtures = (await api("GET", "/matches")).data;
 
   // ── ESTABLISHED career (slot 2), same session, same profile ─────────────────
-  const establishedRes = await api("POST", "/careers", { managerFaceId: 8,
+  const establishedRes = await startCareer(api, { managerFaceId: 8,
     slotNumber: 2, managerName: "Established Manager", managerNationality: "Australia",
     clubName: "Established FC", originalClubName: "Established FC", season: "Season 1",
     budget: "1", // deliberately wrong too

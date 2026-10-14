@@ -17,7 +17,7 @@
  * Usage: node harness/rollover.mjs [baseUrl]
  */
 import { DatabaseSync } from "node:sqlite";
-import { healAllSquads, keepClubSolvent } from "./harness-club.mjs";
+import { healAllSquads, keepClubSolvent, startCareer } from "./harness-club.mjs";
 const BASE = (process.argv[2] ?? "http://localhost:4199") + "/api";
 
 /**
@@ -110,7 +110,7 @@ function session() {
 async function newCareer(api, label, difficulty) {
   const r = await api("POST", "/profiles", { name: label });
   await api("POST", `/profiles/${r.data.id}/select`);
-  const c = await api("POST", "/careers", { managerFaceId: 8,
+  const c = await startCareer(api, { managerFaceId: 8,
     slotNumber: 1, managerName: label, managerNationality: "Australia",
     clubName: `${label} FC`, originalClubName: `${label} FC`, season: "Season 1",
     budget: "500000", locationId: 1, primaryColor: "#0a0", secondaryColor: "#00a",
@@ -478,9 +478,10 @@ async function advanceToBoundary(api, maxDays = 500) {
   // is a new measurement, not a fix to the existing walk.
   //
   // "Strong" and "weak" reuse R-11's difficulty mechanism rather than
-  // inventing a second one: ESTABLISHED signs the strongest available free
-  // agents, UNDERDOG the weakest (utils/seedStartingSquad.ts) — exactly a
-  // strong squad and a weak squad, from machinery that already exists.
+  // inventing a second one. Update 1, item 4b: the player drafts his squad on
+  // Day 1 now, and the harness's draft (harness-club.mjs startCareer) takes, for
+  // ESTABLISHED, the strongest free agents that fit under the salary cap and,
+  // for UNDERDOG, the weakest: a strong squad and a weak squad still.
   //
   // Every match is played for real via POST /matches/:id/simulate — the same
   // engine the player uses, R-32's away-side fallback fix included — so wins,

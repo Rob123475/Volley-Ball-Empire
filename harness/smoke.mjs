@@ -13,7 +13,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import { healSquadByTeam, trainThroughCalendar } from "./harness-club.mjs";
+import { healSquadByTeam, trainThroughCalendar, startCareer } from "./harness-club.mjs";
 
 const BASE = (process.argv[2] ?? "http://localhost:4199") + "/api";
 
@@ -50,7 +50,7 @@ function session() {
 async function newCareer(api, label) {
   let r = await api("POST", "/profiles", { name: label });
   await api("POST", `/profiles/${r.data.id}/select`);
-  r = await api("POST", "/careers", { managerFaceId: 8,
+  r = await startCareer(api, { managerFaceId: 8,
     slotNumber: 1, managerName: label, managerNationality: "Australia",
     clubName: `${label} FC`, originalClubName: `${label} FC`, season: "Season 1",
     budget: "500000", locationId: 1, primaryColor: "#0a0", secondaryColor: "#00a",
@@ -388,7 +388,7 @@ const roster = async (api) => {
   }
   check("R-03 setup: a match was played before overwrite", playedD > 0, `${playedD} matches`);
 
-  const overwriteRes = await D("POST", "/careers", { managerFaceId: 8,
+  const overwriteRes = await startCareer(D, { managerFaceId: 8,
     slotNumber: 1, managerName: "SmokeD2", managerNationality: "Australia",
     clubName: "SmokeD2 FC", originalClubName: "SmokeD2 FC", season: "Season 1",
     budget: "500000", locationId: 1, primaryColor: "#0a0", secondaryColor: "#00a",
@@ -410,7 +410,7 @@ const roster = async (api) => {
   const profRes = await E("POST", "/profiles", { name: "SmokeE" });
   const profileId = profRes.data.id;
   await E("POST", `/profiles/${profileId}/select`);
-  await E("POST", "/careers", { managerFaceId: 8,
+  await startCareer(E, { managerFaceId: 8,
     slotNumber: 1, managerName: "SmokeE", managerNationality: "Australia",
     clubName: "SmokeE FC", originalClubName: "SmokeE FC", season: "Season 1",
     budget: "500000", locationId: 1, primaryColor: "#0a0", secondaryColor: "#00a",
@@ -570,7 +570,7 @@ const roster = async (api) => {
   const profJ = await J("POST", "/profiles", { name: "SmokeJ" });
   await J("POST", `/profiles/${profJ.data.id}/select`);
   const distinctiveName = "Zzyx Q. Manager-Name-Test";
-  const careerJ = await J("POST", "/careers", { managerFaceId: 8,
+  const careerJ = await startCareer(J, { managerFaceId: 8,
     slotNumber: 1, managerName: distinctiveName, managerNationality: "Australia",
     clubName: "SmokeJ FC", originalClubName: "SmokeJ FC", season: "Season 1",
     budget: "500000", locationId: 1, primaryColor: "#0a0", secondaryColor: "#00a",
@@ -672,7 +672,7 @@ const roster = async (api) => {
   const M = session();
   const profM = await M("POST", "/profiles", { name: "SmokeM" });
   await M("POST", `/profiles/${profM.data.id}/select`);
-  const careerM = await M("POST", "/careers", { managerFaceId: 8,
+  const careerM = await startCareer(M, { managerFaceId: 8,
     slotNumber: 1, managerName: "SmokeM", managerNationality: "New Zealand",
     clubName: "SmokeM FC", originalClubName: "SmokeM FC", season: "Season 1",
     budget: "500000", locationId: 1, primaryColor: "#123456", secondaryColor: "#abcdef",

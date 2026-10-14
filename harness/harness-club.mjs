@@ -276,12 +276,39 @@ export async function trainThroughCalendar(api, body, dbPath = null, maxDays = 3
  * Update 1, item 4: start a harness career, the one way every suite does.
  *
  * POST /careers with `body` through the suite's own caller, and the response
- * handed back as the caller gave it. Part 4b (the Day 1 draft) makes the
- * player pick his seniors before the first day; this is where a harness career
- * does that.
+ * handed back as the caller gave it. Item 4b (the Day 1 draft): a new career
+ * has no squad until the player picks his seniors. The harness picks three
+ * FREE AGENTS (never an AI club's player, so the AI world a suite measures is
+ * the one it always was), each on a one-season contract at her asking wage,
+ * the way the old automatic squad did: ESTABLISHED the strongest that fit
+ * under the salary cap with DRAFT_ROOM to spare, UNDERDOG the weakest. Then
+ * the draft is closed (the AI clubs fill, the managers' faces are dealt).
+ * harness/day1-draft.mjs drives the draft itself.
  */
+export const DRAFT_ROOM = 15_000;
+
 export async function startCareer(api, body) {
-  return api("POST", "/careers", body);
+  const created = await api("POST", "/careers", body);
+  if (created.status >= 300) return created;
+  const draft = (await api("GET", "/day1-draft")).data;
+  if (!draft?.open) return created;
+  const free = (draft.players ?? []).filter((p) => p.club == null);
+  const room = draft.wageCap.cap - draft.wageCap.seniorWages - (body?.difficulty === "underdog" ? 0 : DRAFT_ROOM);
+  const order = body?.difficulty === "underdog"
+    ? [...free].sort((a, b) => a.rating - b.rating || a.wage - b.wage)
+    : [...free].sort((a, b) => b.rating - a.rating || a.wage - b.wage);
+  // Room is kept for the picks still to come at the cheapest wage there is, so
+  // three always fit (a star first would leave room for one more).
+  const cheapest = Math.min(...free.map((p) => p.wage));
+  let spent = 0, picked = 0;
+  for (const p of order) {
+    if (picked >= draft.max) break;
+    if (spent + p.wage + cheapest * (draft.max - picked - 1) > room) continue;
+    const r = await api("POST", "/contracts", { playerId: p.id, salary: p.wage, bonusPerWin: 0, squadRole: picked < 2 ? "starter" : "interchange", length: "1s", confirm: true });
+    if (r.status === 201) { spent += p.wage; picked++; }
+  }
+  await api("POST", "/day1-draft/finish", {});
+  return created;
 }
 
 /**

@@ -24,7 +24,7 @@ import { DatabaseSync } from "node:sqlite";
 
 import { requireElectronBinary } from "./electron-binary.mjs";
 import { forkServer, stopServer } from "./server-harness.mjs";
-import { healAllSquads } from "./harness-club.mjs";
+import { healAllSquads, startCareer } from "./harness-club.mjs";
 
 const REPO = path.join(import.meta.dirname, "..");
 const SHIPPED = path.join(REPO, "lib", "db", "volleyball-empire.sqlite");
@@ -67,7 +67,7 @@ try {
     const prof = await api("POST", "/profiles", { name: "Rounds" });
     await api("POST", `/profiles/${prof.data.id}/select`);
     const club = ((await api("GET", "/club-templates")).data?.clubs ?? []).find((c) => c.name === "Sydney Riptide");
-    await api("POST", "/careers", { managerFaceId: 8, slotNumber: 1, managerName: "Rounds", managerNationality: "Australia", clubName: club.name, originalClubName: club.name,
+    await startCareer(api, { managerFaceId: 8, slotNumber: 1, managerName: "Rounds", managerNationality: "Australia", clubName: club.name, originalClubName: club.name,
       budget: club.startingBudget, difficulty: "established", primaryColor: "#1e3a8a", secondaryColor: "#f59e0b", crestShapeIndex: 0 });
     const names = (await api("GET", "/calendar/round-names")).data?.names ?? {};
     const topRound = (cal) => /R(\d+)\//.exec(cal?.seasonPhase?.label ?? "")?.[1];

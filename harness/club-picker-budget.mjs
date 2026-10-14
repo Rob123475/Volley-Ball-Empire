@@ -25,6 +25,7 @@ import { requireElectronBinary } from "./electron-binary.mjs";
 import { forkServer, stopServer } from "./server-harness.mjs";
 // The very table the picker renders (Node strips the types).
 import { STARTING_BUDGET } from "../lib/db/src/schema/career-difficulty.ts";
+import { startCareer } from "./harness-club.mjs";
 
 const REPO = path.join(import.meta.dirname, "..");
 const SHIPPED = path.join(REPO, "lib", "db", "volleyball-empire.sqlite");
@@ -92,7 +93,7 @@ try {
       const prof = await api("POST", "/profiles", { name: `Picker ${++n}` });
       await api("POST", `/profiles/${prof.data.id}/select`);
       // Exactly what the wizard sends.
-      const c = await api("POST", "/careers", { managerFaceId: 8,
+      const c = await startCareer(api, { managerFaceId: 8,
         slotNumber: 1, managerName: `Picker ${n}`, managerNationality: "Australia", clubName: club.name, originalClubName: club.name,
         budget: club.startingBudget, difficulty, primaryColor: "#1e3a8a", secondaryColor: "#f59e0b", crestShapeIndex: 0,
       });

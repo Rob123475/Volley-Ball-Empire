@@ -26,7 +26,7 @@ import { DatabaseSync } from "node:sqlite";
 
 import { requireElectronBinary } from "./electron-binary.mjs";
 import { forkServer, stopServer } from "./server-harness.mjs";
-import { trainThroughCalendar } from "./harness-club.mjs";
+import { trainThroughCalendar, startCareer } from "./harness-club.mjs";
 import { FACILITY_BENEFIT, FACILITY_BENEFIT_SHORT } from "../artifacts/beach-volleyball/src/lib/facility-benefits.ts";
 import { FACILITY_PAGE_TYPES } from "../lib/db/src/schema/facility-names.ts";
 
@@ -139,7 +139,7 @@ try {
   const prof = await api("POST", "/profiles", { name: "Benefit Test" });
   await api("POST", `/profiles/${prof.data.id}/select`);
   const club = ((await api("GET", "/club-templates")).data?.clubs ?? [])[0];
-  const c = await api("POST", "/careers", { managerFaceId: 8,
+  const c = await startCareer(api, { managerFaceId: 8,
     slotNumber: 1, managerName: "Benefit Test", managerNationality: "Australia", clubName: club.name, originalClubName: club.name,
     budget: club.startingBudget, difficulty: "established", primaryColor: "#1e3a8a", secondaryColor: "#f59e0b", crestShapeIndex: 0,
   });

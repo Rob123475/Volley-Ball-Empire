@@ -27,7 +27,7 @@ import os from "node:os";
 import { DatabaseSync } from "node:sqlite";
 import { requireElectronBinary } from "./electron-binary.mjs";
 import { forkServer, stopServer } from "./server-harness.mjs";
-import { healAllSquads } from "./harness-club.mjs";
+import { healAllSquads, startCareer } from "./harness-club.mjs";
 
 const REPO = path.join(import.meta.dirname, "..");
 const SHIPPED = path.join(REPO, "lib", "db", "volleyball-empire.sqlite");
@@ -114,7 +114,7 @@ try {
   await api("POST", `/profiles/${prof.data.id}/select`);
   const clubs = (await api("GET", "/club-templates")).data;
   const club = (Array.isArray(clubs) ? clubs : clubs?.clubs ?? [])[0];
-  const career = await api("POST", "/careers", { managerFaceId: 8,
+  const career = await startCareer(api, { managerFaceId: 8,
     slotNumber: 1, managerName: "ContractTerms", managerNationality: "Australia",
     clubName: "ContractTerms FC", originalClubName: "ContractTerms FC",
     budget: club?.startingBudget ?? "500000", difficulty: "established",
@@ -416,7 +416,7 @@ try {
   // Done last, and with the first career loaded again afterwards, so nothing
   // above it is played out on a second career by accident.
   console.log("\n8. A CONTRACT YOU CAN END IS ONE OF YOURS");
-  const second = await api("POST", "/careers", { managerFaceId: 8,
+  const second = await startCareer(api, { managerFaceId: 8,
     slotNumber: 2, managerName: "SecondClub", managerNationality: "Australia",
     clubName: "Second Club FC", originalClubName: "Second Club FC",
     budget: "500000", difficulty: "established",

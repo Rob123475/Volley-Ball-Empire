@@ -31,7 +31,7 @@ import os from "node:os";
 
 import { requireElectronBinary } from "./electron-binary.mjs";
 import { forkServer, stopServer } from "./server-harness.mjs";
-import { healAllSquads } from "./harness-club.mjs";
+import { healAllSquads, startCareer } from "./harness-club.mjs";
 
 const REPO = path.join(import.meta.dirname, "..");
 const SHIPPED = path.join(REPO, "lib", "db", "volleyball-empire.sqlite");
@@ -127,7 +127,7 @@ async function wizardCareer(api, name, difficulty) {
     secondaryColor: "#f59e0b",
     crestShapeIndex: 0,
   };
-  const c = await api("POST", "/careers", body);
+  const c = await startCareer(api, body);
   return { club, created: c };
 }
 

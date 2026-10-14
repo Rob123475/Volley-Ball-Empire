@@ -43,7 +43,7 @@ import os from "node:os";
 import { DatabaseSync } from "node:sqlite";
 import { requireElectronBinary } from "./electron-binary.mjs";
 import { forkServer, stopServer } from "./server-harness.mjs";
-import { healAllSquads, keepSideFielded, renewExpiringContracts, keepClubSolvent } from "./harness-club.mjs";
+import { healAllSquads, keepSideFielded, renewExpiringContracts, keepClubSolvent, startCareer } from "./harness-club.mjs";
 // Overnight 1 Oct, N-41: Rob's money numbers, read from the one config file (Node strips the types).
 import { MONEY, managerSalaryFor } from "../lib/db/src/schema/money.ts";
 
@@ -124,7 +124,7 @@ try {
 
   const prof = await api("POST", "/profiles", { name: "AiEconomy" });
   await api("POST", `/profiles/${prof.data.id}/select`);
-  const career = await api("POST", "/careers", { managerFaceId: 8,
+  const career = await startCareer(api, { managerFaceId: 8,
     slotNumber: 1, managerName: "AiEconomy", managerNationality: "Australia",
     clubName: "AiEconomy FC", originalClubName: "AiEconomy FC",
     budget: "500000", difficulty: "established",

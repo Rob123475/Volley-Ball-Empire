@@ -19,7 +19,7 @@ import os from "node:os";
 
 import { requireElectronBinary } from "./electron-binary.mjs";
 import { forkServer, stopServer } from "./server-harness.mjs";
-import { healSquadByTeam } from "./harness-club.mjs";
+import { healSquadByTeam, startCareer } from "./harness-club.mjs";
 
 const REPO = path.join(import.meta.dirname, "..");
 const SHIPPED = path.join(REPO, "lib", "db", "volleyball-empire.sqlite");
@@ -67,7 +67,7 @@ try {
   const prof = await api("POST", "/profiles", { name: "Pause After" });
   await api("POST", `/profiles/${prof.data.id}/select`);
   const club = ((await api("GET", "/club-templates")).data?.clubs ?? [])[0];
-  await api("POST", "/careers", { managerFaceId: 8,
+  await startCareer(api, { managerFaceId: 8,
     slotNumber: 1, managerName: "Pause After", managerNationality: "Australia", clubName: club.name, originalClubName: club.name,
     budget: club.startingBudget, difficulty: "established", primaryColor: "#1e3a8a", secondaryColor: "#f59e0b", crestShapeIndex: 0,
   });

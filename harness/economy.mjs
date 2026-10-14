@@ -27,7 +27,7 @@ import os from "node:os";
 import { DatabaseSync } from "node:sqlite";
 import { requireElectronBinary } from "./electron-binary.mjs";
 import { forkServer, stopServer } from "./server-harness.mjs";
-import { healAllSquads, renewExpiringContracts, keepSideFielded } from "./harness-club.mjs";
+import { healAllSquads, renewExpiringContracts, keepSideFielded, startCareer } from "./harness-club.mjs";
 
 const REPO = path.join(import.meta.dirname, "..");
 const SHIPPED = path.join(REPO, "lib", "db", "volleyball-empire.sqlite");
@@ -104,7 +104,7 @@ async function runOne(spec) {
 
     const prof = await api("POST", "/profiles", { name: `Econ${spec.label}` });
     await api("POST", `/profiles/${prof.data.id}/select`);
-    const career = await api("POST", "/careers", { managerFaceId: 8,
+    const career = await startCareer(api, { managerFaceId: 8,
       slotNumber: 1, managerName: `Econ${spec.label}`, managerNationality: "Australia",
       clubName: `Econ${spec.label} FC`, originalClubName: `Econ${spec.label} FC`,
       budget: "500000", difficulty: spec.difficulty,

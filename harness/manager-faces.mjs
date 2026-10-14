@@ -29,7 +29,7 @@ import { DatabaseSync } from "node:sqlite";
 
 import { requireElectronBinary } from "./electron-binary.mjs";
 import { forkServer, stopServer } from "./server-harness.mjs";
-import { healAllSquads, renewExpiringContracts, keepSideFielded, trainThroughCalendar, makeCapRoom } from "./harness-club.mjs";
+import { healAllSquads, renewExpiringContracts, keepSideFielded, trainThroughCalendar, makeCapRoom, startCareer } from "./harness-club.mjs";
 
 const REPO = path.join(import.meta.dirname, "..");
 const SHIPPED = path.join(REPO, "lib", "db", "volleyball-empire.sqlite");
@@ -103,7 +103,7 @@ async function newCareer(api, name, faceId) {
   const club = ((await api("GET", "/club-templates")).data?.clubs ?? [])[0];
   const body = { slotNumber: 1, managerName: name, managerNationality: "Australia", clubName: club.name, originalClubName: club.name,
     budget: club.startingBudget, difficulty: "established", primaryColor: "#1e3a8a", secondaryColor: "#f59e0b", crestShapeIndex: 0 };
-  const r = await api("POST", "/careers", faceId == null ? body : { ...body, managerFaceId: faceId });
+  const r = await startCareer(api, faceId == null ? body : { ...body, managerFaceId: faceId });
   const team = (await api("GET", "/team")).data;
   const cid = team?.id != null ? q(`SELECT id FROM career_saves WHERE team_id = ?`, team.id)[0]?.id : null;
   return { r, team, cid };

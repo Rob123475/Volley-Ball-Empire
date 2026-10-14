@@ -25,6 +25,7 @@ import { requireElectronBinary } from "./electron-binary.mjs";
 import { forkServer, stopServer } from "./server-harness.mjs";
 // Overnight 1 Oct, N-41: the wage rise, from the one config file (Node strips the types).
 import { playerWageRise } from "../lib/db/src/schema/money.ts";
+import { startCareer } from "./harness-club.mjs";
 
 const REPO = path.join(import.meta.dirname, "..");
 const SHIPPED = path.join(REPO, "lib", "db", "volleyball-empire.sqlite");
@@ -90,7 +91,7 @@ try {
     const prof = await api("POST", "/profiles", { name: "Ledger Test" });
     await api("POST", `/profiles/${prof.data.id}/select`);
     const club = ((await api("GET", "/club-templates")).data?.clubs ?? []).find((c) => c.name === "Sydney Riptide");
-    await api("POST", "/careers", { managerFaceId: 8,
+    await startCareer(api, { managerFaceId: 8,
       slotNumber: 1, managerName: "Ledger Test", managerNationality: "Australia", clubName: club.name, originalClubName: club.name,
       budget: club.startingBudget, difficulty: "established", primaryColor: "#1e3a8a", secondaryColor: "#f59e0b", crestShapeIndex: 0,
     });

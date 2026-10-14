@@ -12,7 +12,7 @@
  *   dates     for a fresh established AND underdog career: every starting-squad
  *             contract starts on the career's season start date and ends on its
  *             season end date, in the contracts table and in career state
- *   source    the career-creation path (routes/careers.ts, utils/seedStartingSquad.ts)
+ *   source    the career-creation path (routes/careers.ts, utils/day1Draft.ts)
  *             holds no quoted calendar date and no literal season year
  *   sabotage  the source scan finds a planted literal date and a literal year
  *
@@ -25,6 +25,7 @@ import os from "node:os";
 
 import { requireElectronBinary } from "./electron-binary.mjs";
 import { forkServer, stopServer } from "./server-harness.mjs";
+import { startCareer } from "./harness-club.mjs";
 
 const REPO = path.join(import.meta.dirname, "..");
 const SHIPPED = path.join(REPO, "lib", "db", "volleyball-empire.sqlite");
@@ -108,7 +109,7 @@ try {
     const label = `Contracts ${difficulty}`;
     const prof = await api("POST", "/profiles", { name: label });
     await api("POST", `/profiles/${prof.data.id}/select`);
-    const c = await api("POST", "/careers", { managerFaceId: 8,
+    const c = await startCareer(api, { managerFaceId: 8,
       slotNumber: 1, managerName: label, managerNationality: "Australia",
       clubName: `${label} FC`, originalClubName: `${label} FC`, season: "Season 1",
       budget: "500000", locationId: 1, primaryColor: "#0a0", secondaryColor: "#00a", difficulty,
@@ -145,7 +146,9 @@ d.close();
 console.log("\n2. THE CAREER-CREATION PATH HOLDS NO LITERAL DATE OR YEAR");
 const sources = [
   path.join(REPO, "artifacts", "api-server", "src", "routes", "careers.ts"),
-  path.join(REPO, "artifacts", "api-server", "src", "utils", "seedStartingSquad.ts"),
+  // Update 1, item 4b: the automatic starting squad (seedStartingSquad.ts) is
+  // gone; the Day 1 draft is the squad half of the career-creation path.
+  path.join(REPO, "artifacts", "api-server", "src", "utils", "day1Draft.ts"),
 ];
 for (const file of sources) {
   const hits = literalDateLines(fs.readFileSync(file, "utf8"));

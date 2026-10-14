@@ -90,7 +90,7 @@ const DRAW = await (async () => {
     }
     const prof = await api("POST", "/profiles", { name: "Invariants" });
     await api("POST", `/profiles/${prof.data.id}/select`);
-    const c = await api("POST", "/careers", { managerFaceId: 8,
+    const c = await startCareer(api, { managerFaceId: 8,
       slotNumber: 1, managerName: "Invariants", managerNationality: "Australia", clubName: "Invariants FC", originalClubName: "Invariants FC",
       season: "Season 1", budget: "500000", locationId: 1, primaryColor: "#0a0", secondaryColor: "#00a", difficulty: "established",
     });
@@ -244,6 +244,7 @@ import { competitorRating, WORLD_TOUR_EVENT_ROUNDS, BYE } from "./utils/worldTou
 import { competitorIdForTeam } from "./utils/competitors.js";
 import { db, playersTable, worldTourFixturesTable } from "@workspace/db";
 import { and, eq } from "drizzle-orm";
+import { startCareer } from "./harness-club.mjs";
 
 // R-56: the opponent in each regular World Tour round is the club this career
 // was DRAWN against, rated as the game rates it for the match (competitorRating:
