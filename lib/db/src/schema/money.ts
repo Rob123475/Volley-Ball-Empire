@@ -25,6 +25,10 @@
  *   sponsorWeeklyBonus      every club's sponsor income rises by this much a
  *                           week, AI clubs included (on top of what its sponsor
  *                           reputation earns, about $10,000 a week at 50).
+ *                           Update 1, 15 Oct (O-1): $19,000, worked out so the
+ *                           median AI club with three seniors and a coach and a
+ *                           medic is about level over a season (it was $10,000;
+ *                           docs/STATUS-UPDATE1-DAY2.md part 1).
  *   salaryCap               Update 1, item 4 (Rob, 14 Oct, C-1 to C-6):
  *     monthlyCap            the most a club's SENIOR wages may add up to, per
  *                           month (utils/salaryCap.ts seniorWageBill); every club,
@@ -42,7 +46,7 @@ export const MONEY = {
   managerSalaryMonthly: { min: 16_000, max: 20_000 },
   headCoachSalaryMonthlyMax: 20_000,
   playerWageRiseMonthly: { min: 5_000, max: 10_000, atRating: { min: 66, max: 77 }, perPointAbove: 1_000 },
-  sponsorWeeklyBonus: 10_000,
+  sponsorWeeklyBonus: 19_000,
   salaryCap: { monthlyCap: 60_000, injuredLongWageShare: 0.5, injuredShortWageShare: 0.75, injuredLongWeeks: 4 },
 } as const;
 

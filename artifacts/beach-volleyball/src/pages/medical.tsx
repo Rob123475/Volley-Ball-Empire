@@ -19,7 +19,7 @@ import {
   getGetMyTeamQueryKey,
 } from "@workspace/api-client-react";
 import { useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ContractRenewBar } from "@/components/contract-renew-bar";
 import { useCalendar } from "@/hooks/use-calendar";
 import { Card, CardContent } from "@/components/ui/card";
@@ -170,9 +170,10 @@ const MEDICAL_ROLE_ICONS: Record<MedicalRoleKey, IconFC> = {
 // fatigue-focused bonus, distinct from and lower-ceiling than Physiotherapist's
 // clinical "Fatigue Recovery" bonus.
 const MEDICAL_BONUS_DESCRIPTIONS: Record<MedicalRoleKey, { icon: IconFC; color: string; label: string; detail: string }> = {
-  doctor:              { icon: HeartPulse as IconFC,    color: "text-red-600",    label: "Injury Recovery",        detail: "+10–20% recovery speed, boosts player morale when injured" },
-  medical_specialist:  { icon: Shield as IconFC,        color: "text-blue-600",   label: "Injury Prevention",      detail: "−8–15% injury risk, faster complex injury recovery" },
-  physiotherapist:     { icon: Activity as IconFC,      color: "text-teal-600",   label: "Fatigue Recovery",       detail: "+8–15% post-match fatigue recovery, stamina growth boost" },
+  // Update 1, 15 Oct (O-3): what the server really does (utils/staffBonuses.ts).
+  doctor:              { icon: HeartPulse as IconFC,    color: "text-red-600",    label: "Injury Recovery",        detail: "Each week, a chance (skill ÷ 250) that an injured player is a week nearer fit. The best healer on duty counts." },
+  medical_specialist:  { icon: Shield as IconFC,        color: "text-blue-600",   label: "Injury Prevention",      detail: "Lowers match injury risk, up to −15% at skill 95" },
+  physiotherapist:     { icon: Activity as IconFC,      color: "text-teal-600",   label: "Injury Recovery",        detail: "Each week, a chance (skill ÷ 250) that an injured player is a week nearer fit. The best healer on duty counts." },
   nutritionist:        { icon: Salad as IconFC,         color: "text-green-600",  label: "Stamina & Nutrition",    detail: "+5–12% stamina growth, improved match-day conditioning" },
   sports_scientist:    { icon: FlaskConical as IconFC,  color: "text-indigo-600", label: "Training Effectiveness", detail: "+5–12% training XP gains, data-driven performance optimisation" },
   massage_therapist:   { icon: Heart as IconFC,         color: "text-pink-600",   label: "Muscle & Fatigue Care",  detail: "+5–10% post-match fatigue recovery, improved player morale and wellbeing" },
@@ -196,9 +197,24 @@ function recoveryWeeks(injuryStatus: string, medSkill: number): number {
   return Math.ceil(base * (1 - medSkill / 250));
 }
 
-function recoveryBonusPct(skill: number): number {
-  return Math.round((skill / 250) * 100);
+/**
+ * Update 1, 15 Oct (O-3): the department's real figures, from the server's own
+ * functions (GET /medical-staff/bonuses, utils/staffBonuses.ts): the weekly
+ * chance of an extra week off (the best healer on duty) and the medical
+ * specialist's factor on match injury risk.
+ */
+type MedicalBonuses = { healChance: number; healer: { id: number; name: string; role: string } | null; injuryRiskFactor: number };
+function useMedicalBonuses() {
+  return useQuery<MedicalBonuses>({
+    queryKey: ["medical-bonuses"],
+    queryFn: async ({ signal }) => {
+      const res = await fetch("/api/medical-staff/bonuses", { signal });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    },
+  });
 }
+const pct = (x: number) => `${Math.round(x * 100)}%`;
 
 function fitnessColor(v: number) {
   return v >= 80 ? "bg-green-500" : v >= 55 ? "bg-yellow-500" : "bg-red-500";
@@ -547,11 +563,9 @@ export default function MedicalCentre() {
   const { data: medStaffForBestSkill = [] } = useListMedicalStaff({
     query: { queryKey: getListMedicalStaffQueryKey() },
   });
-  // Final brief 5 Oct, Part B: a medic who is off ill or hurt treats nobody.
-  const onDutyMedics = (medStaffForBestSkill as any[]).filter(onDuty);
-  const bestMedicalSkill = onDutyMedics.length > 0
-    ? Math.max(...onDutyMedics.map((s: any) => s.skillLevel ?? s.overallRating ?? 0))
-    : 0;
+  void medStaffForBestSkill;
+  // 15 Oct (O-3): the best healer on duty, as the server's weekly recovery reads it.
+  const bestMedicalSkill = Math.round((useMedicalBonuses().data?.healChance ?? 0) * 250);
 
   if (isLoading) {
     return (
@@ -630,9 +644,9 @@ function MedicalReportPanel({ injuredPlayers, allPlayers }: { injuredPlayers: an
     query: { queryKey: getListMedicalStaffQueryKey() },
   });
 
-  const bestSkill = medStaff.length > 0
-    ? Math.max(...medStaff.map((s: any) => s.skillLevel ?? s.overallRating ?? 0))
-    : 0;
+  const bonuses = useMedicalBonuses().data;
+  // 15 Oct (O-3): the best healer on duty, as the server's weekly recovery reads it.
+  const bestSkill = Math.round((bonuses?.healChance ?? 0) * 250);
 
   const doctor        = medStaff.find((s: any) => normalizeMedicalRole(s.role) === "doctor");
   const specialist    = medStaff.find((s: any) => normalizeMedicalRole(s.role) === "medical_specialist");
@@ -716,9 +730,9 @@ function MedicalReportPanel({ injuredPlayers, allPlayers }: { injuredPlayers: an
               <div className="space-y-3">
                 {doctor && (
                   <ContributionRow
-                    label="Recovery Speed"
+                    label="Injury Recovery"
                     staff={doctor}
-                    bonus={`+${recoveryBonusPct(staffSkill(doctor))}%`}
+                    bonus={`${pct(staffSkill(doctor) / 250)} a week${bonuses?.healer?.id === doctor.id ? "" : " (not the best healer)"}`}
                     color="text-red-600"
                   />
                 )}
@@ -726,15 +740,15 @@ function MedicalReportPanel({ injuredPlayers, allPlayers }: { injuredPlayers: an
                   <ContributionRow
                     label="Injury Prevention"
                     staff={specialist}
-                    bonus={`−${Math.round((staffSkill(specialist)) / 30)}%`}
+                    bonus={`−${pct(1 - (bonuses?.injuryRiskFactor ?? 1))} injury risk`}
                     color="text-blue-600"
                   />
                 )}
                 {physio && (
                   <ContributionRow
-                    label="Fatigue Recovery"
+                    label="Injury Recovery"
                     staff={physio}
-                    bonus={`+${recoveryBonusPct(staffSkill(physio))}%`}
+                    bonus={`${pct(staffSkill(physio) / 250)} a week${bonuses?.healer?.id === physio.id ? "" : " (not the best healer)"}`}
                     color="text-teal-600"
                   />
                 )}
@@ -832,7 +846,8 @@ function ContributionRow({ label, staff, bonus, color }: { label: string; staff:
 /* ── Squad Fitness Overview ────────────────────────────────── */
 
 function SquadFitnessOverview({ allPlayers }: { allPlayers: any[] }) {
-  const riskFactor = useMyManager().data?.injuryRiskFactor ?? 1;
+  // The Fitness Guru and (15 Oct, O-3) the medical specialist, as the server multiplies them.
+  const riskFactor = (useMyManager().data?.injuryRiskFactor ?? 1) * (useMedicalBonuses().data?.injuryRiskFactor ?? 1);
   return (
     <section className="space-y-3">
       <h3 className="text-lg font-semibold flex items-center gap-2">

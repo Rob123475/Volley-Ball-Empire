@@ -4,6 +4,15 @@
  *
  *   node harness/long-career-update1.mjs                     5 seasons, Medium
  *   SEASONS=2 DIFFICULTY=easy node harness/long-career-update1.mjs
+ *   STAND_INS=1 node harness/long-career-update1.mjs          with 90 stand-in staff (below)
+ *
+ * Update 1, 15 Oct (day brief part 1): STAND_INS=1 adds 90 staff to the
+ * throwaway database before the career starts (25 Head Coach, 25 Assistant
+ * Coach, 10 each of Doctor, Physiotherapist, Massage Therapist, Medical
+ * Specialist, copied from the existing ones), standing in for the portraits
+ * Rob is making, so the Day 8 deal can give every AI club a coach and a medic.
+ * The player's club is no longer topped up (keepClubSolvent): its real balance
+ * is in the table.
  *
  * A new career through the Day 1 draft (Established), played headless: the
  * player's own club is kept healed, fielded, renewed and solvent (the AI
@@ -27,7 +36,7 @@ import { DatabaseSync } from "node:sqlite";
 
 import { requireElectronBinary } from "./electron-binary.mjs";
 import { forkServer, stopServer } from "./server-harness.mjs";
-import { startCareer, keepClubSolvent, keepSideFielded, renewExpiringContracts } from "./harness-club.mjs";
+import { startCareer, keepSideFielded, renewExpiringContracts } from "./harness-club.mjs";
 
 const SEASONS = Number(process.env.SEASONS ?? 5);
 const DIFFICULTY = process.env.DIFFICULTY ?? "medium";
@@ -92,6 +101,8 @@ function seasonTable(season, year, counters) {
   const mine = q(`SELECT p.name, s.age, s.speed, s.power, s.defense, s.serve, s.block, s.stamina FROM career_player_state s JOIN players p ON p.id = s.player_id
     WHERE s.team_id = ? AND s.is_retired = 0 AND (p.player_type = 'senior' OR s.is_promoted = 1)`, myTeam()).map((p) => `${p.name} ${overallRating(p)} (${p.age})`);
   const balances = clubs.map((c) => Number(c.balance));
+  const myBalance = Math.round(Number(q(`SELECT budget FROM teams WHERE id = ?`, myTeam())[0]?.budget ?? 0));
+  const originalsRetired = q(`SELECT COUNT(*) n FROM career_player_state WHERE career_save_id = ? AND pool_player_id IS NOT NULL AND is_retired = 1`, cid)[0].n;
   const champion = q(`SELECT competitor_name AS n FROM season_final_standings WHERE season_year = ? AND rank = 1 LIMIT 1`, year)[0]?.n ?? "?";
   return {
     season, year,
@@ -107,6 +118,7 @@ function seasonTable(season, year, counters) {
     freeAgents,
     balanceLowest: Math.round(Math.min(...balances)), balanceMedian: Math.round(median(balances)), broke: balances.filter((b) => b < 0).length,
     sold: clubs.filter((c) => c.sold != null).length,
+    myBalance, originalsRetired,
     champion,
   };
 }
@@ -122,12 +134,27 @@ function printTable(t) {
   console.log(`  Free agents left: ${t.freeAgents}`);
   console.log(`  AI balances: lowest $${t.balanceLowest.toLocaleString("en-US")}, median $${t.balanceMedian.toLocaleString("en-US")}, ${t.broke} below zero, ${t.sold} sold`);
   console.log(`  Champion (first in the final standings): ${t.champion}`);
+  console.log(`  Player's club balance: $${t.myBalance.toLocaleString("en-US")}; AI originals retired so far: ${t.originalsRetired}`);
 }
 
 let child = null;
 const tables = [];
 try {
   fs.copyFileSync(SHIPPED, DB);
+  if (process.env.STAND_INS) {
+    const d = new DatabaseSync(DB);
+    const roles = { "Head Coach": 25, "Assistant Coach": 25, Doctor: 10, Physiotherapist: 10, "Massage Therapist": 10, "Medical Specialist": 10 };
+    for (const [role, n] of Object.entries(roles)) {
+      const src = d.prepare(`SELECT id FROM staff WHERE role = ? ORDER BY id`).all(role).map((r) => r.id);
+      for (let i = 0; i < n; i++) {
+        const cols = d.prepare(`PRAGMA table_info(staff)`).all().map((c) => c.name).filter((c) => c !== "id");
+        const sel = cols.map((c) => (c === "name" ? `name || ' (stand-in ${i + 1})'` : `"${c}"`)).join(", ");
+        d.prepare(`INSERT INTO staff (${cols.map((c) => `"${c}"`).join(", ")}) SELECT ${sel} FROM staff WHERE id = ?`).run(src[i % src.length]);
+      }
+    }
+    d.close();
+    console.log("Stand-ins: 90 staff added (25 + 25 coaches, 10 of each medical role)");
+  }
   const out = fs.openSync(path.join(WORK, "server.log"), "w");
   child = forkServer({ server: SERVER, electron: ELECTRON, out,
     env: { ...process.env, ELECTRON_RUN_AS_NODE: "1", DB_PATH: DB, PORT: String(PORT), NODE_ENV: "development", SESSION_SECRET: "soak", STARTER_DB_PATH: SHIPPED } });
@@ -147,7 +174,6 @@ try {
   const started = Date.now();
   for (let i = 0; i < 500 * SEASONS && season <= SEASONS; i++) {
     healMine();
-    keepClubSolvent(DB, myTeam());
     await keepSideFielded(api);
     await renewExpiringContracts(api);
     const pre = (await api("GET", "/preseason")).data;

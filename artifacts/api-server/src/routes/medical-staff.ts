@@ -8,6 +8,7 @@ import { eq } from "drizzle-orm";
 import { readContractLength } from "../utils/contractTerms.js";
 import { staffContractPatch } from "../utils/seasonDates.js";
 import { getGameDate } from "../utils/gameDate.js";
+import { healingBonus, injuryRiskStaffFactor } from "../utils/staffBonuses.js";
 import {
   loadStaff, loadStaffMember, updateStaffState, updateStaffReference,
   createCareerStaff, requireCareerSaveId, type StaffDTO,
@@ -41,6 +42,25 @@ async function backfillMedicalAttributes(staffList: StaffDTO[]): Promise<void> {
     specialTrait: s.specialTrait || pickMedicalTraitForRole(s.role),
   })));
 }
+
+/**
+ * Update 1, 15 Oct (O-3): what the department really does, from the same
+ * functions the game uses (utils/staffBonuses.ts): the weekly chance of an
+ * extra week off for an injured player (the best healer on duty, the doctor
+ * among them) and the medical specialist's factor on match injury risk.
+ */
+router.get("/medical-staff/bonuses", async (req, res) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const team = await getActiveTeam(req);
+  if (!team) { res.json({ healChance: 0, healer: null, injuryRiskFactor: 1 }); return; }
+  const staff = await loadStaff(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id });
+  const heal = healingBonus(staff);
+  res.json({
+    healChance: heal.chance,
+    healer: heal.healer ? { id: heal.healer.id, name: heal.healer.name, role: heal.healer.role } : null,
+    injuryRiskFactor: injuryRiskStaffFactor(staff),
+  });
+});
 
 router.get("/medical-staff", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }

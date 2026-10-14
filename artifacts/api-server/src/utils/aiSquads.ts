@@ -39,7 +39,7 @@ import {
 } from "@workspace/db";
 import { and, asc, eq, inArray, isNotNull, isNull, or } from "drizzle-orm";
 import { loadStaffTx, type CareerStateTx } from "../lib/playerDto.js";
-import { trainingStaffBonuses } from "./staffBonuses.js";
+import { trainingStaffBonuses, injuryRiskStaffFactor } from "./staffBonuses.js";
 import { generateDevelopment } from "./player-development.js";
 import { overallRating } from "./overallRating.js";
 import { sideRating } from "./matchEngine.js";
@@ -213,10 +213,12 @@ export function aiMatchRatingsTx(tx: Tx, careerSaveId: number): Map<number, numb
 export function aiMatchInjuriesTx(w: CareerStateTx, careerSaveId: number, poolTeamId: number, weatherMultiplier = 1, random: () => number = Math.random): string[] {
   const played = (aiSquadsTx(w.tx, careerSaveId).get(poolTeamId) ?? []).filter((m) => !m.injured).slice(0, AI_MIN_SQUAD);
   const fitnessGuru = specialityFactor({ careerSaveId, poolTeamId }, "Fitness Guru");
+  // 15 Oct (O-3): its medical specialist (from the Day 8 deal), on duty, as the player's club's.
+  const staffFactor = injuryRiskStaffFactor(loadStaffTx(w.tx, careerSaveId, { poolTeamId }));
   const hurt: string[] = [];
   for (const m of played) {
     if (m.kind !== "player") continue;   // a pool player is not a career row yet: nothing to injure
-    const inj = matchInjuryRoll({ stamina: m.stamina, development: m.development }, { weatherMultiplier, fitnessGuru }, random);
+    const inj = matchInjuryRoll({ stamina: m.stamina, development: m.development }, { weatherMultiplier, fitnessGuru, staffFactor }, random);
     if (!inj) continue;
     w.setPlayerState(careerSaveId, m.id, newInjuryPatch({ speed: m.speed, stamina: m.stamina, seriousInjuries: m.seriousInjuries }, inj));
     hurt.push(m.name);

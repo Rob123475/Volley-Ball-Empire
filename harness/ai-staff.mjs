@@ -202,7 +202,11 @@ try {
   check("(source) AI training XP takes its Head and Assistant Coach through trainingStaffBonuses, read like the player's staff",
     /trainingStaffBonuses\(loadStaffTx\(w\.tx, careerSaveId, \{ poolTeamId: club \}\)\)\.xpMultiplier/.test(aiSrc));
   check("(source) AI players heal through the one weekly recovery, with the club's own medics (on duty only)",
-    /loadStaffTx\(w\.tx, careerSaveId, club\)/.test(condSrc) && /staffOnDuty\(m\)/.test(condSrc) && /injuryRecoveryWeekTx\(w, careerSaveId, \{ poolTeamId: id \}\)/.test(condSrc));
+    /loadStaffTx\(w\.tx, careerSaveId, club\)/.test(condSrc) && /healingBonus\(staff\)/.test(condSrc) && /staffOnDuty\(s\)/.test(SRC("utils/staffBonuses.ts")) && /injuryRecoveryWeekTx\(w, careerSaveId, \{ poolTeamId: id \}\)/.test(condSrc));
+  // Update 1, 15 Oct (O-3): its doctor heals (the one healing bonus) and its medical specialist cuts its injury risk.
+  check("(source) an AI club's doctor heals and its medical specialist cuts its match injury risk, through the player's functions",
+    /healingBonus\(staff\)/.test(condSrc) && /"doctor"\]/.test(SRC("utils/staffBonuses.ts"))
+      && /staffFactor = injuryRiskStaffFactor\(loadStaffTx\(w\.tx, careerSaveId, \{ poolTeamId \}\)\)/.test(aiSrc));
   check("(source) an AI club's staff go off ill on the same odds, so one off gives nothing (staffOnDuty in every bonus)",
     /export function aiStaffAbsenceDayTx/.test(illSrc) && /aiStaffAbsenceDayTx\(w, careerSaveId, calendar\.currentDate\)/.test(SRC("routes/calendar.ts"))
       && /staffOnDuty\(s\)/.test(SRC("utils/staffBonuses.ts")));

@@ -34,15 +34,16 @@
  *              three-player squad with two out forfeits: 3% base risk a match;
  *              Minor 1 week (65%), Major 3 weeks (30%), Unavailable 6 weeks (5%).
  */
-import { INJURY_WEEKS, staffOnDuty } from "@workspace/db";
+import { INJURY_WEEKS } from "@workspace/db";
 import {
-  facilitiesTable, careerPlayerStateTable, careerPoolTeamStateTable, playersTable, normaliseRole, type StaffRoleKey,
+  facilitiesTable, careerPlayerStateTable, careerPoolTeamStateTable, playersTable,
   MONEY, pronenessFactor, type DevelopmentProfile,
 } from "@workspace/db";
 import { and, eq, isNotNull, isNull, ne, or } from "drizzle-orm";
 import { sideRating, type RatedPlayer } from "./matchEngine.js";
 import { MAX_STARTERS } from "./squadRules.js";
 import { loadStaffTx, withCareerStateTx, type CareerStateTx } from "../lib/playerDto.js";
+import { healingBonus } from "./staffBonuses.js";
 
 /** Two players on the sand. */
 export const PAIR_SIZE = MAX_STARTERS;
@@ -134,9 +135,11 @@ export function matchCosts(extraFatigue = 0): { fitness: number; fatigue: number
  * Probability (0-0.60) that a player who plays this match is injured.
  * Update 1, overnight part 4 (B-1): `proneness` is her injuryProneness's factor
  * (x0.7 to x1.3, lib/db/src/schema/ageing.ts pronenessFactor), 1 with no profile.
+ * 15 Oct (O-3): `staffFactor` is the club's medical specialist (1 to 0.85,
+ * utils/staffBonuses.ts injuryRiskStaffFactor), on duty only.
  */
 export function injuryRisk(
-  fatigue: number, stamina: number, consecutive: number, sportsLabLevel = 1, hasRecoveryCamp = false, proneness = 1,
+  fatigue: number, stamina: number, consecutive: number, sportsLabLevel = 1, hasRecoveryCamp = false, proneness = 1, staffFactor = 1,
 ): number {
   let risk = INJURY_BASE_RISK;
   // Fatigue makes the body fragile
@@ -151,7 +154,7 @@ export function injuryRisk(
   // Performance Centre (sports_science_lab): 0% at L1, -25% at L10; Recovery Retreat camp: a further -15% while active
   const labFactor  = 1 - (sportsLabLevel - 1) * (0.25 / 9);
   const campFactor = hasRecoveryCamp ? 0.85 : 1.0;
-  return Math.min(risk * labFactor * campFactor * proneness, 0.60);
+  return Math.min(risk * labFactor * campFactor * proneness * staffFactor, 0.60);
 }
 
 /** The most a match's injury risk can reach, after weather and a Fitness Guru. */
@@ -166,11 +169,11 @@ export const MATCH_INJURY_RISK_CAP = 0.70;
  */
 export function matchInjuryRoll(
   p: { fatigue?: number | null; stamina: number; consecutiveMatchesPlayed?: number | null; development?: DevelopmentProfile | null },
-  ctx: { sportsLabLevel?: number; hasRecoveryCamp?: boolean; weatherMultiplier?: number; fitnessGuru?: number } = {},
+  ctx: { sportsLabLevel?: number; hasRecoveryCamp?: boolean; weatherMultiplier?: number; fitnessGuru?: number; staffFactor?: number } = {},
   random: () => number = Math.random,
 ): ReturnType<typeof rollInjury> | null {
   const risk = Math.min(
-    injuryRisk(p.fatigue ?? 0, p.stamina, p.consecutiveMatchesPlayed ?? 0, ctx.sportsLabLevel ?? 1, ctx.hasRecoveryCamp ?? false, pronenessFactor(p.development))
+    injuryRisk(p.fatigue ?? 0, p.stamina, p.consecutiveMatchesPlayed ?? 0, ctx.sportsLabLevel ?? 1, ctx.hasRecoveryCamp ?? false, pronenessFactor(p.development), ctx.staffFactor ?? 1)
       * (ctx.weatherMultiplier ?? 1) * (ctx.fitnessGuru ?? 1),
     MATCH_INJURY_RISK_CAP,
   );
@@ -210,14 +213,6 @@ export const REST_RECOVERY = {
   injured: { fitness: 1, fatigue: 3 },
 } as const;
 
-/**
- * Staff whose skill counts as "the best medic" for injury recovery. Compared by
- * normalised key (P-09): the rows store "Fitness Trainer", not "fitness_trainer".
- */
-export const INJURY_CARE_ROLE_KEYS: ReadonlySet<StaffRoleKey> = new Set([
-  "fitness_trainer", "strength_conditioner", "massage_therapist", "physiotherapist",
-]);
-
 /** Whose injured players heal: a club (the player's or an AI club's) or the free agents. */
 export type InjuryClub = { teamId: number } | { poolTeamId: number } | "free agents";
 
@@ -240,9 +235,8 @@ export function injuryRecoveryWeekTx(w: CareerStateTx, careerSaveId: number, clu
     .all();
   if (players.length === 0) return [];
   const staff = club === "free agents" ? [] : loadStaffTx(w.tx, careerSaveId, club);
-  // Final brief 5 Oct, Part B: a medic who is off ill or hurt treats nobody.
-  const medics = staff.filter((m) => INJURY_CARE_ROLE_KEYS.has(normaliseRole(m.role)!) && staffOnDuty(m));
-  const medicSkill = medics.length > 0 ? Math.max(...medics.map((m) => m.skillLevel)) : 0;
+  // The best healer on duty (utils/staffBonuses.ts healingBonus; O-3: the doctor is one).
+  const { chance: healChance } = healingBonus(staff);
   const medCentreLevel = club !== "free agents" && "teamId" in club
     ? w.tx.select({ level: facilitiesTable.level }).from(facilitiesTable)
       .where(and(eq(facilitiesTable.teamId, club.teamId), eq(facilitiesTable.type, "medical_centre"))).get()?.level ?? 1
@@ -251,7 +245,7 @@ export function injuryRecoveryWeekTx(w: CareerStateTx, careerSaveId: number, clu
   const recovered: string[] = [];
   for (const p of players) {
     const weeks = Number(p.weeks ?? 0);
-    const extraWeek = random() < medicSkill / 250 ? 1 : 0;
+    const extraWeek = random() < healChance ? 1 : 0;
     const facilityWeeks = (medCentreLevel - 1) * (1 / 9);
     const next = Math.max(0, weeks - 1 - extraWeek - facilityWeeks);
     if (next <= 0) {

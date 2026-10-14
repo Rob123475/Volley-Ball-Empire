@@ -16,6 +16,7 @@ import type { WorldTourEvent } from "../data/worldTour";
 import { generateScoutingProspects } from "../utils/prospect-generator";
 import { developAcademyPlayers, tickAcademyContracts } from "../utils/academyDevelopment.js";
 import { specialityFactor } from "../utils/managerFaces.js";
+import { injuryRiskStaffFactor } from "../utils/staffBonuses.js";
 import { autoCompleteContinentalMissions } from "./continental-scouting";
 import { updateCareerStats, checkAchievements } from "../utils/check-achievements";
 import { recordBoardForfeit, ABANDONMENT_DAYS } from "../utils/board-confidence.js";
@@ -207,6 +208,8 @@ export async function applyPostMatchEffects(
   const wx = getWeatherEffects(weather, windSpeed, temperature);
   // Update 1, item 2: a Fitness Guru's club runs 20% less injury risk (utils/managerFaces.ts).
   const fitnessGuru = specialityFactor(teamId, "Fitness Guru");
+  // 15 Oct (O-3): the club's medical specialist, on duty, lowers the risk (utils/staffBonuses.ts).
+  const staffFactor = injuryRiskStaffFactor(await loadStaff(cid, { teamId }));
   const events: PlayerEvent[] = [];
 
   for (const player of players) {
@@ -220,7 +223,7 @@ export async function applyPostMatchEffects(
       updates.consecutiveMatchesPlayed = consecutive + 1;
 
       // Item 4c: the one roll every club's players get (utils/condition.ts).
-      const inj = matchInjuryRoll(player, { sportsLabLevel, hasRecoveryCamp, weatherMultiplier: wx.injuryRiskMultiplier, fitnessGuru });
+      const inj = matchInjuryRoll(player, { sportsLabLevel, hasRecoveryCamp, weatherMultiplier: wx.injuryRiskMultiplier, fitnessGuru, staffFactor });
       if (inj) {
         // Part 4 (B-2): a serious injury also costs speed and stamina, at once.
         Object.assign(updates, newInjuryPatch(player, inj));

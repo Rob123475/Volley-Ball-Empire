@@ -3,9 +3,8 @@ import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
 import { trainingSessionsTable, playersTable, teamsTable, staffTable, facilitiesTable } from "@workspace/db";
 import type { StaffMember } from "@workspace/db";
-import { normaliseRole, TRAINING_PROGRAM_DAYS, staffOnDuty } from "@workspace/db";
-import { INJURY_CARE_ROLE_KEYS } from "../utils/condition.js";
-import { trainingStaffBonuses } from "../utils/staffBonuses.js";
+import { TRAINING_PROGRAM_DAYS, staffOnDuty } from "@workspace/db";
+import { trainingStaffBonuses, healingBonus } from "../utils/staffBonuses.js";
 import { eq, and } from "drizzle-orm";
 import { loadPlayers, loadPlayer, requireCareerSaveId, updatePlayerState, type CareerPlayerFields, type StatKey, loadStaff, careerSaveIdForTeamOrThrow } from "../lib/playerDto.js";
 import type { TrainingSession, TrainingSessionResult } from "@workspace/db";
@@ -30,11 +29,9 @@ function sessionTiming(s: TrainingSession, today: string) {
 const serializePlayer  = (p: any) => ({ ...p, height: Number(p.height), salary: Number(p.salary) });
 
 
-async function getBestMedicalSkill(teamId: number): Promise<number> {
-  const staff = await loadStaff(await careerSaveIdForTeamOrThrow(teamId), { teamId: teamId });
-  // Final brief 5 Oct, Part B: a medic who is off ill or hurt treats nobody.
-  const medics = staff.filter(s => INJURY_CARE_ROLE_KEYS.has(normaliseRole(s.role)!) && staffOnDuty(s));
-  return medics.length > 0 ? Math.max(...medics.map(s => s.skillLevel)) : 0;
+/** The best healer on duty's weekly chance of an extra week off (utils/staffBonuses.ts healingBonus). */
+async function healChanceFor(teamId: number): Promise<number> {
+  return healingBonus(await loadStaff(await careerSaveIdForTeamOrThrow(teamId), { teamId: teamId })).chance;
 }
 
 // Unity brief item 19: how many GAME days each programme takes (lib/db
@@ -222,8 +219,7 @@ const applyFatigueAndStats = async (
     if (program.injuryHealing) {
       const weeksLeft = (player.injuryWeeksRemaining as number) ?? 0;
       if (weeksLeft > 0 && player.teamId) {
-        const physioSkill = await getBestMedicalSkill(player.teamId);
-        const extraTick   = Math.random() < physioSkill / 250 ? 1 : 0;
+        const extraTick   = Math.random() < await healChanceFor(player.teamId) ? 1 : 0;
         // Medical Centre: +0 at L1, −1 extra week per Recovery session at L10
         const facilityReduction = (medCentreLevel - 1) * (1.0 / 9);
         const newWeeks    = Math.max(0, weeksLeft - 1 - extraTick - facilityReduction);
