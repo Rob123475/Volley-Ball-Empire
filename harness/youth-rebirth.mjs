@@ -145,12 +145,16 @@ async function runSeed(seed) {
     });
     if (career.status !== 200) throw new Error(`${seed.label}: career HTTP ${career.status}`);
     const careerSaveId = career.data.id;
-    const teamId = career.data.teamId;
+    let teamId = career.data.teamId;
+    const moves = [];
 
     const census = [];
     let sacked = null, stopped = null;
     for (let s = 1; s <= SEASONS; s++) {
       const step = await toBoundary(api, dbFile, teamId);
+      // Update 1: if the career changed club at the boundary (a sale or a move), the census follows it.
+      const nowTeam = read(`SELECT team_id AS t FROM career_saves WHERE id = ?`, careerSaveId)[0]?.t;
+      if (nowTeam != null && nowTeam !== teamId) { moves.push({ season: s, why: step.roll?.clubSold ? "club sold" : step.roll?.sacked ? "sacked" : "moved" }); teamId = nowTeam; }
       if (step.stopped) { stopped = { season: s, why: step.stopped }; break; }
       if (step.roll?.review?.dismissed || step.roll?.kind === "career_over") { sacked = { season: s }; break; }
       // Update 1: since the salary cap and the draft (4a/4b) a harness club can have failed seasons, and
@@ -200,6 +204,7 @@ async function runSeed(seed) {
     const retired = read(
       `SELECT COUNT(*) AS n FROM player_retirements WHERE career_save_id = ?`, careerSaveId)[0]?.n ?? 0;
 
+    if (moves.length) console.log(`  INFO  ${seed.label}: the career changed club: ${moves.map((m) => `S${m.season} (${m.why})`).join(", ")}`);
     return { seed, census, sacked, stopped, faceless, created: created.length, missingFile, reused: Number(reused), retired: Number(retired) };
   } finally {
     await stopServer(child);
