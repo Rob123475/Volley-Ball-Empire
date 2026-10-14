@@ -26,12 +26,13 @@
  *     (AI_TRANSFERS_PER_WEEK, like the youth loans' AI_BORROWS_PER_WEEK).
  *   - canSellTx: an AI club only sells if it still has two to play, or can
  *     sign a free agent at once to make two.
+ *   - aiSeniorsTrainWeekTx (weekly, Update 1 item 3): its seniors train.
  */
 import {
   careerPlayerStateTable, playersTable, continentalPoolPlayersTable, continentalPoolTeamsTable,
-  poolPlayerContractsTable, careerPoolTeamStateTable, db,
+  poolPlayerContractsTable, careerPoolTeamStateTable, seasonsTable, db,
 } from "@workspace/db";
-import { and, eq, inArray, isNotNull, isNull, or } from "drizzle-orm";
+import { and, asc, eq, inArray, isNotNull, isNull, or } from "drizzle-orm";
 import type { CareerStateTx } from "../lib/playerDto.js";
 import { overallRating } from "./overallRating.js";
 import { sideRating } from "./matchEngine.js";
@@ -39,6 +40,9 @@ import { monthlySalaryFor } from "./clubFinances.js";
 import { contractEndDate, renewalEndDate, CONTRACT_LENGTHS, isContractLength } from "./contractTerms.js";
 import { lengthForRating } from "./poolClubFinances.js";
 import { marketPrice } from "./marketScouting.js";
+import { trainingSessionXp } from "./trainingXp.js";
+import { AI_TRAIN_EVERY_WEEKS, aiProgrammeFor, aiTrainsThisWeek, careerWeekOf } from "./aiTraining.js";
+import { specialityFactor } from "./managerFaces.js";
 
 type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
@@ -189,6 +193,46 @@ export function materializeAiSeniorsTx(w: CareerStateTx, careerSaveId: number): 
     }).onConflictDoNothing().run();
   }
   return pool.length;
+}
+
+/**
+ * Update 1, item 3 (Rob, 14 Oct): the AI clubs' seniors train, in the weekly
+ * block straight after materializeAiSeniorsTx. Each senior at an AI club gets
+ * one session through the player's own XP rule (utils/trainingXp.ts): the
+ * programme for her lowest stat (utils/aiTraining.ts aiProgrammeFor), her age
+ * and potential, and her club's manager's Coach speciality (+10%); an AI club
+ * has no coach, staff, philosophy or facilities, so those are 1. XP and stats
+ * only: no fatigue, morale, injury or focus. Her training points carry over
+ * week to week. Only in the career weeks AI_TRAIN_EVERY_WEEKS picks. Returns
+ * how many trained.
+ */
+export function aiSeniorsTrainWeekTx(w: CareerStateTx, careerSaveId: number, today: string, every: number = AI_TRAIN_EVERY_WEEKS): number {
+  const start = w.tx.select({ d: seasonsTable.startDate }).from(seasonsTable)
+    .where(eq(seasonsTable.careerSaveId, careerSaveId)).orderBy(asc(seasonsTable.year)).limit(1).get()?.d ?? today;
+  if (!aiTrainsThisWeek(careerWeekOf(start, today), every)) return 0;
+  const seniors = w.tx.select({
+    id: playersTable.id, potential: playersTable.potential, playerType: playersTable.playerType,
+    poolTeamId: careerPlayerStateTable.poolTeamId, age: careerPlayerStateTable.age,
+    trainingPoints: careerPlayerStateTable.trainingPoints, isPromoted: careerPlayerStateTable.isPromoted, isRetired: careerPlayerStateTable.isRetired,
+    speed: careerPlayerStateTable.speed, power: careerPlayerStateTable.power, defense: careerPlayerStateTable.defense,
+    serve: careerPlayerStateTable.serve, block: careerPlayerStateTable.block, stamina: careerPlayerStateTable.stamina,
+  }).from(careerPlayerStateTable)
+    .innerJoin(playersTable, eq(playersTable.id, careerPlayerStateTable.playerId))
+    .where(and(
+      eq(careerPlayerStateTable.careerSaveId, careerSaveId),
+      isNotNull(careerPlayerStateTable.poolTeamId),
+      isNull(careerPlayerStateTable.teamId),
+      eq(careerPlayerStateTable.isRetired, false),
+      or(eq(playersTable.playerType, "senior"), eq(careerPlayerStateTable.isPromoted, true)),
+    )).all();
+  const coach = new Map<number, number>();
+  for (const s of seniors) {
+    const club = s.poolTeamId!;
+    if (!coach.has(club)) coach.set(club, specialityFactor({ careerSaveId, poolTeamId: club }, "Coach"));
+    const xp = trainingSessionXp(s, aiProgrammeFor(s), { manager: coach.get(club) });
+    w.setPlayerState(careerSaveId, s.id, { trainingPoints: xp.newPoints, ...xp.statUpdates });
+  }
+  return seniors.length;
 }
 
 /** An AI club's best academy youth (not out on loan), for when no free agent can be signed. */

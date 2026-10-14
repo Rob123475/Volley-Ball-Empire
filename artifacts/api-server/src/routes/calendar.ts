@@ -29,7 +29,7 @@ import {
 import { getActiveSeason } from "../lib/getActiveSeason.js";
 import { loadPlayers, loadStaff, requireCareerSaveId, updatePlayerState, updateTeamPlayerState, withCareerStateTx } from "../lib/playerDto.js";
 import { aiAcademiesWeekTx, loansTx, recordTeamLoanWeekTx, returnDueLoansTx, teamLoanWeekTx } from "../utils/youthLoans.js";
-import { materializeAiSeniorsTx, aiTransfersWeekTx } from "../utils/aiSquads.js";
+import { materializeAiSeniorsTx, aiSeniorsTrainWeekTx, aiTransfersWeekTx } from "../utils/aiSquads.js";
 import { loadLeagueSeasons } from "../lib/regionalLeague.js";
 import {
   rolloverSeason, yearForSeasonNumber, type RolloverResult,
@@ -680,9 +680,11 @@ async function advanceOneDay(req: Request): Promise<DayResult> {
     const aiWeek = withCareerStateTx((w) => aiAcademiesWeekTx(w, careerSaveId, nextDate));
     // Daytime 2 Oct, U-6: the AI clubs' senior squads, as career seniors: their
     // contracts renewed, a club below two refilled from the free agents, and a
-    // few AI-to-AI transfers by squad need (utils/aiSquads.ts).
+    // few AI-to-AI transfers by squad need (utils/aiSquads.ts). Update 1, item
+    // 3: straight after they are career seniors, they train (one session each).
     withCareerStateTx((w) => {
       materializeAiSeniorsTx(w, careerSaveId);
+      aiSeniorsTrainWeekTx(w, careerSaveId, nextDate);
       return aiTransfersWeekTx(w, careerSaveId, nextDate, seasonEndsForCareerTx(w.tx, careerSaveId));
     });
     for (const b of aiWeek.borrowed) {
