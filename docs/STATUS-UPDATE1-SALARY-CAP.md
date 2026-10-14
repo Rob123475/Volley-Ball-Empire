@@ -70,3 +70,41 @@ Real monthly wages, read-only from a copy of the starter database through the ga
 3. In an existing career, should the free agents' asking wages be re-priced once to the new rise (a boot pass), or left until each signs?
 
 
+## 4b: the Day 1 draft
+
+### Commits
+
+| Step | Commit | What |
+|---|---|---|
+| 1-4 | `ca12e48` | The automatic starting squad deleted; the Day 1 draft (server, routes, screen) |
+| harness | `7aaa9a1` | Every suite's career goes through `startCareer` (harness-club.mjs), which drafts |
+| harness | `dea0bd8` | `harness/day1-draft.mjs` in run-all (98g) |
+
+### What was done
+
+1. **The automatic starting squad is gone.** `utils/seedStartingSquad.ts` is deleted: the Underdog weakest-three and Established strongest-three picks. `oneSeasonContract` moved to `utils/contractTerms.ts`. Underdog and Established keep their starting budgets.
+2. **The draft screen, Day 1** (`pages/day1-draft.tsx`, `routes/day1-draft.ts`, `utils/day1Draft.ts`):
+   - A new career opens with `career_saves.day1_draft = "open"`. The AI clubs' players are made career seniors (as the first week does), so every senior in the world can be signed one way.
+   - The screen lists every senior: the free agents and every AI club's seniors, filterable.
+   - Each card shows her rating, nationality, age, AI club (or free agent) and monthly wage, after a Contracts Expert's -10%.
+   - "Senior wages $X of $60,000" runs at the top. A card that would break the cap can't be picked and says why, in the server's words.
+   - He picks 2 or 3 (2 to play, an optional interchange) and chooses each one's length (6m / 1s / 2s).
+   - Each pick signs through `POST /contracts` itself. While the draft is open there is no transfer fee and no confirm step, the AI club is not paid, and the cap holds.
+   - A pick taken back is a release, which is free: the picks are the starting squad, so Rob's 28 Sep week-1 rule applies.
+   - The calendar refuses to play a day while the draft is open, and the main layout sends an open draft to the screen.
+3. **Then the AI clubs fill (Day 2):** `POST /day1-draft/finish` needs 2 or 3 seniors. Each AI club keeps the seniors he didn't take, and every club with a gap fills it from what is left by 4a's rule (`keepAiSquadsTx`: the best free agent who fits under its cap and that it can afford). Clubs go in random order: `keepAiSquadsTx` gained an optional random club order, used only here. The AI managers' faces are dealt then, after the draft. The staff are seeded with the career as before; nothing about them is dealt to AI clubs.
+4. **A career made before the draft** (`day1_draft` null) never sees it.
+
+### What did not match the brief, and choices made
+
+1. **"Every AI club ends with at least 2 seniors and is under the cap" can't hold for every club.** With the rise above 77, six AI clubs start a career over $60,000 with their own pair, and C-5 says they keep them. The suite checks that every AI club is under the cap, unless it has added nobody (and every club has at least 2).
+2. **The job market's take-over** used the deleted weakest-three picks for a club of fewer than two. It now fills each gap up to three with the best free agent who fits under the cap (4a's rule).
+3. **The starting squad's free week-1 release (Rob, 28 Sep) is kept:** draft picks are marked as the starting squad. That is also how a pick is taken back on the screen.
+4. **The harness drafts for every suite.** About 85 suites create careers and play matches, so all of them now start through `harness-club.mjs startCareer`. It picks three free agents (never an AI club's player, so the AI world a suite measures is unchanged): for Established the strongest that fit with $15,000 to spare, for Underdog the weakest. That Established squad (rated 80, 67, 66; $44,800) is weaker than the old automatic one (90, 89, 80; $88,400, over the cap). A suite that relied on that strength may move at the end build. `day1-draft.mjs` drives the draft itself.
+5. **Not run** (Rob's instruction): `day1-draft.mjs`, the converted suites, and starting-contracts (it now checks `day1Draft.ts` for literal dates) run in the end build.
+
+### Questions for Rob (4b)
+
+1. Should a pick taken back from an AI club go back to that club, rather than to the free agents? (It goes to the free agents, and her club may sign her again when it fills.)
+2. Is it right that the draft picks keep the starting squad's free first-week release?
+
