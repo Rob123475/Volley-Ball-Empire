@@ -15,6 +15,8 @@
  *      a club with a gap fills it (one coach, one medical, at a time)
  *   6. the player's own staff contract ending keeps the wage (it was set to $0)
  *   7. an older career (no deal dates) is dealt once at boot
+ *   8. part 3: their bonuses go through the player's own functions (training
+ *      XP, healing, off ill gives nothing)
  */
 import fs from "node:fs";
 import os from "node:os";
@@ -193,6 +195,17 @@ try {
   child = await boot("c");
   check("a second boot deals nothing more", aiStaff().length === reDealt.length, `${aiStaff().length}`);
   info(`portraits: ${coaching.length} of ${clubs.length} clubs got a coach, ${medical.length} a medical member (see the morning report)`);
+
+  // ── 8. Part 3: their bonuses, through the player's own functions ───────────
+  console.log("\n8. AN AI CLUB'S STAFF GIVE ITS BONUSES THROUGH THE PLAYER'S OWN FUNCTIONS (PART 3)");
+  const aiSrc = SRC("utils/aiSquads.ts"), condSrc = SRC("utils/condition.ts"), illSrc = SRC("utils/staffIllness.ts");
+  check("(source) AI training XP takes its Head and Assistant Coach through trainingStaffBonuses, read like the player's staff",
+    /trainingStaffBonuses\(loadStaffTx\(w\.tx, careerSaveId, \{ poolTeamId: club \}\)\)\.xpMultiplier/.test(aiSrc));
+  check("(source) AI players heal through the one weekly recovery, with the club's own medics (on duty only)",
+    /loadStaffTx\(w\.tx, careerSaveId, club\)/.test(condSrc) && /staffOnDuty\(m\)/.test(condSrc) && /injuryRecoveryWeekTx\(w, careerSaveId, \{ poolTeamId: id \}\)/.test(condSrc));
+  check("(source) an AI club's staff go off ill on the same odds, so one off gives nothing (staffOnDuty in every bonus)",
+    /export function aiStaffAbsenceDayTx/.test(illSrc) && /aiStaffAbsenceDayTx\(w, careerSaveId, calendar\.currentDate\)/.test(SRC("routes/calendar.ts"))
+      && /staffOnDuty\(s\)/.test(SRC("utils/staffBonuses.ts")));
 } catch (err) {
   failures++;
   console.log(`  FAIL  the suite threw: ${err?.stack ?? err}`);

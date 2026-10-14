@@ -148,7 +148,7 @@ try {
   const trainingSrc = SRC("routes/training.ts");
   check("(source) applyFatigueAndStats calls the shared rule and has no XP formula of its own; the AI clubs call the same function",
     /trainingSessionXp\(player, programName, \{/.test(trainingSrc) && !/POINTS_PER_SESSION|PRIMARY_THRESHOLD|SECONDARY_THRESHOLD/.test(trainingSrc)
-      && /trainingSessionXp\(s, aiProgrammeFor\(s\), \{ manager: coach\.get\(club\) \}\)/.test(SRC("utils/aiSquads.ts")));
+      && /trainingSessionXp\(s, aiProgrammeFor\(s\), \{ manager: coach\.get\(club\), staff: staff\.get\(club\) \}\)/.test(SRC("utils/aiSquads.ts")));
   const senior = q(`SELECT s.player_id AS id, s.age, s.training_points AS tp, p.potential, s.power, s.block FROM career_player_state s JOIN players p ON p.id = s.player_id
     WHERE s.career_save_id = ? AND s.team_id = ? AND p.player_type = 'senior' ORDER BY s.player_id LIMIT 1`, cid, teamId)[0];
   const session = await trainThroughCalendar(api, { playerId: senior.id, type: "Power Camp", durationHours: 2 }, DB);

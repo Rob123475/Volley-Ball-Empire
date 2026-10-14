@@ -15,6 +15,36 @@ Not run yet (part 9).
 
 (Each with what Rob may want to change.)
 
+1. **AI staff (1a): dealt from what is spare, no new staff made.** The generators only copy the
+   existing named people, so new staff need new portraits. 10 clubs get a coach and 20 a medical member
+   on Day 8; the rest fill as contracts end. *Change:* make the portraits (below) and add the people.
+2. **AI staff pay the player's signing fee** (one month's salary) from their balance, and a club that
+   can't pay it waits. *Change:* drop the fee for AI clubs if Rob prefers wages only.
+3. **AI staff come with a club the player takes over**, on their contracts, as its players do.
+4. **Staff contract ends keep the wage** (bug fix: it was set to $0, so a re-hire was free).
+5. **A third AI senior only if the club can afford and fit her** (4c-1). The first two come by any
+   means, as before. About 17 clubs hold 2 at the start because of the cap. *Change:* raise the cap,
+   or let AI clubs carry a cheaper interchange.
+6. **Fitness and fatigue stay off for AI players** (the brief's own rule: condition.ts lets injuries
+   run without them). So an AI pair's risk is the base plus its stamina, the weather and Fitness Guru.
+7. **The player's own opponent never forfeits to injuries.** AI-vs-AI matches with fewer than two fit
+   are walkovers; for the player's match, the opponent fields its best two fit, or its best two if it
+   has fewer fit, so the player's match always happens. *Change:* make it a walkover win for the player.
+8. **AI clubs don't buy injured players from other clubs**; only a free agent is a gamble they take,
+   and only with two fit (4c-5).
+9. **AI training has no session coach** (the player books one per session); AI clubs get the staff
+   bonus only (part 3).
+10. **The fitness trainer's fatigue bonus does nothing for AI clubs**: AI fatigue is off (6), and the
+    Day 8 deal gives AI clubs coaches and medics, not fitness trainers.
+11. **Medical staff don't lower injury risk, for anyone.** For the player's club the server uses medics
+    only for healing: the best of Fitness Trainer, Strength Coach, Massage Therapist and
+    Physiotherapist gives a chance of an extra week off. **Doctor and Medical Specialist do nothing on
+    the server** for either club (the Medical page shows a doctor "+% recovery" that nothing reads).
+    I didn't invent a new rule. *Rob may want:* doctors and specialists to cut injury risk or speed
+    healing, for every club.
+12. **AI staff fall ill too** (same odds, no Club News), so "off ill gives nothing" means something
+    for AI clubs.
+
 ## Skipped, and why
 
 ## Images Rob must make
@@ -101,3 +131,18 @@ managers now) and heal on the same weekly clock, free agents too; an AI club wit
 forfeits; an injured free agent asks 50% (4+ weeks out) or 75% through the one asking-wage path, and
 signs at it; a long-injured AI senior isn't renewed; AI clubs gamble on an injured free agent only with
 two fit; a full AI club buys by releasing its weakest. Suite harness/ai-injuries.mjs (run-all 98i).
+
+### Part 3: AI staff bonuses (done, not yet run)
+
+An AI club's staff are read exactly as the player's (`loadStaffTx(tx, cid, { poolTeamId })`) and go
+through the same functions:
+- **Head Coach and Assistant Coach → AI senior training XP:** `trainingStaffBonuses(...).xpMultiplier`
+  in `aiSeniorsTrainWeekTx`, the same number the player's sessions get.
+- **Medical → healing:** the one weekly `injuryRecoveryWeekTx` (part 2) takes the club's own medics.
+- **Off ill or hurt gives nothing:** the AI clubs' staff now fall ill on the player's odds
+  (`aiStaffAbsenceDayTx`, utils/staffIllness.ts; not written to Club News), and every bonus reads only
+  staff on duty (`staffOnDuty`), as for the player.
+- Checks added to harness/ai-staff.mjs (section 8); ai-training.mjs's source check follows the new call.
+
+**Decisions (see "Decisions made overnight"):** the fitness trainer's bonus (fatigue) and medical
+"injury risk" have nothing to act on for AI clubs; details below.

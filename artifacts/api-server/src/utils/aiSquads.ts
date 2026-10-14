@@ -37,7 +37,8 @@ import {
   poolPlayerContractsTable, careerPoolTeamStateTable, seasonsTable, db, MONEY,
 } from "@workspace/db";
 import { and, asc, eq, inArray, isNotNull, isNull, or } from "drizzle-orm";
-import type { CareerStateTx } from "../lib/playerDto.js";
+import { loadStaffTx, type CareerStateTx } from "../lib/playerDto.js";
+import { trainingStaffBonuses } from "./staffBonuses.js";
 import { overallRating } from "./overallRating.js";
 import { sideRating } from "./matchEngine.js";
 import { monthlySalaryFor } from "./clubFinances.js";
@@ -261,8 +262,10 @@ export function materializeAiSeniorsTx(w: CareerStateTx, careerSaveId: number): 
  * block straight after materializeAiSeniorsTx. Each senior at an AI club gets
  * one session through the player's own XP rule (utils/trainingXp.ts): the
  * programme for her lowest stat (utils/aiTraining.ts aiProgrammeFor), her age
- * and potential, and her club's manager's Coach speciality (+10%); an AI club
- * has no coach, staff, philosophy or facilities, so those are 1. XP and stats
+ * and potential, and her club's manager's Coach speciality (+10%), and since
+ * the overnight brief's part 3 its staff's bonus (its Head and Assistant Coach,
+ * utils/staffBonuses.ts); an AI club books no session coach and has no
+ * philosophy or facilities, so those are 1. XP and stats
  * only: no fatigue, morale, injury or focus. Her training points carry over
  * week to week. Only in the career weeks AI_TRAIN_EVERY_WEEKS picks. Returns
  * how many trained.
@@ -287,10 +290,14 @@ export function aiSeniorsTrainWeekTx(w: CareerStateTx, careerSaveId: number, tod
       or(eq(playersTable.playerType, "senior"), eq(careerPlayerStateTable.isPromoted, true)),
     )).all();
   const coach = new Map<number, number>();
+  const staff = new Map<number, number>();
   for (const s of seniors) {
     const club = s.poolTeamId!;
     if (!coach.has(club)) coach.set(club, specialityFactor({ careerSaveId, poolTeamId: club }, "Coach"));
-    const xp = trainingSessionXp(s, aiProgrammeFor(s), { manager: coach.get(club) });
+    // Overnight part 3 (B-4): its Head Coach and Assistant Coach multiply the XP
+    // through the player's own rule (utils/staffBonuses.ts); one off ill gives nothing.
+    if (!staff.has(club)) staff.set(club, trainingStaffBonuses(loadStaffTx(w.tx, careerSaveId, { poolTeamId: club })).xpMultiplier);
+    const xp = trainingSessionXp(s, aiProgrammeFor(s), { manager: coach.get(club), staff: staff.get(club) });
     w.setPlayerState(careerSaveId, s.id, { trainingPoints: xp.newPoints, ...xp.statUpdates });
   }
   return seniors.length;

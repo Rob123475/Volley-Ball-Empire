@@ -40,7 +40,7 @@ import { boardDay } from "../utils/board-confidence.js";
 import { endCareer, loseClub } from "../utils/careerLifecycle.js";
 import { isOlympicYear, olympicDate } from "../utils/olympics.js";
 import { REST_RECOVERY, applyWeeklyInjuryRecovery, aiInjuryRecoveryWeekTx, isInjured, selectPair, PAIR_SIZE } from "../utils/condition.js";
-import { staffAbsenceDayTx } from "../utils/staffIllness.js";
+import { staffAbsenceDayTx, aiStaffAbsenceDayTx } from "../utils/staffIllness.js";
 import { substituteInjuredMatchPlayers, substitutionNotes } from "../utils/matchDaySubstitution.js";
 import { finishDueTrainingSessions } from "./training.js";
 import { isYouthPlayer } from "../utils/playerClassification.js";
@@ -545,6 +545,8 @@ async function advanceOneDay(req: Request): Promise<DayResult> {
   const staffDay = withCareerStateTx((w) => staffAbsenceDayTx(w, careerSaveId, team.id, calendar.currentDate));
   for (const m of staffDay.wentOff) events.push(`${m.name} (${m.role}) ${m.cause.news}: off for ${m.cause.days} days`);
   for (const m of staffDay.cameBack) events.push(`${m.name} (${m.role}) is back at work`);
+  // Update 1, overnight part 3: the AI clubs' staff, on the same odds (no Club News).
+  withCareerStateTx((w) => aiStaffAbsenceDayTx(w, careerSaveId, calendar.currentDate));
 
   // 4. Weekly salary & sponsor income (every 7 calendar days)
   const lastSalary = calendar.lastSalaryDate ?? season.startDate;

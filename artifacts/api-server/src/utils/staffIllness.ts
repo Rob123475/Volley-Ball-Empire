@@ -14,14 +14,16 @@
  *     (staff_absences, routes/news.ts); the Staff and Medical pages show
  *     "Off: flu, back in 4 days".
  *
- * Who: the manager's club. AI clubs have no staff in this game (no rows exist
- * for them), so there is no one there to fall ill.
+ * Who: every club's staff. Update 1, overnight part 3: the AI clubs have staff
+ * now (utils/aiStaff.ts), and they go off on the same odds for the same time,
+ * so an AI club's member off ill gives it nothing either. Only the player's
+ * club's absences are written to staff_absences (Club News is his).
  */
 import {
   careerStaffStateTable, staffTable, staffAbsencesTable,
   STAFF_ABSENCE_CAUSES, STAFF_ABSENCE_DAILY_CHANCE, staffAbsenceCause, type StaffAbsenceCause,
 } from "@workspace/db";
-import { and, desc, eq, isNull } from "drizzle-orm";
+import { and, desc, eq, isNotNull, isNull } from "drizzle-orm";
 import type { CareerStateTx } from "../lib/playerDto.js";
 
 export type StaffAbsenceDay = {
@@ -56,22 +58,40 @@ function pickCause(roll: number): StaffAbsenceCause {
 export function staffAbsenceDayTx(
   w: CareerStateTx, careerSaveId: number, teamId: number, today: string, rng: () => number = Math.random,
 ): StaffAbsenceDay {
+  return clubStaffAbsenceDayTx(w, careerSaveId, { teamId }, today, rng);
+}
+
+/** Part 3: the same day for every AI club's staff. Returns how many went off. */
+export function aiStaffAbsenceDayTx(w: CareerStateTx, careerSaveId: number, today: string, rng: () => number = Math.random): number {
+  const clubs = new Set(w.tx.select({ club: careerStaffStateTable.poolTeamId }).from(careerStaffStateTable)
+    .where(and(eq(careerStaffStateTable.careerSaveId, careerSaveId), isNotNull(careerStaffStateTable.poolTeamId))).all()
+    .map((r) => r.club!));
+  let off = 0;
+  for (const poolTeamId of clubs) off += clubStaffAbsenceDayTx(w, careerSaveId, { poolTeamId }, today, rng).wentOff.length;
+  return off;
+}
+
+function clubStaffAbsenceDayTx(
+  w: CareerStateTx, careerSaveId: number, club: { teamId: number } | { poolTeamId: number }, today: string, rng: () => number,
+): StaffAbsenceDay {
   const { tx } = w;
   const out: StaffAbsenceDay = { wentOff: [], cameBack: [] };
+  const teamId = "teamId" in club ? club.teamId : null;
   const hired = tx.select({
     staffId: careerStaffStateTable.staffId, offDaysLeft: careerStaffStateTable.offDaysLeft,
     offCause: careerStaffStateTable.offCause, offSince: careerStaffStateTable.offSince,
     name: staffTable.name, role: staffTable.role,
   }).from(careerStaffStateTable)
     .innerJoin(staffTable, eq(staffTable.id, careerStaffStateTable.staffId))
-    .where(and(eq(careerStaffStateTable.careerSaveId, careerSaveId), eq(careerStaffStateTable.teamId, teamId)))
+    .where(and(eq(careerStaffStateTable.careerSaveId, careerSaveId),
+      teamId != null ? eq(careerStaffStateTable.teamId, teamId) : eq(careerStaffStateTable.poolTeamId, (club as { poolTeamId: number }).poolTeamId)))
     .all();
 
   for (const m of hired) {
     if (m.offDaysLeft > 0) {
       // Counted on the game calendar from the day they went off, so a date the
       // calendar does not play (the season's turn) is not a day lost.
-      const open = tx.select({ days: staffAbsencesTable.days }).from(staffAbsencesTable).where(and(
+      const open = teamId == null ? undefined : tx.select({ days: staffAbsencesTable.days }).from(staffAbsencesTable).where(and(
         eq(staffAbsencesTable.careerSaveId, careerSaveId), eq(staffAbsencesTable.staffId, m.staffId),
         isNull(staffAbsencesTable.returnedOn),
       )).orderBy(desc(staffAbsencesTable.id)).get();
@@ -79,7 +99,7 @@ export function staffAbsenceDayTx(
       const left = m.offSince ? days - daysBetween(m.offSince, today) : m.offDaysLeft - 1;
       if (left > 0) { w.setStaffState(careerSaveId, m.staffId, { offDaysLeft: left }); continue; }
       w.setStaffState(careerSaveId, m.staffId, { offDaysLeft: 0, offCause: null, offSince: null });
-      tx.update(staffAbsencesTable).set({ returnedOn: today }).where(and(
+      if (teamId != null) tx.update(staffAbsencesTable).set({ returnedOn: today }).where(and(
         eq(staffAbsencesTable.careerSaveId, careerSaveId), eq(staffAbsencesTable.staffId, m.staffId),
         isNull(staffAbsencesTable.returnedOn),
       )).run();
@@ -89,7 +109,7 @@ export function staffAbsenceDayTx(
     if (!ROLLS || rng() >= STAFF_ABSENCE_DAILY_CHANCE) continue;
     const cause = pickCause(rng());
     w.setStaffState(careerSaveId, m.staffId, { offCause: cause.key, offSince: today, offDaysLeft: cause.days });
-    tx.insert(staffAbsencesTable).values({
+    if (teamId != null) tx.insert(staffAbsencesTable).values({
       careerSaveId, teamId, staffId: m.staffId, staffName: m.name, role: m.role,
       cause: cause.key, days: cause.days, startedOn: today,
     }).run();
