@@ -17,6 +17,7 @@ import ThreeDCourt      from "@/pages/court";
 import Finances         from "@/pages/finances";
 import NewCareer        from "@/pages/new-career";
 import Day1Draft        from "@/pages/day1-draft";
+import Preseason        from "@/pages/preseason";
 import CareerEnd        from "@/pages/career-end";
 import JobMarket        from "@/pages/job-market";
 import ProfilePicker    from "@/pages/profile-picker";
@@ -170,6 +171,7 @@ function Router() {
               <Route path="/"            component={Dashboard}    />
               {/* Update 1, item 4b: the Day 1 draft (not forced: the Dashboard warns, the calendar waits). */}
               <Route path="/day1-draft"  component={Day1Draft}    />
+              <Route path="/preseason"   component={Preseason}    />
               <Route path="/team"        component={TeamHub}      />
               <Route path="/players"     component={PlayerMarket} />
               <Route path="/staff"       component={StaffHub}     />

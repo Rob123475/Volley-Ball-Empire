@@ -189,7 +189,8 @@ export async function openWindowIfDue(careerSaveId: number, teamId: number, toda
     ensureAiManagersTx(tx, careerSaveId, year);
     appointOldVacanciesTx(tx, careerSaveId, year);
     const s = judgeAiManagersTx(tx, careerSaveId, year, today);
-    tx.update(careerSavesTable).set({ windowSeason: year }).where(eq(careerSavesTable.id, careerSaveId)).run();
+    // Update 1, overnight part 5: the off-season starts today (its day 7 is the pre-season choice).
+    tx.update(careerSavesTable).set({ windowSeason: year, offseasonStartedOn: today }).where(eq(careerSavesTable.id, careerSaveId)).run();
     return s;
   });
   return [

@@ -568,6 +568,27 @@ export const careerScoutReportsTable = sqliteTable("career_scout_reports", {
   scoutName:    text("scout_name"),
 });
 
+/**
+ * Update 1, overnight part 5 (item 5): each club's pre-season choice for the
+ * off-season after `seasonYear`: the player's club (team_id) or an AI club
+ * (pool_team_id). "camp" (location, length, dates, cost; done once its
+ * sessions have run), "rest" or "skip" (schema/preseason.ts).
+ */
+export const preseasonChoicesTable = sqliteTable("preseason_choices", {
+  id:           integer("id").primaryKey({ autoIncrement: true }),
+  careerSaveId: integer("career_save_id").notNull().references(() => careerSavesTable.id),
+  seasonYear:   integer("season_year").notNull(),
+  teamId:       integer("team_id"),
+  poolTeamId:   integer("pool_team_id"),
+  choice:       text("choice").notNull(),
+  location:     text("location"),
+  length:       text("length"),
+  startsOn:     text("starts_on"),
+  endsOn:       text("ends_on"),
+  cost:         real("cost").notNull().default(0),
+  done:         integer("done", { mode: "boolean" }).notNull().default(false),
+});
+
 /** Update 1, overnight part 4 (B-3): the players this career's manager watches (a star on any card). */
 export const careerWatchListTable = sqliteTable("career_watch_list", {
   id:           integer("id").primaryKey({ autoIncrement: true }),
@@ -1483,6 +1504,10 @@ export const careerSavesTable = sqliteTable("career_saves", {
    */
   aiStaffDealOn:  text("ai_staff_deal_on"),
   aiStaffDealtAt: text("ai_staff_dealt_at"),
+  /** Update 1, overnight part 6: Easy / Medium / Hard (schema/game-difficulty.ts). Null: a career made before it, Medium. */
+  gameDifficulty: text("game_difficulty"),
+  /** Update 1, overnight part 5: the game date this season's off-season began (the club's last match), for the camp choice on its day 7. */
+  offseasonStartedOn: text("offseason_started_on"),
   lastPlayedAt: integer("last_played_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
   createdAt:    integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });

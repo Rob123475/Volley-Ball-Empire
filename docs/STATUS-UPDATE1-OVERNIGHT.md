@@ -57,6 +57,17 @@ Not run yet (part 9).
 16. **B-1, the profile counts in the shared session rule only** (player's sessions, AI training, the
     camp). The academy's weekly development has its own rule and is untouched (the brief: the
     academy's own youth bonus stays).
+18. **Camp sessions run on the camp's last day** (all at once), not spread over it; and a camp only
+    builds through the shared session rule with the club's staff bonus and manager's Coach (no session
+    coach, philosophy or facilities: it's away from home).
+19. **Power House trains Power Camp every session** (it builds power first and block second); no
+    programme builds block first.
+20. **AI camp affordability:** 3× the camp's cost in the bank (the 4a rule's "three months' wage"
+    margin). An AI club picks its weakest pair of stats and the longest length it can afford, or one
+    shorter on a coin flip.
+21. **The AI clubs choose on the player's day 7** (one moment for the whole world), and only camps that
+    end before the next season's first round.
+22. **If the player never chooses, it's a Skip.**
 17. **B-2, "read from the injury history":** the injury_history table only holds the player's club, so
     each player's serious injuries are counted on her career state (serious_injuries) when they
     happen, for every club. Older injuries aren't counted backwards.
@@ -83,6 +94,11 @@ name, nationality, age, skill and wage too, as in utils/staff-generator.ts; once
 new people go in the staff data and the deal takes them with no code change (AI_STAFF.marketFloor stays 5).
 
 ## Olympic clashes with the pre-season camp
+
+**None possible.** The Olympics are played inside the season (between World Tour round 70 and the World
+Finals, in Olympic years), and qualifying is the season's World Tour points with no separate dates. A camp
+runs in the off-season and must end before the club's first match of next season, so it can never overlap
+an Olympic or qualifying date. No length is withheld for them.
 
 ## 5-season soak tables
 
@@ -206,3 +222,38 @@ page's preview (aliased `@shared/ageing`, as money.ts is now `@shared/money`).
   checks both; player-market.mjs's season-end check now expects the report kept (knowingly changed).
 - The Watch list stars the senior market's cards; the youth pool's cards don't have one (the youth pool
   is its own list).
+
+### Part 5: the pre-season camp (done, not yet run)
+
+- **Carry-over (Rob):** I found nothing at the season rollover that heals, rests or resets injury,
+  fatigue or fitness (seasonRollover.ts writes none of them; the only `fitness: 100` in the server is a
+  new youth's starting value). Healing stays on its weekly clock, off-season included. **Bench rest
+  confirmed:** every game day the calendar rests every player at the club, bench included: fitness +2
+  and fatigue −5 (injured: +1 and −3), utils/condition.ts `REST_RECOVERY`.
+- **When:** the off-season starts with the club's last match (`career_saves.offseason_started_on`,
+  stamped when the off-season window opens); on its **day 7** the choice opens: a Dashboard notice and
+  a day line, and the new **Pre-season** page (`/preseason`). If he never chooses, it is a Skip.
+- **A camp must end before the club's first match of next season** (the first round it played this
+  season, on next season's dates). A length that wouldn't, or that the club can't pay for, is shown
+  but can't be booked, with the reason.
+- **Olympics:** checked. The Olympic tournament is played in Olympic years between World Tour round 70
+  and the World Finals (inside the season), and qualifying is the season's World Tour points, with no
+  separate qualifier dates (utils/olympics.ts). So **no camp length ever overlaps an Olympic date** and
+  none is withheld for them.
+- **Camps:** Altitude Camp (speed + stamina: Agility Camp / Conditioning), Power House (power + block:
+  Power Camp each time, since no programme builds block first), Beach Academy (serve + defense: Serving
+  Academy / Defensive Systems, and morale +5). 1w / 2w / 4w: 3 / 6 / 12 sessions at ×1.5 / ×1.75 / ×2,
+  $10,000 / $20,000 / $35,000, fatigue +10 / +20 / +30 at the end. Each session goes through the shared
+  XP rule (age, profile, potential, serious injuries, the club's staff bonus and its manager's Coach),
+  times the camp's multiplier; the sessions run on the camp's last day. Paid from the balance, ledger
+  "Pre-season camp (Power House, 2 weeks)". **No normal training for seniors while at camp** (the
+  academy carries on).
+- **Rest:** free; no senior training for the rest of the off-season; when the new season opens, every
+  senior who isn't injured has fitness 100, fatigue 0 and morale +5.
+- **AI clubs** choose on the player's day 7, by difficulty (part 6): never / a coin flip each / every
+  club, only if it has 3× the camp's cost in the bank. It picks the camp for its weakest pair of stats
+  and the longest length it can afford, one shorter on a coin flip. AI camps add no fatigue (AI
+  fitness and fatigue are off, item 4c).
+- Every number in **lib/db/src/schema/preseason.ts** (`PRESEASON`). `roundToDate` moved from
+  routes/calendar.ts to utils/roundDates.ts so the camp uses the same rule. New suite
+  **harness/preseason-camp.mjs** (run-all 98k).

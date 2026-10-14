@@ -67,6 +67,7 @@ import {
 } from "lucide-react";
 import { CareerOptionsMenu } from "@/components/career/CareerOptionsMenu";
 import { useDay1Draft } from "@/pages/day1-draft";
+import { usePreseason } from "@/pages/preseason";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -278,6 +279,8 @@ export default function Dashboard() {
   const [, navigate] = useLocation();
   // Update 1, item 4b: the Day 1 draft is not forced; the Dashboard says so.
   const { data: day1Draft } = useDay1Draft();
+  // Update 1, overnight part 5: the pre-season choice, from day 7 of the off-season.
+  const { data: preseason } = usePreseason();
   const queryClient = useQueryClient();
   const [showCareerOptions, setShowCareerOptions] = useState(false);
   const [facilitiesOpen,   setFacilitiesOpen]   = useState(false);
@@ -409,6 +412,20 @@ export default function Dashboard() {
               </p>
             </div>
             <Button onClick={() => navigate("/day1-draft")} data-testid="day1-draft-go">Go to the Day 1 draft</Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {preseason?.offseason && preseason.open && (
+        <Card className="border-sky-500/50 bg-sky-500/10" data-testid="preseason-notice">
+          <CardContent className="p-4 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="font-bold">Pre-season: a camp, Rest or Skip</p>
+              <p className="text-sm text-muted-foreground">
+                Send your seniors to a camp (it must end before your first match on {preseason.firstMatchOn}), let them rest, or skip it.
+              </p>
+            </div>
+            <Button onClick={() => navigate("/preseason")} data-testid="preseason-go">Choose</Button>
           </CardContent>
         </Card>
       )}

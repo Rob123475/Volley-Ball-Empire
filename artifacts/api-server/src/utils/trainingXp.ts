@@ -84,6 +84,8 @@ export type XpMultipliers = {
   facility?: number;
   /** The manager's Coach speciality (seniors only; a youth trains at 1). */
   manager?: number;
+  /** Update 1, overnight part 5: a pre-season camp's length multiplier (x1.5 / x1.75 / x2, schema/preseason.ts). */
+  camp?: number;
 };
 
 export type SessionXp = {
@@ -121,7 +123,7 @@ export function trainingSessionXp(p: TraineeXpState, programName: string, m: XpM
 
   // Update 1, item 2: a Coach's club's seniors gain 10% more XP (utils/managerFaces.ts).
   const managerXp = isYouthPlayer(p) ? 1 : (m.manager ?? 1);
-  const totalMultiplier = program.xpModifier * (m.coach ?? 1) * (m.staff ?? 1) * ageModifier * (m.philosophy ?? 1) * potentialMultiplier * (m.facility ?? 1) * youthAcademyMultiplier * managerXp * profileMultiplier;
+  const totalMultiplier = program.xpModifier * (m.coach ?? 1) * (m.staff ?? 1) * ageModifier * (m.philosophy ?? 1) * potentialMultiplier * (m.facility ?? 1) * youthAcademyMultiplier * managerXp * profileMultiplier * (m.camp ?? 1);
   const sessionXp = Math.round(baseXp * totalMultiplier);
 
   const prevPoints = p.trainingPoints;

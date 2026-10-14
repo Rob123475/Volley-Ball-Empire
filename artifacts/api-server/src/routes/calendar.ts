@@ -33,6 +33,7 @@ import { materializeAiSeniorsTx, aiSeniorsTrainWeekTx, aiTransfersWeekTx } from 
 import { day1DraftOpen, finishDay1DraftTx } from "../utils/day1Draft.js";
 import { aiStaffDayTx, STAFF_BACK_ON_MARKET } from "../utils/aiStaff.js";
 import { applyDueScoutReportsTx } from "../utils/scoutReports.js";
+import { preseasonDayTx, applyRestTx } from "../utils/preseasonCamp.js";
 import { loadLeagueSeasons } from "../lib/regionalLeague.js";
 import {
   rolloverSeason, yearForSeasonNumber, type RolloverResult,
@@ -61,6 +62,7 @@ import {
   chargePoolClubsWeekTx, renewExpiredPoolContractsTx,
 } from "../utils/poolClubFinances.js";
 import { seasonEndsForCareerTx } from "../utils/seasonDates.js";
+import { roundToDate } from "../utils/roundDates.js";
 import { purseAccessTierFor } from "../utils/rankingPoints.js";
 import { promotionsMultiplier } from "../utils/staffBonuses.js";
 import { absoluteRound, completeDueUpgrades } from "../utils/facilityUpgrades.js";
@@ -76,20 +78,6 @@ router.use((_req: Request, res: Response, next: NextFunction) => {
 });
 
 // ── Helpers ────────────────────────────────────────────────────────────────
-
-function roundToDate(
-  startDate: string,
-  endDate: string,
-  round: number,
-  totalRounds: number,
-): string {
-  const start = new Date(startDate + "T00:00:00Z");
-  const end   = new Date(endDate   + "T00:00:00Z");
-  const totalDays = Math.max(1, Math.floor((end.getTime() - start.getTime()) / 86400000));
-  const offset = totalRounds <= 1 ? 0 : Math.floor((round - 1) * totalDays / (totalRounds - 1));
-  const d = new Date(start.getTime() + offset * 86400000);
-  return d.toISOString().split("T")[0]!;
-}
 
 /**
  * The schedule round a date is in: the latest round whose day (roundToDate)
@@ -798,6 +786,9 @@ async function advanceOneDay(req: Request): Promise<DayResult> {
   withCareerStateTx((w) => aiStaffDayTx(w, expiryCareerId, nextDate));
   // 5d. Update 1, overnight part 4 (B-3): a re-scout whose report is in becomes her report.
   withCareerStateTx((w) => applyDueScoutReportsTx(w, expiryCareerId, nextDate));
+  // 5e. Update 1, overnight part 5: the pre-season (the choice on the off-season's day 7,
+  // the AI clubs' choice, and every camp whose last day has come).
+  events.push(...withCareerStateTx((w) => preseasonDayTx(w, expiryCareerId, team.id, nextDate)));
 
   // 6. Advance the date
   await db.update(calendarStateTable)
@@ -838,6 +829,9 @@ async function advanceOneDay(req: Request): Promise<DayResult> {
     try {
       rollover = rolloverSeason(requireCareerSaveId(req.activeCareerSaveId), team.id);
       if (rollover.kind === "rolled") {
+        // Update 1, overnight part 5: a club that chose Rest starts the season fresh.
+        const rested = rollover.fromSeason;
+        withCareerStateTx((w) => applyRestTx(w, careerSaveId, yearForSeasonNumber(rested)));
         events.push(`Season ${rollover.fromSeason} complete — Season ${rollover.toSeason} begins`);
         // R-62: the new season's academy intake.
         if (rollover.intake) {

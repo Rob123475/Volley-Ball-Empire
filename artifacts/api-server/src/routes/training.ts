@@ -12,6 +12,8 @@ import type { TrainingSession, TrainingSessionResult } from "@workspace/db";
 import { getGameDate } from "../utils/gameDate.js";
 import { specialityFactor } from "../utils/managerFaces.js";
 import { PROGRAM_CONFIG, resolveProgram, trainingSessionXp } from "../utils/trainingXp.js";
+import { preseasonTrainingBlockTx } from "../utils/preseasonCamp.js";
+import { isYouthPlayer } from "../utils/playerClassification.js";
 
 const router = Router();
 
@@ -290,6 +292,13 @@ router.post("/training", async (req, res) => {
   // offered the PC's date and time (e.g. 29/09/2026 02:34 AM, in UTC) and sent
   // it; a player does not pick a real-world time at all.
   const scheduledAt = await getGameDate(team.id);
+  // Update 1, overnight part 5: no normal training for seniors at camp or resting (the academy carries on).
+  const cid = requireCareerSaveId(req.activeCareerSaveId);
+  const blocked = db.transaction((tx) => preseasonTrainingBlockTx(tx, cid, team.id, scheduledAt));
+  if (blocked) {
+    const trainee = await loadPlayer(cid, Number(playerId));
+    if (trainee && !isYouthPlayer(trainee)) { res.status(409).json({ error: blocked, preseason: true }); return; }
+  }
   const [session] = await db.insert(trainingSessionsTable).values({
     teamId: team.id,
     playerId: Number(playerId),
@@ -312,8 +321,15 @@ router.post("/training/team", async (req, res) => {
   const programName = resolveProgram(type);
   const scheduledAt = await getGameDate(team.id);   // item 18: the game date, not the PC's
 
-  const activePlayers = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id, isActive: true });
+  const cid = requireCareerSaveId(req.activeCareerSaveId);
+  let activePlayers = await loadPlayers(cid, { teamId: team.id, isActive: true });
   if (activePlayers.length === 0) { res.status(400).json({ error: "No active players" }); return; }
+  // Update 1, overnight part 5: at camp or resting, only the academy trains.
+  const blocked = db.transaction((tx) => preseasonTrainingBlockTx(tx, cid, team.id, scheduledAt));
+  if (blocked) {
+    activePlayers = activePlayers.filter(isYouthPlayer);
+    if (activePlayers.length === 0) { res.status(409).json({ error: blocked, preseason: true }); return; }
+  }
 
   const sessions = await Promise.all(activePlayers.map(player =>
     db.insert(trainingSessionsTable).values({

@@ -10,3 +10,5 @@ export * from "./manager-levels";
 export * from "./money";
 export * from "./staff-illness";
 export * from "./ageing";
+export * from "./game-difficulty";
+export * from "./preseason";

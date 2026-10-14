@@ -181,7 +181,8 @@ export function deleteProfileCascade(userId: string): void {
       // clubHallOfFameTable, and the sixty AI clubs' books,
       // poolClubSeasonsTable and poolPlayerContractsTable, and Update 1's manager
       // faces out of work, careerManagerFacesTable, and the overnight brief's scout
-      // reports and watch list, careerScoutReportsTable and careerWatchListTable.
+      // reports and watch list, careerScoutReportsTable and careerWatchListTable,
+      // and its pre-season choices, preseasonChoicesTable.
       // The athletes an intake created stay: players is reference data, and a
       // new career is seeded only with athletes no career owns.
     }
