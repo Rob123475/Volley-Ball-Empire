@@ -340,13 +340,17 @@ try {
     `factor ${fg} / ${nfg}`);
   check("and the Medical page's injury risk takes the same factor", /calcInjuryRisk\(fitness, fatigue, riskFactor\)/.test(src("artifacts/beach-volleyball/src/pages/medical.tsx")));
 
-  // M-6: an AI manager's speciality is shown, not used.
+  // M-6: an AI manager's speciality is shown, not used, but for Coach and
+  // Youth Developer since item 3 (harness/ai-training.mjs tests those two).
   const facesSrc = src("artifacts/api-server/src/utils/managerFaces.ts");
-  check("(source) the one multiplier reads only the player's manager (career_saves by the club's teams row)",
-    /export function playerSpecialityForTeam[\s\S]*?careerSavesTable\.teamId, teamId[\s\S]*?\n}/.test(facesSrc) && !/careerPoolTeamStateTable/.test(facesSrc.match(/export function playerSpecialityForTeam[\s\S]*?\n}/)?.[0] ?? "x"));
-  check("(source) an AI club's purchases and an AI academy's week take no speciality",
+  check("(source) the one multiplier reads the player's manager by the club's teams row, and for an AI club only Coach and Youth Developer count",
+    /if \(typeof club === "number"\) \{[\s\S]*?careerSavesTable\.teamId, club\)/.test(facesSrc)
+      && /export const AI_CLUB_SPECIALITIES: readonly Speciality\[\] = \["Coach", "Youth Developer"\];/.test(facesSrc)
+      && /if \(club != null && typeof club === "object" && !AI_CLUB_SPECIALITIES\.includes\(speciality\)\) return 1;/.test(facesSrc));
+  check("(source) an AI club's purchases take no speciality; an AI academy's week only its Youth Developer",
     /marketPrice\(careerSaveId, \{ \.\.\.m, askingPrice: null \}\)\.price/.test(src("artifacts/api-server/src/utils/aiSquads.ts"))
-      && /academyWeek\(youthRating\(r\), r\.potential, Math\.floor\(Math\.random\(\) \* 5\)\)/.test(src("artifacts/api-server/src/utils/youthLoans.ts")));
+      && /academyWeek\(youthRating\(r\), r\.potential, Math\.floor\(Math\.random\(\) \* 5\), youthDeveloper\.get\(club\)\)/.test(src("artifacts/api-server/src/utils/youthLoans.ts"))
+      && /specialityFactor\(\{ careerSaveId, poolTeamId: club \}, "Youth Developer"\)/.test(src("artifacts/api-server/src/utils/youthLoans.ts")));
   setFace(cidA, BASELINE);
   const before6 = await market();
   w(`UPDATE career_pool_team_state SET manager_face_id = ? WHERE career_save_id = ?`, NEG, cidA);

@@ -582,6 +582,11 @@ runSuite("staff injuries", path.join(REPO, "harness", "staff-injuries.mjs"));
 console.log("\n########## 98d/100  MANAGER FACES AND SPECIALITIES (UPDATE 1, ITEM 2) ##########");
 runSuite("manager faces", path.join(REPO, "harness", "manager-faces.mjs"));
 
+// Update 1, item 3 (Rob, 14 Oct): the AI clubs' seniors train weekly through the
+// player's own XP rule; Coach and Youth Developer count for AI clubs.
+console.log("\n########## 98e/100  AI CLUBS TRAIN AND DEVELOP (UPDATE 1, ITEM 3) ##########");
+runSuite("ai training", path.join(REPO, "harness", "ai-training.mjs"));
+
 // ── Smoke needs a server; boot one on a throwaway copy of the shipped DB ─────
 console.log("\n########## 99/100  GAMEPLAY SMOKE ##########");
 {
