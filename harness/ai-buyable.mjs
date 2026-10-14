@@ -32,7 +32,7 @@ import { DatabaseSync } from "node:sqlite";
 
 import { requireElectronBinary } from "./electron-binary.mjs";
 import { forkServer, stopServer } from "./server-harness.mjs";
-import { healAllSquads, renewExpiringContracts, keepSideFielded, startCareer } from "./harness-club.mjs";
+import { healAllSquads, renewExpiringContracts, keepSideFielded, startCareer, makeCapRoom } from "./harness-club.mjs";
 
 const REPO = path.join(import.meta.dirname, "..");
 const SHIPPED = path.join(REPO, "lib", "db", "volleyball-empire.sqlite");
@@ -107,13 +107,17 @@ try {
   const cid = q(`SELECT id FROM career_saves WHERE team_id = ?`, team.id)[0].id;
 
   console.log("\n1. THE MARKET LISTS THEM, AND THE WORLD IS UNCHANGED");
-  const before = q(`SELECT pool_player_id AS pp, pool_team_id AS club, salary FROM pool_player_contracts WHERE career_save_id = ? AND status = 'active' ORDER BY pool_player_id`, cid);
+  // Update 1, item 4b: the Day 1 draft makes the AI clubs' pool players career seniors when the career
+  // opens (their pool contracts read "moved", with the club and wage they were on); the AI clubs then
+  // fill to three from the free agents.
+  const before = q(`SELECT pool_player_id AS pp, pool_team_id AS club, salary FROM pool_player_contracts WHERE career_save_id = ? AND status = 'moved' ORDER BY pool_player_id`, cid);
+  const aiSeniorsNow = q(`SELECT COUNT(*) AS n FROM career_player_state s JOIN players p ON p.id = s.player_id WHERE s.career_save_id = ? AND s.pool_team_id IS NOT NULL AND s.team_id IS NULL AND s.is_retired = 0 AND (p.player_type = 'senior' OR s.is_promoted = 1)`, cid)[0].n;
   const market = (await api("GET", "/players/market-all")).data;
   const ai = market.filter((p) => p.status === "ai_club");
-  check("the Player Market lists the AI clubs' seniors, each with her club", ai.length === before.length && ai.every((p) => p.currentTeamName && p.aiClubId),
+  check("the Player Market lists the AI clubs' seniors, each with her club", ai.length === aiSeniorsNow && ai.every((p) => p.currentTeamName && p.aiClubId),
     `${ai.length} at AI clubs (e.g. ${ai[0]?.name} at ${ai[0]?.currentTeamName})`);
   const after = q(`SELECT cps.pool_player_id AS pp, cps.pool_team_id AS club, cps.salary FROM career_player_state cps WHERE cps.career_save_id = ? AND cps.pool_player_id IS NOT NULL ORDER BY cps.pool_player_id`, cid);
-  check("listing them changed nothing: the same players at the same clubs on the same wages",
+  check("becoming career seniors changed nothing: the same players at the same clubs on the same wages",
     after.length === before.length && after.every((a, i) => a.pp === before[i].pp && a.club === before[i].club && Math.abs(a.salary - before[i].salary) < 0.01),
     `${after.length} of ${before.length}; their pool contracts now read "moved": ${q(`SELECT COUNT(*) AS n FROM pool_player_contracts WHERE career_save_id = ? AND status = 'moved'`, cid)[0].n}`);
   const free = market.filter((p) => p.status === "free_agent" || p.status === "player_pool");
@@ -138,6 +142,7 @@ try {
 
   console.log("\n3. BOUGHT FROM HER AI CLUB");
   for (const p of (await api("GET", "/players")).data.filter((p) => p.squadRole === "interchange")) await api("POST", `/players/${p.id}/release`, {});
+  makeCapRoom(DB, team.id);   // item 4a: room under the cap, which is not this suite's subject
   const seller = seen.aiClubId;
   const sellerBefore = balanceOf(cid, seller), robBefore = Number((await api("GET", "/team")).data.budget);
   const noConfirm = await api("POST", "/contracts", { playerId: target.id, salary: wage, bonusPerWin: 0, squadRole: "interchange", length: "1s" });

@@ -107,6 +107,14 @@ const playerRows = (dbFile, cid) => read(dbFile,
           ${hasColumn(dbFile, "career_player_state", "pool_team_id") ? "s.pool_team_id" : "NULL"} AS pool,
           s.speed, s.power, s.defense, s.serve, s.block, s.stamina, p.player_type AS type, p.asking_price AS ask, p.potential
      FROM career_player_state s JOIN players p ON p.id = s.player_id WHERE s.career_save_id = ?`, cid);
+// Update 1, item 4b: the Day 1 draft makes the AI clubs' pool players career seniors at once (their
+// pool contracts read "moved"), so an AI club's contracts are its seniors' wages (career state).
+const aiSeniorRows = (dbFile, cid) => read(dbFile,
+  `SELECT s.player_id AS id, s.salary, s.speed, s.power, s.defense, s.serve, s.block, s.stamina
+     FROM career_player_state s JOIN players p ON p.id = s.player_id
+    WHERE s.career_save_id = ? AND s.pool_team_id IS NOT NULL AND s.team_id IS NULL AND s.is_retired = 0
+      AND (p.player_type = 'senior' OR s.is_promoted = 1)`, cid);
+// An older save (Rob's 1 Oct copy) still has its AI players on pool contracts.
 const poolRows = (dbFile, cid) => read(dbFile,
   `SELECT c.id, c.salary, pp.speed, pp.power, pp.defense, pp.serve, pp.block, pp.stamina
      FROM pool_player_contracts c JOIN continental_pool_players pp ON pp.id = c.pool_player_id
@@ -152,7 +160,7 @@ try {
   const signed = rows.filter((p) => senior(p) && p.teamId === team.id);
   check("the starting squad signs on those wages", signed.length > 0 && signed.every((p) => Number(p.salary) === askingWage(p.ask) + playerWageRise(ovr(p))),
     signed.map((p) => money(p.salary)).join(", "));
-  const pool = poolRows(fresh, cid);
+  const pool = aiSeniorRows(fresh, cid);
   check("every AI club's contract is the AI wage + the rise", pool.length > 0 && pool.every((c) => Number(c.salary) === aiWage(ovr(c))),
     `${pool.length} contracts, ${money(Math.min(...pool.map((c) => c.salary)))}-${money(Math.max(...pool.map((c) => c.salary)))}`);
   check("no head coach above the cap", coachOverCap(fresh) === 0, `cap ${money(MONEY.headCoachSalaryMonthlyMax)}`);

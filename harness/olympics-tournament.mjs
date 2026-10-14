@@ -168,6 +168,10 @@ async function careerToOlympics() {
       const w = new DatabaseSync(dbFile);
       w.prepare(`UPDATE career_player_state SET speed = 99, power = 99, defense = 99, serve = 99, block = 99, stamina = 99
                  WHERE career_save_id = ? AND team_id = ?`).run(careerSaveId, teamId);
+      // Update 1, item 4a: a 99-rated senior's renewal asks far more than the salary cap holds,
+      // so the scene's contracts run past the Olympics instead of being renewed.
+      w.prepare(`UPDATE career_player_state SET contract_end_date = '2031-12-31' WHERE career_save_id = ? AND team_id = ?`).run(careerSaveId, teamId);
+      w.prepare(`UPDATE contracts SET end_date = '2031-12-31' WHERE team_id = ? AND status = 'active'`).run(teamId);
       w.close();
     }
     let sacked = false;

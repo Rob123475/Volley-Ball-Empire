@@ -129,7 +129,8 @@ try {
 
   // ── 2. The intake's rule: the sixty AI academies ──────────────────────────
   console.log("\n2. THE AI ACADEMIES (THE INTAKE'S RULE)");
-  for (let i = 0; i < 10 && q(`SELECT COUNT(*) n FROM career_player_state WHERE pool_team_id IS NOT NULL`)[0].n === 0; i++) await api("POST", "/calendar/advance", {});
+  // Update 1, item 4b: the AI clubs' seniors are career players from Day 1; wait for their academies.
+  for (let i = 0; i < 10 && q(`SELECT COUNT(*) n FROM career_player_state s JOIN players p ON p.id = s.player_id WHERE s.pool_team_id IS NOT NULL AND p.player_type = 'youth'`)[0].n === 0; i++) await api("POST", "/calendar/advance", {});
   const academy = q(`SELECT s.speed, s.power, s.defense, s.serve, s.block, s.stamina FROM career_player_state s JOIN players p ON p.id = s.player_id
                       WHERE s.pool_team_id IS NOT NULL AND p.player_type = 'youth'`).map(ovr);
   const acNormal = academy.filter((r) => r < GIFTED_MIN);
