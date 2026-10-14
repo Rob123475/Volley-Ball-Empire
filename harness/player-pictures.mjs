@@ -283,7 +283,9 @@ try {
   const atAi = (Array.isArray(market) ? market : []).filter((p) => p.poolTeamId != null || p.status === "ai_club");
   const byName = new Map(list.map((p) => [p.name, p.card]));
   const noPic = atAi.filter((p) => !p.imageUrl || !fs.existsSync(path.join(PUBLIC, p.imageUrl)));
-  const mismatched = atAi.filter((p) => byName.has(p.name) && byName.get(p.name) !== p.imageUrl);
+  // Update 1, items 4b/4c: an AI club now also holds free agents it signed (shipped seniors with their
+  // own cards, some sharing a name with a pool player); the list's pictures are the originals'.
+  const mismatched = atAi.filter((p) => p.poolPlayerId != null && byName.has(p.name) && byName.get(p.name) !== p.imageUrl);
   check("on the Player Market every AI club player has her picture, and it is the one on the list",
     atAi.length >= 100 && noPic.length === 0 && mismatched.length === 0,
     `${atAi.length} at AI clubs; ${noPic.length} without a picture; ${mismatched.length} with another; e.g. ${atAi.slice(0, 2).map((p) => `${p.name}: ${p.imageUrl}`).join(" · ")}`);

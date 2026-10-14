@@ -12,6 +12,7 @@
  * Exits non-zero on any failed assertion.
  */
 import fs from "node:fs";
+import { DatabaseSync } from "node:sqlite";
 import path from "node:path";
 import { healSquadByTeam, trainThroughCalendar, startCareer } from "./harness-club.mjs";
 
@@ -103,6 +104,8 @@ const roster = async (api) => {
   for (const p of [...(rosterA0.data?.starters ?? []), ...(rosterA0.data?.interchanges ?? [])]) {
     await A("POST", `/players/${p.id}/release`, {});
   }
+  // Update 1 (Rob, 14 Oct, 4b-2): releasing the drafted squad pays its contracts out; the money is put back.
+  if (DB_PATH) { const bw = new DatabaseSync(DB_PATH); bw.prepare(`UPDATE teams SET budget = 500000 WHERE id = ?`).run(teamA.id); bw.close(); }
 
   // ── 1. Sign a free agent ──────────────────────────────────────────────────
   console.log("1. SIGN A FREE AGENT");
@@ -328,13 +331,15 @@ const roster = async (api) => {
   // because "422" on its own leaves the player guessing.
   console.log("\n9. SQUAD SIZE");
   const C = session();
-  await newCareer(C, "SmokeC");
+  const teamC = await newCareer(C, "SmokeC");
 
   // A fresh career now starts with a seeded squad (R-04, section 0) — release
   // it first so this test can still walk the cap from empty to full.
   for (const p of await roster(C)) {
     await C("POST", `/players/${p.id}/release`, {});
   }
+  // Update 1 (4b-2): the releases paid the drafted contracts out; the money is put back.
+  if (DB_PATH) { const bw = new DatabaseSync(DB_PATH); bw.prepare(`UPDATE teams SET budget = 500000 WHERE id = ?`).run(teamC.id); bw.close(); }
 
   const poolC = (await market(C)).filter((p) => (p.age ?? 99) >= 19);
   const signC = (p, squadRole) =>

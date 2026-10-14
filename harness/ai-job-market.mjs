@@ -220,9 +220,11 @@ try {
   check("(set-up) his old club had staff when he moved, one off with a broken leg", oldStaff.length > 0 && offId != null && !!today0,
     `${oldStaff.length} staff; off: ${q(`SELECT name FROM staff WHERE id = ?`, offId ?? -1)[0]?.name} since ${today0}`);
   const staffNow = (await api("GET", "/staff")).data ?? [];
-  check("he takes on the new club's staff: the AI club had none, so none of the old club's staff are his",
-    Array.isArray(staffNow) && staffNow.length === 0 && q(`SELECT COUNT(*) AS n FROM career_staff_state WHERE career_save_id = ? AND team_id = ?`, cid, team.id)[0].n === 0,
-    `Staff page lists ${Array.isArray(staffNow) ? staffNow.length : "?"}`);
+  // Update 1, overnight part 1a: an AI club has staff (a coach and a medic, Day 8), and they come with it.
+  const inherited = q(`SELECT staff_id AS id, pool_team_id AS p FROM career_staff_state WHERE career_save_id = ? AND team_id = ?`, cid, team.id);
+  check("he takes on the new club's staff: the AI club's own (at most a coach and a medic), none of the old club's",
+    Array.isArray(staffNow) && inherited.length <= 2 && inherited.every((m) => m.p == null && !oldStaff.includes(m.id)),
+    `Staff page lists ${Array.isArray(staffNow) ? staffNow.length : "?"}; ${inherited.length} came with the club`);
   const leftBehind = q(`SELECT staff_id AS id FROM career_staff_state WHERE career_save_id = ? AND team_id = ? ORDER BY staff_id`, cid, oldTeamId).map((r) => r.id);
   check("the old club's staff stay at the old club (none came with him, none were released)", JSON.stringify(leftBehind) === JSON.stringify(oldStaff), `${leftBehind.length} of ${oldStaff.length}`);
   const offRow = q(`SELECT off_cause AS c, off_since AS s, off_days_left AS d FROM career_staff_state WHERE career_save_id = ? AND staff_id = ?`, cid, offId ?? -1)[0];
@@ -230,7 +232,7 @@ try {
   check("staff who were off stay off: the move does not clear the broken leg", offRow?.c === "broken_leg" && offRow?.s === today0 && offRow?.d > 0 && openAbsence && openAbsence.r == null,
     JSON.stringify(offRow));
   const staffClubs = q(`SELECT DISTINCT team_id AS t FROM career_staff_state WHERE career_save_id = ? AND team_id IS NOT NULL`, cid).map((r) => r.t);
-  check("AI clubs still have no staff rows: every hired member in this career is at a club he has managed",
+  check("every staff member at a club (teams row) is at one he has managed (AI clubs' staff are on pool_team_id)",
     staffClubs.every((t) => t === oldTeamId || t === team.id), `staff at teams ${JSON.stringify(staffClubs)}; his: ${oldTeamId}, ${team.id}`);
   {
     w(`UPDATE teams SET budget = MAX(budget, 250000) WHERE id = ?`, team.id); // planted: the AI club's balance may not cover a signing fee
@@ -241,7 +243,7 @@ try {
     // (The Staff page lists the staff department; medical staff have their own page.)
     const mine = q(`SELECT staff_id AS id, off_days_left AS d FROM career_staff_state WHERE career_save_id = ? AND team_id = ?`, cid, team.id);
     check("at the new club he hires staff, and the day's staff roll runs for them",
-      hired.status === 201 && d.status === 200 && mine.length === 1 && mine[0].id === pick.id && mine[0].d === 0,
+      hired.status === 201 && d.status === 200 && mine.length === inherited.length + 1 && mine.some((m) => m.id === pick.id && m.d === 0),
       `${pick?.name} (${pick?.role}): HTTP ${hired.status}; day HTTP ${d.status}; his staff now ${JSON.stringify(mine)}; the hire row ${JSON.stringify(q(`SELECT team_id, is_available, contract_end_date, off_days_left FROM career_staff_state WHERE career_save_id = ? AND staff_id = ?`, cid, pick?.id ?? -1))}; team ${team.id}`);
   }
   const year2 =q(`SELECT year FROM seasons WHERE career_save_id = ? AND status = 'active'`, cid)[0].year;
