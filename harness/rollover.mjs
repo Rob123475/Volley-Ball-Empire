@@ -313,6 +313,15 @@ async function advanceToBoundary(api, maxDays = 500) {
     }
     seen.push(hit.roll);
     seenBodies.push(hit.body);
+    // Update 1: with the draft under the cap the walk's squad is weaker, and a board that sacks moves the
+    // career to another club (the review below would then read the wrong club). The walk is about the
+    // boundaries, so its failed grades are planted as met.
+    if (DB_FILE) {
+      const teamNow = (await A("GET", "/team")).data?.id;
+      const wdb = new DatabaseSync(DB_FILE);
+      wdb.prepare(`UPDATE board_seasons SET grade = 'met' WHERE grade = 'failed' AND career_save_id = (SELECT id FROM career_saves WHERE team_id = ?)`).run(teamNow);
+      wdb.close();
+    }
 
     const s = (await A("GET", "/seasons/current")).data;
     check(`season ${hit.roll.fromSeason} -> ${hit.roll.toSeason}`,
