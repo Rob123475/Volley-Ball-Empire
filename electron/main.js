@@ -1,4 +1,6 @@
-const { app, BrowserWindow, Menu, dialog } = require("electron");
+const { app, BrowserWindow, Menu, dialog, ipcMain } = require("electron");
+// Update 1, overnight part 8: the window's settings (Settings > Display), remembered in userData.
+const windowSettings = require("./window-settings");
 const path = require("path");
 const fs = require("fs");
 const { fork } = require("child_process");
@@ -387,10 +389,40 @@ function startServer() {
 }
 
 // ── Window ───────────────────────────────────────────────────────────────────
+/** Update 1, overnight part 8: apply the window's settings (fullscreen or a size, and the zoom). */
+function applyWindowSettings(win, settings, { atLaunch = false } = {}) {
+  if (!win || win.isDestroyed()) return;
+  win.setFullScreen(settings.mode === "fullscreen");
+  if (settings.mode !== "fullscreen") {
+    if (settings.size) {
+      if (win.isMaximized()) win.unmaximize();
+      const { width, height } = windowSettings.sizeOf(settings.size);
+      win.setSize(width, height);
+      win.center();
+    } else if (atLaunch) {
+      win.maximize();
+    }
+  }
+  win.webContents.setZoomFactor(settings.zoom);
+}
+
+ipcMain.handle("window-settings:get", () => ({
+  ...windowSettings.readWindowSettings(userDataPath),
+  sizes: windowSettings.SIZES, defaultSize: windowSettings.DEFAULT_SIZE,
+  zoomMin: windowSettings.ZOOM_MIN, zoomMax: windowSettings.ZOOM_MAX,
+}));
+ipcMain.handle("window-settings:set", (_e, patch) => {
+  const next = windowSettings.writeWindowSettings(userDataPath, patch);
+  applyWindowSettings(mainWindow, next);
+  return next;
+});
+
 function createWindow() {
+  const settings = windowSettings.readWindowSettings(userDataPath);
+  const size = windowSettings.sizeOf(settings.size);
   mainWindow = new BrowserWindow({
-    width: 1400,
-    height: 900,
+    width: size.width,
+    height: size.height,
     show: false, // avoid a flash of the small unmaximized window before it fills the screen
     title: APP_NAME,
     icon: windowIconPath,
@@ -405,12 +437,20 @@ function createWindow() {
       // provider still has a first-gesture retry for a plain browser run
       // (vite dev), where this setting does not exist.
       autoplayPolicy: "no-user-gesture-required",
+      // Update 1, overnight part 8: Settings > Display talks to the window here.
+      preload: path.join(__dirname, "preload.js"),
     },
   });
 
+  // Overnight part 8: as the player last set it (a game never set up opens
+  // maximised, as it always has).
   mainWindow.once("ready-to-show", () => {
-    mainWindow.maximize();
+    applyWindowSettings(mainWindow, settings, { atLaunch: true });
     mainWindow.show();
+  });
+  // The zoom is the page's: set again after every load.
+  mainWindow.webContents.on("did-finish-load", () => {
+    mainWindow.webContents.setZoomFactor(windowSettings.readWindowSettings(userDataPath).zoom);
   });
 
   // R-65: with no application menu there are no menu accelerators either, so

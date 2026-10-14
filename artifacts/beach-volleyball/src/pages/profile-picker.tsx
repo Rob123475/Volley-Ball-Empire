@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2, User, Plus, Play, Trash2 } from "lucide-react";
+import { Loader2, User, Plus, Play, Trash2, Settings as SettingsIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -99,6 +99,11 @@ export default function ProfilePicker() {
 
   return (
     <div className="min-h-screen bg-slate-950 flex items-center justify-center p-6">
+      {/* Update 1, overnight part 8: the gear (Settings) on the title screen. */}
+      <button type="button" onClick={() => navigate("/settings")} title="Settings" data-testid="title-settings"
+        className="fixed right-4 top-4 rounded-full border border-white/15 bg-white/5 p-2 text-white/70 hover:bg-white/10 hover:text-white">
+        <SettingsIcon className="h-5 w-5" />
+      </button>
       <div className="w-full max-w-md space-y-6">
         <div className="text-center space-y-1">
           <h1 className="text-2xl font-black text-white uppercase tracking-widest">Select Manager</h1>

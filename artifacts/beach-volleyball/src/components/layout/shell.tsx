@@ -21,6 +21,7 @@ import {
   CheckCircle2,
   BarChart2,
   ArrowUpDown,
+  Settings as SettingsIcon,
 } from "lucide-react";
 import { GameplayHeader } from "@/components/gameplay-header";
 import { MatchDayModal } from "@/components/match-day-modal";
@@ -119,6 +120,8 @@ const NAV_GROUPS: NavGroup[] = [
   { id: "calendar", label: "Season Cal",   icon: CalendarDays, href: "/annual-calendar" },
   { id: "finances", label: "Finances",     icon: DollarSign,  href: "/finances"         },
   { id: "career",   label: "Career",   icon: FolderOpen, href: "/career"   },
+  // Update 1, overnight part 8: the gear.
+  { id: "settings", label: "Settings", icon: SettingsIcon, href: "/settings" },
 ];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────

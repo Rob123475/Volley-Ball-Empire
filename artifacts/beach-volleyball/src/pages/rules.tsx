@@ -1,4 +1,7 @@
 import { CONTINENT_COUNT } from "@shared/continents";
+import { MONEY } from "@shared/money";
+import { PRESEASON } from "@shared/preseason";
+import { GAME_DIFFICULTY } from "@shared/game-difficulty";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -12,6 +15,7 @@ import {
   Hand,
   Camera,
   Keyboard,
+  Sparkles,
 } from "lucide-react";
 
 // — Sport Rules —
@@ -122,9 +126,64 @@ const COMP_TIERS = [
       "About half come from your club's country, the rest from the other nations of its region",
       "Their ratings are drawn from the same spread as the game's other youth players",
       "An academy player becomes a senior player at the season change when she reaches 19",
-      "Only your club takes an intake; the AI clubs keep their pairs",
+      "Only your club takes an intake; the AI clubs run academies of their own",
     ],
   },
+];
+
+// — Update 1: what's new (Rob, 14 Oct; docs/UPDATE1-OVERNIGHT-BRIEF.md part 8) —
+const money = (n: number) => "$" + n.toLocaleString("en-US");
+const camp = PRESEASON.lengths;
+export const UPDATE1_RULES: ReadonlyArray<{ title: string; points: string[] }> = [
+  { title: "The Day 1 draft", points: [
+    "A new career starts with no squad. On Day 1 you pick 2 or 3 seniors from every senior in the world: the free agents and every AI club's players.",
+    "On Day 1 nobody owns anyone, so there is no transfer fee, only her wage. You choose each one's contract length.",
+    "The calendar won't move on until you have 2 or 3. Then the AI clubs fill their gaps from who is left.",
+  ] },
+  { title: "The salary cap", points: [
+    `Every club's senior wages must stay under ${money(MONEY.salaryCap.monthlyCap)} a month.`,
+    "What counts: your seniors' wages (starters, interchange and promoted graduates). The academy, staff, the manager and youths out on loan don't count.",
+    "A signing, a renewal at a higher wage or a raise that would take you over is refused. The Team and Finances pages show where you stand.",
+    "At renewal a senior asks the wage for her rating now, so a player who has improved asks more. The AI clubs obey the same cap.",
+  ] },
+  { title: "Hire your staff and medical in your first week", points: [
+    "On Day 8 the AI clubs take a coach and a medical member each from the market, so hire the ones you want before then.",
+    "There are always at least 5 of every role left for you. An AI club's staff are off the market until their contracts end.",
+  ] },
+  { title: "Injured players come cheap", points: [
+    `An injured free agent asks less: out ${MONEY.salaryCap.injuredLongWeeks} weeks or more, half her wage; out less, three quarters. She signs at that wage for the whole contract.`,
+    "The AI clubs' players get injured in their matches too, and an AI club won't renew a senior who is out for a long time, so stars do reach the market injured.",
+    "An AI club with fewer than two fit seniors can't play and forfeits.",
+  ] },
+  { title: "Pre-season camps", points: [
+    `On day ${PRESEASON.choiceDay} of the off-season, choose: a camp, Rest or Skip. Seniors only; the academy carries on.`,
+    "Altitude Camp builds speed and stamina, Power House power and block, Beach Academy serve and defense (and morale +5).",
+    `1 week: ${camp["1w"].sessions} sessions at x${camp["1w"].xp} XP, ${money(camp["1w"].cost)}, fatigue +${camp["1w"].fatigue}. 2 weeks: ${camp["2w"].sessions} at x${camp["2w"].xp}, ${money(camp["2w"].cost)}, +${camp["2w"].fatigue}. 4 weeks: ${camp["4w"].sessions} at x${camp["4w"].xp}, ${money(camp["4w"].cost)}, +${camp["4w"].fatigue}.`,
+    "A camp must end before your first match of the new season. No normal training while you're there.",
+    "Rest is free: no training for the rest of the off-season, and every fit senior starts the season at full fitness, no fatigue and morale +5.",
+    "Injuries and fatigue carry over from one season to the next.",
+  ] },
+  { title: "Difficulty", points: [
+    `Easy: ${GAME_DIFFICULTY.easy.blurb}`,
+    `Medium: ${GAME_DIFFICULTY.medium.blurb}`,
+    `Hard: ${GAME_DIFFICULTY.hard.blurb}`,
+    "Nobody's player ratings change. You pick it when you start a career, and it's fixed (shown on your Profile).",
+  ] },
+  { title: "Ageing and injuries", points: [
+    "Each skill grows best while she is young, holds, then fades: speed first (from 26), then stamina (30), power (31), and defense, serve and block last (33).",
+    "A fading skill trains at half speed and loses a point or two at each season's end. Every player's ages are a little different, and a hard worker fades more slowly.",
+    "A hard-working, coachable player trains faster; an injury-prone one gets hurt more often.",
+    "An injury of 4 weeks or more costs a point of speed and stamina, and a little of her training for good.",
+  ] },
+  { title: "Scouting and the Watch list", points: [
+    "Star any player on the Player Market to put her on your Watch list (its own tab).",
+    "Scout a player again whenever you like, at the same price and 5 days. Every report is kept with its date, so you can see her rating move.",
+    "Reports no longer run out at the end of the season. Scouting works on AI clubs' players too, and stays with a player who moves club.",
+  ] },
+  { title: "Manager specialities", points: [
+    "Your manager's face comes with a speciality: Talent Recruiter, Negotiator, Contracts Expert, Sponsor Magnet, Leader, Coach, Youth Developer or Fitness Guru.",
+    "The AI clubs' managers have them too; for an AI club, Coach, Youth Developer and Fitness Guru count.",
+  ] },
 ];
 
 // — Camera Controls —
@@ -147,6 +206,29 @@ export default function Rules() {
           How beach volleyball works, how the competition is structured, and how to control the match camera.
         </p>
       </div>
+
+      {/* Update 1 */}
+      <Card data-testid="rules-update1">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2">
+            <Sparkles className="h-4 w-4 text-muted-foreground" />
+            New in Update 1
+          </CardTitle>
+          <CardDescription>The draft, the salary cap, camps, difficulty and more</CardDescription>
+        </CardHeader>
+        <CardContent className="pt-0 grid gap-3 sm:grid-cols-2">
+          {UPDATE1_RULES.map((r) => (
+            <div key={r.title} className="rounded-xl border border-white/10 bg-black/20 p-3.5">
+              <div className="text-sm font-bold text-white/90 mb-1">{r.title}</div>
+              <ul className="space-y-1">
+                {r.points.map((pt) => (
+                  <li key={pt} className="text-xs text-white/60 leading-relaxed pl-3 relative before:content-['—'] before:absolute before:left-0 before:text-white/25">{pt}</li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
 
       {/* Sport Rules */}
       <Card>

@@ -53,6 +53,7 @@ import CareerHistory      from "@/pages/career-history";
 import LeagueLadders      from "@/pages/league-ladders";
 import Leaderboard        from "@/pages/leaderboard";
 import Rules from "@/pages/rules";
+import SettingsPage from "@/pages/settings";
 
 // Competition pages — Continental
 import RegionalOverview    from "@/pages/competition/regional-overview";
@@ -152,6 +153,17 @@ function Router() {
       <Route path="/career-end" component={CareerEnd} />
       {/* L-02e: the club was sold. The career is not over — this is where it carries on. */}
       <Route path="/job-market" component={JobMarket} />
+      {/* Update 1, overnight part 8: Settings, from the sidebar and the title
+          screen, so outside the guard (no career needed); its Rules link too. */}
+      <Route path="/settings" component={SettingsPage} />
+      <Route path="/settings/rules">
+        <div className="min-h-screen bg-background p-4 sm:p-8">
+          <div className="mx-auto max-w-4xl space-y-3">
+            <button type="button" className="text-sm text-muted-foreground hover:text-foreground" onClick={() => window.history.back()}>← Back</button>
+            <Rules />
+          </div>
+        </div>
+      </Route>
       {/* Court page rendered outside Shell — full viewport, no sidebar */}
       <Route path="/court">
         <AuthGuard>

@@ -285,3 +285,32 @@ page's preview (aliased `@shared/ageing`, as money.ts is now `@shared/money`).
   deleted (it was the only copy). Player cards keep their national colours.
 - harness/club-kits.mjs extended (section 2b: a forced clash goes white; every ladder dot is the real
   kit; the hash is gone), and its away-kit check now allows the change kit (knowingly changed).
+
+### Part 8: Settings (done, not yet run)
+
+- **The gear:** a Settings entry in the sidebar and a gear at the top right of the title screen (the
+  manager picker). Settings, and a Rules page reached from it, sit outside the career guard, so they
+  work before a career is loaded.
+- **Display** (desktop game only): Windowed or Fullscreen; 1280×800, 1400×900 (default), 1600×1000,
+  1920×1080; a zoom slider 80–150% (Electron webContents zoom). Stored in
+  `window-settings.json` in the game's user-data folder (`electron/window-settings.js`), applied at once
+  through a new `electron/preload.js` (exposes only get/set) and again at the next launch. **A game
+  that has never set a size still opens maximised**, as it always has; picking a size makes it a
+  window of that size.
+- **Sound:** music volume and mute are the music bar's own state (`useMusic`); the bar stays for
+  skipping songs. **Match sound volume is left out:** the 3D court's page listens for one message only
+  (the control mode, `MatchManager.SetControlMode`), so a volume needs a Unity method and a rebuild.
+- **Controls:** Auto or Manual is chosen here, under the same stored key
+  (`vbe-court-control-mode`, now in `lib/court-settings.ts`); **the match screen's toggle button is
+  removed** (the court still switches with Tab / View / Share and the page remembers it). A Controls
+  panel lists what the court uses in Manual (W A S D, J dig, K set, L spike/block/serve, Space dive, Q
+  switch, Tab Auto/Manual, Esc pause, H help; Xbox A/X/Y/B, LB, View, Menu; PlayStation
+  Cross/Square/Triangle/Circle, L1, Share), from the court's own proof of 5–6 Oct.
+- **Rules:** a "New in Update 1" card: the Day 1 draft, the salary cap and what counts, "hire your
+  staff and medical in your first week, because on Day 8 the AI clubs take staff", injured players
+  are cheaper, pre-season camps (its table read from PRESEASON), difficulty, ageing and injuries,
+  scouting and the Watch list, manager specialities. The old "the AI clubs keep their pairs" academy
+  line is corrected.
+- New suite **harness/settings.mjs** (run-all 98m), headless (no Electron window, no save touched).
+- Not updated: the three GPU proof scripts in scripts/webgl-proof/ still click the old match-screen
+  button (they are run by hand, not by the build).
