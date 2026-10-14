@@ -1,5 +1,4 @@
 import { Router } from "express";
-import { potentialMultiplier as potentialOf } from "../utils/potential.js";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
 import { trainingSessionsTable, playersTable, teamsTable, staffTable, facilitiesTable } from "@workspace/db";
@@ -11,8 +10,8 @@ import { eq, and } from "drizzle-orm";
 import { loadPlayers, loadPlayer, requireCareerSaveId, updatePlayerState, type CareerPlayerFields, type StatKey, loadStaff, careerSaveIdForTeamOrThrow } from "../lib/playerDto.js";
 import type { TrainingSession, TrainingSessionResult } from "@workspace/db";
 import { getGameDate } from "../utils/gameDate.js";
-import { isYouthPlayer } from "../utils/playerClassification.js";
 import { specialityFactor } from "../utils/managerFaces.js";
+import { PROGRAM_CONFIG, resolveProgram, trainingSessionXp } from "../utils/trainingXp.js";
 
 const router = Router();
 
@@ -36,48 +35,6 @@ async function getBestMedicalSkill(teamId: number): Promise<number> {
   return medics.length > 0 ? Math.max(...medics.map(s => s.skillLevel)) : 0;
 }
 
-// ── Training Programs ─────────────────────────────────────────────────────────
-// primaryStat   — gains +1 every 100 XP
-// secondaryStat — gains +1 every 200 XP (half the rate of primary)
-// fatigueEffect — positive adds fatigue, negative removes it
-// xpModifier    — scales total session XP
-// moraleBonus   — flat morale change per session
-// fitnessBonus  — flat fitness boost per session
-// injuryHealing — true = ticks injury weeks down (only meaningful for Recovery)
-
-interface ProgramConfig {
-  primaryStat:   string | null;
-  secondaryStat: string | null;
-  fatigueEffect: number;
-  xpModifier:    number;
-  moraleBonus:   number;
-  fitnessBonus:  number;
-  injuryHealing: boolean;
-}
-
-const PROGRAM_CONFIG: Record<string, ProgramConfig> = {
-  "Power Camp":        { primaryStat: "power",   secondaryStat: "block",   fatigueEffect: 26,  xpModifier: 1.00, moraleBonus: 0, fitnessBonus: 0,  injuryHealing: false },
-  "Agility Camp":      { primaryStat: "speed",   secondaryStat: "defense", fatigueEffect: 18,  xpModifier: 1.00, moraleBonus: 0, fitnessBonus: 0,  injuryHealing: false },
-  "Serving Academy":   { primaryStat: "serve",   secondaryStat: null,      fatigueEffect: 18,  xpModifier: 1.00, moraleBonus: 2, fitnessBonus: 0,  injuryHealing: false },
-  "Defensive Systems": { primaryStat: "defense", secondaryStat: "stamina", fatigueEffect: 20,  xpModifier: 0.95, moraleBonus: 0, fitnessBonus: 0,  injuryHealing: false },
-  "Conditioning":      { primaryStat: "stamina", secondaryStat: null,      fatigueEffect: 12,  xpModifier: 0.85, moraleBonus: 0, fitnessBonus: 10, injuryHealing: false },
-  "Recovery Program":  { primaryStat: null,      secondaryStat: null,      fatigueEffect: -30, xpModifier: 0.15, moraleBonus: 1, fitnessBonus: 18, injuryHealing: true  },
-};
-
-// Backward-compat: map old type values to new program names
-const LEGACY_TYPE_MAP: Record<string, string> = {
-  strength: "Power Camp",
-  agility:  "Agility Camp",
-  serving:  "Serving Academy",
-  blocking: "Power Camp",
-  defense:  "Defensive Systems",
-  teamplay: "Conditioning",
-  recovery: "Recovery Program",
-};
-
-const resolveProgram = (type: string): string =>
-  PROGRAM_CONFIG[type] ? type : (LEGACY_TYPE_MAP[type] ?? "Conditioning");
-
 // Unity brief item 19: how many GAME days each programme takes (lib/db
 // training-programs.ts, shared with the Training page).
 const PROGRAM_DAYS = TRAINING_PROGRAM_DAYS;
@@ -97,16 +54,6 @@ const PHILOSOPHY_BONUSES: Record<string, Record<string, number>> = {
   "Fast Volleyball":      { "Agility Camp": 1.15, "Serving Academy": 1.10 },
   "Defensive Volleyball": { "Defensive Systems": 1.15, "Conditioning": 1.10 },
 };
-
-// ── Age-based development modifier ───────────────────────────────────────────
-
-function getAgeModifier(age: number): number {
-  if (age <= 20) return 1.25;
-  if (age <= 25) return 1.10;
-  if (age <= 29) return 1.00;
-  if (age <= 33) return 0.90;
-  return 0.80;
-}
 
 // ── Coach effect ─────────────────────────────────────────────────────────────
 
@@ -174,13 +121,6 @@ function computeCoachEffect(coach: StaffMember, programName: string, playerAge?:
 
 // ── Training XP + stat update ─────────────────────────────────────────────────
 
-// Potential multipliers: utils/potential.ts (the true `potential`, never sent to the client).
-
-const POINTS_PER_SESSION_MIN = 25;
-const POINTS_PER_SESSION_MAX = 35;
-const PRIMARY_THRESHOLD   = 100;
-const SECONDARY_THRESHOLD = 200;
-
 const applyFatigueAndStats = async (
   careerSaveId: number,
   playerId: number,
@@ -202,10 +142,6 @@ const applyFatigueAndStats = async (
   const programName = resolveProgram(programType);
   const program     = PROGRAM_CONFIG[programName];
 
-  const baseXp = Math.floor(
-    Math.random() * (POINTS_PER_SESSION_MAX - POINTS_PER_SESSION_MIN + 1)
-  ) + POINTS_PER_SESSION_MIN;
-
   let coachEffect: CoachEffect | null = null;
   let coachXpMultiplier = 1.0;
   if (coach) {
@@ -213,52 +149,19 @@ const applyFatigueAndStats = async (
     coachXpMultiplier = coachEffect.totalMultiplier;
   }
 
-  const ageModifier = getAgeModifier(player.age);
   const philosophyMultiplier = teamPhilosophy
     ? (PHILOSOPHY_BONUSES[teamPhilosophy]?.[programName] ?? 1.0)
     : 1.0;
-  const potentialMultiplier = potentialOf(player.potential as string);
 
-  // Youth Academy bonus: players aged 14–18 develop 20% faster than the standard
-  // age modifier already gives them. This stacks with getAgeModifier (1.25×) for a
-  // combined 1.50× rate. After senior promotion (age 19+) the bonus drops away —
-  // senior development rates are completely unchanged.
-  const youthAcademyMultiplier = (player.age >= 14 && player.age <= 18) ? 1.20 : 1.0;
-
-  // Update 1, item 2: a Coach's club's seniors gain 10% more XP (utils/managerFaces.ts).
-  const managerXp = isYouthPlayer(player) ? 1 : managerXpMultiplier;
-  const totalMultiplier = program.xpModifier * coachXpMultiplier * newRoleXpBonus * ageModifier * philosophyMultiplier * potentialMultiplier * facilityMultiplier * youthAcademyMultiplier * managerXp;
-  const sessionXp = Math.round(baseXp * totalMultiplier);
-
-  const prevPoints = player.trainingPoints;
-  const newPoints  = prevPoints + sessionXp;
-
-  // Primary stat — crosses a threshold every 100 XP
-  const prevPrimaryMilestone = Math.floor(prevPoints / PRIMARY_THRESHOLD);
-  const newPrimaryMilestone  = Math.floor(newPoints  / PRIMARY_THRESHOLD);
-  const primaryGain = newPrimaryMilestone - prevPrimaryMilestone;
-
-  // Secondary stat — crosses a threshold every 200 XP (half rate)
-  const prevSecondaryMilestone = Math.floor(prevPoints / SECONDARY_THRESHOLD);
-  const newSecondaryMilestone  = Math.floor(newPoints  / SECONDARY_THRESHOLD);
-  const secondaryGain = newSecondaryMilestone - prevSecondaryMilestone;
-
-  const statGains: Record<string, number> = {};
-  if (program.primaryStat   && primaryGain   > 0) statGains[program.primaryStat]   = primaryGain;
-  if (program.secondaryStat && secondaryGain > 0) {
-    statGains[program.secondaryStat] = (statGains[program.secondaryStat] ?? 0) + secondaryGain;
-  }
-
-  const updates: Partial<CareerPlayerFields> = { trainingPoints: newPoints };
-
-  // Apply stat gains
-  const applyStatGain = (stat: string, gain: number) => {
-    const key = stat as StatKey;
-    const cur = player[key];
-    updates[key] = Math.min(99, cur + gain);
-  };
-  if (program.primaryStat   && primaryGain   > 0) applyStatGain(program.primaryStat,   primaryGain);
-  if (program.secondaryStat && secondaryGain > 0) applyStatGain(program.secondaryStat, secondaryGain);
+  // Update 1, item 3: the XP and the stats it moves, by the one shared rule
+  // (utils/trainingXp.ts), with every multiplier the player's club has.
+  const xp = trainingSessionXp(player, programName, {
+    coach: coachXpMultiplier, staff: newRoleXpBonus, philosophy: philosophyMultiplier,
+    facility: facilityMultiplier, manager: managerXpMultiplier,
+  });
+  const { baseXp, sessionXp, newPoints, ageModifier, potentialMultiplier, statGains } = xp;
+  const managerXp = xp.managerXpMultiplier;
+  const updates: Partial<CareerPlayerFields> = { trainingPoints: newPoints, ...xp.statUpdates };
 
   // ── Youth training focus boost (age 14–18 only; never affects senior players) ──
   // Each session accumulates 15–20 focusXp independent of the training programme.
@@ -340,7 +243,7 @@ const applyFatigueAndStats = async (
   await updatePlayerState(careerSaveId, playerId, updates);
   const newPlayer = await loadPlayer(careerSaveId, playerId);
 
-  const nextMilestone = (newPrimaryMilestone + 1) * PRIMARY_THRESHOLD;
+  const nextMilestone = xp.nextThreshold;
   return {
     newPlayer: serializePlayer(newPlayer),
     statGains,
