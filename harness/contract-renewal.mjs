@@ -11,13 +11,15 @@
  *
  * ── What this asserts ───────────────────────────────────────────────────────
  *   renew     a starting contract (ends at season end) renews to one year later,
- *             same salary, in the contracts table and in career state
+ *             in the contracts table and in career state; Update 1, item 4a
+ *             (C-4): at the wage for her rating now, the figure the Contracts
+ *             page quotes
  *   limits    a contract already past this season cannot be renewed again (409);
  *             another career's contract is not found (404); unauthenticated is
  *             401
- *   freeze    R-52: a club whose board has frozen spending CAN renew at the
- *             same salary (named or omitted), CANNOT renew at a raise and
- *             CANNOT sign a player
+ *   freeze    R-52: a club whose board has frozen spending CAN renew at no
+ *             more than her current wage (named, or her ask when that is
+ *             lower), CANNOT renew at a raise and CANNOT sign a player
  *   youth     a youth signed off the market renews like anyone else once the
  *             academy has given her academy years, and stays on the academy wage
  *   warning   with the game date at 1 Jan nothing warns; at 10 Dec the two
@@ -150,12 +152,19 @@ try {
   check("career A has its 3 starting contracts, ending at the season's end",
     contractsA.length === 3 && contractsA.every((c) => c.endDate === "2026-12-31"),
     contractsA.map((c) => c.endDate).join(", "));
-  const first = contractsA[0];
+  // Update 1, item 4a: her renewal asks the wage for her rating now; club A's
+  // wages are set low so the renewal fits under the salary cap (salary-cap.mjs
+  // tests the cap itself).
+  for (const c of contractsA) {
+    writeOne(`UPDATE contracts SET salary = 5000 WHERE id = ?`, c.id);
+    writeOne(`UPDATE career_player_state SET salary = 5000 WHERE career_save_id = ? AND player_id = ?`, a.careerSaveId, c.playerId);
+  }
+  const first = ((await A("GET", "/contracts")).data ?? []).find((c) => c.id === contractsA[0]?.id);
   const renew = await A("POST", `/contracts/${first?.id}/renew`);
   check("renewing succeeds", renew.status === 200, `HTTP ${renew.status} ${JSON.stringify(renew.data)}`);
-  check("the contract now ends one season later, same salary",
-    renew.data?.endDate === "2027-12-31" && Number(renew.data?.salary) === Number(first?.salary),
-    `${first?.endDate} -> ${renew.data?.endDate}, salary ${first?.salary} -> ${renew.data?.salary}`);
+  check("the contract now ends one season later, at the wage for her rating now (the Contracts page's quote)",
+    renew.data?.endDate === "2027-12-31" && first?.renewal?.wage > 0 && Number(renew.data?.salary) === first?.renewal?.wage,
+    `${first?.endDate} -> ${renew.data?.endDate}, salary ${first?.salary} -> ${renew.data?.salary} (quoted ${first?.renewal?.wage})`);
   const stateRow = read(`SELECT contract_end_date, team_id FROM career_player_state WHERE career_save_id = ? AND player_id = ?`,
     a.careerSaveId, first?.playerId)[0];
   check("career state carries the new end date, and the player is still in the club",
@@ -171,12 +180,18 @@ try {
   const noAuth = await fetch(`${BASE}/contracts/${first?.id}/renew`, { method: "POST" });
   check("unauthenticated renewal is refused", noAuth.status === 401, `HTTP ${noAuth.status}`);
 
-  console.log("\n2b. A FROZEN CLUB KEEPS ITS SQUAD ON THE SAME TERMS, BUT CANNOT SPEND (R-52)");
+  console.log("\n2b. A FROZEN CLUB KEEPS ITS SQUAD AT NO MORE THAN THEIR WAGES, BUT CANNOT SPEND (R-52)");
   // Club B, so club A keeps two unrenewed contracts for the warning checks below.
   writeOne(`UPDATE board_seasons SET spending_frozen = 1 WHERE career_save_id = ? AND season_year = 2026`, b.careerSaveId);
   const frozen = await B("GET", "/board-confidence");
   check("club B's board has frozen spending", frozen.data?.spendingBlocked === true,
     `stage ${frozen.data?.stage}, confidence ${frozen.data?.confidence}`);
+  // Update 1, item 4a (C-4): a renewal asks the wage for her rating now. Club B's
+  // two are on more than that, so "no more than her current wage" is possible.
+  for (const c of ((await B("GET", "/contracts")).data ?? []).slice(0, 2)) {
+    writeOne(`UPDATE contracts SET salary = ? WHERE id = ?`, c.renewal.wage + 5000, c.id);
+    writeOne(`UPDATE career_player_state SET salary = ? WHERE career_save_id = ? AND player_id = ?`, c.renewal.wage + 5000, b.careerSaveId, c.playerId);
+  }
   const contractsB = (await B("GET", "/contracts")).data ?? [];
   const [b1, b2] = contractsB;
   const raise = await B("POST", `/contracts/${b1?.id}/renew`, { salary: Number(b1?.salary) + 1000 });
@@ -186,12 +201,12 @@ try {
   check("the refused raise changed nothing", afterRaise?.endDate === b1?.endDate && Number(afterRaise?.salary) === Number(b1?.salary),
     `${afterRaise?.endDate}, ${afterRaise?.salary}`);
   const same = await B("POST", `/contracts/${b1?.id}/renew`, { salary: Number(b1?.salary) });
-  check("renewing at the same salary goes through the freeze",
+  check("renewing at her current wage (no raise) goes through the freeze",
     same.status === 200 && same.data?.endDate === "2027-12-31" && Number(same.data?.salary) === Number(b1?.salary),
     `HTTP ${same.status} ${same.data?.endDate} ${same.data?.salary}`);
   const unnamed = await B("POST", `/contracts/${b2?.id}/renew`);
-  check("renewing with no salary named means the same terms, and goes through too",
-    unnamed.status === 200 && unnamed.data?.endDate === "2027-12-31" && Number(unnamed.data?.salary) === Number(b2?.salary),
+  check("renewing with no salary named means her ask (here below her wage), and goes through too",
+    unnamed.status === 200 && unnamed.data?.endDate === "2027-12-31" && Number(unnamed.data?.salary) === b2?.renewal?.wage && b2?.renewal?.wage < Number(b2?.salary),
     `HTTP ${unnamed.status} ${unnamed.data?.endDate} ${unnamed.data?.salary}`);
   const marketB = (await B("GET", "/players/market-all?playerType=senior")).data ?? [];
   const freeAgent = (Array.isArray(marketB) ? marketB : []).find((p) => p.teamId == null && p.age >= 19);

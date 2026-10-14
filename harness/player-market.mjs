@@ -31,7 +31,7 @@ import { DatabaseSync } from "node:sqlite";
 
 import { requireElectronBinary } from "./electron-binary.mjs";
 import { forkServer, stopServer } from "./server-harness.mjs";
-import { healAllSquads } from "./harness-club.mjs";
+import { healAllSquads, makeCapRoom } from "./harness-club.mjs";
 
 const REPO = path.join(import.meta.dirname, "..");
 const SHIPPED = path.join(REPO, "lib", "db", "volleyball-empire.sqlite");
@@ -88,6 +88,7 @@ try {
   });
   const team = (await api("GET", "/team")).data;
   const teamId = team.id;
+  makeCapRoom(dbFile, teamId);   // Update 1, item 4a: the cap is salary-cap.mjs's subject, not this suite's
   const budget = async () => Number((await api("GET", "/team")).data?.budget);
   const market = async () => (await api("GET", "/players/market-all")).data ?? [];
   const byId = async (id) => (await market()).find((p) => p.id === id);

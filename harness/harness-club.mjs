@@ -271,3 +271,37 @@ export async function trainThroughCalendar(api, body, dbPath = null, maxDays = 3
   }
   return { status: 408, session: null, result: null, days: maxDays };
 }
+
+/**
+ * Update 1, item 4: start a harness career, the one way every suite does.
+ *
+ * POST /careers with `body` through the suite's own caller, and the response
+ * handed back as the caller gave it. Part 4b (the Day 1 draft) makes the
+ * player pick his seniors before the first day; this is where a harness career
+ * does that.
+ */
+export async function startCareer(api, body) {
+  return api("POST", "/careers", body);
+}
+
+/**
+ * Update 1, item 4a: room under the salary cap for a suite that signs seniors
+ * to test something else (the market, a transfer fee). Every senior already at
+ * `teamId` is put on `wage` a month, in the contracts table and career state,
+ * so a signing the suite makes is never refused by the cap by chance. The cap
+ * itself is harness/salary-cap.mjs's subject.
+ */
+export function makeCapRoom(dbPath, teamId, wage = 1_000) {
+  const db = new DatabaseSync(dbPath);
+  try {
+    const seniors = db.prepare(`SELECT s.career_save_id AS cid, s.player_id AS id FROM career_player_state s JOIN players p ON p.id = s.player_id
+      WHERE s.team_id = ? AND s.is_retired = 0 AND (p.player_type = 'senior' OR s.is_promoted = 1)`).all(teamId);
+    for (const s of seniors) {
+      db.prepare(`UPDATE career_player_state SET salary = ? WHERE career_save_id = ? AND player_id = ?`).run(wage, s.cid, s.id);
+      db.prepare(`UPDATE contracts SET salary = ? WHERE player_id = ? AND team_id = ? AND status = 'active'`).run(wage, s.id, teamId);
+    }
+    return seniors.length;
+  } finally {
+    db.close();
+  }
+}

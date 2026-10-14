@@ -141,7 +141,9 @@ try {
   const badFree = freeSeniors.filter((p) => Number(p.salary) !== askingWage(p.ask) + playerWageRise(ovr(p)));
   const rises = freeSeniors.map((p) => playerWageRise(ovr(p)));
   check("every senior free agent asks her asking wage + the rise for her rating",
-    freeSeniors.length > 0 && badFree.length === 0 && Math.min(...rises) >= MONEY.playerWageRiseMonthly.min && Math.max(...rises) <= MONEY.playerWageRiseMonthly.max,
+    freeSeniors.length > 0 && badFree.length === 0 && Math.min(...rises) >= MONEY.playerWageRiseMonthly.min
+      // Update 1, item 4a (Rob, 14 Oct): above atRating.max the rise keeps going, perPointAbove a point.
+      && Math.max(...rises) <= MONEY.playerWageRiseMonthly.max + MONEY.playerWageRiseMonthly.perPointAbove * Math.max(0, Math.max(...freeSeniors.map(ovr)) - MONEY.playerWageRiseMonthly.atRating.max),
     `${freeSeniors.length} seniors, rises ${money(Math.min(...rises))}-${money(Math.max(...rises))}, asking ${money(Math.min(...freeSeniors.map((p) => p.salary)))}-${money(Math.max(...freeSeniors.map((p) => p.salary)))}${badFree.length ? `; ${badFree.length} wrong` : ""}`);
   const youth = rows.filter((p) => p.type === "youth" && !p.promoted);
   check("youth are not raised: each asks the academy's wage for her talent (N-33)", youth.length > 0 && youth.every((p) => Math.abs(Number(p.salary) - academyWage(p.potential)) < 0.01),

@@ -29,7 +29,7 @@ import { DatabaseSync } from "node:sqlite";
 
 import { requireElectronBinary } from "./electron-binary.mjs";
 import { forkServer, stopServer } from "./server-harness.mjs";
-import { healAllSquads, renewExpiringContracts, keepSideFielded, trainThroughCalendar } from "./harness-club.mjs";
+import { healAllSquads, renewExpiringContracts, keepSideFielded, trainThroughCalendar, makeCapRoom } from "./harness-club.mjs";
 
 const REPO = path.join(import.meta.dirname, "..");
 const SHIPPED = path.join(REPO, "lib", "db", "volleyball-empire.sqlite");
@@ -205,6 +205,7 @@ try {
   console.log("\n4. EACH SPECIALITY MOVES ITS NUMBER, FOR THE PLAYER'S CLUB ONLY");
   const teamA = a.team.id;
   w(`UPDATE teams SET budget = 5000000 WHERE id = ?`, teamA);
+  makeCapRoom(DB, teamA);   // Update 1, item 4a: the cap is salary-cap.mjs's subject, not this suite's
   const TR = faceOf("Talent Recruiter").id, NEG = faceOf("Negotiator").id, CE = faceOf("Contracts Expert").id, SM = faceOf("Sponsor Magnet").id;
   const COACH = faceOf("Coach").id, YD = faceOf("Youth Developer").id, FG = BASELINE;
 

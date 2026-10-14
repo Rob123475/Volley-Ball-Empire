@@ -587,6 +587,10 @@ runSuite("manager faces", path.join(REPO, "harness", "manager-faces.mjs"));
 console.log("\n########## 98e/100  AI CLUBS TRAIN AND DEVELOP (UPDATE 1, ITEM 3) ##########");
 runSuite("ai training", path.join(REPO, "harness", "ai-training.mjs"));
 
+// Update 1, item 4a (Rob, 14 Oct): the salary cap, every club.
+console.log("\n########## 98f/100  THE SALARY CAP (UPDATE 1, ITEM 4a) ##########");
+runSuite("salary cap", path.join(REPO, "harness", "salary-cap.mjs"));
+
 // ── Smoke needs a server; boot one on a throwaway copy of the shipped DB ─────
 console.log("\n########## 99/100  GAMEPLAY SMOKE ##########");
 {
