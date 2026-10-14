@@ -343,9 +343,12 @@ async function advanceToBoundary(api, maxDays = 500) {
   // Update 1, item 4c: AI originals now leave AI clubs (left out of the ageing count above), so they are
   // traced as originals; anyone else must have a baseline or an intake.
   const originalsAway = list.filter((p) => p.status !== "ai_club" && p.poolPlayerId != null && !ages0.has(p.id));
+  // And an AI academy's youth an AI club promoted (a broke club steps one up, utils/aiSquads.ts), later on
+  // the market: a graduate of an AI academy, not from this club's intake.
+  const aiGraduates = list.filter((p) => p.status !== "ai_club" && p.poolPlayerId == null && !ages0.has(p.id) && !intakeAge.has(p.id) && p.playerType === "youth");
   check("every senior has a baseline or came from an academy intake (nobody appeared from nowhere)",
-    known.length + fromIntake.length + originalsAway.length + list.filter((p) => p.status === "ai_club").length + list.filter((p) => p.status !== "ai_club" && p.poolPlayerId != null && ages0.has(p.id)).length === list.length,
-    `${known.length} + ${fromIntake.length} intake + ${list.filter((p) => p.status === "ai_club").length} at AI clubs + ${list.filter((p) => p.status !== "ai_club" && p.poolPlayerId != null).length} AI originals away of ${list.length} traceable`);
+    known.length + fromIntake.length + originalsAway.length + aiGraduates.length + list.filter((p) => p.status === "ai_club").length + list.filter((p) => p.status !== "ai_club" && p.poolPlayerId != null && ages0.has(p.id)).length === list.length,
+    `${known.length} + ${fromIntake.length} intake + ${list.filter((p) => p.status === "ai_club").length} at AI clubs + ${list.filter((p) => p.status !== "ai_club" && p.poolPlayerId != null).length} AI originals away + ${aiGraduates.length} AI academy graduates of ${list.length} traceable; untraced: ${list.filter((p) => !(ages0.has(p.id) || intakeAge.has(p.id) || p.status === "ai_club" || p.poolPlayerId != null || p.playerType === "youth")).slice(0, 3).map((p) => `${p.name} (${p.status}, ${p.playerType})`).join(", ")}`);
 
   check(`rolled through ${WALK_BOUNDARIES} boundaries`, seen.length === WALK_BOUNDARIES,
     seen.map((r) => `${r.fromSeason}->${r.toSeason}`).join(", "));

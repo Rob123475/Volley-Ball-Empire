@@ -81,6 +81,21 @@ function session(base) {
   };
 }
 
+/**
+ * Update 1: a harness club's wages now outrun its income, and five loss-making seasons sell it, which
+ * would start a new academy at a new club. This suite counts one club's academy, so in the season's last
+ * days the club ends at least where it began (a harness grant, as keepClubSolvent is).
+ */
+function noLossMakingSeason(dbFile, teamId) {
+  const d = new DatabaseSync(dbFile);
+  try {
+    const today = d.prepare(`SELECT "current_date" AS c FROM calendar_state WHERE team_id = ?`).get(teamId)?.c ?? "";
+    if (today.slice(5) < "12-28") return;
+    const start = d.prepare(`SELECT season_start_balance AS s FROM board_seasons WHERE team_id = ? ORDER BY season_year DESC LIMIT 1`).get(teamId)?.s;
+    if (start != null) d.prepare(`UPDATE teams SET budget = MAX(budget, ?) WHERE id = ?`).run(Number(start) + 1000, teamId);
+  } finally { d.close(); }
+}
+
 /** Walk one career to the next boundary, playing whatever the calendar blocks on. */
 async function toBoundary(api, dbFile, teamId, maxDays = 600) {
   // L-04 and L-02e: a club at the bottom of the field loses money and is sold
@@ -92,6 +107,7 @@ async function toBoundary(api, dbFile, teamId, maxDays = 600) {
   await renewExpiringContracts(api);
   for (let i = 0; i < maxDays; i++) {
     healAllSquads(dbFile);
+    noLossMakingSeason(dbFile, teamId);
     const r = await api("POST", "/calendar/advance", {});
     if (r.status >= 400) return { stopped: `advance HTTP ${r.status} ${JSON.stringify(r.data).slice(0, 90)}` };
     if (r.data?.blocked === "pending_match") {

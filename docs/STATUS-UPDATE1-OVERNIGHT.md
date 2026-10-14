@@ -195,6 +195,10 @@ Difficulty does what it says: after two seasons the AI average is 76.3 on Easy, 
 Hard (the best player 90 / 93 / 96). The money slide is the same on all three (it comes from the third
 senior's wage, not from training); Hard's camps make it a little steeper.
 
+**The player's club too:** the youth-rebirth suite's three harness careers (passive: no transfers, no
+sponsor deals) were each sold for five loss-making seasons, around season 10–11 and again later. The same
+wage levels are behind it.
+
 **Suggestions for Rob (not done):** any one of these would hold the AI books near level:
 - the AI clubs' interchange on a lower wage (for example half, as an injured player's), or the third
   senior only for a club with, say, 12 months of her wage in the bank instead of 3;
@@ -459,8 +463,8 @@ page's preview (aliased `@shared/ageing`, as money.ts is now `@shared/money`).
 | ai buyable | Buying her broke the cap | Room made under the cap (not this suite's subject) | 25/25 |
 | player pictures | AI clubs now also hold free agents (shipped seniors), some sharing a name with a pool player | The picture check is for the originals | 35/35 |
 | ai job market | Its takeover check expected an AI club to have no staff | The AI club's staff come with it (part 1a) | 30/30 |
-| ai club economy | The to-the-dollar week now includes Day 8's staff signing fees; sales come later than season 5 | A club with no staff is measured; each sale's own five seasons are read | (running) |
-| youth rebirth | A harness club now has failed seasons, so the board sacked it and the career moved clubs; the census kept counting the old club's (empty) academy | Failed grades planted as met, as ai-club-economy does | (running) |
-| season rollover | Renewals re-priced over the cap are refused (C-4, intended); AI originals now leave AI clubs and age only while away | Cap refusals counted apart; originals left out of the ageing count | (running) |
+| ai club economy | The to-the-dollar week now includes Day 8's staff signing fees; sales come later than season 5 | A club with no staff is measured; each sale's own five seasons are read | 22/22 |
+| youth rebirth | The harness club, playing passively, now loses money every season, so it was **sold** after five (around season 10–11, again around 20–27) and the career moved club; the census kept counting the old club's empty academy | The census follows the career's club, and the suite keeps its club from a loss-making season (a harness grant in the season's last days), since it counts one club's academy over thirty seasons | 19/19 |
+| season rollover | Renewals re-priced over the cap are refused (C-4, intended); AI originals now leave AI clubs (and age only while away), and broke AI clubs promote academy youths who later reach the market | Cap refusals counted apart; originals left out of the ageing count; originals and AI graduates traced | 89/90, then (running) |
 
 Every one of these was a test expecting the game before items 4a/4b/4c or the AI staff; no game code was changed to make a test pass except the two real gaps (the ledger's words, the raw dates).
