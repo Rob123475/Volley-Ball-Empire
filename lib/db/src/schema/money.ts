@@ -17,15 +17,30 @@
  *                           minimum for a player rated `atRating.min` or less,
  *                           the maximum at `atRating.max` or more, in between
  *                           in proportion (the shipped seniors span 66-77).
+ *                           Update 1, item 4a (Rob, 14 Oct): above
+ *                           `atRating.max` it keeps rising, `perPointAbove` a
+ *                           month for each rating point (a 90 asks about
+ *                           $13,000 more than a 77). Contracts already signed
+ *                           keep their wage until renewal.
  *   sponsorWeeklyBonus      every club's sponsor income rises by this much a
  *                           week, AI clubs included (on top of what its sponsor
  *                           reputation earns, about $10,000 a week at 50).
+ *   salaryCap               Update 1, item 4 (Rob, 14 Oct, C-1 to C-6):
+ *     monthlyCap            the most a club's SENIOR wages may add up to, per
+ *                           month (utils/salaryCap.ts seniorWageBill); every club,
+ *                           the player's and the sixty AI clubs
+ *     injuredLongWageShare  what an injured free agent out for
+ *                           `injuredLongMonths` or more asks, as a share of her
+ *                           normal wage
+ *     injuredShortWageShare the same, for one out for less than that
+ *     injuredLongMonths     where "long" starts
  */
 export const MONEY = {
   managerSalaryMonthly: { min: 16_000, max: 20_000 },
   headCoachSalaryMonthlyMax: 20_000,
-  playerWageRiseMonthly: { min: 5_000, max: 10_000, atRating: { min: 66, max: 77 } },
+  playerWageRiseMonthly: { min: 5_000, max: 10_000, atRating: { min: 66, max: 77 }, perPointAbove: 1_000 },
   sponsorWeeklyBonus: 10_000,
+  salaryCap: { monthlyCap: 60_000, injuredLongWageShare: 0.5, injuredShortWageShare: 0.75, injuredLongMonths: 3 },
 } as const;
 
 /** A fixed number in [0, 1) for a key (FNV-1a), so a manager's salary never re-rolls. */
@@ -46,9 +61,11 @@ export function managerSalaryFor(key: string): number {
 
 /** The monthly wage rise for a senior player of this overall rating, on $100 steps. */
 export function playerWageRise(overallRating: number): number {
-  const { min, max, atRating } = MONEY.playerWageRiseMonthly;
+  const { min, max, atRating, perPointAbove } = MONEY.playerWageRiseMonthly;
   const t = Math.max(0, Math.min(1, (overallRating - atRating.min) / (atRating.max - atRating.min)));
-  return Math.round((min + (max - min) * (Number.isFinite(t) ? t : 0)) / 100) * 100;
+  // Update 1, item 4a (Rob, 14 Oct): above atRating.max it keeps rising, per point.
+  const above = Number.isFinite(overallRating) ? Math.max(0, overallRating - atRating.max) * perPointAbove : 0;
+  return Math.round((min + (max - min) * (Number.isFinite(t) ? t : 0) + above) / 100) * 100;
 }
 
 /** A head coach's monthly salary, held to the cap. */
