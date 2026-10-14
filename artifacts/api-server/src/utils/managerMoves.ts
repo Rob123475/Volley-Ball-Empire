@@ -107,7 +107,7 @@ export function offersTx(tx: Parameters<Parameters<typeof db.transaction>[0]>[0]
     const rating = Math.round(ratings.get(c.poolTeamId) ?? 0);
     if (level.level < levelNeededFor(rating) || declined.includes(c.poolTeamId)) continue;
     out.push({ poolTeamId: c.poolTeamId, name: names.get(c.poolTeamId) ?? "", rating,
-      why: `${names.get(c.poolTeamId)}'s board wants a better manager than ${c.managerName} (a failed season behind ${pronounsOf(faceById(c.managerFaceId)).him}) and offers you the job.`,
+      why: `${names.get(c.poolTeamId)}'s board wants a better manager than ${c.managerName} (a failed season behind ${pronounsOf(faceById(c.managerFaceId)).object}) and offers you the job.`,
       replacing: managerCard(faceById(c.managerFaceId), c.managerName) });
   }
   const best = (a: Offer, b: Offer) => b.rating - a.rating || a.poolTeamId - b.poolTeamId;

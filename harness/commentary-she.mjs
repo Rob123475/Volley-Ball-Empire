@@ -8,6 +8,10 @@
  *   - the clip list the game ships (public/unity-build/StreamingAssets/commentary/LINES.txt):
  *     all 48 clips present, each line she/her, matching the Unity table word for word;
  *   - every string in the game's own code (UI and server), comments aside.
+ *     Update 1, item 2 (Rob, 13 Oct): a manager can be a man, and an AI
+ *     manager's wording takes he or she from the face. The male words are
+ *     written once, utils/managerFaces.ts MALE_PRONOUNS, used only for a man's
+ *     face (pronounsOf); that one line is allowed, nothing else.
  * The Unity checks are skipped with a note when the Unity project is not on this machine.
  *
  * Usage: node harness/commentary-she.mjs
@@ -19,6 +23,8 @@ const REPO = path.join(import.meta.dirname, "..");
 const UNITY = process.env.UNITY_REPO ?? "C:\\Users\\rbonn\\Game_Dev\\VolleyBall Empire\\volleyball";
 const CLIPS = path.join(REPO, "artifacts", "beach-volleyball", "public", "unity-build", "StreamingAssets", "commentary");
 const HE = /\b(he|his|him|himself)\b/i;
+const MANAGER_FACES = path.join(REPO, "artifacts", "api-server", "src", "utils", "managerFaces.ts");
+const MALE_LINE = `const MALE_PRONOUNS = { subject: "he", object: "him", possessive: "his" } as const;`;
 
 let failures = 0, checks = 0;
 function check(label, cond, detail = "") {
@@ -63,6 +69,7 @@ function walk(dir) {
     if (!/\.(ts|tsx)$/.test(e.name)) continue;
     fs.readFileSync(p, "utf8").split("\n").forEach((line, i) => {
       if (/^\s*(\/\/|\*|\/\*)/.test(line)) return;
+      if (p === MANAGER_FACES && line.trim() === MALE_LINE) return;
       const code = line.replace(/\/\/.*$/, "");
       if (HE.test(code) && /["'`>]/.test(code)) hits.push(`${path.relative(REPO, p)}:${i + 1}`);
     });
@@ -71,6 +78,10 @@ function walk(dir) {
 walk(path.join(REPO, "artifacts", "beach-volleyball", "src"));
 walk(path.join(REPO, "artifacts", "api-server", "src"));
 check("no he/his/him in any text the game's UI or server writes", hits.length === 0, hits.slice(0, 5).join(", "));
+const facesSrc = fs.readFileSync(MANAGER_FACES, "utf8");
+check("the one exception: a male manager face's pronouns, written once and used only for a man's face (Update 1)",
+  facesSrc.includes(MALE_LINE) && facesSrc.includes(`return face?.gender === "male" ? MALE_PRONOUNS : FEMALE_PRONOUNS;`)
+    && (facesSrc.match(/\bMALE_PRONOUNS\b/g) ?? []).length === 2);
 
 console.log(`\n=== ${checks - failures}/${checks} passed ===`);
 process.exit(failures > 0 ? 1 : 0);

@@ -123,9 +123,15 @@ export function clubManagersOf(careerSaveId: number): Map<number, ManagerCard | 
     r.takenOverAt != null ? mine : r.managerName == null ? null : managerCard(faceById(r.managerFaceId), r.managerName)]));
 }
 
-/** He or she, from the face (Addendum point 1). */
-export function pronounsOf(face: ManagerFace | null): { he: string; him: string; his: string } {
-  return face?.gender === "male" ? { he: "he", him: "him", his: "his" } : { he: "she", him: "her", his: "her" };
+/**
+ * He or she, from the face (Addendum point 1). Since Update 1 a manager can be
+ * a man: these are the only male pronouns the game writes, and only for a man's
+ * face (harness/commentary-she.mjs allows them here and nowhere else).
+ */
+const MALE_PRONOUNS = { subject: "he", object: "him", possessive: "his" } as const;
+const FEMALE_PRONOUNS = { subject: "she", object: "her", possessive: "her" } as const;
+export function pronounsOf(face: ManagerFace | null): { subject: string; object: string; possessive: string } {
+  return face?.gender === "male" ? MALE_PRONOUNS : FEMALE_PRONOUNS;
 }
 
 /** The faces in use in this career: the player's, and every AI manager's in post. */
