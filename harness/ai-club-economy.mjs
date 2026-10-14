@@ -144,12 +144,14 @@ try {
   check("every club of this world opened a balance", withBalance === clubs,
     `${withBalance} of ${clubs}`);
 
-  const contracted = read(
-    `SELECT COUNT(*) AS n FROM pool_player_contracts WHERE career_save_id = ? AND status = 'active'`,
-    careerSaveId)[0].n;
-  const poolPlayers = read(`SELECT COUNT(*) AS n FROM continental_pool_players`)[0].n;
-  check("and every one of their players is under contract", contracted === poolPlayers,
-    `${contracted} of ${poolPlayers}`);
+  // Update 1, item 4b: from Day 1 the AI clubs' players are career seniors (the draft); each is on a contract.
+  const aiSeniorRows = read(
+    `SELECT s.contract_end_date AS e FROM career_player_state s JOIN players p ON p.id = s.player_id
+      WHERE s.career_save_id = ? AND s.pool_team_id IS NOT NULL AND s.team_id IS NULL AND s.is_retired = 0 AND (p.player_type = 'senior' OR s.is_promoted = 1)`,
+    careerSaveId);
+  const contracted = aiSeniorRows.filter((r) => r.e != null).length;
+  check("and every one of their players is under contract", aiSeniorRows.length >= 120 && contracted === aiSeniorRows.length,
+    `${contracted} of ${aiSeniorRows.length}`);
 
   const lengths = read(
     `SELECT length AS l, COUNT(*) AS n FROM pool_player_contracts
@@ -201,7 +203,10 @@ try {
     weeks++;
     const onLoan = new Set(read(`SELECT owner_pool_team_id AS o, borrower_pool_team_id AS b FROM youth_loans WHERE career_save_id = ? AND status = 'active'`, careerSaveId)
       .flatMap((l) => [l.o, l.b]));
-    const before = candidates.find((c) => !onLoan.has(c.id));
+    // Update 1, overnight part 1a: the AI clubs take staff on Day 8 (signing fees, then wages), so the
+    // club measured is one with no staff as well.
+    const staffed = new Set(read(`SELECT DISTINCT pool_team_id AS c FROM career_staff_state WHERE career_save_id = ? AND pool_team_id IS NOT NULL`, careerSaveId).map((r) => r.c));
+    const before = candidates.find((c) => !onLoan.has(c.id) && !staffed.has(c.id));
     const after = read(`SELECT balance AS b FROM career_pool_team_state WHERE career_save_id = ? AND pool_team_id = ?`, careerSaveId, before.id)[0];
     const moved = Number(before.b) - Number(after.b);
     // U-6 (feat-ai-buyable): its squad is its pool contracts still live plus the
@@ -367,7 +372,8 @@ try {
       careerSaveId, first.poolTeamId).map((r) => Number(r.b));
     // The openings of the seasons it lost money in - not the one after, which
     // is the new owners' balance and is meant to be higher.
-    const upTo = chain.slice(0, TO_SALE);
+    // Update 1: sales no longer all come at season 5, so the five openings are the ones before ITS sale.
+    const upTo = chain.slice(Math.max(0, first.season - TO_SALE), first.season);
     const falls = upTo.every((b, idx) => idx === 0 || b < upTo[idx - 1]);
     check(`and its books really did fall ${TO_SALE} seasons running`,
       upTo.length >= TO_SALE && falls,

@@ -153,6 +153,10 @@ async function runSeed(seed) {
       const step = await toBoundary(api, dbFile, teamId);
       if (step.stopped) { stopped = { season: s, why: step.stopped }; break; }
       if (step.roll?.review?.dismissed || step.roll?.kind === "career_over") { sacked = { season: s }; break; }
+      // Update 1: since the salary cap and the draft (4a/4b) a harness club can have failed seasons, and
+      // the board then sacks and the career moves club. This suite counts one club's academy over thirty
+      // seasons, so the board's failed grades are planted as met (as ai-club-economy does).
+      { const bw = new DatabaseSync(dbFile); bw.prepare(`UPDATE board_seasons SET grade = 'met' WHERE career_save_id = ? AND grade = 'failed'`).run(careerSaveId); bw.close(); }
 
       // The academy, straight from the database: youth players at the club this
       // career has not promoted — the same definition the game uses.

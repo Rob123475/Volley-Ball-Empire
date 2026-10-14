@@ -177,6 +177,10 @@ async function newCareer(name) {
   const w = new DatabaseSync(dbFile);
   w.prepare(`UPDATE career_player_state SET speed = 99, power = 99, defense = 99, serve = 99, block = 99, stamina = 99
              WHERE career_save_id = ? AND team_id = ?`).run(c.data.id, c.data.teamId);
+  // Update 1, item 4a: a 99-rated senior's renewal asks far more than the salary cap holds, so the
+  // scene's contracts run to the end of the run instead of being renewed.
+  w.prepare(`UPDATE career_player_state SET contract_end_date = '2035-12-31' WHERE career_save_id = ? AND team_id = ? AND academy_role IS NULL`).run(c.data.id, c.data.teamId);
+  w.prepare(`UPDATE contracts SET end_date = '2035-12-31' WHERE team_id = ? AND status = 'active'`).run(c.data.teamId);
   w.close();
   return { api, careerSaveId: c.data.id, teamId: c.data.teamId };
 }

@@ -325,7 +325,10 @@ async function advanceToBoundary(api, maxDays = 500) {
   const list = Array.isArray(rosterN) ? rosterN : [];
   const boundaries = seen.length;
   // U-6 (feat-ai-buyable): an AI club's pool-made senior does not age while she plays for it.
-  const known = list.filter((p) => ages0.has(p.id) && p.status !== "ai_club");
+  // Update 1, item 4c: an AI club's original now also leaves it mid-run (released for the cap, for a
+  // long injury, or for a better buy), and ages only while she is away from an AI club; so originals
+  // (pool-made seniors) are left out, like the AI clubs' players.
+  const known = list.filter((p) => ages0.has(p.id) && p.status !== "ai_club" && p.poolPlayerId == null);
   const correct = known.filter((p) => p.age === ages0.get(p.id) + boundaries);
   // R-62: each boundary that opens a season brings an academy intake. Those
   // players are traced to the intake that created them (boundary i + 1) and age
@@ -749,8 +752,12 @@ async function advanceToBoundary(api, maxDays = 500) {
     // R-48/R-52: the squad is renewed through the real route at the start of
     // every season, on the same terms. A spending freeze no longer blocks that,
     // so no renewal may be refused and every season renews someone.
-    const refusals = arc.renewals.flatMap((r) => r.refused.map((x) => `season ${r.season}: ${x.status} ${x.error}`));
-    check(`${arc.label}: its contracts were renewed at the start of every season, none refused`,
+    // Update 1, item 4a (C-4): a renewal re-priced over the salary cap IS refused (the manager must make
+    // room); those are counted apart. Any other refusal still fails.
+    const capRefused = arc.renewals.flatMap((r) => r.refused.filter((x) => /The cap is /.test(x.error ?? "")));
+    if (capRefused.length) console.log(`  INFO  ${arc.label}: ${capRefused.length} renewal(s) refused for the salary cap (C-4)`);
+    const refusals = arc.renewals.flatMap((r) => r.refused.filter((x) => !/The cap is /.test(x.error ?? "")).map((x) => `season ${r.season}: ${x.status} ${x.error}`));
+    check(`${arc.label}: its contracts were renewed at the start of every season, none refused (but for the cap)`,
       arc.renewals.length > 0 && arc.renewals.every((r) => r.renewed > 0) && refusals.length === 0,
       refusals.join("; ") || arc.renewals.map((r) => `S${r.season} ${r.renewed} renewed`).join(" | "));
 
@@ -936,8 +943,10 @@ async function advanceToBoundary(api, maxDays = 500) {
   check(`${longRun.label}: every season played every match it was entitled to`,
     longShort.length === 0,
     longShort.length === 0 ? `${longRun.seasons.length} full seasons` : longShort.map((r) => `season ${r.season} played ${r.played}, byes ${r.byes}, not qualified for ${r.notQualified}`).join("; "));
-  const longRefusals = longRun.renewals.flatMap((r) => r.refused.map((x) => `season ${r.season}: ${x.status} ${x.error}`));
-  check(`${longRun.label}: contracts renewed at the start of every season, none refused`,
+  const longCap = longRun.renewals.flatMap((r) => r.refused.filter((x) => /The cap is /.test(x.error ?? "")));
+  if (longCap.length) console.log(`  INFO  ${longRun.label}: ${longCap.length} renewal(s) refused for the salary cap (C-4)`);
+  const longRefusals = longRun.renewals.flatMap((r) => r.refused.filter((x) => !/The cap is /.test(x.error ?? "")).map((x) => `season ${r.season}: ${x.status} ${x.error}`));
+  check(`${longRun.label}: contracts renewed at the start of every season, none refused (but for the cap)`,
     longRun.renewals.length > 0 && longRefusals.length === 0, longRefusals.slice(0, 5).join("; ") || `${longRun.renewals.length} seasons renewed`);
   // L-02b: a retired player used to keep an active contract row for ever, so
   // every season opened with renewals refused as "no longer in your squad" —
