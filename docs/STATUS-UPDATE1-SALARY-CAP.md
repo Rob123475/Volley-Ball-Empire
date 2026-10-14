@@ -108,3 +108,33 @@ Real monthly wages, read-only from a copy of the starter database through the ga
 1. Should a pick taken back from an AI club go back to that club, rather than to the free agents? (It goes to the free agents, and her club may sign her again when it fills.)
 2. Is it right that the draft picks keep the starting squad's free first-week release?
 
+## Rob's answers, 14 Oct, and what changed (commit `da16974`)
+
+**4a:**
+1. Renewal wage: as built (`monthlySalaryFor` at her rating now, for every club).
+2. The freeze: as built (a frozen club renews at no more than her current wage).
+3. **Existing careers' free agents are re-priced once, at boot** (`utils/freeAgentWages.ts repriceFreeAgentsOnce`). Each free agent asks what a new career's market asks: `seniorMonthlyWage` on her asking price, the rise above 77 included, or `monthlySalaryFor` if she has no asking price. It runs once per career (`career_saves.free_agent_wage_pass_at`; a new career is marked "new career"). Contracts keep their wage until renewal.
+
+**4b:**
+1. **A pick taken back from an AI club goes back to that club**, on the wage she was on there (`undoDraftPickTx`).
+2. **The free first-week release is deleted.** It was for the old automatic squad: `STARTING_SQUAD` and `releasePayout` are gone, and Release and Terminate pay out the rest of the contract. Taking a pick back while the draft is open stays, as a free undo. After Day 1 the normal rules apply. `contracts.origin` is no longer written or read; it is kept so no save needs a column migration. `starting-squad-release.mjs` is deleted, and its remaining checks are in `day1-draft.mjs`.
+3. **The pasted change (Day 1 / Day 2), built:**
+   - The draft screen is not forced: it is a page in the game.
+   - The Dashboard shows a warning with a button to it.
+   - The calendar won't move on from Day 1 until he has 2 or 3 seniors.
+   - Playing on closes the draft (Day 2): the AI clubs fill from what is left, and the faces are dealt. The Finish step is tied in, not removed: `POST /day1-draft/finish` closes it without playing a day, which the harness uses so no suite's dates move.
+   - The staff market from the draft screen (from the first message) is dropped, as the pasted change said.
+
+**What staff a new career starts with today:** none. Every staff member is seeded with the career on the market, unhired. The game has **120 staff and medical, 10 in each of 12 roles**:
+- coaching: Head Coach, Assistant Coach;
+- medical: Doctor, Physiotherapist, Massage Therapist, Medical Specialist;
+- others: Fitness Trainer, Strength Coach, Sports Scientist, Nutritionist, Promotional Manager, Scout.
+
+**Day 8 AI staff: NOT built. The brief's count stops it.** Each of 60 AI clubs needs at least one coach (Head Coach or Assistant Coach) and one medical. There are 20 coaches for 60 clubs, before leaving any for Rob. Medical is fine (40 of the four medical roles), and 120 staff in all would just cover 60 × 2 with nothing left over. Rob's correction (the AI staff will give their bonuses later through the same shared rules; wages from the club's finances, never the salary cap) is noted for when this is built. Options:
+- **A.** Add more coaches to the game.
+- **B.** Count Fitness Trainer and Strength Coach as coaching too, which gives 40.
+- **C.** Deal staff to some AI clubs only.
+- **D.** Something else.
+
+**4c:** a full AI club may buy a player at least `AI_BUY_GAP` better than its weakest senior, by releasing its weakest to the market (the cap still applies). Recorded; built in 4c. **4c is stopped:** the injury-length question (no injury in the game lasts 3 months, so the 50% wage tier and the long-injury release can't happen) still needs Rob's answer (A, B or C).
+
