@@ -38,8 +38,9 @@ export type Speciality = typeof SPECIALITIES[number];
  * M-1: what each speciality does for the club its manager runs, in one line
  * (the new-career card shows it), and its size: a multiplier on the number the
  * game already works out, or (Leader) points added to the board's starting
- * confidence. M-6: for now only the PLAYER's manager's speciality is used;
- * an AI manager's is shown, not used, until AI clubs train (item 3).
+ * confidence. M-6: an AI manager's speciality is shown, and since item 3 used
+ * only for Coach and Youth Developer (AI_CLUB_SPECIALITIES); the other six are
+ * the player's club's only.
  */
 export const SPECIALITY_EFFECTS: Record<Speciality, { effect: string; factor: number }> = {
   "Talent Recruiter": { effect: "Scouting missions cost 25% less", factor: 0.75 },
@@ -72,19 +73,41 @@ export function faceById(id: number | null | undefined): ManagerFace | null {
   return id == null ? null : BY_ID.get(id) ?? null;
 }
 
-/** The player's manager's speciality, for the club he runs (a `teams` row: only the player's clubs have one). */
-export function playerSpecialityForTeam(teamId: number | null | undefined): Speciality | null {
-  if (teamId == null) return null;
-  const row = db.select({ f: careerSavesTable.managerFaceId }).from(careerSavesTable).where(eq(careerSavesTable.teamId, teamId)).get();
-  return faceById(row?.f)?.speciality ?? null;
+/** A club: the player's (its `teams` row id: only the player's clubs have one) or an AI club in a career. */
+export type ClubRef = number | null | undefined | { careerSaveId: number; poolTeamId: number };
+
+/**
+ * Update 1, item 3 (Rob, 14 Oct): M-6 switched on for AI clubs for exactly
+ * these two: an AI club's own manager's Coach (its seniors' training) and Youth
+ * Developer (its academy). The other six stay the player's club's only.
+ */
+export const AI_CLUB_SPECIALITIES: readonly Speciality[] = ["Coach", "Youth Developer"];
+
+/**
+ * The speciality of the manager who runs this club: the player's (career_saves,
+ * by the club's teams row) or an AI club's manager in post (its face on
+ * career_pool_team_state; none while the job is vacant).
+ */
+export function managerSpecialityOf(club: ClubRef): Speciality | null {
+  if (club == null) return null;
+  if (typeof club === "number") {
+    const row = db.select({ f: careerSavesTable.managerFaceId }).from(careerSavesTable).where(eq(careerSavesTable.teamId, club)).get();
+    return faceById(row?.f)?.speciality ?? null;
+  }
+  const row = db.select({ f: careerPoolTeamStateTable.managerFaceId, name: careerPoolTeamStateTable.managerName, taken: careerPoolTeamStateTable.takenOverAt })
+    .from(careerPoolTeamStateTable).where(and(
+      eq(careerPoolTeamStateTable.careerSaveId, club.careerSaveId), eq(careerPoolTeamStateTable.poolTeamId, club.poolTeamId))).get();
+  return row && row.name != null && row.taken == null ? faceById(row.f)?.speciality ?? null : null;
 }
 
 /**
  * The one multiplier a speciality puts on its number: the effect's factor when
- * the manager of this club (the player's) has `speciality`, else 1.
+ * the manager of this club has `speciality`, else 1. For an AI club only the
+ * AI_CLUB_SPECIALITIES count.
  */
-export function specialityFactor(teamId: number | null | undefined, speciality: Speciality): number {
-  return playerSpecialityForTeam(teamId) === speciality ? SPECIALITY_EFFECTS[speciality].factor : 1;
+export function specialityFactor(club: ClubRef, speciality: Speciality): number {
+  if (club != null && typeof club === "object" && !AI_CLUB_SPECIALITIES.includes(speciality)) return 1;
+  return managerSpecialityOf(club) === speciality ? SPECIALITY_EFFECTS[speciality].factor : 1;
 }
 
 /**

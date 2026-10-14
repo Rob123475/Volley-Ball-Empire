@@ -34,6 +34,7 @@ import type { CareerStateTx } from "../lib/playerDto.js";
 import { ACADEMY_CAP, ACADEMY_YOUTH_TEAM, RESERVE_COURT_SHARE } from "./squadRules.js";
 import { academyWeeklyWage } from "./academy.js";
 import { academyWeek } from "./academyDevelopment.js";
+import { specialityFactor } from "./managerFaces.js";
 import { youthFactoryTx } from "./youthIntake.js";
 
 type Tx = CareerStateTx["tx"];
@@ -356,12 +357,17 @@ export function aiAcademiesWeekTx(w: CareerStateTx, careerSaveId: number, today:
   }
   for (const f of factories.values()) f.stamp();
 
-  // 2. Develop: the same week the player's academy has, by court time.
+  // 2. Develop: the same week the player's academy has, by court time. Update 1,
+  //    item 3: a Youth Developer manager's academy gains 15% more XP, as the
+  //    player's does (utils/managerFaces.ts specialityFactor, the club she is at).
   const ids = clubs.map((c) => c.poolTeamId);
   const rows = academyRowsTx(tx, careerSaveId, { poolTeamIds: ids });
+  const youthDeveloper = new Map<number, number>();
   for (const r of rows) {
     const share = r.academyRole === "reserve" ? RESERVE_COURT_SHARE : 1;
-    const week = academyWeek(youthRating(r), r.potential, Math.floor(Math.random() * 5));
+    const club = r.poolTeamId!;
+    if (!youthDeveloper.has(club)) youthDeveloper.set(club, specialityFactor({ careerSaveId, poolTeamId: club }, "Youth Developer"));
+    const week = academyWeek(youthRating(r), r.potential, Math.floor(Math.random() * 5), youthDeveloper.get(club));
     const focus = FOCUS.reduce((lo, k) => (r[k] < r[lo] ? k : lo), FOCUS[0]!);
     const prev = r.focusXp ?? 0, next = prev + Math.round(week.focusXp * share);
     const gain = Math.floor(next / 100) - Math.floor(prev / 100);
