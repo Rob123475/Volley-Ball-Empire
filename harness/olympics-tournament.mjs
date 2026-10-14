@@ -147,7 +147,19 @@ async function careerToOlympics() {
       const season = (await api("GET", "/seasons/current")).data;
       for (const p of (await api("GET", "/team/roster")).data?.starters ?? []) await api("POST", `/players/${p.id}/release`, {});
       for (const p of (await api("GET", "/team/roster")).data?.interchanges ?? []) await api("POST", `/players/${p.id}/release`, {});
-      const aus = ((await api("GET", "/players/free-agents")).data ?? []).filter((p) => p.nationality === "Australia").slice(0, 3);
+      // Update 1 (Rob, 14 Oct, 4b-2): releasing the drafted squad pays its contracts out; the money is put back.
+      { const bw = new DatabaseSync(dbFile); bw.prepare(`UPDATE teams SET budget = 500000 WHERE id = ?`).run(teamId); bw.close(); }
+      let aus = ((await api("GET", "/players/free-agents")).data ?? []).filter((p) => p.nationality === "Australia").slice(0, 3);
+      if (aus.length < 3) {
+        // Update 1, items 4b/4c: the draft and AI clubs holding three take most of the
+        // Australians; enough of the AI clubs' ones are made free agents (a harness scene write).
+        const fw = new DatabaseSync(dbFile);
+        const ids = fw.prepare(`SELECT s.player_id AS id FROM career_player_state s JOIN players p ON p.id = s.player_id
+          WHERE s.career_save_id = ? AND s.pool_team_id IS NOT NULL AND s.team_id IS NULL AND p.nationality = 'Australia' AND p.player_type = 'senior' LIMIT ?`).all(careerSaveId, 3 - aus.length);
+        for (const r of ids) fw.prepare(`UPDATE career_player_state SET pool_team_id = NULL, contract_end_date = NULL WHERE career_save_id = ? AND player_id = ?`).run(careerSaveId, r.id);
+        fw.close();
+        aus = ((await api("GET", "/players/free-agents")).data ?? []).filter((p) => p.nationality === "Australia").slice(0, 3);
+      }
       if (aus.length < 3) throw new Error(`only ${aus.length} Australian free-agent seniors to sign`);
       for (const [i, p] of aus.entries()) {
         const s = await api("POST", "/contracts", { confirm: true, playerId: p.id, salary: p.salary ?? 8000, endDate: season.endDate, bonusPerWin: 0, squadRole: i < 2 ? "starter" : "interchange" });

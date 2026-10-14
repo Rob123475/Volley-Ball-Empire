@@ -160,6 +160,8 @@ try {
       const c = read(`SELECT id FROM contracts WHERE player_id = ? AND status = 'active'`, p.id)[0];
       if (c) await api("DELETE", `/contracts/${c.id}`);
     }
+    // Update 1 (Rob, 14 Oct, 4b-2): ending the drafted squad's contracts pays them out; the money is put back.
+    write(`UPDATE teams SET budget = 1000000 WHERE id = ?`, teamId);
     const r = await api("POST", "/contracts", { confirm: true,
       playerId: freeAgents[i].id, salary: freeAgents[i].salary, bonusPerWin: 0, squadRole: "interchange", length,   // her asking wage (Update 1, B)
     });
