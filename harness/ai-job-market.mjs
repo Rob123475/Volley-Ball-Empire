@@ -243,7 +243,8 @@ try {
     // (The Staff page lists the staff department; medical staff have their own page.)
     const mine = q(`SELECT staff_id AS id, off_days_left AS d FROM career_staff_state WHERE career_save_id = ? AND team_id = ?`, cid, team.id);
     check("at the new club he hires staff, and the day's staff roll runs for them",
-      hired.status === 201 && d.status === 200 && mine.length === inherited.length + 1 && mine.some((m) => m.id === pick.id && m.d === 0),
+      // (An inherited AI contract may end on the next day: the club's staff are then the hire plus any still under contract.)
+      hired.status === 201 && d.status === 200 && mine.length <= inherited.length + 1 && mine.some((m) => m.id === pick.id && m.d === 0) && mine.every((m) => !oldStaff.includes(m.id)),
       `${pick?.name} (${pick?.role}): HTTP ${hired.status}; day HTTP ${d.status}; his staff now ${JSON.stringify(mine)}; the hire row ${JSON.stringify(q(`SELECT team_id, is_available, contract_end_date, off_days_left FROM career_staff_state WHERE career_save_id = ? AND staff_id = ?`, cid, pick?.id ?? -1))}; team ${team.id}`);
   }
   const year2 =q(`SELECT year FROM seasons WHERE career_save_id = ? AND status = 'active'`, cid)[0].year;
