@@ -640,15 +640,6 @@ export function seedCareerState(careerSaveId: number): void {
 
     seedPlayerStateRows(tx, careerSaveId, players.map((p) => p.id));
 
-    // The same problem for staff: base_salary is the only record of what a
-    // staff member costs, and seeding at the column default made every hire in
-    // a new career free.
-    const staffRefs = new Map(
-      tx.all<any>(sql.raw(
-        `SELECT ${presentColumns("staff", SEED_STAFF_REFERENCE_COLUMNS)} FROM staff`,
-      )).map((r) => [r.id, r]),
-    );
-
     // Pool clubs: seed this career's league membership from the reference
     // startsInLeague flag. 36 of the 60 begin in the league; without this a new
     // career gets the column default and the regional league is empty.
@@ -673,14 +664,32 @@ export function seedCareerState(careerSaveId: number): void {
     // at the first rollover, months in.
     seedRegionalLeagueTx(tx, careerSaveId);
 
-    for (const st of staff) {
-      // Seed the live wage from base_salary. Leaving it at the column default
-      // gave every new career a staff market where every hire was free — a
-      // latent bug the split would otherwise have exposed as a feature.
-      tx.insert(careerStaffStateTable).values({
-        careerSaveId, staffId: st.id,
-        salary: Number(staffRefs.get(st.id)?.base_salary ?? staffRefs.get(st.id)?.salary ?? 0),
-      }).onConflictDoNothing().run();
-    }
+    seedStaffStateRows(tx, careerSaveId, staff.map((s) => s.id));
   });
+}
+
+/**
+ * Opening career_staff_state for these staff in one career: a new career's
+ * whole staff list (seedCareerState), or the staff an existing save is just
+ * given from the starter DB (ensureReferenceData, Pass 3b). One function, two
+ * callers, like seedPlayerStateRows.
+ */
+export function seedStaffStateRows(tx: DbTx, careerSaveId: number, staffIds: readonly number[]): void {
+  if (staffIds.length === 0) return;
+  // base_salary is the only record of what a staff member costs, and seeding
+  // at the column default made every hire in a new career free.
+  const staffRefs = new Map(
+    tx.all<any>(sql.raw(
+      `SELECT ${presentColumns("staff", SEED_STAFF_REFERENCE_COLUMNS)} FROM staff WHERE id IN (${staffIds.join(",")})`,
+    )).map((r) => [r.id, r]),
+  );
+  for (const id of staffIds) {
+    // Seed the live wage from base_salary. Leaving it at the column default
+    // gave every new career a staff market where every hire was free — a
+    // latent bug the split would otherwise have exposed as a feature.
+    tx.insert(careerStaffStateTable).values({
+      careerSaveId, staffId: id,
+      salary: Number(staffRefs.get(id)?.base_salary ?? staffRefs.get(id)?.salary ?? 0),
+    }).onConflictDoNothing().run();
+  }
 }

@@ -8,8 +8,9 @@ import {
 } from "drizzle-orm/sqlite-core";
 import Database from "better-sqlite3";
 import fs from "node:fs";
-import { seedPlayerStateRows } from "./migrateCareerState.js";
+import { seedPlayerStateRows, seedStaffStateRows } from "./migrateCareerState.js";
 import { PREVIOUS_STAFF_NAMES } from "./staffNameHistory.js";
+import staffIds from "../data/staff-ids.json";
 import { PREVIOUS_YOUTH_IDENTITIES } from "./youthNameHistory.js";
 
 /**
@@ -323,6 +324,9 @@ export function ensureSchema(): EnsureSchemaResult {
 // R-34 closes exactly that gap for `players` (see the Pass 3 comment below on
 // ensureReferenceData) — `staff` still is not attempted; the register item
 // this closes was specifically about players missing from an existing save.
+/** Update 1, O-2: staff ids the starter DB alone gives out (Pass 3b). */
+const STARTER_ONLY_STAFF_FROM = staffIds.starterOnlyFrom;
+
 const REFERENCE_TABLES = ["locations", "club_templates", "outfits"] as const;
 
 // ── R-33: reference-data UPDATES never reach an existing save ──────────────
@@ -621,6 +625,39 @@ export function ensureReferenceData(): EnsureReferenceDataResult {
             });
             seededIntoCareers[careerSaveId] = newPlayerIds;
           }
+        }
+      }
+    }
+
+    // ── Pass 3b (Update 1, O-2): the staff added for Rob's portraits ───────
+    //
+    // Pass 3's gap, for staff: a new person in the starter DB never reached a
+    // save made before them. Only the ids from STARTER_ONLY_STAFF_FROM up are
+    // brought (scripts/install-staff-portraits.cjs writes its people there):
+    // below that, a save makes its own staff at the next free id (the market
+    // top-up, createCareerStaff), so a starter row there may be a different
+    // person with the same id. Inserted verbatim, then every career gets
+    // opening state for them through seedStaffStateRows(), the function a new
+    // career's staff come from.
+    if (tableExists("staff")) {
+      const sharedCols = (starter.prepare(`PRAGMA table_info(staff)`).all() as { name: string }[])
+        .map((r) => r.name).filter((c) => existingColumns("staff").has(c));
+      const liveIds = new Set(
+        db.all<{ id: number }>(sql.raw(`SELECT id FROM staff WHERE id >= ${STARTER_ONLY_STAFF_FROM}`)).map((r) => r.id),
+      );
+      const missing = (starter.prepare(`SELECT * FROM staff WHERE id >= ?`).all(STARTER_ONLY_STAFF_FROM) as Record<string, unknown>[])
+        .filter((r) => !liveIds.has(r["id"] as number));
+      if (missing.length > 0 && sharedCols.includes("id")) {
+        const insertStmt = sqlite.prepare(
+          `INSERT INTO staff (${sharedCols.map((c) => `\`${c}\``).join(", ")}) VALUES (${sharedCols.map(() => "?").join(", ")})`,
+        );
+        const newStaffIds = missing.map((row) => {
+          insertStmt.run(...sharedCols.map((c) => (row[c] === undefined ? null : row[c])));
+          return row["id"] as number;
+        });
+        inserted["staff"] = newStaffIds;
+        for (const { id: careerSaveId } of db.select({ id: careerSavesTable.id }).from(careerSavesTable).all()) {
+          db.transaction((tx) => { seedStaffStateRows(tx, careerSaveId, newStaffIds); });
         }
       }
     }

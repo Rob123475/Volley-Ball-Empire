@@ -46,6 +46,7 @@ const SERVER = path.join(REPO, "artifacts", "api-server", "dist", "index.mjs");
 const ELECTRON = requireElectronBinary(REPO);
 const WORK = fs.mkdtempSync(path.join(os.tmpdir(), `vbe-soak-${DIFFICULTY}-`));
 const DB = path.join(WORK, "save.sqlite");
+const STAND_IN_FROM = JSON.parse(fs.readFileSync(path.join(REPO, "artifacts", "api-server", "src", "data", "staff-ids.json"), "utf8")).starterOnlyFrom;
 const PORT = Number(process.env.PORT_OVERRIDE ?? 4995);
 const BASE = `http://localhost:${PORT}/api`;
 const mod = (p) => import(pathToFileURL(path.join(REPO, "artifacts", "api-server", "src", p)).href);
@@ -102,6 +103,7 @@ function seasonTable(season, year, counters) {
     WHERE s.team_id = ? AND s.is_retired = 0 AND (p.player_type = 'senior' OR s.is_promoted = 1)`, myTeam()).map((p) => `${p.name} ${overallRating(p)} (${p.age})`);
   const balances = clubs.map((c) => Number(c.balance));
   const myBalance = Math.round(Number(q(`SELECT budget FROM teams WHERE id = ?`, myTeam())[0]?.budget ?? 0));
+  const standInsAtAiClubs = q(`SELECT COUNT(*) n FROM career_staff_state WHERE career_save_id = ? AND staff_id >= ? AND pool_team_id IS NOT NULL`, cid, STAND_IN_FROM)[0].n;
   const originalsRetired = q(`SELECT COUNT(*) n FROM career_player_state WHERE career_save_id = ? AND pool_player_id IS NOT NULL AND is_retired = 1`, cid)[0].n;
   const champion = q(`SELECT competitor_name AS n FROM season_final_standings WHERE season_year = ? AND rank = 1 LIMIT 1`, year)[0]?.n ?? "?";
   return {
@@ -118,7 +120,7 @@ function seasonTable(season, year, counters) {
     freeAgents,
     balanceLowest: Math.round(Math.min(...balances)), balanceMedian: Math.round(median(balances)), broke: balances.filter((b) => b < 0).length,
     sold: clubs.filter((c) => c.sold != null).length,
-    myBalance, originalsRetired,
+    myBalance, originalsRetired, standInsAtAiClubs,
     champion,
   };
 }
@@ -128,7 +130,7 @@ function printTable(t) {
   console.log(`  AI seniors: average rating ${t.aiAvg}; top 5: ${t.aiTop5.join(", ")}`);
   console.log(`  Player's squad: ${t.mySquad.join(", ")}`);
   console.log(`  AI clubs over the cap that added anyone this season: ${t.overCapAdders} (must be 0)`);
-  console.log(`  AI clubs with 3 seniors: ${t.clubsWith3} of ${t.clubs}; with a coach and a medic: ${t.clubsWith2Staff} of ${t.clubs}`);
+  console.log(`  AI clubs with 3 seniors: ${t.clubsWith3} of ${t.clubs}; with a coach and a medic: ${t.clubsWith2Staff} of ${t.clubs}${process.env.STAND_INS ? `; stand-in staff at AI clubs: ${t.standInsAtAiClubs} of 90` : ""}`);
   console.log(`  Stats above 99 or below 1: ${t.outOfRange}`);
   console.log(`  AI injuries this season: ${t.aiInjuries}; long-injured released to the market: ${t.longReleased}`);
   console.log(`  Free agents left: ${t.freeAgents}`);
@@ -144,12 +146,14 @@ try {
   if (process.env.STAND_INS) {
     const d = new DatabaseSync(DB);
     const roles = { "Head Coach": 25, "Assistant Coach": 25, Doctor: 10, Physiotherapist: 10, "Massage Therapist": 10, "Medical Specialist": 10 };
+    // At the ids scripts/install-staff-portraits.cjs gives Rob's people (data/staff-ids.json).
+    let nextId = STAND_IN_FROM;
     for (const [role, n] of Object.entries(roles)) {
       const src = d.prepare(`SELECT id FROM staff WHERE role = ? ORDER BY id`).all(role).map((r) => r.id);
       for (let i = 0; i < n; i++) {
         const cols = d.prepare(`PRAGMA table_info(staff)`).all().map((c) => c.name).filter((c) => c !== "id");
         const sel = cols.map((c) => (c === "name" ? `name || ' (stand-in ${i + 1})'` : `"${c}"`)).join(", ");
-        d.prepare(`INSERT INTO staff (${cols.map((c) => `"${c}"`).join(", ")}) SELECT ${sel} FROM staff WHERE id = ?`).run(src[i % src.length]);
+        d.prepare(`INSERT INTO staff (id, ${cols.map((c) => `"${c}"`).join(", ")}) SELECT ?, ${sel} FROM staff WHERE id = ?`).run(nextId++, src[i % src.length]);
       }
     }
     d.close();

@@ -620,6 +620,11 @@ runSuite("difficulty", path.join(REPO, "harness", "difficulty.mjs"));
 console.log("\n########## 98m/100  SETTINGS (UPDATE 1, ITEM 8) ##########");
 runSuite("settings", path.join(REPO, "harness", "settings.mjs"));
 
+// Update 1, day 2 part 6 (O-2): ready for Rob's staff portraits (the installer on two
+// copies, existing saves given the new people, the AI deal, a save's own staff ids).
+console.log("\n########## 98n/100  READY FOR THE STAFF PORTRAITS (UPDATE 1, DAY 2 PART 6) ##########");
+runSuite("staff portrait install", path.join(REPO, "harness", "staff-portrait-install.mjs"));
+
 // ── Smoke needs a server; boot one on a throwaway copy of the shipped DB ─────
 console.log("\n########## 99/100  GAMEPLAY SMOKE ##########");
 {

@@ -46,27 +46,7 @@ const SPECIALITIES = [
   "Leader", "Coach", "Youth Developer", "Fitness Guru",
 ];
 
-/**
- * The nationality word in a file name, and the country it is. "Filipina" is the
- * Philippines and "Maori ... from New Zealand" is New Zealand (the brief).
- */
-const COUNTRY = {
-  Argentine: "Argentina", Australian: "Australia", Bangladeshi: "Bangladesh", Brazilian: "Brazil",
-  Canadian: "Canada", "Cape Verdean": "Cape Verde", Chilean: "Chile", Chinese: "China",
-  Colombian: "Colombia", Croatian: "Croatia", Cuban: "Cuba", Czech: "Czech Republic",
-  Danish: "Denmark", Dutch: "Netherlands", Egyptian: "Egypt", Estonian: "Estonia",
-  Ethiopian: "Ethiopia", Filipina: "Philippines", Finnish: "Finland", French: "France",
-  German: "Germany", Ghanaian: "Ghana", Greek: "Greece", Haitian: "Haiti",
-  Indian: "India", Indonesian: "Indonesia", Irish: "Ireland", Israeli: "Israel",
-  Italian: "Italy", Jamaican: "Jamaica", Japanese: "Japan", Kenyan: "Kenya",
-  Korean: "South Korea", Lebanese: "Lebanon", Malaysian: "Malaysia", Maori: "New Zealand",
-  Mexican: "Mexico", Moroccan: "Morocco", Nigerian: "Nigeria", Norwegian: "Norway",
-  Pakistani: "Pakistan", Peruvian: "Peru", Polish: "Poland", Portuguese: "Portugal",
-  Romanian: "Romania", Russian: "Russia", Samoan: "Samoa", Senegalese: "Senegal",
-  Serbian: "Serbia", "South African": "South Africa", Spanish: "Spain", "Sri Lankan": "Sri Lanka",
-  Swedish: "Sweden", Tanzanian: "Tanzania", Thai: "Thailand", Turkish: "Turkey",
-  Ukrainian: "Ukraine", Venezuelan: "Venezuela", Vietnamese: "Vietnam",
-};
+const { COUNTRY } = require("./lib/nationality-words.cjs");
 
 const srcDir = process.argv[2];
 const write = process.argv.includes("--write");

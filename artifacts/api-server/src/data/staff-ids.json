@@ -1,0 +1,4 @@
+{
+  "about": "Update 1, 15 Oct (O-2): staff ids from starterOnlyFrom up are the starter DB's alone (scripts/install-staff-portraits.cjs writes Rob's portrait staff there), so ensureReferenceData can bring them to a save made before them. Below it, a save makes its own staff at the next free id.",
+  "starterOnlyFrom": 10001
+}
