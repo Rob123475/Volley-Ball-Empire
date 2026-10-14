@@ -78,7 +78,7 @@ router.post("/medical-staff", async (req, res) => {
   const member = await loadStaffMember(cid, Number(staffId));
   if (!member) { res.status(404).json({ error: "Staff member not found" }); return; }
   if (!isMedicalRole(member.role)) { res.status(400).json({ error: "Not a medical staff member" }); return; }
-  if (member.teamId !== null) { res.status(400).json({ error: "Staff member already hired" }); return; }
+  if (member.teamId !== null || member.poolTeamId !== null) { res.status(400).json({ error: "Staff member already hired" }); return; }
 
   // L-02a: medical staff get a contract on the same three lengths, and it
   // expires on the calendar tick like any other.

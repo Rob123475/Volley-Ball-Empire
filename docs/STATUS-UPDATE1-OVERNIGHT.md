@@ -30,3 +30,41 @@ Not run yet (part 9).
 ---
 
 ## Part by part
+
+### Part 1a: the AI clubs' staff on Day 8 (done, not yet run)
+
+**Can the game make new staff without new pictures? No.** utils/staff-generator.ts and
+utils/medical-staff-generator.ts only copy the named people already in the game (same name, same
+portrait), and every one of the 120 staff (10 per role) has a portrait made for them under
+images/staff/. So I took the brief's second path: deal what is spare, and keep at least 5 of every
+role on the market for the player.
+
+What is built (utils/aiStaff.ts, one constants block `AI_STAFF`):
+- `career_staff_state.pool_team_id`: the AI club that employs someone, stored exactly as the
+  player's staff are, so `loadStaffTx(tx, cid, { poolTeamId })` reads an AI club's staff the way
+  `loadStaff(cid, { teamId })` reads the player's (Rob's correction of 14 Oct). The market
+  ("unhired") is now "nobody's": neither the player's club nor an AI club. The Staff and Medical
+  Markets and both hire routes refuse anyone at an AI club.
+- **Day 8** (`career_saves.ai_staff_deal_on`, set to the career's first day + 7 when it is made):
+  every AI club, in random order, gets one coach (Head or Assistant, random) and one medical
+  member (Doctor, Physiotherapist, Massage Therapist or Medical Specialist, random), on a normal
+  contract of random length (6m / 1s / 2s, the player's own `contractEndDate`), as long as the
+  role keeps 5 on the market. The signing fee is the player's rule (one month's salary), paid from
+  the AI club's balance; a club that can't pay it waits.
+- **Wages:** weekly, from the AI club's balance, in `chargePoolClubsWeekTx`, through the same
+  `weeklyWageBill` as its players. Never the salary cap (the cap's bill reads seniors only).
+- **Every day after Day 8:** AI contracts that have ended go back to the market, and a club with no
+  coach (or no medical member) takes one when a role has a spare. So clubs that missed out fill
+  one coach and one medical member at a time, as contracts end (the player's and the AI's).
+- **Older careers:** dealt once at boot, the same way, on their current game date
+  (`dealAiStaffToOlderCareers`, index.ts).
+- **A takeover:** when the player takes over an AI club, its staff come with it on their
+  contracts (as its players and academy already did).
+- **Bug fixed on the way:** when the player's staff contract ran out, the calendar set their wage
+  to $0, so a re-hire cost $0 and was paid $0. A contract that ends now leaves the wage as it was,
+  exactly as a release does (one patch, `STAFF_BACK_ON_MARKET`, for the player's and the AI's).
+- New suite **harness/ai-staff.mjs** (run-all 98h).
+
+**How many clubs get staff today:** 10 of the 60 AI clubs get a coach (5 Head + 5 Assistant are
+spare) and 20 get a medical member (5 of each of the four roles are spare), fewer if the player
+hires a coach or medic in his first week.

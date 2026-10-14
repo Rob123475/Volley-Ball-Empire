@@ -39,7 +39,7 @@ import {
   careerPoolTeamStateTable, continentalPoolTeamsTable, continentalPoolPlayersTable,
   poolClubSeasonsTable, poolPlayerContractsTable, competitorsTable,
   competitorRankingsTable, worldTourQualificationsTable, careerSavesTable,
-  seasonsTable, db, managerSalaryFor,
+  seasonsTable, careerStaffStateTable, db, managerSalaryFor,
 } from "@workspace/db";
 import { and, asc, desc, eq, inArray, isNull, isNotNull, lt, sql } from "drizzle-orm";
 import { aiSquadsTx } from "./aiSquads.js";
@@ -49,7 +49,7 @@ import { prizeFor } from "./prizeDistribution.js";
 import { purseAccessFor, tierForPoints, type Tier } from "./tierQualification.js";
 import {
   weeklyClubOutgoings, sponsorWeeklyIncome, decayedReputation, monthlySalaryFor,
-  managerWeeklySalary, SPONSOR_REP_BASELINE,
+  managerWeeklySalary, weeklyWageBill, SPONSOR_REP_BASELINE,
 } from "./clubFinances.js";
 import { ESTABLISHED_STARTING_BUDGET } from "./careerDifficulty.js";
 import {
@@ -319,6 +319,7 @@ export function chargePoolClubsWeekTx(
   const inField = fieldPoolIdsTx(tx, careerSaveId, seasonYear);
   const access = accessTierByPoolIdTx(tx, careerSaveId, seasonYear);
   const squads = squadsByPoolIdTx(tx, careerSaveId);
+  const staff = staffSalariesByPoolIdTx(tx, careerSaveId);
 
   let charged = 0, paid = 0;
   for (const st of states) {
@@ -333,10 +334,13 @@ export function chargePoolClubsWeekTx(
     const income = sponsorWeeklyIncome(reputation);
     // N-41: its manager is paid weekly from its balance, like the player's.
     const manager = managerWeeklySalary(poolManagerSalary(careerSaveId, st.poolTeamId));
-    charged += total + manager;
+    // Update 1, overnight part 1a: its staff (utils/aiStaff.ts) are paid weekly
+    // from its balance on the same wage rule as its players; never the cap.
+    const staffWages = weeklyWageBill(staff.get(st.poolTeamId) ?? []);
+    charged += total + manager + staffWages;
     paid += income;
     tx.update(careerPoolTeamStateTable).set({
-      balance:           Number(st.balance) + income - total - manager,
+      balance:           Number(st.balance) + income - total - manager - staffWages,
       sponsorReputation: reputation,
       updatedAt:         new Date(),
     }).where(and(
@@ -357,6 +361,17 @@ function squadsByPoolIdTx(tx: Tx, careerSaveId: number): Map<number, number[]> {
     // A pool player with no contract in this career yet is not on the books yet.
     map.set(poolTeamId, squad.filter((m) => m.kind === "player" || m.contractEndDate != null).map((m) => m.salary));
   }
+  return map;
+}
+
+/** Every AI club's staff's monthly salaries (career_staff_state.pool_team_id). */
+function staffSalariesByPoolIdTx(tx: Tx, careerSaveId: number): Map<number, number[]> {
+  const map = new Map<number, number[]>();
+  const rows = tx.select({ poolTeamId: careerStaffStateTable.poolTeamId, salary: careerStaffStateTable.salary })
+    .from(careerStaffStateTable)
+    .where(and(eq(careerStaffStateTable.careerSaveId, careerSaveId), isNotNull(careerStaffStateTable.poolTeamId)))
+    .all();
+  for (const r of rows) map.set(r.poolTeamId!, [...(map.get(r.poolTeamId!) ?? []), Number(r.salary)]);
   return map;
 }
 

@@ -583,6 +583,13 @@ export const careerStaffStateTable = sqliteTable("career_staff_state", {
   careerSaveId: integer("career_save_id").notNull().references(() => careerSavesTable.id),
   staffId:      integer("staff_id").notNull().references(() => staffTable.id),
   teamId:       integer("team_id").references(() => teamsTable.id),
+  /**
+   * Update 1, overnight brief part 1a: the AI club that employs this person
+   * (utils/aiStaff.ts), as career_player_state.pool_team_id is the AI club a
+   * senior plays for. Null for the player's staff and for the market: someone
+   * with either id set is not on the market.
+   */
+  poolTeamId:   integer("pool_team_id"),
   salary:       real("salary").notNull().default(0),
   isAvailable:  integer("is_available", { mode: "boolean" }).notNull().default(true),
   // L-02a (22 Sep): staff and medical contracts now EXPIRE like players.
@@ -1437,6 +1444,13 @@ export const careerSavesTable = sqliteTable("career_saves", {
    * "new career" for a career made since, whose free agents start on it.
    */
   freeAgentWagePassAt: text("free_agent_wage_pass_at"),
+  /**
+   * Update 1, overnight brief part 1a: the game date the AI clubs take their
+   * staff from the market (Day 8 of a new career, utils/aiStaff.ts), and when
+   * they did. A career made before this has neither and is dealt once at boot.
+   */
+  aiStaffDealOn:  text("ai_staff_deal_on"),
+  aiStaffDealtAt: text("ai_staff_dealt_at"),
   lastPlayedAt: integer("last_played_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
   createdAt:    integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });

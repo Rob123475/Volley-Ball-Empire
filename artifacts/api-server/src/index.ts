@@ -2,6 +2,7 @@ import { convertRealWorldDates } from "./utils/realWorldDates.js";
 import { convertNationalitiesToCountries } from "./utils/nationalityNames.js";
 import { dealFacesToOlderCareers } from "./utils/managerFaces.js";
 import { repriceFreeAgentsOnce } from "./utils/freeAgentWages.js";
+import { dealAiStaffToOlderCareers } from "./utils/aiStaff.js";
 import { giveOpenStaffContractsAnEnd } from "./utils/staffContractBackfill.js";
 import { refileScoutingLines } from "./utils/ledgerRefile.js";
 import { renameLedgerRounds } from "./utils/ledgerRoundNames.js";
@@ -296,6 +297,15 @@ try {
   if (repriced > 0) logger.info({ repriced }, "free agents re-priced to the wage rise above 77");
 } catch (err) {
   logger.error({ err }, "re-pricing free agents failed");
+}
+
+// Update 1, overnight part 1a: a career made before the AI clubs had staff is
+// dealt them once, the same way a new career is on Day 8 (utils/aiStaff.ts).
+try {
+  const dealt = dealAiStaffToOlderCareers();
+  if (dealt > 0) logger.info({ dealt }, "AI clubs' staff dealt to careers made before them");
+} catch (err) {
+  logger.error({ err }, "dealing AI clubs' staff failed");
 }
 
 // Overnight 30 Sep item 33b: a staff or medical hire with no contract end

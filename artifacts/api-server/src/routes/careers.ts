@@ -26,6 +26,7 @@ import { LEAVE_MID_SEASON, activeSeasonYearOf, seasonOverFor } from "../utils/ma
 import { isOlympicYear } from "../utils/olympics.js";
 import { faceById, managerCard } from "../utils/managerFaces.js";
 import { openDay1DraftTx } from "../utils/day1Draft.js";
+import { aiStaffDealDate } from "../utils/aiStaff.js";
 import { withCareerStateTx } from "../lib/playerDto.js";
 import {
   isCareerDifficulty, startingBudgetFor,
@@ -248,6 +249,8 @@ router.post("/careers", async (req, res) => {
       moneyPassAt:         "new career",
       // Update 1, item 4a: its free agents start on the wage rise above 77.
       freeAgentWagePassAt: "new career",
+      // Update 1, overnight part 1a: the AI clubs take their staff on Day 8 (utils/aiStaff.ts).
+      aiStaffDealOn:       aiStaffDealDate(`${FIRST_SEASON_YEAR}-01-01`),
       lastPlayedAt:        new Date(),
     })
     .returning();

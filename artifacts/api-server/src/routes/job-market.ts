@@ -52,7 +52,7 @@ import { LEAVE_MID_SEASON, activeSeasonYearOf, seasonOverFor, boardVerdict, offe
 import { aiSquadsTx } from "../utils/aiSquads.js";
 import { academyAtTx } from "../utils/youthLoans.js";
 import { worldTourFieldTx } from "../utils/worldTour.js";
-import { withCareerStateTx, loadPlayers, updatePlayerState } from "../lib/playerDto.js";
+import { withCareerStateTx, loadPlayers, updatePlayerState, loadStaffTx } from "../lib/playerDto.js";
 import { overallRating } from "../utils/overallRating.js";
 import { updateCareerStats, checkAchievements } from "../utils/check-achievements.js";
 import { getSessionId, getSession, updateSession } from "../lib/auth.js";
@@ -363,6 +363,8 @@ async function takeOverClub(req: any, save: typeof careerSavesTable.$inferSelect
       for (const y of academyAtTx(w.tx, save.id, { poolTeamId })) {
         if (y.poolTeamId === poolTeamId) w.setPlayerState(save.id, y.playerId, { teamId: newTeam!.id, poolTeamId: null });
       }
+      // Update 1, overnight part 1a: and its staff (utils/aiStaff.ts), on the contracts they were on.
+      for (const m of loadStaffTx(w.tx, save.id, { poolTeamId })) w.setStaffState(save.id, m.id, { teamId: newTeam!.id, poolTeamId: null });
       return mine.length;
     });
     // Their deals carry over to the new club's books: a contract each, on the

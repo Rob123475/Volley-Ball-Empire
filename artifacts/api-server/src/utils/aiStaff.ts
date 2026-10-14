@@ -1,0 +1,171 @@
+/**
+ * Update 1, overnight brief part 1a (Rob, 14 Oct): the AI clubs take staff
+ * from the market on Day 8.
+ *
+ * Every AI club employs at least one coach (a Head Coach or an Assistant Coach)
+ * and one medical member (a Doctor, Physiotherapist, Massage Therapist or
+ * Medical Specialist), picked at random, on a normal contract of a random
+ * length (6m / 1s / 2s, utils/contractTerms.ts). The signing fee (one month's
+ * salary, routes/staff.ts) and the weekly wages come out of the AI club's
+ * balance (utils/poolClubFinances.ts), never the salary cap. Someone at an AI
+ * club is off the market (career_staff_state.pool_team_id) until the contract
+ * ends; then they are back on it, the same as when the player's contract ends.
+ *
+ * The world has only 10 of each role and every member has a portrait made for
+ * them (images/staff/), so new staff cannot be made without new pictures. So
+ * the deal takes only what is spare: at least AI_STAFF.marketFloor of every
+ * role stays on the market for the player. A club that misses out fills one
+ * coach and one medical member at a time as contracts end (fillAiStaffTx runs
+ * every day once the deal is done). docs/STATUS-UPDATE1-OVERNIGHT.md says how
+ * many pictures of which roles would let every club have both.
+ *
+ * An AI club's staff are stored exactly as the player's are, so the shared
+ * bonus rules read either (loadStaffTx(tx, cid, { poolTeamId })).
+ */
+import {
+  careerSavesTable, careerStaffStateTable, staffTable, careerPoolTeamStateTable, calendarStateTable,
+  normaliseRole, type StaffRoleKey,
+} from "@workspace/db";
+import { and, eq, isNull } from "drizzle-orm";
+import { withCareerStateTx, type CareerStateTx, type CareerStaffFields } from "../lib/playerDto.js";
+import { CONTRACT_LENGTHS, contractEndDate } from "./contractTerms.js";
+import { seasonEndsForCareerTx } from "./seasonDates.js";
+
+/** Every tunable number of the AI staff deal, in one place. */
+export const AI_STAFF = {
+  /** The career day the AI clubs take their staff (Day 1 is the first day). */
+  dealDay: 8,
+  /** At least this many of every role stay on the market for the player. */
+  marketFloor: 5,
+  /** One of these per AI club... */
+  coachingRoles: ["head_coach", "assistant_coach"] as readonly StaffRoleKey[],
+  /** ...and one of these. */
+  medicalRoles: ["doctor", "physiotherapist", "massage_therapist", "medical_specialist"] as readonly StaffRoleKey[],
+} as const;
+
+/** What a staff contract ending leaves: back on the market, wage as it was (routes/calendar.ts, here). */
+export const STAFF_BACK_ON_MARKET: Partial<CareerStaffFields> = {
+  teamId: null, poolTeamId: null, isAvailable: true,
+  contractTerm: null, contractStartDate: null, contractEndDate: null,
+  offCause: null, offSince: null, offDaysLeft: 0,
+};
+
+/** The game date of Day `AI_STAFF.dealDay`, for a career whose first day is `firstDay`. */
+export function aiStaffDealDate(firstDay: string): string {
+  const d = new Date(`${firstDay}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + AI_STAFF.dealDay - 1);
+  return d.toISOString().slice(0, 10);
+}
+
+type Row = { staffId: number; role: StaffRoleKey | null; teamId: number | null; poolTeamId: number | null; salary: number; contractEndDate: string | null };
+
+function shuffle<T>(xs: T[], random: () => number): T[] {
+  const a = [...xs];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(random() * (i + 1));
+    [a[i], a[j]] = [a[j]!, a[i]!];
+  }
+  return a;
+}
+
+/**
+ * End the AI clubs' staff contracts that have run out, then give every AI club
+ * that has no coach one coach, and every one with no medical member one
+ * medical member, while at least AI_STAFF.marketFloor of each role stay on the
+ * market. Clubs go in random order. A club that cannot pay the signing fee
+ * (one month's salary, the player's rule) waits.
+ */
+export function fillAiStaffTx(
+  w: CareerStateTx, careerSaveId: number, today: string, seasonEnds: readonly string[], random: () => number = Math.random,
+): { hired: number; ended: number } {
+  const rows: Row[] = w.tx.select({
+    staffId: careerStaffStateTable.staffId, role: staffTable.role,
+    teamId: careerStaffStateTable.teamId, poolTeamId: careerStaffStateTable.poolTeamId,
+    salary: careerStaffStateTable.salary, contractEndDate: careerStaffStateTable.contractEndDate,
+  }).from(careerStaffStateTable)
+    .innerJoin(staffTable, eq(staffTable.id, careerStaffStateTable.staffId))
+    .where(eq(careerStaffStateTable.careerSaveId, careerSaveId))
+    .all()
+    .map((r) => ({ ...r, role: normaliseRole(r.role), salary: Number(r.salary) }));
+
+  let ended = 0;
+  for (const r of rows) {
+    if (r.poolTeamId != null && r.contractEndDate != null && r.contractEndDate < today) {
+      w.setStaffState(careerSaveId, r.staffId, STAFF_BACK_ON_MARKET);
+      r.poolTeamId = null; r.contractEndDate = null;
+      ended++;
+    }
+  }
+
+  const clubs = w.tx.select({ poolTeamId: careerPoolTeamStateTable.poolTeamId, balance: careerPoolTeamStateTable.balance })
+    .from(careerPoolTeamStateTable)
+    .where(and(eq(careerPoolTeamStateTable.careerSaveId, careerSaveId), isNull(careerPoolTeamStateTable.takenOverAt)))
+    .all();
+
+  const market = rows.filter((r) => r.teamId == null && r.poolTeamId == null);
+  const spare = (role: StaffRoleKey) => market.filter((r) => r.role === role).length - AI_STAFF.marketFloor;
+
+  let hired = 0;
+  for (const club of shuffle(clubs, random)) {
+    let balance = Number(club.balance);
+    const has = rows.filter((r) => r.poolTeamId === club.poolTeamId);
+    for (const group of [AI_STAFF.coachingRoles, AI_STAFF.medicalRoles]) {
+      if (has.some((r) => r.role != null && group.includes(r.role))) continue;
+      const roles = group.filter((role) => spare(role) > 0);
+      if (roles.length === 0) continue;
+      const role = roles[Math.floor(random() * roles.length)]!;
+      const pool = market.filter((r) => r.role === role);
+      const pick = pool[Math.floor(random() * pool.length)]!;
+      if (balance < pick.salary) continue;
+      const length = CONTRACT_LENGTHS[Math.floor(random() * CONTRACT_LENGTHS.length)]!;
+      w.setStaffState(careerSaveId, pick.staffId, {
+        poolTeamId: club.poolTeamId, isAvailable: false,
+        contractTerm: length, contractStartDate: today, contractEndDate: contractEndDate(length, today, seasonEnds),
+      });
+      balance -= pick.salary;
+      pick.poolTeamId = club.poolTeamId;
+      market.splice(market.indexOf(pick), 1);
+      hired++;
+    }
+    if (balance !== Number(club.balance)) {
+      w.tx.update(careerPoolTeamStateTable).set({ balance, updatedAt: new Date() })
+        .where(and(eq(careerPoolTeamStateTable.careerSaveId, careerSaveId), eq(careerPoolTeamStateTable.poolTeamId, club.poolTeamId)))
+        .run();
+    }
+  }
+  return { hired, ended };
+}
+
+/**
+ * The day's AI staff step (routes/calendar.ts): the Day 8 deal when its date
+ * comes, and every day after it the contracts that end and the gaps they leave.
+ */
+export function aiStaffDayTx(w: CareerStateTx, careerSaveId: number, today: string): { hired: number; ended: number } | null {
+  const [save] = w.tx.select({ on: careerSavesTable.aiStaffDealOn, at: careerSavesTable.aiStaffDealtAt })
+    .from(careerSavesTable).where(eq(careerSavesTable.id, careerSaveId)).all();
+  if (!save) return null;
+  if (save.at == null) {
+    if (save.on == null || today < save.on) return null;
+    w.tx.update(careerSavesTable).set({ aiStaffDealtAt: today }).where(eq(careerSavesTable.id, careerSaveId)).run();
+  }
+  return fillAiStaffTx(w, careerSaveId, today, seasonEndsForCareerTx(w.tx, careerSaveId, today));
+}
+
+/**
+ * Boot: a career made before the AI clubs had staff (neither date set) is
+ * dealt once, the same way, on its current game date. A career whose calendar
+ * has not started yet waits for a later boot. Returns how many were dealt.
+ */
+export function dealAiStaffToOlderCareers(): number {
+  const careers = withCareerStateTx((w) => w.tx.select({ id: careerSavesTable.id, today: calendarStateTable.currentDate })
+    .from(careerSavesTable)
+    .innerJoin(calendarStateTable, eq(calendarStateTable.teamId, careerSavesTable.teamId))
+    .where(and(isNull(careerSavesTable.aiStaffDealOn), isNull(careerSavesTable.aiStaffDealtAt))).all());
+  for (const { id, today } of careers) {
+    withCareerStateTx((w) => {
+      w.tx.update(careerSavesTable).set({ aiStaffDealOn: today, aiStaffDealtAt: today }).where(eq(careerSavesTable.id, id)).run();
+      fillAiStaffTx(w, id, today, seasonEndsForCareerTx(w.tx, id, today));
+    });
+  }
+  return careers.length;
+}

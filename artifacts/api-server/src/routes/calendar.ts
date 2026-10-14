@@ -31,6 +31,7 @@ import { loadPlayers, loadStaff, requireCareerSaveId, updatePlayerState, updateT
 import { aiAcademiesWeekTx, loansTx, recordTeamLoanWeekTx, returnDueLoansTx, teamLoanWeekTx } from "../utils/youthLoans.js";
 import { materializeAiSeniorsTx, aiSeniorsTrainWeekTx, aiTransfersWeekTx } from "../utils/aiSquads.js";
 import { day1DraftOpen, finishDay1DraftTx } from "../utils/day1Draft.js";
+import { aiStaffDayTx, STAFF_BACK_ON_MARKET } from "../utils/aiStaff.js";
 import { loadLeagueSeasons } from "../lib/regionalLeague.js";
 import {
   rolloverSeason, yearForSeasonNumber, type RolloverResult,
@@ -775,19 +776,21 @@ async function advanceOneDay(req: Request): Promise<DayResult> {
     .filter((m) => m.contractEndDate != null && m.contractEndDate < nextDate);
 
   if (expiredStaff.length > 0) {
+    // Update 1, overnight part 1a: back on the market at the wage they were on,
+    // as a release leaves them (it used to set the wage to $0, so a re-hire cost
+    // nothing and was paid nothing). The same patch ends an AI club's contract.
     withCareerStateTx(({ setStaffState }) => {
-      for (const m of expiredStaff) {
-        setStaffState(expiryCareerId, m.id, {
-          teamId: null, isAvailable: true, salary: 0,
-          contractTerm: null, contractStartDate: null, contractEndDate: null,
-          offCause: null, offSince: null, offDaysLeft: 0,
-        });
-      }
+      for (const m of expiredStaff) setStaffState(expiryCareerId, m.id, STAFF_BACK_ON_MARKET);
     });
     for (const m of expiredStaff) {
       events.push(`${m.name} (${m.role}) left the club — contract expired`);
     }
   }
+
+  // 5c. Update 1, overnight part 1a: the AI clubs' staff. On Day 8 they take a
+  // coach and a medical member each from the market; every day after, their
+  // ended contracts go back to the market and a club with a gap fills it.
+  withCareerStateTx((w) => aiStaffDayTx(w, expiryCareerId, nextDate));
 
   // 6. Advance the date
   await db.update(calendarStateTable)

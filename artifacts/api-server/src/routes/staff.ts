@@ -73,7 +73,7 @@ router.post("/staff", async (req, res) => {
   const { staffId } = req.body;
   const member = await loadStaffMember(cid, Number(staffId));
   if (!member) { res.status(404).json({ error: "Staff member not found" }); return; }
-  if (member.teamId !== null) { res.status(400).json({ error: "Staff member already hired" }); return; }
+  if (member.teamId !== null || member.poolTeamId !== null) { res.status(400).json({ error: "Staff member already hired" }); return; }
 
   // Hiring costs a signing fee of one month's salary up front. Without this the
   // staff market was free: the budget never moved no matter who you signed.

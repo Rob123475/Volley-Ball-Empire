@@ -315,6 +315,8 @@ export type StaffReference = typeof staffTable.$inferSelect;
 
 export type CareerStaffFields = {
   teamId: number | null;
+  /** Update 1, overnight part 1a: the AI club that employs this person (utils/aiStaff.ts). */
+  poolTeamId: number | null;
   salary: number;
   isAvailable: boolean;
   contractLength: number;
@@ -339,6 +341,7 @@ export function assembleStaff(reference: StaffReference, state: CareerStaffState
   return {
     ...reference,
     teamId:          state.teamId,
+    poolTeamId:      state.poolTeamId ?? null,
     salary:          Number(state.salary),
     isAvailable:     state.isAvailable,
     contractLength:  state.contractLength,
@@ -353,21 +356,32 @@ export function assembleStaff(reference: StaffReference, state: CareerStaffState
   };
 }
 
-export async function loadStaff(
-  careerSaveId: number,
-  filter: { teamId?: number; unhired?: boolean } = {},
-): Promise<StaffDTO[]> {
-  const conds: SQL[] = [eq(careerStaffStateTable.careerSaveId, careerSaveId)];
-  if (filter.teamId != null) conds.push(eq(careerStaffStateTable.teamId, filter.teamId));
-  if (filter.unhired)        conds.push(isNull(careerStaffStateTable.teamId));
+export type StaffFilter = { teamId?: number; poolTeamId?: number; unhired?: boolean };
 
-  const rows = await db
+/**
+ * A career's staff, by club. Update 1, overnight part 1a: an AI club's staff
+ * load exactly as the player's do ({ poolTeamId }), so the shared bonus rules
+ * (utils/staffBonuses.ts) read either. "Unhired" is the market: nobody's,
+ * neither the player's club nor an AI club.
+ */
+export function loadStaffTx(tx: CareerStateTx["tx"], careerSaveId: number, filter: StaffFilter = {}): StaffDTO[] {
+  const conds: SQL[] = [eq(careerStaffStateTable.careerSaveId, careerSaveId)];
+  if (filter.teamId != null)     conds.push(eq(careerStaffStateTable.teamId, filter.teamId));
+  if (filter.poolTeamId != null) conds.push(eq(careerStaffStateTable.poolTeamId, filter.poolTeamId));
+  if (filter.unhired)            conds.push(isNull(careerStaffStateTable.teamId), isNull(careerStaffStateTable.poolTeamId));
+
+  const rows = tx
     .select({ reference: staffTable, state: careerStaffStateTable })
     .from(careerStaffStateTable)
     .innerJoin(staffTable, eq(staffTable.id, careerStaffStateTable.staffId))
-    .where(and(...conds));
+    .where(and(...conds))
+    .all();
 
   return rows.map((r) => assembleStaff(r.reference, r.state));
+}
+
+export async function loadStaff(careerSaveId: number, filter: StaffFilter = {}): Promise<StaffDTO[]> {
+  return db.transaction((tx) => loadStaffTx(tx, careerSaveId, filter));
 }
 
 /** One staff member, career-scoped. Null when this career has no state row. */
