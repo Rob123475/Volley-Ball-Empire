@@ -13,6 +13,7 @@
 import { potentialMultiplier as potentialOf } from "./potential.js";
 import { isYouthPlayer } from "./playerClassification.js";
 import type { PlayerDTO } from "../lib/playerDto.js";
+import { ageXpMultiplier, profileXpMultiplier, seriousInjuryXpFactor, type DevelopmentProfile } from "@workspace/db";
 
 // ── Training Programs ─────────────────────────────────────────────────────────
 // primaryStat   — gains +1 every 100 XP
@@ -56,15 +57,11 @@ const LEGACY_TYPE_MAP: Record<string, string> = {
 export const resolveProgram = (type: string): string =>
   PROGRAM_CONFIG[type] ? type : (LEGACY_TYPE_MAP[type] ?? "Conditioning");
 
-// ── Age-based development modifier ───────────────────────────────────────────
-
-export function getAgeModifier(age: number): number {
-  if (age <= 20) return 1.25;
-  if (age <= 25) return 1.10;
-  if (age <= 29) return 1.00;
-  if (age <= 33) return 0.90;
-  return 0.80;
-}
+// ── Age, profile and injuries ────────────────────────────────────────────────
+// Update 1, overnight part 4 (B-1, B-2): lib/db/src/schema/ageing.ts. The age
+// table (by the stat a session trains, and her peak shift) replaced
+// getAgeModifier (one number by age alone); her development profile and her
+// serious injuries multiply on top.
 
 // Potential multipliers: utils/potential.ts (the true `potential`, never sent to the client).
 
@@ -76,7 +73,8 @@ const SECONDARY_THRESHOLD = 200;
 type TrainedStat = "power" | "speed" | "defense" | "serve" | "block" | "stamina";
 
 /** Who trains: her age, true potential, XP so far, whether she is a youth, and the stats a programme can move. */
-export type TraineeXpState = Pick<PlayerDTO, "age" | "potential" | "trainingPoints" | "playerType" | "isPromoted" | "isRetired" | TrainedStat>;
+export type TraineeXpState = Pick<PlayerDTO, "age" | "potential" | "trainingPoints" | "playerType" | "isPromoted" | "isRetired" | TrainedStat>
+  & { development?: DevelopmentProfile | null; seriousInjuries?: number | null };
 
 /** The multipliers that come from outside her: each 1 when it does not apply (an AI club has no coach, staff, philosophy or facilities). */
 export type XpMultipliers = {
@@ -110,18 +108,20 @@ export function trainingSessionXp(p: TraineeXpState, programName: string, m: XpM
     random() * (POINTS_PER_SESSION_MAX - POINTS_PER_SESSION_MIN + 1)
   ) + POINTS_PER_SESSION_MIN;
 
-  const ageModifier = getAgeModifier(p.age);
+  // B-2: her age for the stat this programme builds (a session that builds none holds).
+  const ageModifier = ageXpMultiplier(program.primaryStat, p.age, Number(p.development?.peakShift ?? 0));
   const potentialMultiplier = potentialOf(p.potential as string);
+  // B-1: workEthic and coachability; B-2: 5% off for each serious injury, at most 20%.
+  const profileMultiplier = profileXpMultiplier(p.development) * seriousInjuryXpFactor(p.seriousInjuries);
 
-  // Youth Academy bonus: players aged 14–18 develop 20% faster than the standard
-  // age modifier already gives them. This stacks with getAgeModifier (1.25×) for a
-  // combined 1.50× rate. After senior promotion (age 19+) the bonus drops away —
-  // senior development rates are completely unchanged.
+  // Youth Academy bonus: players aged 14–18 develop 20% faster than the age
+  // table already gives them (it stacks; part 4 keeps it). After senior
+  // promotion (age 19+) the bonus drops away.
   const youthAcademyMultiplier = (p.age >= 14 && p.age <= 18) ? 1.20 : 1.0;
 
   // Update 1, item 2: a Coach's club's seniors gain 10% more XP (utils/managerFaces.ts).
   const managerXp = isYouthPlayer(p) ? 1 : (m.manager ?? 1);
-  const totalMultiplier = program.xpModifier * (m.coach ?? 1) * (m.staff ?? 1) * ageModifier * (m.philosophy ?? 1) * potentialMultiplier * (m.facility ?? 1) * youthAcademyMultiplier * managerXp;
+  const totalMultiplier = program.xpModifier * (m.coach ?? 1) * (m.staff ?? 1) * ageModifier * (m.philosophy ?? 1) * potentialMultiplier * (m.facility ?? 1) * youthAcademyMultiplier * managerXp * profileMultiplier;
   const sessionXp = Math.round(baseXp * totalMultiplier);
 
   const prevPoints = p.trainingPoints;

@@ -63,6 +63,7 @@ import { FacilityBonusBanner } from "@/components/facility-bonus-banner";
 import { useCalendar } from "@/hooks/use-calendar";
 import { TRAINING_PROGRAM_DAYS } from "@shared/training-programs";
 import { normaliseRole } from "@shared/staff-roles";
+import { AGEING, ageXpMultiplier, agePhase, type AgeingStat } from "@shared/ageing";
 // D-3: every facility's name comes from one table, shared with the server.
 import { FACILITY_NAMES } from "@shared/facility-names";
 
@@ -212,20 +213,19 @@ const PERSONALITY_MULT: Record<string, number> = {
   "Motivator": 1.05, "Demanding": 1.15, "Player Friendly": 0.90, "Disciplinarian": 1.00,
 };
 
-function getAgeModifier(age: number): number {
-  if (age <= 20) return 1.25;
-  if (age <= 25) return 1.10;
-  if (age <= 29) return 1.00;
-  if (age <= 33) return 0.90;
-  return 0.80;
+// Update 1, overnight part 4 (B-2): the server's age table (lib/db/src/schema/ageing.ts),
+// by the stat the programme builds. Her peak shift is hidden, so the preview reads her age as it is.
+function getAgeModifier(age: number, primaryStat: string | null | undefined): number {
+  return ageXpMultiplier(primaryStat?.toLowerCase(), age, 0);
 }
 
-function getAgeLabel(age: number): string {
-  if (age <= 20) return `Young Talent (×1.25)`;
-  if (age <= 25) return `Peak Development (×1.10)`;
-  if (age <= 29) return `Prime (×1.00)`;
-  if (age <= 33) return `Experienced (×0.90)`;
-  return `Veteran (×0.80)`;
+function getAgeLabel(age: number, primaryStat: string | null | undefined): string {
+  const stat = primaryStat?.toLowerCase();
+  if (!stat || !(stat in AGEING.stats)) return "Holding (×1)";
+  const phase = agePhase(stat as AgeingStat, age, 0);
+  return phase === "grows" ? `${primaryStat} still growing (×${AGEING.xp.grows})`
+    : phase === "fades" ? `${primaryStat} fading (×${AGEING.xp.fades})`
+    : `${primaryStat} holding (×1)`;
 }
 
 function estimateXp(
@@ -289,7 +289,7 @@ function BenefitsPreview({
   const program = PROGRAMS.find(p => p.id === programId);
   if (!program) return null;
 
-  const ageMod = player?.age ? getAgeModifier(player.age) : 1.0;
+  const ageMod = player?.age ? getAgeModifier(player.age, program.primaryStat) : 1.0;
   const philosophyMult = philosophy ? (PHILOSOPHY_BONUSES[philosophy]?.[programId] ?? 1.0) : 1.0;
   const coachSpecMult = coach
     ? (SPECIALITY_BONUSES[coach.coachSpeciality]?.[programId] ?? 1.0)
@@ -345,7 +345,7 @@ function BenefitsPreview({
             <div className="flex justify-between">
               <span>{player.name} (age {player.age})</span>
               <span className={cn("font-medium", ageMod > 1 ? "text-green-600" : "text-orange-500")}>
-                {getAgeLabel(player.age)}
+                {getAgeLabel(player.age, program.primaryStat)}
               </span>
             </div>
           )}

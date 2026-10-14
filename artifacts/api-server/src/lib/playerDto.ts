@@ -37,6 +37,8 @@ export type CareerPlayerFields = {
   morale: number;
   injuryStatus: string;
   injuryWeeksRemaining: number;
+  /** Update 1, overnight part 4 (B-2): injuries of 4+ weeks in this career. */
+  seriousInjuries: number;
   isInjured: boolean;
   consecutiveMatchesPlayed: number;
   speed: number;
@@ -110,6 +112,7 @@ export function assemblePlayer(
     morale:               state.morale,
     injuryStatus:         state.injuryStatus,
     injuryWeeksRemaining: state.injuryWeeksRemaining,
+    seriousInjuries: state.seriousInjuries ?? 0,
     isInjured:            state.isInjured,
     consecutiveMatchesPlayed: state.consecutiveMatchesPlayed,
     speed:                state.speed,
@@ -471,6 +474,11 @@ export type CareerStateTx = {
   setPlayerState(careerSaveId: number, playerId: number, patch: Partial<CareerPlayerFields>): void;
   setPoolTeamState(careerSaveId: number, poolTeamId: number, patch: Partial<CareerPoolTeamFields>): void;
   /**
+   * Update 1, overnight part 4 (B-1): who a player IS, inside the caller's
+   * transaction: the same fields updatePlayerReference may write.
+   */
+  setPlayerReference(playerId: number, patch: PlayerReferenceFields): void;
+  /**
    * League rollover creates next season and its fixtures in the SAME
    * transaction as the promotion/relegation that decides who is in it, so these
    * live here rather than in regionalLeague.ts — splitting them would leave a
@@ -489,12 +497,6 @@ export type CareerStateTx = {
    * 24 in one save and 27 in another is correct, not a bug.
    */
   ageAllPlayers(careerSaveId: number): number;
-  /**
-   * Unity brief item 15: scouting lapses at season end for every player without
-   * a club. Her scout report (start date and potential) is cleared; she must be
-   * scouted again next season. Returns how many lapsed.
-   */
-  lapseMarketScouting(careerSaveId: number): number;
   /**
    * Unity brief item 17: a scout report on a member of staff (Staff or Medical
    * Market) lasts until the end of the season, like a player's. Anyone the club
@@ -609,17 +611,6 @@ export function withCareerStateTx<T>(fn: (w: CareerStateTx) => T): T {
           eq(careerPlayerStateTable.careerSaveId, careerSaveId),
           eq(careerPlayerStateTable.isRetired, false),
           notAiPoolSenior,
-        ))
-        .run();
-      return Number((r as { changes?: number }).changes ?? 0);
-    },
-    lapseMarketScouting(careerSaveId) {
-      const r = tx.update(careerPlayerStateTable)
-        .set({ scoutStartedOn: null, scoutedPotential: null, scoutReportBy: null, updatedAt: new Date() })
-        .where(and(
-          eq(careerPlayerStateTable.careerSaveId, careerSaveId),
-          isNull(careerPlayerStateTable.teamId),
-          or(isNotNull(careerPlayerStateTable.scoutStartedOn), isNotNull(careerPlayerStateTable.scoutedPotential)),
         ))
         .run();
       return Number((r as { changes?: number }).changes ?? 0);
@@ -778,6 +769,10 @@ export function withCareerStateTx<T>(fn: (w: CareerStateTx) => T): T {
           .run();
       }
       return going;
+    },
+    setPlayerReference(playerId, patch) {
+      if (Object.keys(patch).length === 0) return;
+      tx.update(playersTable).set(patch).where(eq(playersTable.id, playerId)).run();
     },
     createPlayer(careerSaveId, reference, state) {
       const [created] = tx.insert(playersTable)

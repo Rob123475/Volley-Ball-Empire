@@ -44,6 +44,22 @@ Not run yet (part 9).
     healing, for every club.
 12. **AI staff fall ill too** (same odds, no Club News), so "off ill gives nothing" means something
     for AI clubs.
+13. **B-2, which stat's age counts in a session:** the stat the programme builds (its primary stat).
+    The secondary stat rides on the same XP, as before.
+14. **B-2, how much a fading stat loses:** speed −1 a season from 26, −2 from 30; power and stamina −1
+    or −2 at random each season; defense, serve and block −1. A workEthic of 80+ halves it; a half
+    point is a coin flip. *Change:* any of these in AGEING (lib/db/src/schema/ageing.ts).
+15. **B-2, the AI clubs' originals still don't age** (U-6: an original at an AI club is timeless), **but
+    they fade at the age they are**, because the brief says every player. So an older original slowly
+    declines and her club replaces her. *Rob may want:* timeless originals not to fade either, or to
+    age like everyone (they would then retire at 40 and the AI world would rely on free agents and
+    youth).
+16. **B-1, the profile counts in the shared session rule only** (player's sessions, AI training, the
+    camp). The academy's weekly development has its own rule and is untouched (the brief: the
+    academy's own youth bonus stays).
+17. **B-2, "read from the injury history":** the injury_history table only holds the player's club, so
+    each player's serious injuries are counted on her career state (serious_injuries) when they
+    happen, for every club. Older injuries aren't counted backwards.
 
 ## Skipped, and why
 
@@ -146,3 +162,26 @@ through the same functions:
 
 **Decisions (see "Decisions made overnight"):** the fitness trainer's bonus (fatigue) and medical
 "injury risk" have nothing to act on for AI clubs; details below.
+
+### Part 4, B-1 and B-2: the development profile, age and injuries (done, not yet run)
+
+One constants block, **lib/db/src/schema/ageing.ts** (`AGEING`), read by the server and by the Training
+page's preview (aliased `@shared/ageing`, as money.ts is now `@shared/money`).
+- **B-1:** `profileXpMultiplier` (workEthic and coachability's average: ×0.8 at 40 to ×1.2 at 100) in the
+  shared XP rule `trainingSessionXp`, so the player's sessions and the AI clubs' training both get it.
+  `pronenessFactor` (×0.7 at 1 to ×1.3 at 100) in the one `injuryRisk`. A boot pass
+  (`giveEveryPlayerAProfile`, utils/player-development.ts) gives every player with no profile one, and
+  every profile a peak shift; an AI club's original (made from a continental pool player, given the
+  default potential) also gets a weighted potential (Average 60, High 28, Elite 10, Generational 2).
+  New originals get both when they are made. Fixed for good. Consistency and leadership unused.
+- **B-2:** `getAgeModifier` is deleted (server and the Training page's copy). The age table by stat with
+  a peak shift of −2..+2 replaces it. **The session's age factor is the one for the stat the programme
+  builds** (Power Camp: power's phase; Recovery: holds ×1).
+- **Season end:** `fadeAgedPlayersTx` (utils/seasonFade.ts) runs in the rollover after ageing and
+  retirement, for every player in the career (AI clubs' and free agents too), never below 1.
+- **Injuries:** an injury of 4+ weeks (MONEY.salaryCap.injuredLongWeeks, the one "serious" number)
+  takes 1 point off speed and stamina at once and adds to `career_player_state.serious_injuries`; each
+  takes 5% off her training XP for good, at most 20% (`newInjuryPatch`, every club's injuries).
+- Suites changed knowingly: ai-training.mjs's XP oracle now uses the age table, the profile, serious
+  injuries and the AI club's staff bonus; its "nothing else moved" check no longer includes injuries
+  (AI players are hurt in matches now).

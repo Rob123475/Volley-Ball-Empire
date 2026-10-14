@@ -40,6 +40,8 @@ export type PlayerDevelopment = {
   consistency:     number;
   leadership:      number;
   injuryProneness: number;
+  /** Update 1, overnight part 4 (B-2): her hidden peak shift, -2 to +2 years, rolled once (schema/ageing.ts). */
+  peakShift?: number;
 };
 
 export type PlayerV4 = {
@@ -345,6 +347,8 @@ export const careerPlayerStateTable = sqliteTable("career_player_state", {
   injuryStatus:           text("injury_status").notNull().default("Healthy"),
   injuryWeeksRemaining:   integer("injury_weeks_remaining").notNull().default(0),
   isInjured:              integer("is_injured", { mode: "boolean" }).notNull().default(false),
+  /** Update 1, overnight part 4 (B-2): injuries that kept her out 4 weeks or more, in this career (schema/ageing.ts). */
+  seriousInjuries:        integer("serious_injuries").notNull().default(0),
   consecutiveMatchesPlayed: integer("consecutive_matches_played").notNull().default(0),
 
   // Current stats. The reference row holds the athlete's BASE stats; training

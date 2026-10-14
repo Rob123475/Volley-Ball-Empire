@@ -6,6 +6,7 @@ import {
 import { and, eq, sql } from "drizzle-orm";
 import { withCareerStateTx } from "../lib/playerDto.js";
 import { keepAiSquadsTx } from "./aiSquads.js";
+import { fadeAgedPlayersTx } from "./seasonFade.js";
 import { aiManagersSeasonEndTx } from "./aiManagers.js";
 import { ensureSeasonFixtureRows } from "./seasonFixture.js";
 import { worldTourStandingsTx } from "./worldTour.js";
@@ -133,6 +134,10 @@ export function rolloverSeason(careerSaveId: number, teamId: number): RolloverRe
     // reached rather than the one they are leaving behind.
     const retired = retireAgedPlayers(careerSaveId, RETIREMENT_AGE, season.year);
 
+    // Update 1, overnight part 4 (B-2): after ageing, every player's fading
+    // stats lose their season's points (utils/seasonFade.ts; never below 1).
+    fadeAgedPlayersTx(w, careerSaveId);
+
     // Promote after retiring, so a squad slot freed this boundary can be filled
     // at the same one rather than sitting empty for a season.
     // C15: an AI academy's 19-year-olds leave the game first (utils/youthLoans.ts);
@@ -144,10 +149,9 @@ export function rolloverSeason(careerSaveId: number, teamId: number): RolloverRe
     // unused picture of her continent, never one used before in this career.
     const graduatePortraits = assignGraduatePortraitsTx(tx, careerSaveId, `${season.year + 1}-01-01`);
 
-    // Unity brief item 15: scout reports on players without a club lapse with
-    // the season (after retirements, so a player who retired is not counted).
-    w.lapseMarketScouting(careerSaveId);
-    // Item 17: and so do scout reports on staff and medical staff not hired.
+    // Update 1, overnight part 4 (B-3): a player's scout reports no longer lapse
+    // (they are kept, dated: utils/scoutReports.ts). Item 17: those on staff and
+    // medical staff not hired still lapse with the season.
     w.lapseStaffScouting(careerSaveId);
 
     tx.update(seasonsTable)

@@ -157,6 +157,10 @@ export default defineConfig(async ({ command }): Promise<UserConfig> => ({
       "@shared/career-difficulty": path.resolve(
         import.meta.dirname, "..", "..", "lib", "db", "src", "schema", "career-difficulty.ts",
       ),
+      // Update 1, overnight part 4: the age table, the same one the server trains by.
+      "@shared/ageing": path.resolve(
+        import.meta.dirname, "..", "..", "lib", "db", "src", "schema", "ageing.ts",
+      ),
       // Update 1: the money numbers (MONEY), the same table the server charges from.
       "@shared/money": path.resolve(
         import.meta.dirname, "..", "..", "lib", "db", "src", "schema", "money.ts",

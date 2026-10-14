@@ -22,7 +22,7 @@ import { recordBoardForfeit, ABANDONMENT_DAYS } from "../utils/board-confidence.
 import { endCareer, loseClub } from "../utils/careerLifecycle.js";
 import { MAX_STARTERS } from "../utils/squadRules.js";
 import {
-  selectPair, pairSideRating, isAvailable, matchCosts, matchInjuryRoll,
+  selectPair, pairSideRating, isAvailable, matchCosts, matchInjuryRoll, newInjuryPatch,
 } from "../utils/condition.js";
 import {
   worldTourGate, recordPlayerMatchResult, fixtureForMatch, competitorRating, worldTourStandings,
@@ -222,9 +222,8 @@ export async function applyPostMatchEffects(
       // Item 4c: the one roll every club's players get (utils/condition.ts).
       const inj = matchInjuryRoll(player, { sportsLabLevel, hasRecoveryCamp, weatherMultiplier: wx.injuryRiskMultiplier, fitnessGuru });
       if (inj) {
-        updates.injuryStatus         = inj.status;
-        updates.injuryWeeksRemaining = inj.weeks;
-        updates.isInjured            = true;
+        // Part 4 (B-2): a serious injury also costs speed and stamina, at once.
+        Object.assign(updates, newInjuryPatch(player, inj));
         events.push({
           playerId:     player.id,
           playerName:   player.name,

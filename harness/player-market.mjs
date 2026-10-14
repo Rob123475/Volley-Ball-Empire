@@ -18,9 +18,8 @@
  *     and reveals her attributes;
  *   - scouting: nothing after 4 game days, everything after exactly 5: exact
  *     price inside the range (the same on every read), attributes, "Player
- *     Pool"; a second scout is refused;
- *   - season end: the report lapses for a player without a club, and she is a
- *     Free Agent again.
+ *     Pool"; a second scout while one is out is refused;
+ *   - season end: the report is kept (Update 1, overnight part 4, B-3).
  *
  * Usage: node harness/player-market.mjs
  */
@@ -189,7 +188,7 @@ try {
   check("a scouted player also needs the confirm step, which names her exact price",
     scoutedNoConfirm.status === 400 && scoutedNoConfirm.data?.price === z5.price, `${scoutedNoConfirm.status}: ${scoutedNoConfirm.data?.error}`);
 
-  // 5. Season end: the report lapses for a player without a club.
+  // 5. Season end: the report is kept (B-3).
   let rolled = false;
   for (let i = 0; i < 700 && !rolled; i++) {
     const r = await day();
@@ -198,9 +197,9 @@ try {
   }
   const zNext = await byId(Z.id);
   const mine = await byId(X.id);
-  check("season end: her scouting report has lapsed (she is a Free Agent again, attributes hidden)",
-    // U-6 (feat-ai-buyable): an AI club may have signed her meanwhile; her report lapses all the same.
-    rolled && (zNext == null || (zNext.currentTeamId != null) || (zNext.revealed === false && (zNext.status === "free_agent" || zNext.status === "ai_club") && zNext.scouting?.state === "none")),
+  // Update 1, overnight part 4 (B-3, Rob): reports no longer lapse; an old one just shows its date.
+  check("season end: her scouting report is kept (still revealed, still scouted), wherever she plays now",
+    rolled && (zNext == null || (zNext.revealed === true && zNext.scouting?.state === "done")),
     zNext ? `status ${zNext.status}, revealed ${zNext.revealed}, club ${zNext.currentTeamName ?? "none"}` : "retired");
   check("...while a player the club signed stays revealed", mine?.revealed === true || mine?.currentTeamId !== teamId, `${mine?.name}: revealed ${mine?.revealed}`);
 } catch (err) {

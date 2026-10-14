@@ -34,11 +34,12 @@
  */
 import {
   careerPlayerStateTable, playersTable, continentalPoolPlayersTable, continentalPoolTeamsTable,
-  poolPlayerContractsTable, careerPoolTeamStateTable, seasonsTable, db, MONEY,
+  poolPlayerContractsTable, careerPoolTeamStateTable, seasonsTable, db, MONEY, rollPotential, type DevelopmentProfile,
 } from "@workspace/db";
 import { and, asc, eq, inArray, isNotNull, isNull, or } from "drizzle-orm";
 import { loadStaffTx, type CareerStateTx } from "../lib/playerDto.js";
 import { trainingStaffBonuses } from "./staffBonuses.js";
+import { generateDevelopment } from "./player-development.js";
 import { overallRating } from "./overallRating.js";
 import { sideRating } from "./matchEngine.js";
 import { monthlySalaryFor } from "./clubFinances.js";
@@ -49,7 +50,7 @@ import { trainingSessionXp } from "./trainingXp.js";
 import { AI_TRAIN_EVERY_WEEKS, aiProgrammeFor, aiTrainsThisWeek, careerWeekOf } from "./aiTraining.js";
 import { specialityFactor } from "./managerFaces.js";
 import { seniorWageBillTx, fitsUnderCap } from "./salaryCap.js";
-import { isInjured, matchInjuryRoll } from "./condition.js";
+import { isInjured, matchInjuryRoll, newInjuryPatch } from "./condition.js";
 import { askingWage } from "./wageCurve.js";
 
 type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
@@ -89,6 +90,9 @@ export type AiMember = {
   /** Item 4c: injured (utils/condition.ts isInjured), and the weeks she is still out. A pool player never is. */
   injured: boolean;
   injuryWeeks: number;
+  /** Part 4: her development profile (players.development) and serious injuries, for the injury roll. */
+  development: DevelopmentProfile | null;
+  seriousInjuries: number;
 };
 
 const byRating = (a: AiMember, b: AiMember) => b.rating - a.rating || a.kind.localeCompare(b.kind) || a.id - b.id;
@@ -121,7 +125,7 @@ export function aiSquadsTx(tx: Tx, careerSaveId: number): Map<number, AiMember[]
       age: p.baseAge, ...stats, rating: overallRating(stats),
       salary: c ? Number(c.salary) : monthlySalaryFor(overallRating(stats)), contractEndDate: c?.endDate ?? null,
       imageUrl: p.imageUrl ?? null, skinTone: p.skinTone ?? null, poolPlayerId: p.id, joinedOn: null,
-      injured: false, injuryWeeks: 0,
+      injured: false, injuryWeeks: 0, development: null, seriousInjuries: 0,
     });
   }
 
@@ -135,6 +139,7 @@ export function aiSquadsTx(tx: Tx, careerSaveId: number): Map<number, AiMember[]
     joinedOn: careerPlayerStateTable.poolJoinedOn,
     isInjured: careerPlayerStateTable.isInjured, injuryStatus: careerPlayerStateTable.injuryStatus,
     injuryWeeks: careerPlayerStateTable.injuryWeeksRemaining,
+    development: playersTable.development, seriousInjuries: careerPlayerStateTable.seriousInjuries,
   }).from(careerPlayerStateTable)
     .innerJoin(playersTable, eq(playersTable.id, careerPlayerStateTable.playerId))
     .leftJoin(continentalPoolPlayersTable, eq(continentalPoolPlayersTable.id, careerPlayerStateTable.poolPlayerId))
@@ -152,6 +157,7 @@ export function aiSquadsTx(tx: Tx, careerSaveId: number): Map<number, AiMember[]
       ...stats, rating: overallRating(stats), salary: Number(s.salary), contractEndDate: s.contractEndDate,
       imageUrl: s.imageUrl ?? null, skinTone: s.skinTone ?? toneFor(s.nationality, s.id), poolPlayerId: s.poolPlayerId, joinedOn: s.joinedOn,
       injured: isInjured({ isInjured: s.isInjured, injuryStatus: s.injuryStatus ?? "Healthy" }), injuryWeeks: Number(s.injuryWeeks ?? 0),
+      development: s.development ?? null, seriousInjuries: Number(s.seriousInjuries ?? 0),
     });
   }
   for (const l of squads.values()) l.sort(byRating);
@@ -209,9 +215,9 @@ export function aiMatchInjuriesTx(w: CareerStateTx, careerSaveId: number, poolTe
   const hurt: string[] = [];
   for (const m of played) {
     if (m.kind !== "player") continue;   // a pool player is not a career row yet: nothing to injure
-    const inj = matchInjuryRoll({ stamina: m.stamina }, { weatherMultiplier, fitnessGuru }, random);
+    const inj = matchInjuryRoll({ stamina: m.stamina, development: m.development }, { weatherMultiplier, fitnessGuru }, random);
     if (!inj) continue;
-    w.setPlayerState(careerSaveId, m.id, { injuryStatus: inj.status, injuryWeeksRemaining: inj.weeks, isInjured: true });
+    w.setPlayerState(careerSaveId, m.id, newInjuryPatch({ speed: m.speed, stamina: m.stamina, seriousInjuries: m.seriousInjuries }, inj));
     hurt.push(m.name);
   }
   return hurt;
@@ -237,6 +243,8 @@ export function materializeAiSeniorsTx(w: CareerStateTx, careerSaveId: number): 
     w.createPlayer(careerSaveId, {
       name: ref.name, nationality: ref.nationality, baseAge: ref.baseAge, ...stats, imageUrl: ref.imageUrl,
       continent: continents.get(m.poolTeamId) ?? null, playerType: "senior", peakOverallRating: m.rating,
+      // Overnight part 4 (B-1): a profile and a weighted potential of her own, fixed for good.
+      development: generateDevelopment(), potential: rollPotential(),
     }, {
       age: ref.baseAge, ...stats, teamId: null, poolTeamId: m.poolTeamId, poolPlayerId: m.id,
       salary: m.salary, contractEndDate: m.contractEndDate, isActive: false, squadRole: "starter",
@@ -276,6 +284,7 @@ export function aiSeniorsTrainWeekTx(w: CareerStateTx, careerSaveId: number, tod
   if (!aiTrainsThisWeek(careerWeekOf(start, today), every)) return 0;
   const seniors = w.tx.select({
     id: playersTable.id, potential: playersTable.potential, playerType: playersTable.playerType,
+    development: playersTable.development, seriousInjuries: careerPlayerStateTable.seriousInjuries,
     poolTeamId: careerPlayerStateTable.poolTeamId, age: careerPlayerStateTable.age,
     trainingPoints: careerPlayerStateTable.trainingPoints, isPromoted: careerPlayerStateTable.isPromoted, isRetired: careerPlayerStateTable.isRetired,
     speed: careerPlayerStateTable.speed, power: careerPlayerStateTable.power, defense: careerPlayerStateTable.defense,

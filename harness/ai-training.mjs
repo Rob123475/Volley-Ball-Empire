@@ -48,7 +48,12 @@ const PROGRAMMES = {
   "Serving Academy":   { primary: "serve",   secondary: null,      xp: 1.00 },
   "Defensive Systems": { primary: "defense", secondary: "stamina", xp: 0.95 },
 };
-const ageModifier = (age) => (age <= 20 ? 1.25 : age <= 25 ? 1.10 : age <= 29 ? 1.00 : age <= 33 ? 0.90 : 0.80);
+// Update 1, overnight part 4 (B-1, B-2): the age table by the stat trained, her
+// profile and her serious injuries (lib/db/src/schema/ageing.ts) replaced the
+// one age modifier. Part 3: an AI club's Head and Assistant Coach (utils/staffBonuses.ts).
+const { ageXpMultiplier, profileXpMultiplier, seriousInjuryXpFactor } = await import(pathToFileURL(path.join(REPO, "lib", "db", "src", "schema", "ageing.ts")).href);
+const devFactor = (p, stat) => ageXpMultiplier(stat, p.age, p.dev?.peakShift ?? 0) * profileXpMultiplier(p.dev) * seriousInjuryXpFactor(p.serious);
+const parseDev = (j) => { try { return j ? JSON.parse(j) : null; } catch { return null; } };
 const academyXpFor = (rating) => (rating >= 75 ? 21 : rating >= 60 ? 19 : 16);
 const STATS = ["power", "speed", "defense", "serve", "block", "stamina"];
 
@@ -80,10 +85,11 @@ const w = (sql, ...a) => { const d = new DatabaseSync(DB); try { return d.prepar
 function aiSeniors(cid) {
   return new Map(q(`SELECT s.player_id AS id, s.pool_team_id AS club, s.age, s.training_points AS tp, p.potential,
       s.power, s.speed, s.defense, s.serve, s.block, s.stamina, s.fatigue, s.morale, s.fitness, s.injury_status AS inj,
-      s.injury_weeks_remaining AS injWeeks, s.is_injured AS injured, s.focus_xp AS focus
+      s.injury_weeks_remaining AS injWeeks, s.is_injured AS injured, s.focus_xp AS focus,
+      p.development AS devJson, s.serious_injuries AS serious
     FROM career_player_state s JOIN players p ON p.id = s.player_id
     WHERE s.career_save_id = ? AND s.pool_team_id IS NOT NULL AND s.team_id IS NULL AND s.is_retired = 0
-      AND (p.player_type = 'senior' OR s.is_promoted = 1)`, cid).map((r) => [r.id, r]));
+      AND (p.player_type = 'senior' OR s.is_promoted = 1)`, cid).map((r) => [r.id, { ...r, dev: parseDev(r.devJson) }]));
 }
 /** Every AI academy youth, by player id. */
 function aiYouths(cid) {
@@ -94,6 +100,14 @@ function aiYouths(cid) {
       AND p.player_type = 'youth' AND s.is_promoted = 0`, cid).map((r) => [r.id, r]));
 }
 const faceOf = (speciality) => MANIFEST.faces.find((f) => f.speciality === speciality);
+/** Part 3: an AI club's staff XP bonus, utils/staffBonuses.ts's rule (Head up to +15%, Assistant up to +8%; on duty only). */
+function staffOf(club) {
+  const st = q(`SELECT st.role, st.skill_level AS skill FROM career_staff_state s JOIN staff st ON st.id = s.staff_id
+    WHERE s.career_save_id = ? AND s.pool_team_id = ? AND s.off_days_left = 0`, cid, club);
+  const best = (role) => st.filter((x) => x.role === role).reduce((m, x) => Math.max(m, x.skill), -1);
+  const h = best("Head Coach"), a = best("Assistant Coach");
+  return (h >= 0 ? 1 + Math.max(0, h - 50) * (0.15 / 45) : 1) * (a >= 0 ? 1 + Math.max(0, a - 50) * (0.08 / 45) : 1);
+}
 const specialityOf = (faceId) => MANIFEST.faces.find((f) => f.id === faceId)?.speciality ?? null;
 
 let teamId = null, cid = null;
@@ -149,19 +163,21 @@ try {
   check("(source) applyFatigueAndStats calls the shared rule and has no XP formula of its own; the AI clubs call the same function",
     /trainingSessionXp\(player, programName, \{/.test(trainingSrc) && !/POINTS_PER_SESSION|PRIMARY_THRESHOLD|SECONDARY_THRESHOLD/.test(trainingSrc)
       && /trainingSessionXp\(s, aiProgrammeFor\(s\), \{ manager: coach\.get\(club\), staff: staff\.get\(club\) \}\)/.test(SRC("utils/aiSquads.ts")));
-  const senior = q(`SELECT s.player_id AS id, s.age, s.training_points AS tp, p.potential, s.power, s.block FROM career_player_state s JOIN players p ON p.id = s.player_id
+  const seniorRow = q(`SELECT s.player_id AS id, s.age, s.training_points AS tp, p.potential, s.power, s.block, p.development AS devJson, s.serious_injuries AS serious
+    FROM career_player_state s JOIN players p ON p.id = s.player_id
     WHERE s.career_save_id = ? AND s.team_id = ? AND p.player_type = 'senior' ORDER BY s.player_id LIMIT 1`, cid, teamId)[0];
+  const senior = { ...seniorRow, dev: parseDev(seniorRow.devJson) };
   const session = await trainThroughCalendar(api, { playerId: senior.id, type: "Power Camp", durationHours: 2 }, DB);
   const r1 = session.result;
   const after1 = q(`SELECT training_points AS tp, power, block FROM career_player_state WHERE career_save_id = ? AND player_id = ?`, cid, senior.id)[0];
   const philosophy = q(`SELECT training_philosophy AS p FROM teams WHERE id = ?`, teamId)[0]?.p;
   const levels = Object.fromEntries(q(`SELECT type, level FROM facilities WHERE team_id = ?`, teamId).map((f) => [f.type, f.level]));
   const facility = (1 + ((levels.training_complex ?? 1) - 1) * (0.20 / 9)) * (1 + ((levels.gymnasium ?? 1) - 1) * (0.15 / 9));
-  const m1 = 1.00 * 1 * (r1?.staffXpMultiplier ?? 1) * ageModifier(senior.age) * 1 * potentialMultiplier(senior.potential) * facility * 1 * (r1?.managerXpMultiplier ?? 1);
+  const m1 = 1.00 * 1 * (r1?.staffXpMultiplier ?? 1) * devFactor(senior, "power") * 1 * potentialMultiplier(senior.potential) * facility * 1 * (r1?.managerXpMultiplier ?? 1);
   const prevTp = (r1?.totalXp ?? 0) - (r1?.xpGained ?? 0);
   const wantPrimary = Math.floor((r1?.totalXp ?? 0) / 100) - Math.floor(prevTp / 100);
   const wantSecondary = Math.floor((r1?.totalXp ?? 0) / 200) - Math.floor(prevTp / 200);
-  check("a Power Camp's XP is round(base x programme x staff x age x potential x facility x manager), the pre-item-3 rule",
+  check("a Power Camp's XP is round(base x programme x staff x age-for-power x profile x injuries x potential x facility x manager)",
     session.status === 200 && !philosophy && r1.xpGained === Math.round(r1.baseXp * m1) && r1.baseXp >= 25 && r1.baseXp <= 35,
     `base ${r1?.baseXp} x ${m1.toFixed(4)} = ${r1?.xpGained}`);
   check("and its stat gains are the 100 / 200 XP milestones (power, then block), written to her, capped at 99",
@@ -184,14 +200,15 @@ try {
   const programmeOk = both.filter((id) => {
     const a = s0.get(id), b = s1.get(id), prog = PROGRAMMES[aiProgrammeFor(a)];
     const moved = STATS.filter((k) => b[k] !== a[k]);
-    const m = prog.xp * ageModifier(a.age) * potentialMultiplier(a.potential) * coachOf(a.club);
+    const m = prog.xp * devFactor(a, prog.primary) * potentialMultiplier(a.potential) * coachOf(a.club) * staffOf(a.club);
     const gain = b.tp - a.tp;
     return moved.every((k) => k === prog.primary || k === prog.secondary) && gain >= Math.round(25 * m) && gain <= Math.round(35 * m);
   });
   check("each trained the programme for her lowest of power, speed, defense, serve, block (only its stats moved; XP in its range)",
     programmeOk.length === both.length, `${programmeOk.length} of ${both.length}`);
-  const untouched = both.filter((id) => ["fatigue", "morale", "fitness", "inj", "injWeeks", "injured", "focus"].every((k) => s1.get(id)[k] === s0.get(id)[k]));
-  check("no AI player's fatigue, morale, fitness, injury or focus changed", untouched.length === both.length, `${untouched.length} of ${both.length}`);
+  // Item 4c: AI players are injured in their matches now; training still moves none of these.
+  const untouched = both.filter((id) => ["fatigue", "morale", "fitness", "focus"].every((k) => s1.get(id)[k] === s0.get(id)[k]));
+  check("no AI player's fatigue, morale, fitness or focus changed", untouched.length === both.length, `${untouched.length} of ${both.length}`);
 
   // ── 3. Coach, Youth Developer, Negotiator ──────────────────────────────────
   console.log("\n3. AN AI CLUB'S OWN MANAGER: COACH +10%, YOUTH DEVELOPER +15%, NEGOTIATOR NOTHING");
@@ -208,7 +225,8 @@ try {
     return { seniors, youths };
   }
   const inRange = (l, factor) => l.every(({ b, gain }) => {
-    const m = PROGRAMMES[aiProgrammeFor(b)].xp * ageModifier(b.age) * potentialMultiplier(b.potential) * factor;
+    const prog = PROGRAMMES[aiProgrammeFor(b)];
+    const m = prog.xp * devFactor(b, prog.primary) * potentialMultiplier(b.potential) * staffOf(b.club) * factor;
     return gain >= Math.round(25 * m) && gain <= Math.round(35 * m);
   });
   const academyExact = (l, factor) => l.every(({ b, gain }) => {
@@ -224,7 +242,7 @@ try {
   const byId = (l) => new Map(l.map((x) => [x.b.id, x]));
   const c = byId(wCoach.seniors), n = byId(wNeg.seniors);
   const common = [...c.keys()].filter((id) => n.has(id));
-  const norm = (x) => x.gain / (PROGRAMMES[aiProgrammeFor(x.b)].xp * ageModifier(x.b.age) * potentialMultiplier(x.b.potential));
+  const norm = (x) => x.gain / (PROGRAMMES[aiProgrammeFor(x.b)].xp * devFactor(x.b, PROGRAMMES[aiProgrammeFor(x.b)].primary) * potentialMultiplier(x.b.potential) * staffOf(x.b.club));
   const ratio = mean(common.map((id) => norm(c.get(id)))) / mean(common.map((id) => norm(n.get(id))));
   check("Coach: every AI senior's XP is in the range for x1.1; the same seniors gain about 10% more than under a Negotiator",
     inRange(wCoach.seniors, 1.1) && common.length > 100 && ratio > 1.05 && ratio < 1.15, `x${ratio.toFixed(3)} over ${common.length} seniors`);

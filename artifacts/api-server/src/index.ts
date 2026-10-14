@@ -3,6 +3,7 @@ import { convertNationalitiesToCountries } from "./utils/nationalityNames.js";
 import { dealFacesToOlderCareers } from "./utils/managerFaces.js";
 import { repriceFreeAgentsOnce } from "./utils/freeAgentWages.js";
 import { dealAiStaffToOlderCareers } from "./utils/aiStaff.js";
+import { giveEveryPlayerAProfile } from "./utils/player-development.js";
 import { giveOpenStaffContractsAnEnd } from "./utils/staffContractBackfill.js";
 import { refileScoutingLines } from "./utils/ledgerRefile.js";
 import { renameLedgerRounds } from "./utils/ledgerRoundNames.js";
@@ -306,6 +307,15 @@ try {
   if (dealt > 0) logger.info({ dealt }, "AI clubs' staff dealt to careers made before them");
 } catch (err) {
   logger.error({ err }, "dealing AI clubs' staff failed");
+}
+
+// Update 1, overnight part 4 (B-1, B-2): every player has a development profile
+// and a peak shift, and an AI club's original a potential of her own, once.
+try {
+  const profiled = giveEveryPlayerAProfile();
+  if (profiled > 0) logger.info({ profiled }, "players given a development profile or peak shift");
+} catch (err) {
+  logger.error({ err }, "giving players a development profile failed");
 }
 
 // Overnight 30 Sep item 33b: a staff or medical hire with no contract end

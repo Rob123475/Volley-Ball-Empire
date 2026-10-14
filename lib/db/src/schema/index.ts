@@ -9,3 +9,4 @@ export * from "./injuries";
 export * from "./manager-levels";
 export * from "./money";
 export * from "./staff-illness";
+export * from "./ageing";

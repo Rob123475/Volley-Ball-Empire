@@ -17,6 +17,7 @@
       "@shared/career-difficulty": ["../../lib/db/src/schema/career-difficulty.ts"],
       "@shared/facility-names": ["../../lib/db/src/schema/facility-names.ts"],
       "@shared/money": ["../../lib/db/src/schema/money.ts"],
+      "@shared/ageing": ["../../lib/db/src/schema/ageing.ts"],
       "@shared/training-programs": ["../../lib/db/src/schema/training-programs.ts"],
       "@shared/injuries": ["../../lib/db/src/schema/injuries.ts"],
       "@shared/staff-illness": ["../../lib/db/src/schema/staff-illness.ts"],
