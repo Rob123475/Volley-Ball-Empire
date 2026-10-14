@@ -25,11 +25,13 @@ import {
   ShapePicker,
   NationalityPicker,
   DifficultyPicker,
+  GameDifficultyPicker,
   ManagerFacePicker,
   type CareerDifficulty,
 } from "@/components/career/career-wizard-fields";
 // D-2: the money the career will really start with — the server's own table.
 import { STARTING_BUDGET } from "@shared/career-difficulty";
+import type { GameDifficulty } from "@shared/game-difficulty";
 import {
   Loader2,
   User,
@@ -201,6 +203,7 @@ export default function NewCareer() {
   const [faceId, setFaceId]           = useState<number | null>(null);
   const [nationality, setNationality] = useState("");
   const [difficulty, setDifficulty]   = useState<CareerDifficulty | null>(null);
+  const [gameDifficulty, setGameDifficulty] = useState<GameDifficulty>("medium");
   const [selectedClub, setSelectedClub]     = useState<ClubTemplate | null>(null);
   const [customClubName, setCustomClubName] = useState("");
   const [primaryColor, setPrimaryColor]     = useState("#E05A00");
@@ -269,6 +272,7 @@ export default function NewCareer() {
           // but POST /careers overrides it once `difficulty` is present.
           budget:              selectedClub.startingBudget,
           difficulty,
+          gameDifficulty,
           primaryColor,
           secondaryColor,
           crestShapeIndex:     shapeIndex,
@@ -453,6 +457,14 @@ export default function NewCareer() {
                     onChange={setDifficulty}
                     accentClassName="border-secondary/60 bg-secondary/10"
                   />
+                </div>
+
+                {/* Update 1, overnight part 6: how hard the AI clubs work */}
+                <div>
+                  <label className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-white/40 mb-1.5">
+                    <Trophy className="h-3 w-3" /> Difficulty (the AI clubs)
+                  </label>
+                  <GameDifficultyPicker value={gameDifficulty} onChange={setGameDifficulty} accentClassName="border-secondary/60 bg-secondary/10" />
                 </div>
               </div>
 

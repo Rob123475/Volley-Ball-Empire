@@ -19,6 +19,8 @@ export interface UpsertCareerSaveBody {
   worldRanking?: number | null;
   budget?: string | null;
   difficulty?: CareerDifficulty;
+  /** Update 1, overnight part 6: how hard the AI clubs work. Defaults to medium. */
+  gameDifficulty?: "easy" | "medium" | "hard";
   locationId?: number | null;
   primaryColor?: string | null;
   secondaryColor?: string | null;

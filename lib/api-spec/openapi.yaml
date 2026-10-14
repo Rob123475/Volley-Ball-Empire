@@ -3927,6 +3927,10 @@ components:
           nullable: true
         difficulty:
           $ref: "#/components/schemas/CareerDifficulty"
+        gameDifficulty:
+          type: string
+          enum: [easy, medium, hard]
+          description: "Update 1, overnight part 6: how hard the AI clubs work (AI training, pre-season camps). Defaults to medium."
         locationId:
           type: integer
           nullable: true

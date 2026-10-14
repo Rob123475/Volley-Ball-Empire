@@ -10,6 +10,8 @@
 import { Router } from "express";
 import { MANAGER_FACES, SPECIALITY_EFFECTS, playerManagerCard, specialityFactor } from "../utils/managerFaces.js";
 import { requireCareerSaveId } from "../lib/playerDto.js";
+import { db, careerSavesTable, GAME_DIFFICULTY, gameDifficultyOf } from "@workspace/db";
+import { eq } from "drizzle-orm";
 
 const router = Router();
 
@@ -28,7 +30,9 @@ router.get("/manager", (req, res) => {
   if (req.activeCareerSaveId == null) { res.status(404).json({ error: "No active career" }); return; }
   const card = playerManagerCard(requireCareerSaveId(req.activeCareerSaveId));
   if (!card) { res.status(404).json({ error: "No manager" }); return; }
-  res.json({ ...card, injuryRiskFactor: specialityFactor(req.activeTeamId, "Fitness Guru") });
+  // Update 1, overnight part 6: the career's difficulty, shown on Profile beside the manager.
+  const level = gameDifficultyOf(db.select({ d: careerSavesTable.gameDifficulty }).from(careerSavesTable).where(eq(careerSavesTable.id, requireCareerSaveId(req.activeCareerSaveId))).get()?.d);
+  res.json({ ...card, injuryRiskFactor: specialityFactor(req.activeTeamId, "Fitness Guru"), gameDifficulty: level, gameDifficultyLabel: GAME_DIFFICULTY[level].label, gameDifficultyBlurb: GAME_DIFFICULTY[level].blurb });
 });
 
 export default router;

@@ -49,3 +49,16 @@ The brief stopped once, on 14 Oct (two mismatches, below). Rob answered 1A and 2
 ## What Rob checks on screen (end of Update 1)
 
 Play a few weeks, open the Player Market or Qualified Teams, and see an AI player's stats tick up.
+
+## Overnight 14–15 Oct (docs/UPDATE1-OVERNIGHT-BRIEF.md parts 3, 4 and 6)
+
+- **Part 3:** an AI club's Head Coach and Assistant Coach (dealt on Day 8, utils/aiStaff.ts) multiply its
+  seniors' training XP through the player's own `trainingStaffBonuses`; one off ill gives nothing.
+- **Part 4:** the shared XP rule now takes the development profile (×0.8 to ×1.2), the age table by the
+  stat trained with each player's peak shift (replacing `getAgeModifier`), and serious injuries (−5%
+  each, at most −20%), for the player's sessions and the AI clubs' alike. Every player fades at the
+  season's end by the same table (utils/seasonFade.ts).
+- **Part 6:** `AI_TRAIN_EVERY_WEEKS` is deleted. How often AI seniors train is the career's difficulty
+  (lib/db/src/schema/game-difficulty.ts): Easy every 4 weeks, Medium every 2, Hard every week. Careers made
+  before this are Medium, so **existing careers' AI clubs now train every 2 weeks, not every week**.
+  ai-training.mjs plays a Hard career so its weekly checks still hold.

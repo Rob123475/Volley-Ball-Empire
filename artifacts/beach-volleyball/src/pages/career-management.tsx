@@ -16,11 +16,13 @@ import {
   ShapePicker,
   NationalityPicker,
   DifficultyPicker,
+  GameDifficultyPicker,
   ManagerFacePicker,
   type CareerDifficulty,
 } from "@/components/career/career-wizard-fields";
 // D-2: the money the career will really start with — the server's own table.
 import { STARTING_BUDGET } from "@shared/career-difficulty";
+import type { GameDifficulty } from "@shared/game-difficulty";
 import { useQueryClient } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
@@ -275,6 +277,7 @@ interface NewCareerModalProps {
     originalClubName:    string;
     budget:              string;
     difficulty:          CareerDifficulty;
+    gameDifficulty:      GameDifficulty;
     primaryColor:        string;
     secondaryColor:      string;
     crestShapeIndex:     number;
@@ -288,6 +291,7 @@ function NewCareerModal({ slotNumber, onClose, onSave, isSaving }: NewCareerModa
   const [faceId, setFaceId]               = useState<number | null>(null);
   const [nationality, setNationality]     = useState("");
   const [difficulty, setDifficulty]       = useState<CareerDifficulty | null>(null);
+  const [gameDifficulty, setGameDifficulty] = useState<GameDifficulty>("medium");
   const [selectedClub, setSelectedClub]   = useState<ClubTemplate | null>(null);
   const [customClubName, setCustomClubName] = useState("");
   const [primaryColor, setPrimaryColor]     = useState("#E05A00");
@@ -376,6 +380,7 @@ function NewCareerModal({ slotNumber, onClose, onSave, isSaving }: NewCareerModa
     // callers; POST /careers overrides it once `difficulty` is present.
     budget:              club.startingBudget,
     difficulty:          difficulty ?? "established",
+    gameDifficulty,
     primaryColor,
     secondaryColor,
     crestShapeIndex:     shapeIndex,
@@ -467,6 +472,13 @@ function NewCareerModal({ slotNumber, onClose, onSave, isSaving }: NewCareerModa
                   <Trophy className="h-3 w-3" /> Career Difficulty
                 </label>
                 <DifficultyPicker value={difficulty} onChange={setDifficulty} />
+              </div>
+              {/* Update 1, overnight part 6: how hard the AI clubs work */}
+              <div>
+                <label className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-white/40 mb-1.5">
+                  <Trophy className="h-3 w-3" /> Difficulty (the AI clubs)
+                </label>
+                <GameDifficultyPicker value={gameDifficulty} onChange={setGameDifficulty} />
               </div>
               <p className="text-xs text-white/35">
                 This is the name that will appear on your manager profile throughout the game.
@@ -949,6 +961,7 @@ export default function CareerManagement() {
     originalClubName:    string;
     budget:               string;
     difficulty:          CareerDifficulty;
+    gameDifficulty:      GameDifficulty;
     primaryColor:        string;
     secondaryColor:      string;
     crestShapeIndex:     number;
@@ -963,6 +976,7 @@ export default function CareerManagement() {
         originalClubName:    body.originalClubName,
         budget:              body.budget,
         difficulty:          body.difficulty,
+        gameDifficulty:      body.gameDifficulty,
         primaryColor:        body.primaryColor,
         secondaryColor:      body.secondaryColor,
         crestShapeIndex:     body.crestShapeIndex,

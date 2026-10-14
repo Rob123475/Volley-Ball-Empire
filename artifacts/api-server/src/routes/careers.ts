@@ -27,6 +27,7 @@ import { isOlympicYear } from "../utils/olympics.js";
 import { faceById, managerCard } from "../utils/managerFaces.js";
 import { openDay1DraftTx } from "../utils/day1Draft.js";
 import { aiStaffDealDate } from "../utils/aiStaff.js";
+import { gameDifficultyOf } from "@workspace/db";
 import { withCareerStateTx } from "../lib/playerDto.js";
 import {
   isCareerDifficulty, startingBudgetFor,
@@ -141,7 +142,7 @@ router.get("/careers/contract", async (req, res) => {
 router.post("/careers", async (req, res) => {
   if (!req.user?.id) { res.status(401).json({ error: "Unauthorized" }); return; }
 
-  const { slotNumber, managerName, managerNationality, managerFaceId, clubName, originalClubName, season, worldRanking, budget, difficulty: rawDifficulty, locationId, primaryColor, secondaryColor, crestShapeIndex } = req.body as {
+  const { slotNumber, managerName, managerNationality, managerFaceId, clubName, originalClubName, season, worldRanking, budget, difficulty: rawDifficulty, gameDifficulty: rawGameDifficulty, locationId, primaryColor, secondaryColor, crestShapeIndex } = req.body as {
     slotNumber:           number;
     managerName:          string;
     managerNationality?:  string | null;
@@ -152,6 +153,7 @@ router.post("/careers", async (req, res) => {
     worldRanking?:        number | null;
     budget?:              number | null;
     difficulty?:          string | null;
+    gameDifficulty?:      string | null;
     locationId?:          number | null;
     primaryColor?:        string | null;
     secondaryColor?:      string | null;
@@ -174,6 +176,8 @@ router.post("/careers", async (req, res) => {
   // the pre-R-11 behaviour (comfortable flat budget, no tier head start),
   // rather than rejecting a caller that predates this field.
   const difficulty: CareerDifficulty = isCareerDifficulty(rawDifficulty) ? rawDifficulty : "established";
+  // Update 1, overnight part 6: Easy / Medium / Hard, fixed for the career (unset: Medium).
+  const gameDifficulty = gameDifficultyOf(rawGameDifficulty);
 
   const [existing] = await db
     .select()
@@ -244,6 +248,7 @@ router.post("/careers", async (req, res) => {
       worldRanking:        worldRanking ?? null,
       budget:              startingBudget,
       difficulty,
+      gameDifficulty,
       // Overnight 1 Oct, N-41: built on Rob's money numbers from the start, so the
       // boot pass for older saves (utils/moneyPass.ts) never raises it again.
       moneyPassAt:         "new career",

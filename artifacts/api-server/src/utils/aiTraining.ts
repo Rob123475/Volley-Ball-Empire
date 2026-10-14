@@ -7,20 +7,18 @@
  * database): how often, and which programme.
  */
 
-/**
- * AI seniors train in the weeks whose career week number is a multiple of
- * this. One knob for item 6 (Easy = 4, Hard = 1); nothing reads difficulty yet.
- */
-export const AI_TRAIN_EVERY_WEEKS = 1;
-
 /** The career's week number on `today`: whole weeks since its first season began. */
 export function careerWeekOf(careerStart: string, today: string): number {
   const days = Math.round((Date.parse(`${today.slice(0, 10)}T00:00:00Z`) - Date.parse(`${careerStart.slice(0, 10)}T00:00:00Z`)) / 86_400_000);
   return Math.floor(days / 7);
 }
 
-/** Whether the AI seniors train in this career week. */
-export function aiTrainsThisWeek(careerWeek: number, every: number = AI_TRAIN_EVERY_WEEKS): boolean {
+/**
+ * Whether the AI seniors train in this career week: in the weeks whose number
+ * is a multiple of `every`, the career's difficulty's aiTrainEveryWeeks (Easy
+ * 4, Medium 2, Hard 1: lib/db/src/schema/game-difficulty.ts, the one knob).
+ */
+export function aiTrainsThisWeek(careerWeek: number, every: number): boolean {
   return careerWeek % every === 0;
 }
 

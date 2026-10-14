@@ -9,7 +9,8 @@
  *      for her lowest stat; no AI player's fatigue, morale, fitness or injury moved
  *   3. a Coach-managed AI club's seniors gain about 10% more XP; a Youth
  *      Developer's academy exactly 15% more; a Negotiator gets nothing extra
- *   4. AI_TRAIN_EVERY_WEEKS = 4 trains in 1 week of 4
+ *   4. every N weeks, by the career's difficulty (Easy 4, Medium 2, Hard 1;
+ *      overnight part 6): this career is Hard, so every week
  *   5. no stat goes above 99
  *   6. balance report (numbers, not pass/fail): three seasons of the AI world's
  *      average senior rating and club strength, next to the player's squad
@@ -38,7 +39,8 @@ const mod = (p) => import(pathToFileURL(path.join(REPO, "artifacts", "api-server
 // Rules-only modules (no imports): Node strips their types.
 const { potentialMultiplier } = await mod("utils/potential.ts");
 const { RESERVE_COURT_SHARE } = await mod("utils/squadRules.ts");
-const { aiProgrammeFor, aiTrainsThisWeek, AI_TRAIN_EVERY_WEEKS } = await mod("utils/aiTraining.ts");
+const { aiProgrammeFor, aiTrainsThisWeek } = await mod("utils/aiTraining.ts");
+const { GAME_DIFFICULTY } = await import(pathToFileURL(path.join(REPO, "lib", "db", "src", "schema", "game-difficulty.ts")).href);
 const { overallRating } = await mod("utils/overallRating.ts");
 
 // The rule's own numbers, as the oracle (utils/trainingXp.ts; before item 3, routes/training.ts).
@@ -149,7 +151,7 @@ try {
   await api("POST", `/profiles/${prof.data.id}/select`);
   const club = ((await api("GET", "/club-templates")).data?.clubs ?? [])[0];
   await startCareer(api, { managerFaceId: 8, slotNumber: 1, managerName: "AI Training", managerNationality: "Australia", clubName: club.name, originalClubName: club.name,
-    budget: club.startingBudget, difficulty: "established", primaryColor: "#1e3a8a", secondaryColor: "#f59e0b", crestShapeIndex: 0 });
+    budget: club.startingBudget, difficulty: "established", gameDifficulty: "hard", primaryColor: "#1e3a8a", secondaryColor: "#f59e0b", crestShapeIndex: 0 });
   teamId = (await api("GET", "/team")).data?.id;
   cid = q(`SELECT id FROM career_saves WHERE team_id = ?`, teamId)[0].id;
   const startSquad = q(`SELECT s.power, s.speed, s.defense, s.serve, s.block, s.stamina FROM career_player_state s JOIN players p ON p.id = s.player_id
@@ -253,13 +255,15 @@ try {
     inRange(wNeg.seniors, 1) && academyExact(wNeg.youths, 1) && academyExact(wCoach.youths, 1));
 
   // ── 4. Every N weeks ───────────────────────────────────────────────────────
-  console.log("\n4. AI_TRAIN_EVERY_WEEKS");
+  console.log("\n4. EVERY N WEEKS, BY DIFFICULTY");
   const weeks = Array.from({ length: 12 }, (_, i) => i);
-  check("with AI_TRAIN_EVERY_WEEKS = 4, AI seniors train in 1 week of 4 (weeks 0, 4, 8 of 12), not the other 3",
-    weeks.filter((x) => aiTrainsThisWeek(x, 4)).join(",") === "0,4,8");
-  check("as shipped it is 1: every week (as sections 2 and 3 ran)", AI_TRAIN_EVERY_WEEKS === 1 && weeks.every((x) => aiTrainsThisWeek(x)));
-  check("(source) the weekly block trains them with the knob, by the career's week number",
+  check("Easy (every 4): AI seniors train in weeks 0, 4, 8 of 12, not the other 3",
+    GAME_DIFFICULTY.easy.aiTrainEveryWeeks === 4 && weeks.filter((x) => aiTrainsThisWeek(x, 4)).join(",") === "0,4,8");
+  check("Medium every 2, Hard every week (this career is Hard, as sections 2 and 3 ran)",
+    GAME_DIFFICULTY.medium.aiTrainEveryWeeks === 2 && GAME_DIFFICULTY.hard.aiTrainEveryWeeks === 1 && weeks.every((x) => aiTrainsThisWeek(x, 1)));
+  check("(source) the weekly block trains them by the career's difficulty, by the career's week number",
     /aiSeniorsTrainWeekTx\(w, careerSaveId, nextDate\);/.test(SRC("routes/calendar.ts"))
+      && /\.aiTrainEveryWeeks;/.test(SRC("utils/aiSquads.ts"))
       && /if \(!aiTrainsThisWeek\(careerWeekOf\(start, today\), every\)\) return 0;/.test(SRC("utils/aiSquads.ts")));
 
   // ── 5. The cap ─────────────────────────────────────────────────────────────

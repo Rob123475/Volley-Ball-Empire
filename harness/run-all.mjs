@@ -612,6 +612,10 @@ runSuite("scouting history", path.join(REPO, "harness", "scouting-history.mjs"))
 console.log("\n########## 98k/100  THE PRE-SEASON CAMP (UPDATE 1, ITEM 5) ##########");
 runSuite("preseason camp", path.join(REPO, "harness", "preseason-camp.mjs"));
 
+// Update 1, overnight part 6 (item 6): Easy / Medium / Hard.
+console.log("\n########## 98l/100  DIFFICULTY (UPDATE 1, ITEM 6) ##########");
+runSuite("difficulty", path.join(REPO, "harness", "difficulty.mjs"));
+
 // ── Smoke needs a server; boot one on a throwaway copy of the shipped DB ─────
 console.log("\n########## 99/100  GAMEPLAY SMOKE ##########");
 {

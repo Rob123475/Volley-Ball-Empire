@@ -14,6 +14,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ClubCrest, CREST_SHAPE_COUNT } from "@/components/club-crest";
 import { cn } from "@/lib/utils";
 import { Check, Sprout, Building2 } from "lucide-react";
+import { GAME_DIFFICULTIES, GAME_DIFFICULTY, type GameDifficulty } from "@shared/game-difficulty";
 
 export const NATIONALITIES = [
   { name: "Argentina",     flag: "🇦🇷" },
@@ -323,6 +324,47 @@ export function DifficultyPicker({
             </div>
             <p className="text-[11px] font-bold uppercase tracking-wide text-white/40 mb-1">{opt.tagline}</p>
             <p className="text-xs text-white/55 leading-relaxed">{opt.description}</p>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+// ── Update 1, overnight part 6: Easy / Medium / Hard ─────────────────────────
+// How hard the AI clubs work (lib/db/src/schema/game-difficulty.ts): nobody's
+// player ratings change. Fixed for the career; shown on Profile.
+
+export function GameDifficultyPicker({
+  value,
+  onChange,
+  accentClassName = "border-secondary/60 bg-secondary/10",
+}: {
+  value: GameDifficulty;
+  onChange: (d: GameDifficulty) => void;
+  accentClassName?: string;
+}) {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3" data-testid="game-difficulty-picker">
+      {GAME_DIFFICULTIES.map((key) => {
+        const opt = GAME_DIFFICULTY[key];
+        const selected = value === key;
+        return (
+          <button
+            key={key}
+            type="button"
+            onClick={() => onChange(key)}
+            data-testid={`game-difficulty-${key}`}
+            className={cn(
+              "text-left rounded-xl border p-3 transition-all hover:bg-white/8",
+              selected ? accentClassName : "border-white/10 bg-white/5",
+            )}
+          >
+            <div className="flex items-center gap-2 mb-1">
+              <span className="font-black text-sm text-white">{opt.label}</span>
+              {selected && <Check className="ml-auto h-3.5 w-3.5 text-white" />}
+            </div>
+            <p className="text-xs text-white/55 leading-relaxed">{opt.blurb}</p>
           </button>
         );
       })}

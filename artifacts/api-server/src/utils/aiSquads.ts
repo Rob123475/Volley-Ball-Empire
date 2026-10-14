@@ -34,7 +34,8 @@
  */
 import {
   careerPlayerStateTable, playersTable, continentalPoolPlayersTable, continentalPoolTeamsTable,
-  poolPlayerContractsTable, careerPoolTeamStateTable, seasonsTable, db, MONEY, rollPotential, type DevelopmentProfile,
+  poolPlayerContractsTable, careerPoolTeamStateTable, seasonsTable, careerSavesTable, db, MONEY, rollPotential,
+  GAME_DIFFICULTY, gameDifficultyOf, type DevelopmentProfile,
 } from "@workspace/db";
 import { and, asc, eq, inArray, isNotNull, isNull, or } from "drizzle-orm";
 import { loadStaffTx, type CareerStateTx } from "../lib/playerDto.js";
@@ -47,7 +48,7 @@ import { contractEndDate, renewalEndDate, CONTRACT_LENGTHS, isContractLength } f
 import { lengthForRating } from "./poolClubFinances.js";
 import { marketPrice } from "./marketScouting.js";
 import { trainingSessionXp } from "./trainingXp.js";
-import { AI_TRAIN_EVERY_WEEKS, aiProgrammeFor, aiTrainsThisWeek, careerWeekOf } from "./aiTraining.js";
+import { aiProgrammeFor, aiTrainsThisWeek, careerWeekOf } from "./aiTraining.js";
 import { specialityFactor } from "./managerFaces.js";
 import { seniorWageBillTx, fitsUnderCap } from "./salaryCap.js";
 import { isInjured, matchInjuryRoll, newInjuryPatch } from "./condition.js";
@@ -275,10 +276,13 @@ export function materializeAiSeniorsTx(w: CareerStateTx, careerSaveId: number): 
  * utils/staffBonuses.ts); an AI club books no session coach and has no
  * philosophy or facilities, so those are 1. XP and stats
  * only: no fatigue, morale, injury or focus. Her training points carry over
- * week to week. Only in the career weeks AI_TRAIN_EVERY_WEEKS picks. Returns
+ * week to week. Only in the career weeks the career's difficulty picks
+ * (aiTrainEveryWeeks: Easy 4, Medium 2, Hard 1; overnight part 6). Returns
  * how many trained.
  */
-export function aiSeniorsTrainWeekTx(w: CareerStateTx, careerSaveId: number, today: string, every: number = AI_TRAIN_EVERY_WEEKS): number {
+export function aiSeniorsTrainWeekTx(w: CareerStateTx, careerSaveId: number, today: string): number {
+  const every = GAME_DIFFICULTY[gameDifficultyOf(w.tx.select({ d: careerSavesTable.gameDifficulty }).from(careerSavesTable)
+    .where(eq(careerSavesTable.id, careerSaveId)).get()?.d)].aiTrainEveryWeeks;
   const start = w.tx.select({ d: seasonsTable.startDate }).from(seasonsTable)
     .where(eq(seasonsTable.careerSaveId, careerSaveId)).orderBy(asc(seasonsTable.year)).limit(1).get()?.d ?? today;
   if (!aiTrainsThisWeek(careerWeekOf(start, today), every)) return 0;

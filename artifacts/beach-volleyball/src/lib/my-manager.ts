@@ -10,6 +10,10 @@ export type MyManager = {
   speciality: string; effect: string; isPlayer: boolean;
   /** Fitness Guru: 0.8 on match injury risk; otherwise 1. */
   injuryRiskFactor: number;
+  /** Update 1, overnight part 6: the career's difficulty (Easy / Medium / Hard). */
+  gameDifficulty?: "easy" | "medium" | "hard";
+  gameDifficultyLabel?: string;
+  gameDifficultyBlurb?: string;
 };
 
 export function useMyManager() {

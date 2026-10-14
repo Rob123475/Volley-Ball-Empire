@@ -157,6 +157,14 @@ export default defineConfig(async ({ command }): Promise<UserConfig> => ({
       "@shared/career-difficulty": path.resolve(
         import.meta.dirname, "..", "..", "lib", "db", "src", "schema", "career-difficulty.ts",
       ),
+      // Update 1, overnight part 6: Easy / Medium / Hard, the same table the server reads.
+      "@shared/game-difficulty": path.resolve(
+        import.meta.dirname, "..", "..", "lib", "db", "src", "schema", "game-difficulty.ts",
+      ),
+      // Update 1, overnight part 5: the pre-season camp's numbers.
+      "@shared/preseason": path.resolve(
+        import.meta.dirname, "..", "..", "lib", "db", "src", "schema", "preseason.ts",
+      ),
       // Update 1, overnight part 4: the age table, the same one the server trains by.
       "@shared/ageing": path.resolve(
         import.meta.dirname, "..", "..", "lib", "db", "src", "schema", "ageing.ts",

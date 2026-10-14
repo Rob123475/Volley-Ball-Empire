@@ -257,3 +257,15 @@ page's preview (aliased `@shared/ageing`, as money.ts is now `@shared/money`).
 - Every number in **lib/db/src/schema/preseason.ts** (`PRESEASON`). `roundToDate` moved from
   routes/calendar.ts to utils/roundDates.ts so the camp uses the same rule. New suite
   **harness/preseason-camp.mjs** (run-all 98k).
+
+### Part 6: difficulty, Easy / Medium / Hard (done, not yet run)
+
+- One table, **lib/db/src/schema/game-difficulty.ts** (`GAME_DIFFICULTY`): Easy (AI train every 4 weeks,
+  no camps), Medium (every 2, a coin flip each for a camp if affordable), Hard (every week, every club
+  that can afford a camp). Nobody's player ratings change.
+- Picked in **both new-career wizards** (new-career.tsx and Career Management's new-career window),
+  beside Underdog / Established; default Medium. Stored on `career_saves.game_difficulty`, fixed for the
+  career, shown on **Profile** under the manager's speciality. Careers made before this are Medium.
+- `AI_TRAIN_EVERY_WEEKS` is gone; AI training reads the career's difficulty (no second knob).
+- The API spec and its generated types gained `gameDifficulty` (hand-edited like `managerFaceId` was).
+- New suite **harness/difficulty.mjs** (run-all 98l).

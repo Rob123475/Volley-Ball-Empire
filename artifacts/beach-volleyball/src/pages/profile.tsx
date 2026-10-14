@@ -248,6 +248,11 @@ export default function ManagerProfile() {
                 <span className="font-bold text-white">{manager.speciality}</span>: {manager.effect}.
               </p>
             )}
+            {manager?.gameDifficultyLabel && (
+              <p className="text-sm text-white/70 mt-1" data-testid="profile-game-difficulty">
+                <span className="font-bold text-white">Difficulty: {manager.gameDifficultyLabel}</span>. {manager.gameDifficultyBlurb}
+              </p>
+            )}
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <RepStars stars={stars} />
