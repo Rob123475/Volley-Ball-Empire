@@ -10,6 +10,9 @@
  *   4. two ankle injuries more than a year ago do not count: the third is a
  *      plain ankle injury
  *   5. her card says it: "Ankle: 3 in the last 12 months"
+ *   6. 1-week injuries don't count (Rob, 16 Oct): two cramps then a broken leg is
+ *      a broken leg, and her card counts the leg once; two broken legs then a
+ *      cramp is a cramp
  */
 import { createWorld } from "./night2-world.mjs";
 
@@ -79,6 +82,28 @@ try {
   check("her card: \"Ankle: 3 in the last 12 months\", the reconstruction among them",
     card?.areasLast12Months?.[0]?.area === "Ankle" && card.areasLast12Months[0].count === 3 && card.injuries.some((i) => i.reconstruction),
     JSON.stringify(card?.areasLast12Months));
+
+  // ── 6. 1-week injuries don't count ─────────────────────────────────────────
+  console.log("\n6. 1-WEEK INJURIES DON'T COUNT (ROB, 16 OCT)");
+  heal(elsewhere);
+  const cramp1 = await start(elsewhere, "Cramp or strained muscle"); heal(elsewhere);
+  const cramp2 = await start(elsewhere, "Cramp or strained muscle"); heal(elsewhere);
+  const leg = await start(elsewhere, "Broken leg");
+  check("two cramps and then a broken leg in a year: a broken leg, not a reconstruction",
+    cramp1?.name === "Cramp or strained muscle" && !cramp1.reconstruction && cramp2?.name === "Cramp or strained muscle" && !cramp2.reconstruction
+      && leg?.name === "Broken leg" && !leg.reconstruction, leg?.name);
+  const legCard = (await W.api("GET", `/players/${elsewhere}/injuries`)).data;
+  const legCount = legCard?.areasLast12Months?.find((a) => a.area === "Leg")?.count;
+  check("her card counts the leg once (the cramps are in her history, not the count)",
+    legCount === 1 && legCard.injuries.filter((i) => i.injury === "Cramp or strained muscle").length === 2, JSON.stringify(legCard?.areasLast12Months));
+  heal(other);
+  const today = W.q(`SELECT game_date AS d FROM career_injuries WHERE career_save_id = ? AND player_id = ? ORDER BY id DESC LIMIT 1`, cid, elsewhere)[0].d;
+  for (let i = 0; i < 2; i++) {
+    W.w(`INSERT INTO career_injuries (career_save_id, player_id, injury, area, game_date, weeks_out, base_weeks, reconstruction, team_id) VALUES (?, ?, 'Broken leg', 'leg', ?, 40, 20, 0, ?)`, cid, other, today, teamId);
+  }
+  const cramp3 = await start(other, "Cramp or strained muscle");
+  check("two broken legs in a year and then a cramp: a cramp (1 base week), never a reconstruction",
+    cramp3?.name === "Cramp or strained muscle" && !cramp3.reconstruction && cramp3.baseWeeks === 1, `${cramp3?.name}, ${cramp3?.baseWeeks} base weeks`);
 } catch (err) {
   W.fail(err);
 } finally {

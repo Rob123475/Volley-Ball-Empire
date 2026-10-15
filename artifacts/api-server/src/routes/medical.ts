@@ -51,7 +51,8 @@ router.get("/players/:id/injuries", async (req, res) => {
   const yearAgo = new Date(`${today}T00:00:00Z`); yearAgo.setUTCDate(yearAgo.getUTCDate() - RECONSTRUCTION.windowDays);
   const since = yearAgo.toISOString().slice(0, 10);
   const areas = new Map<string, number>();
-  for (const r of rows) if (r.gameDate >= since) areas.set(r.area, (areas.get(r.area) ?? 0) + 1);
+  // Only the injuries that count toward a reconstruction (utils/injuries.ts injuriesInAreaTx: not a 1-week one).
+  for (const r of rows) if (r.gameDate >= since && r.baseWeeks >= RECONSTRUCTION.minBaseWeeks) areas.set(r.area, (areas.get(r.area) ?? 0) + 1);
   res.json({
     injuries: rows.map((r) => ({ injury: r.injury, area: BODY_AREA_LABELS[r.area as BodyArea] ?? r.area, gameDate: r.gameDate, weeksOut: r.weeksOut, reconstruction: r.reconstruction })),
     areasLast12Months: [...areas].map(([area, count]) => ({ area: BODY_AREA_LABELS[area as BodyArea] ?? area, count }))

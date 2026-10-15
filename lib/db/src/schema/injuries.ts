@@ -53,9 +53,12 @@ export const INJURY_TREATMENT = {
  * from her injury history, at any club) is a reconstruction instead: surgery and
  * rehab, `baseWeeks`, always serious. Its factor: no medical staff, a doctor or
  * physio, a medical specialist, or a specialist with a doctor or physio (O-9).
+ * An injury of fewer than `minBaseWeeks` base weeks (a 1-week cramp) neither
+ * counts toward the three nor becomes the third (Rob, 16 Oct).
  */
 export const RECONSTRUCTION = {
   injuriesInArea: 3,
+  minBaseWeeks: 2,
   windowDays: 365,
   baseWeeks: 30,
   factor: { none: 2, doctorOrPhysio: 1, specialist: 0.5, specialistWithDoctorOrPhysio: 0.25 },

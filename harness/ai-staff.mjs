@@ -4,7 +4,8 @@
  *
  *   1. before Day 8 no AI club has staff; on Day 8 every club that can gets one
  *      coach (Head or Assistant) and one medical member (Doctor, Physio,
- *      Massage Therapist, Medical Specialist), never more than one of each
+ *      Massage Therapist, Medical Specialist), never more than one of each;
+ *      the medic is a doctor or physio while one is spare (Rob, 16 Oct)
  *   2. at least 5 of every role stay on the market for the player
  *   3. each AI hire is a normal contract (6m / 1s / 2s, an end date), its
  *      signing fee (one month's salary) came off the club's balance, and the
@@ -129,6 +130,13 @@ try {
     coaching.length === Math.min(clubs.length, spareCoach), `${coaching.length} dealt of ${spareCoach} spare, ${clubs.length} clubs`);
   const spareMed = MEDICAL.reduce((t, r) => t + Math.max(0, ofRole(r) - FLOOR - mineOfRole(r)), 0);
   check("medical likewise", medical.length === Math.min(clubs.length, spareMed), `${medical.length} dealt of ${spareMed} spare`);
+  // Rob, 16 Oct: the medic is a doctor or physio while one is spare; a massage therapist or specialist only after.
+  const FIRST = ["Doctor", "Physiotherapist"];
+  const spareFirst = FIRST.reduce((t, r) => t + Math.max(0, ofRole(r) - FLOOR - mineOfRole(r)), 0);
+  const firstDealt = medical.filter((s) => FIRST.includes(s.role)).length;
+  check("the medic is a doctor or physio while one is spare: a massage therapist or specialist only once both are down to 5",
+    firstDealt === Math.min(clubs.length, spareFirst) && (firstDealt === medical.length || firstDealt === spareFirst),
+    `${firstDealt} doctors and physios of ${spareFirst} spare, ${medical.length - firstDealt} massage therapists and specialists`);
 
   // ── 2. The market keeps 5 of every role ────────────────────────────────────
   console.log("\n2. AT LEAST 5 OF EVERY ROLE STAY ON THE MARKET");

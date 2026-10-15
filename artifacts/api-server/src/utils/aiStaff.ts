@@ -3,8 +3,9 @@
  * from the market on Day 8.
  *
  * Every AI club employs at least one coach (a Head Coach or an Assistant Coach)
- * and one medical member (a Doctor, Physiotherapist, Massage Therapist or
- * Medical Specialist), picked at random, on a normal contract of a random
+ * and one medical member, picked at random: a Doctor or Physiotherapist while
+ * one is spare, a Massage Therapist or Medical Specialist only after (Rob,
+ * 16 Oct: those two don't treat injuries alone). On a normal contract of a random
  * length (6m / 1s / 2s, utils/contractTerms.ts). The signing fee (one month's
  * salary, routes/staff.ts) and the weekly wages come out of the AI club's
  * balance (utils/poolClubFinances.ts), never the salary cap. Someone at an AI
@@ -41,6 +42,8 @@ export const AI_STAFF = {
   coachingRoles: ["head_coach", "assistant_coach"] as readonly StaffRoleKey[],
   /** ...and one of these. */
   medicalRoles: ["doctor", "physiotherapist", "massage_therapist", "medical_specialist"] as readonly StaffRoleKey[],
+  /** The roles a club takes first while one is spare (the medic: a doctor or physio before the other two). */
+  firstChoice: ["doctor", "physiotherapist"] as readonly StaffRoleKey[],
 } as const;
 
 /** What a staff contract ending leaves: back on the market, wage as it was (routes/calendar.ts, here). */
@@ -71,8 +74,8 @@ function shuffle<T>(xs: T[], random: () => number): T[] {
 /**
  * End the AI clubs' staff contracts that have run out, then give every AI club
  * that has no coach one coach, and every one with no medical member one
- * medical member, while at least AI_STAFF.marketFloor of each role stay on the
- * market. Clubs go in random order. A club that cannot pay the signing fee
+ * medical member (a doctor or physio while one is spare), while at least
+ * AI_STAFF.marketFloor of each role stay on the market. Clubs go in random order. A club that cannot pay the signing fee
  * (one month's salary, the player's rule) waits.
  */
 export function fillAiStaffTx(
@@ -111,8 +114,10 @@ export function fillAiStaffTx(
     const has = rows.filter((r) => r.poolTeamId === club.poolTeamId);
     for (const group of [AI_STAFF.coachingRoles, AI_STAFF.medicalRoles]) {
       if (has.some((r) => r.role != null && group.includes(r.role))) continue;
-      const roles = group.filter((role) => spare(role) > 0);
-      if (roles.length === 0) continue;
+      const spareRoles = group.filter((role) => spare(role) > 0);
+      if (spareRoles.length === 0) continue;
+      const first = spareRoles.filter((role) => AI_STAFF.firstChoice.includes(role));
+      const roles = first.length > 0 ? first : spareRoles;
       const role = roles[Math.floor(random() * roles.length)]!;
       const pool = market.filter((r) => r.role === role);
       const pick = pool[Math.floor(random() * pool.length)]!;

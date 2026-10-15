@@ -4,7 +4,7 @@
  *
  *   what      a hurt player gets a named injury (by its share), or, if it is her
  *             third to the same body area within a year (her history, at any
- *             club), that area's reconstruction (O-8)
+ *             club; 1-week injuries don't count), that area's reconstruction (O-8)
  *   how long  base weeks x the treatment factor of her club's medical staff on
  *             duty: a doctor or physio, the right one, both (O-9), or for a
  *             reconstruction the medical specialist (O-8)
@@ -74,11 +74,12 @@ function windowStart(today: string): string {
   return d.toISOString().slice(0, 10);
 }
 
-/** Her injuries to `area` in the year to `today` (any club). */
+/** Her injuries to `area` in the year to `today` (any club) that count toward a reconstruction (not a 1-week one). */
 export function injuriesInAreaTx(w: CareerStateTx, careerSaveId: number, playerId: number, area: BodyArea | string, today: string): number {
   return w.tx.select({ id: careerInjuriesTable.id }).from(careerInjuriesTable)
     .where(and(eq(careerInjuriesTable.careerSaveId, careerSaveId), eq(careerInjuriesTable.playerId, playerId),
-      eq(careerInjuriesTable.area, area), gte(careerInjuriesTable.gameDate, windowStart(today))))
+      eq(careerInjuriesTable.area, area), gte(careerInjuriesTable.gameDate, windowStart(today)),
+      gte(careerInjuriesTable.baseWeeks, RECONSTRUCTION.minBaseWeeks)))
     .all().length;
 }
 
@@ -100,7 +101,9 @@ export function startInjuryTx(
 ): NewInjury {
   // `injuryName`: the harness's probe (routes/dev.ts) chooses the injury; the game always rolls it.
   const rolled = (injuryName ? INJURY_TYPES.find((t) => t.name === injuryName) : undefined) ?? rollInjuryType(random);
-  const reconstruction = injuriesInAreaTx(w, careerSaveId, p.id, rolled.area, today) >= RECONSTRUCTION.injuriesInArea - 1;
+  // A 1-week injury is never the third (Rob, 16 Oct): it stays what it is.
+  const reconstruction = rolled.baseWeeks >= RECONSTRUCTION.minBaseWeeks
+    && injuriesInAreaTx(w, careerSaveId, p.id, rolled.area, today) >= RECONSTRUCTION.injuriesInArea - 1;
   const name = reconstruction ? reconstructionName(rolled.area) : rolled.name;
   const baseWeeks = reconstruction ? RECONSTRUCTION.baseWeeks : rolled.baseWeeks;
   const weeks = round2(baseWeeks * treatmentFactor(name, medicalTeam(staffOfTx(w, careerSaveId, club))));

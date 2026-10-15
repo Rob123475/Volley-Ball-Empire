@@ -31,7 +31,7 @@ Thank you for playing Beach Volleyball Empire! Update 1 is our biggest update ye
 ## Real injuries
 - **Injuries have names now:** a cramp, a sprained ankle, a torn hamstring, a broken wrist, a torn knee ligament and more, each with its own body area.
 - **The right person matters.** The physio treats muscle and ankle injuries; the doctor treats concussions and broken bones. With nobody to treat her, an injured player is out much longer. Hire the right person while she's out and her time out shrinks straight away.
-- **Reconstructions.** A third injury to the same part of the body within a year means surgery, and a long time out. A medical specialist makes a huge difference.
+- **Reconstructions.** A third injury to the same part of the body within a year means surgery, and a long time out. A one-week knock doesn't count. A medical specialist makes a huge difference.
 - **Injury history.** Every player's card shows her injuries, and warns you when one area keeps getting hurt.
 - **The injured list.** A player out for more than six weeks goes on the injured list. She gives up her place in your squad, so you can bring in cover. If you do, she can't play again until the cover has gone.
 - **Promote from 16.** Academy players can now join the senior squad from age 16.
