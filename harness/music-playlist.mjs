@@ -183,11 +183,12 @@ check("the defaults are 40% and not muted",
   /DEFAULT_VOLUME = 0\.4/.test(provider) && /muted: false/.test(provider));
 
 // Unity brief item 9: no duck any more - out on /court, the next song after it.
+// Rob, 16 Oct: the normal volume is the player's own times the master (Settings > Sound).
 check("on /court the music fades out and stops; leaving the court plays the next song at the normal volume",
   /COURT_FADE_MS = 1500/.test(provider)
   && /COURT_PATH = "\/court"/.test(provider)
   && /else audio\.pause\(\);/.test(provider)
-  && /if \(!onCourt && was\) \{\s*audio\.volume = volume;\s*failuresRef\.current = 0;\s*advance\(\);/.test(provider)
+  && /if \(!onCourt && was\) \{\s*audio\.volume = level;\s*failuresRef\.current = 0;\s*advance\(\);/.test(provider)
   && !/COURT_DUCK/.test(provider));
 
 check("Electron lifts Chromium's autoplay block so the music starts on its own",

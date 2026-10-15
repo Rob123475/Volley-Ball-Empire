@@ -25,6 +25,7 @@ import {
 } from "react";
 import { useLocation } from "wouter";
 import { MUSIC_TRACKS, musicTrackUrl, type MusicTrack } from "@/data/music-tracks";
+import { readMatchVolume, MATCH_VOLUME_EVENT, MATCH_VOLUME_KEY } from "@/lib/court-settings";
 
 // ── Tunables ────────────────────────────────────────────────────────────────
 
@@ -202,6 +203,17 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
   const [blocked, setBlocked] = useState(false);
   const [volume, setVolumeState] = useState(initial.volume);
   const [muted, setMuted] = useState(initial.muted);
+  // Rob, 16 Oct: the master volume (Settings > Sound, lib/court-settings.ts) scales the music too.
+  const [master, setMaster] = useState(() => (typeof window === "undefined" ? 1 : readMatchVolume().master));
+  useEffect(() => {
+    const read = () => setMaster(readMatchVolume().master);
+    const onStorage = (e: StorageEvent) => { if (e.key === MATCH_VOLUME_KEY) read(); };
+    window.addEventListener(MATCH_VOLUME_EVENT, read);
+    window.addEventListener("storage", onStorage);
+    return () => { window.removeEventListener(MATCH_VOLUME_EVENT, read); window.removeEventListener("storage", onStorage); };
+  }, []);
+  /** What the element plays at: the player's volume times the master. */
+  const level = volume * master;
   const [paused, setPaused] = useState(() => (typeof window === "undefined" ? false : readPaused()));
   const pausedRef = useRef(paused);
   pausedRef.current = paused;
@@ -214,7 +226,7 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
   if (audioRef.current === null && typeof document !== "undefined") {
     const el = document.createElement("audio");
     el.preload = "auto";
-    el.volume = initial.volume;
+    el.volume = initial.volume * readMatchVolume().master;
     el.muted = initial.muted;
     audioRef.current = el;
   }
@@ -371,8 +383,8 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
     const audio = audioRef.current;
     if (!audio) return;
     audio.muted = muted;
-    if (!onCourt) audio.volume = volume;
-  }, [volume, muted, onCourt]);
+    if (!onCourt) audio.volume = level;
+  }, [level, muted, onCourt]);
 
   // ── Three songs fade out over their last seconds (Rob, 2 Oct) ─────────────
   //
@@ -390,13 +402,13 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
     const timer = window.setInterval(() => {
       const left = audio.duration - audio.currentTime;
       if (!Number.isFinite(left)) return;
-      audio.volume = left < FADE_OUT_SECONDS ? volume * Math.max(0, left / FADE_OUT_SECONDS) : volume;
+      audio.volume = left < FADE_OUT_SECONDS ? level * Math.max(0, left / FADE_OUT_SECONDS) : level;
     }, 50);
     return () => {
       window.clearInterval(timer);
-      if (!wasOnCourt.current) audio.volume = volume;
+      if (!wasOnCourt.current) audio.volume = level;
     };
-  }, [trackIndex, volume, onCourt]);
+  }, [trackIndex, level, onCourt]);
 
   // ── The 3D match: fade out, then the next song after it (item 9) ──────────
   const wasOnCourt = useRef(onCourt);
@@ -420,7 +432,7 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
       return () => cancelAnimationFrame(raf);
     }
     if (!onCourt && was) {
-      audio.volume = volume;
+      audio.volume = level;
       failuresRef.current = 0;
       advance();
     }

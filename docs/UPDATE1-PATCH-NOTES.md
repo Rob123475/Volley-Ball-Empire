@@ -47,6 +47,9 @@ Thank you for playing Beach Volleyball Empire! Update 1 is our biggest update ye
 ## Settings and sound
 - **A new Settings page** (the gear in the sidebar and on the title screen): fullscreen or windowed, window size and zoom, music volume, Auto or Manual on the 3D court, the controls, and the Rules.
 - **Match sound volume.** Separate sliders for the crowd and the commentary on the 3D court.
+- **A master volume** at the top of Sound turns everything up or down together: the music, the crowd and the commentary. The music's mute button mutes only the songs.
+- **Settings during a match.** The Settings button above the 3D court opens the sound and the controls over the match, without leaving it. Every change applies straight away.
+- **The match keeps playing, with its sound, when you click away from the court.** Before, clicking anywhere outside the court, or on another window, froze the match and cut all its sound until you clicked back on it.
 - **The Rules page** explains everything new in Update 1.
 
 ## And lots more

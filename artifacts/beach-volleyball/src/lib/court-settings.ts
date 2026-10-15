@@ -27,8 +27,13 @@ export function saveControlMode(mode: ControlMode): void {
  * in localStorage); the court page sends them to the court when it has loaded
  * and whenever they change (court.tsx, through the court's own page,
  * unity-build/index.html, to MatchManager.SetCrowdVolume / SetCommentaryVolume).
+ *
+ * Rob, 16 Oct: a master volume over everything, kept in the same object. It is
+ * applied on the page side: the court is sent crowd x master and commentary x
+ * master (courtVolumes), and the music plays at its own volume x master
+ * (components/music/music-provider.tsx). The music's mute mutes only the songs.
  */
-export type MatchVolume = { crowd: number; commentary: number };
+export type MatchVolume = { master: number; crowd: number; commentary: number };
 export const MATCH_VOLUME_KEY = "vbe-court-volume";
 /** Fired on this window when the volumes are saved (localStorage's own event only reaches other windows). */
 export const MATCH_VOLUME_EVENT = "vbe-court-volume-changed";
@@ -39,10 +44,15 @@ const clamp01 = (v: unknown, fallback: number) =>
 export function readMatchVolume(): MatchVolume {
   try {
     const parsed = JSON.parse(localStorage.getItem(MATCH_VOLUME_KEY) ?? "null") as Partial<MatchVolume> | null;
-    return { crowd: clamp01(parsed?.crowd, 1), commentary: clamp01(parsed?.commentary, 1) };
+    return { master: clamp01(parsed?.master, 1), crowd: clamp01(parsed?.crowd, 1), commentary: clamp01(parsed?.commentary, 1) };
   } catch {
-    return { crowd: 1, commentary: 1 };
+    return { master: 1, crowd: 1, commentary: 1 };
   }
+}
+
+/** What the court plays at: its two volumes, each times the master. */
+export function courtVolumes(volume: MatchVolume = readMatchVolume()): { crowd: number; commentary: number } {
+  return { crowd: volume.crowd * volume.master, commentary: volume.commentary * volume.master };
 }
 
 export function saveMatchVolume(volume: MatchVolume): void {

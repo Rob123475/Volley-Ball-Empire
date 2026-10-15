@@ -38,6 +38,13 @@
       <div id="error"></div>
     </div>
     <script>
+      // Rob, 16 Oct: the court keeps playing, and is heard, when the focus leaves it: the game's
+      // settings over the match, a click on the bar above it, another window. The build has Unity's
+      // "Run In Background" off, so on this window's blur the court stopped, silent, until it had the
+      // focus again (measured: scripts/webgl-proof/package-sound-proof.mjs --blur). Unity's own blur
+      // handler is on this window and is added after this one, so this keeps the blur from reaching it.
+      window.addEventListener("blur", function (e) { e.stopImmediatePropagation(); }, true);
+
       var canvas = document.getElementById("unity-canvas");
       var buildUrl = "/unity-build/Build";
       var config = {

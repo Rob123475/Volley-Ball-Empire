@@ -7,16 +7,18 @@
  * (the music's volume and mute, the same as the music bar's; Auto or Manual on
  * the court, the same key as before; since 15 Oct (O-5) the match sound's two
  * volumes, the crowd and the commentary, which the court page sends to the 3D
- * court).
+ * court; since 16 Oct a master volume over everything). The Sound and Controls
+ * panels are shared with the 3D court's own settings (components/sound-settings.tsx,
+ * components/controls-settings.tsx), so they can be changed during a match.
  */
 import { useEffect, useState } from "react";
 import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Monitor, Volume2, VolumeX, Gamepad2, BookOpen, ArrowLeft } from "lucide-react";
-import { useMusic } from "@/components/music/music-provider";
-import { COURT_CONTROLS, COURT_OTHER_CONTROLS, readControlMode, saveControlMode, readMatchVolume, saveMatchVolume, type ControlMode, type MatchVolume } from "@/lib/court-settings";
-import { cn } from "@/lib/utils";
+import { Monitor, Volume2, Gamepad2, BookOpen, ArrowLeft } from "lucide-react";
+import { SoundSettings } from "@/components/sound-settings";
+import { ControlsSettings } from "@/components/controls-settings";
+import { readControlMode, saveControlMode, type ControlMode } from "@/lib/court-settings";
 
 type WindowSettings = { mode: "windowed" | "fullscreen"; size: string | null; zoom: number; sizes?: string[]; defaultSize?: string; zoomMin?: number; zoomMax?: number };
 type WindowBridge = { get: () => Promise<WindowSettings>; set: (patch: Partial<WindowSettings>) => Promise<WindowSettings> };
@@ -25,7 +27,6 @@ const bridge = (): WindowBridge | null => ((window as unknown as { vbeWindow?: W
 const SIZE_LABEL = (s: string) => s.replace("x", " × ");
 
 export default function SettingsPage() {
-  const music = useMusic();
   const [win, setWin] = useState<WindowSettings | null>(null);
   const [mode, setMode] = useState<ControlMode>(readControlMode);
 
@@ -36,12 +37,6 @@ export default function SettingsPage() {
     setWin((w) => ({ ...(w ?? {}), ...next }));
   };
   const chooseMode = (m: ControlMode) => { setMode(m); saveControlMode(m); };
-  const [matchVolume, setMatchVolume] = useState<MatchVolume>(readMatchVolume);
-  const setMatch = (patch: Partial<MatchVolume>) => {
-    const next = { ...matchVolume, ...patch };
-    setMatchVolume(next);
-    saveMatchVolume(next);
-  };
 
   return (
     <div className="min-h-screen bg-background p-4 sm:p-8" data-testid="settings-page">
@@ -95,30 +90,10 @@ export default function SettingsPage() {
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2"><Volume2 className="h-4 w-4" /> Sound</CardTitle>
-            <CardDescription>The music, the same as the music bar (which is still there for skipping songs), and the match sound on the 3D court.</CardDescription>
+            <CardDescription>The master volume over everything; the music, the same as the music bar (which is still there for skipping songs); and the match sound on the 3D court.</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-3">
-            {music ? (
-              <div className="flex flex-wrap items-center gap-3">
-                <Button size="sm" variant="outline" onClick={music.toggleMute} className="gap-1" data-testid="sound-mute">
-                  {music.muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />} {music.muted ? "Unmute" : "Mute"}
-                </Button>
-                <span className="text-sm">Music volume {Math.round(music.volume * 100)}%</span>
-                <input type="range" min={0} max={100} step={5} value={Math.round(music.volume * 100)}
-                  onChange={(e) => music.setVolume(Number(e.target.value) / 100)} className="w-full max-w-xs" data-testid="sound-volume" />
-              </div>
-            ) : (
-              <p className="text-sm text-muted-foreground">The music isn't playing here.</p>
-            )}
-            {([["crowd", "Crowd volume", "The crowd, its cheers and the buzzer."], ["commentary", "Commentary volume", "The two commentators."]] as const).map(([key, label, about]) => (
-              <div key={key} className="flex flex-wrap items-center gap-3">
-                <span className="text-sm w-40">{label} {Math.round(matchVolume[key] * 100)}%</span>
-                <input type="range" min={0} max={100} step={5} value={Math.round(matchVolume[key] * 100)}
-                  onChange={(e) => setMatch({ [key]: Number(e.target.value) / 100 })} className="w-full max-w-xs"
-                  aria-label={label} data-testid={`sound-${key}-volume`} />
-                <span className="text-xs text-muted-foreground">{about}</span>
-              </div>
-            ))}
+          <CardContent>
+            <SoundSettings />
           </CardContent>
         </Card>
 
@@ -126,37 +101,10 @@ export default function SettingsPage() {
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2"><Gamepad2 className="h-4 w-4" /> Controls</CardTitle>
-            <CardDescription>Who plays your pair on the 3D court. You can still switch during a match with Tab (View or Share on a pad).</CardDescription>
+            <CardDescription>Who plays your pair on the 3D court. You can still switch during a match with Tab (View or Share on a pad), or in the match's own settings (the gear above the court).</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex flex-wrap gap-2">
-              {(["auto", "manual"] as const).map((m) => (
-                <Button key={m} size="sm" variant={mode === m ? "default" : "outline"} onClick={() => chooseMode(m)} data-testid={`controls-${m}`}>
-                  {m === "auto" ? "Auto: the AI plays" : "Manual: you play one of your pair"}
-                </Button>
-              ))}
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm" data-testid="controls-table">
-                <thead>
-                  <tr className="text-left text-muted-foreground">
-                    <th className="py-1 pr-3 font-medium">In Manual</th><th className="py-1 pr-3 font-medium">Keyboard</th>
-                    <th className="py-1 pr-3 font-medium">Xbox pad</th><th className="py-1 font-medium">PlayStation pad</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {COURT_CONTROLS.map((c) => (
-                    <tr key={c.action} className="border-t border-border">
-                      <td className="py-1 pr-3">{c.action}</td><td className={cn("py-1 pr-3 font-semibold")}>{c.keyboard}</td>
-                      <td className="py-1 pr-3">{c.xbox}</td><td className="py-1">{c.playstation}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            <ul className="text-xs text-muted-foreground space-y-1">
-              {COURT_OTHER_CONTROLS.map((c) => <li key={c.action}><span className="font-semibold text-foreground">{c.action}:</span> {c.how}</li>)}
-            </ul>
+          <CardContent>
+            <ControlsSettings mode={mode} onChoose={chooseMode} />
           </CardContent>
         </Card>
 

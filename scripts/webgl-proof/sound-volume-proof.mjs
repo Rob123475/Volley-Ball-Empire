@@ -23,11 +23,16 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { startCareer } from "../../harness/harness-club.mjs";
+import { AUDIO_TAP } from "./court-audio.mjs";
 
 const REPO = path.resolve(import.meta.dirname, "..", "..");
 const args = process.argv.slice(2);
 const outDir = path.resolve(args[0]);
 const GPU = args.includes("--gpu");
+// Rob, 16 Oct: the music muted (its own button), as in Rob's match: the court must still be heard.
+const MUSIC_MUTED = args.includes("--music-muted");
+// The volumes stored before the match (Settings), "--start=<crowd>,<commentary>"; 0.5 and 0.25 by default.
+const START = (args.find((a) => a.startsWith("--start="))?.slice(8).split(",").map(Number)) ?? [0.5, 0.25];
 const W = 1280, H = 720;
 fs.mkdirSync(outDir, { recursive: true });
 
@@ -40,36 +45,6 @@ const CDP = 9345;
 const VOLUME_KEY = "vbe-court-volume", VOLUME_EVENT = "vbe-court-volume-changed";
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-// Runs in every frame before its own scripts: every node connected to the
-// speakers goes through one analyser, which the proof reads.
-const AUDIO_TAP = `(() => {
-  const Ctx = window.AudioContext || window.webkitAudioContext;
-  if (!Ctx) return;
-  const taps = new WeakMap();
-  const tapFor = (ctx) => {
-    if (!taps.has(ctx)) {
-      const a = ctx.createAnalyser(); a.fftSize = 2048;
-      AudioNode.prototype.__vbeConnect.call(a, ctx.destination);
-      taps.set(ctx, a);
-      (window.__vbeTaps = window.__vbeTaps || []).push(a);
-    }
-    return taps.get(ctx);
-  };
-  AudioNode.prototype.__vbeConnect = AudioNode.prototype.connect;
-  AudioNode.prototype.connect = function (dest, ...rest) {
-    if (dest instanceof AudioDestinationNode) return this.__vbeConnect(tapFor(dest.context), ...rest);
-    return this.__vbeConnect(dest, ...rest);
-  };
-  window.__vbeLevel = () => {
-    let peak = 0, sum = 0, n = 0;
-    for (const a of window.__vbeTaps || []) {
-      const buf = new Float32Array(a.fftSize); a.getFloatTimeDomainData(buf);
-      for (const s of buf) { peak = Math.max(peak, Math.abs(s)); sum += s * s; n++; }
-    }
-    return { peak, rms: n ? Math.sqrt(sum / n) : -1, taps: (window.__vbeTaps || []).length,
-      state: (window.__vbeTaps || []).map((a) => a.context.state).join(",") };
-  };
-})();`;
 
 const work = fs.mkdtempSync(path.join(os.tmpdir(), "sound-volume-"));
 const dbFile = path.join(work, "save.sqlite");
@@ -119,7 +94,7 @@ try {
     if (m.method === "Runtime.executionContextCreated") contexts.set(m.params.context.id, m.params.context.auxData?.frameId);
     if (m.method === "Runtime.consoleAPICalled") {
       const line = (m.params.args ?? []).map((a) => a.value ?? a.description ?? "").join(" ");
-      if (/\[Sound\]|MatchManager\] match starts/.test(line)) summary.console.push(line.slice(0, 200));
+      if (/\[Sound\]|\[Commentary\]|MatchManager\] match starts/.test(line)) summary.console.push(line.slice(0, 200));
     }
     if (m.method === "Runtime.exceptionThrown") summary.errors.push(m.params.exceptionDetails?.exception?.description ?? m.params.exceptionDetails?.text);
   };
@@ -162,7 +137,8 @@ try {
   // As chosen on the Settings page: crowd 50%, commentary 25%.
   await send("Page.navigate", { url: BASE + "/" });
   await sleep(2500);
-  await js(`localStorage.setItem(${JSON.stringify(VOLUME_KEY)}, JSON.stringify({ crowd: 0.5, commentary: 0.25 }))`);
+  await js(`localStorage.setItem(${JSON.stringify(VOLUME_KEY)}, JSON.stringify({ crowd: ${START[0]}, commentary: ${START[1]} }))`);
+  if (MUSIC_MUTED) await js(`localStorage.setItem("bve.music", JSON.stringify({ volume: 0.4, muted: true })); true`);
   await send("Page.navigate", { url: BASE + "/" });
   await sleep(2500);
   for (let i = 0; i < 40 && !(await js(`[...document.querySelectorAll("button")].some(b => /Next match/.test(b.textContent))`)); i++) {
@@ -177,31 +153,37 @@ try {
   }
   check("Next match, then Watch Match", watched);
 
-  const sent = (await waitFor(/\[Sound\] crowd volume 0\.50/, 240000)) && (await waitFor(/\[Sound\] commentary volume 0\.25/, 5000));
-  check("when the court loaded, the page sent the stored volumes (crowd 0.50, commentary 0.25)", sent, summary.console.filter((l) => /\[Sound\]/.test(l)).join(" | "));
+  const sent = (await waitFor(new RegExp(String.raw`\[Sound\] crowd volume ${START[0].toFixed(2)}`), 240000))
+    && (await waitFor(new RegExp(String.raw`\[Sound\] commentary volume ${START[1].toFixed(2)}`), 5000));
+  check(`when the court loaded, the page sent the stored volumes (crowd ${START[0].toFixed(2)}, commentary ${START[1].toFixed(2)})`, sent, summary.console.filter((l) => /\[Sound\]/.test(l)).join(" | "));
   await waitFor(/match starts/, 60000);
-  await sleep(5000);
-  await shot("s1-court-crowd-50-commentary-25.png");
+  await sleep(3000);
+  await shot("s1-court-as-stored.png");
+  // As stored, before anything changes (Rob's match: crowd 0 and commentary 100 from the start).
+  const asStored = await listen(`as stored: crowd ${START[0]}, commentary ${START[1]}`, 25000);
+  if (START[0] > 0 || START[1] > 0) check(`heard as stored (crowd ${START[0]}, commentary ${START[1]}${MUSIC_MUTED ? ", music muted" : ""})`, asStored.taps > 0 && asStored.peak > 0.001,
+    `peak ${asStored.peak}, ${asStored.samples} reads, ${asStored.taps} tap(s), ${asStored.state}`);
 
-  await setVolume(1, 1);
-  const full = (await waitFor(/\[Sound\] crowd volume 1\.00/, 5000)) && (await waitFor(/\[Sound\] commentary volume 1\.00/, 5000));
-  check("changed while the court plays: 1 and 1 reach the court", full);
-  const heardFull = await listen("crowd 1, commentary 1", 8000);
-
-  await setVolume(0, 0);
-  const zero = (await waitFor(/\[Sound\] crowd volume 0\.00/, 5000)) && (await waitFor(/\[Sound\] commentary volume 0\.00/, 5000));
-  check("changed again: 0 and 0 reach the court", zero);
-  await sleep(500);
-  const heardZero = await listen("crowd 0, commentary 0", 10000);
-
-  await setVolume(1, 1);
-  await waitFor(/\[Sound\] crowd volume 1\.00/, 5000, 2);
-  await sleep(500);
-  const heardBack = await listen("back to 1 and 1", 8000);
-
-  check("the court is heard at 1", heardFull.taps > 0 && heardFull.peak > 0.001, `peak ${heardFull.peak}, ${heardFull.taps} tap(s), ${heardFull.state}`);
-  check("the court is silent at 0", heardZero.samples > 0 && heardZero.peak === 0, `peak ${heardZero.peak} over ${heardZero.samples} reads`);
-  check("and heard again at 1", heardBack.peak > 0.001, `peak ${heardBack.peak}`);
+  // Rob, 16 Oct: each volume on its own. With the crowd at 0 everything heard is the commentators,
+  // and with the commentary at 0 everything heard is the crowd. Long enough to hold several lines.
+  const steps = [
+    { crowd: 1, commentary: 1, ms: 10000, heard: true },
+    { crowd: 0, commentary: 0, ms: 10000, heard: false },
+    { crowd: 0, commentary: 1, ms: 25000, heard: true, what: "commentary alone (crowd 0)" },
+    { crowd: 1, commentary: 0, ms: 15000, heard: true, what: "crowd alone (commentary 0)" },
+    { crowd: 1, commentary: 1, ms: 8000, heard: true, what: "back to 1 and 1" },
+  ];
+  for (const st of steps) {
+    const before = count(/\[Sound\] commentary volume/);
+    await setVolume(st.crowd, st.commentary);
+    const got = await waitFor(/\[Sound\] commentary volume/, 5000, before + 1);
+    const want = (k, v) => summary.console.slice().reverse().find((l) => l.includes(`[Sound] ${k} volume`))?.trim().endsWith(v.toFixed(2));
+    check(`crowd ${st.crowd}, commentary ${st.commentary} reach the court`, got && want("crowd", st.crowd) && want("commentary", st.commentary));
+    await sleep(500);
+    const h = await listen(`crowd ${st.crowd}, commentary ${st.commentary}`, st.ms);
+    if (st.heard) check(`heard: ${st.what ?? `crowd ${st.crowd}, commentary ${st.commentary}`}${MUSIC_MUTED ? ", music muted" : ""}`, h.taps > 0 && h.peak > 0.001, `peak ${h.peak}, ${h.samples} reads, ${h.taps} tap(s), ${h.state}`);
+    else check(`silent: crowd ${st.crowd}, commentary ${st.commentary}`, h.samples > 0 && h.peak === 0, `peak ${h.peak} over ${h.samples} reads`);
+  }
   await shot("s2-court-after.png");
   check("no page errors", summary.errors.length === 0, summary.errors.slice(0, 2).join(" | "));
   ws.close();

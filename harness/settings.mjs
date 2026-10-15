@@ -18,6 +18,13 @@
  *      court's page passes them to MatchManager.SetCrowdVolume /
  *      SetCommentaryVolume the way it passes the control mode (the Unity side is
  *      proved by its batch proof SoundVolumeProof)
+ *   7. (source) Rob, 16 Oct: a master volume at the top of Sound, over the music,
+ *      the crowd and the commentary, applied on the page side (no Unity change)
+ *   8. (source) Rob, 16 Oct: Settings on the match screen without leaving the
+ *      match: a gear above the court opens Sound and Controls over it, changes go
+ *      to the court at once, and the court keeps playing (and is heard) with the
+ *      focus off it. What is heard is proved by scripts/webgl-proof/
+ *      package-sound-proof.mjs and sound-volume-proof.mjs
  */
 import fs from "node:fs";
 import os from "node:os";
@@ -76,11 +83,14 @@ check("(source) the preload exposes only get and set, and the window loads it wi
 // ── 3. Controls ──────────────────────────────────────────────────────────────
 console.log("\n3. AUTO / MANUAL IN SETTINGS; THE MATCH SCREEN'S BUTTON IS GONE");
 const lib = FE("lib/court-settings.ts"), court = FE("pages/court.tsx"), settings = FE("pages/settings.tsx");
+// Since 16 Oct the Sound and Controls panels are shared by Settings and the court's own settings.
+const soundPanel = FE("components/sound-settings.tsx"), controlsPanel = FE("components/controls-settings.tsx");
 check("the same stored key as before (vbe-court-control-mode), read by the court and set by Settings",
   /CONTROL_MODE_KEY = "vbe-court-control-mode"/.test(lib) && /readControlMode/.test(court) && /saveControlMode\(m\)/.test(settings));
-check("the match screen has no Auto/Manual button any more", !/button-control-mode/.test(court) && !/toggleMode/.test(court));
+check("the match screen's bar has no Auto/Manual button (it is in the court's settings since 16 Oct, section 8)", !/button-control-mode/.test(court) && !/toggleMode/.test(court));
 const keys = ["W A S D", "J", "K", "L", "Space", "Q", "Tab", "Esc", "H"];
-check("the controls panel lists the court's keyboard and pad controls", keys.every((k) => lib.includes(`keyboard: "${k}"`)) && /xbox: "LB"/.test(lib) && /playstation: "L1"/.test(lib) && /COURT_CONTROLS\.map/.test(settings));
+check("the controls panel lists the court's keyboard and pad controls", keys.every((k) => lib.includes(`keyboard: "${k}"`)) && /xbox: "LB"/.test(lib) && /playstation: "L1"/.test(lib)
+  && /COURT_CONTROLS\.map/.test(controlsPanel) && /<ControlsSettings mode=\{mode\} onChoose=\{chooseMode\} \/>/.test(settings));
 
 // ── 4. The gear ──────────────────────────────────────────────────────────────
 console.log("\n4. THE GEAR, IN THE SIDEBAR AND ON THE TITLE SCREEN");
@@ -88,7 +98,7 @@ check("(source) a Settings entry in the sidebar and a gear on the title screen",
 const app = FE("App.tsx");
 check("(source) Settings and its Rules page need no career (outside the guard)", app.indexOf('<Route path="/settings" component={SettingsPage} />') > 0
   && app.indexOf('<Route path="/settings" component={SettingsPage} />') < app.indexOf("<AuthGuard>") && /<Route path="\/settings\/rules">/.test(app));
-check("(source) the music volume and mute are the music bar's own (useMusic)", /music\.setVolume\(/.test(settings) && /music\.toggleMute/.test(settings));
+check("(source) the music volume and mute are the music bar's own (useMusic)", /music\.setVolume\(/.test(soundPanel) && /music\.toggleMute/.test(soundPanel) && /<SoundSettings \/>/.test(settings));
 
 // ── 5. The Rules ─────────────────────────────────────────────────────────────
 console.log("\n5. THE RULES NAME EVERYTHING NEW");
@@ -106,11 +116,11 @@ console.log("\n6. MATCH SOUND");
 const unityHtml = fs.readFileSync(path.join(REPO, "artifacts", "beach-volleyball", "public", "unity-build", "index.html"), "utf8");
 const courtSettings = FE("lib/court-settings.ts"), courtPage = FE("pages/court.tsx");
 check("(source) Settings > Sound has a crowd and a commentary slider, stored in one JSON object like the music's volume",
-  settings.includes("saveMatchVolume(next)") && settings.includes(`["crowd", "Crowd volume"`) && settings.includes(`["commentary", "Commentary volume"`)
+  soundPanel.includes("saveMatchVolume(next)") && soundPanel.includes(`["crowd", "Crowd volume"`) && soundPanel.includes(`["commentary", "Commentary volume"`)
     && courtSettings.includes("localStorage.setItem(MATCH_VOLUME_KEY, JSON.stringify(volume))"));
 check("(source) the court page sends them when the court has loaded and whenever they change",
   /if \(e\.data === "unity-loaded"\) \{\s*setUnityLoaded\(true\);\s*sendMatchVolume\(\);/.test(courtPage)
-    && courtPage.includes("addEventListener(MATCH_VOLUME_EVENT, sendMatchVolume)") && courtPage.includes(`postMessage({ type: "vbe-volume", ...readMatchVolume() }`));
+    && courtPage.includes("addEventListener(MATCH_VOLUME_EVENT, sendMatchVolume)") && courtPage.includes(`postMessage({ type: "vbe-volume", ...courtVolumes() }`));
 check("(source) the court's page passes them to MatchManager the way it passes the control mode",
   unityHtml.includes(`SendMessage("MatchManager", "SetControlMode"`) && unityHtml.includes(`d.type !== "vbe-volume"`)
     && unityHtml.includes(`SendMessage("MatchManager", "SetCrowdVolume"`) && unityHtml.includes(`SendMessage("MatchManager", "SetCommentaryVolume"`));
@@ -121,6 +131,39 @@ const dataFile = fs.readdirSync(unityBuild).find((f) => f.endsWith(".data"));
 const data = dataFile ? fs.readFileSync(path.join(unityBuild, dataFile)) : Buffer.alloc(0);
 check("the court's WebGL build carries SetCrowdVolume and SetCommentaryVolume",
   data.indexOf("SetCrowdVolume") >= 0 && data.indexOf("SetCommentaryVolume") >= 0, dataFile ?? "no .data");
+
+// ── 7. The master volume (Rob, 16 Oct) ───────────────────────────────────────
+console.log("\n7. THE MASTER VOLUME");
+const provider = FE("components/music/music-provider.tsx");
+check("(source) Sound starts with a master volume, stored with the court's volumes (100% if never set)",
+  soundPanel.indexOf('data-testid="sound-master-volume"') > 0 && soundPanel.indexOf('data-testid="sound-master-volume"') < soundPanel.indexOf('data-testid="sound-mute"')
+    && /master: clamp01\(parsed\?\.master, 1\)/.test(courtSettings));
+check("(source) the court is sent each of its volumes times the master",
+  /crowd: volume\.crowd \* volume\.master, commentary: volume\.commentary \* volume\.master/.test(courtSettings));
+check("(source) the music plays at its own volume times the master, and follows the master live",
+  /const level = volume \* master;/.test(provider) && /if \(!onCourt\) audio\.volume = level;/.test(provider)
+    && provider.includes("window.addEventListener(MATCH_VOLUME_EVENT, read)") && !/audio\.volume = volume;/.test(provider));
+check("(source) the music's mute is the music element's own flag: it mutes only the songs",
+  /audio\.muted = muted;/.test(provider) && !/muted/.test(courtSettings.replace(/\/\*[\s\S]*?\*\//g, "")) && !/muted/.test(courtPage));
+
+// ── 8. Settings on the match screen (Rob, 16 Oct) ────────────────────────────
+console.log("\n8. SETTINGS ON THE MATCH SCREEN, WITHOUT LEAVING THE MATCH");
+const overlay = courtPage.slice(courtPage.indexOf("{settingsOpen && ("), courtPage.indexOf("<iframe"));
+check("(source) a Settings gear in the bar above the court, beside Leave match",
+  /data-testid="button-court-settings"/.test(courtPage) && courtPage.indexOf('data-testid="button-court-settings"') < courtPage.indexOf('data-testid="button-leave-match"'));
+check("(source) it opens Sound (master, music, crowd, commentary) and Controls (Auto / Manual and the controls table) over the court",
+  /data-testid="court-settings-overlay"/.test(overlay) && /<SoundSettings onCourt \/>/.test(overlay) && /<ControlsSettings mode=\{mode\} onChoose=\{chooseMode\} \/>/.test(overlay));
+check("(source) nothing in it leaves the court: no navigation, no leave", overlay.length > 0 && !/navigate\(|leaveMatch/.test(overlay));
+check("(source) Auto / Manual chosen there goes to the court at once, and is remembered",
+  /function chooseMode\(m: ControlMode\) \{\s*setMode\(m\);\s*saveControlMode\(m\);\s*iframeRef\.current\?\.contentWindow\?\.postMessage\(\{ type: "vbe-control-mode", mode: m \}, "\*"\);/.test(courtPage)
+    && unityHtml.includes(`d.type !== "vbe-control-mode"`));
+check("(source) the volumes chosen there go to the court at once (saved, the event, sent)",
+  soundPanel.includes("saveMatchVolume(next)") && courtSettings.includes("window.dispatchEvent(new Event(MATCH_VOLUME_EVENT))"));
+check("(source) closing it gives the keyboard back to the court",
+  /function closeSettings\(\) \{\s*setSettingsOpen\(false\);[\s\S]{0,120}iframeRef\.current\?\.focus\(\);/.test(courtPage));
+check("(source) the court keeps playing with the focus off it: its page keeps the window's blur from Unity, before Unity loads",
+  /window\.addEventListener\("blur", function \(e\) \{ e\.stopImmediatePropagation\(\); \}, true\);/.test(unityHtml)
+    && unityHtml.indexOf('window.addEventListener("blur"') < unityHtml.indexOf("createUnityInstance("));
 
 console.log(`\n${checks - failures}/${checks} checks passed`);
 process.exit(failures === 0 ? 0 : 1);
