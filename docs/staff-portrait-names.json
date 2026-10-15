@@ -1,0 +1,759 @@
+{
+ "_note": "Rob's 123 staff portraits, 15 Oct 2026. Key: the exact picture file name inside its role folder. Ages from the file name where it gives one, otherwise read off the picture. Source folders: Desktop\\\\extra download cards\\\\<role>-extra.",
+ "Physiotherapist": {
+  "Agent Image - Photorealistic square corporate headshot_ mid-chest-up portrait of a Brazilian woman p.png": {
+   "name": "Camila Ribeiro",
+   "age": 32,
+   "nationality": "Brazilian",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square corporate headshot_ mid-chest-up portrait of a Filipino man phys.png": {
+   "name": "Paolo Mendoza",
+   "age": 34,
+   "nationality": "Filipino",
+   "gender": "male"
+  },
+  "Agent Image - Photorealistic square corporate headshot_ mid-chest-up portrait of a Japanese woman ph.png": {
+   "name": "Yui Takahashi",
+   "age": 30,
+   "nationality": "Japanese",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square corporate headshot_ mid-chest-up portrait of a Nigerian woman ph.png": {
+   "name": "Ngozi Adeyemi",
+   "age": 36,
+   "nationality": "Nigerian",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square corporate headshot_ mid-chest-up portrait of a Swedish woman phy.png": {
+   "name": "Linnea Karlsson",
+   "age": 38,
+   "nationality": "Swedish",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square corporate headshot_ mid-chest-up portrait of an Egyptian man phy.png": {
+   "name": "Omar Farouk",
+   "age": 40,
+   "nationality": "Egyptian",
+   "gender": "male"
+  },
+  "Agent Image - Photorealistic square corporate headshot_ tight head-and-shoulders portrait of a Germa.png": {
+   "name": "Thomas Becker",
+   "age": 44,
+   "nationality": "German",
+   "gender": "male"
+  },
+  "Agent Image - Photorealistic square corporate headshot_ tight head-and-shoulders portrait of a Kenya.png": {
+   "name": "Brian Kiprop",
+   "age": 36,
+   "nationality": "Kenyan",
+   "gender": "male"
+  },
+  "Agent Image - Photorealistic square corporate headshot_ tight head-and-shoulders portrait of a Korea.png": {
+   "name": "Seo-yeon Choi",
+   "age": 30,
+   "nationality": "Korean",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square corporate headshot_ tight head-and-shoulders portrait of a Mexic.png": {
+   "name": "Adriana Ruiz",
+   "age": 40,
+   "nationality": "Mexican",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square corporate headshot_ tight head-and-shoulders portrait of an Indi.png": {
+   "name": "Divya Nair",
+   "age": 33,
+   "nationality": "Indian",
+   "gender": "female"
+  }
+ },
+ "Assistant Coach": {
+  "Agent Image - Photorealistic square editorial sports-event photo_ chest-up portrait of a Brazilian w.png": {
+   "name": "Juliana Alves",
+   "age": 35,
+   "nationality": "Brazilian",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square editorial sports-event photo_ chest-up portrait of a Canadian ma.png": {
+   "name": "Ryan MacDonald",
+   "age": 44,
+   "nationality": "Canadian",
+   "gender": "male"
+  },
+  "Agent Image - Photorealistic square editorial sports-event photo_ chest-up portrait of a Chinese man.png": {
+   "name": "Liu Jian",
+   "age": 38,
+   "nationality": "Chinese",
+   "gender": "male"
+  },
+  "Agent Image - Photorealistic square editorial sports-event photo_ chest-up portrait of a Colombian w.png": {
+   "name": "Daniela Restrepo",
+   "age": 33,
+   "nationality": "Colombian",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square editorial sports-event photo_ chest-up portrait of a German man.png": {
+   "name": "Klaus Hoffmann",
+   "age": 55,
+   "nationality": "German",
+   "gender": "male"
+  },
+  "Agent Image - Photorealistic square editorial sports-event photo_ chest-up portrait of a Ghanaian wo.png": {
+   "name": "Akosua Mensah",
+   "age": 35,
+   "nationality": "Ghanaian",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square editorial sports-event photo_ chest-up portrait of a Greek man.png": {
+   "name": "Nikos Papadakis",
+   "age": 42,
+   "nationality": "Greek",
+   "gender": "male"
+  },
+  "Agent Image - Photorealistic square editorial sports-event photo_ chest-up portrait of a Jamaican wo.png": {
+   "name": "Sharon Campbell",
+   "age": 45,
+   "nationality": "Jamaican",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square editorial sports-event photo_ chest-up portrait of a Japanese wo.png": {
+   "name": "Aiko Nakamura",
+   "age": 30,
+   "nationality": "Japanese",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square editorial sports-event photo_ chest-up portrait of a Korean woma.png": {
+   "name": "Min-ji Kang",
+   "age": 33,
+   "nationality": "Korean",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square editorial sports-event photo_ chest-up portrait of a Latvian man.png": {
+   "name": "Kristaps Ozols",
+   "age": 36,
+   "nationality": "Latvian",
+   "gender": "male"
+  },
+  "Agent Image - Photorealistic square editorial sports-event photo_ chest-up portrait of a Lebanese wo.png": {
+   "name": "Rania Haddad",
+   "age": 36,
+   "nationality": "Lebanese",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square editorial sports-event photo_ chest-up portrait of a Mexican man.png": {
+   "name": "Alejandro Vega",
+   "age": 42,
+   "nationality": "Mexican",
+   "gender": "male"
+  },
+  "Agent Image - Photorealistic square editorial sports-event photo_ chest-up portrait of a Norwegian w.png": {
+   "name": "Kari Johansen",
+   "age": 52,
+   "nationality": "Norwegian",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square editorial sports-event photo_ chest-up portrait of a Polish woma.png": {
+   "name": "Magdalena Wisniewska",
+   "age": 34,
+   "nationality": "Polish",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square editorial sports-event photo_ chest-up portrait of a Puerto Rica.png": {
+   "name": "Javier Colon",
+   "age": 32,
+   "nationality": "Puerto Rican",
+   "gender": "male"
+  },
+  "Agent Image - Photorealistic square editorial sports-event photo_ chest-up portrait of a Senegalese.png": {
+   "name": "Moussa Diop",
+   "age": 45,
+   "nationality": "Senegalese",
+   "gender": "male"
+  },
+  "Agent Image - Photorealistic square editorial sports-event photo_ chest-up portrait of a South Afric.png": {
+   "name": "Thandiwe Nkosi",
+   "age": 40,
+   "nationality": "South African",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square editorial sports-event photo_ chest-up portrait of a Spanish wom.png": {
+   "name": "Pilar Navarro",
+   "age": 45,
+   "nationality": "Spanish",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square editorial sports-event photo_ chest-up portrait of a Turkish man.png": {
+   "name": "Murat Yilmaz",
+   "age": 45,
+   "nationality": "Turkish",
+   "gender": "male"
+  },
+  "Agent Image - Photorealistic square editorial sports-event photo_ chest-up portrait of an Australian (1).png": {
+   "name": "Jason Mitchell",
+   "age": 40,
+   "nationality": "Australian",
+   "gender": "male"
+  },
+  "Agent Image - Photorealistic square editorial sports-event photo_ chest-up portrait of an Australian.png": {
+   "name": "Kylie Hughes",
+   "age": 42,
+   "nationality": "Australian",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square editorial sports-event photo_ chest-up portrait of an Ethiopian.png": {
+   "name": "Dawit Bekele",
+   "age": 42,
+   "nationality": "Ethiopian",
+   "gender": "male"
+  },
+  "Agent Image - Photorealistic square editorial sports-event photo_ chest-up portrait of an Indian wom.png": {
+   "name": "Kavita Rao",
+   "age": 38,
+   "nationality": "Indian",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square editorial sports-event photo_ chest-up portrait of an Indonesian.png": {
+   "name": "Budi Santoso",
+   "age": 45,
+   "nationality": "Indonesian",
+   "gender": "male"
+  }
+ },
+ "Doctor": {
+  "Agent Image - Photorealistic square corporate medical headshot_ head-and-shoulders portrait of a Bra.png": {
+   "name": "Ricardo Moreira",
+   "age": 46,
+   "nationality": "Brazilian",
+   "gender": "male"
+  },
+  "Agent Image - Photorealistic square corporate medical headshot_ head-and-shoulders portrait of a Chi.png": {
+   "name": "Chen Hao",
+   "age": 45,
+   "nationality": "Chinese",
+   "gender": "male"
+  },
+  "Agent Image - Photorealistic square corporate medical headshot_ head-and-shoulders portrait of a Col.png": {
+   "name": "Natalia Ospina",
+   "age": 42,
+   "nationality": "Colombian",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square corporate medical headshot_ head-and-shoulders portrait of a Gha.png": {
+   "name": "Kwame Boateng",
+   "age": 55,
+   "nationality": "Ghanaian",
+   "gender": "male"
+  },
+  "Agent Image - Photorealistic square corporate medical headshot_ head-and-shoulders portrait of a Jap.png": {
+   "name": "Keiko Yamamoto",
+   "age": 48,
+   "nationality": "Japanese",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square corporate medical headshot_ head-and-shoulders portrait of a Kor.png": {
+   "name": "Hye-jin Lim",
+   "age": 38,
+   "nationality": "Korean",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square corporate medical headshot_ head-and-shoulders portrait of a Leb.png": {
+   "name": "Nadine Khalil",
+   "age": 38,
+   "nationality": "Lebanese",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square corporate medical headshot_ head-and-shoulders portrait of a Nig.png": {
+   "name": "Folake Okafor",
+   "age": 44,
+   "nationality": "Nigerian",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square corporate medical headshot_ head-and-shoulders portrait of a Rus.png": {
+   "name": "Mikhail Sokolov",
+   "age": 60,
+   "nationality": "Russian",
+   "gender": "male"
+  },
+  "Agent Image - Photorealistic square corporate medical headshot_ head-and-shoulders portrait of a Swe.png": {
+   "name": "Ingrid Lindqvist",
+   "age": 52,
+   "nationality": "Swedish",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square corporate medical headshot_ head-and-shoulders portrait of an In.png": {
+   "name": "Meera Pillai",
+   "age": 40,
+   "nationality": "Indian",
+   "gender": "female"
+  }
+ },
+ "Fitness Trainer": {
+  "Agent Image - Photorealistic square sports-editorial portrait_ waist-up_ of a Kenyan woman fitness t.png": {
+   "name": "Faith Wanjiru",
+   "age": 32,
+   "nationality": "Kenyan",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square sports-editorial portrait_ waist-up_ of a Polish woman fitness t.png": {
+   "name": "Natalia Kowalczyk",
+   "age": 30,
+   "nationality": "Polish",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square sports-editorial portrait_ waist-up_ of a Spanish woman fitness.png": {
+   "name": "Lucia Moreno",
+   "age": 32,
+   "nationality": "Spanish",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square sports-lifestyle portrait_ chest-up_ of a Colombian man fitness.png": {
+   "name": "Andres Cardenas",
+   "age": 36,
+   "nationality": "Colombian",
+   "gender": "male"
+  },
+  "Agent Image - Photorealistic square sports-lifestyle portrait_ chest-up_ of a Jamaican woman fitness.png": {
+   "name": "Tanesha Brown",
+   "age": 34,
+   "nationality": "Jamaican",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square sports-lifestyle portrait_ chest-up_ of a Korean woman fitness t.png": {
+   "name": "Ha-eun Seo",
+   "age": 33,
+   "nationality": "Korean",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square sports-lifestyle portrait_ chest-up_ of a Samoan man fitness tra.png": {
+   "name": "Tavita Leiataua",
+   "age": 36,
+   "nationality": "Samoan",
+   "gender": "male"
+  },
+  "Agent Image - Photorealistic square sports-lifestyle portrait_ chest-up_ of an Australian woman fitn.png": {
+   "name": "Brooke Taylor",
+   "age": 35,
+   "nationality": "Australian",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square sports-lifestyle portrait_ chest-up_ of an Ethiopian man fitness.png": {
+   "name": "Yonas Tesfaye",
+   "age": 38,
+   "nationality": "Ethiopian",
+   "gender": "male"
+  },
+  "Agent Image - Photorealistic square sports-lifestyle portrait_ chest-up_ of an Italian man fitness t.png": {
+   "name": "Marco Ferraro",
+   "age": 42,
+   "nationality": "Italian",
+   "gender": "male"
+  }
+ },
+ "Massage Therapist": {
+  "Agent Image - Photorealistic square cinematic lifestyle portrait_ tight head-and-shoulders_ of a Bra.png": {
+   "name": "Felipe Rocha",
+   "age": 38,
+   "nationality": "Brazilian",
+   "gender": "male"
+  },
+  "Agent Image - Photorealistic square cinematic lifestyle portrait_ tight head-and-shoulders_ of a Gha.png": {
+   "name": "Abena Asante",
+   "age": 42,
+   "nationality": "Ghanaian",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square cinematic lifestyle portrait_ tight head-and-shoulders_ of a Gre.png": {
+   "name": "Eleni Georgiou",
+   "age": 45,
+   "nationality": "Greek",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square cinematic lifestyle portrait_ tight head-and-shoulders_ of a Jap.png": {
+   "name": "Takeshi Mori",
+   "age": 45,
+   "nationality": "Japanese",
+   "gender": "male"
+  },
+  "Agent Image - Photorealistic square cinematic lifestyle portrait_ tight head-and-shoulders_ of a Ken.png": {
+   "name": "Daniel Otieno",
+   "age": 36,
+   "nationality": "Kenyan",
+   "gender": "male"
+  },
+  "Agent Image - Photorealistic square cinematic lifestyle portrait_ tight head-and-shoulders_ of a Per.png": {
+   "name": "Rosa Quispe",
+   "age": 40,
+   "nationality": "Peruvian",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square cinematic lifestyle portrait_ tight head-and-shoulders_ of a Swe.png": {
+   "name": "Annika Berg",
+   "age": 44,
+   "nationality": "Swedish",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square cinematic lifestyle portrait_ tight head-and-shoulders_ of a Tha.png": {
+   "name": "Siriporn Chaiyaporn",
+   "age": 36,
+   "nationality": "Thai",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square cinematic lifestyle portrait_ tight head-and-shoulders_ of an In.png": {
+   "name": "Lakshmi Iyer",
+   "age": 40,
+   "nationality": "Indian",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square cinematic lifestyle portrait_ tight head-and-shoulders_ of an It.png": {
+   "name": "Paolo Greco",
+   "age": 50,
+   "nationality": "Italian",
+   "gender": "male"
+  }
+ },
+ "Medical Specialist": {
+  "Agent Image - Photorealistic square corporate medical headshot_ head-and-shoulders portrait of a Gre.png": {
+   "name": "Dimitris Antoniou",
+   "age": 50,
+   "nationality": "Greek",
+   "gender": "male"
+  },
+  "Agent Image - Photorealistic square corporate medical headshot_ head-and-shoulders portrait of a Mor.png": {
+   "name": "Samira Benali",
+   "age": 38,
+   "nationality": "Moroccan",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square corporate medical headshot_ head-and-shoulders portrait of a Nig.png": {
+   "name": "Emeka Nwosu",
+   "age": 58,
+   "nationality": "Nigerian",
+   "gender": "male"
+  },
+  "Agent Image - Photorealistic square corporate medical headshot_ head-and-shoulders portrait of a Per.png": {
+   "name": "Carmen Huaman",
+   "age": 52,
+   "nationality": "Peruvian",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square corporate medical headshot_ head-and-shoulders portrait of a Sco.png": {
+   "name": "Fiona MacLeod",
+   "age": 55,
+   "nationality": "Scottish",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square corporate medical headshot_ head-and-shoulders portrait of a Tha.png": {
+   "name": "Somchai Srisuk",
+   "age": 42,
+   "nationality": "Thai",
+   "gender": "male"
+  },
+  "Agent Image - Photorealistic square corporate medical headshot_ head-and-shoulders portrait of a Ukr.png": {
+   "name": "Olena Kovalenko",
+   "age": 38,
+   "nationality": "Ukrainian",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square corporate medical headshot_ head-and-shoulders portrait of a Vie.png": {
+   "name": "Lan Nguyen",
+   "age": 42,
+   "nationality": "Vietnamese",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square corporate medical headshot_ head-and-shoulders portrait of an Ar.png": {
+   "name": "Matias Fernandez",
+   "age": 38,
+   "nationality": "Argentine",
+   "gender": "male"
+  },
+  "Agent Image - Photorealistic square corporate medical headshot_ head-and-shoulders portrait of an Et.png": {
+   "name": "Almaz Haile",
+   "age": 55,
+   "nationality": "Ethiopian",
+   "gender": "female"
+  }
+ },
+ "Sports Scientist": {
+  "Agent Image - Photorealistic square corporate headshot_ chest-up portrait of a Chinese man sports sc.png": {
+   "name": "Zhou Ming",
+   "age": 38,
+   "nationality": "Chinese",
+   "gender": "male"
+  },
+  "Agent Image - Photorealistic square corporate headshot_ chest-up portrait of a Ghanaian man sports s.png": {
+   "name": "Kofi Owusu",
+   "age": 42,
+   "nationality": "Ghanaian",
+   "gender": "male"
+  },
+  "Agent Image - Photorealistic square corporate headshot_ chest-up portrait of a Japanese woman sports.png": {
+   "name": "Haruka Sato",
+   "age": 32,
+   "nationality": "Japanese",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square corporate headshot_ chest-up portrait of a Korean woman sports s.png": {
+   "name": "Ji-woo Han",
+   "age": 28,
+   "nationality": "Korean",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square corporate headshot_ chest-up portrait of a Lebanese man sports s.png": {
+   "name": "Fadi Nassar",
+   "age": 36,
+   "nationality": "Lebanese",
+   "gender": "male"
+  },
+  "Agent Image - Photorealistic square corporate headshot_ chest-up portrait of a Nigerian woman sports.png": {
+   "name": "Chiamaka Eze",
+   "age": 32,
+   "nationality": "Nigerian",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square corporate headshot_ chest-up portrait of a Norwegian man sports.png": {
+   "name": "Erik Halvorsen",
+   "age": 45,
+   "nationality": "Norwegian",
+   "gender": "male"
+  },
+  "Agent Image - Photorealistic square corporate headshot_ chest-up portrait of a Swedish woman sports.png": {
+   "name": "Maja Nilsson",
+   "age": 38,
+   "nationality": "Swedish",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square corporate headshot_ chest-up portrait of a Turkish woman sports.png": {
+   "name": "Elif Kaya",
+   "age": 34,
+   "nationality": "Turkish",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square corporate headshot_ chest-up portrait of an Indian woman sports.png": {
+   "name": "Ananya Sharma",
+   "age": 30,
+   "nationality": "Indian",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square corporate headshot_ chest-up portrait of an Indonesian man sport.png": {
+   "name": "Rizky Pratama",
+   "age": 32,
+   "nationality": "Indonesian",
+   "gender": "male"
+  }
+ },
+ "Strength Coach": {
+  "Agent Image - Photorealistic square cinematic editorial portrait_ tight head-and-shoulders_ of a Bra.png": {
+   "name": "Fernanda Duarte",
+   "age": 36,
+   "nationality": "Brazilian",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square cinematic editorial portrait_ tight head-and-shoulders_ of a Fin.png": {
+   "name": "Hanna Virtanen",
+   "age": 40,
+   "nationality": "Finnish",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square cinematic editorial portrait_ tight head-and-shoulders_ of a Jam.png": {
+   "name": "Andre Williams",
+   "age": 38,
+   "nationality": "Jamaican",
+   "gender": "male"
+  },
+  "Agent Image - Photorealistic square cinematic editorial portrait_ tight head-and-shoulders_ of a Jap.png": {
+   "name": "Mei Kobayashi",
+   "age": 32,
+   "nationality": "Japanese",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square cinematic editorial portrait_ tight head-and-shoulders_ of a Kor.png": {
+   "name": "Joon-ho Bae",
+   "age": 32,
+   "nationality": "Korean",
+   "gender": "male"
+  },
+  "Agent Image - Photorealistic square cinematic editorial portrait_ tight head-and-shoulders_ of a Mex.png": {
+   "name": "Veronica Salazar",
+   "age": 38,
+   "nationality": "Mexican",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square cinematic editorial portrait_ tight head-and-shoulders_ of a Nig.png": {
+   "name": "Amaka Obi",
+   "age": 35,
+   "nationality": "Nigerian",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square cinematic editorial portrait_ tight head-and-shoulders_ of a Rus.png": {
+   "name": "Dmitri Volkov",
+   "age": 46,
+   "nationality": "Russian",
+   "gender": "male"
+  },
+  "Agent Image - Photorealistic square cinematic editorial portrait_ tight head-and-shoulders_ of a Sam.png": {
+   "name": "Seti Tuilagi",
+   "age": 42,
+   "nationality": "Samoan",
+   "gender": "male"
+  },
+  "Agent Image - Photorealistic square cinematic editorial portrait_ tight head-and-shoulders_ of an In.png": {
+   "name": "Priya Menon",
+   "age": 34,
+   "nationality": "Indian",
+   "gender": "female"
+  }
+ },
+ "Head Coach": {
+  "Agent Image - Photorealistic square head-and-shoulders portrait of a Brazilian man_ about 45_ shaved.png": {
+   "name": "Rodrigo Carvalho",
+   "age": 45,
+   "nationality": "Brazilian",
+   "gender": "male"
+  },
+  "Agent Image - Photorealistic square head-and-shoulders portrait of a Chinese woman_ about 42_ sleek.png": {
+   "name": "Wang Li",
+   "age": 42,
+   "nationality": "Chinese",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square head-and-shoulders portrait of a Cuban woman_ about 50_ short cu.png": {
+   "name": "Yamile Ortega",
+   "age": 50,
+   "nationality": "Cuban",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square head-and-shoulders portrait of a Dutch woman_ about 57_ short cr.png": {
+   "name": "Marieke de Vries",
+   "age": 57,
+   "nationality": "Dutch",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square head-and-shoulders portrait of a Filipina woman_ about 44_ mediu.png": {
+   "name": "Maricel Santos",
+   "age": 44,
+   "nationality": "Filipina",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square head-and-shoulders portrait of a Japanese man_ about 52_ short g.png": {
+   "name": "Hiroshi Tanaka",
+   "age": 52,
+   "nationality": "Japanese",
+   "gender": "male"
+  },
+  "Agent Image - Photorealistic square head-and-shoulders portrait of a Kenyan woman_ about 51_ closely.png": {
+   "name": "Grace Achieng",
+   "age": 51,
+   "nationality": "Kenyan",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square head-and-shoulders portrait of a Korean man_ about 38_ side-part.png": {
+   "name": "Min-ho Yoon",
+   "age": 38,
+   "nationality": "Korean",
+   "gender": "male"
+  },
+  "Agent Image - Photorealistic square head-and-shoulders portrait of a Mexican woman_ about 39_ long d.png": {
+   "name": "Gabriela Fuentes",
+   "age": 39,
+   "nationality": "Mexican",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square head-and-shoulders portrait of a Moroccan-French man_ about 34.png": {
+   "name": "Yassine Haddou",
+   "age": 34,
+   "nationality": "French",
+   "gender": "male"
+  },
+  "Agent Image - Photorealistic square head-and-shoulders portrait of a Nigerian man_ about 41_ close-c.png": {
+   "name": "Chinedu Okonkwo",
+   "age": 41,
+   "nationality": "Nigerian",
+   "gender": "male"
+  },
+  "Agent Image - Photorealistic square head-and-shoulders portrait of a Nigerian woman_ about 46_ short.png": {
+   "name": "Funmilayo Adebayo",
+   "age": 46,
+   "nationality": "Nigerian",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square head-and-shoulders portrait of a Polish man_ about 58_ thinning.png": {
+   "name": "Krzysztof Nowak",
+   "age": 58,
+   "nationality": "Polish",
+   "gender": "male"
+  },
+  "Agent Image - Photorealistic square head-and-shoulders portrait of a Samoan man_ about 47_ broad bui.png": {
+   "name": "Pita Leota",
+   "age": 47,
+   "nationality": "Samoan",
+   "gender": "male"
+  },
+  "Agent Image - Photorealistic square head-and-shoulders portrait of a Serbian woman_ about 53_ should.png": {
+   "name": "Jelena Markovic",
+   "age": 53,
+   "nationality": "Serbian",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square head-and-shoulders portrait of a Swedish man_ about 36_ short li.png": {
+   "name": "Johan Lindberg",
+   "age": 36,
+   "nationality": "Swedish",
+   "gender": "male"
+  },
+  "Agent Image - Photorealistic square head-and-shoulders portrait of a Thai woman_ about 37_ long stra.png": {
+   "name": "Kanya Suwannarat",
+   "age": 37,
+   "nationality": "Thai",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square head-and-shoulders portrait of a Turkish woman_ about 48_ dark w.png": {
+   "name": "Ayse Celik",
+   "age": 48,
+   "nationality": "Turkish",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square head-and-shoulders portrait of a Ukrainian woman_ about 45_ stra.png": {
+   "name": "Iryna Shevchenko",
+   "age": 45,
+   "nationality": "Ukrainian",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square head-and-shoulders portrait of an Argentine man_ about 55_ swept.png": {
+   "name": "Gustavo Romero",
+   "age": 55,
+   "nationality": "Argentine",
+   "gender": "male"
+  },
+  "Agent Image - Photorealistic square head-and-shoulders portrait of an Egyptian man_ about 49_ short.png": {
+   "name": "Ahmed Mansour",
+   "age": 49,
+   "nationality": "Egyptian",
+   "gender": "male"
+  },
+  "Agent Image - Photorealistic square head-and-shoulders portrait of an Indian man_ about 44_ medium b.png": {
+   "name": "Rajesh Kumar",
+   "age": 44,
+   "nationality": "Indian",
+   "gender": "male"
+  },
+  "Agent Image - Photorealistic square head-and-shoulders portrait of an Indian woman_ about 41_ long b.png": {
+   "name": "Anjali Desai",
+   "age": 41,
+   "nationality": "Indian",
+   "gender": "female"
+  },
+  "Agent Image - Photorealistic square head-and-shoulders portrait of an Iranian man_ about 50_ short d.png": {
+   "name": "Reza Ahmadi",
+   "age": 50,
+   "nationality": "Iranian",
+   "gender": "male"
+  },
+  "Agent Image - Photorealistic square head-and-shoulders portrait of an Italian woman_ about 55_ short.png": {
+   "name": "Giulia Conti",
+   "age": 55,
+   "nationality": "Italian",
+   "gender": "female"
+  }
+ }
+}
