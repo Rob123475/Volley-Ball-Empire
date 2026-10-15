@@ -213,7 +213,7 @@ Every packaging check passed:
 
 The package is 1,425 files and 622 MB, and the exe's version reads 1.1.0. Both fixes were found in the packaged server (`minBaseWeeks`, `firstChoice`) and the new Rules line in the packaged frontend. No other folder under `C:\build` was written.
 
-## The proof (`scripts/webgl-proof/package-proof.mjs`, screenshots in `C:\build\vbe-1.1.0\proof\`)
+## The proof (`scripts/webgl-proof/package-proof.mjs`, screenshots now in `C:\build\vbe-1.1.0\proof-0cde84d9\`)
 
 The real packaged exe ran on a throwaway profile (`%TEMP%\vbe-1.1.0-proof-AVYY6H`), and the first screen was "No profiles yet". It went through:
 - a new profile and career;
