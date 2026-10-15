@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { afterSquadChange } from "../utils/injuredList.js";
-import { PROMOTION_MIN_AGE } from "../utils/squadRules.js";
+import { PROMOTION_MIN_AGE } from "@workspace/db";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { loadPlayers, loadPlayer, updatePlayerState, updatePlayerReference, createCareerPlayer, requireCareerSaveId, type PlayerDTO, type CareerPlayerFields, loadStaff, careerSaveIdForTeamOrThrow, withCareerStateTx } from "../lib/playerDto.js";
 import { materializeAiSeniorsTx } from "../utils/aiSquads.js";

@@ -121,10 +121,14 @@ try {
     `${coaching.length} coaches, ${medical.length} medical, on ${today()}`);
   check("no AI club has more than one coach or more than one medical member",
     [...per.values()].every((l) => l.filter((s) => COACHING.includes(s.role)).length <= 1 && l.filter((s) => MEDICAL.includes(s.role)).length <= 1));
-  const spareCoach = COACHING.reduce((t, r) => t + Math.max(0, 10 - FLOOR - q(`SELECT COUNT(*) n FROM career_staff_state s JOIN staff st ON st.id = s.staff_id WHERE s.career_save_id = ? AND s.team_id IS NOT NULL AND st.role = ?`, cid, r)[0].n), 0);
+  // Night 2: each role's own number in this career (Rob's portraits made 10 into 20-35), not a fixed 10.
+  const ofRole = (r) => q(`SELECT COUNT(*) n FROM career_staff_state s JOIN staff st ON st.id = s.staff_id WHERE s.career_save_id = ? AND st.role = ?`, cid, r)[0].n;
+  const mineOfRole = (r) => q(`SELECT COUNT(*) n FROM career_staff_state s JOIN staff st ON st.id = s.staff_id WHERE s.career_save_id = ? AND s.team_id IS NOT NULL AND st.role = ?`, cid, r)[0].n;
+  const spareCoach = COACHING.reduce((t, r) => t + Math.max(0, ofRole(r) - FLOOR - mineOfRole(r)), 0);
   check("every spare coach went to a club (Head and Assistant down to 5 each, or every club has one)",
     coaching.length === Math.min(clubs.length, spareCoach), `${coaching.length} dealt of ${spareCoach} spare, ${clubs.length} clubs`);
-  check("medical likewise", medical.length === Math.min(clubs.length, MEDICAL.length * (10 - FLOOR)), `${medical.length} dealt`);
+  const spareMed = MEDICAL.reduce((t, r) => t + Math.max(0, ofRole(r) - FLOOR - mineOfRole(r)), 0);
+  check("medical likewise", medical.length === Math.min(clubs.length, spareMed), `${medical.length} dealt of ${spareMed} spare`);
 
   // ── 2. The market keeps 5 of every role ────────────────────────────────────
   console.log("\n2. AT LEAST 5 OF EVERY ROLE STAY ON THE MARKET");
@@ -160,8 +164,12 @@ try {
   const bal1 = balances();
   const back = q(`SELECT team_id AS t, pool_team_id AS p, salary FROM career_staff_state WHERE career_save_id = ? AND staff_id = ?`, cid, leaving.id)[0];
   const medAfter = aiStaff().filter((s) => MEDICAL.includes(s.role));
-  const gained = medAfter.filter((s) => !medBefore.some((b) => b.id === s.id && b.club === s.club));
-  check("her contract ended: she left her club with her wage as it was", back.p !== leaving.club && back.salary === leaving.salary, `now at pool club ${back.p}, wage ${back.salary}`);
+  // Night 2: with Rob's portraits the market holds 10-30 of each medical role, so the club she left
+  // (the one club with a gap) may sign her straight back on a new contract the same day.
+  const startedToday = q(`SELECT contract_start_date AS d FROM career_staff_state WHERE career_save_id = ? AND staff_id = ?`, cid, leaving.id)[0]?.d === today();
+  check("her contract ended: she left her club with her wage as it was (or the club with the gap signed her again, on a new contract today)",
+    back.salary === leaving.salary && (back.p !== leaving.club || startedToday), `now at pool club ${back.p}, wage ${back.salary}${startedToday ? ", new contract today" : ""}`);
+  const gained = medAfter.filter((s) => !medBefore.some((b) => b.id === s.id && b.club === s.club) || (s.id === leaving.id && startedToday));
   check("the gap she left on the market was filled by one club with no medical member (one at a time)",
     medAfter.length === medBefore.length && gained.length === 1 && medBefore.filter((b) => b.club === gained[0].club && b.id !== leaving.id).length === 0,
     `${gained.length} gained, ${medAfter.length} medical at AI clubs`);

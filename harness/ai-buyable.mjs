@@ -68,12 +68,14 @@ const q = (sql, ...a) => { const d = new DatabaseSync(DB, { readOnly: true }); t
 const w = (sql, ...a) => { const d = new DatabaseSync(DB); try { return d.prepare(sql).run(...a); } finally { d.close(); } };
 
 /** Every AI club's squad size in the career, from the tables (the suite's own reading). */
-function squadSizes(cid) {
+function squadSizes(cid, includeListed = false) {
   const sizes = new Map(q(`SELECT pool_team_id AS id FROM career_pool_team_state WHERE career_save_id = ? AND taken_over_at IS NULL`, cid).map((r) => [r.id, 0]));
   for (const r of q(`SELECT ppc.pool_team_id AS id, COUNT(*) AS n FROM pool_player_contracts ppc WHERE ppc.career_save_id = ? AND ppc.status = 'active' GROUP BY ppc.pool_team_id`, cid)) sizes.set(r.id, (sizes.get(r.id) ?? 0) + r.n);
   for (const r of q(`SELECT cps.pool_team_id AS id, COUNT(*) AS n FROM career_player_state cps JOIN players p ON p.id = cps.player_id
       WHERE cps.career_save_id = ? AND cps.pool_team_id IS NOT NULL AND cps.team_id IS NULL AND cps.is_retired = 0
-        AND (p.player_type = 'senior' OR cps.is_promoted = 1) GROUP BY cps.pool_team_id`, cid)) sizes.set(r.id, (sizes.get(r.id) ?? 0) + r.n);
+        AND (? OR cps.on_injured_list = 0)
+        AND (p.player_type = 'senior' OR cps.is_promoted = 1) GROUP BY cps.pool_team_id`, cid, includeListed ? 1 : 0)) sizes.set(r.id, (sizes.get(r.id) ?? 0) + r.n);
+  // Night 2 (O-10): a senior on the injured list doesn't hold a place (her cover does), so she isn't counted.
   return sizes;
 }
 const balanceOf = (cid, poolTeamId) => Number(q(`SELECT balance AS b FROM career_pool_team_state WHERE career_save_id = ? AND pool_team_id = ?`, cid, poolTeamId)[0]?.b);
@@ -179,15 +181,26 @@ try {
   const perWeek = new Map(), timesMoved = new Map();
   let minSize = 99, maxSize = 0, last = start;
   for (let i = 0; i < 70; i++) {
+    // Night 2 (O-10): a club with a fit senior still on its injured list releases its weakest that day
+    // to make room, and another club may sign her the same day: a release, not a transfer.
+    const releasing = new Set(q(`SELECT pool_team_id AS c FROM career_player_state WHERE career_save_id = ? AND on_injured_list = 1 AND injury_status = 'Healthy' AND pool_team_id IS NOT NULL`, cid).map((r) => r.c));
+    // Longer injuries (night 2) mean more seniors out 4+ weeks at renewal, released (4c) and maybe
+    // signed by another club the same day: her contract had run out, so that is not a transfer either.
+    const endsBefore = new Map(q(`SELECT player_id AS id, contract_end_date AS e FROM career_player_state WHERE career_save_id = ? AND pool_team_id IS NOT NULL`, cid).map((r) => [r.id, r.e]));
     await day();
+    const todayNow = q(`SELECT "current_date" AS d FROM calendar_state WHERE team_id = ?`, team.id)[0]?.d;
     const now = clubOf();
-    // A move is from one AI club to another (not a free agent signed to refill).
-    const changed = [...now].filter(([id, c]) => last.get(id) != null && last.get(id) !== c);
+    // A move is from one AI club to another (not a free agent signed to refill, nor a release picked up the same day).
+    const changed = [...now].filter(([id, c]) => last.get(id) != null && last.get(id) !== c && !releasing.has(last.get(id))
+      && !(endsBefore.get(id) != null && endsBefore.get(id) <= todayNow));
     for (const [id] of changed) timesMoved.set(id, (timesMoved.get(id) ?? 0) + 1);
     const movedNow = changed.length;
     const tick = q(`SELECT last_salary_date AS t FROM calendar_state WHERE team_id = ?`, team.id)[0]?.t;
     perWeek.set(tick, (perWeek.get(tick) ?? 0) + movedNow);
-    for (const n of squadSizes(cid).values()) { minSize = Math.min(minSize, n); maxSize = Math.max(maxSize, n); }
+    // Night 2 (O-10): "short of two" counts every senior on the books (one on the injured list included);
+    // "at most three" counts the seniors holding a place (not one on the list, whose cover holds hers).
+    for (const n of squadSizes(cid, true).values()) minSize = Math.min(minSize, n);
+    for (const n of squadSizes(cid).values()) maxSize = Math.max(maxSize, n);
     last = now;
   }
   const movedTotal = [...last].filter(([id, c]) => start.get(id) != null && start.get(id) !== c).length;
@@ -208,7 +221,7 @@ try {
     healAllSquads(DB);
     const r = await day();
     lastReply = r.data;
-    for (const n of squadSizes(cid).values()) shortest = Math.min(shortest, n);
+    for (const n of squadSizes(cid, true).values()) shortest = Math.min(shortest, n);   // night 2: listed seniors are still on the books
     if (r.data?.seasonRollover && r.data.seasonRollover.kind !== "none") rolled = true;
   }
   check("the season ran to the next one", rolled, `${steps} steps, ${year0} -> ${q(`SELECT year FROM seasons WHERE career_save_id = ? AND status = 'active'`, cid)[0]?.year}${rolled ? "" : `; last reply ${JSON.stringify(lastReply).slice(0, 200)}`}`);

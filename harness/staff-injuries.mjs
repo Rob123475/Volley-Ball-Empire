@@ -16,8 +16,8 @@
  *      ended in the run lasted exactly its cause's days.
  *   3. BONUSES     on a second career (the random roll off, absences planted):
  *      the Promotions Manager off: the week's sponsor income has no bonus;
- *      back: it has it again. The physio off: an injured player heals one week
- *      a week; on duty (skill 250, so her extra week always comes): two. The
+ *      back: it has it again. The physio off: her injuries are treated without her;
+ *      on duty again, at her factor, live (night 2: the healer chance is gone). The
  *      Scout off: no player scouting, in words; back: scouting works.
  *   4. NEWS        Club News says when each went off and when they came back;
  *      the Staff and Medical lists carry what the badge shows.
@@ -249,18 +249,27 @@ try {
   check("the Promotions Manager off: that week's sponsor income carries no bonus",
     !!offWeek && !/Promotions Manager bonus/.test(offWeek.description), offWeek?.description);
   check("the physio off: the injured player heals only the week itself (no extra week)",
-    before - afterOffWeek === 1, `${before} -> ${afterOffWeek} weeks`);
+    Math.abs(before - afterOffWeek - 1) < 0.02, `${before} -> ${afterOffWeek} weeks`);
+  // Night 2 (O-7): no healer chance any more; the physio treats injuries, and the injured
+  // player's time out follows the club's treatment factor live (utils/injuries.ts).
+  const baseOf = (id) => qb(`SELECT injury_base_weeks_left AS b FROM career_player_state WHERE career_save_id = ? AND player_id = ?`, car.cid, id)[0].b;
+  const fxOff = (await api("GET", "/staff/effects")).data?.treatment?.physioInjuries;
+  check("the physio off: her injuries are treated without her (x1 with a doctor, x2 with nobody), and the injured player's time follows that",
+    (fxOff === 1 || fxOff === 2) && Math.abs(afterOffWeek - baseOf(hurt) * fxOff) < 0.02, `x${fxOff}: ${afterOffWeek} weeks = ${baseOf(hurt)} base x ${fxOff}`);
   // Play on until they are back.
   for (let d = 0; d < 12 && (qb(`SELECT off_days_left AS n FROM career_staff_state WHERE career_save_id = ? AND staff_id = ?`, car.cid, promo.id)[0].n > 0); d++) await day(B, car.team.id);
   const back = qb(`SELECT staff_id AS id, off_days_left AS n, off_cause AS c FROM career_staff_state WHERE career_save_id = ? AND staff_id IN (?, ?, ?)`, car.cid, promo.id, physio.id, scout.id);
   check("after their days they are back on duty", back.every((b) => b.n === 0 && b.c == null), back.map((b) => `${b.id}: ${b.n}`).join(", "));
-  wb(`UPDATE career_player_state SET injury_status = 'Major Injury', injury_weeks_remaining = 4, is_injured = 1 WHERE career_save_id = ? AND player_id = ?`, car.cid, hurt);
+  wb(`UPDATE career_player_state SET injury_status = 'Major Injury', injury_weeks_remaining = 4, injury_base_weeks_left = 0, is_injured = 1 WHERE career_save_id = ? AND player_id = ?`, car.cid, hurt);
   const onWeek = await sponsorWeek();
-  const afterOnWeek = weeksLeft(hurt);
   check("the Promotions Manager back: the sponsor income carries the bonus again",
     !!onWeek && /Promotions Manager bonus/.test(onWeek.description), onWeek?.description);
-  check("the physio back (skill 250, so her extra week always comes): the injured player heals two weeks in one",
-    4 - afterOnWeek === 2, `4 -> ${afterOnWeek} weeks`);
+  // Night 2 (O-7): back on duty (skill 250: her full effect, as at 95), her injuries are treated at
+  // her factor (x0.6 alone, x0.4 with a doctor), and the injured player's time out follows it live.
+  const fxOn = (await api("GET", "/staff/effects")).data?.treatment?.physioInjuries;
+  check("the physio back: her injuries are treated at her full factor again (x0.6, or x0.4 with a doctor), and the injured player's time follows it",
+    (Math.abs(fxOn - 0.6) < 1e-9 || Math.abs(fxOn - 0.4) < 1e-9) && fxOn < fxOff && Math.abs(weeksLeft(hurt) - baseOf(hurt) * fxOn) < 0.02,
+    `x${fxOn}: ${weeksLeft(hurt)} weeks = ${baseOf(hurt)} base x ${fxOn}`);
   const scoutAgain = await api("POST", `/players/${qb(`SELECT player_id AS id FROM career_player_state WHERE career_save_id = ? AND team_id IS NULL AND scout_started_on IS NULL LIMIT 1`, car.cid)[0].id}/scout`, {});
   check("the Scout back: player scouting works again", scoutAgain.status === 200, `HTTP ${scoutAgain.status} ${scoutAgain.data?.error ?? ""}`);
 

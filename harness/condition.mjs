@@ -195,9 +195,13 @@ try {
   check("the established starting squad: two starters and an interchange", starters.length === 2 && !!inter,
     squad0.map((r) => `${r.name} (${r.role})`).join(", "));
   const [A, B] = starters, C = inter;
+  // Night 2 (O-10): a heal also takes her off the injured list (a serious injury rolled in a
+  // match here can put her on it), back as the interchange, and clears her base weeks.
   const setInjury = (id, status, weeks) => writeOne(
-    `UPDATE career_player_state SET injury_status = ?, is_injured = ?, injury_weeks_remaining = ? WHERE career_save_id = ? AND player_id = ?`,
-    status, status === "Healthy" ? 0 : 1, weeks, cid, id);
+    `UPDATE career_player_state SET injury_status = ?, is_injured = ?, injury_weeks_remaining = ?, injury_base_weeks_left = 0,
+      on_injured_list = CASE WHEN ? = 'Healthy' THEN 0 ELSE on_injured_list END, is_active = CASE WHEN ? = 'Healthy' AND squad_role = 'injured' THEN 1 ELSE is_active END,
+      squad_role = CASE WHEN ? = 'Healthy' AND squad_role = 'injured' THEN 'interchange' ELSE squad_role END WHERE career_save_id = ? AND player_id = ?`,
+    status, status === "Healthy" ? 0 : 1, weeks, status, status, status, cid, id);
   const setCondition = (id, fitness, fatigue) => writeOne(
     `UPDATE career_player_state SET fitness = ?, fatigue = ? WHERE career_save_id = ? AND player_id = ?`, fitness, fatigue, cid, id);
 

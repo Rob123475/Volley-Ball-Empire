@@ -61,13 +61,14 @@ console.log("=".repeat(72));
 console.log("\n0. THE STAFF DATA");
 {
   const d = new DatabaseSync(SHIPPED, { readOnly: true });
-  const all = d.prepare("SELECT name, role, base_salary FROM staff").all();
+  const all = d.prepare("SELECT id, name, role, base_salary FROM staff").all();
   const seeded = d.prepare(`SELECT base_salary FROM staff WHERE created_at IN (${SEED_BATCHES.join(",")})`).all();
   const coach = d.prepare("SELECT base_salary FROM staff WHERE name = ?").get(HEAD_COACH);
   d.close();
   const max = Math.max(...all.map((r) => r.base_salary));
   check("every staff salary in the starter DB is a monthly figure (none above $25,000)",
-    all.length === 120 && max <= 25000 && all.every((r) => r.base_salary > 0),
+    // Night 2: the 120 seeded staff and Rob's 123 portrait staff (ids from 10001, scripts/install-staff-portraits.cjs).
+    all.filter((r) => r.id < 10001).length === 120 && all.filter((r) => r.id >= 10001).length === 123 && max <= 25000 && all.every((r) => r.base_salary > 0),
     `${all.length} staff, $${Math.min(...all.map((r) => r.base_salary)).toLocaleString()}-$${max.toLocaleString()}; seeded ${seeded.length}`);
   check(`${HEAD_COACH}'s salary is her annual $${HEAD_COACH_ANNUAL.toLocaleString()} over 12`,
     coach?.base_salary === Math.round(HEAD_COACH_ANNUAL / 12), `$${coach?.base_salary}/month`);

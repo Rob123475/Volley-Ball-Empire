@@ -58,7 +58,7 @@ import { askingWage } from "./wageCurve.js";
 
 type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
-import { PROMOTION_MIN_AGE } from "./squadRules.js";
+import { PROMOTION_MIN_AGE } from "@workspace/db";
 import { seasonEndsForCareerTx } from "./seasonDates.js";
 
 /** Two on the sand: an AI club never goes below this (Rob, U-6), and needs this many fit to play. */

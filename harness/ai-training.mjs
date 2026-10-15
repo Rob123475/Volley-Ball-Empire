@@ -107,8 +107,24 @@ function staffOf(club) {
   const st = q(`SELECT st.role, st.skill_level AS skill FROM career_staff_state s JOIN staff st ON st.id = s.staff_id
     WHERE s.career_save_id = ? AND s.pool_team_id = ? AND s.off_days_left = 0`, cid, club);
   const best = (role) => st.filter((x) => x.role === role).reduce((m, x) => Math.max(m, x.skill), -1);
+  // Night 2 (O-6): every bonus is full at skill 95 (a 96 gives no more), and the pair of a Sports Scientist
+  // and a Nutritionist adds 5% (an AI club's deal takes neither, so it is 1 here).
+  const k = (skill) => (skill >= 0 ? Math.min(1, Math.max(0, (skill - 50) / 45)) : 0);
   const h = best("Head Coach"), a = best("Assistant Coach");
-  return (h >= 0 ? 1 + Math.max(0, h - 50) * (0.15 / 45) : 1) * (a >= 0 ? 1 + Math.max(0, a - 50) * (0.08 / 45) : 1);
+  const pair = best("Sports Scientist") >= 0 && best("Nutritionist") >= 0 ? 1.05 : 1;
+  return (1 + k(h) * 0.15) * (1 + k(a) * 0.08) * pair;
+}
+/** utils/trainingXp.ts: a player aged 14-18 trains 20% faster; since promotion at 16 (night 2, O-10) AI clubs field such seniors as cover. */
+const youthAge = (p) => (p.age >= 14 && p.age <= 18 ? 1.2 : 1);
+/** Night 2 (O-6): the strength coach (power, block) and nutritionist (stamina) on their programmes' XP. */
+function statStaffOf(club, stat) {
+  const st = q(`SELECT st.role, st.skill_level AS skill FROM career_staff_state s JOIN staff st ON st.id = s.staff_id
+    WHERE s.career_save_id = ? AND s.pool_team_id = ? AND s.off_days_left = 0`, cid, club);
+  const best = (role) => st.filter((x) => x.role === role).reduce((m, x) => Math.max(m, x.skill), -1);
+  const k = (skill) => (skill >= 0 ? Math.min(1, Math.max(0, (skill - 50) / 45)) : 0);
+  if (stat === "power" || stat === "block") return 1 + k(best("Strength Coach")) * 0.10;
+  if (stat === "stamina") return 1 + k(best("Nutritionist")) * 0.10;
+  return 1;
 }
 const specialityOf = (faceId) => MANIFEST.faces.find((f) => f.id === faceId)?.speciality ?? null;
 
@@ -164,7 +180,8 @@ try {
   const trainingSrc = SRC("routes/training.ts");
   check("(source) applyFatigueAndStats calls the shared rule and has no XP formula of its own; the AI clubs call the same function",
     /trainingSessionXp\(player, programName, \{/.test(trainingSrc) && !/POINTS_PER_SESSION|PRIMARY_THRESHOLD|SECONDARY_THRESHOLD/.test(trainingSrc)
-      && /trainingSessionXp\(s, aiProgrammeFor\(s\), \{ manager: coach\.get\(club\), staff: staff\.get\(club\) \}\)/.test(SRC("utils/aiSquads.ts")));
+      // Night 2 (O-6): the staff bonus and the per-stat bonus (strength coach, nutritionist) both reach it.
+      && SRC("utils/aiSquads.ts").includes("trainingSessionXp(s, aiProgrammeFor(s), { manager: coach.get(club), staff: bonus.xpMultiplier, statStaff: bonus.statXp })"));
   const seniorRow = q(`SELECT s.player_id AS id, s.age, s.training_points AS tp, p.potential, s.power, s.block, p.development AS devJson, s.serious_injuries AS serious
     FROM career_player_state s JOIN players p ON p.id = s.player_id
     WHERE s.career_save_id = ? AND s.team_id = ? AND p.player_type = 'senior' ORDER BY s.player_id LIMIT 1`, cid, teamId)[0];
@@ -204,7 +221,7 @@ try {
   const fits = (a, b, before) => {
     const prog = PROGRAMMES[aiProgrammeFor(before)];
     const moved = STATS.filter((k) => b[k] !== before[k]);
-    const m = prog.xp * devFactor(before, prog.primary) * potentialMultiplier(a.potential) * coachOf(a.club) * staffOf(a.club);
+    const m = prog.xp * devFactor(before, prog.primary) * potentialMultiplier(a.potential) * coachOf(a.club) * staffOf(a.club) * statStaffOf(a.club, prog.primary) * youthAge(a);
     const gain = b.tp - a.tp;
     return moved.every((k) => k === prog.primary || k === prog.secondary) && gain >= Math.round(25 * m) && gain <= Math.round(35 * m);
   };
@@ -231,15 +248,31 @@ try {
     const sb = aiSeniors(cid), yb = aiYouths(cid);
     await toNextWeek();
     const sa = aiSeniors(cid), ya = aiYouths(cid);
-    const seniors = [...sb.keys()].filter((id) => sa.has(id) && sa.get(id).club === sb.get(id).club && managed.has(sb.get(id).club)).map((id) => ({ b: sb.get(id), gain: sa.get(id).tp - sb.get(id).tp }));
-    const youths = [...yb.keys()].filter((id) => ya.has(id) && ya.get(id).club === yb.get(id).club && managed.has(yb.get(id).club)).map((id) => ({ b: yb.get(id), gain: ya.get(id).tp - yb.get(id).tp }));
+    // Night 2: injuries are longer (O-7), so more are serious; one taken in the week before her session
+    // (-5% XP and -1 speed and stamina, which can change her programme) is not this check's reading.
+    const seniors = [...sb.keys()].filter((id) => sa.has(id) && sa.get(id).club === sb.get(id).club && managed.has(sb.get(id).club)
+      && sa.get(id).serious === sb.get(id).serious).map((id) => ({ b: sb.get(id), gain: sa.get(id).tp - sb.get(id).tp }));
+    // Night 2 (O-10): an AI club may promote an academy youth as injured-list cover in the week, and
+    // the academy's places shift (a reserve onto the youth team, so her court time changes): the
+    // youths of a club whose academy changed that week are not this check's reading.
+    const changedAcademy = new Set([...yb.values()].filter((y) => !ya.has(y.id) || ya.get(y.id).role !== y.role || ya.get(y.id).club !== y.club).map((y) => y.club));
+    const youths = [...yb.keys()].filter((id) => ya.has(id) && ya.get(id).club === yb.get(id).club && managed.has(yb.get(id).club)
+      && !changedAcademy.has(yb.get(id).club)).map((id) => ({ b: yb.get(id), gain: ya.get(id).tp - yb.get(id).tp }));
     return { seniors, youths };
   }
-  const inRange = (l, factor) => l.every(({ b, gain }) => {
-    const prog = PROGRAMMES[aiProgrammeFor(b)];
-    const m = prog.xp * devFactor(b, prog.primary) * potentialMultiplier(b.potential) * staffOf(b.club) * factor;
-    return gain >= Math.round(25 * m) && gain <= Math.round(35 * m);
-  });
+  const inRange = (l, factor) => {
+    const off = l.filter(({ b, gain }) => {
+      const prog = PROGRAMMES[aiProgrammeFor(b)];
+      const m = prog.xp * devFactor(b, prog.primary) * potentialMultiplier(b.potential) * staffOf(b.club) * statStaffOf(b.club, prog.primary) * youthAge(b) * factor;
+      return !(gain >= Math.round(25 * m) && gain <= Math.round(35 * m));
+    });
+    for (const { b, gain } of off.slice(0, 3)) {
+      const prog = PROGRAMMES[aiProgrammeFor(b)];
+      const m = prog.xp * devFactor(b, prog.primary) * potentialMultiplier(b.potential) * staffOf(b.club) * statStaffOf(b.club, prog.primary) * youthAge(b) * factor;
+      info(`out of range: player ${b.id} club ${b.club} gained ${gain}, the range ${Math.round(25 * m)}-${Math.round(35 * m)} (staff x${staffOf(b.club).toFixed(4)}, x${factor})`);
+    }
+    return off.length === 0;
+  };
   const academyExact = (l, factor) => l.every(({ b, gain }) => {
     const share = b.role === "reserve" ? RESERVE_COURT_SHARE : 1;
     const rating = Math.round((b.power + b.speed + b.defense + b.serve + b.block) / 5);
@@ -253,7 +286,7 @@ try {
   const byId = (l) => new Map(l.map((x) => [x.b.id, x]));
   const c = byId(wCoach.seniors), n = byId(wNeg.seniors);
   const common = [...c.keys()].filter((id) => n.has(id));
-  const norm = (x) => x.gain / (PROGRAMMES[aiProgrammeFor(x.b)].xp * devFactor(x.b, PROGRAMMES[aiProgrammeFor(x.b)].primary) * potentialMultiplier(x.b.potential) * staffOf(x.b.club));
+  const norm = (x) => x.gain / (PROGRAMMES[aiProgrammeFor(x.b)].xp * devFactor(x.b, PROGRAMMES[aiProgrammeFor(x.b)].primary) * potentialMultiplier(x.b.potential) * staffOf(x.b.club) * statStaffOf(x.b.club, PROGRAMMES[aiProgrammeFor(x.b)].primary) * youthAge(x.b));
   const ratio = mean(common.map((id) => norm(c.get(id)))) / mean(common.map((id) => norm(n.get(id))));
   check("Coach: every AI senior's XP is in the range for x1.1; the same seniors gain about 10% more than under a Negotiator",
     inRange(wCoach.seniors, 1.1) && common.length > 100 && ratio > 1.05 && ratio < 1.15, `x${ratio.toFixed(3)} over ${common.length} seniors`);

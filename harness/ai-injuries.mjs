@@ -87,7 +87,8 @@ async function toNextWeek() {
 }
 /** Every AI club's seniors (career players; by now every pool player is one). */
 const aiSeniors = () => q(`SELECT s.player_id AS id, s.pool_team_id AS club, s.salary, s.contract_end_date AS ends, s.pool_joined_on AS joined,
-    s.is_injured AS inj, s.injury_status AS status, s.injury_weeks_remaining AS weeks,
+    s.is_injured AS inj, s.injury_status AS status, s.injury_weeks_remaining AS weeks, s.injury_base_weeks_left AS base,
+    (p.player_type = 'youth' AND s.is_promoted = 1) AS promotedYouth,
     s.speed, s.power, s.defense, s.serve, s.block, s.stamina
   FROM career_player_state s JOIN players p ON p.id = s.player_id
   WHERE s.career_save_id = ? AND s.pool_team_id IS NOT NULL AND s.team_id IS NULL AND s.is_retired = 0
@@ -163,7 +164,9 @@ try {
       const p = prev.get(s.id);
       if (!p) continue;
       if (injured(s) && (!injured(p) || s.weeks > p.weeks)) newInjuries++;
-      if (weekTicked && injured(p) && !xHurt.has(s.id)) { healChecks++; if (!injured(s) || s.weeks <= p.weeks - 1) healedSteps++; }
+      // Night 2 (O-7): her weeks out follow her club's medical staff live (a medic off ill puts them up),
+      // so the clock is her base weeks still to heal: each week it falls, or she is fit.
+      if (weekTicked && injured(p) && !xHurt.has(s.id)) { healChecks++; if (!injured(s) || s.base < p.base || (p.base === 0 && s.weeks < p.weeks)) healedSteps++; }
     }
     prev = new Map(now.map((s) => [s.id, s]));
   }
@@ -179,7 +182,7 @@ try {
     `${(rate * 100).toFixed(2)}% a player-match against ${(expected * 100).toFixed(2)}%`);
 
   console.log("\n3. INJURED AI PLAYERS HEAL ON THE WEEKLY CLOCK AND ARE NOT PICKED");
-  check("each week every injured AI player was a week (or more, with a medic) nearer fit", healChecks > 0 && healedSteps === healChecks, `${healedSteps} of ${healChecks}`);
+  check("each week every injured AI player was nearer fit (her base weeks still to heal fell, at her club's treatment factor)", healChecks > 0 && healedSteps === healChecks, `${healedSteps} of ${healChecks}`);
   const xResults = xClub == null ? [] : q(`SELECT r.id, r.home_sets AS hs, r.away_sets AS as_, f.home_pool_team_id AS home, f.away_pool_team_id AS away, f.round
     FROM regional_league_results r JOIN regional_league_fixtures f ON f.id = r.fixture_id
     WHERE r.career_save_id = ? AND (f.home_pool_team_id = ? OR f.away_pool_team_id = ?) ORDER BY f.round`, cid, xClub, xClub);
@@ -195,7 +198,8 @@ try {
   const aiSrc = SRC("utils/aiSquads.ts");
   check("(source) the AI roll is the player's roll, with the club's manager's Fitness Guru, and Fitness Guru counts for AI clubs",
     /const fitnessGuru = specialityFactor\(\{ careerSaveId, poolTeamId \}, "Fitness Guru"\);/.test(aiSrc)
-      && /matchInjuryRoll\(\{ stamina: m\.stamina, development: m\.development \}, \{ weatherMultiplier, fitnessGuru \}, random\)/.test(aiSrc)
+      // 15 Oct and night 2: the club's own staff factor (now its sports scientist) rides in the same roll.
+      && aiSrc.includes("matchInjuryRoll({ stamina: m.stamina, development: m.development }, { weatherMultiplier, fitnessGuru, staffFactor }, random)")
       && /AI_CLUB_SPECIALITIES: readonly Speciality\[\] = \[[^\]]*"Fitness Guru"/.test(SRC("utils/managerFaces.ts")));
 
   // ── 5. A long injury at renewal ────────────────────────────────────────────
@@ -210,8 +214,10 @@ try {
   const wage = monthlySalaryFor(overallRating(gone));   // her rating now (the week's AI training ran first)
   // Released, she may be signed at once by another AI club taking the injured gamble (4c-5), at her injured wage.
   const freeNow = gone.t == null && gone.p == null && gone.salary === wage;
-  const gambled = gone.t == null && gone.p != null && gone.p !== pick.club && gone.salary === Math.round(wage * 0.5);
-  check("her club did not renew her: she is a free agent on the wage for her rating, or another AI club took the gamble at half of it",
+  // The gamble (4c-5) may be taken by any AI club with room, her old club included (it released her,
+  // then its refill picked the best free agent it could fit: her, at half her wage).
+  const gambled = gone.t == null && gone.p != null && gone.salary === Math.round(wage * 0.5);
+  check("her club did not renew her: she is a free agent on the wage for her rating, or an AI club took the gamble at half of it",
     freeNow || gambled, `club ${gone.p} (was ${pick.club}), wage ${gone.salary} (rating wage ${wage})`);
   // The market's half wage, on a free agent hurt for 6 weeks.
   const hurtFa = freeAgents().find((f) => !injured(f));
@@ -256,8 +262,14 @@ try {
   console.log("\n8. NO AI CLUB THAT SIGNED ANYONE IS OVER THE CAP");
   const bills = new Map();
   for (const s of aiSeniors()) bills.set(s.club, [...(bills.get(s.club) ?? []), s]);
-  const overSigners = [...bills.entries()].filter(([, l]) => l.reduce((t, s) => t + s.salary, 0) > CAP && l.some((s) => s.joined != null));
-  check("every AI club that added a senior is under the cap", overSigners.length === 0, `${overSigners.length} over`);
+  // Night 2 (O-10): a promoted academy youth is never blocked by the cap (C-5), and an AI club now covers an
+  // injured-list place from its academy first; so only a club that SIGNED someone else must be under the cap.
+  // A club is over the cap by its own signings when its bill without the promoted youths is over it.
+  const overSigners = [...bills.entries()].filter(([, l]) => l.filter((s) => !s.promotedYouth).reduce((t, s) => t + s.salary, 0) > CAP && l.some((s) => s.joined != null && !s.promotedYouth));
+  const overByPromotion = [...bills.entries()].filter(([, l]) => l.reduce((t, s) => t + s.salary, 0) > CAP && l.some((s) => s.joined != null && s.promotedYouth)).length;
+  check("every AI club that signed a senior (not an academy promotion, C-5) is under the cap", overSigners.length === 0,
+    `${overSigners.length} over; ${overByPromotion} over through an academy promotion` + overSigners.slice(0, 3).map(([club, l]) =>
+      ` | club ${club}: $${l.reduce((t, s) => t + s.salary, 0)} (${l.map((s) => `${s.id}${s.joined ? ` joined ${s.joined}` : ""}${s.promotedYouth ? " promoted" : ""}${injured(s) ? " injured" : ""} $${s.salary}`).join(", ")})`).join(""));
 } catch (err) {
   failures++;
   console.log(`  FAIL  the suite threw: ${err?.stack ?? err}`);

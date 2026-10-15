@@ -186,3 +186,51 @@ list, cover and promotion at 16. The injury numbers come from the shared constan
 **A sanity run before any testing** (a test career, 70 days): 35 named injuries in the expected mix (cramp 14,
 sprained ankle 7, broken finger or toe 7, and so on), 8 players on injured lists, live base weeks, no server errors,
 and every new endpoint answering.
+
+### Part 7: tests and the full builds
+
+**Four new suites, in run-all (98o–98r), each passing alone before the build.** The shared helper is
+`harness/night2-world.mjs`; dev-only probes (`/dev/injuries/roll`, `/factor`, `/start`) exist only outside production.
+
+| Suite | What it proves | Alone |
+|---|---|---|
+| `injury-treatment` | the 9 injuries' shares over 100,000 of the game's rolls; a broken leg 40 / 20 / 14→12 / 10→8; older saves' injuries converted (same weeks, no history); live: a doctor hired mid-injury shrinks it at once, released it grows back, a week of rest at the factor; serious; history, Club News, card | 17/17 |
+| `reconstruction` | a third ankle injury in a year is an ankle reconstruction (30 base weeks, serious); 60 / 30 / 15 / 7.5; a specialist hired mid-reconstruction 60 → 15, with a physio 7.5; two ankle injuries over a year ago don't count; a third in a different area doesn't; the card says "Ankle: 3 in the last 12 months" | 13/13 |
+| `staff-roles` | Rob's numbers in one block; the healer gone from the server; each role's real effect at its skill, for the player's club; the four pairs; a weaker second member gives nothing, one off ill gives nothing; the massage therapist measured (5 a day resting, 5 + her share with her); an AI club's broken leg treated by its own medical staff | 22/22 |
+| `injured-list` | 6 weeks out is not on the list, a broken leg is (role "injured", inactive); a fourth senior signed as cover with three on the books; fit with cover still there: waiting, Dashboard says so, role locked; cover released: back at once; no cover: back the next day; a 15-year-old can't be promoted, a 16-year-old can; an AI club covers from its academy and releases its weakest when she's fit | 17/17 |
+
+**Suites whose expectations this update knowingly changed** (each a direct consequence of Rob's O-6 to O-10; none hides a fault):
+
+| Suite | What changed, and why |
+|---|---|
+| ai-staff | Part 3's source checks: the treatment factor and the sports scientist instead of the healer chance. With 20–35 of each role on the market, the spare count is per role in the career, not a fixed 10, and the club with a gap may re-sign the medic whose contract ended, on a new contract that day |
+| staff-bonuses | section 3: `/staff/effects`, the doctor treats (×0.7–0.6) and the sports scientist prevents (−15%); 243 distinct staff names (was 120); the Staff page panel reads each member's role key from the server |
+| club-pages | the injuries are one named table; the Treatment Queue bar is the base weeks healed |
+| staff-injuries | counts `career_injuries`; staff time off is half a player's or less (players' injuries are longer, staff causes unchanged, decision 10); the physio check reads the live treatment factor (off: without her; back: her full factor) instead of "two weeks in one" |
+| real-world-dates | injuries are in `career_injuries`, on game dates by construction |
+| settings | twelve Rules topics (three new) |
+| staff-portrait-install | proves the installer and Pass 3b in the world before the 123 (they are in the starter DB now) |
+| wizard-career-economy | 120 seeded staff plus Rob's 123 at ids from 10001 (was "120 in all") |
+| condition, injured-match-player | a test "heal" also takes her off the injured list (a serious injury rolled in a match can put her on it) |
+| ai-club-economy | the to-the-dollar week measures a staffed club and counts its staff's Day 8 signing fees (every club has staff now) |
+| ai-buyable | a senior on the injured list doesn't hold one of the three places (squads up to 3 *holding a place*; "short of two" still counts her); an injured-list or renewal release picked up the same day by another club isn't a transfer |
+| ai-injuries | an AI player's weeks out follow her club's staff live, so the clock read is her base weeks; the roll's source pattern includes the staff factor; the injured gamble may be taken by her own club; a club over the cap only through an academy promotion is allowed (C-5) |
+| manager-faces | the Fitness Guru roll's source pattern includes the staff factor |
+| ai-training | every staff bonus is full at 95; the strength coach and nutritionist by programme; a 14–18-year-old senior (now a common AI cover) trains 20% faster, the existing rule; a senior seriously hurt mid-week, or an academy reshuffled by a cover promotion, is not that week's reading |
+
+**Two real faults the suites caught, fixed in the game:**
+- The boot's real-world-date pass still wrote the retired `injury_history` table with raw SQL. A new save no longer
+  has that table, so the loop was deleted.
+- `squadRules.ts` re-exported the promotion age from `@workspace/db`, which broke every suite that loads it on
+  its own. The server now takes the number from `@workspace/db` directly.
+
+**Full build #1** (`pnpm run build`, 23:08–00:33): typecheck and every workspace build OK; **the harness: 120 of 130
+suites passed, 10 failed**:
+- condition (injuries and fitness), wizard career economy, staff bonuses, ai club economy, ai buyable, staff injuries,
+  manager faces, ai training, ai staff, ai injuries.
+
+Every one was a knowingly changed expectation above, or the `squadRules` import fault (manager faces and ai training
+crashed on start). Each was re-run alone after its fix:
+- **The ten failures:** condition 27/27, wizard career economy 12/12, staff bonuses 28/28, staff injuries 20/20,
+  manager faces 56/56, ai staff 22/22, ai injuries 16/16, ai buyable 25/25, ai training 17/17 (twice), and
+  ai club economy (below).

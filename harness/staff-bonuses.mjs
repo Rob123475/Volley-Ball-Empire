@@ -77,7 +77,7 @@ console.log("\n0. ONE NORMALISER");
     const names = d2.prepare("SELECT name FROM staff").all().map((r) => r.name.replace(/^Dr\.\s+/, "").trim().toLowerCase());
     d2.close();
     const dupes = [...new Set(names.filter((n, i) => names.indexOf(n) !== i))];
-    check("no two starter staff share a name, ignoring a leading \"Dr.\" (P-08)", names.length === 120 && dupes.length === 0,
+    check("no two starter staff share a name, ignoring a leading \"Dr.\" (P-08)", names.length === 243 && dupes.length === 0,   // night 2: 120 seeded + Rob's 123 portrait staff
       dupes.length ? `duplicates: ${dupes.join(", ")}` : `${names.length} staff, all distinct`);
   }
   const unmapped = stored.filter((r) => roles.normaliseRole(r) === null);
@@ -115,9 +115,11 @@ console.log("\n0. ONE NORMALISER");
   // The panel: keyed by normalised role, and every hired role has a bonus in it.
   const staffPage = read("artifacts/beach-volleyball/src/pages/staff.tsx");
   const bonusKeys = [...staffPage.matchAll(/^  ([a-z_]+):\s*\{ icon:/gm)].map((m) => m[1]);
+  // Night 2 (O-6): the panel shows each member's real effect from the server (GET /staff/effects),
+  // whose role key the server normalises (utils/staffEffects.ts, isRole); off ill gives nothing there.
   check("the Staff page's bonus panel looks roles up normalised",
-    // Final brief 5 Oct, Part B: only staff on duty (not off ill or hurt) count.
-    /new Set<string \| null>\(staff(\.filter\(onDuty\))?\.map\(s => normaliseRole\(s\.role\)\)\)/.test(staffPage));
+    staffPage.includes("useStaffEffects()") && staffPage.includes("BONUS_DESCRIPTIONS[m.roleKey")
+      && read("artifacts/api-server/src/utils/staffEffects.ts").includes("ROLE_KEYS.find((k) => isRole(m.role, k))"));
   const listed = HIRE.map((r) => roles.normaliseRole(r)).filter((k) => bonusKeys.includes(k));
   // P-07: the scout mission dialog assigns a Scout, so it lists Scouts - GET
   // /staff is every hired role, and it used to be mapped straight into the list.

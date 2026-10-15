@@ -99,9 +99,12 @@ try {
   const [A, B] = s0.filter((r) => r.role === "starter");
   const C = s0.find((r) => r.role === "interchange");
   check("the starting squad: two Match Players and an interchange", !!A && !!B && !!C, s0.map((r) => `${r.name} (${r.role})`).join(", "));
+  // Night 2 (O-10): a heal also takes her off the injured list, back as the interchange, and clears her base weeks.
   const setInjury = (id, status, weeks, flag = status === "Healthy" ? 0 : 1) => write(
-    `UPDATE career_player_state SET injury_status = ?, is_injured = ?, injury_weeks_remaining = ? WHERE career_save_id = ? AND player_id = ?`,
-    status, flag, weeks, cid, id);
+    `UPDATE career_player_state SET injury_status = ?, is_injured = ?, injury_weeks_remaining = ?, injury_base_weeks_left = 0,
+      on_injured_list = CASE WHEN ? = 'Healthy' THEN 0 ELSE on_injured_list END, is_active = CASE WHEN ? = 'Healthy' AND squad_role = 'injured' THEN 1 ELSE is_active END,
+      squad_role = CASE WHEN ? = 'Healthy' AND squad_role = 'injured' THEN 'interchange' ELSE squad_role END WHERE career_save_id = ? AND player_id = ?`,
+    status, flag, weeks, status, status, status, cid, id);
   const injured = async () => ({ dash: (await api("GET", "/dashboard")).data?.injuredCount, cal: (await api("GET", "/calendar")).data?.teamFitness?.injuredCount });
 
   // 1. One test for injured: both flags, and flags that disagree.

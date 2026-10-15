@@ -11,7 +11,8 @@ import { getGameDate } from "../utils/gameDate.js";
 import { updateCareerStats, checkAchievements } from "../utils/check-achievements";
 import type { Team } from "@workspace/db";
 import { ACADEMY_CAP, academySize } from "../utils/academy.js";
-import { GRADUATE_CAP, PROMOTION_MIN_AGE } from "../utils/squadRules.js";
+import { GRADUATE_CAP } from "../utils/squadRules.js";
+import { PROMOTION_MIN_AGE } from "@workspace/db";
 import { isInjured } from "../utils/condition.js";
 import { assignGraduatePortraitsTx } from "../utils/graduatePortraits.js";
 

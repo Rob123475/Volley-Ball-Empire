@@ -338,7 +338,8 @@ try {
   // Item 4c: the roll is the shared matchInjuryRoll (utils/condition.ts), the AI clubs' too.
   check("Fitness Guru: match injury risk x0.8 (x1 for anyone else), through the one injury roll",
     fg === 0.8 && nfg === 1 && /const fitnessGuru = specialityFactor\(teamId, "Fitness Guru"\);/.test(matchesSrc)
-      && /matchInjuryRoll\(player, \{ sportsLabLevel, hasRecoveryCamp, weatherMultiplier: wx\.injuryRiskMultiplier, fitnessGuru \}\)/.test(matchesSrc)
+      // 15 Oct and night 2: the club's staff factor (now its sports scientist) rides in the same roll.
+      && matchesSrc.includes("matchInjuryRoll(player, { sportsLabLevel, hasRecoveryCamp, weatherMultiplier: wx.injuryRiskMultiplier, fitnessGuru, staffFactor })")
       && /\* \(ctx\.weatherMultiplier \?\? 1\) \* \(ctx\.fitnessGuru \?\? 1\)/.test(src("artifacts/api-server/src/utils/condition.ts")),
     `factor ${fg} / ${nfg}`);
   check("and the Medical page's injury risk takes the same factor", /calcInjuryRisk\(fitness, fatigue, riskFactor\)/.test(src("artifacts/beach-volleyball/src/pages/medical.tsx")));

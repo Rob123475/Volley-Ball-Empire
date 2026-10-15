@@ -203,10 +203,11 @@ try {
     weeks++;
     const onLoan = new Set(read(`SELECT owner_pool_team_id AS o, borrower_pool_team_id AS b FROM youth_loans WHERE career_save_id = ? AND status = 'active'`, careerSaveId)
       .flatMap((l) => [l.o, l.b]));
-    // Update 1, overnight part 1a: the AI clubs take staff on Day 8 (signing fees, then wages), so the
-    // club measured is one with no staff as well.
-    const staffed = new Set(read(`SELECT DISTINCT pool_team_id AS c FROM career_staff_state WHERE career_save_id = ? AND pool_team_id IS NOT NULL`, careerSaveId).map((r) => r.c));
-    const before = candidates.find((c) => !onLoan.has(c.id) && !staffed.has(c.id));
+    // Update 1, overnight part 1a: the AI clubs take staff on Day 8, after that day's weekly charge, and
+    // pay each one's signing fee (one month's salary) then. Night 2: with Rob's portraits every club has
+    // staff, so the club measured is the first not in a loan, and its signing fees are part of its week.
+    const before = candidates.find((c) => !onLoan.has(c.id));
+    const signingFees = read(`SELECT COALESCE(SUM(salary), 0) AS t FROM career_staff_state WHERE career_save_id = ? AND pool_team_id = ?`, careerSaveId, before.id)[0].t;
     const after = read(`SELECT balance AS b FROM career_pool_team_state WHERE career_save_id = ? AND pool_team_id = ?`, careerSaveId, before.id)[0];
     const moved = Number(before.b) - Number(after.b);
     // U-6 (feat-ai-buyable): its squad is its pool contracts still live plus the
@@ -232,10 +233,11 @@ try {
       + academyWeek
       + managerWeek
       - Math.round(Number(before.rep ?? 50) * PER_REP)
-      - MONEY.sponsorWeeklyBonus;
-    check("a club with no World Tour place pays the ground, its squad, its academy and its manager, earns its sponsors and the flat sum, and pays no tour",
+      - MONEY.sponsorWeeklyBonus
+      + Number(signingFees);
+    check("a club with no World Tour place pays the ground, its squad, its academy, its manager and its staff's signing fees, earns its sponsors and the flat sum, and pays no tour",
       Math.round(moved) === Math.round(expectedWeek) && academy.length > 0,
-      `club ${before.id}: moved ${money(moved)}, the rules say ${money(expectedWeek)} (academy of ${academy.length}: ${money(academyWeek)}; manager ${money(managerWeek)}; sponsors' flat ${money(MONEY.sponsorWeeklyBonus)})`);
+      `club ${before.id}: moved ${money(moved)}, the rules say ${money(expectedWeek)} (academy of ${academy.length}: ${money(academyWeek)}; manager ${money(managerWeek)}; signing fees ${money(Number(signingFees))}; sponsors' flat ${money(MONEY.sponsorWeeklyBonus)})`);
   }
   check("the week was charged at all", weeks === 1, `${weeks} week(s) seen`);
   check("the harness read the real numbers out of the server",
