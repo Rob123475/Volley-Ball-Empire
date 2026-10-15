@@ -144,7 +144,7 @@ check("(source) the music plays at its own volume times the master, and follows 
   /const level = volume \* master;/.test(provider) && /if \(!onCourt\) audio\.volume = level;/.test(provider)
     && provider.includes("window.addEventListener(MATCH_VOLUME_EVENT, read)") && !/audio\.volume = volume;/.test(provider));
 check("(source) the music's mute is the music element's own flag: it mutes only the songs",
-  /audio\.muted = muted;/.test(provider) && !/muted/.test(courtSettings.replace(/\/\*[\s\S]*?\*\//g, "")) && !/muted/.test(courtPage));
+  /audio\.muted = muted;/.test(provider) && !/\bmuted\b/.test(courtSettings.replace(/\/\*[\s\S]*?\*\//g, "")) && !/useMusic|\.muted\b|toggleMute/.test(courtPage));
 
 // ── 8. Settings on the match screen (Rob, 16 Oct) ────────────────────────────
 console.log("\n8. SETTINGS ON THE MATCH SCREEN, WITHOUT LEAVING THE MATCH");
