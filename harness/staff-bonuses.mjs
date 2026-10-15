@@ -282,8 +282,8 @@ try {
   check("a doctor heals: the chance is now the best of the doctor and the trainer (they don't stack), skill / 250",
     dh.status === 201 && Math.abs(bonus1?.healChance - wantHeal) < 1e-9 && (docSkill <= ft.skillLevel || bonus1?.healer?.id === doc.id),
     `doctor skill ${docSkill}, trainer ${ft.skillLevel}: ${(bonus1?.healChance * 100).toFixed(1)}% (${bonus1?.healer?.name})`);
-  const wantRisk = 1 - Math.max(0, specSkill - 50) * (0.15 / 45);
-  check("a medical specialist cuts match injury risk: x(1 - (skill-50) x 0.15/45), at most 15% at skill 95",
+  const wantRisk = 1 - Math.min(45, Math.max(0, specSkill - 50)) * (0.15 / 45);
+  check("a medical specialist cuts match injury risk: x(1 - (skill-50) x 0.15/45), at most 15% at skill 95 and above",
     sh.status === 201 && Math.abs(bonus1?.injuryRiskFactor - wantRisk) < 1e-9 && wantRisk >= 0.85 && wantRisk < 1,
     `specialist skill ${specSkill}: x${bonus1?.injuryRiskFactor?.toFixed(4)}`);
   const condSrc = stripComments(read("artifacts/api-server/src/utils/condition.ts"));

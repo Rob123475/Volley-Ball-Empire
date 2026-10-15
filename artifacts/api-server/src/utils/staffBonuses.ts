@@ -81,5 +81,6 @@ export function healingBonus<M extends Member & { name?: string }>(staff: readon
 /** The medical specialist's factor on a match's injury risk: 1 to 0.85. */
 export function injuryRiskStaffFactor(staff: readonly Member[]): number {
   const specialist = best(staff, "medical_specialist");
-  return specialist ? 1 - above50(specialist) * (MEDICAL_BONUS.specialistMaxRiskCut / 45) : 1;
+  // The full cut at skill 95 and no more (a 96 cuts 15%, not 15.3%).
+  return specialist ? 1 - Math.min(45, above50(specialist)) * (MEDICAL_BONUS.specialistMaxRiskCut / 45) : 1;
 }
