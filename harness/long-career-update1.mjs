@@ -27,6 +27,12 @@
  * clubs' balances (lowest, median, how many broke); the champion. A summary
  * flags anything that runs away. It writes the tables to SOAK_OUT (a JSON file)
  * if given.
+ *
+ * Night 2 (Part 8): also the AI clubs' injuries by type, average weeks out by
+ * the treatment on the day (a doctor and physio, the right medic, the wrong
+ * one, none), reconstructions, the injured list's use and the cover promoted
+ * from academies. Rob's staff (ids from 10001) are in the starter DB now, so
+ * STAND_INS is no longer needed.
  */
 import fs from "node:fs";
 import os from "node:os";
@@ -76,7 +82,11 @@ const mean = (l) => (l.length ? l.reduce((a, b) => a + b, 0) / l.length : 0);
 
 let cid = null, teamId = null;
 const myTeam = () => q(`SELECT team_id AS t FROM career_saves WHERE id = ?`, cid)[0]?.t ?? teamId;
-const healMine = () => w(`UPDATE career_player_state SET injury_status = 'Healthy', injury_weeks_remaining = 0, is_injured = 0 WHERE team_id = ?`, myTeam());
+// The player's club is kept fielded by healing it (night 2: off the injured list too, base weeks cleared). Its
+// injuries are therefore not the game's own course, and the injury tables below count the AI clubs' only.
+const healMine = () => w(`UPDATE career_player_state SET injury_status = 'Healthy', injury_weeks_remaining = 0, is_injured = 0, injury_base_weeks_left = 0,
+    on_injured_list = 0, is_active = CASE WHEN squad_role = 'injured' THEN 1 ELSE is_active END,
+    squad_role = CASE WHEN squad_role = 'injured' THEN 'interchange' ELSE squad_role END WHERE team_id = ?`, myTeam());
 const aiSeniors = () => q(`SELECT s.player_id AS id, p.name, s.pool_team_id AS club, s.salary, s.pool_joined_on AS joined, s.age,
     s.is_injured AS inj, s.injury_status AS status, s.injury_weeks_remaining AS weeks, s.on_injured_list AS listed, p.player_type AS ptype,
     s.speed, s.power, s.defense, s.serve, s.block, s.stamina
@@ -110,17 +120,17 @@ function seasonTable(season, year, counters) {
   const standInsAtAiClubs = q(`SELECT COUNT(*) n FROM career_staff_state WHERE career_save_id = ? AND staff_id >= ? AND pool_team_id IS NOT NULL`, cid, STAND_IN_FROM)[0].n;
   const originalsRetired = q(`SELECT COUNT(*) n FROM career_player_state WHERE career_save_id = ? AND pool_player_id IS NOT NULL AND is_retired = 1`, cid)[0].n;
   const champion = q(`SELECT competitor_name AS n FROM season_final_standings WHERE season_year = ? AND rank = 1 LIMIT 1`, year)[0]?.n ?? "?";
-  // Night 2 (O-7 to O-10): the season's injuries, every club's, from the one history.
-  const inj = q(`SELECT injury, area, weeks_out AS w, reconstruction AS r, team_id AS t, pool_team_id AS c FROM career_injuries WHERE career_save_id = ? AND game_date >= ? AND game_date <= ?`, cid, yearStart, `${year}-12-31`);
+  // Night 2 (O-7 to O-10): the season's injuries at the AI clubs, from the one history (the player's club is healed above).
+  const inj = q(`SELECT injury, area, weeks_out AS w, base_weeks AS b, reconstruction AS r, team_id AS t, pool_team_id AS c FROM career_injuries WHERE career_save_id = ? AND pool_team_id IS NOT NULL AND game_date >= ? AND game_date <= ?`, cid, yearStart, `${year}-12-31`);
   const byType = {}; for (const i of inj) byType[i.injury] = (byType[i.injury] ?? 0) + 1;
-  // Weeks out by the club's medical staff at the season's end (the history keeps no staff; an approximation).
-  const medicsAt = new Map();
-  for (const m of q(`SELECT s.pool_team_id AS c, s.team_id AS t, st.role FROM career_staff_state s JOIN staff st ON st.id = s.staff_id WHERE s.career_save_id = ? AND st.role IN ('Doctor', 'Physiotherapist')`, cid)) {
-    const k = m.c != null ? `p${m.c}` : `t${m.t}`; medicsAt.set(k, new Set([...(medicsAt.get(k) ?? []), m.role]));
-  }
-  const groupOf = (i) => { const k = i.c != null ? `p${i.c}` : i.t != null ? `t${i.t}` : null; const r = k ? medicsAt.get(k) : null; return !r ? "neither" : r.size === 2 ? "both" : "one"; };
-  const weeksBy = { both: [], one: [], neither: [] }; for (const i of inj.filter((x) => !x.r)) weeksBy[groupOf(i)].push(i.w);
+  // Weeks out by the treatment she got on the day: weeks out = base weeks x the factor, kept to the cent, so
+  // the factor reads back exactly (2 none, 1 the wrong medic, 0.7-0.6 the right one, 0.5-0.4 a doctor and physio).
+  const treatmentOf = (i) => { const f = i.b > 0 ? i.w / i.b : null; return f == null ? null : f >= 1.5 ? "none" : f >= 0.85 ? "wrong" : f >= 0.55 ? "right" : "both"; };
+  const weeksBy = { both: [], right: [], wrong: [], none: [] }; for (const i of inj.filter((x) => !x.r)) { const k = treatmentOf(i); if (k) weeksBy[k].push(i.w); }
   const avgWeeks = Object.fromEntries(Object.entries(weeksBy).map(([k, l]) => [k, l.length ? Number(mean(l).toFixed(2)) : null]));
+  const treatedCount = Object.fromEntries(Object.entries(weeksBy).map(([k, l]) => [k, l.length]));
+  const baseMean = (l) => (l.length ? Number(mean(l).toFixed(2)) : null);
+  const baseBy = Object.fromEntries(Object.keys(weeksBy).map((k) => [k, baseMean(inj.filter((x) => !x.r && treatmentOf(x) === k).map((x) => x.b))]));
   const injuredListed = inj.filter((i) => i.w > 6 && (i.t != null || i.c != null)).length;
   const listedNow = q(`SELECT COUNT(*) n FROM career_player_state WHERE career_save_id = ? AND on_injured_list = 1`, cid)[0].n;
   const coverPromotions = q(`SELECT COUNT(*) n FROM career_player_state s JOIN players p ON p.id = s.player_id WHERE s.career_save_id = ? AND s.pool_team_id IS NOT NULL
@@ -142,7 +152,7 @@ function seasonTable(season, year, counters) {
     sold: clubs.filter((c) => c.sold != null).length,
     myBalance, originalsRetired, standInsAtAiClubs,
     champion,
-    injuriesAll: inj.length, injuriesByType: byType, avgWeeksOut: avgWeeks, reconstructions: inj.filter((i) => i.r).length,
+    injuriesAll: inj.length, injuriesByType: byType, avgWeeksOut: avgWeeks, treatedCount, avgBaseWeeks: baseBy, reconstructions: inj.filter((i) => i.r).length,
     injuredListed, listedNow, coverPromotions,
   };
 }
@@ -159,8 +169,8 @@ function printTable(t) {
   console.log(`  AI balances: lowest $${t.balanceLowest.toLocaleString("en-US")}, median $${t.balanceMedian.toLocaleString("en-US")}, ${t.broke} below zero, ${t.sold} sold`);
   console.log(`  Champion (first in the final standings): ${t.champion}`);
   console.log(`  Player's club balance: ${t.myBalance.toLocaleString("en-US")}; AI originals retired so far: ${t.originalsRetired}`);
-  console.log(`  Injuries (every club): ${t.injuriesAll}; by type: ${Object.entries(t.injuriesByType).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k} ${v}`).join(", ")}`);
-  console.log(`  Average weeks out (not reconstructions), by the club's doctor and physio: both ${t.avgWeeksOut.both}, one ${t.avgWeeksOut.one}, neither ${t.avgWeeksOut.neither}; reconstructions: ${t.reconstructions}`);
+  console.log(`  Injuries (AI clubs): ${t.injuriesAll}; by type: ${Object.entries(t.injuriesByType).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k} ${v}`).join(", ")}`);
+  console.log(`  Average weeks out (not reconstructions), by the treatment on the day: ${["both", "right", "wrong", "none"].map((k) => `${k} ${t.avgWeeksOut[k]} (${t.treatedCount[k]} injuries, base ${t.avgBaseWeeks[k]})`).join("; ")}; reconstructions: ${t.reconstructions}`);
   console.log(`  Injured list: ${t.injuredListed} put on it this season, ${t.listedNow} on it now; AI cover promoted from academies this season: ${t.coverPromotions}`);
 }
 

@@ -45,6 +45,30 @@ never opened. Written as the night goes.
 14. **Part 6, AI clubs:** a listed senior doesn't hold a place in their weekly upkeep. The daily step covers it from
     the academy (best 16+), else the best affordable free agent. The 4c rule that a senior out 4+ weeks isn't
     renewed stays: it's about renewals, not the list.
+15. **Part 9, the version was set before build #2** (`b77d3841`, `package.json` 0.9.3 → 1.1.0). electron-builder
+    stamps the exe's file version and the installer from it; nothing in the game shows a version on screen, so
+    `package.json` is the only place. Setting it before build #2 means the packaged commit is the one the harness passed.
+16. **Part 8, the soak's "over the cap" check follows C-5.** Its first runs flagged 6–7 AI clubs a season "over the
+    cap that added anyone". Every one was a youth promoted from the academy (injured-list cover, or the usual top-up),
+    and C-5 says a promoted youth is never blocked by the cap; a listed senior's wage still counts, as Rob asked. The
+    check now measures a club's *signings* without its promoted youths' wages (as `ai-injuries` already did) and
+    counts "over only through a promotion" on its own line. Not a game change.
+17. **Part 8, the soak's final numbers come from runs after build #2.** The first runs (01:13) used the same game code
+    but ran alongside the `ai-club-economy` re-run and had the old over-the-cap check; they were re-run afterwards
+    with nothing else running.
+18. **Part 9, the proof run uses the real packaged window on a throwaway profile.** Electron's `--user-data-dir`
+    switch moves the whole save root (tested first on the same Electron 32.3.3 with a probe that only prints the
+    path), so the game's save folder becomes `<temp>\Beach Volleyball Empire`. Rob's save files were hashed before and
+    after the run. The game also refuses to start if port 4173 is in use, so it can't attach to a running copy.
+19. **Part 9, the Unity `.br` files were made fresh before build #2** (`compress-unity-data.cjs`, 9.6 min; Day 2's
+    volume sliders changed the Unity build), so build #2's frontend carries them and the package is cut straight
+    from build #2's output, exactly the 12 Oct order: compress → `pnpm run build` → `electron-builder --win dir`. The
+    native-module step (0b) was skipped: better-sqlite3 hasn't changed since 12 Oct and electron-builder's before-pack
+    check loads it under Electron's own runtime and stops the package if it's wrong.
+20. **Build #2 had a false start that ran no suite.** The first attempt (01:41) set `PORT` and `BASE_PATH=/` as
+    `docs/packaging.md` shows for PowerShell; Git Bash rewrote `/` into `C:/Program Files/Git/`, and the pre-flight
+    `check-build-env` stopped the build before any workspace was built and before the harness. Re-run without them,
+    as build #1 was. It counts as nothing; the counts below are the full run.
 
 ## Part by part
 
@@ -224,8 +248,8 @@ and every new endpoint answering.
 - `squadRules.ts` re-exported the promotion age from `@workspace/db`, which broke every suite that loads it on
   its own. The server now takes the number from `@workspace/db` directly.
 
-**Full build #1** (`pnpm run build`, 23:08–00:33): typecheck and every workspace build OK; **the harness: 120 of 130
-suites passed, 10 failed**:
+**Full build #1** (`pnpm run build`, 23:08–00:33): typecheck and every workspace build OK; **the harness: 108 of 118
+suites passed, 10 failed** (corrected: an earlier draft of this report, and commit c03e917f's message, said "120 of 130"; the run's own summary lists 118 suites):
 - condition (injuries and fitness), wizard career economy, staff bonuses, ai club economy, ai buyable, staff injuries,
   manager faces, ai training, ai staff, ai injuries.
 
@@ -233,4 +257,6 @@ Every one was a knowingly changed expectation above, or the `squadRules` import 
 crashed on start). Each was re-run alone after its fix:
 - **The ten failures:** condition 27/27, wizard career economy 12/12, staff bonuses 28/28, staff injuries 20/20,
   manager faces 56/56, ai staff 22/22, ai injuries 16/16, ai buyable 25/25, ai training 17/17 (twice), and
-  ai club economy (below).
+  ai club economy 22/22. It needed two passes: after the first fix (Day 8 signing fees) it was 21/22, because after 30
+  seasons 18 clubs had just promoted a youth as injured-list cover and had 3 in their academy for the week until the
+  next intake. The check now allows 3 in that week (`dcfcc450`). That one is a knowingly changed expectation too.

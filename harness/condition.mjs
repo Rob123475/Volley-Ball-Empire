@@ -183,12 +183,14 @@ try {
     season: "Season 1", budget: "500000", locationId: 1, primaryColor: "#0a0", secondaryColor: "#00a", difficulty: "established",
   });
   const cid = created.data.id, teamId = created.data.teamId;
-  const squadRows = () => read(`SELECT s.player_id AS id, p.name, s.squad_role AS role, s.fitness, s.fatigue, s.injury_status AS injury,
+  const squadRows = (activeOnly = true) => read(`SELECT s.player_id AS id, p.name, s.squad_role AS role, s.fitness, s.fatigue, s.injury_status AS injury,
       s.is_injured AS injured, s.injury_weeks_remaining AS weeks, s.consecutive_matches_played AS consecutive,
       s.speed, s.power, s.defense, s.serve, s.block, s.stamina
     FROM career_player_state s JOIN players p ON p.id = s.player_id
-    WHERE s.career_save_id = ? AND s.team_id = ? AND s.is_active = 1`, cid, teamId);
-  const byId = (id) => squadRows().find((r) => r.id === id);
+    WHERE s.career_save_id = ? AND s.team_id = ? AND (s.is_active = 1 OR ? = 0)`, cid, teamId, activeOnly ? 1 : 0);
+  // Night 2 (O-10): a player hurt for more than 6 weeks in the match just simulated is on the injured list
+  // (inactive) by the time it is read, so a player is looked up whether or not she is active.
+  const byId = (id) => squadRows(false).find((r) => r.id === id);
   const squad0 = squadRows();
   const starters = squad0.filter((r) => r.role === "starter");
   const inter = squad0.find((r) => r.role === "interchange");

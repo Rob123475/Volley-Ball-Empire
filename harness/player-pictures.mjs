@@ -183,9 +183,11 @@ try {
     `${nonEuropeans.length} graduates; ${nonEuropeans.filter((y) => continentOf(has.get(y.id)) === y.continent).length} with their continent's picture`);
   const euroGrads = graduated.filter((y) => y.continent === "europe");
   const euroGiven = euroGrads.filter((y) => has.has(y.id));
-  check("Europe had one picture left: one European graduate got it, the rest keep their flag cards and are reported",
+  // Night 2 (O-10): an AI club's injured-list cover can be a generated academy youth promoted during the
+  // season; she graduates here too, and keeps the card she was generated with (not the shipped flag card).
+  check("Europe had one picture left: one European graduate got it, the rest keep their cards and are reported",
     euroGiven.length === 1 && has.get(euroGiven[0].id) === europeAll[0] &&
-      euroGrads.filter((y) => !has.has(y.id)).every((y) => ranOut.has(y.id) && y.img === TEMPLATE),
+      euroGrads.filter((y) => !has.has(y.id)).every((y) => ranOut.has(y.id) && !String(y.img).includes("/graduates/")),
     `${euroGrads.length} European graduates: ${euroGiven.length} given ${euroGiven.map((y) => has.get(y.id)).join("")}, ${gp.ranOut.length} reported as run out`);
   const ownGot = has.get(own2.id);
   check("the club's own graduate is served first", !!ownGot || (own2.continent === "europe" && euroGiven[0]?.id === own2.id),
