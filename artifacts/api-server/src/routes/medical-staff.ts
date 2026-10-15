@@ -1,4 +1,5 @@
 import { releaseStaffMember } from "./staff.js";
+import { refreshClubInjuryClocks } from "../utils/injuries.js";
 import { withStaffScouting } from "../utils/marketScouting.js";
 import { Router } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
@@ -8,7 +9,7 @@ import { eq } from "drizzle-orm";
 import { readContractLength } from "../utils/contractTerms.js";
 import { staffContractPatch } from "../utils/seasonDates.js";
 import { getGameDate } from "../utils/gameDate.js";
-import { healingBonus, injuryRiskStaffFactor } from "../utils/staffBonuses.js";
+import { staffEffects } from "../utils/staffEffects.js";
 import {
   loadStaff, loadStaffMember, updateStaffState, updateStaffReference,
   createCareerStaff, requireCareerSaveId, type StaffDTO,
@@ -44,22 +45,15 @@ async function backfillMedicalAttributes(staffList: StaffDTO[]): Promise<void> {
 }
 
 /**
- * Update 1, 15 Oct (O-3): what the department really does, from the same
- * functions the game uses (utils/staffBonuses.ts): the weekly chance of an
- * extra week off for an injured player (the best healer on duty, the doctor
- * among them) and the medical specialist's factor on match injury risk.
+ * Night 2 (O-6): what each member of the club's staff really does, its pairs
+ * and today's treatment factors (utils/staffEffects.ts), for the Staff and
+ * Medical pages. Replaces 15 Oct's /medical-staff/bonuses.
  */
-router.get("/medical-staff/bonuses", async (req, res) => {
+router.get("/staff/effects", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const team = await getActiveTeam(req);
-  if (!team) { res.json({ healChance: 0, healer: null, injuryRiskFactor: 1 }); return; }
-  const staff = await loadStaff(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id });
-  const heal = healingBonus(staff);
-  res.json({
-    healChance: heal.chance,
-    healer: heal.healer ? { id: heal.healer.id, name: heal.healer.name, role: heal.healer.role } : null,
-    injuryRiskFactor: injuryRiskStaffFactor(staff),
-  });
+  if (!team) { res.json(staffEffects([])); return; }
+  res.json(staffEffects(await loadStaff(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id })));
 });
 
 router.get("/medical-staff", async (req, res) => {
@@ -107,6 +101,8 @@ router.post("/medical-staff", async (req, res) => {
   const hireDate = await getGameDate(team.id);
   const termPatch = await staffContractPatch(cid, wantedTerm.length, hireDate);
   await updateStaffState(cid, Number(staffId), { teamId: team.id, isAvailable: false, ...termPatch });
+  // Night 2 (O-7): an injured player's time out follows the club's medical staff at once.
+  refreshClubInjuryClocks(cid, team.id);
   res.status(201).json(serializeStaff({ ...member, teamId: team.id, isAvailable: false }));
 });
 

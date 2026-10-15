@@ -87,8 +87,10 @@ router.get("/dashboard", async (req, res) => {
     players: nextPair.map((p) => ({
       id: p.id, name: p.name, fitness: p.fitness, contribution: Math.round(fitnessFactor(p.fitness) * 100),
     })),
-    unavailable: players.filter((p) => p.isActive && !isAvailable(p)).map((p) => ({
+    // Night 2 (O-10): a player on the injured list too, and one fit but waiting for a place.
+    unavailable: players.filter((p) => (p.isActive || p.onInjuredList) && !isAvailable(p)).map((p) => ({
       id: p.id, name: p.name, injuryStatus: p.injuryStatus, weeksOut: Math.ceil(Number(p.injuryWeeksRemaining ?? 0)),
+      onInjuredList: p.onInjuredList, waiting: p.onInjuredList && p.injuryStatus === "Healthy",
     })),
     willForfeit: nextPair.length < PAIR_SIZE,
   } : null;

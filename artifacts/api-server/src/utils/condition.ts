@@ -28,22 +28,12 @@
  *              every round recovers most of each match's cost before the next.
  *              The old rule (+1 fitness a day, and only below 30 fatigue) could
  *              never keep up, which is how fitness drained to 0.
- *   injuries   heal a week every 7 game days — on the calendar, off-season
- *              included, not per match rested. Shorter and rarer than before,
- *              because an injured player now cannot play through it and a
- *              three-player squad with two out forfeits: 3% base risk a match;
- *              Minor 1 week (65%), Major 3 weeks (30%), Unavailable 6 weeks (5%).
+ *   injuries   3% base risk a match (the roll below). What the injury is, who
+ *              treats it and how long it lasts: utils/injuries.ts (night 2, O-7).
  */
-import { INJURY_WEEKS } from "@workspace/db";
-import {
-  facilitiesTable, careerPlayerStateTable, careerPoolTeamStateTable, playersTable,
-  MONEY, pronenessFactor, type DevelopmentProfile,
-} from "@workspace/db";
-import { and, eq, isNotNull, isNull, ne, or } from "drizzle-orm";
+import { pronenessFactor, type DevelopmentProfile } from "@workspace/db";
 import { sideRating, type RatedPlayer } from "./matchEngine.js";
 import { MAX_STARTERS } from "./squadRules.js";
-import { loadStaffTx, withCareerStateTx, type CareerStateTx } from "../lib/playerDto.js";
-import { healingBonus } from "./staffBonuses.js";
 
 /** Two players on the sand. */
 export const PAIR_SIZE = MAX_STARTERS;
@@ -57,6 +47,8 @@ export type SelectablePlayer = RatedPlayer & {
   injuryStatus: string;
   fitness: number;
   squadRole: string;
+  /** Night 2 (O-10): on the injured list (even fit, until a senior place is hers again). */
+  onInjuredList?: boolean;
 };
 
 const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
@@ -77,9 +69,9 @@ export function isInjured(p: Pick<SelectablePlayer, "isInjured" | "injuryStatus"
   return !!p.isInjured || (p.injuryStatus ?? "Healthy") !== "Healthy";
 }
 
-/** Contracted and active, and not injured: the only players who can be selected. */
-export function isAvailable(p: Pick<SelectablePlayer, "isActive" | "isInjured" | "injuryStatus">): boolean {
-  return p.isActive && !isInjured(p);
+/** Contracted and active, not injured and not on the injured list: the only players who can be selected. */
+export function isAvailable(p: Pick<SelectablePlayer, "isActive" | "isInjured" | "injuryStatus" | "onInjuredList">): boolean {
+  return p.isActive && !isInjured(p) && !p.onInjuredList;
 }
 
 /** The player with her six stats scaled by her fitness. */
@@ -135,7 +127,7 @@ export function matchCosts(extraFatigue = 0): { fitness: number; fatigue: number
  * Probability (0-0.60) that a player who plays this match is injured.
  * Update 1, overnight part 4 (B-1): `proneness` is her injuryProneness's factor
  * (x0.7 to x1.3, lib/db/src/schema/ageing.ts pronenessFactor), 1 with no profile.
- * 15 Oct (O-3): `staffFactor` is the club's medical specialist (1 to 0.85,
+ * Night 2 (O-6): `staffFactor` is the club's sports scientist (1 to 0.85,
  * utils/staffBonuses.ts injuryRiskStaffFactor), on duty only.
  */
 export function injuryRisk(
@@ -165,44 +157,20 @@ export const MATCH_INJURY_RISK_CAP = 0.70;
  * fatigue, stamina and run of matches (injuryRisk), times the weather's and a
  * Fitness Guru's multipliers, capped. Item 4c: every club's, the player's
  * (routes/matches.ts) and the AI clubs' (utils/aiSquads.ts aiMatchInjuriesTx),
- * the same function and the same odds. Null: she is not hurt.
+ * the same function and the same odds. True: she is hurt (utils/injuries.ts
+ * startInjuryTx then says what it is and for how long).
  */
 export function matchInjuryRoll(
   p: { fatigue?: number | null; stamina: number; consecutiveMatchesPlayed?: number | null; development?: DevelopmentProfile | null },
   ctx: { sportsLabLevel?: number; hasRecoveryCamp?: boolean; weatherMultiplier?: number; fitnessGuru?: number; staffFactor?: number } = {},
   random: () => number = Math.random,
-): ReturnType<typeof rollInjury> | null {
+): boolean {
   const risk = Math.min(
     injuryRisk(p.fatigue ?? 0, p.stamina, p.consecutiveMatchesPlayed ?? 0, ctx.sportsLabLevel ?? 1, ctx.hasRecoveryCamp ?? false, pronenessFactor(p.development), ctx.staffFactor ?? 1)
       * (ctx.weatherMultiplier ?? 1) * (ctx.fitnessGuru ?? 1),
     MATCH_INJURY_RISK_CAP,
   );
-  return random() < risk ? rollInjury() : null;
-}
-
-/**
- * What a new injury writes to her, every club's (Update 1, overnight part 4,
- * B-2): the injury, and if it keeps her out MONEY.salaryCap.injuredLongWeeks or
- * more, 1 point off speed and stamina at once (never below 1) and one more
- * serious injury on her record (each takes 5% off her training XP for good, at
- * most 20%: lib/db/src/schema/ageing.ts).
- */
-export function newInjuryPatch(
-  p: { speed: number; stamina: number; seriousInjuries?: number | null },
-  inj: ReturnType<typeof rollInjury>,
-): { injuryStatus: string; injuryWeeksRemaining: number; isInjured: true; speed?: number; stamina?: number; seriousInjuries?: number } {
-  const patch = { injuryStatus: inj.status, injuryWeeksRemaining: inj.weeks, isInjured: true as const };
-  if (inj.weeks < MONEY.salaryCap.injuredLongWeeks) return patch;
-  return { ...patch, speed: Math.max(1, p.speed - 1), stamina: Math.max(1, p.stamina - 1), seriousInjuries: Number(p.seriousInjuries ?? 0) + 1 };
-}
-
-/** How bad a new injury is. */
-export function rollInjury(): { status: "Minor Injury" | "Major Injury" | "Unavailable"; weeks: number } {
-  const roll = Math.random();
-  // Item 20: the weeks are lib/db injuries.ts, shared with the Medical page.
-  if (roll < 0.65) return { status: "Minor Injury", weeks: INJURY_WEEKS["Minor Injury"]! };
-  if (roll < 0.95) return { status: "Major Injury", weeks: INJURY_WEEKS["Major Injury"]! };
-  return { status: "Unavailable", weeks: INJURY_WEEKS.Unavailable! };
+  return random() < risk;
 }
 
 // ── Rest ─────────────────────────────────────────────────────────────────────
@@ -212,62 +180,3 @@ export const REST_RECOVERY = {
   healthy: { fitness: 2, fatigue: 5 },
   injured: { fitness: 1, fatigue: 3 },
 } as const;
-
-/** Whose injured players heal: a club (the player's or an AI club's) or the free agents. */
-export type InjuryClub = { teamId: number } | { poolTeamId: number } | "free agents";
-
-/**
- * A week of injury recovery, run every 7 game days by the calendar. The best
- * medic can take an extra week off; the Medical Centre up to one more at L10.
- * Item 4c: every club's players heal on this one clock, the AI clubs' (with
- * their own medics, utils/aiStaff.ts; they have no Medical Centre) and the
- * free agents' (no medic) as well as the player's. Returns the names of
- * players who are fit again.
- */
-export function injuryRecoveryWeekTx(w: CareerStateTx, careerSaveId: number, club: InjuryClub, random: () => number = Math.random): string[] {
-  const s = careerPlayerStateTable;
-  const at = club === "free agents" ? [isNull(s.teamId), isNull(s.poolTeamId)]
-    : "teamId" in club ? [eq(s.teamId, club.teamId)] : [isNull(s.teamId), eq(s.poolTeamId, club.poolTeamId)];
-  const players = w.tx.select({ id: s.playerId, name: playersTable.name, weeks: s.injuryWeeksRemaining })
-    .from(s).innerJoin(playersTable, eq(playersTable.id, s.playerId))
-    .where(and(eq(s.careerSaveId, careerSaveId), ...at,
-      or(eq(s.isInjured, true), and(isNotNull(s.injuryStatus), ne(s.injuryStatus, "Healthy")))))
-    .all();
-  if (players.length === 0) return [];
-  const staff = club === "free agents" ? [] : loadStaffTx(w.tx, careerSaveId, club);
-  // The best healer on duty (utils/staffBonuses.ts healingBonus; O-3: the doctor is one).
-  const { chance: healChance } = healingBonus(staff);
-  const medCentreLevel = club !== "free agents" && "teamId" in club
-    ? w.tx.select({ level: facilitiesTable.level }).from(facilitiesTable)
-      .where(and(eq(facilitiesTable.teamId, club.teamId), eq(facilitiesTable.type, "medical_centre"))).get()?.level ?? 1
-    : 1;
-
-  const recovered: string[] = [];
-  for (const p of players) {
-    const weeks = Number(p.weeks ?? 0);
-    const extraWeek = random() < healChance ? 1 : 0;
-    const facilityWeeks = (medCentreLevel - 1) * (1 / 9);
-    const next = Math.max(0, weeks - 1 - extraWeek - facilityWeeks);
-    if (next <= 0) {
-      w.setPlayerState(careerSaveId, p.id, { injuryWeeksRemaining: 0, injuryStatus: "Healthy", isInjured: false });
-      recovered.push(p.name);
-    } else {
-      w.setPlayerState(careerSaveId, p.id, { injuryWeeksRemaining: Math.round(next * 100) / 100 });
-    }
-  }
-  return recovered;
-}
-
-/** The player's club's week of recovery (routes/calendar.ts). */
-export function applyWeeklyInjuryRecovery(careerSaveId: number, teamId: number): string[] {
-  return withCareerStateTx((w) => injuryRecoveryWeekTx(w, careerSaveId, { teamId }));
-}
-
-/** Item 4c: the same week for every AI club's players and for the free agents. */
-export function aiInjuryRecoveryWeekTx(w: CareerStateTx, careerSaveId: number): number {
-  const clubs = w.tx.select({ id: careerPoolTeamStateTable.poolTeamId }).from(careerPoolTeamStateTable)
-    .where(eq(careerPoolTeamStateTable.careerSaveId, careerSaveId)).all();
-  let healed = 0;
-  for (const { id } of clubs) healed += injuryRecoveryWeekTx(w, careerSaveId, { poolTeamId: id }).length;
-  return healed + injuryRecoveryWeekTx(w, careerSaveId, "free agents").length;
-}

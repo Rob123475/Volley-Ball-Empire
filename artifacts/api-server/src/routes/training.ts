@@ -4,7 +4,8 @@ import { db } from "@workspace/db";
 import { trainingSessionsTable, playersTable, teamsTable, staffTable, facilitiesTable } from "@workspace/db";
 import type { StaffMember } from "@workspace/db";
 import { TRAINING_PROGRAM_DAYS, staffOnDuty } from "@workspace/db";
-import { trainingStaffBonuses, healingBonus } from "../utils/staffBonuses.js";
+import { trainingStaffBonuses, medicalTeam } from "../utils/staffBonuses.js";
+import { restWeekPatch, treatmentFactor } from "../utils/injuries.js";
 import { eq, and } from "drizzle-orm";
 import { loadPlayers, loadPlayer, requireCareerSaveId, updatePlayerState, type CareerPlayerFields, type StatKey, loadStaff, careerSaveIdForTeamOrThrow } from "../lib/playerDto.js";
 import type { TrainingSession, TrainingSessionResult } from "@workspace/db";
@@ -29,10 +30,6 @@ function sessionTiming(s: TrainingSession, today: string) {
 const serializePlayer  = (p: any) => ({ ...p, height: Number(p.height), salary: Number(p.salary) });
 
 
-/** The best healer on duty's weekly chance of an extra week off (utils/staffBonuses.ts healingBonus). */
-async function healChanceFor(teamId: number): Promise<number> {
-  return healingBonus(await loadStaff(await careerSaveIdForTeamOrThrow(teamId), { teamId: teamId })).chance;
-}
 
 // Unity brief item 19: how many GAME days each programme takes (lib/db
 // training-programs.ts, shared with the Training page).
@@ -132,6 +129,8 @@ const applyFatigueAndStats = async (
   newRoleXpBonus = 1.0,
   newRoleFatigueReduction = 0,
   managerXpMultiplier = 1,
+  statStaff: Readonly<Record<string, number>> = {},
+  fatigueFactor = 1,
 ) => {
   const player = await loadPlayer(careerSaveId, playerId);
   if (!player) return null;
@@ -155,7 +154,7 @@ const applyFatigueAndStats = async (
   // Update 1, item 3: the XP and the stats it moves, by the one shared rule
   // (utils/trainingXp.ts), with every multiplier the player's club has.
   const xp = trainingSessionXp(player, programName, {
-    coach: coachXpMultiplier, staff: newRoleXpBonus, philosophy: philosophyMultiplier,
+    coach: coachXpMultiplier, staff: newRoleXpBonus, statStaff, philosophy: philosophyMultiplier,
     facility: facilityMultiplier, manager: managerXpMultiplier,
   });
   const { baseXp, sessionXp, newPoints, ageModifier, potentialMultiplier, statGains } = xp;
@@ -216,21 +215,17 @@ const applyFatigueAndStats = async (
     updates.fitness = Math.min(100, ((player.fitness as number) ?? 100) + program.fitnessBonus);
     updates.consecutiveMatchesPlayed = 0;
 
-    if (program.injuryHealing) {
-      const weeksLeft = (player.injuryWeeksRemaining as number) ?? 0;
-      if (weeksLeft > 0 && player.teamId) {
-        const extraTick   = Math.random() < await healChanceFor(player.teamId) ? 1 : 0;
-        // Medical Centre: +0 at L1, −1 extra week per Recovery session at L10
-        const facilityReduction = (medCentreLevel - 1) * (1.0 / 9);
-        const newWeeks    = Math.max(0, weeksLeft - 1 - extraTick - facilityReduction);
-        updates.injuryWeeksRemaining = newWeeks;
-        if (newWeeks === 0) { updates.injuryStatus = "Healthy"; updates.isInjured = false; }
-      }
+    // Night 2 (O-7): a Recovery session is a week of rest for her injury at her
+    // club's treatment factor (and Medical Centre), the weekly clock's own rule.
+    if (program.injuryHealing && player.injuryStatus !== "Healthy" && player.teamId) {
+      const team = medicalTeam(await loadStaff(careerSaveId, { teamId: player.teamId }));
+      Object.assign(updates, restWeekPatch(player, treatmentFactor(player.injuryStatus, team), medCentreLevel));
     }
   } else {
     // Whole points: the fitness trainer's reduction is fractional (P-09), and
     // fatigue has only ever been stored and shown as an integer.
-    updates.fatigue = Math.min(100, player.fatigue + Math.max(0, Math.round(program.fatigueEffect - newRoleFatigueReduction)));
+    // Night 2 (O-9): a strength coach with a fitness trainer: a session adds 20% less tiredness.
+    updates.fatigue = Math.min(100, player.fatigue + Math.max(0, Math.round(program.fatigueEffect * fatigueFactor - newRoleFatigueReduction)));
     if (program.fitnessBonus > 0) {
       updates.fitness = Math.min(100, ((player.fitness as number) ?? 100) + program.fitnessBonus);
     }
@@ -408,7 +403,8 @@ export async function finishDueTrainingSessions(careerSaveId: number, teamId: nu
 
     const result = await applyFatigueAndStats(
       careerSaveId, session.playerId, session.type, coach ?? null, teamPhilosophy, facilityMultiplier,
-      psychLevel, medCentreLevel, staffBonuses.xpMultiplier, newRoleFatigueReduction, specialityFactor(session.teamId, "Coach"));
+      psychLevel, medCentreLevel, staffBonuses.xpMultiplier, newRoleFatigueReduction, specialityFactor(session.teamId, "Coach"),
+      staffBonuses.statXp, staffBonuses.fatigueFactor);
     if (!result) continue;
     const { newPlayer, statGains, xpGained, baseXp, totalXp, programName, fatigueBefore, moraleBefore, managerXpMultiplier } = result;
     // Young player development bonus: manager rep when a player aged 22 or under gains a stat.

@@ -79,7 +79,8 @@ import { FacilityBonusBanner } from "@/components/facility-bonus-banner";
 import { cn } from "@/lib/utils";
 import { serverMessage } from "@/lib/api-error";
 import { normaliseRole, MEDICAL_ROLE_KEYS, MAX_MEDICAL_STAFF } from "@shared/staff-roles";
-import { INJURY_WEEKS } from "@shared/injuries";
+import { injuryInfo, BODY_AREA_LABELS, INJURED_LIST, type BodyArea } from "@shared/injuries";
+import { useStaffEffects } from "@/components/injury-history";
 import { StaffOffBadge, onDuty } from "@/components/staff-off-badge";
 // D-3: every facility's name comes from one table, shared with the server.
 import { FACILITY_NAMES } from "@shared/facility-names";
@@ -88,23 +89,34 @@ import { useMyManager } from "@/lib/my-manager";
 /* ── Constants ─────────────────────────────────────────────── */
 
 
-// Item 20: the game's own injury lengths (lib/db injuries.ts). This page had
-// Minor 2, Major 6, Unavailable 12 weeks: twice the game's.
-const INJURY_BASE_WEEKS: Record<string, number> = { Healthy: 0, ...INJURY_WEEKS };
-
-const INJURY_COLORS: Record<string, { text: string; border: string; bg: string }> = {
-  Healthy:        { text: "text-green-600",  border: "border-green-500/30",  bg: "bg-green-500/5"  },
-  "Minor Injury": { text: "text-yellow-600", border: "border-yellow-500/30", bg: "bg-yellow-500/5" },
-  "Major Injury": { text: "text-orange-600", border: "border-orange-500/30", bg: "bg-orange-500/5" },
-  Unavailable:    { text: "text-red-600",    border: "border-red-500/30",    bg: "bg-red-500/5"    },
-};
-
-const INJURY_ICONS: Record<string, LucideIcon> = {
-  Healthy:        CheckCircle2,
-  "Minor Injury": AlertTriangle,
-  "Major Injury": AlertTriangle,
-  Unavailable:    Shield,
-};
+// Night 2 (O-7): an injury is named, with a body area and who treats it (lib/db
+// injuries.ts); her weeks out are the server's, live with the club's staff. Its
+// colour says how long she is out: on the injured list (red), serious (orange)
+// or short (yellow).
+type InjuryLook = { text: string; border: string; bg: string };
+const HEALTHY_LOOK: InjuryLook = { text: "text-green-600", border: "border-green-500/30", bg: "bg-green-500/5" };
+function injuryLook(p: { injuryStatus?: unknown; injuryWeeksRemaining?: unknown }): InjuryLook {
+  if (((p.injuryStatus as string) ?? "Healthy") === "Healthy") return HEALTHY_LOOK;
+  const weeks = Number(p.injuryWeeksRemaining ?? 0);
+  if (weeks > INJURED_LIST.overWeeks) return { text: "text-red-600", border: "border-red-500/30", bg: "bg-red-500/5" };
+  if (weeks >= 4) return { text: "text-orange-600", border: "border-orange-500/30", bg: "bg-orange-500/5" };
+  return { text: "text-yellow-600", border: "border-yellow-500/30", bg: "bg-yellow-500/5" };
+}
+function injuryIcon(p: { injuryStatus?: unknown; injuryWeeksRemaining?: unknown }): LucideIcon {
+  if (((p.injuryStatus as string) ?? "Healthy") === "Healthy") return CheckCircle2;
+  return Number(p.injuryWeeksRemaining ?? 0) > INJURED_LIST.overWeeks ? Shield : AlertTriangle;
+}
+/** "Sprained ankle (Ankle)". */
+function injuryName(p: { injuryStatus?: unknown; injuryArea?: unknown }): string {
+  const status = (p.injuryStatus as string) ?? "Healthy";
+  const area = BODY_AREA_LABELS[p.injuryArea as BodyArea];
+  return area && status !== "Healthy" ? `${status} (${area})` : status;
+}
+/** Who treats it: "Physio" / "Doctor" / "Medical Specialist". */
+function treatedBy(status: string): string {
+  const t = injuryInfo(status)?.treatedBy;
+  return t === "doctor" ? "Doctor" : t === "physiotherapist" ? "Physio" : t === "specialist" ? "Medical Specialist" : "";
+}
 
 /* ── Medical Roles ─────────────────────────────────────────── */
 
@@ -161,22 +173,14 @@ const MEDICAL_ROLE_ICONS: Record<MedicalRoleKey, IconFC> = {
   massage_therapist:   Heart as IconFC,
 };
 
-// Massage Therapist deliberately does NOT get an injury-treatment bonus like
-// Doctor/Medical Specialist — its real attributes (medical-staff-generator.ts:
-// Deep Tissue Technique, Muscle Recovery, Player Care) and the source roster's
-// own data (seed-staff.ts: deepTissueMassage/sportsMassage/recovery/
-// injuryPrevention) describe hands-on fatigue/muscle recovery and player
-// wellbeing, not clinical diagnosis or injury prevention. It gets a smaller
-// fatigue-focused bonus, distinct from and lower-ceiling than Physiotherapist's
-// clinical "Fatigue Recovery" bonus.
 const MEDICAL_BONUS_DESCRIPTIONS: Record<MedicalRoleKey, { icon: IconFC; color: string; label: string; detail: string }> = {
-  // Update 1, 15 Oct (O-3): what the server really does (utils/staffBonuses.ts).
-  doctor:              { icon: HeartPulse as IconFC,    color: "text-red-600",    label: "Injury Recovery",        detail: "Each week, a chance (skill ÷ 250) that an injured player is a week nearer fit. The best healer on duty counts." },
-  medical_specialist:  { icon: Shield as IconFC,        color: "text-blue-600",   label: "Injury Prevention",      detail: "Lowers match injury risk, up to −15% at skill 95" },
-  physiotherapist:     { icon: Activity as IconFC,      color: "text-teal-600",   label: "Injury Recovery",        detail: "Each week, a chance (skill ÷ 250) that an injured player is a week nearer fit. The best healer on duty counts." },
-  nutritionist:        { icon: Salad as IconFC,         color: "text-green-600",  label: "Stamina & Nutrition",    detail: "+5–12% stamina growth, improved match-day conditioning" },
-  sports_scientist:    { icon: FlaskConical as IconFC,  color: "text-indigo-600", label: "Training Effectiveness", detail: "+5–12% training XP gains, data-driven performance optimisation" },
-  massage_therapist:   { icon: Heart as IconFC,         color: "text-pink-600",   label: "Muscle & Fatigue Care",  detail: "+5–10% post-match fatigue recovery, improved player morale and wellbeing" },
+  // Night 2 (O-6): each role's own job (utils/staffBonuses.ts); the figures for yours are on each card.
+  doctor:              { icon: HeartPulse as IconFC,    color: "text-red-600",    label: "Treats Injuries",        detail: "Concussions and broken bones heal faster; with a physio too, every injury heals faster still" },
+  medical_specialist:  { icon: Shield as IconFC,        color: "text-blue-600",   label: "Reconstructions",        detail: "A third injury to one body area in a year needs surgery: the specialist halves the time out" },
+  physiotherapist:     { icon: Activity as IconFC,      color: "text-teal-600",   label: "Treats Injuries",        detail: "Muscle, ankle, hamstring and shoulder injuries heal faster; with a doctor too, every injury heals faster still" },
+  nutritionist:        { icon: Salad as IconFC,         color: "text-green-600",  label: "Stamina Training",       detail: "More XP from stamina training; with a sports scientist, all training XP +5%" },
+  sports_scientist:    { icon: FlaskConical as IconFC,  color: "text-indigo-600", label: "Injury Prevention",      detail: "The whole squad gets hurt less often in matches" },
+  massage_therapist:   { icon: Heart as IconFC,         color: "text-pink-600",   label: "Daily Recovery",         detail: "More tiredness off every player, every day" },
 };
 
 /* ── Helpers ───────────────────────────────────────────────── */
@@ -191,29 +195,6 @@ const formatPosition = (pos: string | null | undefined): string => {
   return map[pos.toLowerCase()] ?? pos.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
 };
 
-function recoveryWeeks(injuryStatus: string, medSkill: number): number {
-  const base = INJURY_BASE_WEEKS[injuryStatus] ?? 0;
-  if (base === 0) return 0;
-  return Math.ceil(base * (1 - medSkill / 250));
-}
-
-/**
- * Update 1, 15 Oct (O-3): the department's real figures, from the server's own
- * functions (GET /medical-staff/bonuses, utils/staffBonuses.ts): the weekly
- * chance of an extra week off (the best healer on duty) and the medical
- * specialist's factor on match injury risk.
- */
-type MedicalBonuses = { healChance: number; healer: { id: number; name: string; role: string } | null; injuryRiskFactor: number };
-function useMedicalBonuses() {
-  return useQuery<MedicalBonuses>({
-    queryKey: ["medical-bonuses"],
-    queryFn: async ({ signal }) => {
-      const res = await fetch("/api/medical-staff/bonuses", { signal });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    },
-  });
-}
 const pct = (x: number) => `${Math.round(x * 100)}%`;
 
 function fitnessColor(v: number) {
@@ -306,6 +287,8 @@ function MedicalStaffCard({ member, onFire }: { member: any; onFire: (id: number
   const RoleIcon = (roleKey ? MEDICAL_ROLE_ICONS[roleKey] : undefined) ?? Stethoscope;
   const roleLabel = (roleKey ? MEDICAL_ROLE_LABELS[roleKey] : undefined) ?? member.role;
   const attrs = skillAttributes(member.attributes);
+  // Night 2 (O-6): what she really does for the club now (GET /staff/effects).
+  const effect = useStaffEffects().data?.members.find((m) => m.id === member.id)?.effect;
 
   return (
     <Card className="overflow-hidden hover:shadow-xl transition-all border-border">
@@ -362,6 +345,7 @@ function MedicalStaffCard({ member, onFire }: { member: any; onFire: (id: number
 
       <CardContent className="p-4 space-y-3">
         <StaffOffBadge member={member} />
+        {effect && <p className="text-xs font-semibold text-primary" data-testid={`staff-effect-${member.id}`}>{effect}</p>}
         {/* L-02a: medical contracts end and are renewed like any other. */}
         <ContractRenewBar
           staffId={member.id}
@@ -423,46 +407,48 @@ function MedicalEmptySlot({ slotNumber }: { slotNumber: number }) {
 /* ── Medical Bonus Panel ───────────────────────────────────── */
 
 function MedicalBonusPanel({ staff }: { staff: any[] }) {
-  // Final brief 5 Oct, Part B: a member off ill or hurt gives no bonus.
-  const roleSet = new Set(staff.filter(onDuty).map((s: any) => normalizeMedicalRole(s.role)).filter((r): r is MedicalRoleKey => r !== null));
-  const activeBonuses   = Object.entries(MEDICAL_BONUS_DESCRIPTIONS).filter(([role]) => roleSet.has(role as MedicalRoleKey));
-  const missingBonuses  = Object.entries(MEDICAL_BONUS_DESCRIPTIONS).filter(([role]) => !roleSet.has(role as MedicalRoleKey));
-
+  // Night 2 (O-6, O-9): what each of your medical staff really does now, and the
+  // pairs, from the server's own figures (GET /staff/effects).
+  const effects = useStaffEffects().data;
+  const ids = new Set(staff.map((s: any) => s.id));
+  const mine = (effects?.members ?? []).filter((m) => ids.has(m.id));
+  const pairs = (effects?.pairs ?? []).filter((p) => p.key === "doctor_physio" || p.key === "specialist_doctor_or_physio" || p.key === "science_nutrition");
   return (
     <Card>
       <CardContent className="p-5">
         <h3 className="font-bold text-sm mb-3 flex items-center gap-2">
           <TrendingUp className="h-4 w-4 text-primary" />
-          Active Medical Bonuses
+          What Your Medical Staff Do
         </h3>
-        {activeBonuses.length === 0 && (
-          <p className="text-xs text-muted-foreground">Hire medical staff to unlock department bonuses.</p>
+        {mine.length === 0 && (
+          <p className="text-xs text-muted-foreground">Hire medical staff: a doctor and a physio treat injuries, a sports scientist prevents them.</p>
         )}
-        <div className="space-y-2">
-          {activeBonuses.map(([role, bonus]) => {
-            const Icon = bonus.icon;
+        <div className="space-y-2" data-testid="medical-effects">
+          {mine.map((m) => {
+            const key = normalizeMedicalRole(m.role);
+            const d = key ? MEDICAL_BONUS_DESCRIPTIONS[key] : null;
+            const Icon = d?.icon ?? Stethoscope;
             return (
-              <div key={role} className="flex items-start gap-2.5 text-xs">
-                <div className={cn("mt-0.5 rounded-full bg-muted p-1", bonus.color)}>
+              <div key={m.id} className="flex items-start gap-2.5 text-xs">
+                <div className={cn("mt-0.5 rounded-full bg-muted p-1", d?.color)}>
                   <Icon className="h-3 w-3" />
                 </div>
                 <div>
-                  <span className="font-semibold text-foreground">{bonus.label}</span>
-                  <span className="text-muted-foreground ml-1.5">{bonus.detail}</span>
+                  <span className="font-semibold text-foreground">{m.name}</span>
+                  <span className={cn("ml-1.5", m.counts ? "text-muted-foreground" : "text-muted-foreground/60")}>{m.effect}</span>
                 </div>
               </div>
             );
           })}
-          {missingBonuses.length > 0 && activeBonuses.length > 0 && (
-            <div className="pt-2 border-t border-border mt-2">
-              <p className="text-[10px] text-muted-foreground mb-1.5">Unlock more bonuses by hiring:</p>
-              <div className="flex flex-wrap gap-1">
-                {missingBonuses.map(([role]) => (
-                  <Badge key={role} variant="outline" className="text-[9px] text-muted-foreground border-dashed">
-                    {MEDICAL_ROLE_LABELS[role as MedicalRoleKey]}
-                  </Badge>
-                ))}
-              </div>
+          {pairs.length > 0 && (
+            <div className="pt-2 border-t border-border mt-2 space-y-1">
+              <p className="text-[10px] text-muted-foreground">Pairs (an extra on top):</p>
+              {pairs.map((p) => (
+                <div key={p.key} className="flex items-center justify-between text-xs">
+                  <span className={p.has ? "font-semibold text-foreground" : "text-muted-foreground"}>{p.label}</span>
+                  <span className={p.has ? "text-green-600" : "text-muted-foreground"}>{p.has ? p.effect : "not yet"}</span>
+                </div>
+              ))}
             </div>
           )}
         </div>
@@ -488,6 +474,9 @@ function MedicalStaffManagement() {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: getListMedicalStaffQueryKey() });
         queryClient.invalidateQueries({ queryKey: getGetMedicalStaffMarketQueryKey() });
+        // Night 2 (O-6, O-7): each member's effect, and an injured player's weeks out, change with the staff.
+        queryClient.invalidateQueries({ queryKey: ["staff-effects"] });
+        queryClient.invalidateQueries({ queryKey: getGetTeamRosterQueryKey() });
         toast({ title: "Staff Released", description: "The medical position is now vacant." });
       },
     });
@@ -564,8 +553,6 @@ export default function MedicalCentre() {
     query: { queryKey: getListMedicalStaffQueryKey() },
   });
   void medStaffForBestSkill;
-  // 15 Oct (O-3): the best healer on duty, as the server's weekly recovery reads it.
-  const bestMedicalSkill = Math.round((useMedicalBonuses().data?.healChance ?? 0) * 250);
 
   if (isLoading) {
     return (
@@ -579,7 +566,7 @@ export default function MedicalCentre() {
     );
   }
 
-  const allPlayers = [...(roster?.activePlayers ?? []), ...(roster?.benchPlayers ?? [])];
+  const allPlayers = [...(roster?.activePlayers ?? []), ...(roster?.benchPlayers ?? []), ...(((roster as { injuredList?: any[] } | undefined)?.injuredList) ?? [])];
   const injuredPlayers = allPlayers.filter(p => (p.injuryStatus as string) !== "Healthy");
 
   return (
@@ -617,10 +604,10 @@ export default function MedicalCentre() {
       <MedicalReportPanel injuredPlayers={injuredPlayers} allPlayers={allPlayers} />
 
       {/* ── Treatment Queue ── */}
-      <TreatmentQueue injuredPlayers={injuredPlayers} bestSkill={bestMedicalSkill} />
+      <TreatmentQueue injuredPlayers={injuredPlayers} />
 
       {/* ── Recovery Forecast ── */}
-      <RecoveryForecastPanel injuredPlayers={injuredPlayers} bestSkill={bestMedicalSkill} />
+      <RecoveryForecastPanel injuredPlayers={injuredPlayers} />
 
       {/* ── Injury History ── */}
       <InjuryHistorySection />
@@ -644,9 +631,9 @@ function MedicalReportPanel({ injuredPlayers, allPlayers }: { injuredPlayers: an
     query: { queryKey: getListMedicalStaffQueryKey() },
   });
 
-  const bonuses = useMedicalBonuses().data;
-  // 15 Oct (O-3): the best healer on duty, as the server's weekly recovery reads it.
-  const bestSkill = Math.round((bonuses?.healChance ?? 0) * 250);
+  // Night 2 (O-6): each member's real effect (GET /staff/effects).
+  const effects = useStaffEffects().data;
+  const effectOf = (m: any) => effects?.members.find((e) => e.id === m.id);
 
   const doctor        = medStaff.find((s: any) => normalizeMedicalRole(s.role) === "doctor");
   const specialist    = medStaff.find((s: any) => normalizeMedicalRole(s.role) === "medical_specialist");
@@ -684,11 +671,10 @@ function MedicalReportPanel({ injuredPlayers, allPlayers }: { injuredPlayers: an
               <div className="space-y-2">
                 {injuredPlayers.map(player => {
                   const status = (player.injuryStatus as string) ?? "Healthy";
-                  const colors = INJURY_COLORS[status] ?? INJURY_COLORS["Minor Injury"];
-                  const Icon = INJURY_ICONS[status] ?? AlertTriangle;
-                  const weeksLeft = (player.injuryWeeksRemaining as number) > 0
-                    ? (player.injuryWeeksRemaining as number)
-                    : recoveryWeeks(status, bestSkill);
+                  const colors = injuryLook(player);
+                  const Icon = injuryIcon(player);
+                  // Night 2 (O-7): live, with the club's staff (the server's weeks).
+                  const weeksLeft = Math.ceil(Number(player.injuryWeeksRemaining ?? 0));
                   return (
                     <div key={player.id} className={cn("flex items-center justify-between rounded-lg border px-3 py-2", colors.border, colors.bg)}>
                       <div className="flex items-center gap-2 min-w-0">
@@ -699,7 +685,7 @@ function MedicalReportPanel({ injuredPlayers, allPlayers }: { injuredPlayers: an
                           <p className="font-medium text-sm truncate">{player.name}</p>
                           <div className="flex items-center gap-1">
                             <Icon className={cn("h-3 w-3 shrink-0", colors.text)} />
-                            <span className={cn("text-[11px]", colors.text)}>{status}</span>
+                            <span className={cn("text-[11px]", colors.text)}>{injuryName(player)}</span>
                           </div>
                         </div>
                       </div>
@@ -707,7 +693,7 @@ function MedicalReportPanel({ injuredPlayers, allPlayers }: { injuredPlayers: an
                         <p className={cn("text-xs font-bold", colors.text)}>
                           {weeksLeft === 0 ? "Ready" : `${weeksLeft}w`}
                         </p>
-                        {doctor && <p className="text-[10px] text-muted-foreground">{doctor.name}</p>}
+                        <p className="text-[10px] text-muted-foreground">{treatedBy(status) ? `treated by: ${treatedBy(status)}` : ""}</p>
                       </div>
                     </div>
                   );
@@ -728,54 +714,10 @@ function MedicalReportPanel({ injuredPlayers, allPlayers }: { injuredPlayers: an
               <p className="text-xs text-muted-foreground">No medical staff hired yet. Visit the Medical Market to build your department.</p>
             ) : (
               <div className="space-y-3">
-                {doctor && (
-                  <ContributionRow
-                    label="Injury Recovery"
-                    staff={doctor}
-                    bonus={`${pct(staffSkill(doctor) / 250)} a week${bonuses?.healer?.id === doctor.id ? "" : " (not the best healer)"}`}
-                    color="text-red-600"
-                  />
-                )}
-                {specialist && (
-                  <ContributionRow
-                    label="Injury Prevention"
-                    staff={specialist}
-                    bonus={`−${pct(1 - (bonuses?.injuryRiskFactor ?? 1))} injury risk`}
-                    color="text-blue-600"
-                  />
-                )}
-                {physio && (
-                  <ContributionRow
-                    label="Injury Recovery"
-                    staff={physio}
-                    bonus={`${pct(staffSkill(physio) / 250)} a week${bonuses?.healer?.id === physio.id ? "" : " (not the best healer)"}`}
-                    color="text-teal-600"
-                  />
-                )}
-                {nutritionist && (
-                  <ContributionRow
-                    label="Stamina Growth"
-                    staff={nutritionist}
-                    bonus={`+${Math.round((staffSkill(nutritionist)) / 20)}%`}
-                    color="text-green-600"
-                  />
-                )}
-                {sportsScientist && (
-                  <ContributionRow
-                    label="Training Effectiveness"
-                    staff={sportsScientist}
-                    bonus={`+${Math.round((staffSkill(sportsScientist)) / 10)}%`}
-                    color="text-indigo-600"
-                  />
-                )}
-                {massageTherapist && (
-                  <ContributionRow
-                    label="Muscle & Fatigue Care"
-                    staff={massageTherapist}
-                    bonus={`+${Math.round((staffSkill(massageTherapist)) / 12)}%`}
-                    color="text-pink-600"
-                  />
-                )}
+                {[doctor, physio, specialist, sportsScientist, nutritionist, massageTherapist].filter(Boolean).map((m: any) => (
+                  <ContributionRow key={m.id} label={MEDICAL_BONUS_DESCRIPTIONS[normalizeMedicalRole(m.role) ?? "doctor"].label} staff={m}
+                    bonus={effectOf(m)?.effect ?? ""} color={MEDICAL_BONUS_DESCRIPTIONS[normalizeMedicalRole(m.role) ?? "doctor"].color} />
+                ))}
               </div>
             )}
           </CardContent>
@@ -837,7 +779,7 @@ function ContributionRow({ label, staff, bonus, color }: { label: string; staff:
       </div>
       <div className="flex items-center gap-2 shrink-0">
         <span className="text-muted-foreground/60 text-[10px] truncate max-w-[80px]">{staff.name.split(" ").pop()}</span>
-        <span className={cn("font-bold", color)}>{bonus}</span>
+        <span className={cn("font-semibold text-right", color)}>{bonus}</span>
       </div>
     </div>
   );
@@ -846,8 +788,8 @@ function ContributionRow({ label, staff, bonus, color }: { label: string; staff:
 /* ── Squad Fitness Overview ────────────────────────────────── */
 
 function SquadFitnessOverview({ allPlayers }: { allPlayers: any[] }) {
-  // The Fitness Guru and (15 Oct, O-3) the medical specialist, as the server multiplies them.
-  const riskFactor = (useMyManager().data?.injuryRiskFactor ?? 1) * (useMedicalBonuses().data?.injuryRiskFactor ?? 1);
+  // The Fitness Guru and (night 2, O-6) the sports scientist, as the server multiplies them.
+  const riskFactor = (useMyManager().data?.injuryRiskFactor ?? 1) * (useStaffEffects().data?.injuryRiskFactor ?? 1);
   return (
     <section className="space-y-3">
       <h3 className="text-lg font-semibold flex items-center gap-2">
@@ -861,9 +803,8 @@ function SquadFitnessOverview({ allPlayers }: { allPlayers: any[] }) {
           <CardContent className="p-0">
             <div className="divide-y">
               {allPlayers.map((player) => {
-                const status = (player.injuryStatus as string) ?? "Healthy";
-                const colors = INJURY_COLORS[status] ?? INJURY_COLORS["Healthy"];
-                const Icon = INJURY_ICONS[status] ?? CheckCircle2;
+                const colors = injuryLook(player);
+                const Icon = injuryIcon(player);
                 const fitness = player.fitness as number;
                 const fatigue = player.fatigue as number;
                 const risk = calcInjuryRisk(fitness, fatigue, riskFactor);
@@ -887,7 +828,7 @@ function SquadFitnessOverview({ allPlayers }: { allPlayers: any[] }) {
                         </div>
                         <div className="flex items-center gap-1 shrink-0">
                           <Icon className={`h-3 w-3 ${colors.text} shrink-0`} />
-                          <span className={`text-xs font-medium ${colors.text} whitespace-nowrap`}>{status}</span>
+                          <span className={`text-xs font-medium ${colors.text} whitespace-nowrap`}>{injuryName(player)}</span>
                         </div>
                         {/* Item 20: this % is the injury risk, not fatigue; it
                             stood unlabelled next to the name, so 17% read as her
@@ -929,21 +870,17 @@ function SquadFitnessOverview({ allPlayers }: { allPlayers: any[] }) {
 
 /* ── Treatment Queue ─────────────────────────────────────────── */
 
-type InjuredPlayer = { id: number; name: string; injuryStatus: unknown; injuryWeeksRemaining: unknown };
+type InjuredPlayer = { id: number; name: string; injuryStatus: unknown; injuryWeeksRemaining: unknown; injuryArea?: unknown; injuryBaseWeeksLeft?: unknown };
 
-function TreatmentQueue({ injuredPlayers, bestSkill }: { injuredPlayers: InjuredPlayer[]; bestSkill: number }) {
+function TreatmentQueue({ injuredPlayers }: { injuredPlayers: InjuredPlayer[] }) {
   const queue = injuredPlayers
     .map(p => {
       const status = p.injuryStatus as string;
-      const baseWeeks = INJURY_BASE_WEEKS[status] ?? 0;
-      const weeksLeft = (p.injuryWeeksRemaining as number) > 0
-        ? (p.injuryWeeksRemaining as number)
-        : recoveryWeeks(status, bestSkill);
-      // Item 20: days left and the bar from the same figures. The whole of the
-      // injury is its rolled length (or what is left, if that is longer).
-      const daysLeft = Math.round(weeksLeft * 7);
-      const totalDays = Math.max(baseWeeks * 7, daysLeft);
-      const progress = totalDays > 0 ? Math.round(Math.max(0, Math.min(100, ((totalDays - daysLeft) / totalDays) * 100))) : 0;
+      // Night 2 (O-7): days left are the server's live weeks; the bar is the share
+      // of the injury's base weeks already healed.
+      const daysLeft = Math.round(Number(p.injuryWeeksRemaining ?? 0) * 7);
+      const base = injuryInfo(status)?.baseWeeks ?? 0;
+      const progress = base > 0 ? Math.round(Math.max(0, Math.min(100, (1 - Number(p.injuryBaseWeeksLeft ?? base) / base) * 100))) : 0;
       return { ...p, status, daysLeft, progress };
     })
     .sort((a, b) => a.daysLeft - b.daysLeft);
@@ -966,8 +903,8 @@ function TreatmentQueue({ injuredPlayers, bestSkill }: { injuredPlayers: Injured
           <CardContent className="p-0">
             <div className="divide-y">
               {queue.map((player, idx) => {
-                const colors = INJURY_COLORS[player.status] ?? INJURY_COLORS["Minor Injury"];
-                const Icon = INJURY_ICONS[player.status] ?? AlertTriangle;
+                const colors = injuryLook(player);
+                const Icon = injuryIcon(player);
                 const barColor = player.progress >= 75 ? "bg-green-500" : player.progress >= 40 ? "bg-yellow-500" : "bg-orange-500";
 
                 return (
@@ -977,7 +914,7 @@ function TreatmentQueue({ injuredPlayers, bestSkill }: { injuredPlayers: Injured
                       <p className="font-semibold text-sm truncate">{player.name}</p>
                       <div className="flex items-center gap-1 mt-0.5">
                         <Icon className={`h-3 w-3 shrink-0 ${colors.text}`} />
-                        <span className={`text-[11px] ${colors.text}`}>{player.status}</span>
+                        <span className={`text-[11px] ${colors.text}`}>{injuryName(player)}</span>
                       </div>
                     </div>
                     <div className="flex-1 min-w-0 space-y-1">
@@ -1004,7 +941,7 @@ function TreatmentQueue({ injuredPlayers, bestSkill }: { injuredPlayers: Injured
 
 /* ── Recovery Forecast ─────────────────────────────────────── */
 
-function RecoveryForecastPanel({ injuredPlayers, bestSkill }: { injuredPlayers: InjuredPlayer[]; bestSkill: number }) {
+function RecoveryForecastPanel({ injuredPlayers }: { injuredPlayers: InjuredPlayer[] }) {
   if (injuredPlayers.length === 0) {
     return (
       <section className="space-y-3">
@@ -1021,13 +958,7 @@ function RecoveryForecastPanel({ injuredPlayers, bestSkill }: { injuredPlayers: 
     );
   }
 
-  const playersWithDays = injuredPlayers.map(p => {
-    const status = p.injuryStatus as string;
-    const weeksLeft = (p.injuryWeeksRemaining as number) > 0
-      ? (p.injuryWeeksRemaining as number)
-      : recoveryWeeks(status, bestSkill);
-    return { ...p, daysLeft: weeksLeft * 7 };
-  });
+  const playersWithDays = injuredPlayers.map(p => ({ ...p, daysLeft: Math.round(Number(p.injuryWeeksRemaining ?? 0) * 7) }));
 
   const recoveredIn7  = playersWithDays.filter(p => p.daysLeft <= 7).length;
   const recoveredIn30 = playersWithDays.filter(p => p.daysLeft <= 30).length;
@@ -1072,11 +1003,11 @@ function ForecastStat({ label, value, valueClass }: { label: string; value: numb
 
 /* ── Injury History ─────────────────────────────────────────── */
 
-const INJURY_TYPE_COLORS: Record<string, string> = {
-  "Minor Injury": "border-yellow-500/40 text-yellow-600",
-  "Major Injury": "border-orange-500/40 text-orange-600",
-  "Unavailable":  "border-red-500/40 text-red-600",
-};
+/** Night 2 (O-7): a past injury's colour by the days it kept her out. */
+function historyColor(daysMissed: number): string {
+  return daysMissed > INJURED_LIST.overWeeks * 7 ? "border-red-500/40 text-red-600"
+    : daysMissed >= 28 ? "border-orange-500/40 text-orange-600" : "border-yellow-500/40 text-yellow-600";
+}
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
@@ -1118,16 +1049,16 @@ function InjuryHistorySection() {
               <div className="divide-y">
                 <div className="grid grid-cols-[1fr_auto_auto] sm:grid-cols-[1fr_auto_auto_auto] gap-3 px-4 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wide">
                   <span>Player</span>
-                  <span className="w-24">Injury</span>
+                  <span className="w-40">Injury</span>
                   <span className="w-24 hidden sm:block">Date Injured</span>
                   <span className="w-14 text-right">Missed</span>
                 </div>
                 {history!.map(entry => (
                   <div key={entry.id} className="grid grid-cols-[1fr_auto_auto] sm:grid-cols-[1fr_auto_auto_auto] gap-3 items-center px-4 py-2.5 hover:bg-muted/30 transition-colors">
                     <p className="font-medium text-sm truncate">{entry.playerName}</p>
-                    <div className="w-24">
-                      <Badge variant="outline" className={`text-xs ${INJURY_TYPE_COLORS[entry.injuryType] ?? "border-muted text-muted-foreground"}`}>
-                        {entry.injuryType}
+                    <div className="w-40">
+                      <Badge variant="outline" className={`text-xs ${historyColor(entry.daysMissed)}`}>
+                        {entry.injuryType}{(entry as { area?: string }).area ? ` · ${(entry as { area?: string }).area}` : ""}
                       </Badge>
                     </div>
                     <span className="w-24 text-sm text-muted-foreground whitespace-nowrap hidden sm:block">{formatDate(entry.dateInjured as string)}</span>
@@ -1236,12 +1167,8 @@ function WorkloadMonitoringCard() {
 function SeasonInjuryStatsCard() {
   const { data: stats, isLoading } = useGetSeasonInjuryStats();
 
-  const mostCommonColor: Record<string, string> = {
-    "Minor Injury": "text-yellow-600",
-    "Major Injury": "text-orange-600",
-    "Unavailable":  "text-red-600",
-    "None":         "text-muted-foreground",
-  };
+  // Night 2 (O-7): the season's injuries by name (the server's byType).
+  const byType = ((stats as { byType?: Array<{ label: string; count: number }> } | undefined)?.byType) ?? [];
 
   return (
     <section className="space-y-3">
@@ -1259,8 +1186,13 @@ function SeasonInjuryStatsCard() {
               <StatBox label="Total Injuries" value={`${stats?.totalInjuries ?? 0}`} valueClass="text-primary" />
               <StatBox label="Days Lost" value={`${stats?.daysLost ?? 0}`} valueClass="text-orange-500" />
               <StatBox label="Avg Recovery" value={`${stats?.avgRecoveryDays ?? 0}d`} valueClass="text-blue-500" />
-              <StatBox label="Most Common" value={stats?.mostCommon ?? "None"} valueClass={mostCommonColor[stats?.mostCommon ?? "None"] ?? "text-muted-foreground"} small />
+              <StatBox label="Most Common" value={stats?.mostCommon ?? "None"} valueClass="text-orange-600" small />
               <StatBox label="Currently Injured" value={`${stats?.currentInjuryCount ?? 0}`} valueClass={(stats?.currentInjuryCount ?? 0) > 0 ? "text-red-500" : "text-green-500"} />
+            </div>
+          )}
+          {!isLoading && byType.length > 0 && (
+            <div className="mt-3 flex flex-wrap gap-1.5" data-testid="injuries-by-type">
+              {byType.map((t) => <Badge key={t.label} variant="outline" className="text-xs">{t.label}: {t.count}</Badge>)}
             </div>
           )}
           {!isLoading && (stats?.totalInjuries ?? 0) === 0 && (

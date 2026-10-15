@@ -51,10 +51,15 @@ import { trainingSessionXp } from "./trainingXp.js";
 import { aiProgrammeFor, aiTrainsThisWeek, careerWeekOf } from "./aiTraining.js";
 import { specialityFactor } from "./managerFaces.js";
 import { seniorWageBillTx, fitsUnderCap } from "./salaryCap.js";
-import { isInjured, matchInjuryRoll, newInjuryPatch } from "./condition.js";
+import { isInjured, matchInjuryRoll } from "./condition.js";
+import { startInjuryTx } from "./injuries.js";
+import { careerGameDateTx } from "./gameDate.js";
 import { askingWage } from "./wageCurve.js";
 
 type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
+
+import { PROMOTION_MIN_AGE } from "./squadRules.js";
+import { seasonEndsForCareerTx } from "./seasonDates.js";
 
 /** Two on the sand: an AI club never goes below this (Rob, U-6), and needs this many fit to play. */
 export const AI_MIN_SQUAD = 2;
@@ -91,6 +96,8 @@ export type AiMember = {
   /** Item 4c: injured (utils/condition.ts isInjured), and the weeks she is still out. A pool player never is. */
   injured: boolean;
   injuryWeeks: number;
+  /** Night 2 (O-10): on the injured list (utils/injuredList.ts): she gives up her place. A pool player never is. */
+  onList: boolean;
   /** Part 4: her development profile (players.development) and serious injuries, for the injury roll. */
   development: DevelopmentProfile | null;
   seriousInjuries: number;
@@ -126,7 +133,7 @@ export function aiSquadsTx(tx: Tx, careerSaveId: number): Map<number, AiMember[]
       age: p.baseAge, ...stats, rating: overallRating(stats),
       salary: c ? Number(c.salary) : monthlySalaryFor(overallRating(stats)), contractEndDate: c?.endDate ?? null,
       imageUrl: p.imageUrl ?? null, skinTone: p.skinTone ?? null, poolPlayerId: p.id, joinedOn: null,
-      injured: false, injuryWeeks: 0, development: null, seriousInjuries: 0,
+      injured: false, injuryWeeks: 0, onList: false, development: null, seriousInjuries: 0,
     });
   }
 
@@ -139,7 +146,7 @@ export function aiSquadsTx(tx: Tx, careerSaveId: number): Map<number, AiMember[]
     poolPlayerId: careerPlayerStateTable.poolPlayerId, skinTone: continentalPoolPlayersTable.skinTone,
     joinedOn: careerPlayerStateTable.poolJoinedOn,
     isInjured: careerPlayerStateTable.isInjured, injuryStatus: careerPlayerStateTable.injuryStatus,
-    injuryWeeks: careerPlayerStateTable.injuryWeeksRemaining,
+    injuryWeeks: careerPlayerStateTable.injuryWeeksRemaining, onList: careerPlayerStateTable.onInjuredList,
     development: playersTable.development, seriousInjuries: careerPlayerStateTable.seriousInjuries,
   }).from(careerPlayerStateTable)
     .innerJoin(playersTable, eq(playersTable.id, careerPlayerStateTable.playerId))
@@ -157,7 +164,7 @@ export function aiSquadsTx(tx: Tx, careerSaveId: number): Map<number, AiMember[]
       kind: "player", id: s.id, poolTeamId: s.poolTeamId!, name: s.name, nationality: s.nationality, age: s.age,
       ...stats, rating: overallRating(stats), salary: Number(s.salary), contractEndDate: s.contractEndDate,
       imageUrl: s.imageUrl ?? null, skinTone: s.skinTone ?? toneFor(s.nationality, s.id), poolPlayerId: s.poolPlayerId, joinedOn: s.joinedOn,
-      injured: isInjured({ isInjured: s.isInjured, injuryStatus: s.injuryStatus ?? "Healthy" }), injuryWeeks: Number(s.injuryWeeks ?? 0),
+      injured: isInjured({ isInjured: s.isInjured, injuryStatus: s.injuryStatus ?? "Healthy" }), injuryWeeks: Number(s.injuryWeeks ?? 0), onList: !!s.onList,
       development: s.development ?? null, seriousInjuries: Number(s.seriousInjuries ?? 0),
     });
   }
@@ -210,17 +217,18 @@ export function aiMatchRatingsTx(tx: Tx, careerSaveId: number): Map<number, numb
  * run of matches), so only her stamina and the multipliers count. Returns the
  * names of those hurt.
  */
-export function aiMatchInjuriesTx(w: CareerStateTx, careerSaveId: number, poolTeamId: number, weatherMultiplier = 1, random: () => number = Math.random): string[] {
+export function aiMatchInjuriesTx(w: CareerStateTx, careerSaveId: number, poolTeamId: number, weatherMultiplier = 1, random: () => number = Math.random, today?: string): string[] {
   const played = (aiSquadsTx(w.tx, careerSaveId).get(poolTeamId) ?? []).filter((m) => !m.injured).slice(0, AI_MIN_SQUAD);
   const fitnessGuru = specialityFactor({ careerSaveId, poolTeamId }, "Fitness Guru");
-  // 15 Oct (O-3): its medical specialist (from the Day 8 deal), on duty, as the player's club's.
+  // Night 2 (O-6): its sports scientist, on duty, as the player's club's.
   const staffFactor = injuryRiskStaffFactor(loadStaffTx(w.tx, careerSaveId, { poolTeamId }));
+  const date = today ?? careerGameDateTx(w.tx, careerSaveId);
   const hurt: string[] = [];
   for (const m of played) {
     if (m.kind !== "player") continue;   // a pool player is not a career row yet: nothing to injure
-    const inj = matchInjuryRoll({ stamina: m.stamina, development: m.development }, { weatherMultiplier, fitnessGuru, staffFactor }, random);
-    if (!inj) continue;
-    w.setPlayerState(careerSaveId, m.id, newInjuryPatch({ speed: m.speed, stamina: m.stamina, seriousInjuries: m.seriousInjuries }, inj));
+    if (!matchInjuryRoll({ stamina: m.stamina, development: m.development }, { weatherMultiplier, fitnessGuru, staffFactor }, random)) continue;
+    // Night 2 (O-7): what it is and how long, by its own medical staff (utils/injuries.ts).
+    startInjuryTx(w, careerSaveId, { poolTeamId }, { id: m.id, speed: m.speed, stamina: m.stamina, seriousInjuries: m.seriousInjuries }, date, random);
     hurt.push(m.name);
   }
   return hurt;
@@ -305,23 +313,24 @@ export function aiSeniorsTrainWeekTx(w: CareerStateTx, careerSaveId: number, tod
       or(eq(playersTable.playerType, "senior"), eq(careerPlayerStateTable.isPromoted, true)),
     )).all();
   const coach = new Map<number, number>();
-  const staff = new Map<number, number>();
+  const staff = new Map<number, ReturnType<typeof trainingStaffBonuses>>();
   for (const s of seniors) {
     const club = s.poolTeamId!;
     if (!coach.has(club)) coach.set(club, specialityFactor({ careerSaveId, poolTeamId: club }, "Coach"));
     // Overnight part 3 (B-4): its Head Coach and Assistant Coach multiply the XP
     // through the player's own rule (utils/staffBonuses.ts); one off ill gives nothing.
-    if (!staff.has(club)) staff.set(club, trainingStaffBonuses(loadStaffTx(w.tx, careerSaveId, { poolTeamId: club })).xpMultiplier);
-    const xp = trainingSessionXp(s, aiProgrammeFor(s), { manager: coach.get(club), staff: staff.get(club) });
+    if (!staff.has(club)) staff.set(club, trainingStaffBonuses(loadStaffTx(w.tx, careerSaveId, { poolTeamId: club })));
+    const bonus = staff.get(club)!;
+    const xp = trainingSessionXp(s, aiProgrammeFor(s), { manager: coach.get(club), staff: bonus.xpMultiplier, statStaff: bonus.statXp });
     w.setPlayerState(careerSaveId, s.id, { trainingPoints: xp.newPoints, ...xp.statUpdates });
   }
   return seniors.length;
 }
 
-/** An AI club's best academy youth (not out on loan), for when no free agent can be signed. */
-function academyBestTx(tx: Tx, careerSaveId: number, poolTeamId: number) {
+/** An AI club's best academy youth (not out on loan; `minAge` and up), for when no free agent can be signed. */
+function academyBestTx(tx: Tx, careerSaveId: number, poolTeamId: number, minAge = 0) {
   return tx.select({
-    id: playersTable.id,
+    id: playersTable.id, age: careerPlayerStateTable.age,
     speed: careerPlayerStateTable.speed, power: careerPlayerStateTable.power, defense: careerPlayerStateTable.defense,
     serve: careerPlayerStateTable.serve, block: careerPlayerStateTable.block, stamina: careerPlayerStateTable.stamina,
   }).from(careerPlayerStateTable)
@@ -334,6 +343,7 @@ function academyBestTx(tx: Tx, careerSaveId: number, poolTeamId: number) {
       eq(playersTable.playerType, "youth"),
       eq(careerPlayerStateTable.isPromoted, false),
     )).all()
+    .filter((p) => p.age >= minAge)
     .map((p) => ({ id: p.id, rating: overallRating(p) }))
     .sort((a, b) => b.rating - a.rating || a.id - b.id)[0] ?? null;
 }
@@ -445,7 +455,8 @@ export function keepAiSquadsTx(w: CareerStateTx, careerSaveId: number, today: st
   const clubs = random ? listed.map((c) => ({ c, k: random() })).sort((a, b) => a.k - b.k).map((e) => e.c) : listed;
   for (const { id: poolTeamId } of clubs) {
     const squad = squads.get(poolTeamId) ?? [];
-    let left = squad.length;
+    // Night 2 (O-10): a senior on the injured list does not hold a place (aiInjuredListDayTx covers it).
+    let left = squad.filter((m) => !m.onList).length;
     let fit = squad.filter((m) => !m.injured).length;
     for (const m of squad) {
       if (m.kind !== "player" || !m.contractEndDate || m.contractEndDate >= today) continue;
@@ -502,6 +513,51 @@ export function keepAiSquadsTx(w: CareerStateTx, careerSaveId: number, today: st
     }
   }
   return { renewed, released, signed, short };
+}
+
+/**
+ * Night 2 (O-10): an AI club's injured list, every game day (utils/injuredList.ts).
+ * A club with a senior on it and a place free fills it from its academy (best
+ * 16+, PROMOTION_MIN_AGE), else with the best free agent it can afford and fit
+ * under its cap. A senior on it who is fit again comes off it, and the club
+ * releases its weakest other senior if it has no place for her.
+ */
+export function aiInjuredListDayTx(w: CareerStateTx, careerSaveId: number, today: string): { covered: number; released: number } {
+  let covered = 0, released = 0;
+  let seasonEnds: string[] | null = null;
+  for (const [poolTeamId, squad] of aiSquadsTx(w.tx, careerSaveId)) {
+    const listed = squad.filter((m) => m.kind === "player" && m.onList);
+    if (listed.length === 0) continue;
+    let others = squad.filter((m) => !m.onList);
+    for (const m of listed) {
+      if (m.injured) {
+        if (others.length >= AI_MAX_SQUAD) continue;
+        seasonEnds ??= seasonEndsForCareerTx(w.tx, careerSaveId);
+        const youth = academyBestTx(w.tx, careerSaveId, poolTeamId, PROMOTION_MIN_AGE);
+        if (youth) {
+          w.setPlayerState(careerSaveId, youth.id, { isPromoted: true, academyRole: null });
+          signToAiClub(w, careerSaveId, poolTeamId, youth.id, youth.rating, today, seasonEnds);
+        } else {
+          const fa = bestAffordableFreeAgent(w.tx, careerSaveId, poolTeamId);
+          if (!fa) continue;
+          signToAiClub(w, careerSaveId, poolTeamId, fa.id, fa.rating, today, seasonEnds, fa.injuryWeeks);
+        }
+        covered++;
+        others = (aiSquadsTx(w.tx, careerSaveId).get(poolTeamId) ?? []).filter((x) => !x.onList);
+        continue;
+      }
+      if (others.length >= AI_MAX_SQUAD) {
+        const weakest = [...others].filter((x) => x.kind === "player").sort((a, b) => a.rating - b.rating)[0];
+        if (!weakest) continue;
+        releaseToMarket(w, careerSaveId, weakest.id, monthlySalaryFor(weakest.rating));
+        others = others.filter((x) => x !== weakest);
+        released++;
+      }
+      w.setPlayerState(careerSaveId, m.id, { onInjuredList: false, injuredListSince: null, injuredListSquad: null, squadRole: "starter" });
+      others.push(m);
+    }
+  }
+  return { covered, released };
 }
 
 /** Update 1, item 4a: an AI club lets her go; she is a free agent, asking `wage`. */

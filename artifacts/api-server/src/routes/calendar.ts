@@ -41,7 +41,9 @@ import {
 import { boardDay } from "../utils/board-confidence.js";
 import { endCareer, loseClub } from "../utils/careerLifecycle.js";
 import { isOlympicYear, olympicDate } from "../utils/olympics.js";
-import { REST_RECOVERY, applyWeeklyInjuryRecovery, aiInjuryRecoveryWeekTx, isInjured, selectPair, PAIR_SIZE } from "../utils/condition.js";
+import { REST_RECOVERY, isInjured, selectPair, PAIR_SIZE } from "../utils/condition.js";
+import { applyWeeklyInjuryRecovery, aiInjuryRecoveryWeekTx, refreshAllInjuryClocksTx } from "../utils/injuries.js";
+import { injuredListDayTx } from "../utils/injuredList.js";
 import { staffAbsenceDayTx, aiStaffAbsenceDayTx } from "../utils/staffIllness.js";
 import { substituteInjuredMatchPlayers, substitutionNotes } from "../utils/matchDaySubstitution.js";
 import { finishDueTrainingSessions } from "./training.js";
@@ -64,7 +66,7 @@ import {
 import { seasonEndsForCareerTx } from "../utils/seasonDates.js";
 import { roundToDate } from "../utils/roundDates.js";
 import { purseAccessTierFor } from "../utils/rankingPoints.js";
-import { promotionsMultiplier } from "../utils/staffBonuses.js";
+import { promotionsMultiplier, dailyRestBonus } from "../utils/staffBonuses.js";
 import { absoluteRound, completeDueUpgrades } from "../utils/facilityUpgrades.js";
 import { facilityName, managerSalaryFor } from "@workspace/db";
 
@@ -526,6 +528,13 @@ async function advanceOneDay(req: Request): Promise<DayResult> {
       fitness: sql`MIN(100, fitness + ${REST_RECOVERY.injured.fitness})`,
     },
     ne(careerPlayerStateTable.injuryStatus, "Healthy"));
+  // Night 2 (O-6): the massage therapist takes up to 5 more tiredness off every
+  // player, every day, on top of the rest (utils/staffBonuses.ts). Whole points,
+  // as fatigue is stored. The AI clubs' players carry no tiredness (item 4c).
+  {
+    const massage = Math.round(dailyRestBonus(await loadStaff(careerSaveId, { teamId: team.id })));
+    if (massage > 0) await updateTeamPlayerState(careerSaveId, team.id, { fatigue: sql`MAX(0, fatigue - ${massage})` });
+  }
 
   // 3b. Final brief 5 Oct, Part B: the club's staff fall ill or get hurt, half
   // as often as players and for half as long; while off, their bonus does not
@@ -789,6 +798,10 @@ async function advanceOneDay(req: Request): Promise<DayResult> {
   // 5e. Update 1, overnight part 5: the pre-season (the choice on the off-season's day 7,
   // the AI clubs' choice, and every camp whose last day has come).
   events.push(...withCareerStateTx((w) => preseasonDayTx(w, expiryCareerId, team.id, nextDate)));
+  // 5f. Night 2 (O-7): every injured player's weeks out follow her club's medical
+  // staff today (utils/injuries.ts); (O-10) the injured list (utils/injuredList.ts).
+  withCareerStateTx((w) => refreshAllInjuryClocksTx(w, expiryCareerId, [team.id]));
+  events.push(...withCareerStateTx((w) => injuredListDayTx(w, expiryCareerId, team.id, nextDate)));
 
   // 6. Advance the date
   await db.update(calendarStateTable)

@@ -5,6 +5,7 @@ import { repriceFreeAgentsOnce } from "./utils/freeAgentWages.js";
 import { dealAiStaffToOlderCareers } from "./utils/aiStaff.js";
 import { giveEveryPlayerAProfile } from "./utils/player-development.js";
 import { repairTakeoverYouthContracts } from "./utils/youthLoans.js";
+import { convertLegacyInjuries } from "./utils/injuries.js";
 import { giveOpenStaffContractsAnEnd } from "./utils/staffContractBackfill.js";
 import { refileScoutingLines } from "./utils/ledgerRefile.js";
 import { renameLedgerRounds } from "./utils/ledgerRoundNames.js";
@@ -316,6 +317,14 @@ try {
   if (fixed > 0) logger.info({ fixed }, "taken-over clubs' academy youths given the academy's terms");
 } catch (err) {
   logger.error({ err }, "repairing taken-over academy youths failed");
+}
+
+// Update 1, night 2 (O-7): an older save's injuries become named ones of the same length.
+try {
+  const { converted } = convertLegacyInjuries();
+  if (converted > 0) logger.info({ converted }, "older injuries given names");
+} catch (err) {
+  logger.error({ err }, "naming older injuries failed");
 }
 
 // Update 1, overnight part 4 (B-1, B-2): every player has a development profile

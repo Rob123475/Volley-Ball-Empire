@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { PROMOTION_MIN_AGE } from "@shared/injuries";
+import { InjuryHistory, areaLabel } from "@/components/injury-history";
 import { WageCapLine, WAGE_CAP_QUERY_KEY } from "@/lib/wage-cap";
 import {
   useGetTeamRoster,
@@ -254,6 +256,8 @@ export default function TeamRoster() {
 
   const starters     = roster?.starters     ?? [];
   const interchanges = roster?.interchanges  ?? [];
+  // Night 2 (O-10): out more than 6 weeks: off the match places until fit and a place is hers.
+  const injuredList  = ((roster as { injuredList?: any[] } | undefined)?.injuredList) ?? [];
   const reserves     = roster?.reserves     ?? [];
   const allPlayers   = [...starters, ...interchanges, ...reserves];
 
@@ -321,8 +325,8 @@ export default function TeamRoster() {
   const handleRoleChange = (playerId: number, role: Role) => {
     // Youth under-18 guard (defense-in-depth; buttons are also disabled)
     const movingPlayer = allPlayers.find((p: any) => p.id === playerId);
-    if (movingPlayer && movingPlayer.age >= 14 && movingPlayer.age <= 17 && (role === "starter" || role === "interchange")) {
-      toast({ title: "Too Young to Promote", description: "Youth players under 18 cannot join the senior squad.", variant: "destructive" });
+    if (movingPlayer && movingPlayer.age < PROMOTION_MIN_AGE && (role === "starter" || role === "interchange")) {
+      toast({ title: "Too Young to Promote", description: `Youth players under ${PROMOTION_MIN_AGE} cannot join the senior squad.`, variant: "destructive" });
       return;
     }
 
@@ -570,9 +574,17 @@ export default function TeamRoster() {
             <Progress value={player.fitness ?? 100} className="h-1.5" />
             {injured && (
               <div className="text-xs font-semibold text-red-600 dark:text-red-400">
-                Injured: {player.injuryStatus} · {Math.ceil(Number(player.injuryWeeksRemaining ?? 0))} week{Math.ceil(Number(player.injuryWeeksRemaining ?? 0)) === 1 ? "" : "s"} out · cannot be selected
+                Injured: {player.injuryStatus}{areaLabel((player as { injuryArea?: string | null }).injuryArea) ? ` (${areaLabel((player as { injuryArea?: string | null }).injuryArea)})` : ""} · {Math.ceil(Number(player.injuryWeeksRemaining ?? 0))} week{Math.ceil(Number(player.injuryWeeksRemaining ?? 0)) === 1 ? "" : "s"} out · cannot be selected
+                {(player as { onInjuredList?: boolean }).onInjuredList && " · on the injured list: her senior place is free for cover"}
               </div>
             )}
+            {/* Night 2 (O-10): fit, but cover taken on while she was out is still on the roster. */}
+            {!injured && (player as { onInjuredList?: boolean }).onInjuredList && (
+              <div className="text-xs font-semibold text-amber-600 dark:text-amber-400" data-testid={`waiting-${player.id}`}>
+                Fit, waiting for a place: release, sell or loan out the cover you took on while she was out, and she plays again.
+              </div>
+            )}
+            <InjuryHistory playerId={player.id} />
           </div>
 
           <div className="space-y-1.5">
@@ -760,14 +772,14 @@ export default function TeamRoster() {
           {/* ── Role swap buttons ─────────────────────────────────── */}
           <div className="pt-1 border-t border-border space-y-2">
             <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Move to</p>
-            {role === "reserve" && player.age >= 14 && player.age <= 17 && (
+            {role === "reserve" && player.age < PROMOTION_MIN_AGE && (
               <p className="text-[10px] text-amber-600 font-semibold">
-                Under 18 — eligible for promotion at age 18.
+                Under {PROMOTION_MIN_AGE} — eligible for promotion at age {PROMOTION_MIN_AGE}.
               </p>
             )}
-            {role === "reserve" && player.age === 18 && (
+            {role === "reserve" && player.age >= PROMOTION_MIN_AGE && player.age <= 18 && (
               <p className="text-[10px] text-emerald-600 font-semibold">
-                Age 18 — promotion eligible.
+                Age {player.age} — promotion eligible.
               </p>
             )}
             <div className="flex gap-1 flex-wrap">
@@ -778,7 +790,7 @@ export default function TeamRoster() {
                   r === "interchange" && interchanges.length >= 3 && !interchanges.find((p: any)  => p.id === player.id);
                 const isYouthLocked =
                   role === "reserve" &&
-                  player.age >= 14 && player.age <= 17 &&
+                  player.age < PROMOTION_MIN_AGE &&
                   (r === "starter" || r === "interchange");
                 // Item 14: an injured player cannot be made a Match Player (the server refuses too).
                 const isInjuryLocked = r === "starter" && injured;
@@ -788,7 +800,7 @@ export default function TeamRoster() {
                     variant="outline"
                     size="sm"
                     disabled={isFull || isYouthLocked || isInjuryLocked || roleMutation.isPending}
-                    title={isYouthLocked ? "Under 18 – cannot join the senior squad yet" : isInjuryLocked ? "Injured – cannot be a Match Player until she recovers" : undefined}
+                    title={isYouthLocked ? `Under ${PROMOTION_MIN_AGE} – cannot join the senior squad yet` : isInjuryLocked ? "Injured – cannot be a Match Player until she recovers" : undefined}
                     className={cn(
                       "flex-1 text-xs gap-1 font-semibold border-2",
                       isFull || isYouthLocked || isInjuryLocked ? "opacity-40" : cn(c.color, c.border, "hover:" + c.bg)
@@ -1246,6 +1258,22 @@ export default function TeamRoster() {
           {interchanges.length === 0 && <EmptySection role="interchange" />}
         </div>
       </section>
+
+      {/* ── Injured list (night 2, O-10) ─────────────────────────── */}
+      {injuredList.length > 0 && (
+        <section className="space-y-4" data-testid="injured-list">
+          <SectionHeader
+            title="Injured List"
+            subtitle="Out more than 6 weeks. She doesn't take a senior place while she's here, so you can promote, sign or loan in cover; her wage still counts toward the cap. If you take on cover, she can't play again until that cover has gone, even when she's fit."
+            icon={Shield}
+            count={injuredList.length}
+            role="interchange"
+          />
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {injuredList.map((p: any) => <PlayerCard key={p.id} player={p} role="interchange" />)}
+          </div>
+        </section>
+      )}
 
       {/* ── Youths ───────────────────────────────────────────────── */}
       <section className="space-y-4 pb-8">

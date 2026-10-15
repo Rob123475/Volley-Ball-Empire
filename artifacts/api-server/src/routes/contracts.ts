@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { afterSquadChange } from "../utils/injuredList.js";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { refusalReason } from "../utils/squadRules.js";
 import { isYouthPlayer } from "../utils/playerClassification.js";
@@ -143,7 +144,8 @@ router.post("/contracts", async (req, res) => {
   {
     const squad = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id });
     const youthNow = squad.filter(isYouthPlayer);
-    const seniorNow = squad.filter((p) => !isYouthPlayer(p));
+    // Night 2 (O-10): a senior on the injured list does not take one of the places.
+    const seniorNow = squad.filter((p) => !isYouthPlayer(p) && !p.onInjuredList);
     // L-02d: a club's own graduates are held on top of the squad, under their
     // own cap of GRADUATE_CAP. They still take a place on the sand like anybody
     // else, so they count toward the starter and interchange slots — but they
@@ -511,6 +513,8 @@ router.delete("/contracts/:id", async (req, res) => {
     });
   }
 
+  // Night 2 (O-10): letting the cover go gives a fit player on the injured list her place back at once.
+  afterSquadChange(requireCareerSaveId(req.activeCareerSaveId), team.id);
   res.json({ ...serializeContract(terminated), payout });
 });
 

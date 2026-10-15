@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
-export type PlayerStatusLevel = "Healthy" | "Tired" | "Carrying Injury" | "Unavailable";
+export type PlayerStatusLevel = "Healthy" | "Tired" | "Carrying Injury" | "Unavailable" | "Waiting";
 
 export interface PlayerStatusInfo {
   level: PlayerStatusLevel;
@@ -14,27 +14,38 @@ export interface PlayerStatusInfo {
 export function getPlayerStatus(player: {
   fatigue?: number | null;
   injuryStatus?: string | null;
+  onInjuredList?: boolean | null;
 }): PlayerStatusInfo {
   const fatigue = player.fatigue ?? 0;
   const injury = player.injuryStatus ?? "Healthy";
 
-  // R-50: an injured player cannot be selected, so the badge says so.
-  if (injury === "Unavailable") return {
+  // Night 2 (O-7, O-10): the injury by name; on the injured list (out more than
+  // 6 weeks) she gives up her place; fit but still on it, she waits for one.
+  if (injury !== "Healthy" && player.onInjuredList) return {
     level: "Unavailable",
-    label: "Unavailable — can't play",
+    label: `Injured list: ${injury}`,
     dot: "bg-red-500",
     text: "text-red-700 dark:text-red-400",
     bg: "bg-red-50 dark:bg-red-950/30",
     border: "border-red-300 dark:border-red-800",
   };
 
-  if (injury === "Major Injury" || injury === "Minor Injury") return {
+  if (injury !== "Healthy") return {
     level: "Carrying Injury",
-    label: "Injured — can't play",
+    label: `${injury} — can't play`,
     dot: "bg-orange-500",
     text: "text-orange-700 dark:text-orange-400",
     bg: "bg-orange-50 dark:bg-orange-950/30",
     border: "border-orange-300 dark:border-orange-800",
+  };
+
+  if (player.onInjuredList) return {
+    level: "Waiting",
+    label: "Fit, waiting for a place",
+    dot: "bg-amber-500",
+    text: "text-amber-700 dark:text-amber-400",
+    bg: "bg-amber-50 dark:bg-amber-950/30",
+    border: "border-amber-300 dark:border-amber-800",
   };
 
   if (fatigue >= 75) return {

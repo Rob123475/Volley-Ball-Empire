@@ -41,6 +41,13 @@ export type CareerPlayerFields = {
   /** Update 1, overnight part 4 (B-2): injuries of 4+ weeks in this career. */
   seriousInjuries: number;
   isInjured: boolean;
+  /** Night 2 (O-7): the injured body area, and base weeks still to heal (utils/injuries.ts). */
+  injuryArea: string | null;
+  injuryBaseWeeksLeft: number;
+  /** Night 2 (O-10): on the injured list, and since when. */
+  onInjuredList: boolean;
+  injuredListSince: string | null;
+  injuredListSquad: string | null;
   consecutiveMatchesPlayed: number;
   speed: number;
   power: number;
@@ -115,6 +122,11 @@ export function assemblePlayer(
     injuryWeeksRemaining: state.injuryWeeksRemaining,
     seriousInjuries: state.seriousInjuries ?? 0,
     isInjured:            state.isInjured,
+    injuryArea:           state.injuryArea ?? null,
+    injuryBaseWeeksLeft:  Number(state.injuryBaseWeeksLeft ?? 0),
+    onInjuredList:        !!state.onInjuredList,
+    injuredListSince:     state.injuredListSince ?? null,
+    injuredListSquad:     state.injuredListSquad ?? null,
     consecutiveMatchesPlayed: state.consecutiveMatchesPlayed,
     speed:                state.speed,
     power:                state.power,

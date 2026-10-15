@@ -1,4 +1,5 @@
 import { Router, type Request, type Response } from "express";
+import { refreshClubInjuryClocks } from "../utils/injuries.js";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db, MAX_STAFF, MAX_MEDICAL_STAFF, isMedicalRole } from "@workspace/db";
 import { staffTable, teamsTable, financeTransactionsTable, careerHistoryEntriesTable, careerSavesTable } from "@workspace/db";
@@ -116,6 +117,8 @@ router.post("/staff", async (req, res) => {
     }).run();
   });
 
+  // Night 2 (O-7): an injured player's time out follows the club's staff at once.
+  refreshClubInjuryClocks(cid, team.id);
   res.status(201).json(serializeStaff({ ...member, teamId: team.id, isAvailable: false }));
 });
 
@@ -293,6 +296,7 @@ export async function releaseStaffMember(req: Request, res: Response): Promise<v
     });
   }
 
+  refreshClubInjuryClocks(cid, team.id);
   res.json({ ...serializeStaff(updated), terminationFee, budgetAfter: teamBudget - terminationFee });
 }
 

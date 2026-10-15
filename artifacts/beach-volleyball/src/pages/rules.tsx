@@ -1,4 +1,5 @@
 import { CONTINENT_COUNT } from "@shared/continents";
+import { INJURY_TYPES, INJURY_TREATMENT, RECONSTRUCTION, INJURED_LIST, PROMOTION_MIN_AGE } from "@shared/injuries";
 import { MONEY } from "@shared/money";
 import { PRESEASON } from "@shared/preseason";
 import { GAME_DIFFICULTY } from "@shared/game-difficulty";
@@ -174,6 +175,24 @@ export const UPDATE1_RULES: ReadonlyArray<{ title: string; points: string[] }> =
     "A fading skill trains at half speed and loses a point or two at each season's end. Every player's ages are a little different, and a hard worker fades more slowly.",
     "A hard-working, coachable player trains faster; an injury-prone one gets hurt more often.",
     "An injury of 4 weeks or more costs a point of speed and stamina, and a little of her training for good.",
+  ] },
+  { title: "Every staff role has its own job", points: [
+    "Head and Assistant Coach: more training XP. Fitness Trainer: less tiredness from training. Promotional Manager: more sponsor money. Scout: scouts players.",
+    "Strength Coach: more power and block training. Nutritionist: more stamina training. Massage Therapist: more tiredness off every day.",
+    "Sports Scientist: fewer injuries for the whole squad. Doctor and Physio: treat injuries. Medical Specialist: reconstructions.",
+    "Pairs add an extra: Doctor + Physio heal every injury faster; Specialist + Doctor or Physio halve a reconstruction again; Strength Coach + Fitness Trainer mean less tiredness from training; Sports Scientist + Nutritionist give better training techniques.",
+    "Each bonus grows with the member's skill, the best of each role counts, and one off ill gives nothing. The Staff page shows exactly what each of yours does.",
+  ] },
+  { title: "Real injuries", points: [
+    `An injury has a name and a body area, and the doctor or the physio treats it: ${INJURY_TYPES.map((i) => `${i.name.toLowerCase()} (${i.baseWeeks} wk, ${i.treatedBy === "doctor" ? "doctor" : "physio"})`).join(", ")}.`,
+    `Time out is those weeks times the treatment: with neither a doctor nor a physio x${INJURY_TREATMENT.none}, with only the other one x${INJURY_TREATMENT.wrong}, with the right one x${INJURY_TREATMENT.right.at50} to x${INJURY_TREATMENT.right.at95} by skill, with both x${INJURY_TREATMENT.both.at50} to x${INJURY_TREATMENT.both.at95}.`,
+    "Hire the right person while she's out and the rest of her time shrinks; lose them and it grows back.",
+    `A third injury to the same body area within a year is a reconstruction: ${RECONSTRUCTION.baseWeeks} weeks of surgery and rehab, x${RECONSTRUCTION.factor.none} with no medical staff, x${RECONSTRUCTION.factor.doctorOrPhysio} with a doctor or physio, x${RECONSTRUCTION.factor.specialist} with a Medical Specialist, x${RECONSTRUCTION.factor.specialistWithDoctorOrPhysio} with both. Her card shows her injury history.`,
+  ] },
+  { title: "The injured list, cover and promotion at " + PROMOTION_MIN_AGE, points: [
+    `An injury of more than ${INJURED_LIST.overWeeks} weeks puts her on the injured list: she gives up her senior place, so you can promote, sign or loan in cover. Her wage still counts toward the cap.`,
+    "If you take on cover while she's out, she can't play again until that cover has gone (released, sold or loaned out), even when she's fit: \"Fit, waiting for a place\". With no cover she's back as soon as she's fit.",
+    `Academy players can be promoted into the seniors from age ${PROMOTION_MIN_AGE}. The AI clubs use the same list and cover from their academies.`,
   ] },
   { title: "Scouting and the Watch list", points: [
     "Star any player on the Player Market to put her on your Watch list (its own tab).",

@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { INJURED_LIST_ROLE } from "../utils/injuries.js";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { loadPlayers, loadPlayer, updatePlayerState, requireCareerSaveId, type PlayerDTO, loadStaff, careerSaveIdForTeamOrThrow } from "../lib/playerDto.js";
 import { db } from "@workspace/db";
@@ -10,7 +11,7 @@ import { getGameDate } from "../utils/gameDate.js";
 import { updateCareerStats, checkAchievements } from "../utils/check-achievements";
 import type { Team } from "@workspace/db";
 import { ACADEMY_CAP, academySize } from "../utils/academy.js";
-import { GRADUATE_CAP } from "../utils/squadRules.js";
+import { GRADUATE_CAP, PROMOTION_MIN_AGE } from "../utils/squadRules.js";
 import { isInjured } from "../utils/condition.js";
 import { assignGraduatePortraitsTx } from "../utils/graduatePortraits.js";
 
@@ -31,11 +32,14 @@ const buildRosterResponse = (team: any, players: any[], staff: any[]) => {
   const starters    = sp.filter(p => p.squadRole === "starter");
   const interchanges = sp.filter(p => p.squadRole === "interchange");
   const reserves    = sp.filter(p => p.squadRole === "reserve");
+  // Night 2 (O-10): on the injured list, out of the match places until fit and a place is hers.
+  const injuredList = sp.filter(p => p.squadRole === INJURED_LIST_ROLE);
   return {
     team: serializeTeam(team),
     starters,
     interchanges,
     reserves,
+    injuredList,
     // legacy fields — keeps match simulation + other pages working unchanged
     activePlayers: [...starters, ...interchanges],
     benchPlayers: reserves,
@@ -109,11 +113,22 @@ router.patch("/team/roster/:id/role", async (req, res) => {
     return;
   }
 
-  // Youth players under 18 (age 14–17) may not be promoted to starter or interchange
+  // Night 2 (O-10): a player on the injured list keeps her place on it until she
+  // is fit and her cover has gone (utils/injuredList.ts); her role can't be changed.
+  {
+    const listed = await loadPlayer(requireCareerSaveId(req.activeCareerSaveId), playerId);
+    if (listed?.onInjuredList) {
+      res.status(422).json({ error: `${listed.name} is on the injured list. She comes back into the squad when she is fit and the cover you took on has gone.` });
+      return;
+    }
+  }
+
+  // Night 2 (O-10): an academy player may be promoted into a match place from
+  // PROMOTION_MIN_AGE (16; it was 18).
   if (role === "starter" || role === "interchange") {
     const player = await loadPlayer(requireCareerSaveId(req.activeCareerSaveId), playerId);
-    if (player && player.age >= 14 && player.age <= 17) {
-      res.status(422).json({ error: "Youth players under 18 cannot occupy Match Player or Interchange slots." });
+    if (player && player.age < PROMOTION_MIN_AGE) {
+      res.status(422).json({ error: `Youth players under ${PROMOTION_MIN_AGE} cannot occupy Match Player or Interchange slots.` });
       return;
     }
     // Unity brief item 14: the Team page says an injured player "cannot be
@@ -155,7 +170,8 @@ router.patch("/team/roster/:id/role", async (req, res) => {
   // around.
   if (isYouthPromotion) {
     const squad = await loadPlayers(careerSaveId, { teamId: team.id });
-    const held = squad.filter((p) => p.playerType === "youth" && p.isPromoted && !p.isRetired).length;
+    // Night 2 (O-10): one on the injured list does not hold a place.
+    const held = squad.filter((p) => p.playerType === "youth" && p.isPromoted && !p.isRetired && !p.onInjuredList).length;
     if (held >= GRADUATE_CAP) {
       res.status(422).json({
         error: `You already hold ${held} of your own graduates, and a club may keep ${GRADUATE_CAP}. ` +

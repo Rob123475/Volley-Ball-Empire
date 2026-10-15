@@ -1,4 +1,5 @@
 import { gameDateText } from "@/lib/game-date";
+import { useStaffEffects } from "@/components/injury-history";
 import { contractPayout, monthsLeft } from "@/lib/contract-payout";
 import { CONTRACT_LENGTH_LABELS, type ContractLength } from "@/lib/contract-lengths";
 import { attributeLabel, skillAttributes } from "@/lib/staff-attributes";
@@ -10,7 +11,7 @@ import {
   useGetMyTeam,
   getListStaffQueryKey,
   getGetStaffMarketQueryKey,
-  getGetMyTeamQueryKey,
+  getGetMyTeamQueryKey, getGetTeamRosterQueryKey,
 } from "@workspace/api-client-react";
 import { StaffPortrait } from "@/components/ui/staff-portrait";
 import { ContractRenewBar } from "@/components/contract-renew-bar";
@@ -101,14 +102,16 @@ const ROLE_ICONS: Record<string, IconFC> = {
   scout:                Binoculars as IconFC,
 };
 
-const BONUS_DESCRIPTIONS: Record<string, { icon: IconFC; color: string; label: string; detail: string }> = {
-  head_coach:           { icon: TrendingUp as IconFC,      color: "text-amber-600",  label: "Training XP",         detail: "+15–24% training XP based on OVR"              },
-  assistant_coach:      { icon: Target as IconFC,          color: "text-blue-600",   label: "Set Play Design",      detail: "+8–12% serve & block training"                 },
-  fitness_trainer:      { icon: Zap as IconFC,             color: "text-green-600",  label: "Fatigue Recovery",     detail: "Speeds post-match fatigue recovery"             },
-  strength_conditioner: { icon: Dumbbell as IconFC,        color: "text-red-600",    label: "Injury Prevention",    detail: "Reduces injury chance & recovery time"          },
-  massage_therapist:    { icon: Heart as IconFC,           color: "text-teal-600",   label: "Faster Healing",       detail: "Extra injury recovery ticks per week"           },
-  promotions_manager:   { icon: BadgeDollarSign as IconFC, color: "text-purple-600", label: "Sponsorship Boost",    detail: "+10–18% sponsorship income"                    },
-  scout:                { icon: Binoculars as IconFC,      color: "text-cyan-600",   label: "Scouting Network",     detail: "Unlocks staff scouting & improves prospect quality" },
+// Night 2 (O-6): each role's own job (utils/staffBonuses.ts). Each member's
+// figure, from the server's own numbers, is on her card and in the panel.
+const BONUS_DESCRIPTIONS: Record<string, { icon: IconFC; color: string; label: string }> = {
+  head_coach:           { icon: TrendingUp as IconFC,      color: "text-amber-600",  label: "Training XP"      },
+  assistant_coach:      { icon: Target as IconFC,          color: "text-blue-600",   label: "Training XP"      },
+  fitness_trainer:      { icon: Zap as IconFC,             color: "text-green-600",  label: "Training Tiredness" },
+  strength_conditioner: { icon: Dumbbell as IconFC,        color: "text-red-600",    label: "Power & Block"    },
+  massage_therapist:    { icon: Heart as IconFC,           color: "text-teal-600",   label: "Daily Recovery"   },
+  promotions_manager:   { icon: BadgeDollarSign as IconFC, color: "text-purple-600", label: "Sponsorship"      },
+  scout:                { icon: Binoculars as IconFC,      color: "text-cyan-600",   label: "Scouting"         },
 };
 
 function OvrBadge({ rating }: { rating: number }) {
@@ -176,6 +179,8 @@ function StaffCard({
 
 
   const attrs = skillAttributes(member.attributes);
+  // Night 2 (O-6): what she really does for the club now (GET /staff/effects).
+  const effect = useStaffEffects().data?.members.find((m) => m.id === member.id)?.effect;
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const updateStaffMutation = useUpdateStaff();
@@ -450,6 +455,7 @@ function StaffCard({
 
       <CardContent className="p-4 space-y-3">
         <StaffOffBadge member={member} />
+        {effect && <p className="text-xs font-semibold text-primary" data-testid={`staff-effect-${member.id}`}>{effect}</p>}
         {/* L-02a: when the deal ends, and the three lengths it can be renewed for. */}
         <ContractRenewBar
           staffId={member.id}
@@ -534,46 +540,46 @@ function EmptySlot({ slotNumber }: { slotNumber: number }) {
 }
 
 function BonusPanel({ staff }: { staff: any[] }) {
-  // Final brief 5 Oct, Part B: a member off ill or hurt gives no bonus.
-  const roleSet = new Set<string | null>(staff.filter(onDuty).map(s => normaliseRole(s.role)));
-  const activeBonuses = Object.entries(BONUS_DESCRIPTIONS).filter(([role]) => roleSet.has(role));
-  const missingBonuses = Object.entries(BONUS_DESCRIPTIONS).filter(([role]) => !roleSet.has(role));
-
+  // Night 2 (O-6, O-9): what each member really does now, and the pairs, from
+  // the server's own figures (GET /staff/effects). One off ill gives nothing.
+  const effects = useStaffEffects().data;
+  const ids = new Set(staff.map((s: any) => s.id));
+  const mine = (effects?.members ?? []).filter((m) => ids.has(m.id));
   return (
     <Card>
       <CardContent className="p-5">
         <h3 className="font-bold text-sm mb-3 flex items-center gap-2">
           <TrendingUp className="h-4 w-4 text-primary" />
-          Active Staff Bonuses
+          What Your Staff Do
         </h3>
-        {activeBonuses.length === 0 && (
-          <p className="text-xs text-muted-foreground">Hire staff to unlock bonuses.</p>
+        {mine.length === 0 && (
+          <p className="text-xs text-muted-foreground">Hire staff: each role has its own job (see the Rules page).</p>
         )}
-        <div className="space-y-2">
-          {activeBonuses.map(([role, bonus]) => {
-            const Icon = bonus.icon;
+        <div className="space-y-2" data-testid="staff-effects">
+          {mine.map((m) => {
+            const d = BONUS_DESCRIPTIONS[m.roleKey ?? ""];
+            const Icon = d?.icon ?? Star;
             return (
-              <div key={role} className="flex items-start gap-2.5 text-xs">
-                <div className={cn("mt-0.5 rounded-full bg-muted p-1", bonus.color)}>
+              <div key={m.id} className="flex items-start gap-2.5 text-xs">
+                <div className={cn("mt-0.5 rounded-full bg-muted p-1", d?.color)}>
                   <Icon className="h-3 w-3" />
                 </div>
                 <div>
-                  <span className="font-semibold text-foreground">{bonus.label}</span>
-                  <span className="text-muted-foreground ml-1.5">{bonus.detail}</span>
+                  <span className="font-semibold text-foreground">{m.name}</span>
+                  <span className={cn("ml-1.5", m.counts ? "text-muted-foreground" : "text-muted-foreground/60")}>{m.effect}</span>
                 </div>
               </div>
             );
           })}
-          {missingBonuses.length > 0 && activeBonuses.length > 0 && (
-            <div className="pt-2 border-t border-border mt-2">
-              <p className="text-[10px] text-muted-foreground mb-1.5">Unlock more bonuses by hiring:</p>
-              <div className="flex flex-wrap gap-1">
-                {missingBonuses.map(([role]) => (
-                  <Badge key={role} variant="outline" className="text-[9px] text-muted-foreground border-dashed">
-                    {ROLE_LABELS[role]}
-                  </Badge>
-                ))}
-              </div>
+          {(effects?.pairs.length ?? 0) > 0 && (
+            <div className="pt-2 border-t border-border mt-2 space-y-1" data-testid="staff-pairs">
+              <p className="text-[10px] text-muted-foreground">Pairs on the books (an extra on top of each one's own bonus):</p>
+              {effects!.pairs.map((p) => (
+                <div key={p.key} className="flex items-center justify-between gap-2 text-xs">
+                  <span className={p.has ? "font-semibold text-foreground" : "text-muted-foreground"}>{p.has ? "✓" : "○"} {p.label}</span>
+                  <span className={cn("text-right", p.has ? "text-green-600" : "text-muted-foreground")}>{p.effect}</span>
+                </div>
+              ))}
             </div>
           )}
         </div>
@@ -602,6 +608,9 @@ export default function StaffManagement() {
         queryClient.invalidateQueries({ queryKey: getListStaffQueryKey() });
         queryClient.invalidateQueries({ queryKey: getGetStaffMarketQueryKey() });
         queryClient.invalidateQueries({ queryKey: getGetMyTeamQueryKey() });
+        // Night 2 (O-6, O-7): each member's effect, and an injured player's weeks out, change with the staff.
+        queryClient.invalidateQueries({ queryKey: ["staff-effects"] });
+        queryClient.invalidateQueries({ queryKey: getGetTeamRosterQueryKey() });
         toast({
           title: "Contract Terminated",
           description: "The rest of the contract has been paid out from your club balance.",

@@ -1,4 +1,5 @@
 import { normaliseRole } from "@shared/staff-roles";
+import { areaLabel } from "@/components/injury-history";
 import { MONEY } from "@shared/money";
 
 import { WAGE_CAP_QUERY_KEY } from "@/lib/wage-cap";
@@ -382,7 +383,7 @@ function MarketPlayerCard({
         {/* Update 1, item 4c (C-6): an injured free agent asks less (the server's askingWage). */}
         {!player.currentTeamName && (player.isInjured || (player.injuryStatus ?? "Healthy") !== "Healthy") && (
           <div className="rounded-md border border-red-500/40 bg-red-500/10 px-2 py-1.5 text-xs" data-testid={`injured-${player.id}`}>
-            <span className="font-semibold text-red-500">{player.injuryStatus && player.injuryStatus !== "Healthy" ? player.injuryStatus : "Injured"}</span>
+            <span className="font-semibold text-red-500">{player.injuryStatus && player.injuryStatus !== "Healthy" ? player.injuryStatus : "Injured"}{areaLabel((player as { injuryArea?: string | null }).injuryArea) ? ` (${areaLabel((player as { injuryArea?: string | null }).injuryArea)})` : ""}</span>
             {", out "}{Math.ceil(Number(player.injuryWeeksRemaining ?? 0))} week{Math.ceil(Number(player.injuryWeeksRemaining ?? 0)) === 1 ? "" : "s"}.
             {" "}She asks {Number(player.injuryWeeksRemaining ?? 0) >= INJURED_LONG_WEEKS ? "half" : "three quarters"} of her wage, for the whole contract.
           </div>

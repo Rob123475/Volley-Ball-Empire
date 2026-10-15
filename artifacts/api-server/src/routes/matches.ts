@@ -3,7 +3,7 @@ import { Router } from "express";
 import type { Request } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db, isContinentKey, type Team, careerSavesTable, careerHistoryEntriesTable } from "@workspace/db";
-import { matchesTable, teamsTable, playersTable, financeTransactionsTable, locationsTable, staffTable, facilitiesTable, wellbeingEffectsTable, seasonInjuryStatsTable, injuryHistoryTable, promoDealsTable, seasonFinalStandingsTable, managerSeasonSummaryTable, seasonsTable, matchLiveStateTable, continentalPoolTeamsTable } from "@workspace/db";
+import { matchesTable, teamsTable, playersTable, financeTransactionsTable, locationsTable, staffTable, facilitiesTable, wellbeingEffectsTable, promoDealsTable, seasonFinalStandingsTable, managerSeasonSummaryTable, seasonsTable, matchLiveStateTable, continentalPoolTeamsTable } from "@workspace/db";
 import { eq, desc, gt, gte, and, sql, inArray } from "drizzle-orm";
 import { WORLD_TOUR } from "../data/worldTour";
 import { seasonNumberForYear, FIRST_SEASON_YEAR } from "../utils/seasonRollover.js";
@@ -17,13 +17,14 @@ import { generateScoutingProspects } from "../utils/prospect-generator";
 import { developAcademyPlayers, tickAcademyContracts } from "../utils/academyDevelopment.js";
 import { specialityFactor } from "../utils/managerFaces.js";
 import { injuryRiskStaffFactor } from "../utils/staffBonuses.js";
+import { startInjuryTx } from "../utils/injuries.js";
 import { autoCompleteContinentalMissions } from "./continental-scouting";
 import { updateCareerStats, checkAchievements } from "../utils/check-achievements";
 import { recordBoardForfeit, ABANDONMENT_DAYS } from "../utils/board-confidence.js";
 import { endCareer, loseClub } from "../utils/careerLifecycle.js";
 import { MAX_STARTERS } from "../utils/squadRules.js";
 import {
-  selectPair, pairSideRating, isAvailable, matchCosts, matchInjuryRoll, newInjuryPatch,
+  selectPair, pairSideRating, isAvailable, matchCosts, matchInjuryRoll,
 } from "../utils/condition.js";
 import {
   worldTourGate, recordPlayerMatchResult, fixtureForMatch, competitorRating, worldTourStandings,
@@ -35,7 +36,7 @@ import {
   opponentRatingFromTier, clampRating,
 } from "../utils/matchEngine.js";
 import { getActiveSeason } from "../lib/getActiveSeason.js";
-import { loadPlayers, requireCareerSaveId, updatePlayerState, careerSaveIdForTeamOrThrow, type CareerPlayerFields, loadStaff } from "../lib/playerDto.js";
+import { loadPlayers, requireCareerSaveId, updatePlayerState, careerSaveIdForTeamOrThrow, type CareerPlayerFields, loadStaff, withCareerStateTx } from "../lib/playerDto.js";
 import { substituteInjuredMatchPlayers } from "../utils/matchDaySubstitution.js";
 import type { Match } from "@workspace/db";
 
@@ -208,8 +209,9 @@ export async function applyPostMatchEffects(
   const wx = getWeatherEffects(weather, windSpeed, temperature);
   // Update 1, item 2: a Fitness Guru's club runs 20% less injury risk (utils/managerFaces.ts).
   const fitnessGuru = specialityFactor(teamId, "Fitness Guru");
-  // 15 Oct (O-3): the club's medical specialist, on duty, lowers the risk (utils/staffBonuses.ts).
+  // Night 2 (O-6): the club's sports scientist, on duty, lowers the risk (utils/staffBonuses.ts).
   const staffFactor = injuryRiskStaffFactor(await loadStaff(cid, { teamId }));
+  const today = await getGameDate(teamId);
   const events: PlayerEvent[] = [];
 
   for (const player of players) {
@@ -222,25 +224,25 @@ export async function applyPostMatchEffects(
       updates.fitness = Math.max(0, (player.fitness ?? 100) - cost.fitness);
       updates.consecutiveMatchesPlayed = consecutive + 1;
 
-      // Item 4c: the one roll every club's players get (utils/condition.ts).
-      const inj = matchInjuryRoll(player, { sportsLabLevel, hasRecoveryCamp, weatherMultiplier: wx.injuryRiskMultiplier, fitnessGuru, staffFactor });
-      if (inj) {
-        // Part 4 (B-2): a serious injury also costs speed and stamina, at once.
-        Object.assign(updates, newInjuryPatch(player, inj));
-        events.push({
-          playerId:     player.id,
-          playerName:   player.name,
-          event:        "injury_new",
-          injuryStatus: inj.status,
-          weeksOut:     inj.weeks,
-        });
-      }
     } else if (consecutive !== 0) {
       updates.consecutiveMatchesPlayed = 0;
     }
 
     if (Object.keys(updates).length > 0) {
       await updatePlayerState(cid, player.id, updates);
+    }
+
+    // Item 4c: the one roll every club's players get (utils/condition.ts); night 2
+    // (O-7): what the injury is and how long, by the club's medical staff (utils/injuries.ts).
+    if (playedIds.includes(player.id) && matchInjuryRoll(player, { sportsLabLevel, hasRecoveryCamp, weatherMultiplier: wx.injuryRiskMultiplier, fitnessGuru, staffFactor })) {
+      const inj = withCareerStateTx((w) => startInjuryTx(w, cid, { teamId }, player, today));
+      events.push({
+        playerId:     player.id,
+        playerName:   player.name,
+        event:        "injury_new",
+        injuryStatus: inj.name,
+        weeksOut:     inj.weeks,
+      });
     }
   }
 
@@ -883,59 +885,6 @@ export async function completeMatch(
   }
 
   const playerEvents = await applyPostMatchEffects(team.id, pair.map((p) => p.id), match.weather, facilityLevels, hasRecoveryCamp, matchWindSpeed, matchTemp);
-
-  // Record new injuries into season injury stats
-  const newInjuryEvents = playerEvents.filter(e => e.event === "injury_new");
-  if (newInjuryEvents.length > 0) {
-    const totalAdd       = newInjuryEvents.length;
-    const daysLostAdd    = newInjuryEvents.reduce((sum, e) => sum + (e.weeksOut ?? 2) * 7, 0);
-    const minorAdd       = newInjuryEvents.filter(e => e.injuryStatus === "Minor Injury").length;
-    const majorAdd       = newInjuryEvents.filter(e => e.injuryStatus === "Major Injury").length;
-    const unavailAdd     = newInjuryEvents.filter(e => e.injuryStatus === "Unavailable").length;
-
-    const [existing] = await db.select()
-      .from(seasonInjuryStatsTable)
-      .where(and(
-        eq(seasonInjuryStatsTable.teamId, team.id),
-        eq(seasonInjuryStatsTable.seasonId, match.season),
-      ))
-      .limit(1);
-
-    if (existing) {
-      await db.update(seasonInjuryStatsTable).set({
-        totalInjuries:       existing.totalInjuries       + totalAdd,
-        daysLost:            existing.daysLost            + daysLostAdd,
-        minorInjuries:       existing.minorInjuries       + minorAdd,
-        majorInjuries:       existing.majorInjuries       + majorAdd,
-        unavailableInjuries: existing.unavailableInjuries + unavailAdd,
-      }).where(eq(seasonInjuryStatsTable.id, existing.id));
-    } else {
-      await db.insert(seasonInjuryStatsTable).values({
-        teamId:              team.id,
-        seasonId:            match.season,
-        totalInjuries:       totalAdd,
-        daysLost:            daysLostAdd,
-        minorInjuries:       minorAdd,
-        majorInjuries:       majorAdd,
-        unavailableInjuries: unavailAdd,
-      });
-    }
-
-    // Record individual injury history entries. Overnight 30 Sep item 3: on the
-    // game date (it was the PC's clock).
-    const now = new Date(`${await getGameDate(team.id)}T00:00:00Z`);
-    await db.insert(injuryHistoryTable).values(
-      newInjuryEvents.map(e => ({
-        teamId:      team.id,
-        seasonId:    match.season,
-        playerId:    e.playerId,
-        playerName:  e.playerName,
-        injuryType:  e.injuryStatus ?? "Unknown",
-        daysMissed:  (e.weeksOut ?? 2) * 7,
-        dateInjured: now,
-      }))
-    );
-  }
 
   // Decrement wellbeing effect match counters
   for (const effect of wellbeingEffects) {

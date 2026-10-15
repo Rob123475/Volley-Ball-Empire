@@ -1,4 +1,6 @@
 import { Router } from "express";
+import { afterSquadChange } from "../utils/injuredList.js";
+import { PROMOTION_MIN_AGE } from "../utils/squadRules.js";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { loadPlayers, loadPlayer, updatePlayerState, updatePlayerReference, createCareerPlayer, requireCareerSaveId, type PlayerDTO, type CareerPlayerFields, loadStaff, careerSaveIdForTeamOrThrow, withCareerStateTx } from "../lib/playerDto.js";
 import { materializeAiSeniorsTx } from "../utils/aiSquads.js";
@@ -16,7 +18,8 @@ import {
 
 // The youngest a senior may be. Not in continents.ts because it is a gameplay
 // rule, not a shape-of-the-world one; the old endpoint hardcoded 18 inline.
-const SENIOR_AGE_MIN = 18;
+// Night 2 (O-10): a senior may be as young as the promotion age (an academy player promoted at 16).
+const SENIOR_AGE_MIN = PROMOTION_MIN_AGE;
 import { eq, isNull, isNotNull, and, sql, inArray } from "drizzle-orm";
 import { marketView, marketPrice, scoutState, youthPrice, SCOUT_DAYS, SCOUT_COST, YOUTH_SCOUT_COST } from "../utils/marketScouting.js";
 import { askingWage, freeAgentInjuryWeeks } from "../utils/wageCurve.js";
@@ -558,6 +561,8 @@ router.post("/players/:id/release", async (req, res) => {
   }
 
   if (draftUndo && before?.teamId != null) withCareerStateTx((w) => undoDraftPickTx(w, requireCareerSaveId(req.activeCareerSaveId), id));
+  // Night 2 (O-10): releasing the cover gives a fit player on the injured list her place back at once.
+  if (before?.teamId != null) afterSquadChange(requireCareerSaveId(req.activeCareerSaveId), before.teamId);
 
   const player = await loadPlayer(requireCareerSaveId(req.activeCareerSaveId), id);
 

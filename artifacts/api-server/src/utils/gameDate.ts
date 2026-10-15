@@ -1,4 +1,4 @@
-import { db, calendarStateTable } from "@workspace/db";
+import { db, calendarStateTable, careerSavesTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 
 /**
@@ -20,6 +20,17 @@ export async function getGameDate(teamId: number): Promise<string> {
   // A team with no calendar row yet has not started its season; fall back to
   // the season start rather than the real-world date.
   return state?.currentDate ?? "2026-01-01";
+}
+
+/**
+ * Night 2: a career's game date inside a transaction (its club's calendar), for
+ * the AI clubs' match steps, which have no club of the player's to hand.
+ */
+export function careerGameDateTx(tx: Pick<typeof db, "select">, careerSaveId: number): string {
+  const row = tx.select({ d: calendarStateTable.currentDate }).from(careerSavesTable)
+    .innerJoin(calendarStateTable, eq(calendarStateTable.teamId, careerSavesTable.teamId))
+    .where(eq(careerSavesTable.id, careerSaveId)).get();
+  return row?.d ?? "2026-01-01";
 }
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];

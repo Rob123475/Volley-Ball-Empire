@@ -176,19 +176,20 @@ function seniorsOfTx(tx: Tx, careerSaveId: number, club: CampClub) {
 function runCampTx(w: CareerStateTx, careerSaveId: number, club: CampClub, location: PreseasonLocation, length: PreseasonLength): number {
   const loc = PRESEASON.locations[location], L = PRESEASON.lengths[length];
   const ref = "teamId" in club ? club.teamId : { careerSaveId, poolTeamId: club.poolTeamId };
-  const staff = trainingStaffBonuses(loadStaffTx(w.tx, careerSaveId, club)).xpMultiplier;
+  const staff = trainingStaffBonuses(loadStaffTx(w.tx, careerSaveId, club));
   const manager = specialityFactor(ref, "Coach");
   const seniors = seniorsOfTx(w.tx, careerSaveId, club);
   for (const p of seniors) {
     let me = { ...p };
     for (let i = 0; i < L.sessions; i++) {
-      const xp = trainingSessionXp(me, loc.programmes[i % loc.programmes.length]!, { staff, manager, camp: L.xp });
+      const xp = trainingSessionXp(me, loc.programmes[i % loc.programmes.length]!, { staff: staff.xpMultiplier, statStaff: staff.statXp, manager, camp: L.xp });
       me = { ...me, trainingPoints: xp.newPoints, ...xp.statUpdates };
     }
     w.setPlayerState(careerSaveId, p.id, {
       trainingPoints: me.trainingPoints, speed: me.speed, power: me.power, defense: me.defense, serve: me.serve, block: me.block, stamina: me.stamina,
       // Fitness and fatigue are the player's club's (item 4c: off for AI players).
-      ...("teamId" in club ? { fatigue: Math.min(100, Number(p.fatigue ?? 0) + L.fatigue) } : {}),
+      // Night 2 (O-9): a strength coach with a fitness trainer: training adds 20% less tiredness.
+      ...("teamId" in club ? { fatigue: Math.min(100, Number(p.fatigue ?? 0) + Math.round(L.fatigue * staff.fatigueFactor)) } : {}),
       ...(loc.morale ? { morale: Math.min(100, Number(p.morale ?? 0) + loc.morale) } : {}),
     });
   }

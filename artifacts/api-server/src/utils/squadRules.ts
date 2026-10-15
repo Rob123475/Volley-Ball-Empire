@@ -32,6 +32,9 @@ export const MAX_INTERCHANGE = 1;
 /** Senior squad total: the pair plus the interchange. */
 export const MAX_SENIORS = MAX_STARTERS + MAX_INTERCHANGE;
 
+/** Night 2 (O-10): the youngest promotion into the seniors, 16 (lib/db schema/injuries.ts). */
+export { PROMOTION_MIN_AGE } from "@workspace/db";
+
 /**
  * Academy places (Rob, 30 Sep: 6, was 12): 3 on the youth team and 3
  * reserves. The signing rule below, the season intake and the Team page

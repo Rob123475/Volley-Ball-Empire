@@ -349,6 +349,16 @@ export const careerPlayerStateTable = sqliteTable("career_player_state", {
   isInjured:              integer("is_injured", { mode: "boolean" }).notNull().default(false),
   /** Update 1, overnight part 4 (B-2): injuries that kept her out 4 weeks or more, in this career (schema/ageing.ts). */
   seriousInjuries:        integer("serious_injuries").notNull().default(0),
+  /** Night 2 (O-7): the injured body area (schema/injuries.ts), for a named injury or a reconstruction. */
+  injuryArea:             text("injury_area"),
+  /** Night 2 (O-7): base weeks still to heal; her weeks out are this x the club's treatment factor, live. */
+  injuryBaseWeeksLeft:    real("injury_base_weeks_left").notNull().default(0),
+  /** Night 2 (O-10): on the injured list (out more than INJURED_LIST.overWeeks): she gives up her senior place. */
+  onInjuredList:          integer("on_injured_list", { mode: "boolean" }).notNull().default(false),
+  /** Night 2 (O-10): the game date she went on the list. */
+  injuredListSince:       text("injured_list_since"),
+  /** Night 2 (O-10): the club's other seniors (ids, comma-separated) when she went on the list; anyone else is cover. */
+  injuredListSquad:       text("injured_list_squad"),
   consecutiveMatchesPlayed: integer("consecutive_matches_played").notNull().default(0),
 
   // Current stats. The reference row holds the athlete's BASE stats; training
@@ -1170,35 +1180,28 @@ export const managerSeasonSummaryTable = sqliteTable("manager_season_summaries",
 
 export type ManagerSeasonSummary = typeof managerSeasonSummaryTable.$inferSelect;
 
-export const injuryHistoryTable = sqliteTable("injury_history", {
-  id:          integer("id").primaryKey({ autoIncrement: true }),
-  teamId:      integer("team_id").notNull().references(() => teamsTable.id),
-  seasonId:    integer("season_id").notNull(),
-  playerId:    integer("player_id").notNull().references(() => playersTable.id),
-  playerName:  text("player_name").notNull(),
-  injuryType:  text("injury_type").notNull(),
-  daysMissed:  integer("days_missed").notNull(),
-  dateInjured: integer("date_injured", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
-});
+/**
+ * Night 2 (O-7, O-8): every injury of every player, at every club (the player's,
+ * the AI clubs', a free agent's), on its game date. Her injury history on her
+ * card; three to one body area within a year makes the next a reconstruction;
+ * the Medical page's season figures. Replaces injury_history and
+ * season_injury_stats, which were the player's club's only.
+ */
+export const careerInjuriesTable = sqliteTable("career_injuries", {
+  id:             integer("id").primaryKey({ autoIncrement: true }),
+  careerSaveId:   integer("career_save_id").notNull(),
+  playerId:       integer("player_id").notNull(),
+  injury:         text("injury").notNull(),
+  area:           text("area").notNull(),
+  gameDate:       text("game_date").notNull(),
+  weeksOut:       real("weeks_out").notNull(),
+  baseWeeks:      real("base_weeks").notNull(),
+  reconstruction: integer("reconstruction", { mode: "boolean" }).notNull().default(false),
+  teamId:         integer("team_id"),
+  poolTeamId:     integer("pool_team_id"),
+}, (t) => [index("career_injuries_player").on(t.careerSaveId, t.playerId)]);
 
-export type InjuryHistoryEntry = typeof injuryHistoryTable.$inferSelect;
-
-export const seasonInjuryStatsTable = sqliteTable("season_injury_stats", {
-  id:                  integer("id").primaryKey({ autoIncrement: true }),
-  teamId:              integer("team_id").notNull().references(() => teamsTable.id),
-  seasonId:            integer("season_id").notNull(),
-  totalInjuries:       integer("total_injuries").notNull().default(0),
-  daysLost:            integer("days_lost").notNull().default(0),
-  minorInjuries:       integer("minor_injuries").notNull().default(0),
-  majorInjuries:       integer("major_injuries").notNull().default(0),
-  unavailableInjuries: integer("unavailable_injuries").notNull().default(0),
-  updatedAt:           integer("updated_at", { mode: "timestamp" })
-    .notNull()
-    .$defaultFn(() => new Date())
-    .$onUpdate(() => new Date()),
-});
-
-export type SeasonInjuryStat = typeof seasonInjuryStatsTable.$inferSelect;
+export type CareerInjury = typeof careerInjuriesTable.$inferSelect;
 
 export const youthProspectsTable = sqliteTable("youth_prospects", {
   id:            integer("id").primaryKey({ autoIncrement: true }),

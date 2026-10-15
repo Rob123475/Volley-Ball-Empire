@@ -9,7 +9,7 @@
  * One table for the server (the daily roll, utils/staffIllness.ts), the Staff
  * and Medical pages (the "Off: flu, back in 4 days" badge) and Club News.
  */
-import { INJURY_WEEKS } from "./injuries";
+import { INJURY_MEAN_BASE_WEEKS } from "./injuries";
 
 export type StaffAbsenceCause = {
   key: string;
@@ -54,9 +54,13 @@ export const PLAYER_INJURIES_PER_PLAYER_DAY = 164 / 48092;
 /** Half as often as players: the chance, each game day, that one member of staff goes off. */
 export const STAFF_ABSENCE_DAILY_CHANCE = PLAYER_INJURIES_PER_PLAYER_DAY / 2;
 
-/** The players' injury table's average time out, in days (utils/condition.ts rollInjury's odds). */
-export const PLAYER_INJURY_MEAN_DAYS =
-  7 * (0.65 * INJURY_WEEKS["Minor Injury"]! + 0.30 * INJURY_WEEKS["Major Injury"]! + 0.05 * INJURY_WEEKS.Unavailable!);
+/**
+ * The players' injury table's average base time out, in days (schema/injuries.ts).
+ * Night 2 (16 Oct): players' injuries are named and longer now (O-7); the staff
+ * table's causes keep their own lengths (about half the old players' average),
+ * because Rob asked for longer injuries for players, not for staff.
+ */
+export const PLAYER_INJURY_MEAN_DAYS = 7 * INJURY_MEAN_BASE_WEEKS;
 
 /** The staff table's average time out, in days: about half the players'. */
 export const STAFF_ABSENCE_MEAN_DAYS =

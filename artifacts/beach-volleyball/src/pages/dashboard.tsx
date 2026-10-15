@@ -792,11 +792,19 @@ export default function Dashboard() {
                           </div>
                         ))
                       )}
-                      {dashboard.nextMatchSelection.unavailable.map((p) => (
-                        <div key={p.id} className="text-red-300">
-                          {p.name}: {p.injuryStatus}, {p.weeksOut} week{p.weeksOut === 1 ? "" : "s"} — cannot be selected
-                        </div>
-                      ))}
+                      {dashboard.nextMatchSelection.unavailable.map((p) => {
+                        // Night 2 (O-10): on the injured list, or fit but waiting while her cover is still at the club.
+                        const q = p as typeof p & { onInjuredList?: boolean; waiting?: boolean };
+                        return q.waiting ? (
+                          <div key={p.id} className="text-amber-300" data-testid={`waiting-${p.id}`}>
+                            {p.name}: fit, waiting for a place — release, sell or loan out the cover you took on while she was out, and she plays again
+                          </div>
+                        ) : (
+                          <div key={p.id} className="text-red-300">
+                            {p.name}: {p.injuryStatus}, {p.weeksOut} week{p.weeksOut === 1 ? "" : "s"}{q.onInjuredList ? " · on the injured list (her place is free for cover)" : ""} — cannot be selected
+                          </div>
+                        );
+                      })}
                     </div>
                   )}
                 </>
@@ -1408,6 +1416,8 @@ const NEWS_META: Record<string, { icon: string; label: string; pill: string; dot
   academy:  { icon: "🌱", label: "Academy",     pill: "bg-emerald-400/15 text-emerald-300 border-emerald-400/25", dot: "bg-emerald-400" },
   // Final brief 5 Oct, Part B: a member of staff off ill or hurt, and back.
   staff:    { icon: "🩹", label: "Staff",       pill: "bg-rose-400/15 text-rose-300 border-rose-400/25",       dot: "bg-rose-400"   },
+  // Night 2 (O-7): one of the club's players hurt: the injury, its area and time out.
+  injury:   { icon: "🤕", label: "Injury",      pill: "bg-red-400/15 text-red-300 border-red-400/25",          dot: "bg-red-400"    },
 };
 
 function gameDateLabel(date: string) {
@@ -1432,7 +1442,7 @@ function ClubNewsFeed({ items }: { items: import("@workspace/api-client-react").
           </div>
           <div>
             <h3 className="text-base font-black text-white leading-none">Club News</h3>
-            <div className="text-[11px] text-white/50 mt-0.5">Your results, signings, board reviews, honours and the World Finals</div>
+            <div className="text-[11px] text-white/50 mt-0.5">Your results, signings, injuries, board reviews, honours and the World Finals</div>
           </div>
         </div>
 

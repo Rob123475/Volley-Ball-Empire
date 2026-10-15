@@ -11,6 +11,7 @@ import { seasonPhase } from "../utils/seasonPhase.js";
  *   olympic-<season year>     that year's Olympic tournament (R-61)
  *   academy-<season year>     that season's academy intake (R-62)
  *   staff-off-<absence id>    a member of staff went off ill or hurt (final brief 5 Oct, Part B)
+ *   injury-<injury id>        one of the club's players was hurt: the injury, its area, time out (night 2, O-7)
  *   staff-back-<absence id>   ... and came back
  * Each carries the game date it happened on.
  *
@@ -21,7 +22,7 @@ import { seasonPhase } from "../utils/seasonPhase.js";
  * contract in place and records no date.
  */
 import { Router } from "express";
-import { db, matchesTable, contractsTable, trophiesTable, boardSeasonsTable, playersTable, youthIntakesTable, staffAbsencesTable, staffAbsenceCause } from "@workspace/db";
+import { db, matchesTable, contractsTable, trophiesTable, boardSeasonsTable, playersTable, youthIntakesTable, staffAbsencesTable, staffAbsenceCause, careerInjuriesTable, BODY_AREA_LABELS, type BodyArea } from "@workspace/db";
 import { and, desc, eq, inArray, isNotNull, or } from "drizzle-orm";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { requireCareerSaveId } from "../lib/playerDto.js";
@@ -34,7 +35,7 @@ const router = Router();
 
 type NewsItem = {
   id: string;
-  type: "result" | "signing" | "board" | "trophy" | "champion" | "olympic" | "academy" | "staff";
+  type: "result" | "signing" | "board" | "trophy" | "champion" | "olympic" | "academy" | "staff" | "injury";
   headline: string;
   detail: string;
   date: string;
@@ -46,7 +47,7 @@ const RECENT_SIGNINGS = 5;
 const MAX_ITEMS = 15;
 
 // On one date, the bigger story first.
-const KIND_ORDER: Record<NewsItem["type"], number> = { trophy: 0, olympic: 1, champion: 2, board: 3, academy: 4, result: 5, signing: 6, staff: 7 };
+const KIND_ORDER: Record<NewsItem["type"], number> = { trophy: 0, olympic: 1, champion: 2, board: 3, academy: 4, result: 5, signing: 6, staff: 7, injury: 8 };
 const OLYMPIC_TROPHY_TYPES = new Set(["olympic_gold", "olympic_silver", "olympic_bronze", "olympic_appearance"]);
 
 const GRADE_WORDS: Record<string, string> = {
@@ -206,6 +207,20 @@ router.get("/news", async (req, res) => {
         detail: cause ? `After ${a.days} day${a.days === 1 ? "" : "s"} off with ${cause.short}.` : "",
       });
     }
+  }
+
+  // Night 2 (O-7): the club's players' injuries, named, with their area and time out.
+  const injuries = await db.select({ h: careerInjuriesTable, name: playersTable.name })
+    .from(careerInjuriesTable).innerJoin(playersTable, eq(playersTable.id, careerInjuriesTable.playerId))
+    .where(and(eq(careerInjuriesTable.careerSaveId, careerSaveId), eq(careerInjuriesTable.teamId, team.id)))
+    .orderBy(desc(careerInjuriesTable.gameDate)).limit(MAX_ITEMS);
+  for (const { h, name } of injuries) {
+    const weeks = Math.max(1, Math.round(h.weeksOut));
+    items.push({
+      id: `injury-${h.id}`, type: "injury", isUserTeam: true, date: h.gameDate,
+      headline: `${name}: ${h.injury.toLowerCase()} (${(BODY_AREA_LABELS[h.area as BodyArea] ?? h.area).toLowerCase()})`,
+      detail: `Out about ${weeks} week${weeks === 1 ? "" : "s"}${h.reconstruction ? ": a reconstruction, after a third injury there in a year" : ""}.`,
+    });
   }
 
   items.sort((a, b) => b.date.localeCompare(a.date) || KIND_ORDER[a.type] - KIND_ORDER[b.type]);

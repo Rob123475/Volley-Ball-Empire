@@ -7,7 +7,6 @@ import {
   matchesTable,
   matchLiveStateTable,
   contractsTable,
-  injuryHistoryTable,
   trainingSessionsTable,
   unityMatchStatsTable,
   continentalScoutingMissionsTable,
@@ -19,7 +18,6 @@ import {
   managerSeasonSummaryTable,
   promoDealsTable,
   seasonFinalStandingsTable,
-  seasonInjuryStatsTable,
   trophiesTable,
   wellbeingEffectsTable,
   youthProspectsTable,
@@ -112,7 +110,6 @@ export function deleteProfileCascade(userId: string): void {
       for (const table of [
         competitorsTable,
         contractsTable,
-        injuryHistoryTable,
         trainingSessionsTable,
         unityMatchStatsTable,
         continentalScoutingMissionsTable,
@@ -123,7 +120,6 @@ export function deleteProfileCascade(userId: string): void {
         financeTransactionsTable,
         promoDealsTable,
         seasonFinalStandingsTable,
-        seasonInjuryStatsTable,
         trophiesTable,
         wellbeingEffectsTable,
         youthProspectsTable,
@@ -182,7 +178,8 @@ export function deleteProfileCascade(userId: string): void {
       // poolClubSeasonsTable and poolPlayerContractsTable, and Update 1's manager
       // faces out of work, careerManagerFacesTable, and the overnight brief's scout
       // reports and watch list, careerScoutReportsTable and careerWatchListTable,
-      // and its pre-season choices, preseasonChoicesTable.
+      // and its pre-season choices, preseasonChoicesTable, and night 2's injury
+      // history of every club, careerInjuriesTable.
       // The athletes an intake created stay: players is reference data, and a
       // new career is seeded only with athletes no career owns.
     }
