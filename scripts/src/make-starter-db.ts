@@ -95,7 +95,8 @@ const CLEAR_TABLES = [
   "facilities",
   "finance_transactions",
   "hall_of_fame",
-  "injury_history",
+  // Night 2 (O-7): every club's injury history, per career.
+  "career_injuries",
   "manager_season_summaries",
   "match_live_state",
   "matches",
@@ -116,7 +117,6 @@ const CLEAR_TABLES = [
   "regional_league_results",
   "regional_league_seasons",
   "season_final_standings",
-  "season_injury_stats",
   "seasons",
   "teams",
   "training_sessions",

@@ -94,9 +94,11 @@ check("(source) the music volume and mute are the music bar's own (useMusic)", /
 console.log("\n5. THE RULES NAME EVERYTHING NEW");
 const rules = FE("pages/rules.tsx");
 const topics = ["The Day 1 draft", "The salary cap", "Hire your staff and medical in your first week", "Injured players come cheap", "Pre-season camps",
-  "Difficulty", "Ageing and injuries", "Scouting and the Watch list", "Manager specialities"];
+  "Difficulty", "Ageing and injuries", "Scouting and the Watch list", "Manager specialities",
+  // Night 2 (O-6 to O-10): the staff roles, real injuries, and the injured list.
+  "Every staff role has its own job", "Real injuries", "The injured list, cover and promotion at "];
 const missing = topics.filter((t) => !rules.includes(`title: "${t}"`));
-check("each of the nine topics is on the Rules page", missing.length === 0, missing.join(", ") || "all nine");
+check("each of the twelve topics is on the Rules page", missing.length === 0, missing.join(", ") || "all twelve");
 check("and \"On Day 8 the AI clubs take\" staff is said in plain words", /On Day 8 the AI clubs take a coach and a medical member each/.test(rules));
 
 // ── 6. Match sound ───────────────────────────────────────────────────────────

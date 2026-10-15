@@ -60,24 +60,24 @@ check("the Club page's Medical tab is the Medical Centre alone; the market is it
 check("one fatigue figure: the Squad Fitness Overview labels its % as injury risk and shows fatigue as a %",
   /Injury risk<\/span>/.test(medical) && /data-testid=\{`fatigue-\$\{player\.id\}`\}[\s\S]{0,120}\{fatigue\}%/.test(medical) && /\{fatigue\}% fatigue/.test(medical));
 
-// The injury table is the game's: one file, read by the server's roll and the page.
+// Night 2 (O-7): the injuries are one table (lib/db schema/injuries.ts), read by the server's
+// roll and treatment (utils/injuries.ts) and by the page; the page keeps no lengths of its own.
 const injuries = src("lib/db/src/schema/injuries.ts");
-const weeks = Object.fromEntries([...injuries.matchAll(/"?([A-Za-z ]+?)"?:\s+(\d+),/g)].map((m) => [m[1].trim(), Number(m[2])]));
-const cond = src("artifacts/api-server/src/utils/condition.ts");
-check("the injury weeks are one table (Minor 1, Major 3, Unavailable 6), read by the game's roll and the Medical page",
-  weeks["Minor Injury"] === 1 && weeks["Major Injury"] === 3 && weeks.Unavailable === 6
-  && /INJURY_WEEKS\["Minor Injury"\]/.test(cond) && /\.\.\.INJURY_WEEKS/.test(medical) && !/"Minor Injury": 2,/.test(medical),
-  JSON.stringify(weeks));
-// The Treatment Queue's arithmetic, as the page does it.
-const progress = (status, weeksLeft) => {
-  const daysLeft = Math.round(weeksLeft * 7);
-  const total = Math.max((weeks[status] ?? 0) * 7, daysLeft);
-  return { daysLeft, pct: total > 0 ? Math.round(Math.max(0, Math.min(100, ((total - daysLeft) / total) * 100))) : 0 };
-};
-const p7 = progress("Minor Injury", 1), p4 = progress("Minor Injury", 4 / 7), p0 = progress("Major Injury", 3);
-check("the Treatment Queue bar matches the days left: a 1-week injury with 7 days left 0%, with 4 left 43%; a fresh 3-week one 0%",
-  p7.daysLeft === 7 && p7.pct === 0 && p4.daysLeft === 4 && p4.pct === 43 && p0.pct === 0 && /const totalDays = Math\.max\(baseWeeks \* 7, daysLeft\);/.test(medical),
-  `7d -> ${p7.pct}%, 4d -> ${p4.pct}% (Rob saw 7d at 50%)`);
+const injSrv = src("artifacts/api-server/src/utils/injuries.ts");
+check("the named injuries are one table, read by the game's roll and treatment and by the Medical page (which keeps no lengths of its own)",
+  /export const INJURY_TYPES/.test(injuries) && /INJURY_TYPES/.test(injSrv) && /injuryInfo\(status\)/.test(medical)
+    && !/INJURY_WEEKS/.test(medical) && !/"Minor Injury"/.test(medical));
+// The Treatment Queue's arithmetic, as the page does it: days left are the server's
+// live weeks; the bar is the share of the injury's base weeks already healed.
+const progress = (baseWeeks, baseLeft, weeksLeft) => ({
+  daysLeft: Math.round(weeksLeft * 7),
+  pct: baseWeeks > 0 ? Math.round(Math.max(0, Math.min(100, (1 - baseLeft / baseWeeks) * 100))) : 0,
+});
+const fresh = progress(3, 3, 6), half = progress(20, 10, 6.1), almost = progress(1, 0.1, 0.2);
+check("the Treatment Queue bar is the base weeks healed: a fresh sprained ankle 0% (42 days at x2), a broken leg half healed 50%, a cramp nearly done 90%",
+  fresh.pct === 0 && fresh.daysLeft === 42 && half.pct === 50 && almost.pct === 90
+    && /\(1 - Number\(p\.injuryBaseWeeksLeft \?\? base\) \/ base\) \* 100/.test(medical) && /Math\.round\(Number\(p\.injuryWeeksRemaining \?\? 0\) \* 7\)/.test(medical),
+  `${fresh.pct}% / ${half.pct}% / ${almost.pct}%`);
 
 // ── The round counts, from the server ─────────────────────────────────────────
 let cookie = "";

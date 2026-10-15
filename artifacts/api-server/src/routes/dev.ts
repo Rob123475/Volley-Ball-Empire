@@ -34,6 +34,10 @@
  * they read and write nothing.
  */
 import { Router } from "express";
+import { rollInjuryType, treatmentFactor, startInjuryTx } from "../utils/injuries.js";
+import { injuryInfo } from "@workspace/db";
+import { loadPlayer, requireCareerSaveId, withCareerStateTx } from "../lib/playerDto.js";
+import { getGameDate } from "../utils/gameDate.js";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { checkAchievements } from "../utils/check-achievements.js";
 import {
@@ -86,6 +90,42 @@ router.post("/dev/condition/win-rate", (req, res) => {
     return { fitness, rating, wins, winRate: wins / samples };
   });
   res.json({ samples, opponentRating: body.opponentRating, results });
+});
+
+/**
+ * Night 2 (O-7, O-8): the injury system's probes for harness/injury-treatment.mjs
+ * and harness/reconstruction.mjs.
+ *   /dev/injuries/roll    the named roll over many samples (reads and writes nothing)
+ *   /dev/injuries/factor  the treatment factor of an injury for a medical team of
+ *                         given skills (reads and writes nothing)
+ *   /dev/injuries/start   a player of this career is hurt now, through the game's
+ *                         own startInjuryTx (her club's staff, her history), with
+ *                         the injury named, so a test can make a third ankle on purpose
+ */
+router.post("/dev/injuries/roll", (req, res) => {
+  const samples = Math.min(200000, Math.max(100, Math.round(Number(req.body?.samples ?? 10000))));
+  const counts: Record<string, number> = {};
+  for (let i = 0; i < samples; i++) { const t = rollInjuryType(); counts[t.name] = (counts[t.name] ?? 0) + 1; }
+  res.json({ samples, counts });
+});
+
+router.post("/dev/injuries/factor", (req, res) => {
+  const b = req.body as { injury?: string; doctor?: number; physiotherapist?: number; specialist?: number };
+  const m = (skillLevel?: number) => (skillLevel == null ? undefined : { role: "x", skillLevel });
+  const factor = treatmentFactor(b.injury, { doctor: m(b.doctor), physiotherapist: m(b.physiotherapist), specialist: m(b.specialist) });
+  res.json({ injury: b.injury, factor, weeks: (injuryInfo(b.injury)?.baseWeeks ?? 0) * factor });
+});
+
+router.post("/dev/injuries/start", async (req, res) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const team = await getActiveTeam(req);
+  if (!team) { res.status(404).json({ error: "No team" }); return; }
+  const cid = requireCareerSaveId(req.activeCareerSaveId);
+  const player = await loadPlayer(cid, Number(req.body?.playerId));
+  if (!player) { res.status(404).json({ error: "No such player" }); return; }
+  const club = player.teamId != null ? { teamId: player.teamId } : player.poolTeamId != null ? { poolTeamId: player.poolTeamId } : "free agents" as const;
+  const today = await getGameDate(team.id);
+  res.json(withCareerStateTx((w) => startInjuryTx(w, cid, club, player, today, Math.random, req.body?.injury)));
 });
 
 // Unity brief item 21: run the achievement check for the active team, as the

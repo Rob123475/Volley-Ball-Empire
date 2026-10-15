@@ -625,6 +625,17 @@ runSuite("settings", path.join(REPO, "harness", "settings.mjs"));
 console.log("\n########## 98n/100  READY FOR THE STAFF PORTRAITS (UPDATE 1, DAY 2 PART 6) ##########");
 runSuite("staff portrait install", path.join(REPO, "harness", "staff-portrait-install.mjs"));
 
+// Update 1, night 2 (O-6 to O-10): every staff role's own job and the pairs, real injuries
+// treated by the right person, reconstructions, and the injured list with cover and promotion at 16.
+console.log("\n########## 98o/100  REAL INJURIES, TREATED BY THE RIGHT PERSON (UPDATE 1, NIGHT 2 PART 3) ##########");
+runSuite("injury treatment", path.join(REPO, "harness", "injury-treatment.mjs"));
+console.log("\n########## 98p/100  RECONSTRUCTIONS (UPDATE 1, NIGHT 2 PART 4) ##########");
+runSuite("reconstruction", path.join(REPO, "harness", "reconstruction.mjs"));
+console.log("\n########## 98q/100  EVERY STAFF ROLE'S OWN JOB, AND THE PAIRS (UPDATE 1, NIGHT 2 PARTS 2 AND 5) ##########");
+runSuite("staff roles", path.join(REPO, "harness", "staff-roles.mjs"));
+console.log("\n########## 98r/100  THE INJURED LIST, COVER AND PROMOTION AT 16 (UPDATE 1, NIGHT 2 PART 6) ##########");
+runSuite("injured list", path.join(REPO, "harness", "injured-list.mjs"));
+
 // ── Smoke needs a server; boot one on a throwaway copy of the shipped DB ─────
 console.log("\n########## 99/100  GAMEPLAY SMOKE ##########");
 {

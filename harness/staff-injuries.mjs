@@ -50,9 +50,9 @@ const INJ_SRC = fs.readFileSync(path.join(REPO, "lib/db/src/schema/injuries.ts")
 const COND_SRC = fs.readFileSync(path.join(REPO, "artifacts/api-server/src/utils/condition.ts"), "utf8");
 const CAUSES = [...ILL_SRC.matchAll(/key: "(\w+)",\s+kind: "(\w+)",\s+short: "([^"]+)",\s+news: "([^"]+)",\s+days: (\d+),\s+weight: (\d+)/g)]
   .map((m) => ({ key: m[1], kind: m[2], short: m[3], news: m[4], days: Number(m[5]), weight: Number(m[6]) }));
-const WEEKS = Object.fromEntries([...INJ_SRC.matchAll(/"?([\w ]+)"?:\s+(\d+),/g)].map((m) => [m[1].trim(), Number(m[2])]));
-const ODDS = { minor: Number(/roll < ([\d.]+)\) return \{ status: "Minor Injury"/.exec(COND_SRC)?.[1]),
-  majorTo: Number(/roll < ([\d.]+)\) return \{ status: "Major Injury"/.exec(COND_SRC)?.[1]) };
+// Night 2 (O-7): the players' injuries are named, each with base weeks and a share (schema/injuries.ts).
+const INJURY_TABLE = [...INJ_SRC.matchAll(/baseWeeks: (\d+),\s+share: ([\d.]+)/g)].map((m) => ({ weeks: Number(m[1]), share: Number(m[2]) }));
+void COND_SRC;
 
 let failures = 0, checks = 0;
 function check(label, cond, detail = "") {
@@ -148,7 +148,7 @@ try {
       if (ab) firstNews = { absence: ab, items: ((await api("GET", "/news")).data?.items ?? []).filter((n) => n.type === "staff") };
     }
   }
-  const playerInjuries = q(`SELECT COUNT(*) AS n FROM injury_history WHERE team_id = ?`, run.team.id)[0].n;
+  const playerInjuries = q(`SELECT COUNT(*) AS n FROM career_injuries WHERE team_id = ?`, run.team.id)[0].n;
   const absences = q(`SELECT * FROM staff_absences WHERE career_save_id = ?`, run.cid);
   const pRate = playerInjuries / playerDays, sRate = absences.length / staffDays;
   const designPlayer = Number(/PLAYER_INJURIES_PER_PLAYER_DAY = (\d+) \/ (\d+)/.exec(ILL_SRC)?.slice(1).reduce((a, b) => a / b));
@@ -170,9 +170,12 @@ try {
   console.log("\n2. THE TIME OFF");
   const tw = CAUSES.reduce((s, c) => s + c.weight, 0);
   const staffMean = CAUSES.reduce((s, c) => s + c.days * c.weight, 0) / tw;
-  const playerMean = 7 * (ODDS.minor * WEEKS["Minor Injury"] + (ODDS.majorTo - ODDS.minor) * WEEKS["Major Injury"] + (1 - ODDS.majorTo) * WEEKS.Unavailable);
-  check("the causes' average time off is half the players' injury table's (within 10%)",
-    Math.abs(staffMean / playerMean - 0.5) <= 0.05, `${staffMean.toFixed(2)} days against ${playerMean.toFixed(2)}: ${(staffMean / playerMean).toFixed(3)} x`);
+  // Night 2 (O-7): players' injuries are longer now (Rob: "injuries should be longer"); the
+  // staff causes keep their own lengths (about half the old players' table), so staff take
+  // half or less of a player's time off. The players' figure is the named table's base weeks.
+  const playerMean = 7 * INJURY_TABLE.reduce((s, i) => s + i.weeks * i.share, 0);
+  check("the causes' average time off is half a player's injury or less (players' injuries are longer since night 2)",
+    INJURY_TABLE.length === 9 && staffMean / playerMean <= 0.55 && staffMean > 0, `${staffMean.toFixed(2)} days against ${playerMean.toFixed(2)}: ${(staffMean / playerMean).toFixed(3)} x`);
   check("real-life causes, illness and accidents both, each with its own days",
     CAUSES.length >= 6 && CAUSES.some((c) => c.kind === "illness") && CAUSES.some((c) => c.kind === "accident"),
     CAUSES.map((c) => `${c.short} ${c.days}d`).join(", "));

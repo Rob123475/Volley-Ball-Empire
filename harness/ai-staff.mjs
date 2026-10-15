@@ -198,14 +198,16 @@ try {
 
   // ── 8. Part 3: their bonuses, through the player's own functions ───────────
   console.log("\n8. AN AI CLUB'S STAFF GIVE ITS BONUSES THROUGH THE PLAYER'S OWN FUNCTIONS (PART 3)");
-  const aiSrc = SRC("utils/aiSquads.ts"), condSrc = SRC("utils/condition.ts"), illSrc = SRC("utils/staffIllness.ts");
-  check("(source) AI training XP takes its Head and Assistant Coach through trainingStaffBonuses, read like the player's staff",
-    /trainingStaffBonuses\(loadStaffTx\(w\.tx, careerSaveId, \{ poolTeamId: club \}\)\)\.xpMultiplier/.test(aiSrc));
-  check("(source) AI players heal through the one weekly recovery, with the club's own medics (on duty only)",
-    /loadStaffTx\(w\.tx, careerSaveId, club\)/.test(condSrc) && /healingBonus\(staff\)/.test(condSrc) && /staffOnDuty\(s\)/.test(SRC("utils/staffBonuses.ts")) && /injuryRecoveryWeekTx\(w, careerSaveId, \{ poolTeamId: id \}\)/.test(condSrc));
-  // Update 1, 15 Oct (O-3): its doctor heals (the one healing bonus) and its medical specialist cuts its injury risk.
-  check("(source) an AI club's doctor heals and its medical specialist cuts its match injury risk, through the player's functions",
-    /healingBonus\(staff\)/.test(condSrc) && /"doctor"\]/.test(SRC("utils/staffBonuses.ts"))
+  // Night 2 (O-6, O-7): the healer chance is gone; an AI club's injuries are treated by its own doctor and
+  // physio (the treatment factor), and its sports scientist cuts its risk, through the player's functions.
+  const aiSrc = SRC("utils/aiSquads.ts"), injSrc = SRC("utils/injuries.ts"), illSrc = SRC("utils/staffIllness.ts");
+  check("(source) AI training XP takes its staff through trainingStaffBonuses, read like the player's staff",
+    /trainingStaffBonuses\(loadStaffTx\(w\.tx, careerSaveId, \{ poolTeamId: club \}\)\)/.test(aiSrc) && /staff: bonus\.xpMultiplier, statStaff: bonus\.statXp/.test(aiSrc));
+  check("(source) AI players heal on the one weekly clock, at their club's own treatment factor (on duty only)",
+    /injuryRecoveryWeekTx\(w, careerSaveId, \{ poolTeamId: id \}\)/.test(injSrc) && /medicalTeam\(staffOfTx\(w, careerSaveId, club\)\)/.test(injSrc)
+      && /staffOnDuty\(s\)/.test(SRC("utils/staffBonuses.ts")) && !/healingBonus/.test(SRC("utils/condition.ts")));
+  check("(source) an AI club's injuries start with its own medical staff, and its sports scientist cuts its match injury risk",
+    /startInjuryTx\(w, careerSaveId, \{ poolTeamId \}/.test(aiSrc)
       && /staffFactor = injuryRiskStaffFactor\(loadStaffTx\(w\.tx, careerSaveId, \{ poolTeamId \}\)\)/.test(aiSrc));
   check("(source) an AI club's staff go off ill on the same odds, so one off gives nothing (staffOnDuty in every bonus)",
     /export function aiStaffAbsenceDayTx/.test(illSrc) && /aiStaffAbsenceDayTx\(w, careerSaveId, calendar\.currentDate\)/.test(SRC("routes/calendar.ts"))

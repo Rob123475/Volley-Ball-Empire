@@ -14,7 +14,7 @@
  * first: the first row's date).
  *
  * What is converted (the player sees each):
- *   achievements.unlocked_at, injury_history.date_injured
+ *   achievements.unlocked_at (injury_history went on night 2: career_injuries holds game dates)
  *       - real when not at 00:00 UTC (a game date is stored as its midnight);
  *   training_sessions.scheduled_at - real when it carries a time ("2026-09-29T02:43");
  *     a finished session of that kind finished the same day (it was instant);
@@ -51,9 +51,6 @@ export function convertRealWorldDates(): Record<string, number> {
 
       for (const r of sqlite.prepare(`SELECT id, unlocked_at AS t FROM achievements WHERE team_id = ? AND unlocked_at % ${DAY} != 0`).all(teamId) as { id: number; t: number }[]) {
         sqlite.prepare(`UPDATE achievements SET unlocked_at = ? WHERE id = ?`).run(toSec(gameDateAt(r.t)), r.id); bump("achievements");
-      }
-      for (const r of sqlite.prepare(`SELECT id, date_injured AS t FROM injury_history WHERE team_id = ? AND date_injured % ${DAY} != 0`).all(teamId) as { id: number; t: number }[]) {
-        sqlite.prepare(`UPDATE injury_history SET date_injured = ? WHERE id = ?`).run(toSec(gameDateAt(r.t)), r.id); bump("injury_history");
       }
       for (const r of sqlite.prepare(`SELECT id, scheduled_at AS s, status FROM training_sessions WHERE team_id = ? AND scheduled_at LIKE '%T%'`).all(teamId) as { id: number; s: string; status: string }[]) {
         const real = Date.parse(r.s.length <= 16 ? `${r.s}:00Z` : r.s) / 1000;

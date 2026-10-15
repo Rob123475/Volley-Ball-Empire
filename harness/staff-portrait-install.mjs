@@ -41,6 +41,9 @@ const sharp = createRequire(import.meta.url)(path.join(REPO, "scripts", "node_mo
 const WORK = fs.mkdtempSync(path.join(os.tmpdir(), "vbe-staff-portraits-"));
 const SRC = path.join(WORK, "pictures"), IMAGES = path.join(WORK, "images"), STARTER = path.join(WORK, "starter.sqlite");
 const NAMES = path.join(WORK, "names.json"), DB = path.join(WORK, "save.sqlite");
+// Night 2: Rob's 123 portraits are in the shipped starter DB now (ids from 10001). This suite proves
+// the installer and Pass 3b in the world before them: a copy of the starter DB without them.
+const BEFORE = path.join(WORK, "starter-before-portraits.sqlite");
 const PORT = 4977;
 const BASE = `http://localhost:${PORT}/api`;
 
@@ -88,7 +91,9 @@ try {
   for (const f of ["head_coach", "assistant_coach", "medical_doctor", "physiotherapist", "massage_therapist", "medical_specialist"]) fs.mkdirSync(path.join(IMAGES, f), { recursive: true });
   fs.copyFileSync(path.join(STAFF_IMAGES, "head_coach", "staff-01.webp"), path.join(SRC, "Head Coach", coachFile));
   fs.copyFileSync(path.join(STAFF_IMAGES, "medical_doctor", "staff-01.webp"), path.join(SRC, "Doctor", "a picture with no age in its name.webp"));
-  fs.copyFileSync(SHIPPED, STARTER);
+  fs.copyFileSync(SHIPPED, BEFORE);
+  run(BEFORE, "DELETE FROM staff WHERE id >= ?", FROM);
+  fs.copyFileSync(BEFORE, STARTER);
   fs.writeFileSync(NAMES, JSON.stringify({ "Head Coach": { "52 Brazilian man": "Test Coach One" }, Doctor: { "45 Australian woman": "Test Doctor One" } }));
 
   const unreadable = install();
@@ -135,8 +140,8 @@ try {
 
   // ── 2. A save made before them ─────────────────────────────────────────────
   console.log("\n2. A SAVE MADE BEFORE THEM GETS THEM ON ITS NEXT BOOT (PASS 3b)");
-  fs.copyFileSync(SHIPPED, DB);
-  child = await boot("first", SHIPPED);
+  fs.copyFileSync(BEFORE, DB);
+  child = await boot("first", BEFORE);
   const prof = await api("POST", "/profiles", { name: "Staff portraits" });
   await api("POST", `/profiles/${prof.data.id}/select`);
   const club = ((await api("GET", "/club-templates")).data?.clubs ?? [])[0];

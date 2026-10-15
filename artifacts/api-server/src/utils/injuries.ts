@@ -96,9 +96,10 @@ export type NewInjury = { name: string; area: BodyArea; baseWeeks: number; weeks
 export function startInjuryTx(
   w: CareerStateTx, careerSaveId: number, club: InjuryClub,
   p: { id: number; speed: number; stamina: number; seriousInjuries?: number | null },
-  today: string, random: () => number = Math.random,
+  today: string, random: () => number = Math.random, injuryName?: string,
 ): NewInjury {
-  const rolled = rollInjuryType(random);
+  // `injuryName`: the harness's probe (routes/dev.ts) chooses the injury; the game always rolls it.
+  const rolled = (injuryName ? INJURY_TYPES.find((t) => t.name === injuryName) : undefined) ?? rollInjuryType(random);
   const reconstruction = injuriesInAreaTx(w, careerSaveId, p.id, rolled.area, today) >= RECONSTRUCTION.injuriesInArea - 1;
   const name = reconstruction ? reconstructionName(rolled.area) : rolled.name;
   const baseWeeks = reconstruction ? RECONSTRUCTION.baseWeeks : rolled.baseWeeks;
@@ -139,9 +140,19 @@ export function restWeek(baseLeft: number, factor: number, medCentreLevel = 1): 
   return Math.max(0, baseLeft - (1 + facilityWeeks) / factor);
 }
 
+/**
+ * Her base weeks still to heal. An injury written without them (one an older
+ * save carried in, the boot conversion's own rule) takes what gives her weeks
+ * out at today's factor.
+ */
+export function baseLeftOf(p: { injuryBaseWeeksLeft?: number | null; injuryWeeksRemaining?: number | null }, factor: number): number {
+  const base = Number(p.injuryBaseWeeksLeft ?? 0);
+  return base > 0 ? base : Math.max(0, Number(p.injuryWeeksRemaining ?? 0)) / factor;
+}
+
 /** What one week of rest writes to an injured player: healed, or her new base left and weeks out. */
-export function restWeekPatch(p: { injuryStatus: string; injuryBaseWeeksLeft: number }, factor: number, medCentreLevel = 1): Partial<CareerPlayerFields> {
-  const next = restWeek(Number(p.injuryBaseWeeksLeft ?? 0), factor, medCentreLevel);
+export function restWeekPatch(p: { injuryStatus: string; injuryBaseWeeksLeft: number; injuryWeeksRemaining?: number | null }, factor: number, medCentreLevel = 1): Partial<CareerPlayerFields> {
+  const next = restWeek(baseLeftOf(p, factor), factor, medCentreLevel);
   return next <= 1e-9
     ? { injuryWeeksRemaining: 0, injuryBaseWeeksLeft: 0, injuryStatus: "Healthy", injuryArea: null, isInjured: false }
     : { injuryBaseWeeksLeft: round2(next), injuryWeeksRemaining: round2(next * factor) };
@@ -177,7 +188,7 @@ export function injuryRecoveryWeekTx(w: CareerStateTx, careerSaveId: number, clu
   const level = medCentreLevelTx(w, club);
   const recovered: string[] = [];
   for (const p of players) {
-    const patch = restWeekPatch({ injuryStatus: p.status, injuryBaseWeeksLeft: Number(p.base ?? 0) }, treatmentFactor(p.status, team), level);
+    const patch = restWeekPatch({ injuryStatus: p.status, injuryBaseWeeksLeft: Number(p.base ?? 0), injuryWeeksRemaining: Number(p.weeks ?? 0) }, treatmentFactor(p.status, team), level);
     w.setPlayerState(careerSaveId, p.id, patch);
     if (patch.injuryStatus === "Healthy") recovered.push(p.name);
   }
@@ -212,7 +223,14 @@ export function refreshInjuryClocksTx(w: CareerStateTx, careerSaveId: number, cl
   const team = medicalTeam(staffOfTx(w, careerSaveId, club));
   let changed = 0;
   for (const p of players) {
-    const weeks = round2(Number(p.base ?? 0) * treatmentFactor(p.status, team));
+    const factor = treatmentFactor(p.status, team);
+    if (!(Number(p.base ?? 0) > 0)) {
+      // An injury with no base weeks yet (baseLeftOf): give it them, her weeks out unchanged.
+      const base = round2(baseLeftOf({ injuryBaseWeeksLeft: 0, injuryWeeksRemaining: Number(p.weeks ?? 0) }, factor));
+      if (base > 0) { w.setPlayerState(careerSaveId, p.id, { injuryBaseWeeksLeft: base }); changed++; }
+      continue;
+    }
+    const weeks = round2(Number(p.base) * factor);
     if (weeks > 0 && Math.abs(weeks - Number(p.weeks ?? 0)) > 0.005) { w.setPlayerState(careerSaveId, p.id, { injuryWeeksRemaining: weeks }); changed++; }
   }
   return changed;

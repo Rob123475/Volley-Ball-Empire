@@ -263,41 +263,41 @@ try {
     check("a sponsor offer with a signing bonus exists to test", false, `${offers.length} offers`);
   }
 
-  // ── 3. The medical department (Update 1, 15 Oct, O-3) ─────────────────────
-  console.log("\n3. MEDICAL: THE DOCTOR HEALS, THE SPECIALIST PREVENTS");
-  const bonus0 = (await api("GET", "/medical-staff/bonuses")).data;
-  // The fitness trainer hired above is a healer too: the best healer on duty counts.
-  const ft = hired.fitness_trainer;
-  check("with only the fitness trainer, the weekly extra-week chance is her skill / 250, and risk is untouched",
-    Math.abs((bonus0?.healChance ?? -1) - ft.skillLevel / 250) < 1e-9 && bonus0?.injuryRiskFactor === 1, JSON.stringify(bonus0));
+  // ── 3. The medical department (night 2, O-6 and O-7, replacing 15 Oct's O-3) ──
+  // The healer chance is gone (staff-roles.mjs proves it); a doctor treats injuries
+  // (the treatment factor, injury-treatment.mjs) and the SPORTS SCIENTIST cuts risk.
+  console.log("\n3. MEDICAL: THE DOCTOR TREATS, THE SPORTS SCIENTIST PREVENTS");
+  const fx0 = (await api("GET", "/staff/effects")).data;
+  check("with no doctor, physio or sports scientist: a doctor's injury is x2, a physio's x2, and risk is untouched",
+    fx0?.treatment?.doctorInjuries === 2 && fx0?.treatment?.physioInjuries === 2 && fx0?.injuryRiskFactor === 1, JSON.stringify({ t: fx0?.treatment, r: fx0?.injuryRiskFactor }));
   const medSkill = (() => { const d = new DatabaseSync(dbFile, { readOnly: true }); try { return new Map(d.prepare("SELECT id, skill_level FROM staff").all().map((r) => [r.id, r.skill_level])); } finally { d.close(); } })();
   const medMarket = (await api("GET", "/medical-staff/market")).data ?? [];
   const bestOf = (role) => medMarket.filter((m) => m.role === role).sort((a, b) => (medSkill.get(b.id) ?? 0) - (medSkill.get(a.id) ?? 0))[0];
-  const doc = bestOf("Doctor"), spec = bestOf("Medical Specialist");
+  const doc = bestOf("Doctor"), sci = bestOf("Sports Scientist");
   const dh = await api("POST", "/medical-staff", { staffId: doc?.id, length: "6m" });
-  const sh = await api("POST", "/medical-staff", { staffId: spec?.id, length: "6m" });
-  const docSkill = medSkill.get(doc?.id), specSkill = medSkill.get(spec?.id);
-  const bonus1 = (await api("GET", "/medical-staff/bonuses")).data;
-  const wantHeal = Math.max(docSkill, ft.skillLevel) / 250;
-  check("a doctor heals: the chance is now the best of the doctor and the trainer (they don't stack), skill / 250",
-    dh.status === 201 && Math.abs(bonus1?.healChance - wantHeal) < 1e-9 && (docSkill <= ft.skillLevel || bonus1?.healer?.id === doc.id),
-    `doctor skill ${docSkill}, trainer ${ft.skillLevel}: ${(bonus1?.healChance * 100).toFixed(1)}% (${bonus1?.healer?.name})`);
-  const wantRisk = 1 - Math.min(45, Math.max(0, specSkill - 50)) * (0.15 / 45);
-  check("a medical specialist cuts match injury risk: x(1 - (skill-50) x 0.15/45), at most 15% at skill 95 and above",
-    sh.status === 201 && Math.abs(bonus1?.injuryRiskFactor - wantRisk) < 1e-9 && wantRisk >= 0.85 && wantRisk < 1,
-    `specialist skill ${specSkill}: x${bonus1?.injuryRiskFactor?.toFixed(4)}`);
+  const sh = await api("POST", "/medical-staff", { staffId: sci?.id, length: "6m" });
+  const docSkill = medSkill.get(doc?.id), sciSkill = medSkill.get(sci?.id);
+  const fx1 = (await api("GET", "/staff/effects")).data;
+  const scale = (k) => Math.min(1, Math.max(0, (k - 50) / 45));
+  check("a doctor treats her own injuries at x0.7 to x0.6 by skill (and a physio's at x1)",
+    dh.status === 201 && Math.abs(fx1?.treatment?.doctorInjuries - (0.7 - 0.1 * scale(docSkill))) < 1e-9 && fx1?.treatment?.physioInjuries === 1,
+    `doctor skill ${docSkill}: x${fx1?.treatment?.doctorInjuries?.toFixed(3)}`);
+  const wantRisk = 1 - scale(sciSkill) * 0.15;
+  check("a sports scientist cuts match injury risk: x(1 - (skill-50)/45 x 0.15), at most 15% at skill 95 and above",
+    sh.status === 201 && Math.abs(fx1?.injuryRiskFactor - wantRisk) < 1e-9 && wantRisk >= 0.85 && wantRisk < 1,
+    `sports scientist skill ${sciSkill}: x${fx1?.injuryRiskFactor?.toFixed(4)}`);
   const condSrc = stripComments(read("artifacts/api-server/src/utils/condition.ts"));
-  check("(source) the one injuryRisk takes the specialist's factor, and both injury rolls (the player's and the AI clubs') pass it",
-    /return Math\.min\(risk \* labFactor \* campFactor \* proneness \* staffFactor, 0\.60\)/.test(condSrc)
-      && /staffFactor = injuryRiskStaffFactor\(await loadStaff\(cid, \{ teamId \}\)\)/.test(read("artifacts/api-server/src/routes/matches.ts"))
-      && /staffFactor = injuryRiskStaffFactor\(loadStaffTx\(w\.tx, careerSaveId, \{ poolTeamId \}\)\)/.test(read("artifacts/api-server/src/utils/aiSquads.ts")));
-  check("(source) the weekly recovery and the Recovery Program both read the one healing bonus; the Medical page shows the server's figures",
-    /healingBonus\(staff\)/.test(condSrc) && /healingBonus\(await loadStaff/.test(read("artifacts/api-server/src/routes/training.ts"))
-      && /\/api\/medical-staff\/bonuses/.test(read("artifacts/beach-volleyball/src/pages/medical.tsx")) && !/recoveryBonusPct/.test(read("artifacts/beach-volleyball/src/pages/medical.tsx")));
+  check("(source) the one injuryRisk takes the sports scientist's factor, and both injury rolls (the player's and the AI clubs') pass it",
+    condSrc.includes("return Math.min(risk * labFactor * campFactor * proneness * staffFactor, 0.60)")
+      && read("artifacts/api-server/src/routes/matches.ts").includes("staffFactor = injuryRiskStaffFactor(await loadStaff(cid, { teamId }))")
+      && read("artifacts/api-server/src/utils/aiSquads.ts").includes("staffFactor = injuryRiskStaffFactor(loadStaffTx(w.tx, careerSaveId, { poolTeamId }))"));
+  check("(source) the Recovery Program is a week of rest at the treatment factor; the Medical page shows the server's figures",
+    read("artifacts/api-server/src/routes/training.ts").includes("restWeekPatch(player, treatmentFactor(player.injuryStatus, team), medCentreLevel)")
+      && read("artifacts/beach-volleyball/src/pages/medical.tsx").includes("useStaffEffects") && !read("artifacts/beach-volleyball/src/pages/medical.tsx").includes("medical-staff/bonuses"));
   // A member off ill gives nothing.
-  { const d = new DatabaseSync(dbFile); d.prepare("UPDATE career_staff_state SET off_days_left = 5, off_cause = 'flu' WHERE staff_id = ?").run(spec.id); d.close(); }
-  const bonus2 = (await api("GET", "/medical-staff/bonuses")).data;
-  check("a specialist off ill prevents nothing", bonus2?.injuryRiskFactor === 1, `x${bonus2?.injuryRiskFactor}`);
+  { const d = new DatabaseSync(dbFile); d.prepare("UPDATE career_staff_state SET off_days_left = 5, off_cause = 'flu' WHERE staff_id = ?").run(sci.id); d.close(); }
+  const fx2 = (await api("GET", "/staff/effects")).data;
+  check("a sports scientist off ill prevents nothing", fx2?.injuryRiskFactor === 1, `x${fx2?.injuryRiskFactor}`);
 } catch (err) {
   check("the run completed", false, String(err?.stack ?? err));
 } finally {

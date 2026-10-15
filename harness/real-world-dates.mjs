@@ -89,7 +89,8 @@ try {
     tr.map((t) => `${t.s} (${t.status}, finished ${t.f})`).join(", "));
   const left = {
     achievements: q(`SELECT COUNT(*) AS n FROM achievements WHERE unlocked_at % 86400 != 0`)[0].n,
-    injuries: q(`SELECT COUNT(*) AS n FROM injury_history WHERE date_injured % 86400 != 0`)[0].n,
+    // Night 2: injuries are kept in career_injuries, on game dates (YYYY-MM-DD) by construction.
+    injuries: q(`SELECT COUNT(*) AS n FROM career_injuries WHERE game_date NOT GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]'`)[0].n,
     training: q(`SELECT COUNT(*) AS n FROM training_sessions WHERE scheduled_at LIKE '%T%'`)[0].n,
     ledger: q(`SELECT COUNT(*) AS n FROM finance_transactions WHERE date LIKE '%T%'`)[0].n,
     contracts: q(`SELECT COUNT(*) AS n FROM contracts WHERE team_id = ? AND substr(start_date, 1, 10) > ?`, team.id, team.today)[0].n,
