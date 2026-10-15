@@ -159,7 +159,7 @@ its saves in `C:\vbe-test-1.1.0\Beach Volleyball Empire\`, the copy.)
      `app_build_5233750.vdf.before-1.1.0`;
    - then copy the repo's `steam\app_build_5233750-1.1.0.vdf` over `app_build_5233750.vdf`.
 
-   The only changes are `"Desc" "v1.1.0 Update 1 (update-1 0cde84d9)"` (the 16 Oct repackage, docs/STATUS-UPDATE1-PRE-UPLOAD.md) and
+   The only changes are `"Desc" "v1.1.0 Update 1 (update-1 a09c6d54)"` (the 16 Oct evening repackage, docs/STATUS-UPDATE1-PRE-UPLOAD.md) and
    `"ContentRoot" "C:\build\vbe-1.1.0\win-unpacked\"`. `SetLive` stays empty. `depot_build_5233751.vdf` is unchanged
    (the repo's copy matches it).
 2. **Upload.** Open a terminal in `C:\STEAMWORKS\steamworks_sdk_165\sdk\tools\ContentBuilder\builder\` and run:

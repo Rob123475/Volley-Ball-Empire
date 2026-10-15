@@ -286,11 +286,15 @@ try {
   const frame = async () => crypto.createHash("sha1").update((await send("Page.captureScreenshot", { format: "png" })).result?.data ?? "").digest("hex");
   check("the gear above the court opens the settings over it", (await clickTestid("button-court-settings")) && (await waitJs(`!!document.querySelector('[data-testid="court-settings-overlay"]')`, 5000)));
   await sleep(1000);
+  // As a player's click on a slider there does: the focus leaves the court for the settings.
+  await js(`document.querySelector('[data-testid="court-settings-overlay"] [data-testid="sound-master-volume"]').focus(); true`);
+  await sleep(500);
   const inside = await js(`(() => { const o = document.querySelector('[data-testid="court-settings-overlay"]'); const has = (t) => !!o.querySelector('[data-testid="' + t + '"]');
     return { master: has("sound-master-volume"), music: has("sound-volume") && has("sound-mute"), crowd: has("sound-crowd-volume"), commentary: has("sound-commentary-volume"),
       auto: has("controls-auto"), manual: has("controls-manual"), table: has("controls-table"), path: location.pathname, focus: document.activeElement?.tagName }; })()`);
   check("it holds Sound (master, music, crowd, commentary) and Controls (Auto, Manual, the controls table), and the page is still the court",
     inside.master && inside.music && inside.crowd && inside.commentary && inside.auto && inside.manual && inside.table && inside.path === "/court", JSON.stringify(inside));
+  check("the focus is on the settings, off the court", inside.focus === "INPUT", inside.focus);
   await shot("s3-court-settings.png");
   const f1 = await frame(); await sleep(4000); const f2 = await frame();
   check("the match carries on with the settings open (the court's picture changes)", f1 !== f2);

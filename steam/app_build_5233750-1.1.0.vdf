@@ -1,7 +1,7 @@
 "AppBuild"
 {
 	"AppID" "5233750"
-	"Desc" "v1.1.0 Update 1 (update-1 0cde84d9)"
+	"Desc" "v1.1.0 Update 1 (update-1 a09c6d54)"
 	"SetLive" ""
 	"ContentRoot" "C:\build\vbe-1.1.0\win-unpacked\"
 	"BuildOutput" "..\output\"

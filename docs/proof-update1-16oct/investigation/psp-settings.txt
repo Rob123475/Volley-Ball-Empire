@@ -1,0 +1,19 @@
+FAIL  set on the Settings page: stored as shown  {"shown":[],"court":"{\"crowd\":0,\"commentary\":1}","music":null}
+PASS  Next match, then Watch Match  
+PASS  when the court loaded, the page sent the stored volumes (crowd 0.00, commentary 1.00)  [Sound] crowd volume 0.00 | [Sound] commentary volume 1.00
+  heard (as stored: crowd 0, commentary 1): peak 0.86999, mean RMS 0.05003, 376 reads, 1 output tap(s), running; Windows: peak 0.91989, sessions [{"pid":34796,"mixerVolume":1,"mixerMuted":false,"state":1}], device 0.78
+PASS  heard: as stored (crowd 0, commentary 1), music muted  court peak 0.86999, Windows peak 0.91989, 376 reads, 1 tap(s), running
+PASS  crowd 0, commentary 1 reach the court  
+  heard (crowd 0, commentary 1): peak 0.89773, mean RMS 0.04801, 380 reads, 1 output tap(s), running; Windows: peak 0.91122, sessions [{"pid":34796,"mixerVolume":1,"mixerMuted":false,"state":1}], device 0.78
+PASS  heard: commentary alone (crowd 0), music muted  court peak 0.89773, Windows peak 0.91122, 380 reads, 1 tap(s), running
+PASS  crowd 1, commentary 0 reach the court  
+  heard (crowd 1, commentary 0): peak 0.32226, mean RMS 0.02694, 227 reads, 1 output tap(s), running; Windows: peak 0.37478, sessions [{"pid":34796,"mixerVolume":1,"mixerMuted":false,"state":1}], device 0.78
+PASS  heard: crowd alone (commentary 0), music muted  court peak 0.32226, Windows peak 0.37478, 227 reads, 1 tap(s), running
+PASS  crowd 0, commentary 0 reach the court  
+  heard (crowd 0, commentary 0): peak 0, mean RMS 0, 151 reads, 1 output tap(s), running; Windows: peak 0, sessions [{"pid":34796,"mixerVolume":1,"mixerMuted":false,"state":1}], device 0.78
+PASS  silent: crowd 0, commentary 0  court peak 0 over 151 reads, Windows peak 0
+PASS  crowd 1, commentary 1 reach the court  
+  heard (crowd 1, commentary 1): peak 0.88612, mean RMS 0.06661, 151 reads, 1 output tap(s), running; Windows: peak 0.94371, sessions [{"pid":34796,"mixerVolume":1,"mixerMuted":false,"state":1}], device 0.78
+PASS  heard: crowd 1, commentary 1, music muted  court peak 0.88612, Windows peak 0.94371, 151 reads, 1 tap(s), running
+PASS  still on the 3D court  
+PASS  no page errors  

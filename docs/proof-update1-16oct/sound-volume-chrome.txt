@@ -1,0 +1,22 @@
+PASS  Next match, then Watch Match  
+PASS  when the court loaded, the page sent the stored volumes (crowd 0.00, commentary 1.00)  [Sound] crowd volume 0.00
+ | [Sound] commentary volume 1.00
+
+  heard (as stored: crowd 0, commentary 1): peak 0.9271, mean RMS 0.04609, 389 reads, 1 output tap(s), running
+PASS  heard as stored (crowd 0, commentary 1, music muted)  peak 0.9271, 389 reads, 1 tap(s), running
+PASS  crowd 1, commentary 1 reach the court  
+  heard (crowd 1, commentary 1): peak 0.85354, mean RMS 0.08349, 156 reads, 1 output tap(s), running
+PASS  heard: crowd 1, commentary 1, music muted  peak 0.85354, 156 reads, 1 tap(s), running
+PASS  crowd 0, commentary 0 reach the court  
+  heard (crowd 0, commentary 0): peak 0, mean RMS 0, 156 reads, 1 output tap(s), running
+PASS  silent: crowd 0, commentary 0  peak 0 over 156 reads
+PASS  crowd 0, commentary 1 reach the court  
+  heard (crowd 0, commentary 1): peak 0.88936, mean RMS 0.06157, 389 reads, 1 output tap(s), running
+PASS  heard: commentary alone (crowd 0), music muted  peak 0.88936, 389 reads, 1 tap(s), running
+PASS  crowd 1, commentary 0 reach the court  
+  heard (crowd 1, commentary 0): peak 0.30376, mean RMS 0.02045, 234 reads, 1 output tap(s), running
+PASS  heard: crowd alone (commentary 0), music muted  peak 0.30376, 234 reads, 1 tap(s), running
+PASS  crowd 1, commentary 1 reach the court  
+  heard (crowd 1, commentary 1): peak 0.91346, mean RMS 0.07657, 126 reads, 1 output tap(s), running
+PASS  heard: back to 1 and 1, music muted  peak 0.91346, 126 reads, 1 tap(s), running
+PASS  no page errors  

@@ -1,0 +1,18 @@
+PASS  Next match, then Watch Match  
+PASS  when the court loaded, the page sent the stored volumes (crowd 0.00, commentary 1.00)  [Sound] crowd volume 0.00 | [Sound] commentary volume 1.00
+  heard (as stored: crowd 0, commentary 1): peak 0.87121, mean RMS 0.04764, 377 reads, 1 output tap(s), running; Windows: peak 0.92709, sessions [{"pid":27932,"mixerVolume":1,"mixerMuted":false,"state":1}], device 0.78
+PASS  heard: as stored (crowd 0, commentary 1), music muted  court peak 0.87121, Windows peak 0.92709, 377 reads, 1 tap(s), running
+PASS  crowd 0, commentary 1 reach the court  
+  heard (crowd 0, commentary 1): peak 0.8981, mean RMS 0.04079, 379 reads, 1 output tap(s), running; Windows: peak 0.91989, sessions [{"pid":27932,"mixerVolume":1,"mixerMuted":false,"state":1}], device 0.78
+PASS  heard: commentary alone (crowd 0), music muted  court peak 0.8981, Windows peak 0.91989, 379 reads, 1 tap(s), running
+PASS  crowd 1, commentary 0 reach the court  
+  heard (crowd 1, commentary 0): peak 0.30294, mean RMS 0.02908, 226 reads, 1 output tap(s), running; Windows: peak 0.3464, sessions [{"pid":27932,"mixerVolume":1,"mixerMuted":false,"state":1}], device 0.78
+PASS  heard: crowd alone (commentary 0), music muted  court peak 0.30294, Windows peak 0.3464, 226 reads, 1 tap(s), running
+PASS  crowd 0, commentary 0 reach the court  
+  heard (crowd 0, commentary 0): peak 0, mean RMS 0, 153 reads, 1 output tap(s), running; Windows: peak 0, sessions [{"pid":27932,"mixerVolume":1,"mixerMuted":false,"state":1}], device 0.78
+PASS  silent: crowd 0, commentary 0  court peak 0 over 153 reads, Windows peak 0
+PASS  crowd 1, commentary 1 reach the court  
+  heard (crowd 1, commentary 1): peak 0.8081, mean RMS 0.06916, 152 reads, 1 output tap(s), running; Windows: peak 0.93078, sessions [{"pid":27932,"mixerVolume":1,"mixerMuted":false,"state":1}], device 0.78
+PASS  heard: crowd 1, commentary 1, music muted  court peak 0.8081, Windows peak 0.93078, 152 reads, 1 tap(s), running
+PASS  still on the 3D court  
+PASS  no page errors  

@@ -1,0 +1,23 @@
+PASS  Next match, then Watch Match  
+PASS  when the court loaded, the page sent the stored volumes (crowd 0.00, commentary 1.00)  [Sound] crowd volume 0.00 | [Sound] commentary volume 1.00
+  heard (as stored: crowd 0, commentary 1): peak 0.89439, mean RMS 0.04649, 377 reads, 1 output tap(s), running; Windows: peak 0.89773, sessions [{"pid":33736,"mixerVolume":1,"mixerMuted":false,"state":1}], device 0.78
+PASS  heard: as stored (crowd 0, commentary 1), music muted  court peak 0.89439, Windows peak 0.89773, 377 reads, 1 tap(s), running
+  heard (the focus off the court (on its bar)): peak 0, mean RMS 0, 245 reads, 1 output tap(s), running; Windows: peak 0, sessions [{"pid":33736,"mixerVolume":1,"mixerMuted":false,"state":1}], device 0.78
+  focus off the court: the court's picture did not change (stopped) over 4 s
+FAIL  heard: with the focus off the court, music muted  court peak 0, Windows peak 0, 245 reads, 1 tap(s), running
+  heard (the focus back on the court): peak 0.89502, mean RMS 0.06871, 224 reads, 1 output tap(s), running; Windows: peak 0.89502, sessions [{"pid":33736,"mixerVolume":1,"mixerMuted":false,"state":1}], device 0.78
+PASS  heard: the focus back on the court, music muted  court peak 0.89502, Windows peak 0.89502, 224 reads, 1 tap(s), running
+PASS  crowd 0, commentary 1 reach the court  
+  heard (crowd 0, commentary 1): peak 0.8938, mean RMS 0.05261, 379 reads, 1 output tap(s), running; Windows: peak 0.8938, sessions [{"pid":33736,"mixerVolume":1,"mixerMuted":false,"state":1}], device 0.78
+PASS  heard: commentary alone (crowd 0), music muted  court peak 0.8938, Windows peak 0.8938, 379 reads, 1 tap(s), running
+PASS  crowd 1, commentary 0 reach the court  
+  heard (crowd 1, commentary 0): peak 0.42151, mean RMS 0.02757, 225 reads, 1 output tap(s), running; Windows: peak 0.5617, sessions [{"pid":33736,"mixerVolume":1,"mixerMuted":false,"state":1}], device 0.78
+PASS  heard: crowd alone (commentary 0), music muted  court peak 0.42151, Windows peak 0.5617, 225 reads, 1 tap(s), running
+PASS  crowd 0, commentary 0 reach the court  
+  heard (crowd 0, commentary 0): peak 0, mean RMS 0, 150 reads, 1 output tap(s), running; Windows: peak 0, sessions [{"pid":33736,"mixerVolume":1,"mixerMuted":false,"state":1}], device 0.78
+PASS  silent: crowd 0, commentary 0  court peak 0 over 150 reads, Windows peak 0
+PASS  crowd 1, commentary 1 reach the court  
+  heard (crowd 1, commentary 1): peak 0.89277, mean RMS 0.06106, 150 reads, 1 output tap(s), running; Windows: peak 0.9477, sessions [{"pid":33736,"mixerVolume":1,"mixerMuted":false,"state":1}], device 0.78
+PASS  heard: crowd 1, commentary 1, music muted  court peak 0.89277, Windows peak 0.9477, 150 reads, 1 tap(s), running
+PASS  still on the 3D court  
+PASS  no page errors  
