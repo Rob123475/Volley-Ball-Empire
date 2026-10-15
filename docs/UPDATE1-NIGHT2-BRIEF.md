@@ -4,7 +4,7 @@ Branch **update-1**. Rob is asleep. In the morning he wants a quick on-screen lo
 
 ## How to work tonight (read first)
 - **Don't stop to wait for Rob.** Make the most reasonable choice that fits his decisions below, write it under "Decisions made overnight" in the report, and carry on. Skip a step only if it truly can't be done without him, and say why.
-- **Time budget:** if Parts 1–6 aren't finished by **03:30**, commit what's done (each part whole or not at all, never half), note what's left, and go straight to Part 7. A tested build in the morning matters more than one more feature.
+- **No time limit (Rob, 22:22):** finish every feature in Parts 1–6 before any testing, however long it takes. Rob would rather start an hour or two later in the morning. Then do Parts 7–9 in full.
 - Never push. Never touch `main` or `launch-final`. **Never upload anything to Steam.** Commit after each step.
 - Use test profiles only. Never open or change Rob's own save (AppData). His live Steam game uses it.
 - Read the code before changing it. Delete what you replace: the old way goes, it doesn't sit beside the new one. One set of rules for the player's club and every AI club. Every number goes in one constants block. Keep LF line endings.

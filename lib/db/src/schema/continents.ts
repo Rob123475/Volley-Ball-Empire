@@ -155,7 +155,7 @@ nat("europe", [
   "Monaco", "Netherlands", "Dutch", "Norway", "Norwegian", "Poland", "Polish", "Portugal",
   "Portuguese", "Romania", "Romanian", "Russia", "Russian", "Scotland", "Scottish", "Serbia",
   "Serbian", "Slovakia", "Slovak", "Slovenia", "Slovenian", "Spain", "Spanish", "Sweden",
-  "Swedish", "Switzerland", "Swiss", "Ukraine", "Ukrainian", "Wales", "Welsh",
+  "Swedish", "Switzerland", "Swiss", "Turkey", "Turkish", "Ukraine", "Ukrainian", "Wales", "Welsh",
 ]);
 
 nat("asia", [
@@ -254,6 +254,7 @@ iso("DK", ["Denmark", "Danish"]);
 iso("DO", ["Dominican Republic", "Dominican"]);
 iso("EC", ["Ecuador", "Ecuadorian"]);
 iso("EG", ["Egypt", "Egyptian"]);
+iso("ET", ["Ethiopia", "Ethiopian"]);   // night 2 (16 Oct): new staff are from these four; they had no flag
 iso("FJ", ["Fiji", "Fijian"]);
 iso("FI", ["Finland", "Finnish"]);
 iso("FR", ["France", "French"]);
@@ -265,6 +266,7 @@ iso("GY", ["Guyana", "Guyanese"]);
 iso("IS", ["Iceland", "Icelandic"]);
 iso("IN", ["India", "Indian"]);
 iso("ID", ["Indonesia", "Indonesian"]);
+iso("IR", ["Iran", "Iranian"]);   // night 2 (16 Oct): a new head coach is Iranian
 iso("IE", ["Ireland", "Irish"]);
 iso("IT", ["Italy", "Italian"]);
 iso("CI", ["Ivory Coast", "Ivorian"]);
@@ -273,6 +275,7 @@ iso("JP", ["Japan", "Japanese"]);
 iso("JO", ["Jordan", "Jordanian"]);
 iso("KE", ["Kenya", "Kenyan"]);
 iso("LA", ["Laos", "Laotian"]);
+iso("LV", ["Latvia", "Latvian"]);
 iso("LB", ["Lebanon", "Lebanese"]);
 iso("MG", ["Madagascar", "Malagasy"]);
 iso("MY", ["Malaysia", "Malaysian"]);
@@ -298,6 +301,7 @@ iso("QA", ["Qatar", "Qatari"]);
 iso("RU", ["Russia", "Russian"]);
 iso("WS", ["Samoa", "Samoan"]);
 iso("SN", ["Senegal", "Senegalese"]);
+iso("RS", ["Serbia", "Serbian"]);
 iso("SG", ["Singapore", "Singaporean"]);
 iso("SB", ["Solomon Islands", "Solomon Islander"]);
 iso("ZA", ["South Africa", "South African"]);
@@ -312,6 +316,7 @@ iso("TZ", ["Tanzania", "Tanzanian"]);
 iso("TH", ["Thailand", "Thai"]);
 iso("TO", ["Tonga", "Tongan"]);
 iso("TN", ["Tunisia", "Tunisian"]);
+iso("TR", ["Turkey", "Turkish"]);
 iso("UA", ["Ukraine", "Ukrainian"]);
 iso("UY", ["Uruguay", "Uruguayan"]);
 // R-46: Hawaii is a US state, so its athletes (the Honolulu pool club's pair)

@@ -4,10 +4,8 @@
  * install Rob's 90 new staff portraits as 90 new staff.
  *
  * ── What it does ────────────────────────────────────────────────────────────
- *   1. reads one subfolder per role in Rob's folder ("Head Coach", "Assistant
- *      Coach", "Doctor", "Physiotherapist", "Massage Therapist", "Medical
- *      Specialist"; the folder name is the staff role, exactly as the staff
- *      table spells it)
+ *   1. reads one subfolder per role in Rob's folder (the keys of ROLES below:
+ *      the folder name is the staff role, exactly as the staff table spells it)
  *   2. reads each file name for the age, nationality and gender ("...portrait
  *      of a 42-year-old Nigerian woman..."), as install-manager-faces.cjs does,
  *      and lists every file whose name it can't read. The name is looked up in
@@ -64,6 +62,10 @@ const ROLES = {
   "Physiotherapist":    "physiotherapist",
   "Massage Therapist":  "massage_therapist",
   "Medical Specialist": "medical_specialist",
+  // Night 2 (16 Oct): Rob's pictures for three more roles.
+  "Fitness Trainer":    "fitness_trainer",
+  "Strength Coach":     "strength_conditioner",
+  "Sports Scientist":   "sports_scientist",
 };
 
 const arg = (flag) => { const i = process.argv.indexOf(flag); return i > 0 ? process.argv[i + 1] : undefined; };

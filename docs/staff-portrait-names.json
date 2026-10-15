@@ -1,5 +1,5 @@
 {
- "_note": "Rob's 123 staff portraits, 15 Oct 2026. Key: the exact picture file name inside its role folder. Ages from the file name where it gives one, otherwise read off the picture. Source folders: Desktop\\\\extra download cards\\\\<role>-extra.",
+ "_note": "Rob's 123 staff portraits, 15 Oct 2026. Key: the exact picture file name inside its role folder. Ages from the file name where it gives one, otherwise read off the picture. Source folders: Desktop\\\\extra download cards\\\\<role>-extra. Night 2 (16 Oct): 11 names that matched a manager face, an AI pool player or a staff member took another real surname from the same country (docs/STATUS-UPDATE1-NIGHT2.md, Part 1).",
  "Physiotherapist": {
   "Agent Image - Photorealistic square corporate headshot_ mid-chest-up portrait of a Brazilian woman p.png": {
    "name": "Camila Ribeiro",
@@ -136,7 +136,7 @@
    "gender": "male"
   },
   "Agent Image - Photorealistic square editorial sports-event photo_ chest-up portrait of a Lebanese wo.png": {
-   "name": "Rania Haddad",
+   "name": "Rania Khoury",
    "age": 36,
    "nationality": "Lebanese",
    "gender": "female"
@@ -166,7 +166,7 @@
    "gender": "male"
   },
   "Agent Image - Photorealistic square editorial sports-event photo_ chest-up portrait of a Senegalese.png": {
-   "name": "Moussa Diop",
+   "name": "Moussa Ndiaye",
    "age": 45,
    "nationality": "Senegalese",
    "gender": "male"
@@ -358,7 +358,7 @@
    "gender": "male"
   },
   "Agent Image - Photorealistic square cinematic lifestyle portrait_ tight head-and-shoulders_ of a Gha.png": {
-   "name": "Abena Asante",
+   "name": "Abena Boateng",
    "age": 42,
    "nationality": "Ghanaian",
    "gender": "female"
@@ -394,7 +394,7 @@
    "gender": "female"
   },
   "Agent Image - Photorealistic square cinematic lifestyle portrait_ tight head-and-shoulders_ of a Tha.png": {
-   "name": "Siriporn Chaiyaporn",
+   "name": "Siriporn Wongsakul",
    "age": 36,
    "nationality": "Thai",
    "gender": "female"
@@ -450,13 +450,13 @@
    "gender": "male"
   },
   "Agent Image - Photorealistic square corporate medical headshot_ head-and-shoulders portrait of a Ukr.png": {
-   "name": "Olena Kovalenko",
+   "name": "Olena Shevchenko",
    "age": 38,
    "nationality": "Ukrainian",
    "gender": "female"
   },
   "Agent Image - Photorealistic square corporate medical headshot_ head-and-shoulders portrait of a Vie.png": {
-   "name": "Lan Nguyen",
+   "name": "Lan Tran",
    "age": 42,
    "nationality": "Vietnamese",
    "gender": "female"
@@ -586,7 +586,7 @@
    "gender": "female"
   },
   "Agent Image - Photorealistic square cinematic editorial portrait_ tight head-and-shoulders_ of a Rus.png": {
-   "name": "Dmitri Volkov",
+   "name": "Dmitri Sokolov",
    "age": 46,
    "nationality": "Russian",
    "gender": "male"
@@ -624,19 +624,19 @@
    "gender": "female"
   },
   "Agent Image - Photorealistic square head-and-shoulders portrait of a Dutch woman_ about 57_ short cr.png": {
-   "name": "Marieke de Vries",
+   "name": "Marieke Bakker",
    "age": 57,
    "nationality": "Dutch",
    "gender": "female"
   },
   "Agent Image - Photorealistic square head-and-shoulders portrait of a Filipina woman_ about 44_ mediu.png": {
-   "name": "Maricel Santos",
+   "name": "Maricel Reyes",
    "age": 44,
    "nationality": "Filipina",
    "gender": "female"
   },
   "Agent Image - Photorealistic square head-and-shoulders portrait of a Japanese man_ about 52_ short g.png": {
-   "name": "Hiroshi Tanaka",
+   "name": "Hiroshi Watanabe",
    "age": 52,
    "nationality": "Japanese",
    "gender": "male"
@@ -726,7 +726,7 @@
    "gender": "male"
   },
   "Agent Image - Photorealistic square head-and-shoulders portrait of an Egyptian man_ about 49_ short.png": {
-   "name": "Ahmed Mansour",
+   "name": "Ahmed Fathy",
    "age": 49,
    "nationality": "Egyptian",
    "gender": "male"
