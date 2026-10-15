@@ -78,7 +78,7 @@ let cid = null, teamId = null;
 const myTeam = () => q(`SELECT team_id AS t FROM career_saves WHERE id = ?`, cid)[0]?.t ?? teamId;
 const healMine = () => w(`UPDATE career_player_state SET injury_status = 'Healthy', injury_weeks_remaining = 0, is_injured = 0 WHERE team_id = ?`, myTeam());
 const aiSeniors = () => q(`SELECT s.player_id AS id, p.name, s.pool_team_id AS club, s.salary, s.pool_joined_on AS joined, s.age,
-    s.is_injured AS inj, s.injury_status AS status, s.injury_weeks_remaining AS weeks,
+    s.is_injured AS inj, s.injury_status AS status, s.injury_weeks_remaining AS weeks, s.on_injured_list AS listed, p.player_type AS ptype,
     s.speed, s.power, s.defense, s.serve, s.block, s.stamina
   FROM career_player_state s JOIN players p ON p.id = s.player_id
   WHERE s.career_save_id = ? AND s.pool_team_id IS NOT NULL AND s.team_id IS NULL AND s.is_retired = 0
@@ -94,7 +94,11 @@ function seasonTable(season, year, counters) {
   const staff = q(`SELECT s.pool_team_id AS club, st.role FROM career_staff_state s JOIN staff st ON st.id = s.staff_id WHERE s.career_save_id = ? AND s.pool_team_id IS NOT NULL`, cid);
   const staffBy = new Map(); for (const s of staff) staffBy.set(s.club, [...(staffBy.get(s.club) ?? []), s.role]);
   const yearStart = `${year}-01-01`;
-  const overCapAdders = [...by.entries()].filter(([, l]) => l.reduce((t, s) => t + s.salary, 0) > CAP && l.some((s) => s.joined != null && s.joined >= yearStart)).length;
+  // C-5: a youth promoted into the seniors is never blocked by the cap, so a club's signings are measured
+  // without its promoted youths' wages; clubs over the cap only through a promotion are counted on their own.
+  const signed = (l) => l.filter((s) => s.ptype === "senior");
+  const overCapAdders = [...by.values()].filter((l) => signed(l).reduce((t, s) => t + s.salary, 0) > CAP && signed(l).some((s) => s.joined != null && s.joined >= yearStart)).length;
+  const overCapByPromotion = [...by.values()].filter((l) => l.reduce((t, s) => t + s.salary, 0) > CAP && signed(l).reduce((t, s) => t + s.salary, 0) <= CAP).length;
   const outOfRange = q(`SELECT COUNT(*) n FROM career_player_state WHERE career_save_id = ? AND is_retired = 0 AND
     (speed > 99 OR power > 99 OR defense > 99 OR serve > 99 OR block > 99 OR stamina > 99 OR speed < 1 OR power < 1 OR defense < 1 OR serve < 1 OR block < 1 OR stamina < 1)`, cid)[0].n;
   const freeAgents = q(`SELECT COUNT(*) n FROM career_player_state s JOIN players p ON p.id = s.player_id WHERE s.career_save_id = ? AND s.team_id IS NULL AND s.pool_team_id IS NULL
@@ -106,13 +110,29 @@ function seasonTable(season, year, counters) {
   const standInsAtAiClubs = q(`SELECT COUNT(*) n FROM career_staff_state WHERE career_save_id = ? AND staff_id >= ? AND pool_team_id IS NOT NULL`, cid, STAND_IN_FROM)[0].n;
   const originalsRetired = q(`SELECT COUNT(*) n FROM career_player_state WHERE career_save_id = ? AND pool_player_id IS NOT NULL AND is_retired = 1`, cid)[0].n;
   const champion = q(`SELECT competitor_name AS n FROM season_final_standings WHERE season_year = ? AND rank = 1 LIMIT 1`, year)[0]?.n ?? "?";
+  // Night 2 (O-7 to O-10): the season's injuries, every club's, from the one history.
+  const inj = q(`SELECT injury, area, weeks_out AS w, reconstruction AS r, team_id AS t, pool_team_id AS c FROM career_injuries WHERE career_save_id = ? AND game_date >= ? AND game_date <= ?`, cid, yearStart, `${year}-12-31`);
+  const byType = {}; for (const i of inj) byType[i.injury] = (byType[i.injury] ?? 0) + 1;
+  // Weeks out by the club's medical staff at the season's end (the history keeps no staff; an approximation).
+  const medicsAt = new Map();
+  for (const m of q(`SELECT s.pool_team_id AS c, s.team_id AS t, st.role FROM career_staff_state s JOIN staff st ON st.id = s.staff_id WHERE s.career_save_id = ? AND st.role IN ('Doctor', 'Physiotherapist')`, cid)) {
+    const k = m.c != null ? `p${m.c}` : `t${m.t}`; medicsAt.set(k, new Set([...(medicsAt.get(k) ?? []), m.role]));
+  }
+  const groupOf = (i) => { const k = i.c != null ? `p${i.c}` : i.t != null ? `t${i.t}` : null; const r = k ? medicsAt.get(k) : null; return !r ? "neither" : r.size === 2 ? "both" : "one"; };
+  const weeksBy = { both: [], one: [], neither: [] }; for (const i of inj.filter((x) => !x.r)) weeksBy[groupOf(i)].push(i.w);
+  const avgWeeks = Object.fromEntries(Object.entries(weeksBy).map(([k, l]) => [k, l.length ? Number(mean(l).toFixed(2)) : null]));
+  const injuredListed = inj.filter((i) => i.w > 6 && (i.t != null || i.c != null)).length;
+  const listedNow = q(`SELECT COUNT(*) n FROM career_player_state WHERE career_save_id = ? AND on_injured_list = 1`, cid)[0].n;
+  const coverPromotions = q(`SELECT COUNT(*) n FROM career_player_state s JOIN players p ON p.id = s.player_id WHERE s.career_save_id = ? AND s.pool_team_id IS NOT NULL
+    AND p.player_type = 'youth' AND s.is_promoted = 1 AND s.pool_joined_on >= ? AND s.pool_joined_on <= ?`, cid, yearStart, `${year}-12-31`)[0].n;
   return {
     season, year,
     aiAvg: Number(mean(rated.map((s) => s.r)).toFixed(1)),
     aiTop5: rated.slice(0, 5).map((s) => `${s.name} ${s.r}`),
     mySquad: mine,
-    overCapAdders,
-    clubsWith3: [...by.values()].filter((l) => l.length === 3).length,
+    overCapAdders, overCapByPromotion,
+    // Night 2 (O-10): seniors holding a place (one on the injured list doesn't; her cover does).
+    clubsWith3: [...by.values()].filter((l) => l.filter((x) => !x.listed).length === 3).length,
     clubsWith2Staff: clubs.filter((c) => { const r = staffBy.get(c.club) ?? []; return r.some((x) => COACHING.includes(x)) && r.some((x) => MEDICAL.includes(x)); }).length,
     clubs: clubs.length,
     outOfRange,
@@ -122,6 +142,8 @@ function seasonTable(season, year, counters) {
     sold: clubs.filter((c) => c.sold != null).length,
     myBalance, originalsRetired, standInsAtAiClubs,
     champion,
+    injuriesAll: inj.length, injuriesByType: byType, avgWeeksOut: avgWeeks, reconstructions: inj.filter((i) => i.r).length,
+    injuredListed, listedNow, coverPromotions,
   };
 }
 
@@ -129,14 +151,17 @@ function printTable(t) {
   console.log(`\n=== Season ${t.season} (${t.year}), ${DIFFICULTY} ===`);
   console.log(`  AI seniors: average rating ${t.aiAvg}; top 5: ${t.aiTop5.join(", ")}`);
   console.log(`  Player's squad: ${t.mySquad.join(", ")}`);
-  console.log(`  AI clubs over the cap that added anyone this season: ${t.overCapAdders} (must be 0)`);
+  console.log(`  AI clubs over the cap that signed anyone this season: ${t.overCapAdders} (must be 0); over it only through a promoted youth (C-5, allowed): ${t.overCapByPromotion}`);
   console.log(`  AI clubs with 3 seniors: ${t.clubsWith3} of ${t.clubs}; with a coach and a medic: ${t.clubsWith2Staff} of ${t.clubs}${process.env.STAND_INS ? `; stand-in staff at AI clubs: ${t.standInsAtAiClubs} of 90` : ""}`);
   console.log(`  Stats above 99 or below 1: ${t.outOfRange}`);
   console.log(`  AI injuries this season: ${t.aiInjuries}; long-injured released to the market: ${t.longReleased}`);
   console.log(`  Free agents left: ${t.freeAgents}`);
   console.log(`  AI balances: lowest $${t.balanceLowest.toLocaleString("en-US")}, median $${t.balanceMedian.toLocaleString("en-US")}, ${t.broke} below zero, ${t.sold} sold`);
   console.log(`  Champion (first in the final standings): ${t.champion}`);
-  console.log(`  Player's club balance: $${t.myBalance.toLocaleString("en-US")}; AI originals retired so far: ${t.originalsRetired}`);
+  console.log(`  Player's club balance: ${t.myBalance.toLocaleString("en-US")}; AI originals retired so far: ${t.originalsRetired}`);
+  console.log(`  Injuries (every club): ${t.injuriesAll}; by type: ${Object.entries(t.injuriesByType).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k} ${v}`).join(", ")}`);
+  console.log(`  Average weeks out (not reconstructions), by the club's doctor and physio: both ${t.avgWeeksOut.both}, one ${t.avgWeeksOut.one}, neither ${t.avgWeeksOut.neither}; reconstructions: ${t.reconstructions}`);
+  console.log(`  Injured list: ${t.injuredListed} put on it this season, ${t.listedNow} on it now; AI cover promoted from academies this season: ${t.coverPromotions}`);
 }
 
 let child = null;

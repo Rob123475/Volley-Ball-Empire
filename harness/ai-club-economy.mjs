@@ -505,9 +505,15 @@ try {
   const liveClubs = read(`SELECT pool_team_id AS id FROM career_pool_team_state WHERE career_save_id = ? AND taken_over_at IS NULL`, careerSaveId).map((r) => r.id);
   const own = (c) => aiYouth.filter((y) => y.club === c).length - lentOut.filter((l) => l.b === c).length + lentOut.filter((l) => l.o === c).length;
   const sizes = liveClubs.map(own);
-  check(`after ${SEASONS} seasons every AI club's academy is 4 of its own, and none of its youths is 19 or older`,
-    sizes.length > 0 && sizes.every((n) => n === 4) && aiYouth.every((y) => y.age < 19),
-    `sizes ${[...new Set(sizes)].join(",")}; oldest ${Math.max(...aiYouth.map((y) => y.age))}`);
+  // Night 2 (O-10): an AI club may promote an academy youth as injured-list cover on any day; the
+  // academy refills at the next weekly fill, so a club that promoted one in the last week may hold 3.
+  const todayNow = read(`SELECT c."current_date" AS d FROM calendar_state c JOIN career_saves s ON s.team_id = c.team_id WHERE s.id = ?`, careerSaveId)[0]?.d;
+  const weekAgo = new Date(`${todayNow}T00:00:00Z`); weekAgo.setUTCDate(weekAgo.getUTCDate() - 7);
+  const justPromoted = new Set(read(`SELECT s.pool_team_id AS c FROM career_player_state s JOIN players p ON p.id = s.player_id
+    WHERE s.career_save_id = ? AND p.player_type = 'youth' AND s.is_promoted = 1 AND s.pool_joined_on >= ?`, careerSaveId, weekAgo.toISOString().slice(0, 10)).map((r) => r.c));
+  check(`after ${SEASONS} seasons every AI club's academy is 4 of its own (3 just after it promotes one as cover), and none of its youths is 19 or older`,
+    sizes.length > 0 && liveClubs.every((c, i) => sizes[i] === 4 || (sizes[i] === 3 && justPromoted.has(c))) && aiYouth.every((y) => y.age < 19),
+    `sizes ${[...new Set(sizes)].join(",")}; ${justPromoted.size} club(s) promoted a youth in the last week; oldest ${Math.max(...aiYouth.map((y) => y.age))}`);
 
 } finally {
   await stopServer(child);
