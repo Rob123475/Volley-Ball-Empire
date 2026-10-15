@@ -1,0 +1,12 @@
+"AppBuild"
+{
+	"AppID" "5233750"
+	"Desc" "v1.1.0 Update 1 (update-1 1589736f)"
+	"SetLive" ""
+	"ContentRoot" "C:\build\vbe-1.1.0\win-unpacked\"
+	"BuildOutput" "..\output\"
+	"Depots"
+	{
+		"5233751" "depot_build_5233751.vdf"
+	}
+}

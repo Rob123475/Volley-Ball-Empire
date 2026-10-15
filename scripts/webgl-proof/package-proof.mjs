@@ -1,0 +1,188 @@
+/**
+ * Update 1 night 2, Part 9: prove a packaged build runs, as a player starts it (first used on 1.1.0).
+ *
+ * The real packaged exe (its own Electron window, its own server on 4173) is
+ * started with --user-data-dir pointing at a fresh temporary folder, so the
+ * game's save folder is <tmp>\Beach Volleyball Empire, never Rob's AppData save.
+ * Rob's save files are hashed before and after and must be unchanged.
+ *
+ * Drives the window over CDP: a new profile and career (Sydney Riptide,
+ * Established), the Day 1 draft picked in the UI, Next match (days pass), the
+ * match day box's Watch Match: the 3D court until Unity reports the result and
+ * Continue is pressed, Next match again, then Settings.
+ * Screenshots in <outDir>; one JSON summary on stdout.
+ *
+ * Usage: node scripts/webgl-proof/package-proof.mjs "C:/build/vbe-<name>/win-unpacked/Beach Volleyball Empire.exe" <outDir>
+ */
+import { spawn } from "node:child_process";
+import crypto from "node:crypto";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+
+const EXE = path.resolve(process.argv[2]);
+const outDir = path.resolve(process.argv[3]);
+fs.mkdirSync(outDir, { recursive: true });
+const CDP = 9338, BASE = "http://localhost:4173";
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const out = { exe: EXE, steps: [], shots: [] };
+const step = (s, extra) => { const e = { at: new Date().toISOString().slice(11, 19), s, ...(extra ?? {}) }; out.steps.push(e); console.error(JSON.stringify(e)); };
+
+// Rob's saves: stat and hash only (read, never opened by SQLite, never written).
+const APPDATA = process.env.APPDATA;
+const robFiles = ["Beach Volleyball Empire", "Volleyball Empire"].flatMap((d) =>
+  ["volleyball-empire.sqlite", "volleyball-empire.sqlite-wal", "volleyball-empire.sqlite-shm"].map((f) => path.join(APPDATA, d, f)));
+const fingerprint = () => Object.fromEntries(robFiles.filter((f) => fs.existsSync(f)).map((f) => {
+  const st = fs.statSync(f); return [f, { size: st.size, mtime: st.mtime.toISOString(), sha1: crypto.createHash("sha1").update(fs.readFileSync(f)).digest("hex") }];
+}));
+out.robBefore = fingerprint();
+
+let busy = false; try { busy = (await fetch(`${BASE}/api/healthz`)).ok; } catch { /* free */ }
+if (busy) { console.log(JSON.stringify({ error: "port 4173 is in use (is the game running?); not starting" })); process.exit(1); }
+
+const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "vbe-1.1.0-proof-"));
+const udRoot = path.join(tmp, "root");   // the game puts its saves in <tmp>\Beach Volleyball Empire
+out.profileFolder = path.join(tmp, "Beach Volleyball Empire");
+const log = fs.openSync(path.join(outDir, "electron.log"), "w");
+const app = spawn(EXE, [`--user-data-dir=${udRoot}`, `--remote-debugging-port=${CDP}`,
+  // The PC is unattended (screen off or locked): keep the window painting and its timers running.
+  "--disable-features=CalculateNativeWinOcclusion", "--disable-backgrounding-occluded-windows", "--disable-renderer-backgrounding", "--disable-background-timer-throttling"], { stdio: ["ignore", log, log] });
+step("started the packaged exe", { pid: app.pid, userDataDir: udRoot });
+
+let ws;
+try {
+  let target;
+  for (let i = 0; i < 240 && !target; i++) {
+    try { target = (await (await fetch(`http://127.0.0.1:${CDP}/json/list`)).json()).find((t) => t.type === "page" && t.url.startsWith(BASE)); } catch { /* starting */ }
+    if (!target) await sleep(500);
+  }
+  if (!target) throw new Error("the game window never loaded the game page");
+  step("game window on the game page", { url: target.url });
+  ws = new WebSocket(target.webSocketDebuggerUrl);
+  await new Promise((r, j) => { ws.onopen = r; ws.onerror = j; });
+  let id = 1; const pend = new Map();
+  ws.onmessage = (e) => { const m = JSON.parse(e.data); if (m.id && pend.has(m.id)) { pend.get(m.id)(m); pend.delete(m.id); } };
+  const send = (method, params = {}, ms = 20000) => { const i = id++; ws.send(JSON.stringify({ id: i, method, params }));
+    return new Promise((r) => { const t = setTimeout(() => { pend.delete(i); step(`CDP ${method} timed out`); r({}); }, ms); pend.set(i, (m) => { clearTimeout(t); r(m); }); }); };
+  const ev = async (x) => { const r = await send("Runtime.evaluate", { expression: x, returnByValue: true, awaitPromise: true }); if (r.result?.exceptionDetails) throw new Error(r.result.exceptionDetails.exception?.description ?? "eval failed"); return r.result?.result?.value; };
+  const shot = async (name) => { const s = await send("Page.captureScreenshot", { format: "png" }); if (!s.result) return; const f = path.join(outDir, `${String(out.shots.length + 1).padStart(2, "0")}-${name}.png`); fs.writeFileSync(f, Buffer.from(s.result.data, "base64")); out.shots.push(path.basename(f)); };
+  const waitFor = async (expr, ms, every = 500) => { const t = Date.now(); while (Date.now() - t < ms) { try { const v = await ev(expr); if (v) return v; } catch { /* navigating */ } await sleep(every); } return null; };
+  // Inside the app (wouter follows history.pushState); a reload would show the title screen again.
+  const nav = (p) => ev(`(() => { history.pushState(null, "", ${JSON.stringify(p)}); dispatchEvent(new PopStateEvent("popstate")); return location.pathname; })()`);
+  const click = (sel) => ev(`(() => { const e = document.querySelector(${JSON.stringify(sel)}); if (e) e.click(); return !!e; })()`);
+  const clickText = (re) => ev(`(() => { const b = [...document.querySelectorAll("button")].find(x => ${re}.test(x.textContent.trim()) && !x.disabled); if (b) b.click(); return !!b; })()`);
+  await send("Page.enable"); await send("Runtime.enable");
+  await send("Page.addScriptToEvaluateOnNewDocument", { source: `window.__msgs = []; addEventListener("message", (e) => window.__msgs.push(String(e.data)));` });
+  await send("Emulation.setDeviceMetricsOverride", { width: 1280, height: 720, deviceScaleFactor: 1, mobile: false });
+  await send("Page.reload"); await sleep(4000);
+
+  out.firstScreen = await ev(`location.pathname + " :: " + document.body.innerText.slice(0, 200).replace(/\\s+/g, " ")`);
+  await shot("first-screen");
+
+  // A new profile and career, as the wizard would post them.
+  const made = await ev(`(async () => {
+    const J = async (u, o = {}) => { const r = await fetch(u, { headers: { "content-type": "application/json" }, ...o }); return { status: r.status, data: await r.json().catch(() => null) }; };
+    const p = await J("/api/profiles", { method: "POST", body: JSON.stringify({ name: "Proof 1.1.0" }) });
+    await fetch("/api/profiles/" + p.data.id + "/select", { method: "POST" });
+    const c = (await J("/api/club-templates")).data.clubs.find(x => x.name === "Sydney Riptide");
+    const r = await J("/api/careers", { method: "POST", body: JSON.stringify({ slotNumber: 1, managerName: "Proof Manager", managerNationality: "Australia", managerFaceId: 8,
+      clubName: c.name, originalClubName: c.name, budget: c.startingBudget, difficulty: "established", primaryColor: "#1e3a8a", secondaryColor: "#f59e0b", crestShapeIndex: 0 }) });
+    return { profile: p.status, career: r.status }; })()`);
+  step("profile and career created", made);
+
+  // Into the game as a player does: the title screen's CONTINUE.
+  await send("Page.navigate", { url: `${BASE}/` });
+  await waitFor(`[...document.querySelectorAll("button")].some(b => b.textContent.trim().toUpperCase() === "CONTINUE")`, 30000);
+  await shot("title-screen");
+  step("title screen: CONTINUE", { pressed: await clickText(/^CONTINUE$/i) });
+  await sleep(4000);
+  step("after CONTINUE", { path: await ev(`location.pathname`) });
+
+  // The Day 1 draft, in the UI: free agents, the cheapest that fits each time, then Finish.
+  if ((await ev(`location.pathname`)) !== "/day1-draft") await nav("/day1-draft");
+  await waitFor(`!!document.querySelector('[data-testid="draft-wage-cap"]')`, 30000);
+  await clickText(/^Free agents$/); await sleep(1000);
+  await shot("day1-draft");
+  for (let k = 0; k < 3; k++) {
+    const picked = await ev(`(() => {
+      const cards = [...document.querySelectorAll('[data-testid^="draft-card-"]')].map(c => ({ c, b: [...c.querySelectorAll("button")].find(x => x.textContent.trim() === "Pick"),
+        wage: Number((c.innerText.match(/\\$([\\d,]+) a month/) ?? [0, "0"])[1].replace(/,/g, "")) })).filter(x => x.b && !x.b.disabled).sort((a, b) => a.wage - b.wage);
+      if (!cards.length) return null; cards[0].b.click(); return cards[0].c.innerText.split("\\n")[0] + " $" + cards[0].wage; })()`);
+    step("draft pick", { picked });
+    await sleep(2500);
+  }
+  out.draftCap = await ev(`document.querySelector('[data-testid="draft-wage-cap"]')?.textContent`);
+  await shot("draft-picked");
+  await click('[data-testid="draft-finish"]');
+  await waitFor(`location.pathname === "/" && !!document.querySelector('[data-testid="calendar-date"]')`, 30000);
+  await sleep(3000);
+  out.afterDraft = { date: await ev(`document.querySelector('[data-testid="calendar-date"]')?.textContent`), squad: await ev(`fetch("/api/day1-draft").then(r => r.json()).then(d => ({ open: d.open, picks: (d.picks ?? []).map(p => p.name) }))`) };
+  step("draft finished", out.afterDraft);
+  await shot("dashboard-day1");
+
+  // Days pass: Next match, then Watch Match on the match day box.
+  await click('[data-testid="button-next-match"]');
+  await waitFor(`!!document.querySelector('[data-testid="match-day-box"]')`, 120000);
+  out.matchDay = { date: await ev(`document.querySelector('[data-testid="calendar-date"]')?.textContent`), box: await ev(`document.querySelector('[data-testid="match-day-box"]')?.innerText.split("\\n").slice(0, 5).join(" | ")`) };
+  step("match day", out.matchDay);
+  await shot("match-day-box");
+  // The match day box's own Watch Match ("Play on the 3D court"; it has no test id).
+  step("Watch Match pressed", { pressed: await ev(`(() => { const b = [...document.querySelectorAll('[data-testid="match-day-box"] button')].find(x => /Watch Match/.test(x.textContent)); if (b) b.click(); return !!b; })()`) });
+  const onCourt = await waitFor(`location.pathname.startsWith("/court") ? location.search : null`, 60000);
+  const matchId = Number(new URLSearchParams(onCourt ?? "").get("matchId"));
+  step("on the 3D court", { url: onCourt });
+  const loaded = await waitFor(`window.__msgs.includes("unity-loaded")`, 300000, 1000);
+  step("Unity loaded", { loaded: !!loaded });
+  await sleep(15000); await shot("court-15s");
+  await sleep(45000); await shot("court-60s");
+
+  // Until the court reports the result: the match is recorded, the result box is up, Continue (centre, 112 px below, at 1280x720).
+  const t0 = Date.now(); let recorded = null;
+  while (onCourt && Date.now() - t0 < 30 * 60000) {
+    recorded = await ev(`fetch("/api/matches").then(r => r.json()).then(l => { const m = (Array.isArray(l) ? l : l.matches ?? []).find(x => x.id === ${matchId}); return m && m.status === "completed" ? { score: m.homeScore + "-" + m.awayScore, sets: m.sets } : null; })`).catch(() => null);
+    if (recorded) break;
+    await sleep(5000);
+  }
+  step("match recorded by the court", { recorded, minutes: Math.round((Date.now() - t0) / 6000) / 10 });
+  await sleep(4000); await shot("court-result-box");
+  for (let i = 0; i < 12; i++) {
+    if (await ev(`window.__msgs.includes("unity-match-finished") || !location.pathname.startsWith("/court")`).catch(() => true)) break;
+    // The result box is centred on Unity's canvas (the iframe); Continue is 112 px below its centre at the
+    // 1280x720 reference, scaled as Unity's CanvasScaler does (match 0.5: the geometric mean of the two ratios).
+    const at = await ev(`(() => { const f = document.querySelector("iframe"); const r = f ? f.getBoundingClientRect() : { left: 0, top: 0, width: innerWidth, height: innerHeight };
+      const k = Math.sqrt((r.width / 1280) * (r.height / 720)); return { x: Math.round(r.left + r.width / 2), y: Math.round(r.top + r.height / 2 + 112 * k) }; })()`) ?? { x: 640, y: 472 };
+    if (i === 0) step("pressing Continue", at);
+    for (const type of ["mousePressed", "mouseReleased"]) await send("Input.dispatchMouseEvent", { type, x: at.x, y: at.y, button: "left", clickCount: 1 });
+    await sleep(2500);
+  }
+  const back = await waitFor(`location.pathname === "/" && !!document.querySelector('[data-testid="calendar-date"]')`, 30000);
+  step("back on the dashboard after Continue", { back: !!back });
+  await sleep(3000); await shot("dashboard-after-match");
+
+  // A few more days.
+  await click('[data-testid="button-next-match"]');
+  await waitFor(`!!document.querySelector('[data-testid="match-day-box"]')`, 120000);
+  out.secondMatchDay = await ev(`document.querySelector('[data-testid="calendar-date"]')?.textContent`);
+  step("next match day", { date: out.secondMatchDay });
+  await shot("second-match-day");
+
+  // Settings.
+  await nav("/settings");
+  await waitFor(`/Settings/.test(document.body.innerText)`, 20000); await sleep(2000);
+  out.settings = await ev(`document.body.innerText.slice(0, 600).replace(/\\s+/g, " ")`);
+  await shot("settings");
+  if (await clickText(/^Sound$/)) { await sleep(1500); out.settingsSound = await ev(`document.body.innerText.match(/Sound[\\s\\S]{0,400}/)?.[0].replace(/\\s+/g, " ")`); await shot("settings-sound"); }
+  step("settings opened");
+} catch (err) {
+  out.error = String(err?.stack ?? err);
+} finally {
+  try { ws?.close(); } catch { /* closed */ }
+  app.kill();
+  await sleep(4000);
+  spawn("taskkill", ["/PID", String(app.pid), "/T", "/F"], { stdio: "ignore" });
+  await sleep(2000);
+  out.robAfter = fingerprint();
+  out.robSaveUntouched = JSON.stringify(out.robBefore) === JSON.stringify(out.robAfter);
+  out.proofSaveFolder = fs.existsSync(out.profileFolder) ? fs.readdirSync(out.profileFolder) : null;
+}
+console.log(JSON.stringify(out, null, 1));

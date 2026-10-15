@@ -1,11 +1,57 @@
 # Update 1, night 2 (15–16 Oct): finish, test, build
 
 Branch **update-1**. Nothing pushed, nothing uploaded to Steam; `main` and `launch-final` untouched; Rob's save
-never opened. Written as the night goes.
+never opened.
 
 ## Summary
 
-(Filled in at the end.)
+**Every part is done. 1.1.0 is packaged in `C:\build\vbe-1.1.0\win-unpacked\` and ran end to end. Not uploaded.**
+
+| Part | Status | Commit |
+|---|---|---|
+| 1. Rob's 123 staff portraits | Done: 123 installed (ids 10001–10123, 243 staff), three new roles, Iranian and Puerto Rican, 11 name clashes renamed; Day 8 deal: 60/60 AI clubs get a coach and a medic; existing saves get all 123 | `71f4b838` |
+| 2. Every staff role has its own job | Done: one constants block, the healer system deleted, real effects on the Staff and Medical pages | `0405e8fa` |
+| 3. Named injuries, treated live | Done: 9 injuries with areas, ×2 / ×1 / 0.7→0.6 / 0.5→0.4, live on hire and release, shown everywhere, older saves converted | `0405e8fa` |
+| 4. Reconstructions | Done: a third injury to one area in 12 months, 30 base weeks, ×2 / ×1 / ×0.5 / ×0.25 | `0405e8fa` |
+| 5. Four pairs | Done, shown on the Staff page | `0405e8fa` |
+| 6. The injured list | Done: over 6 weeks, the cover rule, promotion from 16, AI clubs alike | `0405e8fa` |
+| 7. Tests and the full builds | Done: four new suites (69/69 alone); **build #1: 108 of 118 suites passed**, **build #2: 114 of 118 passed**; every failure fixed in its suite (2 real game faults found and fixed after build #1, none after build #2) and re-run alone | `1a1fa1f1`, `c03e917f`, `dcfcc450`, `1589736f` |
+| 8. The soak | Done: Medium 5 seasons, Easy and Hard 2: **no flags, all money tests pass**; 3 balance questions with numbers below | `1589736f` (harness) |
+| 9. 1.1.0 | Done: version stamped, packaged the 12 Oct way into a new folder, **proved running** (draft, a full 3D match, Settings) on a throwaway profile, patch notes written. **Not uploaded** | `b77d3841`, this commit |
+
+**Both builds' counts:**
+- Build #1 (23:08–00:33): 108 of 118 suites passed, 10 failed: all knowingly changed expectations, plus 2 real
+  faults (the `squadRules` import; the boot writing a retired table).
+- Build #2 (01:41–03:40): 114 of 118 passed, 4 failed: three knowingly changed expectations and one chance result.
+
+**The soak (Part 8; full tables in its section):**
+
+| Run | Median AI balance | Below zero | Clubs with 3 seniors | Over cap and signed | AI injuries a season | Reconstructions | Put on the injured list a season |
+|---|---|---|---|---|---|---|---|
+| Medium S5 | $361,207 | 5 | 55 | 0 | 99–137 | 28 in 5 seasons | 21–35 |
+| Easy S2 | $458,926 | 1 | 55 | 0 | 102–105 | 6 in 2 | 20 |
+| Hard S2 | $388,881 | 1 | 54 | 0 | 95–97 | 6 in 2 | 22–26 |
+
+Weeks out at Medium: the right medic 2.33, the wrong one 3.06, none 7.03.
+
+**Balance questions for Rob** (nothing retuned):
+1. Reconstructions are nearly all legs built from 1-week cramps.
+2. 29 of 59 AI clubs' only medic can't treat an ordinary injury.
+3. The Medium money drifts down about $27k a season, as on Day 2.
+
+**The 1.1.0 folder:** `C:\build\vbe-1.1.0\win-unpacked\`; the exe says 1.1.0. It ran from a fresh test profile:
+- Day 1 draft picked in the UI;
+- days passed;
+- a whole 3D match played and saved (0–2), then Continue;
+- the next match day;
+- Settings.
+
+Screenshots are in `C:\build\vbe-1.1.0\proof\`. Rob's save is byte for byte the same.
+
+**Skipped:** nothing from the brief.
+- **Not built:** the NSIS installer. The 12 Oct launch build was the same `--win dir` folder that Steam uploads.
+- **Not seen:** "Doctor + physio" never happens at an AI club in the soak, because each gets one medic. It's proved for
+  the player's club in the suites.
 
 ## Decisions made overnight
 1. **No time limit (Rob, 22:22, in the brief and in his message):** every feature in Parts 1–6 is finished before
@@ -69,6 +115,65 @@ never opened. Written as the night goes.
     `docs/packaging.md` shows for PowerShell; Git Bash rewrote `/` into `C:/Program Files/Git/`, and the pre-flight
     `check-build-env` stopped the build before any workspace was built and before the harness. Re-run without them,
     as build #1 was. It counts as nothing; the counts below are the full run.
+21. **Part 8, the soak ran with staff absences on**, as the game ships; run-all turns them off so suites don't move
+    by chance. The first final attempt started with them off by habit and was stopped within a minute.
+22. **Part 9, the proof's screenshots live beside the package**, in `C:\build\vbe-1.1.0\proof\`. That's outside
+    `win-unpacked`, the folder Steam uploads, and not in the repo (12 PNGs). The script that made them is in the repo,
+    `scripts/webgl-proof/package-proof.mjs`.
+23. **Part 9, the Steam script is a ready copy in the repo** (`steam/app_build_5233750-1.1.0.vdf`). Rob's Steamworks
+    scripts folder wasn't touched: it still names the launch build, and replacing it is step 1 of the upload.
+24. **The on-screen check runs 1.1.0 on a copy of Rob's save.** Opening his real save with 1.1.0 converts it, and the
+    live 1.0 Steam game can't use it after that. The check's first step makes the copy.
+
+## Rob's 10-minute on-screen check
+
+**First, keep your Steam save safe.** Don't start 1.1.0 on your own save while Steam still runs 1.0. On its first boot
+1.1.0 converts the save: named injuries, and the two old injury tables dropped. 1.0 can't play a save after that. Test
+on a copy instead:
+
+```powershell
+New-Item -ItemType Directory -Force "C:\vbe-test-1.1.0\Beach Volleyball Empire"
+Copy-Item "$env:APPDATA\Beach Volleyball Empire\volleyball-empire.sqlite*" "C:\vbe-test-1.1.0\Beach Volleyball Empire\"
+& "C:\build\vbe-1.1.0\win-unpacked\Beach Volleyball Empire.exe" --user-data-dir=C:\vbe-test-1.1.0\root
+```
+
+(Close the Steam game first; the game won't start if one is already running. With `--user-data-dir` the game keeps
+its saves in `C:\vbe-test-1.1.0\Beach Volleyball Empire\`, the copy.)
+
+1. **Your career carries on.** Your club loads as you left it. Any injured player now has a named injury with its body
+   area (Team page and Medical page).
+2. **Staff page.** Each member has a line saying what they do for you, and there's the pairs panel. Hire screen:
+   Rob's new people with their portraits, including a fitness trainer, a strength coach and a sports scientist.
+3. **Medical page.** The treatment panel shows who treats what. With a player injured, hire (or release) a doctor or
+   physio, and her weeks out change at once.
+4. **Team page.** Open an injured player's card: her injury history, with "Ankle: 2 in the last 12 months" when one
+   area repeats. If anyone is out more than 6 weeks, she's in the Injured List section and her place is free for cover.
+5. **A 3D match and the sound.** Watch a match. In Settings → Sound, move Crowd and Commentary, and the court follows.
+6. **A new career** (New Profile on the first screen): the Day 1 draft, then play to Day 8. The AI clubs take their
+   staff from the market (Club News and the Staff hire list). The exe's Properties → Details say **1.1.0**.
+
+## The Steam upload, for the 1.1.0 folder (as Rob did it on 12–13 Oct; not done tonight)
+
+1. **Point the build script at 1.1.0.** In `C:\STEAMWORKS\steamworks_sdk_165\sdk\tools\ContentBuilder\scripts\`:
+   - keep a copy of today's `app_build_5233750.vdf` (it names the launch build, `vbe-final-12oct-c`), for example as
+     `app_build_5233750.vdf.before-1.1.0`;
+   - then copy the repo's `steam\app_build_5233750-1.1.0.vdf` over `app_build_5233750.vdf`.
+
+   The only changes are `"Desc" "v1.1.0 Update 1 (update-1 1589736f)"` and
+   `"ContentRoot" "C:\build\vbe-1.1.0\win-unpacked\"`. `SetLive` stays empty. `depot_build_5233751.vdf` is unchanged
+   (the repo's copy matches it).
+2. **Upload.** Open a terminal in `C:\STEAMWORKS\steamworks_sdk_165\sdk\tools\ContentBuilder\builder\` and run:
+   ```
+   steamcmd.exe +login rtbonner +run_app_build ..\scripts\app_build_5233750.vdf +quit
+   ```
+   Enter the Steam Guard code if asked. It ends with "Successfully finished AppID 5233750 build (BuildID …)". Note the
+   BuildID.
+3. **Set it live.** Steamworks website → App 5233750 → SteamPipe → Builds. Find the new BuildID ("v1.1.0 Update 1")
+   and set it live on the **default** branch. If the page then shows unpublished changes, Publish them as before.
+4. **Tell the players.** Post `docs/UPDATE1-PATCH-NOTES.md` as a Patch Notes event (Community → Events &
+   Announcements).
+5. **Rolling back** is the same step 3 with the launch build's BuildID. But saves already opened by 1.1.0 won't play
+   on 1.0 (see the warning above).
 
 ## Part by part
 
@@ -109,6 +214,7 @@ never opened. Written as the night goes.
 - **The deal** (a new career on the new starter DB, 12 days played):
 
 New career, after Day 8 (12 days played), 243 staff in this career:
+
 | Role | In the game | At AI clubs | On the market |
 |---|---|---|---|
 | Assistant Coach | 35 | 30 | 5 |
@@ -260,3 +366,183 @@ crashed on start). Each was re-run alone after its fix:
   ai club economy 22/22. It needed two passes: after the first fix (Day 8 signing fees) it was 21/22, because after 30
   seasons 18 clubs had just promoted a youth as injured-list cover and had 3 in their academy for the week until the
   next intake. The check now allows 3 in that week (`dcfcc450`). That one is a knowingly changed expectation too.
+
+**Full build #2** (`pnpm run build`, 01:41–03:40, on `dcfcc450`; game code identical to the packaged commit
+`1589736f`, which adds only suite and report changes): typecheck and every workspace build OK; **the harness: 114 of
+118 suites passed, 4 failed**:
+- injuries and fitness (condition), invented content removed, dashboard standing, player pictures.
+
+Each was fixed in its suite (no game change) and re-run alone:
+
+| Suite | Why it failed | Alone after |
+|---|---|---|
+| condition | in `/simulate` a pair player can now be hurt for more than 6 weeks; she goes on the injured list (inactive) at once, and the suite only looked up active players, so it crashed reading her. It now looks her up active or not. (It passed alone earlier only because no long injury was rolled.) | 27/27 |
+| invented content removed | Club News's new injury items (Part 3) weren't in its list of news kinds. Each is now traced to its `career_injuries` row: her club, its game date, the injury in the headline (checked against build #2's two items, injury-23 and injury-27) | 11/11 |
+| player pictures | an AI club's injured-list cover can be a generated academy youth promoted mid-season (Part 6); at the boundary she graduates with Europe's pictures run out and keeps the card she was made with. The check expected every run-out graduate to hold the shipped flag card; it now checks that no run-out graduate got a graduate picture | 35/35 |
+| dashboard standing | chance: its Underdog club went 23–17 and sat 3rd, so there were no bands below it to test (no AI walkovers in that run; the game code that decides results is unchanged since build #1, where it passed). Alone it sat 14th | 12/12 |
+
+Per the brief, run-all was not run again after build #2.
+
+### Part 8: the soak (`harness/long-career-update1.mjs`)
+
+Run after build #2 on the packaged commit's game code: Medium 5 seasons, Easy 2, Hard 2, all at once on their own
+ports, with **staff absences on** (as the game ships; run-all turns them off). Each takes a new career through the
+Day 1 draft and plays on headless. The player's own club is kept healed and fielded by the harness, so its
+injuries aren't the game's own course: **the injury columns count the 60 AI clubs only.** "Weeks out by treatment"
+reads back the factor each injury got on the day (weeks out = base weeks × factor, kept to two decimals): a doctor
+and a physio, the right medic, the wrong one, or none.
+
+**All three runs: no flags.** Rob's money tests pass in every run (checked at the last season):
+
+| Run | Median AI balance (±$150k of $500k) | Clubs below zero (fewer than 10) | Clubs with 3 seniors (at least 40) |
+|---|---|---|---|
+| Medium, season 5 | $361,207: pass | 5: pass | 55: pass |
+| Easy, season 2 | $458,926: pass | 1: pass | 55: pass |
+| Hard, season 2 | $388,881: pass | 1: pass | 54: pass |
+
+No AI club over the cap signed anyone, in any season. The clubs "over only through a promoted youth" (2–12 a season)
+are C-5's allowed case: a listed senior's wage still counts, and the youth promoted as her cover is never blocked.
+
+**Medium, 5 of 5 seasons** (no flags)
+
+| Season | AI avg | AI top | Over cap, signed (must be 0) / by promotion | Clubs with 3 seniors | Coach + medic | Stats out of range | AI balances: lowest / median | Below zero | Sold | Free agents | Champion |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| 1 (2026) | 75.5 | Fernanda Silva 92 | 0 / 5 | 52 of 60 | 60 | 0 | $262,149 / $495,661 | 0 | 0 | 159 | Bali Island Legends |
+| 2 (2027) | 76.1 | Fernanda Silva 93 | 0 / 8 | 54 of 60 | 60 | 0 | −$105,050 / $426,510 | 1 | 0 | 195 | Accra Goldcoast Waves |
+| 3 (2028) | 75.6 | Beatriz Costa 93 | 0 / 6 | 54 of 60 | 60 | 0 | −$7,972 / $404,476 | 1 | 0 | 248 | Paris Sables Royales |
+| 4 (2029) | 75.6 | Beatriz Costa 95 | 0 / 7 | 54 of 60 | 59 | 0 | −$104,754 / $385,625 | 2 | 0 | 311 | Honolulu Aloha Warriors |
+| 5 (2030) | 73.8 | Beatriz Costa 96 | 0 / 12 | 55 of 60 | 59 | 0 | −$111,388 / $361,207 | 5 | 0 | 357 | Bondi Beach Legends |
+
+| Season | Injuries (AI clubs) | By type | Avg weeks out by treatment: doctor+physio · right medic · wrong medic · none (count) | Reconstructions | Put on injured list | On it at season end | AI cover promoted | Rob's new staff at AI clubs |
+|---|---|---|---|---|---|---|---|---|
+| 1 | 100 | Cramp or strained muscle 41, Sprained ankle 21, Broken finger or toe 9, Torn hamstring 8, Concussion 7, Torn shoulder 5, Broken wrist 4, Leg reconstruction 4, Broken leg 1 | – (0) · 2.36 (23) · 2.78 (18) · 6.11 (55) | 4 | 23 | 6 | 11 | 71 |
+| 2 | 116 | Cramp or strained muscle 37, Sprained ankle 24, Broken finger or toe 17, Torn hamstring 13, Broken wrist 8, Concussion 7, Broken leg 4, Torn shoulder 3, Leg reconstruction 3 | – (0) · 2.34 (21) · 3.68 (19) · 8.11 (73) | 3 | 35 | 10 | 12 | 71 |
+| 3 | 99 | Cramp or strained muscle 48, Sprained ankle 13, Broken wrist 8, Torn hamstring 8, Broken finger or toe 7, Concussion 6, Torn shoulder 4, Leg reconstruction 2, Broken leg 2, Hand/foot reconstruction 1 | – (0) · 3.14 (17) · 2.25 (28) · 6.67 (51) | 3 | 21 | 6 | 8 | 79 |
+| 4 | 121 | Cramp or strained muscle 41, Sprained ankle 27, Broken finger or toe 23, Broken wrist 10, Torn hamstring 7, Concussion 5, Leg reconstruction 3, Torn shoulder 3, Broken leg 1, Hand/foot reconstruction 1 | – (0) · 2.33 (29) · 3.19 (32) · 6.68 (56) | 4 | 35 | 4 | 11 | 76 |
+| 5 | 137 | Cramp or strained muscle 53, Sprained ankle 32, Torn hamstring 14, Broken wrist 11, Broken finger or toe 8, Leg reconstruction 6, Concussion 6, Ankle reconstruction 2, Torn shoulder 2, Broken leg 1, Torn knee ligament (ACL) 1, Hand/foot reconstruction 1 | – (0) · 1.95 (37) · 3.42 (31) · 7.17 (60) | 9 | 32 | 11 | 25 | 69 |
+
+Money tests at the last season: median $361,207 (within ±$150k of $500k: **pass**); below zero 5 (fewer than 10: **pass**); clubs with 3 seniors 55 (at least 40: **pass**).
+
+**Easy, 2 of 2 seasons** (no flags)
+
+| Season | AI avg | AI top | Over cap, signed (must be 0) / by promotion | Clubs with 3 seniors | Coach + medic | Stats out of range | AI balances: lowest / median | Below zero | Sold | Free agents | Champion |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| 1 (2026) | 75 | Nyasha Ncube 90 | 0 / 2 | 54 of 60 | 60 | 0 | $184,053 / $489,302 | 0 | 0 | 161 | Vancouver Pacific Orcas |
+| 2 (2027) | 75 | Fernanda Silva 90 | 0 / 5 | 55 of 60 | 60 | 0 | −$2,065 / $458,926 | 1 | 0 | 178 | Manila Bay Pearls |
+
+| Season | Injuries (AI clubs) | By type | Avg weeks out by treatment: doctor+physio · right medic · wrong medic · none (count) | Reconstructions | Put on injured list | On it at season end | AI cover promoted | Rob's new staff at AI clubs |
+|---|---|---|---|---|---|---|---|---|
+| 1 | 105 | Cramp or strained muscle 43, Torn hamstring 23, Broken finger or toe 14, Sprained ankle 12, Broken wrist 6, Concussion 5, Torn shoulder 2 | – (0) · 2.18 (31) · 3.33 (24) · 6.6 (50) | 0 | 20 | 1 | 5 | 68 |
+| 2 | 102 | Cramp or strained muscle 30, Sprained ankle 23, Torn hamstring 13, Concussion 12, Broken finger or toe 11, Leg reconstruction 6, Broken wrist 4, Torn shoulder 2, Broken leg 1 | – (0) · 2.32 (28) · 3.18 (34) · 6.24 (34) | 6 | 20 | 6 | 7 | 74 |
+
+Money tests at the last season: median $458,926 (within ±$150k of $500k: **pass**); below zero 1 (fewer than 10: **pass**); clubs with 3 seniors 55 (at least 40: **pass**).
+
+**Hard, 2 of 2 seasons** (no flags)
+
+| Season | AI avg | AI top | Over cap, signed (must be 0) / by promotion | Clubs with 3 seniors | Coach + medic | Stats out of range | AI balances: lowest / median | Below zero | Sold | Free agents | Champion |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| 1 (2026) | 77.5 | Fernanda Silva 92 | 0 / 4 | 53 of 60 | 60 | 0 | $198,550 / $460,009 | 0 | 0 | 160 | São Paulo Beach Warriors |
+| 2 (2027) | 78.9 | Beatriz Costa 96 | 0 / 5 | 54 of 60 | 60 | 0 | −$1,824 / $388,881 | 1 | 0 | 188 | Warsaw Vistula Waves |
+
+| Season | Injuries (AI clubs) | By type | Avg weeks out by treatment: doctor+physio · right medic · wrong medic · none (count) | Reconstructions | Put on injured list | On it at season end | AI cover promoted | Rob's new staff at AI clubs |
+|---|---|---|---|---|---|---|---|---|
+| 1 | 97 | Cramp or strained muscle 41, Torn hamstring 17, Broken finger or toe 15, Sprained ankle 13, Concussion 5, Torn shoulder 3, Broken wrist 2, Leg reconstruction 1 | – (0) · 2.07 (25) · 3.08 (25) · 6.09 (46) | 1 | 22 | 3 | 8 | 78 |
+| 2 | 95 | Cramp or strained muscle 31, Sprained ankle 20, Broken finger or toe 14, Torn hamstring 8, Concussion 6, Broken wrist 5, Torn shoulder 5, Leg reconstruction 5, Broken leg 1 | – (0) · 3.06 (19) · 3.78 (18) · 5.92 (53) | 5 | 26 | 5 | 13 | 71 |
+
+Money tests at the last season: median $388,881 (within ±$150k of $500k: **pass**); below zero 1 (fewer than 10: **pass**); clubs with 3 seniors 54 (at least 40: **pass**).
+
+
+**Weeks out by treatment, all seasons together (AI clubs, not reconstructions):**
+
+| Run | Doctor + physio | Right medic | Wrong medic | None |
+|---|---|---|---|---|
+| Medium | none happened | 127 injuries, 2.33 weeks (base 3.70) | 128, 3.06 (base 3.06) | 295, 7.03 (base 3.51) |
+| Easy | none happened | 59, 2.25 (base 3.54) | 58, 3.24 (base 3.24) | 84, 6.45 (base 3.23) |
+| Hard | none happened | 44, 2.50 (base 3.93) | 43, 3.37 (base 3.37) | 99, 6.00 (base 3.00) |
+
+The factors work as written: the right medic takes 3.7 base weeks to 2.3 (×0.63), the wrong one leaves them as they
+are, and none doubles them. "Doctor + physio" never happens at an AI club, because the Day 8 deal gives each one
+medic; the player's club gets it by hiring both (proved in `injury-treatment` and `staff-roles`).
+
+**Reconstructions:** Medium 28 in 5 seasons, Easy 6 and Hard 6 in 2 (every club's, from the history), averaging 28–40
+weeks out.
+
+**The injured list and cover:** 20–35 AI players a season go on the list. 1–11 are on it at a season's end, and 5–25
+academy youths a season are promoted as cover. Clubs holding 3 seniors stay at 52–55 of 60.
+
+**Not changed from Day 2:** the Medium median AI balance runs $496k, $427k, $404k, $386k, $361k. Day 2's soak, before
+any of tonight's work, ran $470k, $446k, $385k, $366k, $368k. Part 2–6 don't move the money.
+
+**Bugs found by the soak:** none in the game. Two in the soak itself, both fixed:
+- Its over-the-cap check counted C-5's allowed promotions (decision 16).
+- It counted the player's club, which the harness heals, among the injuries. Your club's players had "reconstructions"
+  back to back because a heal left their history in place.
+
+**Balance questions for Rob (numbers and a suggestion; nothing was retuned):**
+1. **Reconstructions are nearly all legs, built from cramps.** Medium: 23 of 28 were legs, and 22 of the 28 followed
+   at least one cramp. Easy and Hard: 12 of 12 legs, all after cramps. A cramp is 40% of injuries, lasts a week, and
+   its area is "leg", so three cramps in a year (or two and a broken leg) become a 30-week reconstruction (60 weeks
+   untreated). *Suggestion:* don't count injuries of 1 base week toward the three; or give cramp its own area
+   ("muscle") that has no reconstruction. Either is one line in `lib/db/src/schema/injuries.ts`.
+2. **Half the AI clubs' injuries go untreated.** The Day 8 deal gives each AI club "a medic", and 29 of 59 got a
+   massage therapist or medical specialist. Neither treats an ordinary injury, so those clubs' injuries all run ×2
+   (295 of 550 at Medium are untreated, these clubs and a medic off ill together). *Suggestion:* the Day 8 deal's medic is a doctor or physio when one is on the market;
+   the massage therapist and specialist come second. One rule for every club, and AI clubs would field their
+   injured back sooner.
+3. **The money still drifts down at Medium, about $27k a season**, as on Day 2; 5 clubs are below zero at season 5.
+   It passes Rob's test at season 5 and would reach the band's edge ($350k) around season 6. Day 2's 30-season run
+   turned upward after season 15. *Suggestion:* leave it. Day 2 measured $20,000 drifting *up* about $45k a season,
+   so if Rob wants it level from season 1, $19,500 (not yet run) sits between the two.
+
+### Part 9: version 1.1.0, the package, the proof, the patch notes
+
+**1. The version.** `package.json` 0.9.3 → **1.1.0** (`b77d3841`). electron-builder stamps the exe from it: the
+packaged exe's file version reads **1.1.0** (product version 1.1.0.0). The launch exe in `vbe-final-12oct-c` still reads
+0.9.3, dated 12 Oct 12:49, untouched. The game shows no version anywhere on screen, so there is nowhere else to change.
+
+**2. The package: `C:\build\vbe-1.1.0\win-unpacked\`** (1,425 files, 619 MB; the launch build was 1,235 files,
+612 MB). It was made the way the launch build was (docs/packaging.md):
+- `node scripts/compress-unity-data.cjs` (fresh `.br` files: .data 80.8%, .wasm 17.4%);
+- `pnpm run build` (build #2);
+- strip `artifacts/api-server/dist/public`;
+- `npx electron-builder --win dir "-c.directories.output=C:\build\vbe-1.1.0"`.
+
+From `update-1` at `1589736f`, whose game code is build #2's. Every packaging check passed:
+- only Brotli Unity files (the raw .data/.wasm stripped);
+- better-sqlite3 loads under Electron's runtime;
+- the starter DB alone in `resources/starter-db`;
+- no `steam_appid.txt`;
+- steamworks.js unpacked.
+
+No other folder under `C:\build` was written.
+
+**3. It runs** (`scripts/webgl-proof/package-proof.mjs`; screenshots, steps and the window's log in
+`C:\build\vbe-1.1.0\proof\`, outside `win-unpacked` so they never upload). The real packaged exe, its own window and
+server, started with `--user-data-dir` on a fresh temporary folder (decision 18). The test profile's saves went to
+`%TEMP%\vbe-1.1.0-proof-BaPqc2\Beach Volleyball Empire\`, and the first screen was "No profiles yet". Driven through
+the window:
+
+| Step | What happened | Screenshot |
+|---|---|---|
+| start | the game window on its login screen in 1 s; a new profile and an Established career (Sydney Riptide) | 01 |
+| title screen | CONTINUE pressed | 02 |
+| Day 1 draft | picked in the UI from Free agents: Lani Faumuina $10,500, Naomi Talo $10,500, Qistina Zulkifli $11,500 ("Senior wages $32,500 of $60,000"), then Finish | 03, 04 |
+| days pass | Next match: 1 Jan → 17 Feb 2026, the MATCH DAY box (World Tour R1, Bronze, v Paris Sables Royales) | 05, 06 |
+| 3D match | Watch Match: Unity loaded in 4 s; the whole match played on the 3D court (6.5 min, with commentary): lost 0–2 (12–14, 8–11), "Result saved." in the result box; Continue pressed; back on the dashboard | 07, 08, 09, 10 |
+| more days | Next match: 22 Feb, the next match day | 11 |
+| Settings | opened: Display, Sound (music, crowd, commentary sliders), Controls | 12 |
+
+**Rob's save:** `%APPDATA%\Beach Volleyball Empire\volleyball-empire.sqlite` is the same file before and after
+(2,404,352 bytes, 13 Oct 17:07, SHA-1 `10796c5e…`). It was never opened.
+
+Two earlier attempts were stopped and fixed in the script:
+- The first waited on the title screen, which a reload brings back, while the unattended PC let the window stop painting.
+- The second clicked a Watch Match button that isn't in the match day box.
+
+Your save was checked unchanged after each.
+
+**4. Patch notes:** `docs/UPDATE1-PATCH-NOTES.md` (plain words, for the Steam announcement).
+
+**5. Not uploaded.** A ready script for the upload is in the repo, `steam/app_build_5233750-1.1.0.vdf`
+(ContentRoot `C:\build\vbe-1.1.0\win-unpacked\`). Rob's Steamworks scripts folder was not changed; the steps are
+at the end of this report.
