@@ -94,3 +94,44 @@ export function staysForCounter(bidValue: number, counterValue: number, mood: nu
   if (!close) return { stays: counterValue >= bidValue, close };
   return { stays: counterValue * (1 + COUNTER_OFFER.moraleWeight * mood) >= bidValue, close };
 }
+
+/**
+ * Youth deals (Part 5, AC-6 A): any AI club's academy youth can be asked for, on
+ * loan or to buy, at any time. A loan is always agreed (she can go for 6 or 12
+ * months while her age allows it). A sale is the selling club's choice:
+ *
+ *   chance = scoutShare(buyer's scout skill) x position x plans x cash, at most maxChance
+ *
+ *   scoutShare  0 at `scoutFloor` skill or below (only a loan is offered), rising
+ *               evenly to `scoutTopShare` at `scoutTop`
+ *   position    the selling club's own youths past its youth team of 3: none
+ *               spare `fewFactor`, one spare `oneSpareFactor`, two or more
+ *               (many) `manyFactor`
+ *   plans       she plays in its youth team: x `plansFactor`
+ *   cash        its balance is below the AI clubs' reserve: x `cashFactor`
+ *
+ * The club's answer for a youth and a buyer holds for the week (`answerDays`):
+ * asking again before then gets the same answer.
+ */
+export const YOUTH_DEALS = {
+  scoutFloor: 40, scoutTop: 90, scoutTopShare: 0.8,
+  fewFactor: 0.25, oneSpareFactor: 0.5, manyFactor: 1.0,
+  plansFactor: 0.5, cashFactor: 1.5, maxChance: 0.95,
+  answerDays: 7,
+  /** AI clubs try this many youth buys a week (each at another AI club). */
+  aiBuysPerWeek: 2,
+} as const;
+
+/** The youth team every academy plays (api-server utils/squadRules.ts ACADEMY_YOUTH_TEAM). */
+const YOUTH_TEAM = 3;
+
+/** The chance her club sells her to this buyer (0..maxChance). */
+export function youthSaleChance(scoutSkill: number, ownYouths: number, inYouthTeam: boolean, needsCash: boolean): number {
+  const d = YOUTH_DEALS;
+  const scout = Math.max(0, Math.min(1, (scoutSkill - d.scoutFloor) / (d.scoutTop - d.scoutFloor))) * d.scoutTopShare;
+  if (scout === 0) return 0;
+  const spare = ownYouths - YOUTH_TEAM;
+  const position = spare <= 0 ? d.fewFactor : spare === 1 ? d.oneSpareFactor : d.manyFactor;
+  const chance = scout * position * (inYouthTeam ? d.plansFactor : 1) * (needsCash ? d.cashFactor : 1);
+  return Math.min(d.maxChance, Math.round(chance * 1000) / 1000);
+}

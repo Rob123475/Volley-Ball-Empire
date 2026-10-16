@@ -104,7 +104,7 @@ export function moodTx(tx: Tx, careerSaveId: number, playerId: number, club: Clu
 }
 
 /** Pay (or, `sign` -1, give back) a deal's fee: the buyer pays, the club she leaves is paid. */
-function moveFeeTx(tx: Tx, careerSaveId: number, deal: TransferDeal, today: string, name: string, sign: 1 | -1): void {
+export function moveFeeTx(tx: Tx, careerSaveId: number, deal: TransferDeal, today: string, name: string, sign: 1 | -1): void {
   const from = fromOf(deal), to = toOf(deal), fee = Number(deal.fee) * sign;
   if (fee === 0) return;
   const fromName = clubNameTx(tx, from), toName = clubNameTx(tx, to);
@@ -120,7 +120,7 @@ function moveFeeTx(tx: Tx, careerSaveId: number, deal: TransferDeal, today: stri
 }
 
 /** Whether a club can pay `amount` now: the player's budget, or an AI club's balance above its reserve. */
-function canPayTx(tx: Tx, careerSaveId: number, club: Club, amount: number): boolean {
+export function canPayTx(tx: Tx, careerSaveId: number, club: Club, amount: number): boolean {
   if ("teamId" in club) return Number(tx.select({ b: teamsTable.budget }).from(teamsTable).where(eq(teamsTable.id, club.teamId)).get()?.b ?? 0) >= amount;
   return balanceOf(tx, careerSaveId, club.poolTeamId) >= amount + AI_BUY_RESERVE;
 }

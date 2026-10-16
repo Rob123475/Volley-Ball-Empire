@@ -99,9 +99,10 @@ router.post("/contracts", async (req, res) => {
   // the intake and the Team page use.
   const isYouth = isYouthPlayer(player);
   // C15: a youth at an AI club's academy (hers, or on loan there) is not on the
-  // market; she can only come on loan, from Team > Youth Loans.
+  // market. 1.1.1, Part 5: she is asked for from her club, on loan or to buy
+  // (the Clubs page; POST /youth-deals).
   if (player.poolTeamId != null && isYouth) {
-    res.status(422).json({ error: `${player.name} is at an AI club's academy: she can only join you on loan (Team > Youth Loans).` });
+    res.status(422).json({ error: `${player.name} is at an AI club's academy: ask her club for her on loan or to buy (Clubs page).` });
     return;
   }
   // Daytime 2 Oct, U-6: a senior at an AI club is bought from it, on the same

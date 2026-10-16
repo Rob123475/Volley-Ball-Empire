@@ -17,8 +17,9 @@ import {
   facilitiesTable,
   contractsTable,
   careerSavesTable,
+  careerPoolTeamStateTable,
 } from "@workspace/db";
-import { eq, or, and, ne, sql, lte, inArray, isNotNull, desc } from "drizzle-orm";
+import { eq, or, and, ne, sql, lte, inArray, isNotNull, isNull, desc } from "drizzle-orm";
 import { simulateRegionalRound, resolveRegionalSeason } from "../utils/regionalSeason.js";
 import { advanceWorldTour, NOT_QUALIFIED, BYE, WORLD_TOUR_EVENT_ROUNDS } from "../utils/worldTour.js";
 import {
@@ -29,6 +30,7 @@ import {
 import { getActiveSeason } from "../lib/getActiveSeason.js";
 import { loadPlayers, loadStaff, requireCareerSaveId, updatePlayerState, updateTeamPlayerState, withCareerStateTx } from "../lib/playerDto.js";
 import { aiAcademiesWeekTx, loansTx, recordTeamLoanWeekTx, returnDueLoansTx, teamLoanWeekTx } from "../utils/youthLoans.js";
+import { aiYouthBuysWeekTx } from "../utils/youthDeals.js";
 import { materializeAiSeniorsTx, aiSeniorsTrainWeekTx, aiTransfersWeekTx } from "../utils/aiSquads.js";
 import { day1DraftOpen, finishDay1DraftTx } from "../utils/day1Draft.js";
 import { aiStaffDayTx, STAFF_BACK_ON_MARKET } from "../utils/aiStaff.js";
@@ -701,6 +703,10 @@ async function advanceOneDay(req: Request): Promise<DayResult> {
     // C15: the AI clubs' academies — filled, developed, billed; their reserves
     // listed for loan, and a youth borrowed where a club's youth team needs one.
     const aiWeek = withCareerStateTx((w) => aiAcademiesWeekTx(w, careerSaveId, nextDate));
+    // 1.1.1, Part 5: the AI clubs ask each other for youths, to buy (or, offered only a loan, on loan).
+    withCareerStateTx((w) => aiYouthBuysWeekTx(w, careerSaveId, nextDate,
+      w.tx.select({ id: careerPoolTeamStateTable.poolTeamId }).from(careerPoolTeamStateTable)
+        .where(and(eq(careerPoolTeamStateTable.careerSaveId, careerSaveId), isNull(careerPoolTeamStateTable.takenOverAt))).all().map((r) => r.id)));
     // Daytime 2 Oct, U-6: the AI clubs' senior squads, as career seniors: their
     // contracts renewed, a club below two refilled from the free agents, and a
     // few AI-to-AI transfers by squad need (utils/aiSquads.ts). Update 1, item

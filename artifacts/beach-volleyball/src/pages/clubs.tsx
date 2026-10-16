@@ -4,7 +4,7 @@
  * season's record, balance, senior wages against the cap and injuries this
  * season, with a Sort menu. Click an AI club for its Players (every senior,
  * shown on her Player Market card with its Watch star, Scout and Buy, and every
- * academy youth) or its Staff & Medical. The player's own club opens his Club page.
+ * academy youth, who can be asked for on loan or to buy: 1.1.1 Part 5) or its Staff & Medical. The player's own club opens his Club page.
  * Data: GET /api/clubs and /api/clubs/:id (api-server routes/clubs.ts).
  */
 import { useMemo, useState } from "react";
@@ -18,6 +18,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ClubCrest } from "@/components/club-crest";
 import { PlayerPortrait } from "@/components/player-portrait";
 import { MarketPlayerCard, RevealedSigningDialog, useMarketActions } from "@/pages/players";
+import { YouthDealDialog } from "@/components/youth-deal-dialog";
 import { cn } from "@/lib/utils";
 
 type Manager = { name: string; image: string; speciality: string; effect: string; isPlayer: boolean } | null;
@@ -147,6 +148,7 @@ export function ClubDetailPage() {
   const { data: market } = useQuery<any[]>({ queryKey: ["players-market-all"], queryFn: () => getJson("/api/players/market-all"), staleTime: 30_000 });
   const marketById = useMemo(() => new Map((market ?? []).map((p) => [p.id, p])), [market]);
   const actions = useMarketActions();
+  const [dealYouth, setDealYouth] = useState<{ id: number; name: string } | null>(null);
 
   if (isLoading || !data) return <Skeleton className="h-96 w-full" />;
   const { club } = data;
@@ -220,6 +222,7 @@ export function ClubDetailPage() {
                     Age {p.age} · {ROLE_LABEL[p.role] ?? p.role} · {money(p.wage)} a {p.wagePer}
                     {p.injury ? <span className="text-destructive"> · {p.injury.name}, out {p.injury.weeksOut} wk</span> : null}
                   </p>
+                  <Button size="sm" variant="outline" className="w-full" onClick={() => setDealYouth({ id: p.id, name: p.name })} data-testid={`club-youth-deal-${p.id}`}>Loan or buy</Button>
                 </CardContent>
               </Card>
             ))}
@@ -245,6 +248,7 @@ export function ClubDetailPage() {
         </Card>
       )}
       <RevealedSigningDialog signing={actions.revealedSigning} onClose={() => actions.setRevealedSigning(null)} />
+      <YouthDealDialog youth={dealYouth} club={club.name} onClose={() => setDealYouth(null)} />
     </div>
   );
 }

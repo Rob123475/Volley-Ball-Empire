@@ -8,9 +8,19 @@
  *   POST /youth-loans/unlist   take her off the list (before anyone borrows her)
  *   POST /youth-loans/borrow   take a listed youth for 6 or 12 months (confirm)
  *
+ * 1.1.1, Part 5: any AI club's youth, at any time (utils/youthDeals.ts):
+ *   GET  /youth-deals/:playerId  what her club would say this week: the sale
+ *                                chance (his scout's skill against its position),
+ *                                her price and the loan lengths she can go for
+ *   POST /youth-deals            { playerId, kind: "loan" | "buy", months, confirm }
+ *
  * There is deliberately no recall: a loan runs to its end date (Rob, 30 Sep).
  */
 import { Router } from "express";
+import { readContractLength } from "../utils/contractTerms.js";
+import { checkSpendingAllowed } from "../utils/board-confidence.js";
+import { specialityFactor } from "../utils/managerFaces.js";
+import { askYouthTx, youthDealTx } from "../utils/youthDeals.js";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { requireCareerSaveId, withCareerStateTx } from "../lib/playerDto.js";
 import { getGameDate } from "../utils/gameDate.js";
@@ -140,6 +150,40 @@ router.post("/youth-loans/borrow", async (req, res) => {
   if ("error" in result) { res.status(400).json({ error: result.error }); return; }
   res.status(201).json({ loanId: result.loan.id, playerId: result.loan.playerId, startsOn: result.loan.startsOn, endsOn: result.loan.endsOn,
     months: result.loan.months, weeklyWage: result.loan.weeklyWage, yourHalf: result.halves.borrower });
+});
+
+router.get("/youth-deals/:playerId", async (req, res) => {
+  const ctx = await context(req, res);
+  if (!ctx) return;
+  const ask = withCareerStateTx((w) => askYouthTx(w.tx, ctx.careerSaveId, { teamId: ctx.team.id }, Number(req.params.playerId), ctx.today,
+    specialityFactor(ctx.team.id, "Negotiator")));
+  if ("error" in ask) { res.status(400).json({ error: ask.error }); return; }
+  // The roll stays the club's secret: he sees the chance, not the answer.
+  const { roll: _roll, sells: _sells, ...view } = ask;
+  res.json(view);
+});
+
+router.post("/youth-deals", async (req, res) => {
+  const ctx = await context(req, res);
+  if (!ctx) return;
+  const { playerId, kind, months, confirm, academyRole } = req.body ?? {};
+  if (kind !== "loan" && kind !== "buy") { res.status(400).json({ error: "kind is loan or buy" }); return; }
+  if (confirm !== true) {
+    res.status(400).json({ error: kind === "buy" ? "Confirm the offer: if her club sells, you pay her youth price today." : "Confirm the loan: she plays for you until it ends, and you pay half her wage each week." });
+    return;
+  }
+  const wanted = readContractLength(req.body);
+  if ("error" in wanted) { res.status(400).json({ error: wanted.error }); return; }
+  if (kind === "buy") {
+    const frozen = await checkSpendingAllowed(ctx.careerSaveId);
+    if (frozen) { res.status(403).json({ error: frozen }); return; }
+  }
+  const r = withCareerStateTx((w) => youthDealTx(w, ctx.careerSaveId, { teamId: ctx.team.id }, Number(playerId), kind, ctx.today, {
+    months: months != null ? Number(months) : undefined, length: wanted.length,
+    academyRole: academyRole === "reserve" ? "reserve" : "youth_team", priceFactor: specialityFactor(ctx.team.id, "Negotiator"),
+  }));
+  if ("error" in r) { res.status(400).json({ error: r.error }); return; }
+  res.status(r.outcome === "loan_only" ? 200 : 201).json(r);
 });
 
 export default router;

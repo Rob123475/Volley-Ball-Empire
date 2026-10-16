@@ -638,18 +638,16 @@ runSuite("injured list", path.join(REPO, "harness", "injured-list.mjs"));
 
 // 1.1.1 (Rob, 16 Oct): the Clubs page, the transfer window, one chance to keep her, perks,
 // AI clubs' youths and the calendar.
-console.log("
-########## 98s/100  THE CLUBS PAGE (1.1.1 PART 1) ##########");
+console.log("\n########## 98s/100  THE CLUBS PAGE (1.1.1 PART 1) ##########");
 runSuite("clubs page", path.join(REPO, "harness", "clubs-page.mjs"));
-console.log("
-########## 98t/100  THE TRANSFER WINDOW, BUYING AHEAD, NO DUMPING (1.1.1 PART 2) ##########");
+console.log("\n########## 98t/100  THE TRANSFER WINDOW, BUYING AHEAD, NO DUMPING (1.1.1 PART 2) ##########");
 runSuite("transfer window", path.join(REPO, "harness", "transfer-window.mjs"));
-console.log("
-########## 98u/100  ONE CHANCE TO KEEP HER (1.1.1 PART 3) ##########");
+console.log("\n########## 98u/100  ONE CHANCE TO KEEP HER (1.1.1 PART 3) ##########");
 runSuite("counter offer", path.join(REPO, "harness", "counter-offer.mjs"));
-console.log("
-########## 98v/100  PERKS (1.1.1 PART 4) ##########");
+console.log("\n########## 98v/100  PERKS (1.1.1 PART 4) ##########");
 runSuite("perks", path.join(REPO, "harness", "perks.mjs"));
+console.log("\n########## 98w/100  YOUTH DEALS AND SCOUTS (1.1.1 PART 5) ##########");
+runSuite("youth deals", path.join(REPO, "harness", "youth-deals.mjs"));
 
 // ── Smoke needs a server; boot one on a throwaway copy of the shipped DB ─────
 console.log("\n########## 99/100  GAMEPLAY SMOKE ##########");
