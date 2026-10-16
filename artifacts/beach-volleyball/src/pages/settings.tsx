@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Monitor, Volume2, Gamepad2, BookOpen, ArrowLeft } from "lucide-react";
 import { SoundSettings } from "@/components/sound-settings";
 import { ControlsSettings } from "@/components/controls-settings";
+import { ExitGame } from "@/components/exit-game";
 import { readControlMode, saveControlMode, type ControlMode } from "@/lib/court-settings";
 
 type WindowSettings = { mode: "windowed" | "fullscreen"; size: string | null; zoom: number; sizes?: string[]; defaultSize?: string; zoomMin?: number; zoomMax?: number };
@@ -113,6 +114,14 @@ export default function SettingsPage() {
           <CardContent className="p-4 flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2"><BookOpen className="h-4 w-4" /><span className="font-semibold">Rules and how to play</span></div>
             <Link href="/settings/rules"><Button size="sm" variant="outline" data-testid="settings-rules">Open the rules</Button></Link>
+          </CardContent>
+        </Card>
+
+        {/* Exit (Rob, 16 Oct) */}
+        <Card>
+          <CardContent className="p-4 flex flex-wrap items-center justify-between gap-3">
+            <span className="text-sm text-muted-foreground">Your career is saved as you play.</span>
+            <ExitGame />
           </CardContent>
         </Card>
       </div>

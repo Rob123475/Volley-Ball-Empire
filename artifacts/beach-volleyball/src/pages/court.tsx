@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { readControlMode, saveControlMode, courtVolumes, MATCH_VOLUME_EVENT, MATCH_VOLUME_KEY, type ControlMode } from "@/lib/court-settings";
 import { SoundSettings } from "@/components/sound-settings";
 import { ControlsSettings } from "@/components/controls-settings";
+import { ExitGame } from "@/components/exit-game";
 import { useLocation } from "wouter";
 import { useQueryClient } from "@tanstack/react-query";
 import { Monitor, UploadCloud, Loader2, LogOut, Settings as SettingsIcon, X, Pause, Play } from "lucide-react";
@@ -308,6 +309,9 @@ export default function ThreeDCourt() {
             <SoundSettings onCourt />
             <h3 className="text-sm font-bold mt-5 mb-2">Controls</h3>
             <ControlsSettings mode={mode} onChoose={chooseMode} />
+            <div className="mt-5 flex justify-end">
+              <ExitGame matchId={matchId} />
+            </div>
           </div>
         )}
         <iframe

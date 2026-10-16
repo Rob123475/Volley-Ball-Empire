@@ -416,6 +416,9 @@ ipcMain.handle("window-settings:set", (_e, patch) => {
   applyWindowSettings(mainWindow, next);
   return next;
 });
+// Rob, 16 Oct: Settings' "Exit game" quits the app as closing the window does:
+// before-quit below asks the server to checkpoint and close the save first.
+ipcMain.handle("app:quit", () => { app.quit(); });
 
 function createWindow() {
   const settings = windowSettings.readWindowSettings(userDataPath);

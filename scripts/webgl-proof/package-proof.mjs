@@ -13,7 +13,9 @@
  * Rob, 16 Oct (last fixes): Advance during the draft says why, with the way to
  * the draft; Close the draft says the AI clubs have filled; the staff banner on
  * Jan 1 and not on the match day; Pause and Resume on the 3D court (the picture
- * stands still, then moves); the Sort menus on the three markets.
+ * stands still, then moves); the Sort menus on the three markets; last, Exit
+ * game from Settings: asked in the page, Cancel keeps the game, Exit closes the
+ * app itself, its save checkpointed (no -wal left).
  * Screenshots in <outDir>; one JSON summary on stdout.
  *
  * Usage: node scripts/webgl-proof/package-proof.mjs "C:/build/vbe-<name>/win-unpacked/Beach Volleyball Empire.exe" <outDir>
@@ -52,6 +54,8 @@ const app = spawn(EXE, [`--user-data-dir=${udRoot}`, `--remote-debugging-port=${
   // The PC is unattended (screen off or locked): keep the window painting and its timers running.
   "--disable-features=CalculateNativeWinOcclusion", "--disable-backgrounding-occluded-windows", "--disable-renderer-backgrounding", "--disable-background-timer-throttling"], { stdio: ["ignore", log, log] });
 step("started the packaged exe", { pid: app.pid, userDataDir: udRoot });
+let appExited = null;
+app.on("exit", (code) => { appExited = { code, at: Date.now() }; });
 
 let ws;
 try {
@@ -217,6 +221,22 @@ try {
     await shot(`sort-${testid}`);
   }
   step("sort menus", out.sortMenus);
+
+  // Rob, 16 Oct: Exit game, from Settings: asked in the page; Cancel keeps the game; Exit closes the app itself.
+  await nav("/settings");
+  await waitFor(`!!document.querySelector('[data-testid="settings-exit"]')`, 20000);
+  await click('[data-testid="settings-exit"]'); await sleep(1200);
+  const asked = await ev(`document.querySelector('[data-testid="dialog-exit-game"]')?.innerText.replace(/\s+/g, " ") ?? null`);
+  await shot("exit-asked");
+  await click('[data-testid="exit-cancel"]'); await sleep(1200);
+  const afterCancel = await ev(`({ dialog: !!document.querySelector('[data-testid="dialog-exit-game"]'), path: location.pathname })`);
+  await click('[data-testid="settings-exit"]'); await sleep(1200);
+  const pressedAt = Date.now();
+  await click('[data-testid="exit-confirm"]');
+  for (let i = 0; i < 60 && !appExited; i++) await sleep(500);
+  out.exitGame = { asked, cancelKeptTheGame: afterCancel && !afterCancel.dialog && afterCancel.path === "/settings",
+    appClosedItself: !!appExited, exitCode: appExited?.code ?? null, secondsToClose: appExited ? Math.round((appExited.at - pressedAt) / 100) / 10 : null };
+  step("Exit game", out.exitGame);
 } catch (err) {
   out.error = String(err?.stack ?? err);
 } finally {
@@ -228,5 +248,7 @@ try {
   out.robAfter = fingerprint();
   out.robSaveUntouched = JSON.stringify(out.robBefore) === JSON.stringify(out.robAfter);
   out.proofSaveFolder = fs.existsSync(out.profileFolder) ? fs.readdirSync(out.profileFolder) : null;
+  const wal = path.join(out.profileFolder, "volleyball-empire.sqlite-wal");
+  if (out.exitGame) out.exitGame.saveCheckpointed = !fs.existsSync(wal) || fs.statSync(wal).size === 0;
 }
 console.log(JSON.stringify(out, null, 1));

@@ -7,7 +7,7 @@
  *      bad value made good, the sizes and the zoom's range, remembered across
  *      a "relaunch" (read back from the folder)
  *   2. (source) Electron applies them at launch and at once, through a preload
- *      that exposes only get/set
+ *      that exposes only get/set (and, since 16 Oct, Exit game's quit)
  *   3. (source) Auto/Manual: chosen in Settings under the same stored key; the
  *      match screen's button is gone; the controls panel lists the court's keys
  *   4. (source) the gear in the sidebar and on the title screen; Settings needs no career
@@ -27,6 +27,10 @@
  *      package-sound-proof.mjs and sound-volume-proof.mjs
  *   9. (source) Rob, 16 Oct: a Pause button above the court, in Auto and Manual
  *      (heard and seen paused, and resumed, in the same two proofs)
+ *  10. (source) Rob, 16 Oct: Exit game in Settings and over the 3D match: asks
+ *      in the page, says a match in play is forfeited (the game's rule), and
+ *      closes the app through Electron's shutdown, which saves first (proved in
+ *      scripts/webgl-proof/package-proof.mjs)
  */
 import fs from "node:fs";
 import os from "node:os";
@@ -79,8 +83,9 @@ check("(source) the window reads them at launch and applies them when it shows; 
 check("(source) a change is written and applied at once (fullscreen, size, zoom)",
   /ipcMain\.handle\("window-settings:set"[\s\S]{0,200}writeWindowSettings\(userDataPath, patch\)[\s\S]{0,80}applyWindowSettings\(mainWindow, next\)/.test(MAIN)
     && /setFullScreen\(settings\.mode === "fullscreen"\)/.test(MAIN) && /setZoomFactor\(settings\.zoom\)/.test(MAIN));
-check("(source) the preload exposes only get and set, and the window loads it with context isolation on",
-  /exposeInMainWorld\("vbeWindow", \{\s*get:[^\n]*\n\s*set:[^\n]*\n\}\);/.test(PRELOAD) && /preload: path\.join\(__dirname, "preload\.js"\)/.test(MAIN) && /contextIsolation: true/.test(MAIN));
+check("(source) the preload exposes only get and set (and Exit game's quit), and the window loads it with context isolation on",
+  /exposeInMainWorld\("vbeWindow", \{\s*get:[^\n]*\n\s*set:[^\n]*\n\}\);/.test(PRELOAD)
+    && (PRELOAD.match(/exposeInMainWorld\(/g) ?? []).length === 2 && /exposeInMainWorld\("vbeApp", \{\s*quit: \(\) => ipcRenderer\.invoke\("app:quit"\),\s*\}\);/.test(PRELOAD) && /preload: path\.join\(__dirname, "preload\.js"\)/.test(MAIN) && /contextIsolation: true/.test(MAIN));
 
 // ── 3. Controls ──────────────────────────────────────────────────────────────
 console.log("\n3. AUTO / MANUAL IN SETTINGS; THE MATCH SCREEN'S BUTTON IS GONE");
@@ -155,7 +160,7 @@ check("(source) a Settings gear in the bar above the court, beside Leave match",
   /data-testid="button-court-settings"/.test(courtPage) && courtPage.indexOf('data-testid="button-court-settings"') < courtPage.indexOf('data-testid="button-leave-match"'));
 check("(source) it opens Sound (master, music, crowd, commentary) and Controls (Auto / Manual and the controls table) over the court",
   /data-testid="court-settings-overlay"/.test(overlay) && /<SoundSettings onCourt \/>/.test(overlay) && /<ControlsSettings mode=\{mode\} onChoose=\{chooseMode\} \/>/.test(overlay));
-check("(source) nothing in it leaves the court: no navigation, no leave", overlay.length > 0 && !/navigate\(|leaveMatch/.test(overlay));
+check("(source) nothing in it leaves the court (no navigation, no leave) but Exit game, which asks first (section 10)", overlay.length > 0 && !/navigate\(|leaveMatch/.test(overlay));
 check("(source) Auto / Manual chosen there goes to the court at once, and is remembered",
   /function chooseMode\(m: ControlMode\) \{\s*setMode\(m\);\s*saveControlMode\(m\);\s*iframeRef\.current\?\.contentWindow\?\.postMessage\(\{ type: "vbe-control-mode", mode: m \}, "\*"\);/.test(courtPage)
     && unityHtml.includes(`d.type !== "vbe-control-mode"`));
@@ -178,6 +183,22 @@ check("(source) it asks the court's page, which pauses in either mode by Unity's
     && /e\.data === "unity-paused:1"/.test(courtPage));
 check("(source) while paused only Resume starts it: a real focus (a click on the court) is kept from Unity",
   /window\.addEventListener\("focus", function \(e\) \{ if \(vbePaused && !e\.vbePause\) e\.stopImmediatePropagation\(\); \}, true\);/.test(unityHtml));
+
+// ── 10. Exit game (Rob, 16 Oct) ──────────────────────────────────────────────
+console.log("\n10. EXIT GAME, FROM SETTINGS AND FROM THE 3D MATCH");
+const exitGame = FE("components/exit-game.tsx");
+check("(source) Exit game is on the Settings page and in the settings over the 3D match (with the match's id)",
+  /<ExitGame \/>/.test(settings) && /<ExitGame matchId=\{matchId\} \/>/.test(overlay));
+check("(source) it asks inside the page, Exit or Cancel: \"Exit Beach Volleyball Empire? Your career is saved.\" (no browser dialog)",
+  /<AlertDialogTitle>Exit Beach Volleyball Empire\?<\/AlertDialogTitle>/.test(exitGame) && /Your career is saved\./.test(exitGame)
+    && /data-testid="exit-cancel">Cancel</.test(exitGame) && /data-testid="exit-confirm"/.test(exitGame) && />\s*Exit\s*</.test(exitGame)
+    && !/window\.confirm|confirm\(|alert\(/.test(exitGame));
+check("(source) during a match it says the game's rule (a forfeit, as leaving does) and records it through Leave match before closing",
+  /The match in play counts as a forfeit, as leaving a match does/.test(exitGame)
+    && exitGame.indexOf("/api/matches/${matchId}/leave") > 0 && exitGame.indexOf("/api/matches/${matchId}/leave") < exitGame.indexOf("await bridge.quit()")
+    && /forfeitAbandonedWatchedMatches\(\)/.test(fs.readFileSync(path.join(REPO, "artifacts", "api-server", "src", "index.ts"), "utf8")));
+check("(source) Exit closes through Electron as closing the window does: app.quit, whose before-quit checkpoints and closes the save",
+  /ipcMain\.handle\("app:quit", \(\) => \{ app\.quit\(\); \}\);/.test(MAIN) && /app\.on\("before-quit"/.test(MAIN) && /type: "shutdown"/.test(MAIN));
 
 console.log(`\n${checks - failures}/${checks} checks passed`);
 process.exit(failures === 0 ? 0 : 1);

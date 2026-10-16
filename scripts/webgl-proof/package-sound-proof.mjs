@@ -370,6 +370,16 @@ try {
   check("Resume: the court plays on and is heard again", resumedNow && pf5 !== pf6 && heardResumed.peak > 0.001,
     `picture ${pf5 !== pf6 ? "moving" : "still"}, peak ${heardResumed.peak}`);
 
+  // Rob, 16 Oct: Exit game over the match asks first and says the match in play is forfeited; Cancel keeps playing.
+  check("Exit game over the match asks in the page, saying the career is saved and the match in play counts as a forfeit",
+    (await clickTestid("settings-exit")) && (await waitJs(`/Exit Beach Volleyball Empire\\?/.test(document.querySelector('[data-testid="dialog-exit-game"]')?.innerText ?? "")
+      && /Your career is saved\\./.test(document.querySelector('[data-testid="dialog-exit-game"]').innerText)
+      && /counts as a forfeit/.test(document.querySelector('[data-testid="dialog-exit-game"]').innerText)`, 5000)));
+  await shot("s3b-exit-asked.png");
+  await clickTestid("exit-cancel"); await sleep(1000);
+  check("Cancel keeps the match: no question, still on the court",
+    (await js(`!document.querySelector('[data-testid="dialog-exit-game"]') && location.pathname === "/court"`)));
+
   // Closing gives the keyboard back to the court.
   await clickTestid("button-close-court-settings"); await sleep(800);
   const closed = await js(`({ open: !!document.querySelector('[data-testid="court-settings-overlay"]'), focus: document.activeElement?.tagName })`);
