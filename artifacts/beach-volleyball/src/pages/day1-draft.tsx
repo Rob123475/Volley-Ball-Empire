@@ -102,8 +102,10 @@ export default function Day1Draft() {
   const finish = async () => {
     setBusy(true);
     try {
+      // The server answers once the AI clubs have filled their squads (finishDay1DraftTx).
       await post("/api/day1-draft/finish", {});
       queryClient.removeQueries();
+      toast({ title: "Draft closed.", description: "The AI clubs have filled their squads from the players left.", duration: 8000 });
       navigate("/");
     } catch (err) {
       toast({ title: "Not yet", description: String((err as Error).message), variant: "destructive" });
