@@ -15,9 +15,15 @@
  *   - A club already over the cap (C-5) keeps everyone; it just cannot add a
  *     penny until it is back under. A youth promoted into the seniors is never
  *     blocked: she counts, and the club then cannot add more.
+ *   - 1.1.1 (Part 4): a contract's perks cost the club every month and count
+ *     toward the cap with her wage (schema/transfers.ts perksMonthly).
+ *   - 1.1.1 (Part 2, AC-8 A): a deal agreed now for a player arriving later is
+ *     checked against the club's bill ON HER ARRIVAL DATE: contracts that end
+ *     before then don't count, players it has sold ahead and who leave by then
+ *     don't count, and players it has bought ahead who arrive by then do.
  */
-import { MONEY, careerPlayerStateTable, playersTable, db } from "@workspace/db";
-import { and, eq, or } from "drizzle-orm";
+import { MONEY, careerPlayerStateTable, playersTable, transferDealsTable, perksMonthly, db } from "@workspace/db";
+import { and, eq, inArray, or } from "drizzle-orm";
 import { aiSquadsTx } from "./aiSquads.js";
 
 type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
@@ -27,23 +33,49 @@ export type WageClub = { teamId: number } | { poolTeamId: number };
 
 export const SALARY_CAP = MONEY.salaryCap.monthlyCap;
 
-/** The club's monthly senior wage bill. */
-export function seniorWageBillTx(tx: Tx, careerSaveId: number, club: WageClub): number {
+type Senior = { playerId: number | null; salary: number; perks: string; contractEndDate: string | null };
+
+/** The seniors on a club's books, each with her wage, perks and contract end. */
+function seniorsOfTx(tx: Tx, careerSaveId: number, club: WageClub): Senior[] {
   if ("teamId" in club) {
-    return tx.select({ salary: careerPlayerStateTable.salary }).from(careerPlayerStateTable)
+    return tx.select({
+      playerId: careerPlayerStateTable.playerId, salary: careerPlayerStateTable.salary,
+      perks: careerPlayerStateTable.perks, contractEndDate: careerPlayerStateTable.contractEndDate,
+    }).from(careerPlayerStateTable)
       .innerJoin(playersTable, eq(playersTable.id, careerPlayerStateTable.playerId))
       .where(and(
         eq(careerPlayerStateTable.careerSaveId, careerSaveId),
         eq(careerPlayerStateTable.teamId, club.teamId),
         eq(careerPlayerStateTable.isRetired, false),
         or(eq(playersTable.playerType, "senior"), eq(careerPlayerStateTable.isPromoted, true)),
-      )).all().reduce((sum, r) => sum + Number(r.salary), 0);
+      )).all().map((r) => ({ ...r, salary: Number(r.salary) }));
   }
   // An AI club's squad as every reader sees it (utils/aiSquads.ts): a pool
   // player not yet on a contract in this career is not on its books yet.
-  return (aiSquadsTx(tx, careerSaveId).get(club.poolTeamId) ?? [])
-    .filter((m) => m.kind === "player" || m.contractEndDate != null)
-    .reduce((sum, m) => sum + Number(m.salary), 0);
+  const squad = (aiSquadsTx(tx, careerSaveId).get(club.poolTeamId) ?? []).filter((m) => m.kind === "player" || m.contractEndDate != null);
+  const ids = squad.filter((m) => m.kind === "player").map((m) => m.id);
+  const perks = new Map(ids.length ? tx.select({ id: careerPlayerStateTable.playerId, perks: careerPlayerStateTable.perks }).from(careerPlayerStateTable)
+    .where(and(eq(careerPlayerStateTable.careerSaveId, careerSaveId), inArray(careerPlayerStateTable.playerId, ids))).all().map((r) => [r.id, r.perks]) : []);
+  return squad.map((m) => ({ playerId: m.kind === "player" ? m.id : null, salary: Number(m.salary), perks: m.kind === "player" ? (perks.get(m.id) ?? "") : "", contractEndDate: m.contractEndDate }));
+}
+
+/**
+ * The club's monthly senior wage bill: wages and perks. With `on`, the bill on
+ * that date (1.1.1, AC-8 A): contracts ending before it, and players sold ahead
+ * who have left by then, are out; players bought ahead who have arrived by then are in.
+ */
+export function seniorWageBillTx(tx: Tx, careerSaveId: number, club: WageClub, on?: string): number {
+  let seniors = seniorsOfTx(tx, careerSaveId, club);
+  let extra = 0;
+  if (on) {
+    const deals = tx.select().from(transferDealsTable).where(and(eq(transferDealsTable.careerSaveId, careerSaveId), eq(transferDealsTable.status, "agreed"))).all()
+      .filter((d) => d.arrivesOn != null && d.arrivesOn <= on);
+    const isClub = (teamId: number | null, poolTeamId: number | null) => ("teamId" in club ? teamId === club.teamId : poolTeamId === club.poolTeamId);
+    const leaving = new Set(deals.filter((d) => isClub(d.fromTeamId, d.fromPoolTeamId)).map((d) => d.playerId));
+    seniors = seniors.filter((r) => (r.contractEndDate == null || r.contractEndDate >= on) && !(r.playerId != null && leaving.has(r.playerId)));
+    extra = deals.filter((d) => isClub(d.toTeamId, d.toPoolTeamId)).reduce((t, d) => t + Number(d.wage) + perksMonthly(d.perks), 0);
+  }
+  return seniors.reduce((sum, r) => sum + r.salary + perksMonthly(r.perks), 0) + extra;
 }
 
 /** Outside a transaction (the routes). */

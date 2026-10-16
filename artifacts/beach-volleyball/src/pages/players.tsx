@@ -10,7 +10,6 @@ import {
   useSignContract,
   useScoutPlayer,
   getListFreeAgentsQueryKey,
-  getListTransferWindowQueryKey,
   getListContractsQueryKey,
   getGetTeamRosterQueryKey, useListStaff, getListStaffQueryKey
 } from "@workspace/api-client-react";
@@ -85,8 +84,8 @@ const POSITION_LABELS: Record<string, string> = {
 };
 
 type PageSection = "senior" | "youth";
-type MarketFilter = "all" | "free_agents" | "ai_clubs" | "player_pool" | "signed" | "transfer" | "watch";
-type PlayerStatus = "signed" | "free_agent" | "player_pool" | "transfer_available" | "ai_club";
+type MarketFilter = "all" | "free_agents" | "ai_clubs" | "player_pool" | "signed" | "joining" | "watch";
+type PlayerStatus = "signed" | "free_agent" | "player_pool" | "at_club" | "ai_club";
 
 // ── Status config ─────────────────────────────────────────────────────────────
 
@@ -94,7 +93,8 @@ const STATUS_CONFIG: Record<PlayerStatus, { label: string; badgeClass: string; i
   signed:            { label: "Signed",            badgeClass: "bg-blue-500/15 text-blue-500 border-blue-400/30",      icon: CheckCircle2 as any },
   free_agent:        { label: "Free Agent",        badgeClass: "bg-emerald-500/15 text-emerald-500 border-emerald-400/30", icon: Users as any },
   player_pool:       { label: "Player Pool",       badgeClass: "bg-amber-500/15 text-amber-600 border-amber-400/30",  icon: Package as any },
-  transfer_available:{ label: "Transfer Available",badgeClass: "bg-purple-500/15 text-purple-500 border-purple-400/30", icon: Handshake as any },
+  // 1.1.1: under contract at another human club; bid for her like an AI club's player.
+  at_club:           { label: "At Another Club",   badgeClass: "bg-purple-500/15 text-purple-500 border-purple-400/30", icon: Handshake as any },
   // Daytime 2 Oct, U-6: under contract at an AI club, and buyable from it.
   ai_club:           { label: "At AI Club",        badgeClass: "bg-sky-500/15 text-sky-500 border-sky-400/30",        icon: Shield as any },
 };
@@ -254,7 +254,8 @@ export function MarketPlayerCard({
   const isScouted = !!player.scoutedPotential;
   const status: PlayerStatus = player.status ?? (player.currentTeamName ? "signed" : "free_agent");
   const statusCfg = STATUS_CONFIG[status];
-  const canSign = status === "free_agent" || status === "player_pool" || status === "transfer_available" || status === "ai_club";
+  // 1.1.1: a player who has agreed to join a club ("Joins [club] on [date]") is no longer for sale.
+  const canSign = !player.joins && (status === "free_agent" || status === "player_pool" || status === "at_club" || status === "ai_club");
   const scouting = player.scouting?.state ?? "none";
   const price = priceText(player);
 
@@ -378,6 +379,12 @@ export function MarketPlayerCard({
             <span className="text-amber-500 font-medium">
               Expires {new Date(player.contractEndDate).toLocaleDateString("en-GB", { month: "short", year: "numeric" })}
             </span>
+          </div>
+        )}
+        {/* 1.1.1, Part 2: bought ahead, she moves when the transfer window opens. */}
+        {player.joins && (
+          <div className="text-xs font-semibold text-purple-600 dark:text-purple-400" data-testid={`joins-${player.id}`}>
+            Joins {player.joins.club} on {new Date(`${player.joins.on}T00:00:00`).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
           </div>
         )}
 
@@ -570,10 +577,11 @@ type FilterPillConfig = {
 const FILTER_PILLS: FilterPillConfig[] = [
   { id: "all",         label: "All Players",        icon: Users       as any, desc: "All senior players in the game." },
   { id: "free_agents", label: "Free Agents",         icon: Users       as any, desc: "Unsigned players you have not scouted: a price range, no attributes. Scout one (5 game days) or sign her blind." },
-  { id: "ai_clubs",    label: "At AI Clubs",         icon: Shield      as any, desc: "Seniors under contract at AI clubs. Bought on the same rules: a price range until scouted, the exact price after; the fee goes to her club, which only sells if it can still put two on the sand." },
+  { id: "ai_clubs",    label: "At AI Clubs",         icon: Shield      as any, desc: "Seniors under contract at AI clubs. Bid for one at any time of year: she joins you when the transfer window opens (the off-season), and her club gets one chance to keep her. A price range until scouted, the exact price after; the fee is paid the day she agrees." },
   { id: "player_pool", label: "Player Pool",         icon: Package     as any, desc: "Unsigned players your scouts have reported on: exact price and attributes. Reports are kept, with their dates; scout her again any time." },
   { id: "signed",      label: "Signed Players",      icon: CheckCircle2 as any, desc: "Players currently under contract with a club." },
-  { id: "transfer",    label: "Transfer Available",  icon: Handshake   as any, desc: "Signed players whose contract expires within 6 months — approachable now." },
+  // 1.1.1, Part 2: bought ahead, by any club, waiting for the window.
+  { id: "joining",     label: "Joining Clubs",       icon: Handshake   as any, desc: "Players who have agreed to join a club and move when the transfer window opens." },
   // Update 1, overnight part 4 (B-3).
   { id: "watch",       label: "Watch List",          icon: Star        as any, desc: "The players you have starred, at any club or none. Click the star on a card to add or take her off." },
 ];
@@ -613,7 +621,6 @@ export function useMarketActions() {
     queryClient.invalidateQueries({ queryKey: ["players-market-all"] });
     queryClient.invalidateQueries({ queryKey: ["players-youth-pool"] });
     queryClient.invalidateQueries({ queryKey: getListFreeAgentsQueryKey() });
-    queryClient.invalidateQueries({ queryKey: getListTransferWindowQueryKey() });
     queryClient.invalidateQueries({ queryKey: getListContractsQueryKey() });
     queryClient.invalidateQueries({ queryKey: getGetTeamRosterQueryKey() });
     queryClient.invalidateQueries({ queryKey: ["players-summary"] });
@@ -621,10 +628,22 @@ export function useMarketActions() {
   };
 
   const handleSign = (playerId: number, values: ContractOffer) => {
-    signMutation.mutate({ data: { playerId, salary: values.salary, length: values.length, bonusPerWin: values.winBonus, squadRole: values.squadRole, academyRole: values.academyRole, confirm: true } }, {
+    signMutation.mutate({ data: { playerId, salary: values.salary, length: values.length, bonusPerWin: values.winBonus, squadRole: values.squadRole, academyRole: values.academyRole, perks: values.perks ?? [], confirm: true } as any }, {
       onSuccess: (result: any) => {
         invalidateAll();
         queryClient.invalidateQueries();
+        // 1.1.1, Parts 2-3: a bid. Her club answers at once (an AI club) or within its days.
+        const t = result?.transfer;
+        if (t) {
+          const on = t.arrivesOn ? new Date(`${t.arrivesOn}T00:00:00`).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }) : "";
+          if (t.outcome === "kept") toast({ title: "She stays", description: `${t.from ?? "Her club"} made a counter-offer and ${result.player?.name ?? "she"} accepted it. No fee was paid.` });
+          else if (t.outcome === "moved") toast({ title: "Deal done", description: `${result.player?.name ?? "She"} joins you today.` });
+          else if (t.outcome === "agreed") toast({ title: "Deal agreed", description: `${result.player?.name ?? "She"} joins you on ${on}, when the transfer window opens. Her fee is paid.` });
+          else if (t.outcome === "offered") toast({ title: "Bid made", description: `Her club has until ${t.answerBy} to answer.` });
+          else toast({ title: "The deal fell through", variant: "destructive" });
+          if (result?.fee > 0) setRevealedSigning(result);
+          return;
+        }
         if (result?.fee > 0) setRevealedSigning(result);
         else toast({ title: "Contract Signed!", description: "Welcome to the team!" });
       },
@@ -724,8 +743,8 @@ export default function PlayerMarket() {
     free_agents: all.filter(p => p.status === "free_agent").length,
     ai_clubs:    all.filter(p => p.status === "ai_club").length,
     player_pool: all.filter(p => p.status === "player_pool").length,
-    signed:      all.filter(p => p.status === "signed" || p.status === "transfer_available").length,
-    transfer:    all.filter(p => p.status === "transfer_available").length,
+    signed:      all.filter(p => p.status === "signed" || p.status === "at_club").length,
+    joining:     all.filter(p => !!p.joins).length,
     watch:       all.filter(p => p.watched).length,
   };
 
@@ -741,8 +760,8 @@ export default function PlayerMarket() {
       case "free_agents": return all.filter(p => p.status === "free_agent");
       case "ai_clubs":    return all.filter(p => p.status === "ai_club");
       case "player_pool": return all.filter(p => p.status === "player_pool");
-      case "signed":      return all.filter(p => p.status === "signed" || p.status === "transfer_available");
-      case "transfer":    return all.filter(p => p.status === "transfer_available");
+      case "signed":      return all.filter(p => p.status === "signed" || p.status === "at_club");
+      case "joining":     return all.filter(p => !!p.joins);
       case "watch":       return all.filter(p => p.watched);
       default:            return all;
     }
@@ -980,10 +999,10 @@ export default function PlayerMarket() {
               {visiblePlayers.length === 0 && !marketLoading && (
                 <div className="col-span-full text-center py-16 text-muted-foreground">
                   <Box className="h-16 w-16 mx-auto mb-4 opacity-20" />
-                  {filter === "transfer" && !search && posFilter === "ALL" && continent === "ALL" ? (
+                  {filter === "joining" && !search && posFilter === "ALL" && continent === "ALL" ? (
                     <>
-                      <p className="text-lg">No players in the transfer window.</p>
-                      <p className="text-sm">Players become approachable in their final 6 months of contract.</p>
+                      <p className="text-lg">Nobody has agreed to move yet.</p>
+                      <p className="text-sm">A player bought ahead joins her new club when the transfer window opens.</p>
                     </>
                   ) : filter === "player_pool" && !search && posFilter === "ALL" && continent === "ALL" ? (
                     <>

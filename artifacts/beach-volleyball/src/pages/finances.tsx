@@ -86,7 +86,7 @@ type LedgerSummary = FinanceSummary & {
   seasonIncome?: number; seasonExpenses?: number;
   incomeSources: FinanceSummary["incomeSources"] & { other?: number };
   // Overnight 1 Oct, N-41: the manager's salary, its own line.
-  expenseBreakdown?: FinanceSummary["expenseBreakdown"] & { managerSalary?: number };
+  expenseBreakdown?: FinanceSummary["expenseBreakdown"] & { managerSalary?: number; playerPerks?: number };
   forecast?: FinanceForecast | null;
 };
 type ContractWagePlayer = { id: number; name: string; monthlySalary: number; weeklySalary: number };
@@ -479,11 +479,14 @@ export default function Finances() {
               const runningCosts   = summary?.expenseBreakdown?.runningCosts   || 0;
               const trainingCosts  = summary?.expenseBreakdown?.trainingCosts  || 0;
               const managerSalary  = ledger?.expenseBreakdown?.managerSalary   || 0;
+              // 1.1.1, Part 4: the seniors' contract perks, their own line.
+              const playerPerks    = ledger?.expenseBreakdown?.playerPerks     || 0;
               const other          = summary?.expenseBreakdown?.other          || 0;
               const hasExpenses    = seasonOut > 0;
               return hasExpenses ? (
                 <div className="space-y-2">
                   <BreakdownRow label="Player Salaries" amount={playerSalaries} total={seasonOut} color="bg-red-500" />
+                  <BreakdownRow label="Player perks" amount={playerPerks} total={seasonOut} color="bg-rose-400" />
                   <BreakdownRow label="Running Costs" amount={runningCosts} total={seasonOut} color="bg-amber-500" />
                   <BreakdownRow label="Staff" amount={staffSalaries} total={seasonOut} color="bg-orange-500" />
                   <BreakdownRow label="Manager Salary" amount={managerSalary} total={seasonOut} color="bg-sky-500" />

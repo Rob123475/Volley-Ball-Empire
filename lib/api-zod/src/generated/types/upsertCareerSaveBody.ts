@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { CareerDifficulty } from './careerDifficulty';
+import type { UpsertCareerSaveBodyGameDifficulty } from './upsertCareerSaveBodyGameDifficulty';
 
 export interface UpsertCareerSaveBody {
   slotNumber: number;
@@ -19,8 +20,8 @@ export interface UpsertCareerSaveBody {
   worldRanking?: number | null;
   budget?: string | null;
   difficulty?: CareerDifficulty;
-  /** Update 1, overnight part 6: how hard the AI clubs work. Defaults to medium. */
-  gameDifficulty?: "easy" | "medium" | "hard";
+  /** Update 1, overnight part 6: how hard the AI clubs work (AI training, pre-season camps). Defaults to medium. */
+  gameDifficulty?: UpsertCareerSaveBodyGameDifficulty;
   locationId?: number | null;
   primaryColor?: string | null;
   secondaryColor?: string | null;

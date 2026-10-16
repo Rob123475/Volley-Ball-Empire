@@ -48,6 +48,8 @@ export type CareerPlayerFields = {
   onInjuredList: boolean;
   injuredListSince: string | null;
   injuredListSquad: string | null;
+  /** 1.1.1: her contract's perks (schema/transfers.ts). */
+  perks: string;
   consecutiveMatchesPlayed: number;
   speed: number;
   power: number;
@@ -127,6 +129,7 @@ export function assemblePlayer(
     onInjuredList:        !!state.onInjuredList,
     injuredListSince:     state.injuredListSince ?? null,
     injuredListSquad:     state.injuredListSquad ?? null,
+    perks:                state.perks ?? "",
     consecutiveMatchesPlayed: state.consecutiveMatchesPlayed,
     speed:                state.speed,
     power:                state.power,

@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { Users, Star, Activity, FileText, ArrowLeftRight } from "lucide-react";
+import { Users, Star, Activity, FileText, ArrowLeftRight, Handshake } from "lucide-react";
 import TeamRoster   from "@/pages/team";
 import YouthAcademy from "@/pages/youth-academy";
 import Training     from "@/pages/training";
 import Contracts    from "@/pages/contracts";
 import YouthLoans   from "@/pages/youth-loans";
+import { TransfersPanel } from "@/components/transfers-panel";
 
-type Tab = "senior" | "youth" | "loans" | "training" | "contracts";
+type Tab = "senior" | "youth" | "loans" | "training" | "contracts" | "transfers";
 
 const TABS: Array<{ id: Tab; label: string; icon: any }> = [
   { id: "senior",    label: "Senior Team",  icon: Users     },
@@ -16,10 +17,16 @@ const TABS: Array<{ id: Tab; label: string; icon: any }> = [
   { id: "loans",     label: "Youth Loans",  icon: ArrowLeftRight },
   { id: "training",  label: "Training",     icon: Activity  },
   { id: "contracts", label: "Contracts",    icon: FileText  },
+  // 1.1.1, Parts 2-3: bids for his players, and who he has bought or sold ahead.
+  { id: "transfers", label: "Transfers",    icon: Handshake },
 ];
 
 export default function TeamHub() {
-  const [tab, setTab] = useState<Tab>("senior");
+  // ?tab=transfers opens a tab directly (the Dashboard's bid banner links here).
+  const [tab, setTab] = useState<Tab>(() => {
+    const wanted = new URLSearchParams(window.location.search).get("tab");
+    return TABS.some((t) => t.id === wanted) ? (wanted as Tab) : "senior";
+  });
   return (
     <div className="space-y-6">
       <div className="flex gap-2 flex-wrap border-b border-border pb-4">
@@ -44,6 +51,7 @@ export default function TeamHub() {
       {tab === "loans"     && <YouthLoans />}
       {tab === "training"  && <Training />}
       {tab === "contracts" && <Contracts />}
+      {tab === "transfers" && <TransfersPanel />}
     </div>
   );
 }

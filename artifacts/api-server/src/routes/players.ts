@@ -28,7 +28,8 @@ import { cannotAffordScout, chargeScout } from "../utils/scoutingCharge.js";
 import { overallRating } from "../utils/overallRating.js";
 import { recordScoutReportTx, scoutReportsByPlayerTx, scoutHistoryView, watchedTx, setWatchedTx } from "../utils/scoutReports.js";
 import { generateDevelopment } from "../utils/player-development";
-import { getGameDate, gameDateText } from "../utils/gameDate.js";
+import { getGameDate, gameDateText, careerGameDateTx } from "../utils/gameDate.js";
+import { agreedMovesTx, releaseRefusalTx } from "../utils/transfers.js";
 import { terminationPayout } from "../utils/contractTerms.js";
 import { day1DraftOpen, undoDraftPickTx } from "../utils/day1Draft.js";
 
@@ -124,45 +125,6 @@ router.get("/players/free-agents", async (req, res) => {
       .filter(p => !p.isDraftPlayer && p.academyContractYears == null && isSeniorPlayer(p))
       .map(serializePlayer)
   );
-});
-
-// Transfer window — contracted senior players whose contract expires within 6 months
-router.get("/players/transfer-window", async (req, res) => {
-  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getActiveTeam(req);
-  if (!team) { res.status(401).json({ error: "No team" }); return; }
-
-  // Get current game date from this user's calendar state
-  const calRows = await db.select({ currentDate: calendarStateTable.currentDate })
-    .from(calendarStateTable).where(eq(calendarStateTable.teamId, team.id)).limit(1);
-  const currentDate = calRows[0]?.currentDate ?? new Date().toISOString().split("T")[0]!;
-
-  // 6-month window cutoff
-  const cutoff = new Date(currentDate);
-  cutoff.setMonth(cutoff.getMonth() + 6);
-  const cutoffStr = cutoff.toISOString().split("T")[0]!;
-
-  // Contracted seniors whose deal expires inside the six-month window.
-  const inWindow = (await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { playerType: "senior" }))
-    .filter((p) =>
-      p.teamId != null &&
-      p.contractEndDate != null &&
-      p.contractEndDate >= currentDate &&
-      p.contractEndDate <= cutoffStr);
-
-  // Attach current team name to each player
-  const teamIds = [...new Set(inWindow.map(p => p.teamId!))];
-  const teamRows = teamIds.length > 0
-    ? await db.select({ id: teamsTable.id, name: teamsTable.name })
-        .from(teamsTable).where(inArray(teamsTable.id, teamIds))
-    : [];
-  const teamMap = Object.fromEntries(teamRows.map(t => [t.id, t.name]));
-
-  res.json(inWindow.map(p => ({
-    ...serializePlayer(p),
-    currentTeamName: p.teamId ? (teamMap[p.teamId] ?? null) : null,
-    currentTeamId: p.teamId ?? null,
-  })));
 });
 
 // Youth free agent pool — only youth players not on any team
@@ -373,9 +335,8 @@ router.get("/players/market-all", async (req, res) => {
     for (const t of teams) teamMap[t.id] = t.name;
   }
 
-  // Compute 6-month transfer window from authenticated user's game date
+  // The game date, for scouting and prices.
   let currentDate = new Date().toISOString().split("T")[0]!;
-  let transferCutoff: string | null = null;
   let myTeamId: number | null = null;
   if (req.isAuthenticated()) {
     const team = await getActiveTeam(req);
@@ -383,12 +344,7 @@ router.get("/players/market-all", async (req, res) => {
       myTeamId = team.id;
       const calRows = await db.select({ currentDate: calendarStateTable.currentDate })
         .from(calendarStateTable).where(eq(calendarStateTable.teamId, team.id)).limit(1);
-      if (calRows[0]?.currentDate) {
-        currentDate = calRows[0].currentDate;
-        const cutoff = new Date(currentDate);
-        cutoff.setMonth(cutoff.getMonth() + 6);
-        transferCutoff = cutoff.toISOString().split("T")[0]!;
-      }
+      if (calRows[0]?.currentDate) currentDate = calRows[0].currentDate;
     }
   }
 
@@ -406,16 +362,18 @@ router.get("/players/market-all", async (req, res) => {
   // Update 1, overnight part 4 (B-3): every scout report she has had, and the watch list's star.
   const reports = db.transaction((tx) => scoutReportsByPlayerTx(tx, careerSaveId));
   const watched = db.transaction((tx) => watchedTx(tx, careerSaveId));
+  // 1.1.1: a player bought ahead shows where she is going, and when ("Joins [club] on [date]").
+  const joins = db.transaction((tx) => agreedMovesTx(tx, careerSaveId));
   const result = all.map(p => {
-    let status: "signed" | "free_agent" | "player_pool" | "transfer_available" | "ai_club";
+    // 1.1.1 (Part 2): a senior under contract at another club can be bid for
+    // at any time of year ("ai_club", or "at_club" at another human club); she
+    // moves in the transfer window. The 6-month rule is gone.
+    let status: "signed" | "free_agent" | "player_pool" | "at_club" | "ai_club";
     if (p.poolTeamId != null && !p.teamId) {
       // U-6: under contract at an AI club, and buyable through the same market rules.
       status = "ai_club";
     } else if (p.teamId) {
-      const inWindow = p.teamId !== myTeamId && transferCutoff && p.contractEndDate
-        && p.contractEndDate >= currentDate
-        && p.contractEndDate <= transferCutoff;
-      status = inWindow ? "transfer_available" : "signed";
+      status = p.teamId === myTeamId ? "signed" : "at_club";
     } else {
       status = scoutState(p, currentDate).state === "done" ? "player_pool" : "free_agent";
     }
@@ -433,6 +391,7 @@ router.get("/players/market-all", async (req, res) => {
       aiClubId: p.teamId ? null : (p.poolTeamId ?? null),
       ...scoutHistoryView(reports.get(p.id), currentDate),
       watched: watched.has(p.id),
+      joins: joins.get(p.id) ?? null,
     };
   });
 
@@ -511,8 +470,14 @@ router.post("/players/:id/release", async (req, res) => {
 
   // Fetch before clearing so we can capture teamId and age for the transaction log
   const before = await loadPlayer(requireCareerSaveId(req.activeCareerSaveId), id);
+  // 1.1.1 (no dumping): outside the transfer window a senior can't be released.
+  if (before?.teamId != null) {
+    const kept = withCareerStateTx((w) => releaseRefusalTx(w.tx, requireCareerSaveId(req.activeCareerSaveId), before.teamId!, id,
+      careerGameDateTx(w.tx, requireCareerSaveId(req.activeCareerSaveId)), day1DraftOpen(requireCareerSaveId(req.activeCareerSaveId))));
+    if (kept) { res.status(409).json({ error: kept }); return; }
+  }
 
-  await updatePlayerState(requireCareerSaveId(req.activeCareerSaveId), id, { teamId: null, contractEndDate: null, academyContractYears: null, isActive: false, squadRole: "reserve" });
+  await updatePlayerState(requireCareerSaveId(req.activeCareerSaveId), id, { teamId: null, contractEndDate: null, academyContractYears: null, isActive: false, squadRole: "reserve", perks: "" });
 
   // L-02d: the contract ends with the release. It used to be left `active`,
   // so a released player stayed on the club's Contracts page for ever — the

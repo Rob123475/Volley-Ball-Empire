@@ -39,7 +39,7 @@ import {
   careerPoolTeamStateTable, continentalPoolTeamsTable, continentalPoolPlayersTable,
   poolClubSeasonsTable, poolPlayerContractsTable, competitorsTable,
   competitorRankingsTable, worldTourQualificationsTable, careerSavesTable,
-  seasonsTable, careerStaffStateTable, db, managerSalaryFor,
+  seasonsTable, careerStaffStateTable, careerPlayerStateTable, db, managerSalaryFor, perksMonthly,
 } from "@workspace/db";
 import { and, asc, desc, eq, inArray, isNull, isNotNull, lt, sql } from "drizzle-orm";
 import { aiSquadsTx } from "./aiSquads.js";
@@ -320,6 +320,7 @@ export function chargePoolClubsWeekTx(
   const access = accessTierByPoolIdTx(tx, careerSaveId, seasonYear);
   const squads = squadsByPoolIdTx(tx, careerSaveId);
   const staff = staffSalariesByPoolIdTx(tx, careerSaveId);
+  const perks = perksByPoolIdTx(tx, careerSaveId);
 
   let charged = 0, paid = 0;
   for (const st of states) {
@@ -337,10 +338,12 @@ export function chargePoolClubsWeekTx(
     // Update 1, overnight part 1a: its staff (utils/aiStaff.ts) are paid weekly
     // from its balance on the same wage rule as its players; never the cap.
     const staffWages = weeklyWageBill(staff.get(st.poolTeamId) ?? []);
-    charged += total + manager + staffWages;
+    // 1.1.1, Part 4: its seniors' contract perks, paid with their wages.
+    const perkWages = weeklyWageBill(perks.get(st.poolTeamId) ?? []);
+    charged += total + manager + staffWages + perkWages;
     paid += income;
     tx.update(careerPoolTeamStateTable).set({
-      balance:           Number(st.balance) + income - total - manager - staffWages,
+      balance:           Number(st.balance) + income - total - manager - staffWages - perkWages,
       sponsorReputation: reputation,
       updatedAt:         new Date(),
     }).where(and(
@@ -361,6 +364,18 @@ function squadsByPoolIdTx(tx: Tx, careerSaveId: number): Map<number, number[]> {
     // A pool player with no contract in this career yet is not on the books yet.
     map.set(poolTeamId, squad.filter((m) => m.kind === "player" || m.contractEndDate != null).map((m) => m.salary));
   }
+  return map;
+}
+
+/** 1.1.1: every AI club's seniors' monthly perk costs (schema/transfers.ts perksMonthly). */
+function perksByPoolIdTx(tx: Tx, careerSaveId: number): Map<number, number[]> {
+  const map = new Map<number, number[]>();
+  const rows = tx.select({ poolTeamId: careerPlayerStateTable.poolTeamId, perks: careerPlayerStateTable.perks })
+    .from(careerPlayerStateTable)
+    .where(and(eq(careerPlayerStateTable.careerSaveId, careerSaveId), isNotNull(careerPlayerStateTable.poolTeamId),
+      isNull(careerPlayerStateTable.teamId), eq(careerPlayerStateTable.isRetired, false), sql`${careerPlayerStateTable.perks} <> ''`))
+    .all();
+  for (const r of rows) map.set(r.poolTeamId!, [...(map.get(r.poolTeamId!) ?? []), perksMonthly(r.perks)]);
   return map;
 }
 

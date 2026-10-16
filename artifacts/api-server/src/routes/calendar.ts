@@ -1,4 +1,4 @@
-import { CONTINENT_COUNT } from "@workspace/db";
+import { CONTINENT_COUNT, perksMonthly } from "@workspace/db";
 import { executeSeasonStartMove } from "./job-market.js";
 import { openWindowIfDue } from "../utils/managerMoves.js";
 import { gameDateText } from "../utils/gameDate.js";
@@ -32,6 +32,7 @@ import { aiAcademiesWeekTx, loansTx, recordTeamLoanWeekTx, returnDueLoansTx, tea
 import { materializeAiSeniorsTx, aiSeniorsTrainWeekTx, aiTransfersWeekTx } from "../utils/aiSquads.js";
 import { day1DraftOpen, finishDay1DraftTx } from "../utils/day1Draft.js";
 import { aiStaffDayTx, STAFF_BACK_ON_MARKET } from "../utils/aiStaff.js";
+import { transfersDayTx } from "../utils/transfers.js";
 import { applyDueScoutReportsTx } from "../utils/scoutReports.js";
 import { preseasonDayTx, applyRestTx } from "../utils/preseasonCamp.js";
 import { loadLeagueSeasons } from "../lib/regionalLeague.js";
@@ -577,6 +578,8 @@ async function advanceOneDay(req: Request): Promise<DayResult> {
     const loanWages     = loanWeek.lines.reduce((s, l) => s + l.amount, 0);
     const academyWeekly = academy.filter((p) => !loanWeek.loanedIn.has(p.id)).reduce((s, p) => s + academyWeeklyWage(p.potential), 0);
     const weeklySalary  = Math.round(monthlySalary / WEEKS_PER_MONTH) + academyWeekly;
+    // 1.1.1, Part 4: the seniors' contract perks, paid with their wages, on their own line ("Player perks").
+    const weeklyPerks   = Math.round(teamPlayers.filter((p) => !isYouthPlayer(p)).reduce((s, p) => s + perksMonthly(p.perks), 0) / WEEKS_PER_MONTH);
 
     // L-04: what it costs to be a club this week — the ground, everyone on the
     // books, and the tour the club has access to (utils/runningCosts.ts).
@@ -617,7 +620,7 @@ async function advanceOneDay(req: Request): Promise<DayResult> {
     // Overnight 1 Oct, N-41: the manager is paid from the club's budget, weekly,
     // like the staff (lib/db/src/schema/money.ts, managerSalaryFor).
     const managerWeekly = managerWeeklySalary(managerSalaryFor(`career:${careerSaveId}`));
-    const net           = sponsorIncome - weeklySalary - weeklyStaff - weeklyStaffWages - loanWages - managerWeekly;
+    const net           = sponsorIncome - weeklySalary - weeklyPerks - weeklyStaff - weeklyStaffWages - loanWages - managerWeekly;
 
     await db.update(teamsTable)
       .set({ budget: sql`budget + ${net}` })
@@ -658,6 +661,14 @@ async function advanceOneDay(req: Request): Promise<DayResult> {
         category:    "salaries",
         date:        nextDate,
       },
+      ...(weeklyPerks > 0 ? [{
+        teamId:      team.id,
+        type:        "expense",
+        amount:      weeklyPerks,
+        description: "Weekly player perks",
+        category:    "player_perks",
+        date:        nextDate,
+      }] : []),
       {
         teamId:      team.id,
         type:        "expense",
@@ -740,6 +751,10 @@ async function advanceOneDay(req: Request): Promise<DayResult> {
   // Contract expiry is per career: another save's clock must not free this
   // career's players.
   const expiryCareerId = requireCareerSaveId(req.activeCareerSaveId);
+  // 1.1.1, Parts 2-3: first the day's transfers: a bid not answered in time goes
+  // through, and a player bought ahead arrives (one whose contract ended
+  // yesterday joins her buyer today, so she is not freed below).
+  events.push(...withCareerStateTx((w) => transfersDayTx(w, expiryCareerId, nextDate)));
   const expired = (await loadPlayers(expiryCareerId))
     .filter((p) => p.teamId != null && p.contractEndDate != null && p.contractEndDate < nextDate);
 
@@ -749,7 +764,7 @@ async function advanceOneDay(req: Request): Promise<DayResult> {
       // Overnight 1 Oct, N-41: back on the market at her asking wage (with the
       // 1 Oct rise), not $0: the market card and the contract box read it.
       await updatePlayerState(expiryCareerId, p.id, {
-        teamId: null, contractEndDate: null, isActive: false,
+        teamId: null, contractEndDate: null, isActive: false, perks: "",
         salary: isYouthPlayer(p) ? 0 : seniorMonthlyWage(p.askingPrice, overallRating(p)),
       });
     }

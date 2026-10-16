@@ -75,6 +75,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { useCalendar, useRoundNames } from "@/hooks/use-calendar";
 import { AI_STAFF_DEAL_DAY } from "@shared/staff-roles";
+import { useTransfers } from "@/components/transfers-panel";
 import type { AttentionItem } from "@workspace/api-client-react";
 import { BoardStatusCard } from "@/components/career/board-confidence-widgets";
 // D-3: every facility's name comes from one table, shared with the server.
@@ -296,6 +297,9 @@ export default function Dashboard() {
   // Rob, 16 Oct: from Jan 1 to the AI clubs' staff day (Jan 8) of every season.
   const dayOfJanuary = calendar?.currentDate?.slice(5, 7) === "01" ? Number(calendar.currentDate.slice(8, 10)) : null;
   const staffDealSoon = dayOfJanuary != null && dayOfJanuary <= AI_STAFF_DEAL_DAY;
+  // 1.1.1, Part 3: bids for his players waiting for his answer (no answer by the deadline: she goes).
+  const { data: transfers } = useTransfers();
+  const bids = transfers?.offers ?? [];
 
   const { data: dashboard, isLoading: dashLoading } = useGetDashboard({
     query: { queryKey: getGetDashboardQueryKey() },
@@ -417,6 +421,20 @@ export default function Dashboard() {
               </p>
             </div>
             <Button onClick={() => navigate("/day1-draft")} data-testid="day1-draft-go">Go to the Day 1 draft</Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {bids.length > 0 && (
+        <Card className="border-purple-500/50 bg-purple-500/10" data-testid="transfer-bid-warning">
+          <CardContent className="p-4 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="font-bold">{bids.length === 1 ? `${bids[0].to} has bid for ${bids[0].player?.n ?? "one of your players"}` : `${bids.length} bids for your players`}</p>
+              <p className="text-sm text-muted-foreground">
+                Counter once or let her go by {new Date(`${bids[0].answerBy}T00:00:00`).toLocaleDateString("en-GB", { day: "numeric", month: "long" })}. No answer means she goes.
+              </p>
+            </div>
+            <Button onClick={() => navigate("/team?tab=transfers")} data-testid="transfer-bid-go">Answer</Button>
           </CardContent>
         </Card>
       )}

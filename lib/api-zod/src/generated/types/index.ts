@@ -216,6 +216,7 @@ export * from './upcomingEventsFeed';
 export * from './upcomingEventType';
 export * from './upcomingEventUrgency';
 export * from './upsertCareerSaveBody';
+export * from './upsertCareerSaveBodyGameDifficulty';
 export * from './userProfile';
 export * from './userProfileInput';
 export * from './userProfileUpdate';

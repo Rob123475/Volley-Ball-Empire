@@ -179,7 +179,8 @@ export function deleteProfileCascade(userId: string): void {
       // faces out of work, careerManagerFacesTable, and the overnight brief's scout
       // reports and watch list, careerScoutReportsTable and careerWatchListTable,
       // and its pre-season choices, preseasonChoicesTable, and night 2's injury
-      // history of every club, careerInjuriesTable.
+      // history of every club, careerInjuriesTable, and 1.1.1's transfer deals,
+      // transferDealsTable.
       // The athletes an intake created stay: players is reference data, and a
       // new career is seeded only with athletes no career owns.
     }

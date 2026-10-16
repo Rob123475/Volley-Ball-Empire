@@ -189,6 +189,10 @@ export default defineConfig(async ({ command }): Promise<UserConfig> => ({
       "@shared/staff-illness": path.resolve(
         import.meta.dirname, "..", "..", "lib", "db", "src", "schema", "staff-illness.ts",
       ),
+      // 1.1.1: the transfer window, the counter-offer and perks.
+      "@shared/transfers": path.resolve(
+        import.meta.dirname, "..", "..", "lib", "db", "src", "schema", "transfers.ts",
+      ),
       // Unity brief item 19: how many game days each training programme takes.
       "@shared/training-programs": path.resolve(
         import.meta.dirname, "..", "..", "lib", "db", "src", "schema", "training-programs.ts",

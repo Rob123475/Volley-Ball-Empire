@@ -202,7 +202,9 @@ router.get("/finances/summary", async (req, res) => {
   const TRAINING_CATEGORIES      = ["training_cost"];
   // Overnight 1 Oct, N-41: the manager's salary, paid weekly by calendar.ts.
   const MANAGER_SALARY_CATEGORIES = ["manager_salary"];
-  const NAMED_EXPENSES = [...PLAYER_SALARY_CATEGORIES, ...STAFF_SALARY_CATEGORIES, ...RUNNING_COST_CATEGORIES, ...TRAINING_CATEGORIES, ...MANAGER_SALARY_CATEGORIES];
+  // 1.1.1, Part 4: the seniors' contract perks, their own line.
+  const PLAYER_PERK_CATEGORIES = ["player_perks"];
+  const NAMED_EXPENSES = [...PLAYER_SALARY_CATEGORIES, ...STAFF_SALARY_CATEGORIES, ...RUNNING_COST_CATEGORIES, ...TRAINING_CATEGORIES, ...MANAGER_SALARY_CATEGORIES, ...PLAYER_PERK_CATEGORIES];
   const NAMED_INCOME   = ["prize_money", "sponsorship", "promo_deal"];
 
   res.json({
@@ -223,6 +225,7 @@ router.get("/finances/summary", async (req, res) => {
     },
     expenseBreakdown: {
       playerSalaries: inCategories(seasonExpenseRows, PLAYER_SALARY_CATEGORIES),
+      playerPerks:    inCategories(seasonExpenseRows, PLAYER_PERK_CATEGORIES),
       staffSalaries:  inCategories(seasonExpenseRows, STAFF_SALARY_CATEGORIES),
       runningCosts:   inCategories(seasonExpenseRows, RUNNING_COST_CATEGORIES),
       trainingCosts:  inCategories(seasonExpenseRows, TRAINING_CATEGORIES),

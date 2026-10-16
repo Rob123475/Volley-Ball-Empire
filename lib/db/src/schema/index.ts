@@ -12,3 +12,4 @@ export * from "./staff-illness";
 export * from "./ageing";
 export * from "./game-difficulty";
 export * from "./preseason";
+export * from "./transfers";

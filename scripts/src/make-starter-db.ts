@@ -97,6 +97,8 @@ const CLEAR_TABLES = [
   "hall_of_fame",
   // Night 2 (O-7): every club's injury history, per career.
   "career_injuries",
+  // 1.1.1: bids, counter-offers and players bought ahead (per career).
+  "transfer_deals",
   "manager_season_summaries",
   "match_live_state",
   "matches",

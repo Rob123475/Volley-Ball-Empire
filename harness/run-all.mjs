@@ -641,6 +641,9 @@ runSuite("injured list", path.join(REPO, "harness", "injured-list.mjs"));
 console.log("
 ########## 98s/100  THE CLUBS PAGE (1.1.1 PART 1) ##########");
 runSuite("clubs page", path.join(REPO, "harness", "clubs-page.mjs"));
+console.log("
+########## 98t/100  THE TRANSFER WINDOW, BUYING AHEAD, NO DUMPING (1.1.1 PART 2) ##########");
+runSuite("transfer window", path.join(REPO, "harness", "transfer-window.mjs"));
 
 // ── Smoke needs a server; boot one on a throwaway copy of the shipped DB ─────
 console.log("\n########## 99/100  GAMEPLAY SMOKE ##########");

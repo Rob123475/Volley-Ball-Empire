@@ -43,6 +43,7 @@ import regionalLeagueRouter from "./regional-league";
 import worldTourRouter from "./world-tour";
 import youthLoansRouter from "./youth-loans";
 import clubsRouter from "./clubs";
+import transfersRouter from "./transfers";
 
 const router: IRouter = Router();
 
@@ -96,5 +97,6 @@ router.use(regionalLeagueRouter);
 router.use(worldTourRouter);
 router.use(youthLoansRouter);
 router.use(clubsRouter);
+router.use(transfersRouter);
 
 export default router;

@@ -40,6 +40,8 @@ import { AvatarPortrait } from "@/components/player-portrait";
 import { FileText, Trash2, RefreshCw } from "lucide-react";
 import { format } from "date-fns";
 import { serverMessage } from "@/lib/api-error";
+import { PerkPicker } from "@/components/perk-picker";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const formatPosition = (pos: string | null | undefined): string => {
   if (!pos) return "—";
@@ -75,6 +77,8 @@ export default function Contracts() {
   const terminateMutation = useTerminateContract();
   const renewMutation = useRenewContract();
   const [renewing, setRenewing] = useState<number | null>(null);
+  // 1.1.1, Part 4: a renewal can carry perks (a senior's; an academy youth has none).
+  const [renewPerks, setRenewPerks] = useState<string[]>([]);
 
   const refresh = () => {
     queryClient.invalidateQueries({ queryKey: getListContractsQueryKey() });
@@ -96,9 +100,10 @@ export default function Contracts() {
   };
 
   const handleRenew = (contractId: number, playerName: string, length: ContractLength) => {
-    renewMutation.mutate({ id: contractId, data: { length } }, {
+    renewMutation.mutate({ id: contractId, data: { length, perks: renewPerks } as any }, {
       onSuccess: (renewed) => {
         setRenewing(null);
+        setRenewPerks([]);
         refresh();
         toast({ title: "Contract Renewed", description: `${playerName} is signed until ${format(new Date(`${renewed.endDate}T00:00:00Z`), "MMM d, yyyy")}.` });
       },
@@ -190,31 +195,30 @@ export default function Contracts() {
                           renewing === c.id ? (
                             // L-02a: a renewal runs for one of Rob's three
                             // lengths, measured on from the day this contract
-                            // ends. "+1 season" was the only option there was,
-                            // because the route added a year and nothing else.
-                            <div className="flex items-center gap-1">
-                              {CONTRACT_LENGTHS.map((l) => (
-                                <Button
-                                  key={l}
-                                  variant="outline"
-                                  size="sm"
-                                  className="h-7 px-2 text-xs"
-                                  disabled={renewMutation.isPending}
-                                  onClick={() => handleRenew(c.id, playerName, l)}
-                                  data-testid={`button-renew-${c.id}-${l}`}
-                                >
-                                  {CONTRACT_LENGTH_LABELS[l]}
-                                </Button>
-                              ))}
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-7 px-2 text-xs"
-                                onClick={() => setRenewing(null)}
-                              >
-                                Cancel
-                              </Button>
-                            </div>
+                            // ends. 1.1.1: with any perks, chosen here.
+                            <Dialog open onOpenChange={(o) => { if (!o) { setRenewing(null); setRenewPerks([]); } }}>
+                              <DialogContent className="sm:max-w-md" data-testid={`renew-dialog-${c.id}`}>
+                                <DialogHeader>
+                                  <DialogTitle>Renew {playerName}</DialogTitle>
+                                  <DialogDescription>{renewal ? `She asks ${formatCurrency(renewal.wage)} a month.` : "Her academy wage."} Pick the perks and the length.</DialogDescription>
+                                </DialogHeader>
+                                {renewal && <PerkPicker value={renewPerks} onChange={setRenewPerks} testIdPrefix={`renew-perk-${c.id}`} />}
+                                <div className="grid grid-cols-3 gap-1.5">
+                                  {CONTRACT_LENGTHS.map((l) => (
+                                    <Button
+                                      key={l}
+                                      variant="outline"
+                                      size="sm"
+                                      disabled={renewMutation.isPending}
+                                      onClick={() => handleRenew(c.id, playerName, l)}
+                                      data-testid={`button-renew-${c.id}-${l}`}
+                                    >
+                                      {CONTRACT_LENGTH_LABELS[l]}
+                                    </Button>
+                                  ))}
+                                </div>
+                              </DialogContent>
+                            </Dialog>
                           ) : (
                             <div className="flex flex-col items-end gap-0.5">
                               <Button

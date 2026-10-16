@@ -359,6 +359,12 @@ export const careerPlayerStateTable = sqliteTable("career_player_state", {
   injuredListSince:       text("injured_list_since"),
   /** Night 2 (O-10): the club's other seniors (ids, comma-separated) when she went on the list; anyone else is cover. */
   injuredListSquad:       text("injured_list_squad"),
+  /**
+   * 1.1.1 (Part 4): her contract's perks ("car,chef", schema/transfers.ts PERKS),
+   * whichever club she is at. Their monthly cost is paid with her wage and
+   * counts toward the cap. A contract from before 1.1.1 has none.
+   */
+  perks:                  text("perks").notNull().default(""),
   consecutiveMatchesPlayed: integer("consecutive_matches_played").notNull().default(0),
 
   // Current stats. The reference row holds the athlete's BASE stats; training
@@ -705,6 +711,49 @@ export const staffAbsencesTable = sqliteTable("staff_absences", {
 
 export type CareerStaffState = typeof careerStaffStateTable.$inferSelect;
 export type CareerPoolTeamState = typeof careerPoolTeamStateTable.$inferSelect;
+
+/**
+ * 1.1.1 (Parts 2 and 3, Rob, 16 Oct): a bid for a senior under contract at
+ * another club, and what became of it. Any club (the player's or an AI club)
+ * may bid at any time of year; she moves only in the transfer window (the
+ * calendar's Off-Season). The holding club has one chance to keep her: a
+ * counter-offer within COUNTER_OFFER.answerDays (no answer: she goes). Once she
+ * goes, the fee is paid that day and she is locked to the buyer: her club can't
+ * renew her, and she arrives on `arrivesOn` on the bid's terms (utils/transfers.ts).
+ *
+ * status: "offered" (the holding club has not answered), "agreed" (fee paid,
+ * waiting to arrive), "moved", "kept" (she stayed for the counter-offer),
+ * "fell_through" (at her arrival the buyer could no longer take her).
+ */
+export const transferDealsTable = sqliteTable("transfer_deals", {
+  id:              integer("id").primaryKey({ autoIncrement: true }),
+  careerSaveId:    integer("career_save_id").notNull().references(() => careerSavesTable.id),
+  playerId:        integer("player_id").notNull().references(() => playersTable.id),
+  fromTeamId:      integer("from_team_id"),
+  fromPoolTeamId:  integer("from_pool_team_id"),
+  toTeamId:        integer("to_team_id"),
+  toPoolTeamId:    integer("to_pool_team_id"),
+  fee:             real("fee").notNull(),
+  wage:            real("wage").notNull(),
+  length:          text("length").notNull(),
+  perks:           text("perks").notNull().default(""),
+  /** The buyer's place for her when it is the player's club: starter or interchange. */
+  squadRole:       text("squad_role"),
+  status:          text("status").notNull().default("offered"),
+  offeredOn:       text("offered_on").notNull(),
+  answerBy:        text("answer_by").notNull(),
+  counterWage:     real("counter_wage"),
+  counterLength:   text("counter_length"),
+  counterPerks:    text("counter_perks"),
+  /** Whether her mood decided it (the two offers were close). */
+  moodDecided:     integer("mood_decided", { mode: "boolean" }),
+  agreedOn:        text("agreed_on"),
+  arrivesOn:       text("arrives_on"),
+  movedOn:         text("moved_on"),
+  createdAt:       integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
+}, (t) => [index("transfer_deals_career").on(t.careerSaveId, t.status)]);
+
+export type TransferDeal = typeof transferDealsTable.$inferSelect;
 
 export const contractsTable = sqliteTable("contracts", {
   id: integer("id").primaryKey({ autoIncrement: true }),

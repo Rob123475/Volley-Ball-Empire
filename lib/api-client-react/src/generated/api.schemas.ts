@@ -1837,6 +1837,18 @@ export interface CareerSaveList {
 }
 
 /**
+ * Update 1, overnight part 6: how hard the AI clubs work (AI training, pre-season camps). Defaults to medium.
+ */
+export type UpsertCareerSaveBodyGameDifficulty = typeof UpsertCareerSaveBodyGameDifficulty[keyof typeof UpsertCareerSaveBodyGameDifficulty];
+
+
+export const UpsertCareerSaveBodyGameDifficulty = {
+  easy: 'easy',
+  medium: 'medium',
+  hard: 'hard',
+} as const;
+
+/**
  * R-11 (docs/economy-design.md): UNDERDOG starts with a tight budget and, in season 1, full purses only at Bronze events; ESTABLISHED starts with a comfortable budget and full Silver purses. Both start at 0 ranking points (R-54). Defaults to established when omitted.
  */
 export type CareerDifficulty = typeof CareerDifficulty[keyof typeof CareerDifficulty];
@@ -1859,8 +1871,8 @@ export interface UpsertCareerSaveBody {
   worldRanking?: number | null;
   budget?: string | null;
   difficulty?: CareerDifficulty;
-  /** Update 1, overnight part 6: how hard the AI clubs work. Defaults to medium. */
-  gameDifficulty?: "easy" | "medium" | "hard";
+  /** Update 1, overnight part 6: how hard the AI clubs work (AI training, pre-season camps). Defaults to medium. */
+  gameDifficulty?: UpsertCareerSaveBodyGameDifficulty;
   locationId?: number | null;
   primaryColor?: string | null;
   secondaryColor?: string | null;

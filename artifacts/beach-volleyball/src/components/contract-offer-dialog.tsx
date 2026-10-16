@@ -23,6 +23,7 @@ import { CONTRACT_LENGTHS, CONTRACT_LENGTH_LABELS, type ContractLength } from "@
 import { youthWageText } from "@/lib/youth-wage";
 import { cn } from "@/lib/utils";
 import { useWageCap, capRefusalText, WageCapLine } from "@/lib/wage-cap";
+import { PerkPicker, perksCost } from "@/components/perk-picker";
 
 export type SquadRole = "starter" | "interchange" | "reserve";
 export type AcademyRole = "youth_team" | "reserve";
@@ -30,6 +31,8 @@ export type AcademyRole = "youth_team" | "reserve";
 /** What the box sends: the market's POST /contracts body, and a find's signing body. */
 export type ContractOffer = {
   salary: number; winBonus: number; length: ContractLength; squadRole: SquadRole; academyRole?: AcademyRole;
+  /** 1.1.1, Part 4: a senior contract's perks (schema/transfers.ts keys). */
+  perks?: string[];
 };
 
 const SQUAD_DESTINATIONS: { role: SquadRole; label: string }[] = [
@@ -69,20 +72,29 @@ export function ContractModal({ player, onSign, isPending, triggerTestId }: { pl
   const [academyRole, setAcademyRole] = useState<AcademyRole>("youth_team");
   // Update 1, item 4a: the room under the salary cap (seniors only; academy youths don't count).
   const { data: wageCap } = useWageCap();
-  const overCap = isYouth ? null : capRefusalText(wageCap, salary[0]);
+  // 1.1.1, Part 4: a senior contract's perks; they cost every month and count toward the cap.
+  const [perks, setPerks] = useState<string[]>([]);
+  // 1.1.1, Part 2: a senior under contract at another club is a bid. She moves when the
+  // transfer window opens; the cap is checked on her arrival date, by the server.
+  const isBid = !isYouth && (player.status === "ai_club" || player.status === "at_club");
+  const overCap = isYouth || isBid ? null : capRefusalText(wageCap, salary[0] + perksCost(perks));
 
   return (
     <Dialog>
       <DialogTrigger asChild>
         <Button className="w-full gap-2" data-testid={triggerTestId ?? `button-sign-${player.id}`}>
           <UserPlus className="h-4 w-4" />
-          {blind ? "Sign (unscouted)" : "Sign"}
+          {isBid ? (blind ? "Bid (unscouted)" : "Bid") : blind ? "Sign (unscouted)" : "Sign"}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Contract Offer: {player.name}</DialogTitle>
-          <DialogDescription>Negotiate terms. A contract runs 6 months, 1 season or 2 seasons.</DialogDescription>
+          <DialogTitle>{isBid ? "Bid" : "Contract Offer"}: {player.name}</DialogTitle>
+          <DialogDescription>
+            {isBid
+              ? `She is under contract at ${player.currentTeamName ?? "another club"}. Bid now and she joins you when the transfer window opens; her club gets one chance to keep her with a counter-offer. The fee is paid the day she agrees.`
+              : "Negotiate terms. A contract runs 6 months, 1 season or 2 seasons."}
+          </DialogDescription>
         </DialogHeader>
         {player.priceRange && (
           <div className={cn("rounded-lg border px-3 py-2 text-sm", blind ? "border-amber-500/40 bg-amber-500/10" : "border-border bg-muted/40")} data-testid="sign-price">
@@ -92,7 +104,7 @@ export function ContractModal({ player, onSign, isPending, triggerTestId }: { pl
                 <p className="text-xs text-muted-foreground mt-0.5">Her exact price and attributes are revealed when she signs, and the price is charged then. Scouting her first (5 days) shows both before you buy.</p>
               </>
             ) : (
-              <p className="font-semibold">Her price: {money(player.price)}, charged when she signs, on top of her wage.</p>
+              <p className="font-semibold">Her price: {money(player.price)}, {isBid ? "paid the day she agrees to join you" : "charged when she signs"}, on top of her wage.</p>
             )}
           </div>
         )}
@@ -117,6 +129,7 @@ export function ContractModal({ player, onSign, isPending, triggerTestId }: { pl
             {asking > 0 && <p className="text-xs text-muted-foreground">She asks ${asking.toLocaleString("en-US")} a month, and turns down less.</p>}
           </div>
           )}
+          {!isYouth && <PerkPicker value={perks} onChange={setPerks} testIdPrefix="sign-perk" />}
           <div className="space-y-2">
             <div className="flex justify-between text-sm font-medium">
               <span>Win Bonus</span>
@@ -196,11 +209,11 @@ export function ContractModal({ player, onSign, isPending, triggerTestId }: { pl
         {overCap && <p className="text-sm text-red-500" data-testid="sign-over-cap">{overCap}</p>}
         <Button
           className="w-full"
-          onClick={() => onSign({ salary: isYouth ? asking : salary[0], winBonus: winBonus[0], length, squadRole: isYouth ? "reserve" : squadRole, ...(isYouth ? { academyRole } : {}) })}
+          onClick={() => onSign({ salary: isYouth ? asking : salary[0], winBonus: winBonus[0], length, squadRole: isYouth ? "reserve" : squadRole, ...(isYouth ? { academyRole } : { perks }) })}
           disabled={isPending || !!overCap}
           data-testid="button-confirm-sign"
         >
-          {isPending ? "Negotiating..." : player.priceRange ? (blind ? `Confirm: sign for ${money(player.priceRange.low)} - ${money(player.priceRange.high)}` : `Confirm: sign for ${money(player.price)}`) : "Finalize Contract"}
+          {isPending ? "Negotiating..." : player.priceRange ? (blind ? `Confirm: ${isBid ? "bid" : "sign"} for ${money(player.priceRange.low)} - ${money(player.priceRange.high)}` : `Confirm: ${isBid ? "bid" : "sign"} for ${money(player.price)}`) : "Finalize Contract"}
         </Button>
       </DialogContent>
     </Dialog>

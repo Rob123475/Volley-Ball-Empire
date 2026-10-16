@@ -23,6 +23,7 @@
       "@shared/training-programs": ["../../lib/db/src/schema/training-programs.ts"],
       "@shared/injuries": ["../../lib/db/src/schema/injuries.ts"],
       "@shared/staff-illness": ["../../lib/db/src/schema/staff-illness.ts"],
+      "@shared/transfers": ["../../lib/db/src/schema/transfers.ts"],
       "@shared/manager-levels": ["../../lib/db/src/schema/manager-levels.ts"]
     }
   },

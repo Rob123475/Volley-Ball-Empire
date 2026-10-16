@@ -5,10 +5,11 @@ import { refusalReason } from "../utils/squadRules.js";
 import { isYouthPlayer } from "../utils/playerClassification.js";
 import { loadPlayers, loadPlayer, updatePlayerState, requireCareerSaveId, withCareerStateTx } from "../lib/playerDto.js";
 import { academyCountTx, placeSignedYouthTx } from "../utils/youthLoans.js";
-import { canSellTx, aiClubSoldTx } from "../utils/aiSquads.js";
+import { canSellTx } from "../utils/aiSquads.js";
+import { bidTx, renewalRefusalTx, releaseRefusalTx } from "../utils/transfers.js";
 import { academyMonthlySalary } from "../utils/academy.js";
 import { db } from "@workspace/db";
-import { contractsTable, playersTable, teamsTable, calendarStateTable, continentalPoolTeamsTable } from "@workspace/db";
+import { contractsTable, playersTable, teamsTable, continentalPoolTeamsTable, perksText, perksMonthly } from "@workspace/db";
 import { eq, and, gte, lte, isNotNull } from "drizzle-orm";
 import type { Contract } from "@workspace/db";
 import { checkSpendingAllowed } from "../utils/board-confidence.js";
@@ -112,6 +113,16 @@ router.post("/contracts", async (req, res) => {
   // senior (a free agent or an AI club's) costs no fee, only her wage; the AI
   // club she leaves fills its gap when the draft closes (utils/day1Draft.ts).
   const draftOpen = day1DraftOpen(requireCareerSaveId(req.activeCareerSaveId));
+  if (player.teamId === team.id) {
+    res.status(422).json({ error: "This player is already on your team. Use the Contracts page to renew their contract." });
+    return;
+  }
+  // 1.1.1, Part 2 (Rob, 16 Oct): a senior under contract at another club is
+  // bought with a bid, at any time of year; she moves when the transfer window
+  // opens (utils/transfers.ts). The old "last 6 months of her contract" rule is gone.
+  const isBid = !isYouth && !draftOpen && (aiSeller != null || player.teamId != null);
+  // 1.1.1, Part 4: any senior contract can carry perks (schema/transfers.ts).
+  const perks = isYouth ? "" : perksText(Array.isArray(req.body?.perks) ? req.body.perks : String(req.body?.perks ?? "").split(","));
   if (aiSeller != null && !draftOpen) {
     const can = db.transaction((tx) => canSellTx(tx, requireCareerSaveId(req.activeCareerSaveId), aiSeller, aiSellerName!, Number(player.salary)));
     if (!can.ok) { res.status(409).json({ error: can.reason }); return; }
@@ -136,12 +147,13 @@ router.post("/contracts", async (req, res) => {
   }
 
   // ── Squad size ──────────────────────────────────────────────────────────
+  // 1.1.1: a bid's player arrives later, in the window, where room can be made.
   // Two on the sand, one interchange, and an academy of ACADEMY_CAP. The limits
   // live in utils/squadRules.ts so the numbers are stated once; this route only
   // counts what is already signed and asks whether one more is allowed. R-63:
   // academy players are counted as the intake and the Team page count them —
   // youth players not yet promoted — not by an age guess.
-  {
+  if (!isBid) {
     const squad = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id });
     const youthNow = squad.filter(isYouthPlayer);
     // Night 2 (O-10): a senior on the injured list does not take one of the places.
@@ -212,36 +224,27 @@ router.post("/contracts", async (req, res) => {
       return;
     }
     // Update 1, item 4a (C-3 A): a signing that takes the senior wages over the cap is refused.
-    const overCap = wageCapRefusal(seniorWageBill(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id }), offered);
+    // 1.1.1: her perks count with her wage; a bid is checked on her arrival date (bidTx).
+    const overCap = isBid ? null : wageCapRefusal(seniorWageBill(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id }), offered + perksMonthly(perks));
     if (overCap) { res.status(422).json({ error: overCap, wageCap: true }); return; }
   }
 
-  // Overnight brief 30 Sep, item 32 (Rob, Q-8): the club she leaves is paid her price.
-  const sellingTeamId = player.teamId != null && player.teamId !== team.id ? player.teamId : null;
-
-  // Transfer window enforcement — if player is already contracted to another team,
-  // they can only be approached in the last 6 months of their contract.
-  if (player.teamId !== null) {
-    if (player.teamId === team.id) {
-      res.status(422).json({ error: "This player is already on your team. Use the Contracts page to renew their contract." });
-      return;
-    }
-    const calRows = await db.select({ currentDate: calendarStateTable.currentDate })
-      .from(calendarStateTable).where(eq(calendarStateTable.teamId, team.id)).limit(1);
-    const currentDate = calRows[0]?.currentDate ?? new Date().toISOString().split("T")[0]!;
-    const windowEnd = new Date(currentDate);
-    windowEnd.setMonth(windowEnd.getMonth() + 6);
-    const windowEndStr = windowEnd.toISOString().split("T")[0]!;
-
-    if (!player.contractEndDate || player.contractEndDate > windowEndStr) {
-      res.status(422).json({
-        error: "This player is under contract and cannot be approached until the last 6 months of their contract.",
-      });
-      return;
-    }
-    // In transfer window — terminate existing contract so player can be signed
-    await db.update(contractsTable).set({ status: "terminated" })
-      .where(and(eq(contractsTable.playerId, player.id), eq(contractsTable.status, "active")));
+  // ── A bid (1.1.1) ─────────────────────────────────────────────────────────
+  if (isBid && fee) {
+    const today = await getGameDate(team.id);
+    const squadRole = rawSquadRole === "interchange" ? "interchange" : "starter";
+    const r = withCareerStateTx((w) => bidTx(w, cid, { teamId: team.id }, player.id, { wage: Number(salary), length: wanted.length, perks, squadRole }, fee.price, today));
+    if (!r.ok) { res.status(422).json({ error: r.reason }); return; }
+    const paid = r.outcome === "agreed" || r.outcome === "moved";
+    const after = paid ? await loadPlayer(cid, player.id) : null;
+    res.status(201).json({
+      transfer: { id: r.deal.id, outcome: r.outcome, arrivesOn: r.deal.arrivesOn, answerBy: r.deal.answerBy, from: aiSellerName ?? null },
+      fee: paid ? fee.price : 0,
+      priceRange: { low: fee.low, high: fee.high },
+      signedBlind: paid && blind,
+      player: after ? { name: after.name, power: after.power, speed: after.speed, defense: after.defense, serve: after.serve, block: after.block, stamina: after.stamina } : { name: player.name },
+    });
+    return;
   }
 
   // R-51: dated on the GAME clock. `new Date()` stamped a contract with the
@@ -273,7 +276,8 @@ router.post("/contracts", async (req, res) => {
     contractEndDate: actualEnd,
     isActive: squadRole === "starter" || squadRole === "interchange",
     squadRole,
-    // U-6: she leaves the AI club; her wage is on this club's books from now.
+    perks,
+    // U-6: she leaves the AI club (a Day 1 draft pick); her wage is on this club's books from now.
     ...(aiSeller != null ? { poolTeamId: null } : {}),
   });
   // N-44 (b): a youth goes to the academy's youth team or its reserves, as the box chose.
@@ -287,25 +291,7 @@ router.post("/contracts", async (req, res) => {
       teamId: team.id, type: "expense", amount: fee.price, category: "signing_fee", date: today,
       description: `Signing fee: ${player.name}${aiSeller != null ? ` from ${aiSellerName}` : ""}${blind ? ` (signed unscouted: $${fee.low.toLocaleString()}-$${fee.high.toLocaleString()})` : ""}`,
     });
-    // U-6: bought from an AI club, the fee is that club's (its balance), and it
-    // refills its pair from free agents if her going left it short.
-    if (aiSeller != null) {
-      const ends = await seasonEndsFrom(cidForTerm, today);
-      withCareerStateTx((w) => aiClubSoldTx(w, cidForTerm, aiSeller, fee.price, today, ends));
-    }
     await db.update(teamsTable).set({ budget: Number(team.budget) - fee.price }).where(eq(teamsTable.id, team.id));
-    // Item 32: bought from another club in the transfer window, the fee is that
-    // club's: on its balance and its ledger. (It was charged and paid to nobody.)
-    if (sellingTeamId != null) {
-      const [seller] = await db.select().from(teamsTable).where(eq(teamsTable.id, sellingTeamId));
-      if (seller) {
-        await db.update(teamsTable).set({ budget: Number(seller.budget) + fee.price }).where(eq(teamsTable.id, seller.id));
-        await db.insert(financeTransactionsTable).values({
-          teamId: seller.id, type: "income", amount: fee.price, category: "transfer_fee", date: today,
-          description: `Transfer fee: ${player.name} sold to ${team.name}`,
-        });
-      }
-    }
   }
   const signed = await loadPlayer(cid, Number(playerId));
 
@@ -373,6 +359,11 @@ router.post("/contracts/:id/renew", async (req, res) => {
   // She stays on the academy's wage for her talent (what the weekly run bills
   // her); a raise is not something a youth renewal offers.
   const isAcademyYouth = isYouthPlayer(player);
+  // 1.1.1: once she has agreed to join another club (her fee is paid) she can't be renewed.
+  const sold = withCareerStateTx((w) => renewalRefusalTx(w.tx, cid, player.id));
+  if (sold) { res.status(409).json({ error: sold }); return; }
+  // 1.1.1, Part 4: a renewal can carry perks (her new contract's; none for an academy youth).
+  const newPerks = isAcademyYouth ? "" : perksText(Array.isArray(req.body?.perks) ? req.body.perks : String(req.body?.perks ?? "").split(","));
 
   // Update 1, item 4a (C-4): a senior asks the wage for her CURRENT rating
   // (renewalAsk), and refuses less (rule B, item 2). No salary named: her ask.
@@ -391,14 +382,16 @@ router.post("/contracts/:id/renew", async (req, res) => {
     return;
   }
   // R-52: only a raise is new spending, so only a raise meets the freeze.
-  if (!isAcademyYouth && newSalary > currentSalary) {
+  // 1.1.1: her perks count with her wage (a renewal adding perks is a raise).
+  const costNow = currentSalary + perksMonthly(player.perks), costAfter = newSalary + perksMonthly(newPerks);
+  if (!isAcademyYouth && costAfter > costNow) {
     const spendingBlocked = await checkSpendingAllowed(cid);
     if (spendingBlocked) {
       res.status(403).json({ error: `${spendingBlocked} A renewal at no more than her current wage is still allowed.` });
       return;
     }
     // Update 1, item 4a (C-3 A, C-4): a renewal at a higher wage that breaks the cap is refused.
-    const overCap = wageCapRefusal(seniorWageBill(cid, { teamId: team.id }), newSalary - currentSalary);
+    const overCap = wageCapRefusal(seniorWageBill(cid, { teamId: team.id }), costAfter - costNow);
     if (overCap) { res.status(422).json({ error: overCap, wageCap: true }); return; }
   }
 
@@ -440,6 +433,7 @@ router.post("/contracts/:id/renew", async (req, res) => {
   await updatePlayerState(cid, contract.playerId, {
     contractEndDate: newEnd,
     salary: newSalary,
+    perks: newPerks,
     ...(academyYears != null ? { academyContractYears: academyYears } : {}),
   });
 
@@ -493,10 +487,13 @@ router.delete("/contracts/:id", async (req, res) => {
   // the draft is open, an undo (and a player from an AI club goes back to it).
   const today = await getGameDate(team.id);
   const draftUndo = day1DraftOpen(requireCareerSaveId(req.activeCareerSaveId));
+  // 1.1.1 (no dumping): outside the transfer window a senior can't be let go.
+  const kept = withCareerStateTx((w) => releaseRefusalTx(w.tx, requireCareerSaveId(req.activeCareerSaveId), team.id, contract.playerId, today, draftUndo));
+  if (kept) { res.status(409).json({ error: kept }); return; }
   const payout = draftUndo ? 0 : terminationPayout(Number(contract.salary), today, contract.endDate);
 
   const [terminated] = await db.update(contractsTable).set({ status: "terminated" }).where(eq(contractsTable.id, id)).returning();
-  await updatePlayerState(requireCareerSaveId(req.activeCareerSaveId), contract.playerId, { teamId: null, contractEndDate: null, isActive: false, squadRole: "reserve" });
+  await updatePlayerState(requireCareerSaveId(req.activeCareerSaveId), contract.playerId, { teamId: null, contractEndDate: null, isActive: false, squadRole: "reserve", perks: "" });
   if (draftUndo) withCareerStateTx((w) => undoDraftPickTx(w, requireCareerSaveId(req.activeCareerSaveId), contract.playerId));
 
   if (payout > 0) {
