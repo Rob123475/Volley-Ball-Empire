@@ -29,6 +29,7 @@ const EVENT_DOT: Record<AnnualEventType, string> = {
   financial:         "bg-emerald-500",
   contract:          "bg-purple-500",
   facility:          "bg-cyan-500",
+  transfer:          "bg-indigo-500",
   olympic_qualifier: "bg-orange-500",
   olympic:           "bg-pink-500",
 };
@@ -41,6 +42,7 @@ const CATEGORY_LABEL: Record<AnnualEventType, string> = {
   financial:         "Financial",
   contract:          "Contract Deadline",
   facility:          "Facility / Club",
+  transfer:          "Transfers",
   olympic_qualifier: "Olympic Qualifier",
   olympic:           "Olympics",
 };
@@ -55,6 +57,7 @@ const LEGEND = [
   { type: "financial"         as AnnualEventType, label: "Financial",         dot: "bg-emerald-500" },
   { type: "contract"          as AnnualEventType, label: "Contract Deadline", dot: "bg-purple-500"  },
   { type: "facility"          as AnnualEventType, label: "Facility / Club",   dot: "bg-cyan-500"    },
+  { type: "transfer"          as AnnualEventType, label: "Transfers",         dot: "bg-indigo-500"  },
 ];
 
 const SPEED_LABELS: Record<CalendarSpeed, string> = {

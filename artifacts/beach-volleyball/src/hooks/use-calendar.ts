@@ -4,7 +4,7 @@ import { useLocation } from "wouter";
 import { toast } from "@/hooks/use-toast";
 import { ToastAction, type ToastActionElement } from "@/components/ui/toast";
 
-export type AnnualEventType = "regional" | "world_tour" | "finals" | "holiday" | "financial" | "contract" | "facility" | "olympic_qualifier" | "olympic";
+export type AnnualEventType = "regional" | "world_tour" | "finals" | "holiday" | "financial" | "contract" | "facility" | "transfer" | "olympic_qualifier" | "olympic";
 
 export type AnnualEvent = {
   date: string;

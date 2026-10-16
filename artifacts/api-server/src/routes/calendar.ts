@@ -31,6 +31,7 @@ import { getActiveSeason } from "../lib/getActiveSeason.js";
 import { loadPlayers, loadStaff, requireCareerSaveId, updatePlayerState, updateTeamPlayerState, withCareerStateTx } from "../lib/playerDto.js";
 import { aiAcademiesWeekTx, loansTx, recordTeamLoanWeekTx, returnDueLoansTx, teamLoanWeekTx } from "../utils/youthLoans.js";
 import { aiYouthBuysWeekTx } from "../utils/youthDeals.js";
+import { datedRulesTx } from "../utils/calendarDatedRules.js";
 import { materializeAiSeniorsTx, aiSeniorsTrainWeekTx, aiTransfersWeekTx } from "../utils/aiSquads.js";
 import { day1DraftOpen, finishDay1DraftTx } from "../utils/day1Draft.js";
 import { aiStaffDayTx, STAFF_BACK_ON_MARKET } from "../utils/aiStaff.js";
@@ -1132,10 +1133,13 @@ router.get("/calendar/annual", async (req, res) => {
   // Priority 1: exact year match.
   // Priority 2: season whose date range overlaps this calendar year.
   // Priority 3: most-recent season ending before this year (provides context).
-  let seasonRows = await db.select().from(seasonsTable).where(eq(seasonsTable.year, year)).limit(1);
+  // 1.1.1: this career's seasons only (a profile's other careers have their own).
+  const annualCid = requireCareerSaveId(req.activeCareerSaveId);
+  let seasonRows = await db.select().from(seasonsTable).where(and(eq(seasonsTable.careerSaveId, annualCid), eq(seasonsTable.year, year))).limit(1);
   if (!seasonRows[0]) {
     seasonRows = await db.select().from(seasonsTable)
       .where(and(
+        eq(seasonsTable.careerSaveId, annualCid),
         sql`${seasonsTable.startDate} <= ${yearEnd}`,
         sql`${seasonsTable.endDate}   >= ${yearStart}`,
       ))
@@ -1144,7 +1148,7 @@ router.get("/calendar/annual", async (req, res) => {
   }
   const season = seasonRows[0] ?? null;
 
-  type EvType = "regional" | "world_tour" | "finals" | "holiday" | "financial" | "contract" | "facility" | "olympic_qualifier" | "olympic";
+  type EvType = "regional" | "world_tour" | "finals" | "holiday" | "financial" | "contract" | "facility" | "transfer" | "olympic_qualifier" | "olympic";
   const events: {
     date: string; type: EvType; title: string; subtitle?: string; link: string; round?: number;
   }[] = [];
@@ -1251,6 +1255,12 @@ router.get("/calendar/annual", async (req, res) => {
       });
     }
   }
+
+  // 7. 1.1.1, Part 6: the dated rules the calendar did not show (utils/calendarDatedRules.ts):
+  // the Day 1 draft, the AI clubs' staff day and its reminder, the pre-season
+  // choice and camp, the transfer window, arrivals and departures bought or sold
+  // ahead, bids to answer, and his staff's contract ends.
+  events.push(...withCareerStateTx((w) => datedRulesTx(w.tx, annualCid, team.id, year, currentDate)));
 
   events.sort((a, b) => a.date.localeCompare(b.date));
 

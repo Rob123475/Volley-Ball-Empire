@@ -648,6 +648,8 @@ console.log("\n########## 98v/100  PERKS (1.1.1 PART 4) ##########");
 runSuite("perks", path.join(REPO, "harness", "perks.mjs"));
 console.log("\n########## 98w/100  YOUTH DEALS AND SCOUTS (1.1.1 PART 5) ##########");
 runSuite("youth deals", path.join(REPO, "harness", "youth-deals.mjs"));
+console.log("\n########## 98x/100  THE CALENDAR'S DATED RULES (1.1.1 PART 6) ##########");
+runSuite("calendar rules", path.join(REPO, "harness", "calendar-rules.mjs"));
 
 // ── Smoke needs a server; boot one on a throwaway copy of the shipped DB ─────
 console.log("\n########## 99/100  GAMEPLAY SMOKE ##########");

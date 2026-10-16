@@ -12,8 +12,8 @@ Brief: `docs/UPDATE1-1.1.1-BRIEF.md`. Branch **update-1**, on top of 1.1.0 (`359
 | 2. The transfer window | done | `f2da0bec` (code, Parts 2-4), suite in the same commit |
 | 3. One chance to keep her | done | `7e2cbec0`, `1c5ceb14` |
 | 4. Perks | done | `00e9a2b0` |
-| 5. AI clubs' youths | done | (Part 5 commit) |
-| 6. The calendar | | |
+| 5. AI clubs' youths | done | `78bfcf23` |
+| 6. The calendar | done | (Part 6 commit) |
 | 7. Words | | |
 | 8. Tests | | |
 | 9. Full build, soak, 1.1.1 | | |
@@ -133,6 +133,36 @@ At the usual AI academy of 4 (one spare), the chances are 8% / 24% / 40%. If she
 
 ## The calendar list
 
+Every dated rule in the game (1.1.0's and 1.1.1's), against the annual calendar (GET /calendar/annual). The new events come from `utils/calendarDatedRules.ts`. The new legend entry is **Transfers (indigo)**; club dates use **Facility / Club (cyan)**; staff contract ends use **Contract Deadline (purple)**. The calendar-rules suite checks each "added" line.
+
+| Dated rule | Date | On the calendar |
+|---|---|---|
+| Regional & Pool rounds | season slots 1 to the regional end | already there (Regional / Pool) |
+| World Tour rounds (his matches) | their slots | already there (World Tour) |
+| World Finals (semi-finals, grand final) | finals slots | already there (World Finals) |
+| Off-Season | holiday slots 73 to 78 (7 to 31 Dec) | already there (Off-Season) |
+| Salary week | every 7 days | already there (Financial) |
+| Facility upgrade complete | its round | already there (Facility / Club) |
+| His players' contract ends | the contract's end date | already there (Contract Deadline) |
+| Olympic Games | Olympic years, after the last World Tour round | already there (Olympics) |
+| **Day 1 draft** | 1 Jan of the career's first season | **added** (Facility / Club), draft careers only |
+| **AI clubs hire staff** | 8 Jan every season | **added** (Facility / Club) |
+| **Reminder: the AI clubs hire on 8 Jan** | 1 Jan (the Dashboard banner runs 1 to 8 Jan) | **added** (Facility / Club) |
+| **New season** (ages, the board's review, the academy intake and graduates) | 1 Jan after the first season | **added** (Facility / Club) |
+| **Pre-season choice day** | day 7 of his off-season | **added** (Facility / Club). Before his off-season starts it is "expected", from his last scheduled match + 6 days; once it starts, it's the real day |
+| **Pre-season camp starts / ends** | the booked camp's dates | **added** (Facility / Club) |
+| **Transfer window opens / closes** | 7 Dec / 31 Dec | **added** (Transfers) |
+| **A player bought ahead arrives** | the deal's arrival date | **added** (Transfers) |
+| **A player sold ahead leaves** | the deal's arrival date | **added** (Transfers) |
+| **A bid's answer deadline** | 14 game days after the bid | **added** (Transfers) |
+| **A youth loan of his ends** (out or in) | the loan's end date | **added** (Transfers) |
+| **His staff's contract ends** | the staff contract's end date | **added** (Contract Deadline) |
+| Olympic Qualifier | none | **not added.** The legend has had it, but nothing ever sends it. Olympic qualification (`utils/olympicQualification.ts`) has no date of its own: the top 12 countries on this season's World Tour ranking points qualify, counted when the Games are played. That date is the Olympic Games entry. The legend entry is left as it was. |
+| AI clubs' camps, AI-to-AI deals, AI loans | various | **not added.** The calendar is his club's; the Clubs page shows the AI clubs. |
+| Manager job window | his off-season | **not added** separately: it opens with his off-season, which is already the Off-Season. |
+
+The annual calendar also read the first season row for a year from any career on the profile. It now reads only this career's seasons.
+
 ## Suites (both full builds)
 
 New suites, each run alone:
@@ -144,6 +174,7 @@ New suites, each run alone:
 | counter-offer | 98u | 10/10 |
 | perks | 98v | 10/10 |
 | youth-deals | 98w | 12/12 (twice) |
+| calendar-rules | 98x | 15/15 |
 
 `harness/run-all.mjs` had a syntax error from the Part 1 commit onwards: four suite headers had a real line break inside their strings. It is fixed in the Part 5 commit.
 
@@ -182,3 +213,7 @@ New suites, each run alone:
 - The weekly step runs the AI clubs' youth buys after their academies.
 - On the Clubs page, every academy youth card has "Loan or buy", which opens `components/youth-deal-dialog.tsx`.
 - POST /contracts' refusal for an AI academy youth now points to the Clubs page.
+
+**Part 6 (the calendar).**
+- `utils/calendarDatedRules.ts`; GET /calendar/annual adds its events and reads only this career's seasons.
+- Client: the `transfer` type, and the legend's "Transfers" (indigo).
