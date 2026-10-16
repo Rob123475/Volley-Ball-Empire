@@ -41,6 +41,7 @@ import {
   ArrowUp,
 } from "lucide-react";
 import { useState } from "react";
+import { SortMenu, sortList, sortKeysFor, midpoint, type SortKey, type SortReaders } from "@/components/sort-menu";
 import {
   Dialog,
   DialogContent,
@@ -579,6 +580,19 @@ const FILTER_PILLS: FilterPillConfig[] = [
 
 // ── Main page ─────────────────────────────────────────────────────────────────
 
+/**
+ * Rob, 16 Oct: the Sort menu reads what a market card shows: the price (exact,
+ * or the middle of the range shown), the OVR once revealed, the age, an injury,
+ * and a club player's contract end.
+ */
+const PLAYER_SORT: SortReaders<any> = {
+  price: (p) => (p.priceRange ? (p.price ?? midpoint(p.priceRange)) : null),
+  rating: (p) => (p.revealed !== false && p.power != null ? Math.round((p.power + p.speed + p.defense + p.serve + p.block) / 5) : null),
+  age: (p) => p.age ?? null,
+  injured: (p) => !!p.isInjured || (p.injuryStatus ?? "Healthy") !== "Healthy",
+  contractEnd: (p) => (p.currentTeamName && p.contractEndDate ? String(p.contractEndDate).slice(0, 10) : null),
+};
+
 export default function PlayerMarket() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -589,6 +603,8 @@ export default function PlayerMarket() {
   const [continent, setContinent] = useState<ContinentFilter>("ALL");
   const [search, setSearch]       = useState("");
   const [statSort, setStatSort]   = useState<{ stat: string; dir: "desc" | "asc" } | null>(null);
+  // Rob, 16 Oct: the Sort menu; it and the stat pills replace each other.
+  const [menuSort, setMenuSort]   = useState<SortKey>("none");
 
   // ── Data ──────────────────────────────────────────────────────────────────
 
@@ -693,7 +709,7 @@ export default function PlayerMarket() {
 
   const visiblePlayers = (() => {
     const list = applySearch(baseFiltered);
-    if (!statSort) return list;
+    if (!statSort) return sortList(list, menuSort, PLAYER_SORT);
     const { stat, dir } = statSort;
     return [...list].sort((a, b) =>
       dir === "desc" ? (b[stat] ?? 0) - (a[stat] ?? 0) : (a[stat] ?? 0) - (b[stat] ?? 0)
@@ -840,6 +856,7 @@ export default function PlayerMarket() {
 
           {/* Stat sort pills */}
           <div className="flex gap-2 flex-wrap items-center">
+            <SortMenu value={menuSort} onChange={(k) => { setMenuSort(k); setStatSort(null); }} keys={sortKeysFor(PLAYER_SORT)} testId="market-sort" />
             {([
               { stat: "power",   label: "Power",   icon: Zap,      color: "text-orange-500" },
               { stat: "speed",   label: "Speed",   icon: Wind,     color: "text-blue-500"   },
@@ -854,6 +871,7 @@ export default function PlayerMarket() {
                 <button
                   key={stat}
                   onClick={() => {
+                    setMenuSort("none");
                     if (!active) {
                       setStatSort({ stat, dir: "desc" });
                     } else if (dir === "desc") {

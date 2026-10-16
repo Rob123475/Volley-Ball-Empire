@@ -50,6 +50,7 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { Link } from "wouter";
 import { serverMessage } from "@/lib/api-error";
+import { SortMenu, sortList, sortKeysFor, midpoint, type SortKey, type SortReaders } from "@/components/sort-menu";
 import { normaliseRole, MAX_MEDICAL_STAFF } from "@shared/staff-roles";
 
 
@@ -107,6 +108,17 @@ function wageText(m: { salary: number | null; salaryRange?: { low: number; high:
   if (m.salary != null) return f(m.salary);
   return m.salaryRange ? `${f(m.salaryRange.low)}–${f(m.salaryRange.high)}` : "?";
 }
+
+/**
+ * Rob, 16 Oct: the Sort menu reads what a card shows: the wage (exact, or the
+ * middle of the range shown until scouted), the rating (the server sends it only
+ * once scouted or hired) and the age. Staff have no injuries or contract here.
+ */
+const STAFF_SORT: SortReaders<any> = {
+  price: (m) => m.salary ?? midpoint(m.salaryRange),
+  rating: (m) => m.overallRating ?? null,
+  age: (m) => m.baseAge ?? null,
+};
 
 function starTier(rating: number): { stars: number; color: string; label: string } {
   if (rating >= 90) return { stars: 5, color: "text-yellow-400",  label: "Elite"     };
@@ -327,6 +339,7 @@ export default function MedicalMarket() {
   const { toast } = useToast();
 
   const [roleFilter, setRoleFilter] = useState<string>("all");
+  const [sortKey, setSortKey] = useState<SortKey>("none");
   const [search, setSearch]         = useState("");
 
   const params = {
@@ -399,7 +412,8 @@ export default function MedicalMarket() {
         </Link>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-3">
+      <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
+        <SortMenu value={sortKey} onChange={setSortKey} keys={sortKeysFor(STAFF_SORT)} testId="medical-sort" />
         <div className="relative flex-1 max-w-xs">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
@@ -436,7 +450,7 @@ export default function MedicalMarket() {
         </div>
       ) : (
         <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {inButtonOrder(marketStaff).map((member: any) => (
+          {sortList(inButtonOrder(marketStaff), sortKey, STAFF_SORT).map((member: any) => (
             <MedicalMarketCard
               key={member.id}
               member={member}
