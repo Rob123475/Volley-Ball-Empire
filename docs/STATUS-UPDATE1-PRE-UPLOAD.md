@@ -4,7 +4,7 @@
 
 Branch **update-1**. Nothing pushed, nothing uploaded to Steam. `main` and `launch-final` untouched. Rob's save was never opened.
 
-**Final commit: `@@FINAL@@`.** The package `C:\build\vbe-1.1.0\win-unpacked\` is cut from `3592767f`, which holds all the game code below. The Steam script's Desc names `3592767f`. **Not uploaded.**
+**Final commit: `41314ddb`** (the commit after it only writes this hash here). The package `C:\build\vbe-1.1.0\win-unpacked\` is cut from `3592767f`, which holds all the game code below. The Steam script's Desc names `3592767f`. **Not uploaded.**
 
 ## The items
 
