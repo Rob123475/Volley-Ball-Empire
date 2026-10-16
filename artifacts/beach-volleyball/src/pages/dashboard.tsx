@@ -74,6 +74,7 @@ import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { useCalendar, useRoundNames } from "@/hooks/use-calendar";
+import { AI_STAFF_DEAL_DAY } from "@shared/staff-roles";
 import type { AttentionItem } from "@workspace/api-client-react";
 import { BoardStatusCard } from "@/components/career/board-confidence-widgets";
 // D-3: every facility's name comes from one table, shared with the server.
@@ -292,6 +293,9 @@ export default function Dashboard() {
   // Item 10: before any early return - a hook must run on every render.
   const matchDayBoxClosed = useMatchDayBoxHidden(calendar?.pendingMatchId);
   const roundName = useRoundNames();
+  // Rob, 16 Oct: from Jan 1 to the AI clubs' staff day (Jan 8) of every season.
+  const dayOfJanuary = calendar?.currentDate?.slice(5, 7) === "01" ? Number(calendar.currentDate.slice(8, 10)) : null;
+  const staffDealSoon = dayOfJanuary != null && dayOfJanuary <= AI_STAFF_DEAL_DAY;
 
   const { data: dashboard, isLoading: dashLoading } = useGetDashboard({
     query: { queryKey: getGetDashboardQueryKey() },
@@ -413,6 +417,18 @@ export default function Dashboard() {
               </p>
             </div>
             <Button onClick={() => navigate("/day1-draft")} data-testid="day1-draft-go">Go to the Day 1 draft</Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {staffDealSoon && (
+        <Card className="border-sky-500/50 bg-sky-500/10" data-testid="staff-deal-warning">
+          <CardContent className="p-4 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="font-bold">Hire your staff and medical team before Jan {AI_STAFF_DEAL_DAY}.</p>
+              <p className="text-sm text-muted-foreground">On Jan {AI_STAFF_DEAL_DAY} the AI clubs take their pick.</p>
+            </div>
+            <Button onClick={() => navigate("/staff")} data-testid="staff-deal-go">Go to Staff</Button>
           </CardContent>
         </Card>
       )}

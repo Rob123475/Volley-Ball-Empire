@@ -95,6 +95,13 @@ export function isRole(role: string | null | undefined, key: StaffRoleKey): bool
 export const MAX_STAFF = 4;
 export const MAX_MEDICAL_STAFF = 4;
 
+/**
+ * Rob, 16 Oct: the day of January the AI clubs hire staff, every season and on
+ * no other day (api-server utils/aiStaff.ts); the Dashboard warns the player
+ * from Jan 1 until then.
+ */
+export const AI_STAFF_DEAL_DAY = 8;
+
 /** Roles that unlock scouting (staff market, continental scouting, youth prospects). */
 export const SCOUTING_ROLE_KEYS: ReadonlySet<StaffRoleKey> = new Set(["head_coach", "assistant_coach", "scout"]);
 

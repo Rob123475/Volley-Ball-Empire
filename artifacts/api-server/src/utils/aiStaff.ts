@@ -27,7 +27,7 @@
  */
 import {
   careerSavesTable, careerStaffStateTable, staffTable, careerPoolTeamStateTable, calendarStateTable,
-  normaliseRole, type StaffRoleKey,
+  normaliseRole, AI_STAFF_DEAL_DAY, type StaffRoleKey,
 } from "@workspace/db";
 import { and, eq, isNull } from "drizzle-orm";
 import { withCareerStateTx, type CareerStateTx, type CareerStaffFields } from "../lib/playerDto.js";
@@ -37,7 +37,7 @@ import { seasonEndsForCareerTx } from "./seasonDates.js";
 /** Every tunable number of the AI staff deal, in one place. */
 export const AI_STAFF = {
   /** The day of January the AI clubs take their staff, every season (Day 8 of a new career: it starts on Jan 1). */
-  dealDay: 8,
+  dealDay: AI_STAFF_DEAL_DAY,
   /** At least this many of every role stay on the market for the player. */
   marketFloor: 5,
   /** One of these per AI club... */
