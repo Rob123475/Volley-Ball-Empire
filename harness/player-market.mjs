@@ -30,7 +30,7 @@ import { DatabaseSync } from "node:sqlite";
 
 import { requireElectronBinary } from "./electron-binary.mjs";
 import { forkServer, stopServer } from "./server-harness.mjs";
-import { healAllSquads, makeCapRoom, startCareer } from "./harness-club.mjs";
+import { healAllSquads, makeCapRoom, startCareer, freeSquadPlace } from "./harness-club.mjs";
 
 const REPO = path.join(import.meta.dirname, "..");
 const SHIPPED = path.join(REPO, "lib", "db", "volleyball-empire.sqlite");
@@ -109,8 +109,9 @@ try {
 
   // Room for two signings: release the interchange and one Match Player.
   const squad = read(`SELECT player_id AS id, squad_role AS role FROM career_player_state WHERE team_id = ? AND is_active = 1`, teamId);
+  // 1.1.1 (no dumping): outside the window a senior can't be released; the place is freed in this suite's own database.
   for (const p of squad.filter((r) => r.role !== "starter").concat(squad.filter((r) => r.role === "starter").slice(0, 1))) {
-    await api("POST", `/players/${p.id}/release`, {});
+    freeSquadPlace(dbFile, p.id);
   }
 
   // 2. No signing without the confirm step.
@@ -183,7 +184,7 @@ try {
   check("after the 5th day: exact price inside her range, attributes shown, in the Player Pool",
     z5.revealed === true && z5.speed > 0 && z5.price >= Z.priceRange.low && z5.price <= Z.priceRange.high && z5.status === "player_pool" && z5b.price === z5.price,
     `price ${$(z5.price)} in ${$(Z.priceRange.low)} - ${$(Z.priceRange.high)}, speed ${z5.speed}, status ${z5.status}`);
-  await api("POST", `/players/${Y.id}/release`, {});   // room in the squad
+  freeSquadPlace(dbFile, Y.id);   // room in the squad (1.1.1: no release outside the window)
   const scoutedNoConfirm = await api("POST", "/contracts", { playerId: Z.id, salary: 5000, bonusPerWin: 0, squadRole: "interchange", length: "1s" });
   check("a scouted player also needs the confirm step, which names her exact price",
     scoutedNoConfirm.status === 400 && scoutedNoConfirm.data?.price === z5.price, `${scoutedNoConfirm.status}: ${scoutedNoConfirm.data?.error}`);

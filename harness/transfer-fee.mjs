@@ -8,7 +8,12 @@
  * In the game as it stands no AI club owns a player the market can sell: AI
  * clubs field pool players, who are not on the market. So the selling club is
  * made here, on this harness's own DB copy: a second club holding a player
- * whose contract ends inside the 6-month transfer window.
+ * whose contract ends in 30 days.
+ *
+ * 1.1.1 (Rob, 16 Oct): a player under contract is bought with a bid at any
+ * time of year (the 6-month window is gone): she shows as "at_club", the fee
+ * is paid when the deal is agreed and both ledgers call it a transfer fee
+ * (category transfer_fee); she joins on the day after her contract ends.
  *
  * Asserted: buying her needs the confirm step naming her price (one month of
  * her wage ±15%); the buyer pays exactly that price and its ledger says so;
@@ -76,7 +81,7 @@ try {
                   WHERE s.career_save_id = ? AND s.team_id IS NULL AND p.player_type = 'senior' ORDER BY s.player_id LIMIT 1`, careerSaveId)[0].id;
   w(`UPDATE career_player_state SET team_id = ?, contract_end_date = ? WHERE career_save_id = ? AND player_id = ?`, sellerId, ends.toISOString().slice(0, 10), careerSaveId, her);
   const listed = ((await api("GET", "/players/market-all")).data ?? []).find((p) => p.id === her);
-  check("she is on the market in the transfer window, at the other club", listed?.status === "transfer_available" && listed?.currentTeamId === sellerId, `${listed?.name}: ${listed?.status}, club ${listed?.currentTeamId}`);
+  check("she is on the market, at the other club (1.1.1: any time of year)", listed?.status === "at_club" && listed?.currentTeamId === sellerId, `${listed?.name}: ${listed?.status}, club ${listed?.currentTeamId}`);
 
   // Room for her: the squad is full (2 starters and 1 interchange).
   const mine = () => q(`SELECT s.player_id AS id FROM career_player_state s JOIN players p ON p.id = s.player_id
@@ -92,9 +97,10 @@ try {
   const fee = bought.data?.fee;
   const meAfter = Number((await api("GET", "/team")).data?.budget);
   const sellerAfter = Number(q(`SELECT budget FROM teams WHERE id = ?`, sellerId)[0].budget);
-  const buyerRow = q(`SELECT amount, category, description FROM finance_transactions WHERE team_id = ? AND category = 'signing_fee'`, me.id);
+  // 1.1.1: a buy from a club is a transfer fee on the buyer's ledger too (a free agent's stays a signing fee).
+  const buyerRow = q(`SELECT amount, category, description FROM finance_transactions WHERE team_id = ? AND category = 'transfer_fee' AND type = 'expense'`, me.id);
   const sellerRow = q(`SELECT type, amount, category, description FROM finance_transactions WHERE team_id = ?`, sellerId);
-  check("the buyer pays her price, on its ledger", bought.status === 201 && fee > 0 && meBefore - meAfter === fee && buyerRow.length === 1 && Number(buyerRow[0].amount) === fee,
+  check("the buyer pays her price when the deal is agreed, on its ledger", bought.status === 201 && bought.data?.transfer?.outcome === "agreed" && fee > 0 && meBefore - meAfter === fee && buyerRow.length === 1 && Number(buyerRow[0].amount) === fee,
     `HTTP ${bought.status} ${bought.data?.error ?? ""}; fee $${fee}; balance -$${meBefore - meAfter}`);
   check("the selling club receives exactly that fee, on its balance and its ledger",
     sellerAfter - sellerBefore === fee && sellerRow.length === 1 && sellerRow[0].type === "income" && Number(sellerRow[0].amount) === fee && sellerRow[0].category === "transfer_fee"

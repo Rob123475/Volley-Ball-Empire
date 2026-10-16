@@ -90,7 +90,7 @@ try {
   // A new profile and career, as the wizard would post them.
   const made = await ev(`(async () => {
     const J = async (u, o = {}) => { const r = await fetch(u, { headers: { "content-type": "application/json" }, ...o }); return { status: r.status, data: await r.json().catch(() => null) }; };
-    const p = await J("/api/profiles", { method: "POST", body: JSON.stringify({ name: "Proof 1.1.0" }) });
+    const p = await J("/api/profiles", { method: "POST", body: JSON.stringify({ name: "Proof 1.1.1" }) });
     await fetch("/api/profiles/" + p.data.id + "/select", { method: "POST" });
     const c = (await J("/api/club-templates")).data.clubs.find(x => x.name === "Sydney Riptide");
     const r = await J("/api/careers", { method: "POST", body: JSON.stringify({ slotNumber: 1, managerName: "Proof Manager", managerNationality: "Australia", managerFaceId: 8,
@@ -222,11 +222,48 @@ try {
   }
   step("sort menus", out.sortMenus);
 
+  // 1.1.1, Part 1: the Clubs page, every sort, and an AI club's Players and Staff & Medical.
+  await nav("/clubs");
+  await waitFor(`!!document.querySelector('[data-testid="clubs-sort"]') && document.querySelectorAll('[data-testid^="club-row-"]').length > 10`, 30000); await sleep(1500);
+  out.clubs = { rows: await ev(`document.querySelectorAll('[data-testid^="club-row-"]').length`), mine: await ev(`!!document.querySelector('[data-testid^="club-row-mine-"]')`), sorts: [] };
+  await shot("clubs-page");
+  for (const key of await ev(`[...document.querySelector('[data-testid="clubs-sort"]').options].map(o => o.value)`)) {
+    await ev(`(() => { const el = document.querySelector('[data-testid="clubs-sort"]'); Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, "value").set.call(el, "${key}"); el.dispatchEvent(new Event("change", { bubbles: true })); return true; })()`);
+    await sleep(800);
+    out.clubs.sorts.push({ sort: key, first: await ev(`document.querySelector('[data-testid^="club-row-"]')?.innerText.split("\t")[0].split("\n").filter(Boolean).slice(0, 2).join(" ")`) });
+  }
+  await shot("clubs-sorted");
+  await click('[data-testid^="club-row-ai-"]');
+  await waitFor(`!!document.querySelector('[data-testid="club-name"]')`, 20000); await sleep(2500);
+  out.clubs.opened = { name: await ev(`document.querySelector('[data-testid="club-name"]')?.textContent`), seniors: await ev(`document.querySelectorAll('[data-testid^="club-senior-"]').length`),
+    youths: await ev(`document.querySelectorAll('[data-testid^="club-youth-deal-"]').length`) };
+  await shot("club-players");
+  await click('[data-testid="club-tab-staff"]'); await sleep(1500);
+  out.clubs.staffTable = await ev(`!!document.querySelector('[data-testid="club-staff-table"]')`);
+  await shot("club-staff");
+  step("Clubs page", out.clubs);
+
+  // 1.1.1, Part 2: a buy-ahead. A bid for an AI club's senior (well over her wage, so her club can't keep her),
+  // made through the game's own route, then seen where the player sees it: the Team page's Transfers tab.
+  out.buyAhead = await ev(`(async () => {
+    const J = async (u, o = {}) => { const r = await fetch(u, { headers: { "content-type": "application/json" }, ...o }); return { status: r.status, data: await r.json().catch(() => null) }; };
+    const cap = (await J("/api/contracts/wage-cap")).data;
+    const her = (await J("/api/players/market-all")).data.filter(p => p.status === "ai_club" && !p.joins && Math.round(p.salary * 1.5) <= cap.room).sort((a, b) => b.salary - a.salary)[0];
+    if (!her) return { error: "no AI senior fits under the cap", room: cap.room };
+    const r = await J("/api/contracts", { method: "POST", body: JSON.stringify({ playerId: her.id, salary: Math.round(her.salary * 1.5), length: "1s", squadRole: "interchange", confirm: true, perks: [] }) });
+    return { player: her.name, from: her.currentTeamName, status: r.status, outcome: r.data?.transfer?.outcome, arrivesOn: r.data?.transfer?.arrivesOn, fee: r.data?.fee, error: r.data?.error }; })()`);
+  await nav("/team?tab=transfers");
+  await waitFor(`!!document.querySelector('[data-testid="transfers-incoming"]')`, 20000); await sleep(2000);
+  out.buyAhead.shownIncoming = await ev(`document.querySelector('[data-testid="transfers-incoming"]')?.innerText.replace(/\\s+/g, " ").slice(0, 200) ?? null`);
+  out.buyAhead.listedThere = !!out.buyAhead.player && (out.buyAhead.shownIncoming ?? "").includes(out.buyAhead.player);
+  await shot("team-transfers-incoming");
+  step("buy-ahead", out.buyAhead);
+
   // Rob, 16 Oct: Exit game, from Settings: asked in the page; Cancel keeps the game; Exit closes the app itself.
   await nav("/settings");
   await waitFor(`!!document.querySelector('[data-testid="settings-exit"]')`, 20000);
   await click('[data-testid="settings-exit"]'); await sleep(1200);
-  const asked = await ev(`document.querySelector('[data-testid="dialog-exit-game"]')?.innerText.replace(/\s+/g, " ") ?? null`);
+  const asked = await ev(`document.querySelector('[data-testid="dialog-exit-game"]')?.innerText.replace(/\\s+/g, " ") ?? null`);
   await shot("exit-asked");
   await click('[data-testid="exit-cancel"]'); await sleep(1200);
   const afterCancel = await ev(`({ dialog: !!document.querySelector('[data-testid="dialog-exit-game"]'), path: location.pathname })`);

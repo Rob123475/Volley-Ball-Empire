@@ -50,7 +50,7 @@ import os from "node:os";
 
 import { requireElectronBinary } from "./electron-binary.mjs";
 import { forkServer, stopServer } from "./server-harness.mjs";
-import { startCareer } from "./harness-club.mjs";
+import { startCareer, makeCapRoom, freeSquadPlace } from "./harness-club.mjs";
 
 const REPO = path.join(import.meta.dirname, "..");
 const SHIPPED = path.join(REPO, "lib", "db", "volleyball-empire.sqlite");
@@ -198,12 +198,20 @@ try {
     const changed = new Map(cards.filter((c) => c.kind === "new" && c.skinToneBefore10Oct && c.skinToneBefore10Oct !== c.skinTone).map((c) => [c.name, c]));
     { const w = new DatabaseSync(dbFile); w.prepare("UPDATE teams SET budget = 5000000 WHERE id = ?").run(teamId); w.close(); }
     const market = (await api("GET", "/players/market-all")).data ?? [];
-    for (const p of (await api("GET", "/players")).data.filter((p) => p.squadRole === "interchange")) await api("POST", `/players/${p.id}/release`, {});
+    // 1.1.1 (no dumping): the interchange's place is freed in this suite's own database, and room made under the cap.
+    for (const p of (await api("GET", "/players")).data.filter((p) => p.squadRole === "interchange")) freeSquadPlace(dbFile, p.id);
+    makeCapRoom(dbFile, teamId);
+    // 1.1.1: a bid's player joins when the window opens, or the day after her contract ends. Her
+    // contract is put as ending yesterday, so the bid (well over her wage: her club can't keep her)
+    // brings her in today.
+    const today = (await api("GET", "/calendar")).data?.currentDate;
+    const yesterday = new Date(`${today}T00:00:00Z`); yesterday.setUTCDate(yesterday.getUTCDate() - 1);
     let boughtCard = null, bought = null;
     for (const p of market.filter((p) => p.status === "ai_club" && changed.has(p.name))) {
       const wage = (() => { const d = new DatabaseSync(dbFile, { readOnly: true }); try { return d.prepare("SELECT salary FROM career_player_state WHERE player_id = ? ORDER BY career_save_id DESC LIMIT 1").get(p.id)?.salary; } finally { d.close(); } })();
-      const r = await api("POST", "/contracts", { playerId: p.id, salary: wage, bonusPerWin: 0, squadRole: "interchange", length: "1s", confirm: true });
-      if (r.status === 201) { bought = p; boughtCard = changed.get(p.name); break; }
+      { const d = new DatabaseSync(dbFile); try { d.prepare("UPDATE career_player_state SET contract_end_date = ? WHERE player_id = ?").run(yesterday.toISOString().slice(0, 10), p.id); } finally { d.close(); } }
+      const r = await api("POST", "/contracts", { playerId: p.id, salary: Math.round(wage * 1.5), bonusPerWin: 0, squadRole: "interchange", length: "1s", confirm: true });
+      if (r.status === 201 && r.data?.transfer?.outcome === "moved") { bought = p; boughtCard = changed.get(p.name); break; }
     }
     check("(set-up) bought an AI club player whose skin tone changed with her new picture", !!bought,
       bought ? `${bought.name} (${boughtCard.stableId}): ${boughtCard.skinToneBefore10Oct} -> ${boughtCard.skinTone}` : "none could be bought");

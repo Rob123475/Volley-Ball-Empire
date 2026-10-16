@@ -34,7 +34,7 @@ import { inTransferWindow, nextWindowOpening, contractEndFrom } from "./transfer
 import { seasonEndsForCareerTx } from "./seasonDates.js";
 import { worldTourStandingsTx } from "./worldTour.js";
 import { coverOnRoster, clubInjuredListTx } from "./injuredList.js";
-import { balanceOf, addToBalance, aiTrimSquadsTx, AI_BUY_RESERVE } from "./aiSquads.js";
+import { balanceOf, addToBalance, aiTrimSquadsTx, keepAiSquadsTx, AI_BUY_RESERVE } from "./aiSquads.js";
 import type { ContractLength } from "./contractTerms.js";
 import { MAX_STARTERS } from "./squadRules.js";
 import { monthlySalaryFor } from "./clubFinances.js";
@@ -296,6 +296,7 @@ export function transfersDayTx(w: CareerStateTx, careerSaveId: number, today: st
   const news: string[] = [];
   const myTeam = careerTeamIdTx(tx, careerSaveId);
   const nameOf = (id: number) => tx.select({ n: playersTable.name }).from(playersTable).where(eq(playersTable.id, id)).get()?.n ?? "A player";
+  let aiSellerLeft = false, aiBuyerFull = false;
   for (const d of tx.select().from(transferDealsTable).where(and(eq(transferDealsTable.careerSaveId, careerSaveId),
     eq(transferDealsTable.status, "offered"), lt(transferDealsTable.answerBy, today))).all()) {
     const outcome = agreeTx(w, careerSaveId, d.id, today);
@@ -304,11 +305,18 @@ export function transfersDayTx(w: CareerStateTx, careerSaveId: number, today: st
   for (const d of tx.select().from(transferDealsTable).where(and(eq(transferDealsTable.careerSaveId, careerSaveId),
     eq(transferDealsTable.status, "agreed"), lte(transferDealsTable.arrivesOn, today))).all()) {
     const outcome = completeTx(w, careerSaveId, d.id, today);
+    if (outcome === "moved" && d.fromPoolTeamId != null) aiSellerLeft = true;
+    if (outcome === "moved" && d.toPoolTeamId != null) aiBuyerFull = true;
     if (outcome === "moved" && (d.toTeamId === myTeam || d.fromTeamId === myTeam)) {
       news.push(d.toTeamId === myTeam ? `${nameOf(d.playerId)} arrives from ${clubNameTx(tx, fromOf(d))}.` : `${nameOf(d.playerId)} leaves for ${clubNameTx(tx, toOf(d))}.`);
     }
   }
-  if (inTransferWindow(today)) aiTrimSquadsTx(w, careerSaveId);
+  // A player who leaves an AI club mid-season (her contract ended before the window) can leave it short:
+  // it refills that day, by the weekly rule (keepAiSquadsTx), so it never has a match day with one.
+  if (aiSellerLeft) keepAiSquadsTx(w, careerSaveId, today, seasonEndsForCareerTx(tx, careerSaveId));
+  // A full AI club that bought lets its weakest go the day the new one arrives (its bid counted her wage
+  // gone, bidTx `freeing`), even outside the window; in the window every club over its places trims.
+  if (aiBuyerFull || inTransferWindow(today)) aiTrimSquadsTx(w, careerSaveId);
   return news;
 }
 

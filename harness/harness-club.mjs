@@ -364,3 +364,36 @@ export function addStandInStaff(dbPath) {
     return added;
   } finally { d.close(); }
 }
+
+/**
+ * 1.1.1 (Rob, 16 Oct): no dumping. Outside the transfer window a club can't
+ * release a senior, so a suite that only needs a squad place for what it tests
+ * (a signing, a market price) frees one here, in its own throwaway database,
+ * as a release would: she leaves for the market, her contract terminated.
+ * Release itself is harness/transfer-window.mjs's subject.
+ */
+export function freeSquadPlace(dbPath, playerId) {
+  const db = new DatabaseSync(dbPath);
+  try {
+    db.prepare(`UPDATE contracts SET status = 'terminated' WHERE player_id = ? AND status = 'active'`).run(playerId);
+    db.prepare(`UPDATE career_player_state SET team_id = NULL, contract_end_date = NULL, is_active = 0, squad_role = 'interchange', perks = '' WHERE player_id = ? AND team_id IS NOT NULL`).run(playerId);
+  } finally {
+    db.close();
+  }
+}
+
+/**
+ * 1.1.1 (Rob, 16 Oct): an AI club's bid for one of the player's seniors waits
+ * 14 days for his answer, and with none she goes. A suite whose subject is not
+ * transfers (one that plays seasons to reach something) keeps its squad: every
+ * bid waiting for an answer is turned down, as if he had kept her. Counters are
+ * harness/counter-offer.mjs's subject.
+ */
+export function turnDownBids(dbPath, teamId) {
+  const db = new DatabaseSync(dbPath);
+  try {
+    return db.prepare(`UPDATE transfer_deals SET status = 'kept' WHERE from_team_id = ? AND status = 'offered'`).run(teamId).changes;
+  } finally {
+    db.close();
+  }
+}

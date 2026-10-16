@@ -59,6 +59,10 @@ const mod = (p) => import(pathToFileURL(path.join(REPO, "artifacts", "api-server
 const { overallRating } = await mod("utils/overallRating.ts");
 const { MONEY } = await import(pathToFileURL(path.join(REPO, "lib", "db", "src", "schema", "money.ts")).href);
 const CAP = MONEY.salaryCap.monthlyCap;
+// 1.1.1: perks' monthly costs, from the one table (schema/transfers.ts).
+const { PERKS } = await import(pathToFileURL(path.join(REPO, "lib", "db", "src", "schema", "transfers.ts")).href);
+const PERK_COST = Object.fromEntries(PERKS.map((k) => [k.key, k.monthly]));
+const perkBill = (text) => String(text ?? "").split(",").filter(Boolean).reduce((t, k) => t + (PERK_COST[k] ?? 0), 0);
 const COACHING = ["Head Coach", "Assistant Coach"];
 const MEDICAL = ["Doctor", "Physiotherapist", "Massage Therapist", "Medical Specialist"];
 // A different camp each season, one Rest (season 3).
@@ -135,8 +139,45 @@ function seasonTable(season, year, counters) {
   const listedNow = q(`SELECT COUNT(*) n FROM career_player_state WHERE career_save_id = ? AND on_injured_list = 1`, cid)[0].n;
   const coverPromotions = q(`SELECT COUNT(*) n FROM career_player_state s JOIN players p ON p.id = s.player_id WHERE s.career_save_id = ? AND s.pool_team_id IS NOT NULL
     AND p.player_type = 'youth' AND s.is_promoted = 1 AND s.pool_joined_on >= ? AND s.pool_joined_on <= ?`, cid, yearStart, `${year}-12-31`)[0].n;
+  // 1.1.1: the transfer window, buying ahead, counters, perks and youth deals this season.
+  const yearEnd = `${year}-12-31`, windowOpens = `${year}-12-07`;
+  const deals = q(`SELECT * FROM transfer_deals WHERE career_save_id = ?`, cid);
+  const senior = deals.filter((d) => d.squad_role !== "academy");
+  const inYear = (d) => d != null && d >= yearStart && d <= yearEnd;
+  const windowMoves = senior.filter((d) => d.status === "moved" && d.moved_on >= windowOpens && d.moved_on <= yearEnd).length;
+  const movesOutsideWindow = senior.filter((d) => d.status === "moved" && inYear(d.moved_on) && d.moved_on < windowOpens).length;
+  const boughtAhead = senior.filter((d) => inYear(d.agreed_on) && d.arrives_on != null && d.arrives_on > d.agreed_on).length;
+  const countered = senior.filter((d) => d.counter_wage != null && inYear(d.offered_on));
+  const countersWon = countered.filter((d) => d.status === "kept").length;
+  const countersLost = countered.filter((d) => d.status !== "kept").length;
+  const moodDecided = countered.filter((d) => d.mood_decided === 1).length;
+  const myCounters = countered.filter((d) => d.from_team_id === myTeam()).length;
+  const fellThrough = senior.filter((d) => d.status === "fell_through" && inYear(d.offered_on)).length;
+  const youthSales = deals.filter((d) => d.squad_role === "academy" && inYear(d.moved_on));
+  const youthLoans = q(`SELECT COUNT(*) n FROM youth_loans WHERE career_save_id = ? AND starts_on >= ? AND starts_on <= ?`, cid, yearStart, yearEnd)[0].n;
+  const myPerks = Math.round(q(`SELECT COALESCE(SUM(amount), 0) n FROM finance_transactions WHERE team_id = ? AND category = 'player_perks' AND date >= ? AND date <= ?`, myTeam(), yearStart, yearEnd)[0].n);
+  const perkContracts = q(`SELECT COUNT(*) n FROM career_player_state WHERE career_save_id = ? AND perks <> '' AND is_retired = 0`, cid)[0].n;
+  // Rob, 16 Oct: AI bids on the player's club's seniors, the players it lost to them, and the most bids on one
+  // club and on one player this season (there is no limit per club or per player: these numbers show what that gives).
+  const bidsThisSeason = senior.filter((d) => inYear(d.offered_on) && (d.to_pool_team_id != null));
+  const bidsOnMine = bidsThisSeason.filter((d) => d.from_team_id === myTeam());
+  const lostToBids = senior.filter((d) => d.from_team_id === myTeam() && ["agreed", "moved"].includes(d.status) && inYear(d.agreed_on)).length;
+  const byClub = new Map(), byPlayer = new Map();
+  for (const d of bidsThisSeason) {
+    const club = d.from_team_id != null ? `his club` : `AI club ${d.from_pool_team_id}`;
+    byClub.set(club, (byClub.get(club) ?? 0) + 1);
+    byPlayer.set(d.player_id, (byPlayer.get(d.player_id) ?? 0) + 1);
+  }
+  const topClub = [...byClub].sort((a, b) => b[1] - a[1])[0] ?? ["none", 0];
+  const topPlayer = [...byPlayer].sort((a, b) => b[1] - a[1])[0] ?? [null, 0];
+  const topPlayerName = topPlayer[0] == null ? "none" : (q(`SELECT name FROM players WHERE id = ?`, topPlayer[0])[0]?.name ?? `player ${topPlayer[0]}`);
   return {
     season, year,
+    bidsOnMine: bidsOnMine.length, lostToBids, mostBidsOneClub: topClub[1], mostBidsClub: topClub[0],
+    mostBidsOnePlayer: topPlayer[1], mostBidsPlayer: topPlayerName, aiBidsAll: bidsThisSeason.length,
+    windowMoves, movesOutsideWindow, boughtAhead, countersWon, countersLost, moodDecided, myCounters, fellThrough,
+    perksPaidMine: myPerks, perksPaidAi: Math.round(counters.aiPerks ?? 0), perkContracts,
+    youthSales: youthSales.length, youthSalesAiToAi: youthSales.filter((d) => d.to_pool_team_id != null).length, youthLoans,
     aiAvg: Number(mean(rated.map((s) => s.r)).toFixed(1)),
     aiTop5: rated.slice(0, 5).map((s) => `${s.name} ${s.r}`),
     mySquad: mine,
@@ -172,6 +213,10 @@ function printTable(t) {
   console.log(`  Injuries (AI clubs): ${t.injuriesAll}; by type: ${Object.entries(t.injuriesByType).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k} ${v}`).join(", ")}`);
   console.log(`  Average weeks out (not reconstructions), by the treatment on the day: ${["both", "right", "wrong", "none"].map((k) => `${k} ${t.avgWeeksOut[k]} (${t.treatedCount[k]} injuries, base ${t.avgBaseWeeks[k]})`).join("; ")}; reconstructions: ${t.reconstructions}`);
   console.log(`  Injured list: ${t.injuredListed} put on it this season, ${t.listedNow} on it now; AI cover promoted from academies this season: ${t.coverPromotions}`);
+  console.log(`  1.1.1 transfers: ${t.windowMoves} moves in the window (${t.movesOutsideWindow} outside it, on a contract's end); ${t.boughtAhead} bought ahead; counters ${t.countersWon} won, ${t.countersLost} lost (${t.moodDecided} by mood; ${t.myCounters} on his players); ${t.fellThrough} fell through`);
+  console.log(`  AI bids: ${t.aiBidsAll} in all; ${t.bidsOnMine} on his seniors, ${t.lostToBids} of his players lost to bids (he never answers in the soak, so an unanswered bid takes her); most on one club ${t.mostBidsOneClub} (${t.mostBidsClub}); most on one player ${t.mostBidsOnePlayer} (${t.mostBidsPlayer})`);
+  console.log(`  Perks paid: player's club $${t.perksPaidMine.toLocaleString("en-US")}, AI clubs about $${t.perksPaidAi.toLocaleString("en-US")}; ${t.perkContracts} contracts with perks now`);
+  console.log(`  Youth deals: ${t.youthSales} sales (${t.youthSalesAiToAi} AI to AI), ${t.youthLoans} loans started`);
 }
 
 let child = null;
@@ -227,13 +272,15 @@ try {
       if (fa && fa.t == null && fa.c == null) counters.longReleased++;
     }
     prev = nowMap;
+    counters.aiPerks = (counters.aiPerks ?? 0) + q(`SELECT perks FROM career_player_state WHERE career_save_id = ? AND pool_team_id IS NOT NULL AND team_id IS NULL AND perks <> ''`, cid)
+      .reduce((t, r) => t + perkBill(r.perks), 0) * 12 / 365;
     if (r.data?.seasonRollover && r.data.seasonRollover.kind !== "none") {
       const t = lastTable ?? seasonTable(season, Number(today.slice(0, 4)), counters);
       // The season's final standings are written at the rollover, after the table was taken.
       t.champion = q(`SELECT competitor_name AS n FROM season_final_standings WHERE season_year = ? AND rank = 1 LIMIT 1`, t.year)[0]?.n ?? t.champion;
       tables.push(t); printTable(t);
       w(`UPDATE board_seasons SET grade = 'met' WHERE career_save_id = ? AND grade = 'failed'`, cid);
-      season++; counters = { injuries: 0, longReleased: 0 }; lastTable = null;
+      season++; counters = { injuries: 0, longReleased: 0, aiPerks: 0 }; lastTable = null;
       console.log(`  (${((Date.now() - started) / 60000).toFixed(1)} min so far)`);
     }
   }
@@ -253,6 +300,23 @@ try {
   }
   if (tables.some((t) => t.overCapAdders > 0)) flags.push("an AI club over the cap added a senior");
   if (tables.some((t) => t.outOfRange > 0)) flags.push("a stat went outside 1-99");
+  // Rob, 16 Oct: nothing limits how often the AI clubs bid on one club or one player (only 2 bids a week in
+  // the world, one open bid per player, one open deal per buyer, and 365 days at his club first). Flagged with
+  // the numbers, not limited: Rob decides.
+  if (tables.length) {
+    const most = tables.reduce((a, t) => (t.mostBidsOneClub > a.mostBidsOneClub ? t : a));
+    const mostP = tables.reduce((a, t) => (t.mostBidsOnePlayer > a.mostBidsOnePlayer ? t : a));
+    flags.push(`no limit on AI bids per club or per player: up to ${tables.map((t) => t.bidsOnMine).join("/")} bids on his seniors a season (${tables.map((t) => t.lostToBids).join("/")} lost); most on one club ${most.mostBidsOneClub} (${most.mostBidsClub}, season ${most.season}); most on one player ${mostP.mostBidsOnePlayer} (${mostP.mostBidsPlayer}, season ${mostP.season})`);
+  }
+  // 1.1.1: a deal stuck past its arrival day; a player at two clubs; a move outside the window that wasn't on a contract's end.
+  const endDay = q(`SELECT "current_date" AS d FROM calendar_state WHERE team_id = ?`, myTeam())[0]?.d ?? "";
+  const stuck = q(`SELECT COUNT(*) n FROM transfer_deals WHERE career_save_id = ? AND status = 'agreed' AND arrives_on < ?`, cid, endDay)[0].n;
+  if (stuck > 0) flags.push(`${stuck} agreed deals past their arrival day`);
+  const twoClubs = q(`SELECT COUNT(*) n FROM career_player_state WHERE career_save_id = ? AND team_id IS NOT NULL AND pool_team_id IS NOT NULL`, cid)[0].n;
+  if (twoClubs > 0) flags.push(`${twoClubs} players at two clubs`);
+  const offWindow = q(`SELECT d.moved_on m, d.arrives_on a FROM transfer_deals d WHERE d.career_save_id = ? AND d.status = 'moved' AND d.squad_role IS NOT 'academy'
+    AND substr(d.moved_on, 6) < '12-07'`, cid).filter((d) => d.a !== d.m).length;
+  if (offWindow > 0) flags.push(`${offWindow} senior moves outside the window not on their arrival day`);
   console.log(`\nFLAGS: ${flags.length ? flags.join("; ") : "none"}`);
   if (process.env.SOAK_OUT) fs.writeFileSync(process.env.SOAK_OUT, JSON.stringify({ difficulty: DIFFICULTY, seasons: SEASONS, stopped, tables, flags }, null, 2));
   console.log(`\nSOAK ${tables.length === SEASONS && !stopped ? "COMPLETE" : "INCOMPLETE"}: ${tables.length} of ${SEASONS} seasons`);

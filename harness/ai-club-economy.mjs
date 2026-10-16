@@ -511,9 +511,15 @@ try {
   const weekAgo = new Date(`${todayNow}T00:00:00Z`); weekAgo.setUTCDate(weekAgo.getUTCDate() - 7);
   const justPromoted = new Set(read(`SELECT s.pool_team_id AS c FROM career_player_state s JOIN players p ON p.id = s.player_id
     WHERE s.career_save_id = ? AND p.player_type = 'youth' AND s.is_promoted = 1 AND s.pool_joined_on >= ?`, careerSaveId, weekAgo.toISOString().slice(0, 10)).map((r) => r.c));
-  check(`after ${SEASONS} seasons every AI club's academy is 4 of its own (3 just after it promotes one as cover), and none of its youths is 19 or older`,
-    sizes.length > 0 && liveClubs.every((c, i) => sizes[i] === 4 || (sizes[i] === 3 && justPromoted.has(c))) && aiYouth.every((y) => y.age < 19),
-    `sizes ${[...new Set(sizes)].join(",")}; ${justPromoted.size} club(s) promoted a youth in the last week; oldest ${Math.max(...aiYouth.map((y) => y.age))}`);
+  // 1.1.1, Part 5: AI clubs buy each other's youths. A buyer holds more than 4 (up to the academy's 6) until
+  // its youths graduate; a seller holds 3 until the next weekly fill.
+  const academyDeals = read(`SELECT from_pool_team_id AS f, to_pool_team_id AS t, moved_on AS m FROM transfer_deals WHERE career_save_id = ? AND squad_role = 'academy' AND status = 'moved'`, careerSaveId);
+  const bought = new Set(academyDeals.map((d) => d.t).filter((x) => x != null));
+  const justSold = new Set(academyDeals.filter((d) => d.m >= weekAgo.toISOString().slice(0, 10)).map((d) => d.f));
+  check(`after ${SEASONS} seasons every AI club's academy is 4 of its own (more, up to 6, for a club that bought a youth; 3 just after it promotes one as cover or sells one), and none of its youths is 19 or older`,
+    sizes.length > 0 && liveClubs.every((c, i) => sizes[i] === 4 || (sizes[i] > 4 && sizes[i] <= 6 && bought.has(c)) || (sizes[i] === 3 && (justPromoted.has(c) || justSold.has(c))))
+      && aiYouth.every((y) => y.age < 19),
+    `sizes ${[...new Set(sizes)].join(",")}; ${justPromoted.size} club(s) promoted a youth in the last week; ${bought.size} club(s) bought youths, ${justSold.size} sold one in the last week; oldest ${Math.max(...aiYouth.map((y) => y.age))}`);
 
 } finally {
   await stopServer(child);

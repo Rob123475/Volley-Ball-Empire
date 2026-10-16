@@ -166,8 +166,14 @@ try {
     `SELECT COUNT(*) AS n FROM unity_match_stats WHERE player_id = ?`, sold.id)[0]?.n ?? 0;
   check("the one being sold has never played a match", Number(played) === 0, `${played} appearances`);
 
+  // 1.1.1 (no dumping): a graduate is a senior, so she can't be released mid-season; in the transfer
+  // window she can. The calendar is put on 10 December for the release and the re-signing, then put back.
+  const midSeason = await api("POST", `/players/${sold.id}/release`, {});
+  check("mid-season, releasing her is refused until the transfer window", midSeason.status === 409 && /transfer window/i.test(midSeason.data?.error ?? ""), `HTTP ${midSeason.status}`);
+  const realToday = (await api("GET", "/calendar")).data.currentDate;
+  write(`UPDATE calendar_state SET "current_date" = ? WHERE team_id = ?`, `${realToday.slice(0, 4)}-12-10`, teamId);
   const release = await api("POST", `/players/${sold.id}/release`, {});
-  check("releasing her is accepted", release.status === 200, `HTTP ${release.status}`);
+  check("in the window, releasing her is accepted", release.status === 200, `HTTP ${release.status}`);
 
   const market = (await api("GET", "/players/market-all?playerType=senior")).data ?? [];
   const onMarket = (Array.isArray(market) ? market : []).find((p) => p.id === sold.id);
@@ -191,6 +197,7 @@ try {
     read(`SELECT COUNT(*) AS n FROM contracts
            WHERE player_id = ? AND team_id = ? AND status = 'active'`, spare?.id, teamId)[0].n === 0,
     `${spare?.name ?? "?"} released`);
+  write(`UPDATE calendar_state SET "current_date" = ? WHERE team_id = ?`, realToday, teamId);
 
   // ── 3. The boundary takes back what forced promotion pushes over ──────────
   // The rollover promotes every academy player who turns 19, cap or no cap —

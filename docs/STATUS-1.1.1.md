@@ -14,8 +14,8 @@ Brief: `docs/UPDATE1-1.1.1-BRIEF.md`. Branch **update-1**, on top of 1.1.0 (`359
 | 4. Perks | done | `00e9a2b0` |
 | 5. AI clubs' youths | done | `78bfcf23` |
 | 6. The calendar | done | `97deef35` |
-| 7. Words | done | (Part 7 commit) |
-| 8. Tests | | |
+| 7. Words | done | `26802392` |
+| 8. Tests | done (one open finding, below) | (Part 8 commit) |
 | 9. Full build, soak, 1.1.1 | | |
 
 ## Decisions made
@@ -30,7 +30,7 @@ Brief: `docs/UPDATE1-1.1.1-BRIEF.md`. Branch **update-1**, on top of 1.1.0 (`359
 **Transfer window, buying ahead, no dumping (Part 2)**
 - The window is the calendar's Off-Season: the holiday slots, **7 to 31 December**. It has no separate number, so the calendar and the rule always agree.
 - A player bought ahead arrives when the window opens. If her contract ends sooner, she arrives the day after it ends, even outside the window: she is free then.
-- A contract that starts in the window runs from 1 January of the next season, so a 1-season deal is a full season.
+- A contract that starts in the window runs from 1 January of the next season, so a 1-season deal is a full season. This holds for every senior contract that starts in the window: a bid's, a counter's, and (found in Part 8) a free agent signed in December, who was getting a contract that ended a few days later.
 - A bid skips the squad-size check. The window is open on her arrival, so room can be made then. If his squad is still full, she joins as an extra interchange.
 - An AI club holding the player answers a bid at once. A bid from a club no one runs is agreed straight away.
 - The fee is paid when the deal is agreed, and paid back if the move falls through before she arrives.
@@ -39,6 +39,8 @@ Brief: `docs/UPDATE1-1.1.1-BRIEF.md`. Branch **update-1**, on top of 1.1.0 (`359
 - AI clubs bid for AI seniors and for his seniors held 365 days or more (from the contract's start date). Each buyer has one open deal at a time.
 - AI bids: her wage x1.15, the bidder's own length for her rating, and perks cheapest first up to 10% of the wage.
 - A buy's fee goes in the ledger as `transfer_fee`. A free agent's signing fee stays `signing_fee`.
+- **Found by the old suites (Part 8) and fixed at the cause.** A player bought ahead from an AI club can leave it mid-season, the day after her contract ends. The club then had one senior until its weekly refill. It now refills that same day (`transfersDayTx` runs `keepAiSquadsTx`).
+- **The same applies to a full AI club that buys ahead.** Its bid counts its weakest senior's wage as gone. She now goes the day the new player arrives, even outside the window, so the club is never over its places or its cap. A club that sells or releases on its own still waits for the window.
 
 **One chance to keep her (Part 3)**
 - Her mood is the average of her morale term and her club's World Tour form term, so it runs from -1 to +1.
@@ -177,6 +179,55 @@ New suites, each run alone:
 | calendar-rules | 98x | 15/15 |
 
 `harness/run-all.mjs` had a syntax error from the Part 1 commit onwards: four suite headers had a real line break inside their strings. It is fixed in the Part 5 commit.
+
+## AI bids on his club: are they limited?
+
+Rob asked (16 Oct): how often can the AI clubs bid on one club, or one player? Read from the code (`utils/aiSquads.ts` `aiTransfersWeekTx`):
+
+| Limit | Value | What it limits |
+|---|---|---|
+| `AI_TRANSFERS_PER_WEEK` | 2 | AI bids a week in the whole world (AI-to-AI and on his players together) |
+| One open bid per player | `openDealForTx` | a player with a bid waiting, or a move agreed, gets no second bid |
+| One open deal per buyer | | an AI club buying someone ahead bids for nobody else until she arrives |
+| `AI_KEEP_DAYS` | 365 | one of his seniors can be bid on only after 365 days at his club (from her contract's start) |
+| `AI_BUY_GAP` | 5 | the bidder only wants a player 5 rating points better than its weakest (or second) senior |
+
+**Nothing limits bids per club or per player over a season.** Keeping a player with a counter doesn't reset her contract's start date, so the next week another AI club (or the same one) can bid for her again. His three seniors can each have a bid waiting at once.
+
+**Flagged, not limited: Rob decides.** The soak counts, per season, the AI bids on his seniors, the players he lost to them, and the most bids on one club and on one player (in the table below). In the soak he never answers a bid, so each one takes her after 14 days.
+
+## Part 8: the old checks that expected the old rules
+
+Each was run alone before and after. All pass alone now except where noted.
+
+| Suite | Before | After | What changed and why |
+|---|---|---|---|
+| transfer-fee | 4/6 | 6/6 | A contracted player at another club is "at_club" at any time of year, not "transfer_available" in the 6-month window. The buyer's ledger line is a `transfer_fee`. |
+| ai-buyable | 21/25 | 25/25 | A buy is a bid, agreed and paid now. She joins on her arrival day (the suite brings that forward), and her club refills that day. AI-to-AI buys are counted as deals agreed ahead. Room is made in its own database, because there's no mid-season release now. |
+| player-market | 12/18 | 18/18 | It made room by releasing players mid-season. Now done in its own database (`freeSquadPlace`). |
+| contract-terms | 26/37 | 41/41 | Room is made the same way. Ending a contract early is now refused outside the window (new check). The payout is checked on 10 December, inside the window. |
+| salary-cap | 10/16 | 16/16 | Room is made the same way. Its source check now reads the AI bid: the fee above its reserve, and room under the cap on her arrival date. |
+| day1-draft | 26/27 | 27/27 | After the draft, releasing a pick was expected to pay out. It is now refused until the window (no dumping). |
+| ai-injuries | 14/16 | 16/16 | Room is made the same way. A full AI club's weakest now goes the day the player it bought arrives (source check). |
+| graduates | 14/18 | 19/19 | A promoted graduate is a senior: releasing her mid-season is refused (new check). The release and re-signing are done on 10 December. |
+| contract-renewal | 29/31 | 31/31 | It signed an AI club's player, which is now a bid, so it signs a free agent instead. Signed on 20 December, in the window, her contract runs to the end of 2027. It is set to end this season before the renewal tests. |
+| manager-faces | 51/56 | 56/56 | Room is made the same way. Its source check now reads the AI bid, and the AI youth buys, which take no price factor. |
+| unity-match-state-payload | 10/11 | 11/11 | A bought AI player joins at once only if her contract has ended, so the scene ends it yesterday and bids well over her wage. |
+| olympics-tournament | 3/4 | 24/24 | Its squad leaves in its own database. All four careers were being sacked before 2028 because AI bids took the club's best players, which the suite never answered. A new helper (`turnDownBids`) turns those bids down as if he kept them. Transfers aren't this suite's subject. |
+| settings | (Part 7) | 40/40 | Nineteen Rules topics and the 8 January sentence. |
+| ai-club-economy | 19/22 | 21/22 | The academy check allows more than 4 for a club that bought a youth, and 3 for one that just sold or promoted one. **Open finding, below.** The season-21 manager move in the first run (and the league count that followed from it) didn't happen on the second run: a random sacking. |
+
+Unchanged and passing alone: youth-loans 26/26, youth-market 9/9, youth-contract-box 9/9, injured-list 17/17, market-order 4/4, scouting-history 12/12, staff-contracts 12/12, difficulty 8/8, academy-cap-wages 18/18.
+
+**Real faults the old suites found, fixed in the game (not the suites):**
+- An AI club could drop to one senior when a player sold ahead left it mid-season. It now refills that day.
+- A full AI club that bought ahead held four seniors until the window. It now lets its weakest go when the new player arrives.
+- A free agent signed in the window got a contract that ended a few days later. It now runs from the next season.
+
+**Open finding (ai-club-economy, 30 seasons).**
+- **What happened:** after 30 seasons, one Oceania AI club (47) had 3 academy youths of its own. The weekly fill had just run (2 January). Nothing explained the drop: no promotion, sale or loan.
+- **Likely cause, not proven:** the youth factory makes no youth when a region's names are used up (`youthIntake.ts`, "no_names"). Oceania is the smallest region. With youth buys, more youths are made over a career: a seller refills while the buyer keeps an extra.
+- **Not changed:** the kept world could not be played on to prove it.
 
 ## The soak
 

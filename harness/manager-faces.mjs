@@ -29,7 +29,7 @@ import { DatabaseSync } from "node:sqlite";
 
 import { requireElectronBinary } from "./electron-binary.mjs";
 import { forkServer, stopServer } from "./server-harness.mjs";
-import { healAllSquads, renewExpiringContracts, keepSideFielded, trainThroughCalendar, makeCapRoom, startCareer } from "./harness-club.mjs";
+import { healAllSquads, renewExpiringContracts, keepSideFielded, trainThroughCalendar, makeCapRoom, startCareer, freeSquadPlace } from "./harness-club.mjs";
 
 const REPO = path.join(import.meta.dirname, "..");
 const SHIPPED = path.join(REPO, "lib", "db", "volleyball-empire.sqlite");
@@ -236,7 +236,7 @@ try {
   check("Negotiator: every senior's price on the market is 10% lower", moved(m0, m1), `e.g. ${m0[0]?.name}: ${$(m0[0]?.priceRange.low)}-${$(m0[0]?.priceRange.high)} -> ${$(m1[0]?.priceRange.low)}-${$(m1[0]?.priceRange.high)}`);
   check("and so is every youth's", moved(y0, y1), `e.g. ${$(y0[0]?.priceRange.low)}-${$(y0[0]?.priceRange.high)} -> ${$(y1[0]?.priceRange.low)}-${$(y1[0]?.priceRange.high)}`);
   const inter = q(`SELECT s.player_id AS id FROM career_player_state s JOIN players p ON p.id = s.player_id WHERE s.career_save_id = ? AND s.team_id = ? AND p.player_type = 'senior' AND s.squad_role = 'interchange'`, cidA, teamA)[0]?.id;
-  if (inter) await A("POST", `/players/${inter}/release`, {});
+  if (inter) freeSquadPlace(DB, inter);   // 1.1.1 (no dumping): the place is freed in this suite's own database
   const target = m1[0];
   const confirmStep = await A("POST", "/contracts", { playerId: target.id, salary: target.salary, bonusPerWin: 0, squadRole: "interchange", length: "1s" });
   check("and the signing's confirm step names the same, lower range (shown = charged)",
@@ -352,8 +352,11 @@ try {
     /if \(typeof club === "number"\) \{[\s\S]*?careerSavesTable\.teamId, club\)/.test(facesSrc)
       && /export const AI_CLUB_SPECIALITIES: readonly Speciality\[\] = \["Coach", "Youth Developer", "Fitness Guru"\];/.test(facesSrc)
       && /if \(club != null && typeof club === "object" && !AI_CLUB_SPECIALITIES\.includes\(speciality\)\) return 1;/.test(facesSrc));
+  // 1.1.1: an AI club's buy is a bid (aiTransfersWeekTx), and its youth buys ask her club with no price factor.
   check("(source) an AI club's purchases take no speciality; an AI academy's week only its Youth Developer",
-    /marketPrice\(careerSaveId, \{ \.\.\.m, askingPrice: null \}\)\.price/.test(src("artifacts/api-server/src/utils/aiSquads.ts"))
+    /priced: \{ \.\.\.m, askingPrice: null \}/.test(src("artifacts/api-server/src/utils/aiSquads.ts"))
+      && /marketPrice\(careerSaveId, m\.priced as Parameters<typeof marketPrice>\[1\]\)\.price/.test(src("artifacts/api-server/src/utils/aiSquads.ts"))
+      && /youthDealTx\(w, careerSaveId, club, best\.playerId, "buy", today\)/.test(src("artifacts/api-server/src/utils/youthDeals.ts"))
       && /academyWeek\(youthRating\(r\), r\.potential, Math\.floor\(Math\.random\(\) \* 5\), youthDeveloper\.get\(club\)\)/.test(src("artifacts/api-server/src/utils/youthLoans.ts"))
       && /specialityFactor\(\{ careerSaveId, poolTeamId: club \}, "Youth Developer"\)/.test(src("artifacts/api-server/src/utils/youthLoans.ts")));
   setFace(cidA, BASELINE);

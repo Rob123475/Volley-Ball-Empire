@@ -12,12 +12,15 @@
  *   3. Bought (confirm box, the contract box's wage and length, Interchange):
  *      the fee goes to the selling AI club's balance, Rob's budget and ledger
  *      pay it, her wage is on Rob's books, and the AI club still has two to
- *      play (it signed a free agent).
+ *      play (it signed a free agent). 1.1.1: a buy is a bid, agreed now and
+ *      paid now; she joins on her arrival day (the window, or the day after
+ *      her contract ends), and her club refills that day.
  *   4. An AI club that would be left without two and cannot sign anyone does
  *      not sell, and says why in plain words.
  *   5. The AI clubs buy from each other: a few moves a week at most, every
  *      club between two and three players, and no player moved on again
- *      within the season she joined (no back-and-forth).
+ *      within the season she joined (no back-and-forth). 1.1.1: they buy
+ *      ahead (bids agreed now, the players moving in the window).
  *   6. A whole season played: no AI club is ever short of two.
  *   7. A club retirement leaves with nobody, no youth and $0 signs the
  *      cheapest free agents on credit at the week's turn; with nobody in the
@@ -32,7 +35,7 @@ import { DatabaseSync } from "node:sqlite";
 
 import { requireElectronBinary } from "./electron-binary.mjs";
 import { forkServer, stopServer } from "./server-harness.mjs";
-import { healAllSquads, renewExpiringContracts, keepSideFielded, startCareer, makeCapRoom } from "./harness-club.mjs";
+import { healAllSquads, renewExpiringContracts, keepSideFielded, startCareer, makeCapRoom, freeSquadPlace } from "./harness-club.mjs";
 
 const REPO = path.join(import.meta.dirname, "..");
 const SHIPPED = path.join(REPO, "lib", "db", "volleyball-empire.sqlite");
@@ -143,22 +146,31 @@ try {
     seen?.price != null && seen.price >= wage * 0.85 - 500 && seen.price <= wage * 1.15 + 500, `${$(seen?.price)} against ${$(wage)}`);
 
   console.log("\n3. BOUGHT FROM HER AI CLUB");
-  for (const p of (await api("GET", "/players")).data.filter((p) => p.squadRole === "interchange")) await api("POST", `/players/${p.id}/release`, {});
+  // 1.1.1 (no dumping): the interchange's place is freed in this suite's own database.
+  for (const p of (await api("GET", "/players")).data.filter((p) => p.squadRole === "interchange")) freeSquadPlace(DB, p.id);
   makeCapRoom(DB, team.id);   // item 4a: room under the cap, which is not this suite's subject
   const seller = seen.aiClubId;
   const sellerBefore = balanceOf(cid, seller), robBefore = Number((await api("GET", "/team")).data.budget);
   const noConfirm = await api("POST", "/contracts", { playerId: target.id, salary: wage, bonusPerWin: 0, squadRole: "interchange", length: "1s" });
   check("the confirm box first: her price to confirm", noConfirm.status === 400 && noConfirm.data?.needsConfirm && noConfirm.data?.price === seen.price, noConfirm.data?.error);
-  const bought = await api("POST", "/contracts", { playerId: target.id, salary: wage, bonusPerWin: 0, squadRole: "interchange", length: "1s", confirm: true });
-  check("she signs for this club, as Interchange, on the box's wage and length", bought.status === 201, `HTTP ${bought.status} ${bought.data?.error ?? ""}`);
-  const st = q(`SELECT team_id, pool_team_id, salary, squad_role, contract_end_date FROM career_player_state WHERE career_save_id = ? AND player_id = ?`, cid, target.id)[0];
-  check("her wage is on this club's books, and she is no longer at the AI club", st.team_id === team.id && st.pool_team_id == null && Math.abs(st.salary - wage) < 0.01 && st.squad_role === "interchange",
-    `team ${st.team_id}, wage ${$(st.salary)}, to ${st.contract_end_date}`);
+  // 1.1.1: a bid well over her wage, so her club's counter (at most 10% over her worth) can't keep her.
+  const offered = Math.round(wage * 1.5);
+  const bought = await api("POST", "/contracts", { playerId: target.id, salary: offered, bonusPerWin: 0, squadRole: "interchange", length: "1s", confirm: true });
+  check("she agrees to join this club, as Interchange, on the box's wage and length", bought.status === 201 && bought.data?.transfer?.outcome === "agreed",
+    `HTTP ${bought.status} ${bought.data?.error ?? ""} ${bought.data?.transfer?.outcome ?? ""}, arrives ${bought.data?.transfer?.arrivesOn}`);
   const fee = bought.data?.fee;
   check("the fee goes to the selling AI club", Math.round(balanceOf(cid, seller) - sellerBefore) === fee, `${seen.currentTeamName}: ${$(sellerBefore)} -> ${$(balanceOf(cid, seller))} (+${$(fee)})`);
   const robAfter = Number((await api("GET", "/team")).data.budget);
-  const line = q(`SELECT description, amount FROM finance_transactions WHERE team_id = ? AND category = 'signing_fee' ORDER BY id DESC LIMIT 1`, team.id)[0];
+  // 1.1.1: a buy from a club is a transfer fee on the buyer's ledger.
+  const line = q(`SELECT description, amount FROM finance_transactions WHERE team_id = ? AND category = 'transfer_fee' ORDER BY id DESC LIMIT 1`, team.id)[0];
   check("this club pays it, on the ledger", Math.round(robBefore - robAfter) === fee && line?.amount === fee && line.description.includes(seen.currentTeamName), `"${line?.description}" ${$(line?.amount)}`);
+  // Her arrival day brought forward to tomorrow (it is the window, or the day after her contract ends).
+  const tomorrow = new Date(`${q(`SELECT "current_date" AS d FROM calendar_state WHERE team_id = ?`, team.id)[0].d}T00:00:00Z`); tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
+  w(`UPDATE transfer_deals SET arrives_on = ? WHERE id = ?`, tomorrow.toISOString().slice(0, 10), bought.data?.transfer?.id);
+  await day();
+  const st = q(`SELECT team_id, pool_team_id, salary, squad_role, contract_end_date FROM career_player_state WHERE career_save_id = ? AND player_id = ?`, cid, target.id)[0];
+  check("the day she arrives her wage is on this club's books, and she is no longer at the AI club", st.team_id === team.id && st.pool_team_id == null && Math.abs(st.salary - offered) < 0.01 && st.squad_role === "interchange",
+    `team ${st.team_id}, wage ${$(st.salary)}, to ${st.contract_end_date}`);
   const sz = squadSizes(cid);
   const refill = q(`SELECT p.name FROM career_player_state cps JOIN players p ON p.id = cps.player_id WHERE cps.career_save_id = ? AND cps.pool_team_id = ? AND cps.pool_player_id IS NULL AND cps.team_id IS NULL`, cid, seller);
   check("the AI club still has two to play: it signed a free agent", sz.get(seller) >= 2 && refill.length >= 1, `${seen.currentTeamName}: ${sz.get(seller)} players (signed ${refill.map((r) => r.name).join(", ")})`);
@@ -167,7 +179,7 @@ try {
   const poorClub = [...squadSizes(cid)].find(([id, n]) => n === 2 && id !== seller)[0];
   w(`UPDATE career_pool_team_state SET balance = 0 WHERE career_save_id = ? AND pool_team_id = ?`, cid, poorClub);
   const hers = q(`SELECT player_id AS id FROM career_player_state WHERE career_save_id = ? AND pool_team_id = ? AND team_id IS NULL LIMIT 1`, cid, poorClub)[0].id;
-  for (const p of (await api("GET", "/players")).data.filter((p) => p.squadRole === "interchange")) await api("POST", `/players/${p.id}/release`, {});
+  for (const p of (await api("GET", "/players")).data.filter((p) => p.squadRole === "interchange")) freeSquadPlace(DB, p.id);
   const refused = await api("POST", "/contracts", { playerId: hers, salary: 10000, bonusPerWin: 0, squadRole: "interchange", length: "1s", confirm: true });
   check("refused, in plain words", refused.status === 409 && /won't sell.*two players/i.test(refused.data?.error ?? ""), `HTTP ${refused.status}: ${refused.data?.error}`);
   check("and she is still at her club", q(`SELECT pool_team_id AS c FROM career_player_state WHERE career_save_id = ? AND player_id = ?`, cid, hers)[0].c === poorClub);
@@ -205,7 +217,9 @@ try {
   }
   const movedTotal = [...last].filter(([id, c]) => start.get(id) != null && start.get(id) !== c).length;
   const worstWeek = Math.max(0, ...perWeek.values());
-  check("AI clubs bought each other's players over ten weeks", movedTotal > 0, `${movedTotal} players at a different AI club than they started, over ${perWeek.size} weeks (${[...perWeek.values()].join(" ")})`);
+  // 1.1.1: AI clubs buy ahead; the players move in the window (or the day after a contract ends).
+  const aiDeals = q(`SELECT COUNT(*) AS n FROM transfer_deals WHERE career_save_id = ? AND from_pool_team_id IS NOT NULL AND to_pool_team_id IS NOT NULL AND status IN ('agreed', 'moved')`, cid)[0].n;
+  check("AI clubs bought each other's players over ten weeks (bought ahead)", aiDeals > 0, `${aiDeals} deals agreed; ${movedTotal} players already at a different AI club, over ${perWeek.size} weeks (${[...perWeek.values()].join(" ")})`);
   check("a few moves a week at most (two)", worstWeek <= 2, `most in one week: ${worstWeek}`);
   check("no player moved on again within the season she joined", Math.max(0, ...timesMoved.values()) <= 1, `${timesMoved.size} moved, most moves for one player: ${Math.max(0, ...timesMoved.values())}`);
   check("every AI club kept two or three players throughout", minSize >= 2 && maxSize <= 3, `smallest ${minSize}, largest ${maxSize}`);

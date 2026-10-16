@@ -27,7 +27,7 @@ import os from "node:os";
 import { DatabaseSync } from "node:sqlite";
 import { requireElectronBinary } from "./electron-binary.mjs";
 import { forkServer, stopServer } from "./server-harness.mjs";
-import { healAllSquads, startCareer } from "./harness-club.mjs";
+import { healAllSquads, startCareer, freeSquadPlace } from "./harness-club.mjs";
 
 const REPO = path.join(import.meta.dirname, "..");
 const SHIPPED = path.join(REPO, "lib", "db", "volleyball-empire.sqlite");
@@ -155,11 +155,9 @@ try {
   const signed = {};
   for (const [i, length] of ["6m", "1s", "2s"].entries()) {
     // Release anyone already signed so the squad cap never refuses the next one.
+    // 1.1.1 (no dumping): outside the window that is done in this suite's own database.
     const roster = (await api("GET", "/team/roster")).data ?? {};
-    for (const p of [...(roster.activePlayers ?? []), ...(roster.benchPlayers ?? [])]) {
-      const c = read(`SELECT id FROM contracts WHERE player_id = ? AND status = 'active'`, p.id)[0];
-      if (c) await api("DELETE", `/contracts/${c.id}`);
-    }
+    for (const p of [...(roster.activePlayers ?? []), ...(roster.benchPlayers ?? [])]) freeSquadPlace(dbFile, p.id);
     // Update 1 (Rob, 14 Oct, 4b-2): ending the drafted squad's contracts pays them out; the money is put back.
     write(`UPDATE teams SET budget = 1000000 WHERE id = ?`, teamId);
     const r = await api("POST", "/contracts", { confirm: true,
@@ -299,10 +297,7 @@ try {
     `HTTP ${poolRes.status}, ${Array.isArray(pool) ? pool.length : typeof poolRes.data}`);
   const target = pool.find((p) => !p.teamId);
   const roster2 = (await api("GET", "/team/roster")).data ?? {};
-  for (const p of [...(roster2.activePlayers ?? []), ...(roster2.benchPlayers ?? [])]) {
-    const c = read(`SELECT id FROM contracts WHERE player_id = ? AND status = 'active'`, p.id)[0];
-    if (c) await api("DELETE", `/contracts/${c.id}`);
-  }
+  for (const p of [...(roster2.activePlayers ?? []), ...(roster2.benchPlayers ?? [])]) freeSquadPlace(dbFile, p.id);
   // Paying the squad off above leaves the club in the red, and since Unity item
   // 15 a signing costs the player's price: fund the club so the scene can sign.
   write(`UPDATE teams SET budget = 1000000 WHERE id = ?`, teamId);
@@ -311,10 +306,16 @@ try {
   });
   check("a 2-season deal to pay out was signed", long.status === 201, `HTTP ${long.status}`);
 
+  // 1.1.1 (no dumping): outside the transfer window a senior's contract can't be ended early; in it, it can, paid out.
+  const outside = await api("DELETE", `/contracts/${long.data.id}`);
+  check("outside the transfer window it can't be ended early (no dumping)", outside.status === 409 && /transfer window/i.test(outside.data?.error ?? ""), `HTTP ${outside.status} ${outside.data?.error ?? ""}`);
+  const realToday = read(`SELECT "current_date" AS d FROM calendar_state WHERE team_id = ?`, teamId)[0].d;
+  write(`UPDATE calendar_state SET "current_date" = ? WHERE team_id = ?`, `${realToday.slice(0, 4)}-12-10`, teamId);
   const balBefore = Number((await api("GET", "/team")).data?.budget ?? 0);
   const killed = await api("DELETE", `/contracts/${long.data.id}`);
   const balAfter = Number((await api("GET", "/team")).data?.budget ?? 0);
-  check("terminating it early charged the club the remainder",
+  write(`UPDATE calendar_state SET "current_date" = ? WHERE team_id = ?`, realToday, teamId);
+  check("in the window (10 December), terminating it early charged the club the remainder",
     killed.status === 200 && killed.data?.payout > 0 && Math.round(balBefore - balAfter) === Math.round(killed.data.payout),
     `payout ${killed.data?.payout}; balance ${Math.round(balBefore)} -> ${Math.round(balAfter)}`);
 

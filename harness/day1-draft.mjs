@@ -177,9 +177,10 @@ try {
     starClubNow.length >= 2 && !starClubNow.some((p) => p.id === star.id) && !!filler && world.find((p) => p.id === filler.id)?.club == null,
     `club now ${starClubNow.length} seniors, the new one ${filler?.id}`);
   check("and the calendar runs now", (await A("POST", "/calendar/advance", {})).status === 200);
-  // After Day 1 the normal release rules apply (the old free first week is gone).
+  // After Day 1 the normal release rules apply (the old free first week is gone). 1.1.1 (no dumping):
+  // outside the transfer window a senior can't be released at all.
   const release = await A("POST", `/players/${big1.id}/release`, {});
-  check("after the draft, releasing a pick pays out the rest of her contract", release.status === 200 && Number(release.data?.payout ?? 0) > 0, `payout ${$(release.data?.payout ?? 0)}`);
+  check("after the draft, a pick can't be released until the transfer window (no dumping)", release.status === 409 && /transfer window/i.test(release.data?.error ?? ""), `HTTP ${release.status} ${release.data?.error ?? ""}`);
   check("the AI managers' faces were dealt after the draft", q(`SELECT COUNT(*) AS n FROM career_pool_team_state WHERE career_save_id = ? AND manager_face_id IS NOT NULL AND manager_name IS NOT NULL`, a.cid)[0].n === 60);
 
   // ── 5 and 6. The world after ───────────────────────────────────────────────

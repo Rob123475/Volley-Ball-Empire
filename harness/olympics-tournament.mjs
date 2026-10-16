@@ -36,7 +36,7 @@ import os from "node:os";
 
 import { requireElectronBinary } from "./electron-binary.mjs";
 import { forkServer, stopServer } from "./server-harness.mjs";
-import { healAllSquads, startCareer } from "./harness-club.mjs";
+import { healAllSquads, startCareer, freeSquadPlace, turnDownBids } from "./harness-club.mjs";
 
 const REPO = path.join(import.meta.dirname, "..");
 const SHIPPED = path.join(REPO, "lib", "db", "volleyball-empire.sqlite");
@@ -145,8 +145,9 @@ async function careerToOlympics() {
     // made the best players in the world so two of them are Australia's pair.
     {
       const season = (await api("GET", "/seasons/current")).data;
-      for (const p of (await api("GET", "/team/roster")).data?.starters ?? []) await api("POST", `/players/${p.id}/release`, {});
-      for (const p of (await api("GET", "/team/roster")).data?.interchanges ?? []) await api("POST", `/players/${p.id}/release`, {});
+      // 1.1.1 (no dumping): the squad leaves in this suite's own database (a release outside the window is refused).
+      for (const p of (await api("GET", "/team/roster")).data?.starters ?? []) freeSquadPlace(dbFile, p.id);
+      for (const p of (await api("GET", "/team/roster")).data?.interchanges ?? []) freeSquadPlace(dbFile, p.id);
       // Update 1 (Rob, 14 Oct, 4b-2): releasing the drafted squad pays its contracts out; the money is put back.
       { const bw = new DatabaseSync(dbFile); bw.prepare(`UPDATE teams SET budget = 500000 WHERE id = ?`).run(teamId); bw.close(); }
       let aus = ((await api("GET", "/players/free-agents")).data ?? []).filter((p) => p.nationality === "Australia").slice(0, 3);
@@ -177,6 +178,8 @@ async function careerToOlympics() {
     let sacked = false;
     await renewExpiringContracts(api);
     for (let day = 0; day < 1400 && !sacked; day++) {
+      // 1.1.1: he keeps his squad (an unanswered AI bid takes a player; transfers are not this suite's subject).
+      turnDownBids(dbFile, teamId);
       const r = await api("POST", "/calendar/advance", {});
       if (r.status >= 400) throw new Error(`advance ${r.status} ${JSON.stringify(r.data)}`);
       if (r.data?.fired) { sacked = true; break; }

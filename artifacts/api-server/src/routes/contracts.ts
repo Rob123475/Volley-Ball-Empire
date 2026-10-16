@@ -7,6 +7,7 @@ import { loadPlayers, loadPlayer, updatePlayerState, requireCareerSaveId, withCa
 import { academyCountTx, placeSignedYouthTx } from "../utils/youthLoans.js";
 import { canSellTx } from "../utils/aiSquads.js";
 import { bidTx, renewalRefusalTx, releaseRefusalTx } from "../utils/transfers.js";
+import { contractEndFrom } from "../utils/transferWindow.js";
 import { academyMonthlySalary } from "../utils/academy.js";
 import { db } from "@workspace/db";
 import { contractsTable, playersTable, teamsTable, continentalPoolTeamsTable, perksText, perksMonthly } from "@workspace/db";
@@ -17,7 +18,7 @@ import { getGameDate, gameDateText } from "../utils/gameDate.js";
 import { getActiveSeason } from "../lib/getActiveSeason.js";
 import { seasonEndsFrom } from "../utils/seasonDates.js";
 import {
-  contractEndDate, renewalEndDate, terminationPayout, readContractLength,
+  renewalEndDate, terminationPayout, readContractLength,
 } from "../utils/contractTerms.js";
 import { financeTransactionsTable } from "@workspace/db";
 import { marketPrice, youthPrice, isRevealed } from "../utils/marketScouting.js";
@@ -255,7 +256,8 @@ router.post("/contracts", async (req, res) => {
   // seasons — the caller no longer supplies a date at all.
   const today = await getGameDate(team.id);
   const cidForTerm = requireCareerSaveId(req.activeCareerSaveId);
-  const actualEnd = contractEndDate(wanted.length, today, await seasonEndsFrom(cidForTerm, today));
+  // 1.1.1: a contract signed in the transfer window runs from the next season (utils/transferWindow.ts).
+  const actualEnd = contractEndFrom(wanted.length, today, await seasonEndsFrom(cidForTerm, today));
   // Overnight 1 Oct, N-33: a youth is paid the academy's wage for her talent
   // (utils/academy.ts, about $325-$650 a month; it is what the weekly run bills
   // her), whatever the box sends: the offer used to default to $5,000 a month.
