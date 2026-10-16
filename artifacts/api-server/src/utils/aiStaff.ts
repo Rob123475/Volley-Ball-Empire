@@ -1,6 +1,9 @@
 /**
  * Update 1, overnight brief part 1a (Rob, 14 Oct): the AI clubs take staff
- * from the market on Day 8.
+ * from the market on Day 8. Rob, 16 Oct: on Jan 8 of every season, and only
+ * then. An AI staff contract that ends goes back to the market that day; the
+ * gap it leaves stays until the next Jan 8, when every AI club with a gap hires
+ * from what is on the market by the same rules.
  *
  * Every AI club employs at least one coach (a Head Coach or an Assistant Coach)
  * and one medical member, picked at random: a Doctor or Physiotherapist while
@@ -15,10 +18,9 @@
  * The world has only 10 of each role and every member has a portrait made for
  * them (images/staff/), so new staff cannot be made without new pictures. So
  * the deal takes only what is spare: at least AI_STAFF.marketFloor of every
- * role stays on the market for the player. A club that misses out fills one
- * coach and one medical member at a time as contracts end (fillAiStaffTx runs
- * every day once the deal is done). docs/STATUS-UPDATE1-OVERNIGHT.md says how
- * many pictures of which roles would let every club have both.
+ * role stays on the market for the player. A club that misses out waits for
+ * the next Jan 8. docs/STATUS-UPDATE1-OVERNIGHT.md says how many pictures of
+ * which roles would let every club have both.
  *
  * An AI club's staff are stored exactly as the player's are, so the shared
  * bonus rules read either (loadStaffTx(tx, cid, { poolTeamId })).
@@ -34,7 +36,7 @@ import { seasonEndsForCareerTx } from "./seasonDates.js";
 
 /** Every tunable number of the AI staff deal, in one place. */
 export const AI_STAFF = {
-  /** The career day the AI clubs take their staff (Day 1 is the first day). */
+  /** The day of January the AI clubs take their staff, every season (Day 8 of a new career: it starts on Jan 1). */
   dealDay: 8,
   /** At least this many of every role stay on the market for the player. */
   marketFloor: 5,
@@ -53,7 +55,12 @@ export const STAFF_BACK_ON_MARKET: Partial<CareerStaffFields> = {
   offCause: null, offSince: null, offDaysLeft: 0,
 };
 
-/** The game date of Day `AI_STAFF.dealDay`, for a career whose first day is `firstDay`. */
+/** The game date of Day `AI_STAFF.dealDay`, for a career whose first day is `firstDay` (Jan 1: Jan 8). */
+/** Rob, 16 Oct: the AI clubs hire staff on this day of every season (Jan 8) and on no other. */
+export function isAiStaffDealDay(today: string): boolean {
+  return today.slice(5, 10) === `01-${String(AI_STAFF.dealDay).padStart(2, "0")}`;
+}
+
 export function aiStaffDealDate(firstDay: string): string {
   const d = new Date(`${firstDay}T00:00:00Z`);
   d.setUTCDate(d.getUTCDate() + AI_STAFF.dealDay - 1);
@@ -71,17 +78,9 @@ function shuffle<T>(xs: T[], random: () => number): T[] {
   return a;
 }
 
-/**
- * End the AI clubs' staff contracts that have run out, then give every AI club
- * that has no coach one coach, and every one with no medical member one
- * medical member (a doctor or physio while one is spare), while at least
- * AI_STAFF.marketFloor of each role stay on the market. Clubs go in random order. A club that cannot pay the signing fee
- * (one month's salary, the player's rule) waits.
- */
-export function fillAiStaffTx(
-  w: CareerStateTx, careerSaveId: number, today: string, seasonEnds: readonly string[], random: () => number = Math.random,
-): { hired: number; ended: number } {
-  const rows: Row[] = w.tx.select({
+/** Every career staff row with its role (AI clubs', the player's and the market's). */
+function staffRowsTx(w: CareerStateTx, careerSaveId: number): Row[] {
+  return w.tx.select({
     staffId: careerStaffStateTable.staffId, role: staffTable.role,
     teamId: careerStaffStateTable.teamId, poolTeamId: careerStaffStateTable.poolTeamId,
     salary: careerStaffStateTable.salary, contractEndDate: careerStaffStateTable.contractEndDate,
@@ -90,16 +89,31 @@ export function fillAiStaffTx(
     .where(eq(careerStaffStateTable.careerSaveId, careerSaveId))
     .all()
     .map((r) => ({ ...r, role: normaliseRole(r.role), salary: Number(r.salary) }));
+}
 
+/** The AI clubs' staff contracts that have run out go back to the market (every day). */
+export function endAiStaffContractsTx(w: CareerStateTx, careerSaveId: number, today: string): number {
   let ended = 0;
-  for (const r of rows) {
+  for (const r of staffRowsTx(w, careerSaveId)) {
     if (r.poolTeamId != null && r.contractEndDate != null && r.contractEndDate < today) {
       w.setStaffState(careerSaveId, r.staffId, STAFF_BACK_ON_MARKET);
-      r.poolTeamId = null; r.contractEndDate = null;
       ended++;
     }
   }
+  return ended;
+}
 
+/**
+ * Give every AI club that has no coach one coach, and every one with no
+ * medical member one medical member (a doctor or physio while one is spare),
+ * while at least AI_STAFF.marketFloor of each role stay on the market. Clubs go
+ * in random order. A club that cannot pay the signing fee (one month's salary,
+ * the player's rule) waits for the next deal.
+ */
+export function hireAiStaffTx(
+  w: CareerStateTx, careerSaveId: number, today: string, seasonEnds: readonly string[], random: () => number = Math.random,
+): number {
+  const rows = staffRowsTx(w, careerSaveId);
   const clubs = w.tx.select({ poolTeamId: careerPoolTeamStateTable.poolTeamId, balance: careerPoolTeamStateTable.balance })
     .from(careerPoolTeamStateTable)
     .where(and(eq(careerPoolTeamStateTable.careerSaveId, careerSaveId), isNull(careerPoolTeamStateTable.takenOverAt)))
@@ -138,22 +152,25 @@ export function fillAiStaffTx(
         .run();
     }
   }
-  return { hired, ended };
+  return hired;
 }
 
 /**
- * The day's AI staff step (routes/calendar.ts): the Day 8 deal when its date
- * comes, and every day after it the contracts that end and the gaps they leave.
+ * The day's AI staff step (routes/calendar.ts). Every day the AI clubs' ended
+ * contracts go back to the market. On Jan 8 of every season, and on no other
+ * day (Rob, 16 Oct), every AI club with a gap hires; a new career's first deal
+ * is its Day 8 (aiStaffDealOn), marked dealt then.
  */
 export function aiStaffDayTx(w: CareerStateTx, careerSaveId: number, today: string): { hired: number; ended: number } | null {
   const [save] = w.tx.select({ on: careerSavesTable.aiStaffDealOn, at: careerSavesTable.aiStaffDealtAt })
     .from(careerSavesTable).where(eq(careerSavesTable.id, careerSaveId)).all();
   if (!save) return null;
-  if (save.at == null) {
-    if (save.on == null || today < save.on) return null;
-    w.tx.update(careerSavesTable).set({ aiStaffDealtAt: today }).where(eq(careerSavesTable.id, careerSaveId)).run();
-  }
-  return fillAiStaffTx(w, careerSaveId, today, seasonEndsForCareerTx(w.tx, careerSaveId, today));
+  const ended = endAiStaffContractsTx(w, careerSaveId, today);
+  // An older career not dealt yet waits for the boot's deal (dealAiStaffToOlderCareers).
+  if (save.at == null && save.on == null) return { hired: 0, ended };
+  if (!isAiStaffDealDay(today) || (save.on != null && today < save.on)) return { hired: 0, ended };
+  if (save.at == null) w.tx.update(careerSavesTable).set({ aiStaffDealtAt: today }).where(eq(careerSavesTable.id, careerSaveId)).run();
+  return { hired: hireAiStaffTx(w, careerSaveId, today, seasonEndsForCareerTx(w.tx, careerSaveId, today)), ended };
 }
 
 /**
@@ -169,7 +186,8 @@ export function dealAiStaffToOlderCareers(): number {
   for (const { id, today } of careers) {
     withCareerStateTx((w) => {
       w.tx.update(careerSavesTable).set({ aiStaffDealOn: today, aiStaffDealtAt: today }).where(eq(careerSavesTable.id, id)).run();
-      fillAiStaffTx(w, id, today, seasonEndsForCareerTx(w.tx, id, today));
+      endAiStaffContractsTx(w, id, today);
+      hireAiStaffTx(w, id, today, seasonEndsForCareerTx(w.tx, id, today));
     });
   }
   return careers.length;

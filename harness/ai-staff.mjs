@@ -13,11 +13,15 @@
  *   4. an AI club's staff are not on the Staff or Medical Market and cannot be
  *      hired by the player
  *   5. an AI contract that ends puts them back on the market at their wage, and
- *      a club with a gap fills it (one coach, one medical, at a time)
+ *      the gap stays: nobody is hired the next day (Rob, 16 Oct)
  *   6. the player's own staff contract ending keeps the wage (it was set to $0)
  *   7. an older career (no deal dates) is dealt once at boot
  *   8. part 3: their bonuses go through the player's own functions (training
  *      XP, healing, off ill gives nothing)
+ *   9. Rob, 16 Oct: AI clubs hire staff on Jan 8 of every season and on no
+ *      other day: a gap made mid-season (and every contract that ends during
+ *      the season) stays empty until the next Jan 8; on that Jan 8 every AI
+ *      club that can pay has a coach and a medic
  */
 import fs from "node:fs";
 import os from "node:os";
@@ -26,7 +30,7 @@ import { DatabaseSync } from "node:sqlite";
 
 import { requireElectronBinary } from "./electron-binary.mjs";
 import { forkServer, stopServer } from "./server-harness.mjs";
-import { healAllSquads, startCareer } from "./harness-club.mjs";
+import { healAllSquads, startCareer, keepSideFielded, renewExpiringContracts, keepClubSolvent } from "./harness-club.mjs";
 
 const REPO = path.join(import.meta.dirname, "..");
 const SHIPPED = path.join(REPO, "lib", "db", "volleyball-empire.sqlite");
@@ -163,27 +167,20 @@ try {
   check("hiring an AI club's coach or medical member is refused", hire.status === 400 && hireMed.status === 400, `${hire.status} / ${hireMed.status}`);
 
   // ── 5. An AI contract ends ─────────────────────────────────────────────────
-  console.log("\n5. AN AI CONTRACT THAT ENDS: BACK ON THE MARKET, AND A GAP IS FILLED");
+  // Rob, 16 Oct: the gap stays until the next Jan 8 (section 9 runs to it).
+  console.log("\n5. AN AI CONTRACT THAT ENDS: BACK ON THE MARKET, AND THE GAP STAYS");
   const leaving = takenMed;
   w(`UPDATE career_staff_state SET contract_end_date = ? WHERE career_save_id = ? AND staff_id = ?`, "2026-01-01", cid, leaving.id);
   const medBefore = aiStaff().filter((s) => MEDICAL.includes(s.role));
-  const bal0 = balances();
   await day();
-  const bal1 = balances();
-  const back = q(`SELECT team_id AS t, pool_team_id AS p, salary FROM career_staff_state WHERE career_save_id = ? AND staff_id = ?`, cid, leaving.id)[0];
+  const back = q(`SELECT team_id AS t, pool_team_id AS p, salary, contract_start_date AS d FROM career_staff_state WHERE career_save_id = ? AND staff_id = ?`, cid, leaving.id)[0];
   const medAfter = aiStaff().filter((s) => MEDICAL.includes(s.role));
-  // Night 2: with Rob's portraits the market holds 10-30 of each medical role, so the club she left
-  // (the one club with a gap) may sign her straight back on a new contract the same day.
-  const startedToday = q(`SELECT contract_start_date AS d FROM career_staff_state WHERE career_save_id = ? AND staff_id = ?`, cid, leaving.id)[0]?.d === today();
-  check("her contract ended: she left her club with her wage as it was (or the club with the gap signed her again, on a new contract today)",
-    back.salary === leaving.salary && (back.p !== leaving.club || startedToday), `now at pool club ${back.p}, wage ${back.salary}${startedToday ? ", new contract today" : ""}`);
-  const gained = medAfter.filter((s) => !medBefore.some((b) => b.id === s.id && b.club === s.club) || (s.id === leaving.id && startedToday));
-  check("the gap she left on the market was filled by one club with no medical member (one at a time)",
-    medAfter.length === medBefore.length && gained.length === 1 && medBefore.filter((b) => b.club === gained[0].club && b.id !== leaving.id).length === 0,
-    `${gained.length} gained, ${medAfter.length} medical at AI clubs`);
-  const g = gained[0];
-  check("that club paid her signing fee (one month's salary) from its balance", g && bal0.get(g.club) - bal1.get(g.club) >= g.salary - 1,
-    g ? `${Math.round(bal0.get(g.club) - bal1.get(g.club))} for a ${g.salary} wage` : "");
+  check("her contract ended: she is back on the market with her wage as it was",
+    back.p == null && back.t == null && back.d == null && back.salary === leaving.salary, `pool club ${back.p}, wage ${back.salary}`);
+  check("the gap stays: her club has no medical member and nobody was hired the day after Jan 8",
+    medAfter.length === medBefore.length - 1 && !medAfter.some((s) => s.club === leaving.club)
+      && q(`SELECT COUNT(*) n FROM career_staff_state WHERE career_save_id = ? AND pool_team_id IS NOT NULL AND contract_start_date = ?`, cid, today())[0].n === 0,
+    `${medAfter.length} medical at AI clubs (${medBefore.length} before), today ${today()}`);
   check("the market still has 5 of every role", Object.values(marketByRole()).every((n) => n >= FLOOR));
 
   // ── 6. The player's own expiry keeps the wage ──────────────────────────────
@@ -228,6 +225,56 @@ try {
   check("(source) an AI club's staff go off ill on the same odds, so one off gives nothing (staffOnDuty in every bonus)",
     /export function aiStaffAbsenceDayTx/.test(illSrc) && /aiStaffAbsenceDayTx\(w, careerSaveId, calendar\.currentDate\)/.test(SRC("routes/calendar.ts"))
       && /staffOnDuty\(s\)/.test(SRC("utils/staffBonuses.ts")));
+
+  // ── 9. Jan 8, every season, and only then ──────────────────────────────────
+  console.log("\n9. A GAP MID-SEASON WAITS FOR THE NEXT JAN 8; ON JAN 8 EVERY AI CLUB THAT CAN PAY HIRES");
+  const myTeam = () => q(`SELECT team_id AS t FROM career_saves WHERE id = ?`, cid)[0].t;
+  const nowDate = () => q(`SELECT "current_date" AS d FROM calendar_state WHERE team_id = ?`, myTeam())[0]?.d;
+  // A gap made today: an AI club's coach whose contract has ended.
+  const coachNow = aiStaff().find((s) => COACHING.includes(s.role));
+  w(`UPDATE career_staff_state SET contract_end_date = ? WHERE career_save_id = ? AND staff_id = ?`, "2026-01-01", cid, coachNow.id);
+  const gapClub = coachNow.club, gapMadeOn = nowDate();
+  let offDayHires = 0, ended = 0, guard9 = 0, lastStaff = new Set(aiStaff().map((s) => `${s.id}@${s.club}`));
+  const offDays = [];
+  while ((nowDate() ?? "") < "2027-01-07" && guard9++ < 800) {
+    keepClubSolvent(DB, myTeam());
+    await keepSideFielded(api);
+    await renewExpiringContracts(api);
+    const r = await day();
+    if (r.data?.seasonRollover && r.data.seasonRollover.kind !== "none") w(`UPDATE board_seasons SET grade = 'met' WHERE career_save_id = ? AND grade = 'failed'`, cid);
+    const d = nowDate();
+    const hiredToday = q(`SELECT COUNT(*) n FROM career_staff_state WHERE career_save_id = ? AND pool_team_id IS NOT NULL AND contract_start_date = ?`, cid, d)[0].n;
+    if (hiredToday > 0 && d.slice(5) !== "01-08") { offDayHires += hiredToday; offDays.push(d); }
+    const nowStaff = new Set(aiStaff().map((s) => `${s.id}@${s.club}`));
+    for (const k of lastStaff) if (!nowStaff.has(k)) ended++;
+    lastStaff = nowStaff;
+  }
+  const onJan7 = aiStaff();
+  check("the calendar reached Jan 7 of the next season", nowDate() === "2027-01-07", `${nowDate()} after ${guard9} days`);
+  check(`the gap made on ${gapMadeOn} (a coach) is still empty on Jan 7`, !onJan7.some((s) => s.club === gapClub && COACHING.includes(s.role)));
+  check("no AI club hired staff on any day but Jan 8", offDayHires === 0, `${offDayHires} hire(s)${offDays.length ? " on " + offDays.slice(0, 5).join(", ") : ""}; ${ended} AI staff contracts ended during the season`);
+  const before8 = new Set(onJan7.map((s) => s.id));
+  await day();
+  const jan8 = nowDate(), after8 = aiStaff();
+  const hired8 = after8.filter((s) => !before8.has(s.id));
+  check("on Jan 8 the AI clubs with a gap hired", jan8 === "2027-01-08" && hired8.length > 0, `${hired8.length} hired on ${jan8}`);
+  check("the club with the mid-season gap has a coach again", after8.some((s) => s.club === gapClub && COACHING.includes(s.role)));
+  // Every AI club has a coach and a medic, or that group's market was down to its floor, or it couldn't pay.
+  const liveClubs = q(`SELECT pool_team_id AS club, balance FROM career_pool_team_state WHERE career_save_id = ? AND taken_over_at IS NULL`, cid);
+  const market8 = q(`SELECT st.role, s.salary FROM career_staff_state s JOIN staff st ON st.id = s.staff_id WHERE s.career_save_id = ? AND s.team_id IS NULL AND s.pool_team_id IS NULL`, cid);
+  const spareIn = (group) => group.some((role) => market8.filter((m) => m.role === role).length > FLOOR);
+  const cheapestIn = (group) => Math.min(...market8.filter((m) => group.includes(m.role)).map((m) => m.salary));
+  const unexplained = [];
+  for (const c of liveClubs) for (const [group, name] of [[COACHING, "coach"], [MEDICAL, "medic"]]) {
+    if (after8.some((s) => s.club === c.club && group.includes(s.role))) continue;
+    if (!spareIn(group) || c.balance < cheapestIn(group)) continue;
+    unexplained.push(`club ${c.club} no ${name}`);
+  }
+  check("on Jan 8 every AI club that can pay has a coach and a medic (the rest: the market at its floor, or no money)",
+    unexplained.length === 0, unexplained.slice(0, 5).join(", ") || `${liveClubs.length} clubs`);
+  const withBoth = liveClubs.filter((c) => after8.some((s) => s.club === c.club && COACHING.includes(s.role)) && after8.some((s) => s.club === c.club && MEDICAL.includes(s.role))).length;
+  info(`on ${jan8}: ${withBoth} of ${liveClubs.length} AI clubs have a coach and a medic`);
+  check("the market still has 5 of every role", Object.values(marketByRole()).every((n) => n >= FLOOR));
 } catch (err) {
   failures++;
   console.log(`  FAIL  the suite threw: ${err?.stack ?? err}`);

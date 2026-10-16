@@ -789,9 +789,9 @@ async function advanceOneDay(req: Request): Promise<DayResult> {
     }
   }
 
-  // 5c. Update 1, overnight part 1a: the AI clubs' staff. On Day 8 they take a
-  // coach and a medical member each from the market; every day after, their
-  // ended contracts go back to the market and a club with a gap fills it.
+  // 5c. Update 1, overnight part 1a: the AI clubs' staff. Every day their ended
+  // contracts go back to the market; on Jan 8 of every season, and only then
+  // (Rob, 16 Oct), a club with no coach or no medical member hires one.
   withCareerStateTx((w) => aiStaffDayTx(w, expiryCareerId, nextDate));
   // 5d. Update 1, overnight part 4 (B-3): a re-scout whose report is in becomes her report.
   withCareerStateTx((w) => applyDueScoutReportsTx(w, expiryCareerId, nextDate));
