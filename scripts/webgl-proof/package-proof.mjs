@@ -10,6 +10,10 @@
  * Established), the Day 1 draft picked in the UI, Next match (days pass), the
  * match day box's Watch Match: the 3D court until Unity reports the result and
  * Continue is pressed, Next match again, then Settings.
+ * Rob, 16 Oct (last fixes): Advance during the draft says why, with the way to
+ * the draft; Close the draft says the AI clubs have filled; the staff banner on
+ * Jan 1 and not on the match day; Pause and Resume on the 3D court (the picture
+ * stands still, then moves); the Sort menus on the three markets.
  * Screenshots in <outDir>; one JSON summary on stdout.
  *
  * Usage: node scripts/webgl-proof/package-proof.mjs "C:/build/vbe-<name>/win-unpacked/Beach Volleyball Empire.exe" <outDir>
@@ -98,6 +102,16 @@ try {
   await sleep(4000);
   step("after CONTINUE", { path: await ev(`location.pathname`) });
 
+  // Rob, 16 Oct: Advance while the draft is open says why, in plain words, with the way to the draft.
+  await nav("/"); await sleep(2500);
+  await clickText(/^Advance$/); await sleep(2500);
+  const refusedText = await ev(`document.body.innerText`);
+  out.advanceRefused = { said: /Pick 2 or 3 seniors in the Day 1 draft first/.test(refusedText), noPath: !/\/api\/calendar\/advance 409/.test(refusedText), openTheDraft: /Open the draft/.test(refusedText) };
+  await shot("advance-refused");
+  if (await clickText(/^Open the draft$/)) await sleep(2500);
+  out.advanceRefused.wentToDraft = (await ev(`location.pathname`)) === "/day1-draft";
+  step("Advance during the draft", out.advanceRefused);
+
   // The Day 1 draft, in the UI: free agents, the cheapest that fits each time, then Finish.
   if ((await ev(`location.pathname`)) !== "/day1-draft") await nav("/day1-draft");
   await waitFor(`!!document.querySelector('[data-testid="draft-wage-cap"]')`, 30000);
@@ -115,7 +129,9 @@ try {
   await shot("draft-picked");
   await click('[data-testid="draft-finish"]');
   await waitFor(`location.pathname === "/" && !!document.querySelector('[data-testid="calendar-date"]')`, 30000);
+  out.draftClosedMessage = await waitFor(`/Draft closed\./.test(document.body.innerText) && /The AI clubs have filled their squads from the players left\./.test(document.body.innerText)`, 10000, 250);
   await sleep(3000);
+  out.staffBannerJan1 = await ev(`!!document.querySelector('[data-testid="staff-deal-warning"]') && /Hire your staff and medical team before Jan 8/.test(document.body.innerText)`);
   out.afterDraft = { date: await ev(`document.querySelector('[data-testid="calendar-date"]')?.textContent`), squad: await ev(`fetch("/api/day1-draft").then(r => r.json()).then(d => ({ open: d.open, picks: (d.picks ?? []).map(p => p.name) }))`) };
   step("draft finished", out.afterDraft);
   await shot("dashboard-day1");
@@ -124,7 +140,8 @@ try {
   await click('[data-testid="button-next-match"]');
   await waitFor(`!!document.querySelector('[data-testid="match-day-box"]')`, 120000);
   out.matchDay = { date: await ev(`document.querySelector('[data-testid="calendar-date"]')?.textContent`), box: await ev(`document.querySelector('[data-testid="match-day-box"]')?.innerText.split("\\n").slice(0, 5).join(" | ")`) };
-  step("match day", out.matchDay);
+  out.staffBannerOnMatchDay = await ev(`!!document.querySelector('[data-testid="staff-deal-warning"]')`);
+  step("match day", { ...out.matchDay, staffBanner: out.staffBannerOnMatchDay });
   await shot("match-day-box");
   // The match day box's own Watch Match ("Play on the 3D court"; it has no test id).
   step("Watch Match pressed", { pressed: await ev(`(() => { const b = [...document.querySelectorAll('[data-testid="match-day-box"] button')].find(x => /Watch Match/.test(x.textContent)); if (b) b.click(); return !!b; })()`) });
@@ -134,6 +151,19 @@ try {
   const loaded = await waitFor(`window.__msgs.includes("unity-loaded")`, 300000, 1000);
   step("Unity loaded", { loaded: !!loaded });
   await sleep(15000); await shot("court-15s");
+  // Rob, 16 Oct: Pause and Resume on the court; the picture stands still, then moves again.
+  const frame = async () => crypto.createHash("sha1").update((await send("Page.captureScreenshot", { format: "png" })).result?.data ?? "").digest("hex");
+  const pressed = await click('[data-testid="button-court-pause"]');
+  await sleep(1500);
+  const p1 = await frame(); await sleep(3000); const p2 = await frame();
+  const shownPaused = await ev(`!!document.querySelector('[data-testid="court-paused"]') && document.querySelector('[data-testid="button-court-pause"]').textContent.trim() === "Resume"`);
+  await shot("court-paused");
+  await click('[data-testid="button-court-pause"]');
+  await sleep(1500);
+  const p3 = await frame(); await sleep(3000); const p4 = await frame();
+  out.pause = { pressed, shownPaused, stillWhilePaused: p1 === p2, movingAfterResume: p3 !== p4,
+    resumed: await ev(`!document.querySelector('[data-testid="court-paused"]') && document.querySelector('[data-testid="button-court-pause"]').textContent.trim() === "Pause"`) };
+  step("Pause and Resume on the court", out.pause);
   await sleep(45000); await shot("court-60s");
 
   // Until the court reports the result: the match is recorded, the result box is up, Continue (centre, 112 px below, at 1280x720).
@@ -173,6 +203,20 @@ try {
   await shot("settings");
   if (await clickText(/^Sound$/)) { await sleep(1500); out.settingsSound = await ev(`document.body.innerText.match(/Sound[\\s\\S]{0,400}/)?.[0].replace(/\\s+/g, " ")`); await shot("settings-sound"); }
   step("settings opened");
+
+  // Rob, 16 Oct: the Sort menus on the three markets (a React-controlled select: its own value setter, then change).
+  out.sortMenus = [];
+  for (const [where, testid, choose] of [["/players", "market-sort", "price_desc"], ["/staff-market", "staff-sort", "age_asc"], ["/medical-market", "medical-sort", "rating_desc"]]) {
+    await nav(where);
+    await waitFor(`!!document.querySelector('[data-testid="${testid}"]')`, 20000); await sleep(2000);
+    const options = await ev(`[...document.querySelector('[data-testid="${testid}"]').options].map(o => o.text)`);
+    await ev(`(() => { const el = document.querySelector('[data-testid="${testid}"]'); Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, "value").set.call(el, "${choose}"); el.dispatchEvent(new Event("change", { bubbles: true })); return true; })()`);
+    await sleep(1500);
+    const chosen = await ev(`document.querySelector('[data-testid="${testid}"]').value`);
+    out.sortMenus.push({ where, options, chosen });
+    await shot(`sort-${testid}`);
+  }
+  step("sort menus", out.sortMenus);
 } catch (err) {
   out.error = String(err?.stack ?? err);
 } finally {

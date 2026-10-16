@@ -4,12 +4,12 @@ Thank you for playing Beach Volleyball Empire! Update 1 is our biggest update ye
 
 ## Start your career your way
 - **Pick your manager.** Choose from 69 manager faces. Each one comes with a speciality: Talent Recruiter, Negotiator, Contracts Expert, Sponsor Magnet, Leader, Coach, Youth Developer or Fitness Guru. The AI clubs' managers have faces and specialities too.
-- **The Day 1 draft.** A new career starts with no squad. On Day 1 you pick 2 or 3 seniors from every senior in the world, free agents and AI clubs' players alike. There's no transfer fee on Day 1, only her wage, and you choose each contract's length.
+- **The Day 1 draft.** A new career starts with no squad. On Day 1 you pick 2 or 3 seniors from every senior in the world, free agents and AI clubs' players alike. There's no transfer fee on Day 1, only her wage, and you choose each contract's length. When you close the draft, the game tells you once the AI clubs have filled their squads from the players left. If you try to move the calendar on before you've picked, it says so and takes you to the draft.
 - **Difficulty.** Choose Easy, Medium or Hard when you start a career.
 
 ## A world that runs like yours
 - **A salary cap for everyone.** Every club's senior wages must stay under the cap, yours and the AI clubs' alike. At renewal a player who has improved asks for more.
-- **AI clubs hire staff.** On Day 8 every AI club takes a coach and a medical staff member from the market, so hire the ones you want in your first week.
+- **AI clubs hire staff on Jan 8.** Every season on Jan 8, and only then, each AI club without a coach or a medical staff member takes one from the market. A Dashboard reminder from Jan 1 says so, so hire the ones you want first. If an AI club's staff member leaves during the season, the job stays empty until the next Jan 8.
 - **AI clubs train, get injured and change.** Their players train, get hurt in matches, age and retire, and AI clubs sign, buy and release players through the season.
 - **Injured players come cheap.** An injured free agent asks for less, so stars do reach the market injured.
 
@@ -43,12 +43,14 @@ Thank you for playing Beach Volleyball Empire! Update 1 is our biggest update ye
 ## More to manage
 - **Pre-season camps.** Before each season choose a training camp (Altitude, Power House or Beach Academy), a rest, or skip it.
 - **Scouting and the Watch list.** Star any player to watch her, scout her again whenever you like, and keep every report with its date.
+- **Sort the markets.** The Player Market, Staff Market and Medical Market each have a Sort menu: price, rating, age, and on the Player Market injuries and contract time left too.
 
 ## Settings and sound
 - **A new Settings page** (the gear in the sidebar and on the title screen): fullscreen or windowed, window size and zoom, music volume, Auto or Manual on the 3D court, the controls, and the Rules.
 - **Match sound volume.** Separate sliders for the crowd and the commentary on the 3D court.
 - **A master volume** at the top of Sound turns everything up or down together: the music, the crowd and the commentary. The music's mute button mutes only the songs.
 - **Settings during a match.** The Settings button above the 3D court opens the sound and the controls over the match, without leaving it. Every change applies straight away.
+- **Pause a match.** The Pause button above the 3D court stops the match, picture and sound, in Auto and Manual. Press Resume to carry on.
 - **The match keeps playing, with its sound, when you click away from the court.** Before, clicking anywhere outside the court, or on another window, froze the match and cut all its sound until you clicked back on it.
 - **The Rules page** explains everything new in Update 1.
 
