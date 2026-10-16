@@ -22,6 +22,7 @@
   - She joins you when the window opens, or the day after her contract ends if that comes first.
   - Until then her old club pays her. Her wage starts with you the day she arrives.
   - Your salary cap is checked for the day she arrives, so a contract that ends before then makes room.
+  - That room is spoken for: renewing the player whose contract made it has to fit under the cap on the day she arrives, even at the same wage.
   - The Player Market shows "Joins [club] on [date]", and the Team page's new Transfers tab lists who's coming and who's going.
 - **No dumping.** Outside the window you can't release or sell a senior. Contracts that run out still end. Cover you signed for an injured player can go once she's fit again.
 - The AI clubs buy ahead too, from each other and from you.
@@ -75,10 +76,17 @@
 ## Staff Market
 - **A "Medical" pill** at the top of the Staff Market opens the medical hiring list. Everything else is where it was.
 
+## Junior medics
+- **37 new medical staff**, each with a portrait: 14 Registrars, 10 Physio Assistants and 13 Orthopaedic Surgeons.
+- **A Registrar is a junior Doctor, and a Physio Assistant a junior Physiotherapist.** They're cheaper and less skilled, but they treat injuries the same way.
+- **They're promoted to the full role within three years at a club,** with more skill and a full role's wage.
+- **An Orthopaedic Surgeon** is a Medical Specialist who is a little stronger and a little dearer.
+- They count under your staff budget, and the AI clubs hire and promote them by the same rules.
+
 ## Scouting: two reports at a time
 - **Each Scout, Head Coach and Assistant Coach works on two reports at a time.** Players, youths, staff and medical all count.
 - **Ask for a third and you're told who is busy**, and the day the next report is ready.
-- **A Scout away on a youth scouting mission does no reports**, and can't be sent on a second mission, until he's back.
+- **A Scout away on a youth scouting mission does no reports**, and can't be sent on a second mission, until the mission ends.
 - **Asking an AI club to sell you a youth is a negotiation.** It takes one of your negotiator's two places for 5 days. A loan needs none.
 - The Staff page shows each of your scouts' reports in progress, and any mission.
 - The AI clubs work to the same limit.

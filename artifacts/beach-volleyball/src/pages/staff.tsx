@@ -1,4 +1,5 @@
 import { gameDateText } from "@/lib/game-date";
+import { roleWithGrade } from "@/lib/staff-title";
 import { useStaffEffects } from "@/components/injury-history";
 import { contractPayout, monthsLeft } from "@/lib/contract-payout";
 import { CONTRACT_LENGTH_LABELS, type ContractLength } from "@/lib/contract-lengths";
@@ -253,7 +254,7 @@ function StaffCard({
         <div className="absolute top-2 left-2">
           <Badge className={cn("text-white text-[10px] gap-1 shadow", ROLE_COLORS[roleKey] ?? "bg-slate-500")}>
             <RoleIcon className="h-2.5 w-2.5" />
-            {ROLE_LABELS[normaliseRole(member.role) ?? ""] ?? member.role}
+            {roleWithGrade(ROLE_LABELS[normaliseRole(member.role) ?? ""] ?? member.role, (member as { grade?: string | null }).grade)}
           </Badge>
         </div>
 
@@ -374,7 +375,7 @@ function StaffCard({
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Role</span>
-                  <span className="font-semibold">{ROLE_LABELS[normaliseRole(member.role) ?? ""] ?? member.role}</span>
+                  <span className="font-semibold">{roleWithGrade(ROLE_LABELS[normaliseRole(member.role) ?? ""] ?? member.role, (member as { grade?: string | null }).grade)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Monthly salary</span>

@@ -10,6 +10,8 @@
  *   - seniorWageBillTx(club): the one figure every check and screen reads.
  *   - wageCapRefusal(bill, adding): a signing, a renewal at a higher wage, or any
  *     raise is refused if it takes the bill over the cap, in plain words (C-3 A).
+ *     Renewals go through renewalCapRefusalTx (1.1.1: one whose contract ends
+ *     before a player bought ahead arrives must fit on that day, even at the same wage).
  *     The wage checked is the one after any speciality (a Contracts Expert's
  *     -10% counts), because callers pass the wage she will be on.
  *   - A club already over the cap (C-5) keeps everyone; it just cannot add a
@@ -94,6 +96,35 @@ export function committedWageBillTx(tx: Tx, careerSaveId: number, club: WageClub
     .reduce((t, d) => t + Number(d.wage) + perksMonthly(d.perks), 0);
   return seniorWageBillTx(tx, careerSaveId, club) + coming;
 }
+
+/**
+ * 1.1.1 (found by the soak): a renewal's cap check, for every club. Only a raise
+ * is new spending (C-3 A), so a renewal at no more than her current cost passes
+ * even over the cap (C-5). But a player bought ahead was agreed on the club's bill
+ * on her arrival date, without the contracts that end before then (AC-8 A). So
+ * renewing one of those puts her whole cost back on that date's bill. It has to
+ * fit there, even at the same wage, or the club would be over its cap the day the
+ * new player arrives.
+ */
+export function renewalCapRefusalTx(tx: Tx, careerSaveId: number, club: WageClub, contractEndDate: string | null, costNow: number, costAfter: number): string | null {
+  const raise = wageCapRefusal(committedWageBillTx(tx, careerSaveId, club), costAfter - costNow);
+  if (raise) return raise;
+  if (!contractEndDate) return null;
+  const isClub = (teamId: number | null, poolTeamId: number | null) => ("teamId" in club ? teamId === club.teamId : poolTeamId === club.poolTeamId);
+  const arrivals = [...new Set(tx.select().from(transferDealsTable).where(and(eq(transferDealsTable.careerSaveId, careerSaveId), eq(transferDealsTable.status, "agreed"))).all()
+    .filter((d) => isClub(d.toTeamId, d.toPoolTeamId) && d.arrivesOn != null && d.arrivesOn > contractEndDate).map((d) => d.arrivesOn!))].sort();
+  for (const on of arrivals) {
+    const refused = wageCapRefusal(seniorWageBillTx(tx, careerSaveId, club, on), costAfter);
+    if (refused) return `On ${dayText(on)}, when a player bought ahead arrives: ${refused}`;
+  }
+  return null;
+}
+
+export function renewalCapRefusal(careerSaveId: number, club: WageClub, contractEndDate: string | null, costNow: number, costAfter: number): string | null {
+  return db.transaction((tx) => renewalCapRefusalTx(tx, careerSaveId, club, contractEndDate, costNow, costAfter));
+}
+
+const dayText = (d: string) => new Date(`${d}T00:00:00Z`).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
 
 export function committedWageBill(careerSaveId: number, club: WageClub): number {
   return db.transaction((tx) => committedWageBillTx(tx, careerSaveId, club));

@@ -25,7 +25,7 @@ import { marketPrice, youthPrice, isRevealed } from "../utils/marketScouting.js"
 import { askingWage, freeAgentInjuryWeeks } from "../utils/wageCurve.js";
 import { monthlySalaryFor } from "../utils/clubFinances.js";
 import { overallRating } from "../utils/overallRating.js";
-import { seniorWageBill, committedWageBill, wageCapRefusal, wageCapView } from "../utils/salaryCap.js";
+import { seniorWageBill, committedWageBill, wageCapRefusal, wageCapView, renewalCapRefusal } from "../utils/salaryCap.js";
 import { day1DraftOpen, undoDraftPickTx } from "../utils/day1Draft.js";
 import { specialityFactor } from "../utils/managerFaces.js";
 
@@ -51,7 +51,6 @@ router.get("/contracts", async (req, res) => {
   // Update 1, item 4a (C-4): what each senior asks to renew (the wage for her
   // current rating) and whether it fits under the cap, so the page never offers
   // a renewal the server then refuses.
-  const bill = committedWageBill(cid, { teamId: team.id });
   const contractsExpert = specialityFactor(team.id, "Contracts Expert");
   const withPlayers = await Promise.all(contracts.map(async (c) => {
     const player = await loadPlayer(cid, c.playerId);
@@ -59,7 +58,7 @@ router.get("/contracts", async (req, res) => {
     return {
       ...serializeContract(c),
       player: player ? { ...player, height: Number(player.height), salary: Number(player.salary) } : null,
-      renewal: ask == null ? null : { wage: ask, capRefusal: wageCapRefusal(bill, ask - Number(c.salary)) },
+      renewal: ask == null ? null : { wage: ask, capRefusal: renewalCapRefusal(cid, { teamId: team.id }, c.endDate ?? null, Number(c.salary) + perksMonthly(player?.perks ?? ""), ask + perksMonthly(player?.perks ?? "")) },
     };
   }));
   res.json(withPlayers);
@@ -393,8 +392,11 @@ router.post("/contracts/:id/renew", async (req, res) => {
       res.status(403).json({ error: `${spendingBlocked} A renewal at no more than her current wage is still allowed.` });
       return;
     }
-    // Update 1, item 4a (C-3 A, C-4): a renewal at a higher wage that breaks the cap is refused.
-    const overCap = wageCapRefusal(committedWageBill(cid, { teamId: team.id }), costAfter - costNow);
+  }
+  // Update 1, item 4a (C-3 A, C-4): a renewal at a higher wage that breaks the cap is refused; 1.1.1: one whose
+  // contract ends before a player bought ahead arrives must fit on that day (renewalCapRefusalTx).
+  if (!isAcademyYouth) {
+    const overCap = renewalCapRefusal(cid, { teamId: team.id }, player.contractEndDate ?? null, costNow, costAfter);
     if (overCap) { res.status(422).json({ error: overCap, wageCap: true }); return; }
   }
 

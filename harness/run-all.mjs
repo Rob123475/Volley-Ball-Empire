@@ -656,6 +656,8 @@ console.log("\n########## 98y/100  THE SCOUTING LIMIT (1.1.1 PART 10) ##########
 runSuite("scouting limit", path.join(REPO, "harness", "scouting-limit.mjs"));
 console.log("\n########## 98z/100  THE STAFF BUDGET (1.1.1 PART 11) ##########");
 runSuite("staff budget", path.join(REPO, "harness", "staff-budget.mjs"));
+console.log("\n########## 98za/100  JUNIOR MEDICS (1.1.1, 17 OCT) ##########");
+runSuite("junior medics", path.join(REPO, "harness", "junior-medics.mjs"));
 
 // ── Smoke needs a server; boot one on a throwaway copy of the shipped DB ─────
 console.log("\n########## 99/100  GAMEPLAY SMOKE ##########");

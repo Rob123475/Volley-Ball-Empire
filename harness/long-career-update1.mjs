@@ -100,6 +100,8 @@ const aiSeniors = () => q(`SELECT s.player_id AS id, p.name, s.pool_team_id AS c
 const injured = (s) => s.inj === 1 || (s.status ?? "Healthy") !== "Healthy";
 
 let myBudget = {};
+const overCapSeen = new Set(); const overCapDays = [];
+let shortClubDays = 0; let clubIds = [];
 function seasonTable(season, year, counters) {
   const seniors = aiSeniors();
   const rated = seniors.map((s) => ({ ...s, r: overallRating(s) })).sort((a, b) => b.r - a.r);
@@ -253,6 +255,7 @@ try {
     budget: club.startingBudget, difficulty: "established", gameDifficulty: DIFFICULTY, primaryColor: "#1e3a8a", secondaryColor: "#f59e0b", crestShapeIndex: 0 });
   teamId = (await api("GET", "/team")).data?.id;
   cid = q(`SELECT id FROM career_saves WHERE team_id = ?`, teamId)[0].id;
+  clubIds = q(`SELECT pool_team_id AS c FROM career_pool_team_state WHERE career_save_id = ? AND taken_over_at IS NULL`, cid).map((r) => r.c);
   console.log(`Soak: ${SEASONS} seasons, ${DIFFICULTY}, career ${cid}, work ${WORK}`);
 
   let season = 1, counters = { injuries: 0, longReleased: 0 }, prev = new Map(aiSeniors().map((s) => [s.id, s]));
@@ -293,6 +296,23 @@ try {
       if (fa && fa.t == null && fa.c == null) counters.longReleased++;
     }
     prev = nowMap;
+    // 1.1.1: the first day each AI club is over the cap with a senior who joined it this year, and its seniors
+    // then (the season table only sees the end of the year).
+    {
+      const by = new Map();
+      for (const s of now) if (s.ptype === "senior") by.set(s.club, [...(by.get(s.club) ?? []), s]);
+      // And any AI club left with fewer than two seniors to play (not on the injured list), club-days.
+      const placed = new Map(); for (const s of now) if (!s.listed) placed.set(s.club, (placed.get(s.club) ?? 0) + 1);
+      for (const c of clubIds) if ((placed.get(c) ?? 0) < 2) shortClubDays++;
+      const day = q(`SELECT "current_date" AS d FROM calendar_state WHERE team_id = ?`, myTeam())[0]?.d ?? "";
+      for (const [club, l] of by) {
+        const bill = l.reduce((t, s) => t + s.salary, 0);
+        if (bill <= CAP || !l.some((s) => s.joined != null && s.joined >= `${day.slice(0, 4)}-01-01`)) { overCapSeen.delete(club); continue; }
+        if (overCapSeen.has(club)) continue;
+        overCapSeen.add(club);
+        overCapDays.push(`${day} club ${club} $${bill.toLocaleString("en-US")}: ${l.map((s) => `${s.id} $${s.salary} joined ${s.joined}`).join("; ")}`);
+      }
+    }
     counters.aiPerks = (counters.aiPerks ?? 0) + q(`SELECT perks FROM career_player_state WHERE career_save_id = ? AND pool_team_id IS NOT NULL AND team_id IS NULL AND perks <> ''`, cid)
       .reduce((t, r) => t + perkBill(r.perks), 0) * 12 / 365;
     if (r.data?.seasonRollover && r.data.seasonRollover.kind !== "none") {
@@ -343,6 +363,8 @@ try {
     AND substr(d.moved_on, 6) < '12-07'`, cid).filter((d) => d.m !== (d.a > d.g ? d.a : d.g)).length;
   if (offWindow > 0) flags.push(`${offWindow} senior moves outside the window not on their arrival day`);
   console.log(`\nFLAGS: ${flags.length ? flags.join("; ") : "none"}`);
+  console.log(`AI clubs with fewer than two seniors to play: ${shortClubDays} club-days`);
+  if (overCapDays.length) console.log(`AI clubs going over the cap with a senior signed this year (first day each time): ${overCapDays.length}\n  ${overCapDays.slice(0, 40).join("\n  ")}`);
   if (process.env.SOAK_OUT) fs.writeFileSync(process.env.SOAK_OUT, JSON.stringify({ difficulty: DIFFICULTY, seasons: SEASONS, stopped, tables, flags }, null, 2));
   console.log(`\nSOAK ${tables.length === SEASONS && !stopped ? "COMPLETE" : "INCOMPLETE"}: ${tables.length} of ${SEASONS} seasons`);
 } catch (err) {

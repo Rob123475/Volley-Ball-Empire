@@ -74,6 +74,12 @@ try {
     const counted = third ? await W.api("POST", "/contracts", { playerId: third.id, salary: third.salary, length: "1s", confirm: true, perks: [] }) : null;
     check("and a player bought ahead counts on her arrival date: the next bid that would break it then is refused",
       !third || (counted.status === 422 && /On 7 December 2026/.test(counted.data?.error ?? "")), counted?.data?.error ?? "no such player");
+    // 1.1.1 (the soak, 17 Oct): the bid counted the June contract as gone on 7 Dec, so renewing her must fit on
+    // that day, even at her ask (no raise); before, a renewal at no more than her wage always passed.
+    const endingContract = W.q(`SELECT id FROM contracts WHERE player_id = ? AND team_id = ? AND status = 'active'`, ending.id, teamId)[0];
+    const renew = await W.api("POST", `/contracts/${endingContract.id}/renew`);
+    check("and renewing the senior whose contract ends in June (counted gone on 7 Dec) is refused while the bought player is to come, even with no raise",
+      renew.status === 422 && /On 7 December 2026, when a player bought ahead arrives/.test(renew.data?.error ?? ""), `HTTP ${renew.status} ${renew.data?.error ?? ""}`);
   } else info("her club kept her with its counter-offer: the bought-ahead count is checked below");
 
   // ── 2. Buy ahead ──────────────────────────────────────────────────────────
@@ -131,8 +137,6 @@ try {
     forHim = W.q(`SELECT * FROM transfer_deals WHERE career_save_id = ? AND from_team_id = ? AND to_pool_team_id IS NOT NULL`, cid, teamId)[0] ?? null;
   }
   check("an AI club bids for his star", !!forHim && forHim.status === "offered", forHim ? `${forHim.status}, answer by ${forHim.answer_by}` : "no bid in 3 weeks");
-  const aiToAi = W.q(`SELECT COUNT(*) n FROM transfer_deals WHERE career_save_id = ? AND from_pool_team_id IS NOT NULL AND to_pool_team_id IS NOT NULL`, cid)[0].n;
-  check("AI clubs bid for each other's seniors", aiToAi > 0, `${aiToAi} AI-to-AI bids`);
   if (forHim) {
     const go = await W.api("POST", `/transfers/${forHim.id}/let-go`, {});
     check("he lets her go: the deal is agreed and the fee is his", go.status === 200 && go.data?.outcome === "agreed", JSON.stringify(go.data?.outcome ?? go.data));
@@ -149,6 +153,10 @@ try {
     const r = await W.day();
     if (r.status >= 400) { info(`advance HTTP ${r.status} on ${await today()}: ${JSON.stringify(r.data).slice(0, 160)}`); break; }
   }
+  // (Counted over the year: an AI club counts a contract ending before the arrival as room only while two
+  // of its seniors run past it, the soak 17 Oct, so in the first weeks few fit.)
+  const aiToAi = W.q(`SELECT COUNT(*) n FROM transfer_deals WHERE career_save_id = ? AND from_pool_team_id IS NOT NULL AND to_pool_team_id IS NOT NULL`, cid)[0].n;
+  check("AI clubs bid for each other's seniors during the year", aiToAi > 0, `${aiToAi} AI-to-AI bids`);
   const after = state(target.id);
   const moved = W.q(`SELECT status, moved_on FROM transfer_deals WHERE id = ?`, deal.id)[0];
   check("on 7 Dec she is his, on the bid's wage, from that day", (await today()) >= "2026-12-07" && after.t === teamId && after.p == null

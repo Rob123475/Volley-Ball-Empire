@@ -34,7 +34,7 @@ import { inTransferWindow, nextWindowOpening, contractEndFrom } from "./transfer
 import { seasonEndsForCareerTx } from "./seasonDates.js";
 import { worldTourStandingsTx } from "./worldTour.js";
 import { coverOnRoster, clubInjuredListTx } from "./injuredList.js";
-import { balanceOf, addToBalance, aiTrimSquadsTx, keepAiSquadsTx, AI_BUY_RESERVE } from "./aiSquads.js";
+import { balanceOf, addToBalance, aiTrimSquadsTx, aiCapOnArrivalTx, keepAiSquadsTx, AI_BUY_RESERVE } from "./aiSquads.js";
 import type { ContractLength } from "./contractTerms.js";
 import { MAX_STARTERS } from "./squadRules.js";
 import { monthlySalaryFor } from "./clubFinances.js";
@@ -297,7 +297,7 @@ export function transfersDayTx(w: CareerStateTx, careerSaveId: number, today: st
   const myTeam = careerTeamIdTx(tx, careerSaveId);
   const nameOf = (id: number) => tx.select({ n: playersTable.name }).from(playersTable).where(eq(playersTable.id, id)).get()?.n ?? "A player";
   let aiSellerLeft = false;
-  const aiBuyers = new Set<number>();
+  const aiBuyers = new Map<number, number>();   // AI club -> the player who joined it today
   for (const d of tx.select().from(transferDealsTable).where(and(eq(transferDealsTable.careerSaveId, careerSaveId),
     eq(transferDealsTable.status, "offered"), lt(transferDealsTable.answerBy, today))).all()) {
     const outcome = agreeTx(w, careerSaveId, d.id, today);
@@ -307,7 +307,7 @@ export function transfersDayTx(w: CareerStateTx, careerSaveId: number, today: st
     eq(transferDealsTable.status, "agreed"), lte(transferDealsTable.arrivesOn, today))).all()) {
     const outcome = completeTx(w, careerSaveId, d.id, today);
     if (outcome === "moved" && d.fromPoolTeamId != null) aiSellerLeft = true;
-    if (outcome === "moved" && d.toPoolTeamId != null) aiBuyers.add(d.toPoolTeamId);
+    if (outcome === "moved" && d.toPoolTeamId != null) aiBuyers.set(d.toPoolTeamId, d.playerId);
     if (outcome === "moved" && (d.toTeamId === myTeam || d.fromTeamId === myTeam)) {
       news.push(d.toTeamId === myTeam ? `${nameOf(d.playerId)} arrives from ${clubNameTx(tx, fromOf(d))}.` : `${nameOf(d.playerId)} leaves for ${clubNameTx(tx, toOf(d))}.`);
     }
@@ -318,7 +318,9 @@ export function transfersDayTx(w: CareerStateTx, careerSaveId: number, today: st
   // A full AI club that bought lets its weakest go the day the new one arrives (its bid counted her wage
   // gone, bidTx `freeing`), even outside the window; in the window every club over its places trims.
   if (inTransferWindow(today)) aiTrimSquadsTx(w, careerSaveId);
-  else if (aiBuyers.size > 0) aiTrimSquadsTx(w, careerSaveId, aiBuyers);
+  else if (aiBuyers.size > 0) aiTrimSquadsTx(w, careerSaveId, new Set(aiBuyers.keys()));
+  // And every AI club a bought player joined today is under its cap (its bid counted on it).
+  if (aiBuyers.size > 0) aiCapOnArrivalTx(w, careerSaveId, aiBuyers);
   return news;
 }
 

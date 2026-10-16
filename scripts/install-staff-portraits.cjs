@@ -38,9 +38,18 @@
  *      saves get the new people on their next boot (ensureSchema.ts, Pass 3b).
  *      Re-running updates the people it wrote before (matched by picture).
  *
+ * 1.1.1 (Rob, 17 Oct): --juniors installs the junior medics instead (Registrars,
+ * Physio Assistants, Orthopaedic Surgeons): one folder each (JUNIOR_MEDICS
+ * "folder" in lib/db/src/schema/staff-roles.ts, read from that file), names by
+ * exact file name in docs/junior-medic-portrait-names.json, written as their
+ * full role (Doctor, Physiotherapist, Medical Specialist) with the grade, a skill
+ * spread over the grade's range and the role's wage line times the grade's
+ * share. --skip "<folder>/<file>" leaves a picture out (a duplicate).
+ *
  * Usage:
  *   node scripts/install-staff-portraits.cjs "<folder>"            dry run
  *   node scripts/install-staff-portraits.cjs "<folder>" --write
+ *   node scripts/install-staff-portraits.cjs "<folder>" --juniors --names docs/junior-medic-portrait-names.json --skip "orthapaedic surgeon/<file>" [--write]
  *   options (for a test run): --db <starter db copy>  --images <public/images/staff copy>  --names <names file>
  */
 const fs = require("fs");
@@ -69,6 +78,15 @@ const ROLES = {
 };
 
 const arg = (flag) => { const i = process.argv.indexOf(flag); return i > 0 ? process.argv[i + 1] : undefined; };
+const JUNIORS_ONLY = process.argv.includes("--juniors");
+const SKIP = new Set(process.argv.flatMap((a, i) => (a === "--skip" ? [process.argv[i + 1]] : [])));
+/** The junior grades, from the game's own constants (the JSON block between the markers). */
+const JUNIOR = (() => {
+  const src = fs.readFileSync(path.join(REPO, "lib/db/src/schema/staff-roles.ts"), "utf8");
+  const m = /\/\/ JUNIOR_MEDICS:BEGIN\s*export const JUNIOR_MEDICS = (\{[\s\S]*?\}) as const;\s*\/\/ JUNIOR_MEDICS:END/.exec(src);
+  if (!m) throw new Error("JUNIOR_MEDICS block not found in lib/db/src/schema/staff-roles.ts");
+  return JSON.parse(m[1]);
+})();
 const srcDir = process.argv[2];
 const write = process.argv.includes("--write");
 const DB = arg("--db") ?? path.join(REPO, "lib/db/volleyball-empire.sqlite");
@@ -95,12 +113,15 @@ function readName(file) {
   return { age: Number(m[1]), word, gender: /^(man|male)$/i.test(m[3]) ? "male" : "female" };
 }
 
-/** The role's skill -> monthly wage line: straight between its staff, flat past the ends. */
+/**
+ * The role's skill -> monthly wage line: straight between its staff, flat above the top. Below its
+ * lowest (1.1.1: a junior medic) the line runs down in proportion to the skill.
+ */
 function wageFor(existing, skill) {
   const bySkill = new Map();
   for (const r of existing) bySkill.set(r.skill_level, [...(bySkill.get(r.skill_level) ?? []), Number(r.base_salary)]);
   const pts = [...bySkill].map(([s, w]) => [s, w.reduce((a, b) => a + b, 0) / w.length]).sort((a, b) => a[0] - b[0]);
-  if (skill <= pts[0][0]) return Math.round(pts[0][1]);
+  if (skill <= pts[0][0]) return Math.round(pts[0][1] * Math.min(1, skill / pts[0][0]));
   for (let i = 1; i < pts.length; i++) {
     const [s0, w0] = pts[i - 1], [s1, w1] = pts[i];
     if (skill <= s1) return Math.round(w0 + ((w1 - w0) * (skill - s0)) / (s1 - s0));
@@ -136,11 +157,15 @@ function attributesFor(template, person, skill, wage) {
   const unreadable = [];
   const plan = [];
 
-  for (const [role, folder] of Object.entries(ROLES)) {
-    const dir = path.join(srcDir, role);
-    const files = fs.existsSync(dir) ? fs.readdirSync(dir).filter((f) => /\.(png|jpe?g|webp)$/i.test(f)).sort() : [];
-    if (files.length === 0) { console.log(`${TAG} ${role}: no pictures`); continue; }
-    const roleNames = names[role] ?? {};
+  // --juniors: one folder per grade, written as its full role. Otherwise one folder per role.
+  const groups = JUNIORS_ONLY
+    ? Object.entries(JUNIOR).map(([grade, g]) => ({ key: g.folder, role: g.of, folder: ROLES[g.of], grade, skill: g.skill, wageShare: g.wageShare }))
+    : Object.entries(ROLES).map(([role, folder]) => ({ key: role, role, folder, grade: null, skill: null, wageShare: 1 }));
+  for (const { key, role, folder, grade, skill: band, wageShare } of groups) {
+    const dir = path.join(srcDir, key);
+    const files = fs.existsSync(dir) ? fs.readdirSync(dir).filter((f) => /\.(png|jpe?g|webp)$/i.test(f) && !SKIP.has(`${key}/${f}`)).sort() : [];
+    if (files.length === 0) { console.log(`${TAG} ${key}: no pictures`); continue; }
+    const roleNames = names[key] ?? {};
     const keys = Object.keys(roleNames).filter((k) => !k.startsWith("_"));
     const used = new Set();
     const people = [];
@@ -173,16 +198,20 @@ function attributesFor(template, person, skill, wage) {
 
     const existing = db.prepare("SELECT * FROM staff WHERE role = ? AND id < ? ORDER BY skill_level").all(role, FIRST_ID);
     if (existing.length === 0) { problems.push(`${role}: no existing staff in the starter DB to take the rules from`); continue; }
-    const lo = existing[0].skill_level, hi = existing[existing.length - 1].skill_level;
+    // A junior grade's own skill range (its constants); a role's own staff's range otherwise.
+    const lo = band ? band[0] : existing[0].skill_level, hi = band ? band[1] : existing[existing.length - 1].skill_level;
     // Oldest first, then the names file's order; the picture numbers follow it.
     const order = [...people].sort((a, b) => b.age - a.age || a.file.localeCompare(b.file));
-    const firstNo = Math.max(0, ...existing.map((r) => Number(r.image_url?.match(/staff-(\d+)\.webp$/)?.[1] ?? 0))) + 1;
+    // Picture numbers after every picture already in the role's folder (the juniors share it).
+    const inFolder = db.prepare("SELECT image_url FROM staff WHERE image_url LIKE ?").all(`/images/staff/${folder}/%`);
+    const ownBefore = grade ? db.prepare("SELECT image_url FROM staff WHERE grade = ?").all(grade).map((r) => r.image_url) : [];
+    const firstNo = Math.max(0, ...inFolder.filter((r) => !ownBefore.includes(r.image_url)).map((r) => Number(r.image_url?.match(/staff-(\d+)\.webp$/)?.[1] ?? 0))) + 1;
     order.forEach((p, i) => {
       const skill = order.length === 1 ? Math.round((lo + hi) / 2) : Math.round(hi - ((hi - lo) * i) / (order.length - 1));
       const template = existing.reduce((best, r) => (Math.abs(r.skill_level - skill) < Math.abs(best.skill_level - skill) ? r : best));
-      const wage = wageFor(existing, skill);
+      const wage = Math.round(wageFor(existing, skill) * wageShare);
       plan.push({
-        ...p, role, folder, skill, wage, template,
+        ...p, role, folder, grade, skill, wage, template,
         image: `/images/staff/${folder}/staff-${String(firstNo + i).padStart(2, "0")}.webp`,
       });
     });
@@ -197,12 +226,12 @@ function attributesFor(template, person, skill, wage) {
     for (const p of problems) console.error(`  - ${p}`);
     process.exit(1);
   }
-  for (const role of Object.keys(ROLES)) {
-    const of = plan.filter((p) => p.role === role);
-    if (of.length) console.log(`  ${role.padEnd(19)} ${String(of.length).padStart(2)}  (${of.filter((p) => p.gender === "female").length} women, ${of.filter((p) => p.gender === "male").length} men)`);
+  for (const { key } of groups) {
+    const of = plan.filter((p) => p.src.includes(`${path.sep}${key}${path.sep}`));
+    if (of.length) console.log(`  ${key.padEnd(19)} ${String(of.length).padStart(2)}  (${of.filter((p) => p.gender === "female").length} women, ${of.filter((p) => p.gender === "male").length} men)`);
   }
   for (const p of plan) {
-    console.log(`  ${p.role.padEnd(19)} ${p.name.padEnd(24)} ${String(p.age).padStart(2)} ${COUNTRY[p.word].padEnd(14)} ${p.gender.padEnd(6)} skill ${p.skill}  $${p.wage.toLocaleString()}/mo  ${p.image}  (like ${p.template.name})`);
+    console.log(`  ${(p.grade ?? p.role).padEnd(19)} ${p.name.padEnd(24)} ${String(p.age).padStart(2)} ${COUNTRY[p.word].padEnd(14)} ${p.gender.padEnd(6)} skill ${p.skill}  $${p.wage.toLocaleString()}/mo  ${p.image}  (like ${p.template.name})`);
   }
   if (!write) { console.log(`\n${TAG} dry run: nothing written. Re-run with --write.`); return; }
 
@@ -224,7 +253,7 @@ function attributesFor(template, person, skill, wage) {
   let nextId = Math.max(FIRST_ID - 1, db.prepare("SELECT max(id) AS m FROM staff").get().m ?? 0) + 1;
   const find = db.prepare("SELECT id FROM staff WHERE image_url = ? AND id >= ?");
   const cols = ["name", "role", "specialty", "skill_level", "nationality", "image_url", "overall_rating", "coach_speciality",
-    "personality", "attributes", "special_trait", "scouting_rating", "base_salary", "base_age"];
+    "personality", "attributes", "special_trait", "scouting_rating", "base_salary", "base_age", "grade"];
   const update = db.prepare(`UPDATE staff SET ${cols.map((c) => `${c} = ?`).join(", ")} WHERE id = ?`);
   const insert = db.prepare(`INSERT INTO staff (id, ${cols.join(", ")}, created_at) VALUES (${["?", ...cols.map(() => "?"), "?"].join(", ")})`);
   let added = 0, updated = 0;
@@ -232,7 +261,7 @@ function attributesFor(template, person, skill, wage) {
   for (const p of plan) {
     const t = p.template;
     const values = [p.name, p.role, t.specialty, p.skill, COUNTRY[p.word], p.image, p.skill, t.coach_speciality,
-      t.personality, attributesFor(t, p, p.skill, p.wage), t.special_trait, t.scouting_rating, p.wage, p.age];
+      t.personality, attributesFor(t, p, p.skill, p.wage), t.special_trait, t.scouting_rating, p.wage, p.age, p.grade ?? null];
     const had = find.get(p.image, FIRST_ID);
     if (had) { update.run(...values, had.id); updated++; } else { insert.run(nextId++, ...values, now); added++; }
   }

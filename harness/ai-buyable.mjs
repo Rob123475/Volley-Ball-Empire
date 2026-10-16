@@ -187,6 +187,12 @@ try {
 
   console.log("\n5. THE AI CLUBS BUY FROM EACH OTHER");
   const clubOf = () => new Map(q(`SELECT player_id AS id, pool_team_id AS c FROM career_player_state WHERE career_save_id = ? AND pool_team_id IS NOT NULL AND team_id IS NULL AND pool_player_id IS NOT NULL`, cid).map((r) => [r.id, r.c]));
+  // 1.1.1 (the soak, 17 Oct): AI squads sit near the cap, and a contract ending before the arrival is room only
+  // for a player the club can do without, so early in a career few clubs can buy. Six clubs get room here (their
+  // seniors on $10,000), in this suite's own database: the subject is that the buying works.
+  for (const { c } of q(`SELECT pool_team_id AS c FROM career_pool_team_state WHERE career_save_id = ? AND taken_over_at IS NULL ORDER BY pool_team_id LIMIT 6`, cid)) {
+    w(`UPDATE career_player_state SET salary = 10000, perks = '' WHERE career_save_id = ? AND pool_team_id = ? AND team_id IS NULL`, cid, c);
+  }
   const start = clubOf();
   // Moves by week: counted against the weekly tick they came in (the club's
   // last salary date, which the tick moves on).

@@ -1,4 +1,5 @@
 import { ContractLengthPicker } from "@/components/contract-length-picker";
+import { roleWithGrade } from "@/lib/staff-title";
 import { StaffBudgetLine } from "@/components/main-sponsor";
 import { CONTRACT_LENGTH_LABELS, type ContractLength } from "@/lib/contract-lengths";
 import { attributeLabel, skillAttributes } from "@/lib/staff-attributes";
@@ -212,7 +213,7 @@ function MedicalMarketCard({
         <div className="absolute top-2 left-2 flex gap-1.5">
           <Badge className={cn("text-white text-[10px] gap-1 shadow", ROLE_COLORS[roleKey] ?? "bg-slate-500")}>
             <RoleIcon className="h-2.5 w-2.5" />
-            {ROLE_LABELS[normaliseRole(member.role) ?? ""] ?? member.role}
+            {roleWithGrade(ROLE_LABELS[normaliseRole(member.role) ?? ""] ?? member.role, (member as { grade?: string | null }).grade)}
           </Badge>
           {isOwned && (
             <Badge className="bg-primary/80 text-white text-[10px] shadow">On Staff</Badge>
@@ -316,7 +317,7 @@ function MedicalMarketCard({
               <AlertDialogHeader>
                 <AlertDialogTitle>Hire {member.name}?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  This will add {member.name} to your Medical Department as {ROLE_LABELS[normaliseRole(member.role) ?? ""] ?? member.role}.
+                  This will add {member.name} to your Medical Department as {roleWithGrade(ROLE_LABELS[normaliseRole(member.role) ?? ""] ?? member.role, (member as { grade?: string | null }).grade)}.
                   {" "}{member.salary != null ? <>Monthly salary: {wageText(member)}.</> : <>Monthly salary: between {wageText(member)} (the exact wage shows once she is hired or scouted).</>}
                 </AlertDialogDescription>
                   <ContractLengthPicker value={term} onChange={setTerm} />

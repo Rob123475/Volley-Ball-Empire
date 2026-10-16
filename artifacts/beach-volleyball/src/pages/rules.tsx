@@ -4,7 +4,7 @@ import { MONEY } from "@shared/money";
 import { PRESEASON } from "@shared/preseason";
 import { GAME_DIFFICULTY } from "@shared/game-difficulty";
 import { PERKS, COUNTER_OFFER, AI_TRANSFER_TERMS, YOUTH_DEALS, youthSaleChance } from "@shared/transfers";
-import { SCOUT_REPORTS_AT_ONCE } from "@shared/staff-roles";
+import { SCOUT_REPORTS_AT_ONCE, JUNIOR_MEDICS, JUNIOR_PROMOTION } from "@shared/staff-roles";
 import { STAFF_BUDGET } from "@shared/staff-budget";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -202,7 +202,7 @@ export const UPDATE1_RULES: ReadonlyArray<{ title: string; points: string[] }> =
     "Scout a player again whenever you like, at the same price and 5 days. Every report is kept with its date, so you can see her rating move.",
     "Reports no longer run out at the end of the season. Scouting works on AI clubs' players too, and stays with a player who moves club.",
     `Each person who scouts (a Scout, Head Coach or Assistant Coach) works on ${SCOUT_REPORTS_AT_ONCE} reports at a time: players, youths, staff and medical alike. Ask for another and you're told who is busy and the day the next report is ready. The Staff page shows who is working on what.`,
-    "A Scout away on a youth scouting mission does no reports, and can't be sent on a second mission, until he is back.",
+    "A Scout away on a youth scouting mission does no reports, and can't be sent on a second mission, until the mission ends.",
     `Asking an AI club to sell you a youth is a negotiation: it takes one of your negotiator's ${SCOUT_REPORTS_AT_ONCE} places for 5 days (a loan needs none). The AI clubs work to the same limit.`,
   ] },
   // 1.1.1 (Rob, 16 Oct; docs/UPDATE1-1.1.1-BRIEF.md part 7).
@@ -214,6 +214,7 @@ export const UPDATE1_RULES: ReadonlyArray<{ title: string; points: string[] }> =
     "Buy a player under contract at another club whenever you like. Her club gets the fee the day the deal is agreed.",
     "She arrives when the window opens, or the day after her contract ends if that comes first. Until then her old club pays her; her wage (and perks) start with you the day she arrives.",
     "Your salary cap is checked for the day she arrives, so a contract ending before then makes room. The Player Market shows \"Joins [club] on [date]\" and the Team page's Transfers tab shows who is coming.",
+    "That room is spoken for: renewing the player whose contract made it has to fit under the cap on the day she arrives, even at the same wage.",
     "The AI clubs buy ahead too, from each other and from you.",
   ] },
   { title: "No dumping", points: [
@@ -250,6 +251,13 @@ export const UPDATE1_RULES: ReadonlyArray<{ title: string; points: string[] }> =
     `The offers grow with your success and your money: a top-${STAFF_BUDGET.finishSteps[0].rankAtMost} World Tour finish and money in the bank make the next season's offers bigger, up to ${money(STAFF_BUDGET.max)} a month, enough for several top staff.`,
     "A hire that would take you over is refused, with the amount to free up. Staff you already have keep their jobs, but while you're over you can't hire or renew anyone. Finances and the Staff and Medical markets show the room left.",
     "The AI clubs choose a main sponsor too, and hire their staff within their budget.",
+  ] },
+  // 1.1.1 (Rob, 17 Oct): junior medics.
+  { title: "Junior medics", points: [
+    `A Registrar is a junior Doctor and a Physio Assistant a junior Physiotherapist: cheaper (about ${Math.round(JUNIOR_MEDICS.registrar.wageShare * 100)}% of the full role's wage) and less skilled, but they treat injuries as the full role does.`,
+    `Each is promoted to the full role within ${JUNIOR_PROMOTION.promoteWithinYears} years at a club (not before ${JUNIOR_PROMOTION.promoteAfterYears}): more skill, and the full role's wage for it. A move to another club starts the clock again.`,
+    "An Orthopaedic Surgeon is a Medical Specialist who is a little stronger and a little dearer.",
+    "They count under your staff budget like anyone else, and the AI clubs hire and promote them by the same rules.",
   ] },
   { title: "Manager specialities", points: [
     "Your manager's face comes with a speciality: Talent Recruiter, Negotiator, Contracts Expert, Sponsor Magnet, Leader, Coach, Youth Developer or Fitness Guru.",

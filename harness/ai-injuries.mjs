@@ -155,10 +155,17 @@ try {
     WHERE r.career_save_id = ? AND NOT ((r.home_sets = 0 OR r.away_sets = 0) AND (r.home_match_points = 0 OR r.away_match_points = 0))`, cid)[0].n;
   const regionalBefore = regionalPlayedSoFar();
   const wtBefore = q(`SELECT COUNT(*) n FROM world_tour_fixtures WHERE career_save_id = ? AND status = 'completed' AND match_id IS NULL`, cid)[0].n;
+  // The club's matches while both are still out: its medics may heal them sooner than 6 weeks (a doctor
+  // and a physio together halve it, and 1.1.1's junior medics make that pair cheaper), so the results are
+  // taken up to the first day either is fit again.
+  let xWhileOut = null;
+  const xResultIds = () => new Set(q(`SELECT r.id FROM regional_league_results r JOIN regional_league_fixtures f ON f.id = r.fixture_id
+    WHERE r.career_save_id = ? AND (f.home_pool_team_id = ? OR f.away_pool_team_id = ?)`, cid, xClub, xClub).map((r) => r.id));
   for (let i = 0; i < 120; i++) {
     const wasSalary = lastSalary();
     await day();
     const now = aiSeniors();
+    if (xWhileOut == null && xClub != null && now.some((s) => xHurt.has(s.id) && !injured(s))) xWhileOut = xResultIds();
     const weekTicked = lastSalary() !== wasSalary;
     for (const s of now) {
       const p = prev.get(s.id);
@@ -187,7 +194,7 @@ try {
     FROM regional_league_results r JOIN regional_league_fixtures f ON f.id = r.fixture_id
     WHERE r.career_save_id = ? AND (f.home_pool_team_id = ? OR f.away_pool_team_id = ?) ORDER BY f.round`, cid, xClub, xClub);
   // Only the matches played after the two were hurt (one may already have been played that day).
-  const xEarly = xResults.filter((r) => !xResultsBefore.has(r.id)).slice(0, 4);
+  const xEarly = xResults.filter((r) => !xResultsBefore.has(r.id) && (xWhileOut == null || xWhileOut.has(r.id))).slice(0, 4);
   check("a club with two of its three out 6 weeks forfeited its next matches (0 sets, a walkover)",
     xEarly.length > 0 && xEarly.every((r) => (r.home === xClub ? r.hs : r.as_) === 0), `${xEarly.map((r) => `${r.hs}-${r.as_}`).join(" ")}`);
   const xNow = aiSeniors().filter((s) => xHurt.has(s.id));
@@ -257,8 +264,10 @@ try {
       && /const bar = \(weakest \?\? mine\[AI_MIN_SQUAD - 1\]!\)\.rating \+ AI_BUY_GAP;/.test(aiSrc)
       // 1.1.1: she goes the day the bought player arrives (utils/transfers.ts transfersDayTx -> aiTrimSquadsTx).
       && /const weakest = spare\.shift\(\)!;[\s\S]{0,120}releaseToMarket\(w, careerSaveId, weakest\.id/.test(aiSrc)
-      && /else if \(aiBuyers\.size > 0\) aiTrimSquadsTx\(w, careerSaveId, aiBuyers\);/.test(fs.readFileSync(path.join(REPO, "artifacts", "api-server", "src", "utils", "transfers.ts"), "utf8"))
-      && /- \(weakest\?\.salary \?\? 0\)/.test(aiSrc));
+      && /else if \(aiBuyers\.size > 0\) aiTrimSquadsTx\(w, careerSaveId, new Set\(aiBuyers\.keys\(\)\)\);/.test(fs.readFileSync(path.join(REPO, "artifacts", "api-server", "src", "utils", "transfers.ts"), "utf8"))
+      && /seniorWageBillTx\(w\.tx, careerSaveId, \{ poolTeamId: buyer \}, arrivesOn\) - freeing \+ Math\.min\(keepCost, fillCost\)\) - wage;/.test(aiSrc)
+      // 1.1.1 (the soak): and on the day she arrives the club is under its cap (aiCapOnArrivalTx).
+      && /if \(aiBuyers\.size > 0\) aiCapOnArrivalTx\(w, careerSaveId, aiBuyers\);/.test(fs.readFileSync(path.join(REPO, "artifacts", "api-server", "src", "utils", "transfers.ts"), "utf8")));
 
   // ── 8. The cap ─────────────────────────────────────────────────────────────
   console.log("\n8. NO AI CLUB THAT SIGNED ANYONE IS OVER THE CAP");

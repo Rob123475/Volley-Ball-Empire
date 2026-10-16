@@ -43,7 +43,7 @@ import {
 } from "@workspace/db";
 import { and, asc, desc, eq, inArray, isNull, isNotNull, lt, sql } from "drizzle-orm";
 import { aiSquadsTx } from "./aiSquads.js";
-import { committedWageBillTx, fitsUnderCap } from "./salaryCap.js";
+import { renewalCapRefusalTx } from "./salaryCap.js";
 import { WORLD_TOUR } from "../data/worldTour.js";
 import { prizeFor } from "./prizeDistribution.js";
 import { mainSponsorResultTx } from "./staffBudget.js";
@@ -233,7 +233,7 @@ export function renewExpiredPoolContractsTx(
   let renewed = 0;
   for (const c of expired) {
     const wage = monthlySalaryFor(overallRating(c));
-    if (!fitsUnderCap(committedWageBillTx(tx, careerSaveId, { poolTeamId: c.poolTeamId }), wage - Number(c.salary))) continue;
+    if (renewalCapRefusalTx(tx, careerSaveId, { poolTeamId: c.poolTeamId }, c.endDate, Number(c.salary), wage) != null) continue;
     const length = isContractLength(c.length) ? c.length : CONTRACT_LENGTHS[0];
     tx.update(poolPlayerContractsTable).set({
       startDate: c.endDate,

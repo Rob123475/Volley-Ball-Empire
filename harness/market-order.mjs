@@ -44,8 +44,9 @@ const ROB = ["doctor", "medical_specialist", "physiotherapist", "nutritionist", 
 check("the Medical Market's buttons run Team Doctor, Medical Specialist, Physiotherapist, Nutritionist, Sports Scientist, Massage Therapist",
   JSON.stringify(medButtons) === JSON.stringify(ROB), medButtons.join(", "));
 // Rob, 16 Oct: the Sort menu re-orders them on request; until then (its default) they stay in button order.
-check("both pages render their cards in button order, then name (the Sort menu's default order)",
-  [med, staff].every((s) => /\{sortList\(inButtonOrder\(marketStaff\), sortKey, STAFF_SORT\)\.map\(/.test(s) && /useState<SortKey>\("none"\)/.test(s) &&/\(ROLE_FILTERS as readonly string\[\]\)\.indexOf\(normaliseRole\(m\.role\) \?\? ""\)/.test(s) && /at\(a\) - at\(b\) \|\| a\.name\.localeCompare\(b\.name\)/.test(s)));
+// 1.1.1, Part 10 (Rob): scouted first. Inside each group (report in, in progress, unscouted) the order stands.
+check("both pages render their cards in button order, then name (the Sort menu's default order), scouted cards first",
+  [med, staff].every((s) => /\{scoutedFirst\(sortList\(inButtonOrder\(marketStaff\), sortKey, STAFF_SORT\), \(m: any\) => m\.scouting\?\.state\)\.map\(/.test(s) && /useState<SortKey>\("none"\)/.test(s) &&/\(ROLE_FILTERS as readonly string\[\]\)\.indexOf\(normaliseRole\(m\.role\) \?\? ""\)/.test(s) && /at\(a\) - at\(b\) \|\| a\.name\.localeCompare\(b\.name\)/.test(s)));
 
 const out = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "vbe-order-")), "roles.mjs");
 esbuild.buildSync({ entryPoints: [path.join(REPO, "lib/db/src/schema/staff-roles.ts")], outfile: out, format: "esm", bundle: true, logLevel: "silent" });

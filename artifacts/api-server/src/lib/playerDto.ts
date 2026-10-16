@@ -352,6 +352,10 @@ export type CareerStaffFields = {
   offCause: string | null;
   offSince: string | null;
   offDaysLeft: number;
+  /** 1.1.1 (Rob, 17 Oct): a junior medic promoted in this career ("promoted"), her skill now, and the day. */
+  careerGrade?: string | null;
+  careerSkill?: number | null;
+  promotedOn?: string | null;
 };
 
 export type StaffDTO = StaffReference & CareerStaffFields;
@@ -372,6 +376,12 @@ export function assembleStaff(reference: StaffReference, state: CareerStaffState
     offCause:          state.offCause ?? null,
     offSince:          state.offSince ?? null,
     offDaysLeft:       state.offDaysLeft ?? 0,
+    // 1.1.1: a junior medic promoted in this career is her full role now, at her new skill.
+    careerGrade:       state.careerGrade ?? null,
+    careerSkill:       state.careerSkill ?? null,
+    promotedOn:        state.promotedOn ?? null,
+    grade:             state.careerGrade === "promoted" ? null : reference.grade ?? null,
+    ...(state.careerSkill != null ? { skillLevel: state.careerSkill, overallRating: state.careerSkill } : {}),
   };
 }
 

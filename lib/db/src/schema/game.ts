@@ -716,6 +716,13 @@ export const careerStaffStateTable = sqliteTable("career_staff_state", {
   offCause:     text("off_cause"),
   offSince:     text("off_since"),
   offDaysLeft:  integer("off_days_left").notNull().default(0),
+  /**
+   * 1.1.1 (Rob, 17 Oct): a junior medic promoted in this career: "promoted" (her title is then her
+   * role's), her skill now, and the day it happened (utils/juniorMedics.ts).
+   */
+  careerGrade:  text("career_grade"),
+  careerSkill:  integer("career_skill"),
+  promotedOn:   text("promoted_on"),
   updatedAt:    integer("updated_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 }, (t) => [
   uniqueIndex("career_staff_state_unique").on(t.careerSaveId, t.staffId),
@@ -837,6 +844,8 @@ export const staffTable = sqliteTable("staff", {
   specialTrait: text("special_trait").notNull().default(""),
   scoutingRating: integer("scouting_rating").notNull().default(50),
   createdAt: integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
+  /** 1.1.1 (Rob, 17 Oct): a junior medic's grade (schema/staff-roles.ts JUNIOR_MEDICS), or null. */
+  grade: text("grade"),
 });
 
 export type StaffMember = typeof staffTable.$inferSelect;

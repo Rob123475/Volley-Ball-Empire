@@ -32,6 +32,7 @@ import { loadPlayers, loadStaff, requireCareerSaveId, updatePlayerState, updateT
 import { aiAcademiesWeekTx, loansTx, recordTeamLoanWeekTx, returnDueLoansTx, teamLoanWeekTx } from "../utils/youthLoans.js";
 import { aiYouthBuysWeekTx } from "../utils/youthDeals.js";
 import { datedRulesTx } from "../utils/calendarDatedRules.js";
+import { juniorPromotionsDayTx } from "../utils/juniorMedics.js";
 import { materializeAiSeniorsTx, aiSeniorsTrainWeekTx, aiTransfersWeekTx } from "../utils/aiSquads.js";
 import { day1DraftOpen, finishDay1DraftTx } from "../utils/day1Draft.js";
 import { aiStaffDayTx, STAFF_BACK_ON_MARKET } from "../utils/aiStaff.js";
@@ -815,6 +816,10 @@ async function advanceOneDay(req: Request): Promise<DayResult> {
   // contracts go back to the market; on Jan 8 of every season, and only then
   // (Rob, 16 Oct), a club with no coach or no medical member hires one.
   withCareerStateTx((w) => aiStaffDayTx(w, expiryCareerId, nextDate));
+  // 5c'. 1.1.1 (Rob, 17 Oct): junior medics whose day has come are promoted to the full role, at every club.
+  for (const p of withCareerStateTx((w) => juniorPromotionsDayTx(w, expiryCareerId, nextDate))) {
+    if (p.teamId === team.id) events.push(`${p.name} is promoted from ${p.title} to ${p.role}: skill ${p.skill}, $${p.wage.toLocaleString()} a month`);
+  }
   // 5d. Update 1, overnight part 4 (B-3): a re-scout whose report is in becomes her report.
   withCareerStateTx((w) => applyDueScoutReportsTx(w, expiryCareerId, nextDate));
   // 5e. Update 1, overnight part 5: the pre-season (the choice on the off-season's day 7,

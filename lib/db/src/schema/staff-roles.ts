@@ -124,3 +124,31 @@ export function isMedicalRole(role: string | null | undefined): boolean {
   const k = normaliseRole(role);
   return k !== null && MEDICAL_ROLE_KEYS.has(k);
 }
+
+/**
+ * 1.1.1 (Rob, 17 Oct): junior medics. A Registrar is a cheaper, weaker Doctor
+ * and a Physio Assistant a cheaper, weaker Physiotherapist: each works as that
+ * role (treatment, pairs, the staff budget) and is promoted to the full role,
+ * with better skill and the full role's wage for it, within
+ * `promoteWithinYears` at a club (from `promoteAfterYears`, a fixed day per
+ * person). An Orthopaedic Surgeon is a slightly stronger, dearer Medical
+ * Specialist. The same for AI clubs. The portrait installer
+ * (scripts/install-staff-portraits.cjs) reads the block between the markers as
+ * JSON: its skill ranges and wage shares make the people.
+ */
+// JUNIOR_MEDICS:BEGIN
+export const JUNIOR_MEDICS = {
+  "registrar":        { "label": "Registrar",           "of": "Doctor",             "folder": "registrar",           "skill": [62, 78], "wageShare": 0.6,  "promotes": true,  "skillGain": 10 },
+  "physio_assistant": { "label": "Physio Assistant",    "of": "Physiotherapist",    "folder": "physio-assistants",   "skill": [50, 66], "wageShare": 0.6,  "promotes": true,  "skillGain": 12 },
+  "surgeon":          { "label": "Orthopaedic Surgeon", "of": "Medical Specialist", "folder": "orthapaedic surgeon", "skill": [84, 98], "wageShare": 1.15, "promotes": false, "skillGain": 0 }
+} as const;
+// JUNIOR_MEDICS:END
+export type JuniorGrade = keyof typeof JUNIOR_MEDICS;
+/** Promoted between `promoteAfterYears` and `promoteWithinYears` years after joining a club. */
+export const JUNIOR_PROMOTION = { promoteAfterYears: 1, promoteWithinYears: 3 } as const;
+
+/** A staff member's title: her grade's ("Registrar") or her role's. */
+export function staffTitle(role: string | null | undefined, grade: string | null | undefined): string {
+  const g = grade ? (JUNIOR_MEDICS as Record<string, { label: string }>)[grade] : undefined;
+  return g ? g.label : String(role ?? "");
+}

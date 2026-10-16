@@ -32,7 +32,7 @@ export function ScoutingWork() {
     <Card data-testid="scouting-work">
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center gap-2 text-base"><Radar className="h-4 w-4" /> Scouting work</CardTitle>
-        <CardDescription>Each Scout, Head Coach and Assistant Coach works on {data.perScout} reports at a time. A Scout away on a youth mission does none until he is back.</CardDescription>
+        <CardDescription>Each Scout, Head Coach and Assistant Coach works on {data.perScout} reports at a time. A Scout away on a youth mission does none until the mission ends.</CardDescription>
       </CardHeader>
       <CardContent className="grid gap-3 md:grid-cols-2">
         {data.scouts.map((s) => (
