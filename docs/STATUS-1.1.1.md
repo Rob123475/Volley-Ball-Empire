@@ -13,8 +13,8 @@ Brief: `docs/UPDATE1-1.1.1-BRIEF.md`. Branch **update-1**, on top of 1.1.0 (`359
 | 3. One chance to keep her | done | `7e2cbec0`, `1c5ceb14` |
 | 4. Perks | done | `00e9a2b0` |
 | 5. AI clubs' youths | done | `78bfcf23` |
-| 6. The calendar | done | (Part 6 commit) |
-| 7. Words | | |
+| 6. The calendar | done | `97deef35` |
+| 7. Words | done | (Part 7 commit) |
 | 8. Tests | | |
 | 9. Full build, soak, 1.1.1 | | |
 
@@ -217,3 +217,9 @@ New suites, each run alone:
 **Part 6 (the calendar).**
 - `utils/calendarDatedRules.ts`; GET /calendar/annual adds its events and reads only this career's seasons.
 - Client: the `transfer` type, and the legend's "Transfers" (indigo).
+
+**Part 7 (words).**
+- The Rules page has seven new topics: The transfer window, Buying ahead, No dumping, One chance to keep her, Perks, Youth deals and scouts, and The Clubs page. Their numbers come from `@shared/transfers`, so the page and the game agree.
+- "Hire your staff and medical in your first week" now says "On 8 January every season (Day 8 of a new career)", which is 1.1.0's rule.
+- Patch notes: `docs/UPDATE1-1.1.1-PATCH-NOTES.md`.
+- harness/settings.mjs checks for nineteen topics (it checked twelve) and for the 8 January sentence (it looked for the old "On Day 8" sentence). 40/40 alone.

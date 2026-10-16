@@ -3,6 +3,7 @@ import { INJURY_TYPES, INJURY_TREATMENT, RECONSTRUCTION, INJURED_LIST, PROMOTION
 import { MONEY } from "@shared/money";
 import { PRESEASON } from "@shared/preseason";
 import { GAME_DIFFICULTY } from "@shared/game-difficulty";
+import { PERKS, COUNTER_OFFER, AI_TRANSFER_TERMS, YOUTH_DEALS, youthSaleChance } from "@shared/transfers";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -148,7 +149,7 @@ export const UPDATE1_RULES: ReadonlyArray<{ title: string; points: string[] }> =
     "At renewal a senior asks the wage for her rating now, so a player who has improved asks more. The AI clubs obey the same cap.",
   ] },
   { title: "Hire your staff and medical in your first week", points: [
-    "On Day 8 the AI clubs take a coach and a medical member each from the market, so hire the ones you want before then.",
+    "On 8 January every season (Day 8 of a new career) the AI clubs take a coach and a medical member each from the market, so hire the ones you want before then.",
     "There are always at least 5 of every role left for you. An AI club's staff are off the market until their contracts end.",
   ] },
   { title: "Injured players come cheap", points: [
@@ -198,6 +199,44 @@ export const UPDATE1_RULES: ReadonlyArray<{ title: string; points: string[] }> =
     "Star any player on the Player Market to put her on your Watch list (its own tab).",
     "Scout a player again whenever you like, at the same price and 5 days. Every report is kept with its date, so you can see her rating move.",
     "Reports no longer run out at the end of the season. Scouting works on AI clubs' players too, and stays with a player who moves club.",
+  ] },
+  // 1.1.1 (Rob, 16 Oct; docs/UPDATE1-1.1.1-BRIEF.md part 7).
+  { title: "The transfer window", points: [
+    "Players change clubs in the transfer window: the Off-Season, 7 to 31 December. It is on the calendar.",
+    "You can buy at any time of year, but the player joins you when the window opens.",
+  ] },
+  { title: "Buying ahead", points: [
+    "Buy a player under contract at another club whenever you like. Her club gets the fee the day the deal is agreed.",
+    "She arrives when the window opens, or the day after her contract ends if that comes first. Until then her old club pays her; her wage (and perks) start with you the day she arrives.",
+    "Your salary cap is checked for the day she arrives, so a contract ending before then makes room. The Player Market shows \"Joins [club] on [date]\" and the Team page's Transfers tab shows who is coming.",
+    "The AI clubs buy ahead too, from each other and from you.",
+  ] },
+  { title: "No dumping", points: [
+    "Outside the window you can't release or sell a senior. A contract that runs out still ends.",
+    "Cover signed for a player on the injured list can go at any time once she is fit again.",
+    "A player you have sold ahead can't be renewed: she is leaving.",
+  ] },
+  { title: "One chance to keep her", points: [
+    `When an AI club bids for one of your players, you see its whole offer and have ${COUNTER_OFFER.answerDays} days to answer. Say nothing and she goes, and the fee is yours.`,
+    "You get one counter-offer. She weighs both: wage over the contract, plus what her perks mean to her.",
+    `If the two are within ${Math.round(COUNTER_OFFER.closeShare * 100)}% of each other her mood decides: a happy player at a winning club stays, an unhappy one at a losing club goes.`,
+    `The AI clubs answer your bids the same way. They will pay her up to ${Math.round((AI_TRANSFER_TERMS.counterCeiling - 1) * 100)}% over what she is worth to keep her, if they can afford it and it fits their cap.`,
+  ] },
+  { title: "Perks", points: [
+    `A senior contract can carry perks, paid monthly with her wage and counted toward the salary cap: ${PERKS.map((k) => `${k.label.toLowerCase()} ${money(k.monthly)}`).join(", ")}.`,
+    "They show as \"Player perks\" in Finances. When she weighs two offers, the big perks (a personal trainer, a beach house) count for more than they cost.",
+    "Contracts signed before 1.1.1 have none. Add them at renewal.",
+  ] },
+  { title: "Youth deals and scouts", points: [
+    "Any AI club's academy youth can be asked for, on loan or to buy, at any time (the Clubs page). A loan of 6 or 12 months is always agreed while her age allows it.",
+    "A sale is her club's choice, and your Scout does the talking. Without a Scout, your best coach does.",
+    `A weak scout gets only a loan. With a scout of 50, 70 or 90, a club with few youths sells about ${[50, 70, 90].map((k) => `${Math.round(youthSaleChance(k, 3, false, false) * 100)}%`).join(", ")} of the time, and a club with many about ${[50, 70, 90].map((k) => `${Math.round(youthSaleChance(k, 5, false, false) * 100)}%`).join(", ")}. Half that if she plays in its youth team; more if it needs cash.`,
+    `Its answer holds for ${YOUTH_DEALS.answerDays} days. A bought youth joins your academy (6 places), and her club is paid her youth price. The AI clubs buy each other's youths the same way.`,
+  ] },
+  { title: "The Clubs page", points: [
+    "Every club in the game, yours included: badge, continent, tier, World Tour ladder and regional position, record, balance, wages against the cap and injuries.",
+    "Sort by richest, poorest, most successful, most injury prone, continent or name.",
+    "Open an AI club for its players (scout, watch or buy each senior on her market card; loan or buy each youth) and its staff and medical team.",
   ] },
   { title: "Manager specialities", points: [
     "Your manager's face comes with a speciality: Talent Recruiter, Negotiator, Contracts Expert, Sponsor Magnet, Leader, Coach, Youth Developer or Fitness Guru.",
