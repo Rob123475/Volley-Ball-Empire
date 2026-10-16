@@ -1,0 +1,30 @@
+PASS  Next match, then Watch Match  
+PASS  when the court loaded, the page sent the stored volumes (crowd 1.00, commentary 1.00)  [Sound] crowd volume 1.00
+ | [Sound] commentary volume 1.00
+
+  heard (as stored: crowd 1, commentary 1): peak 1.00499, mean RMS 0.07334, 365 reads, 1 output tap(s), running
+PASS  heard as stored (crowd 1, commentary 1)  peak 1.00499, 365 reads, 1 tap(s), running
+PASS  crowd 1, commentary 1 reach the court  
+  heard (crowd 1, commentary 1): peak 1.13386, mean RMS 0.08119, 148 reads, 1 output tap(s), running
+PASS  heard: crowd 1, commentary 1  peak 1.13386, 148 reads, 1 tap(s), running
+PASS  crowd 0, commentary 0 reach the court  
+  heard (crowd 0, commentary 0): peak 0, mean RMS 0, 149 reads, 1 output tap(s), running
+PASS  silent: crowd 0, commentary 0  peak 0 over 149 reads
+PASS  crowd 0, commentary 1 reach the court  
+  heard (crowd 0, commentary 1): peak 0.91121, mean RMS 0.04512, 372 reads, 1 output tap(s), running
+PASS  heard: commentary alone (crowd 0)  peak 0.91121, 372 reads, 1 tap(s), running
+PASS  crowd 1, commentary 0 reach the court  
+  heard (crowd 1, commentary 0): peak 0.30562, mean RMS 0.0238, 223 reads, 1 output tap(s), running
+PASS  heard: crowd alone (commentary 0)  peak 0.30562, 223 reads, 1 tap(s), running
+PASS  crowd 1, commentary 1 reach the court  
+  heard (crowd 1, commentary 1): peak 0.87542, mean RMS 0.0603, 117 reads, 1 output tap(s), running
+PASS  heard: back to 1 and 1  peak 0.87542, 117 reads, 1 tap(s), running
+
+PAUSE AND RESUME (THE BUTTON ABOVE THE COURT)
+PASS  Pause pauses the court (its log, PAUSED shown, the button now says Resume)  pressed "Pause"
+  heard (paused): peak 0, mean RMS 0, 97 reads, 1 output tap(s), running
+PASS  paused: the court's picture stands still and nothing is heard  picture still, peak 0 over 97 reads
+PASS  a click on the court while paused does not start it  
+  heard (resumed): peak 0.96279, mean RMS 0.06349, 174 reads, 1 output tap(s), running
+PASS  Resume: the court plays on and is heard again  picture moving, peak 0.96279
+PASS  no page errors  

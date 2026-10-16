@@ -1,0 +1,340 @@
+{"at":"02:06:54","s":"started the packaged exe","pid":28904,"userDataDir":"C:\\Users\\rbonn\\AppData\\Local\\Temp\\vbe-1.1.0-proof-kBOMSf\\root"}
+{"at":"02:06:55","s":"game window on the game page","url":"http://localhost:4173/"}
+{"at":"02:06:59","s":"profile and career created","profile":201,"career":200}
+{"at":"02:07:00","s":"title screen: CONTINUE","pressed":true}
+{"at":"02:07:04","s":"after CONTINUE","path":"/"}
+{"at":"02:07:12","s":"Advance during the draft","said":true,"noPath":true,"openTheDraft":true,"wentToDraft":true}
+{"at":"02:07:13","s":"draft pick","picked":"Lani Faumuina $10500"}
+{"at":"02:07:15","s":"draft pick","picked":"Naomi Talo $10500"}
+{"at":"02:07:18","s":"draft pick","picked":"Qistina Zulkifli $11500"}
+{"at":"02:07:24","s":"draft finished","date":"Jan 1, 2026","squad":{"open":false,"picks":[]}}
+{"at":"02:07:28","s":"match day","date":"Feb 17, 2026","box":"MATCH DAY! | WORLD TOUR R1 | BRONZE | Sydney RiptidevsAmsterdam Dune Riders | ","staffBanner":false}
+{"at":"02:07:28","s":"Watch Match pressed","pressed":true}
+{"at":"02:07:28","s":"on the 3D court","url":"?matchId=1"}
+{"at":"02:07:32","s":"Unity loaded","loaded":true}
+{"at":"02:07:58","s":"Pause and Resume on the court","pressed":true,"shownPaused":true,"stillWhilePaused":true,"movingAfterResume":true,"resumed":true}
+{"at":"02:11:51","s":"match recorded by the court","recorded":{"score":"2-0","sets":[{"home":11,"away":5},{"home":11,"away":8}]},"minutes":3.1}
+{"at":"02:11:55","s":"pressing Continue","x":640,"y":491}
+{"at":"02:11:58","s":"back on the dashboard after Continue","back":true}
+{"at":"02:12:02","s":"next match day","date":"Feb 22, 2026"}
+{"at":"02:12:04","s":"settings opened"}
+{"0":{"where":"/players","options":["Default order","Price: highest first","Price: lowest first","Rating: best first","Age: youngest first","Injuries: fit first","Injuries: injured first","Contract: least time left first"],"chosen":"price_desc"},"1":{"where":"/staff-market","options":["Default order","Price: highest first","Price: lowest first","Rating: best first","Age: youngest first"],"chosen":"age_asc"},"2":{"where":"/medical-market","options":["Default order","Price: highest first","Price: lowest first","Rating: best first","Age: youngest first"],"chosen":"rating_desc"},"at":"02:12:15","s":"sort menus"}
+{"at":"02:12:19","s":"Exit game","asked":"Exit Beach Volleyball Empire?\n\nYour career i   aved.\n\nCancel\nExit","cancelKeptTheGame":true,"appClosedItself":true,"exitCode":0,"secondsToClose":0.2}
+{
+ "exe": "C:\\build\\vbe-1.1.0\\win-unpacked\\Beach Volleyball Empire.exe",
+ "steps": [
+  {
+   "at": "02:06:54",
+   "s": "started the packaged exe",
+   "pid": 28904,
+   "userDataDir": "C:\\Users\\rbonn\\AppData\\Local\\Temp\\vbe-1.1.0-proof-kBOMSf\\root"
+  },
+  {
+   "at": "02:06:55",
+   "s": "game window on the game page",
+   "url": "http://localhost:4173/"
+  },
+  {
+   "at": "02:06:59",
+   "s": "profile and career created",
+   "profile": 201,
+   "career": 200
+  },
+  {
+   "at": "02:07:00",
+   "s": "title screen: CONTINUE",
+   "pressed": true
+  },
+  {
+   "at": "02:07:04",
+   "s": "after CONTINUE",
+   "path": "/"
+  },
+  {
+   "at": "02:07:12",
+   "s": "Advance during the draft",
+   "said": true,
+   "noPath": true,
+   "openTheDraft": true,
+   "wentToDraft": true
+  },
+  {
+   "at": "02:07:13",
+   "s": "draft pick",
+   "picked": "Lani Faumuina $10500"
+  },
+  {
+   "at": "02:07:15",
+   "s": "draft pick",
+   "picked": "Naomi Talo $10500"
+  },
+  {
+   "at": "02:07:18",
+   "s": "draft pick",
+   "picked": "Qistina Zulkifli $11500"
+  },
+  {
+   "at": "02:07:24",
+   "s": "draft finished",
+   "date": "Jan 1, 2026",
+   "squad": {
+    "open": false,
+    "picks": []
+   }
+  },
+  {
+   "at": "02:07:28",
+   "s": "match day",
+   "date": "Feb 17, 2026",
+   "box": "MATCH DAY! | WORLD TOUR R1 | BRONZE | Sydney RiptidevsAmsterdam Dune Riders | ",
+   "staffBanner": false
+  },
+  {
+   "at": "02:07:28",
+   "s": "Watch Match pressed",
+   "pressed": true
+  },
+  {
+   "at": "02:07:28",
+   "s": "on the 3D court",
+   "url": "?matchId=1"
+  },
+  {
+   "at": "02:07:32",
+   "s": "Unity loaded",
+   "loaded": true
+  },
+  {
+   "at": "02:07:58",
+   "s": "Pause and Resume on the court",
+   "pressed": true,
+   "shownPaused": true,
+   "stillWhilePaused": true,
+   "movingAfterResume": true,
+   "resumed": true
+  },
+  {
+   "at": "02:11:51",
+   "s": "match recorded by the court",
+   "recorded": {
+    "score": "2-0",
+    "sets": [
+     {
+      "home": 11,
+      "away": 5
+     },
+     {
+      "home": 11,
+      "away": 8
+     }
+    ]
+   },
+   "minutes": 3.1
+  },
+  {
+   "at": "02:11:55",
+   "s": "pressing Continue",
+   "x": 640,
+   "y": 491
+  },
+  {
+   "at": "02:11:58",
+   "s": "back on the dashboard after Continue",
+   "back": true
+  },
+  {
+   "at": "02:12:02",
+   "s": "next match day",
+   "date": "Feb 22, 2026"
+  },
+  {
+   "at": "02:12:04",
+   "s": "settings opened"
+  },
+  {
+   "0": {
+    "where": "/players",
+    "options": [
+     "Default order",
+     "Price: highest first",
+     "Price: lowest first",
+     "Rating: best first",
+     "Age: youngest first",
+     "Injuries: fit first",
+     "Injuries: injured first",
+     "Contract: least time left first"
+    ],
+    "chosen": "price_desc"
+   },
+   "1": {
+    "where": "/staff-market",
+    "options": [
+     "Default order",
+     "Price: highest first",
+     "Price: lowest first",
+     "Rating: best first",
+     "Age: youngest first"
+    ],
+    "chosen": "age_asc"
+   },
+   "2": {
+    "where": "/medical-market",
+    "options": [
+     "Default order",
+     "Price: highest first",
+     "Price: lowest first",
+     "Rating: best first",
+     "Age: youngest first"
+    ],
+    "chosen": "rating_desc"
+   },
+   "at": "02:12:15",
+   "s": "sort menus"
+  },
+  {
+   "at": "02:12:19",
+   "s": "Exit game",
+   "asked": "Exit Beach Volleyball Empire?\n\nYour career i   aved.\n\nCancel\nExit",
+   "cancelKeptTheGame": true,
+   "appClosedItself": true,
+   "exitCode": 0,
+   "secondsToClose": 0.2
+  }
+ ],
+ "shots": [
+  "01-first-screen.png",
+  "02-title-screen.png",
+  "03-advance-refused.png",
+  "04-day1-draft.png",
+  "05-draft-picked.png",
+  "06-dashboard-day1.png",
+  "07-match-day-box.png",
+  "08-court-15s.png",
+  "09-court-paused.png",
+  "10-court-60s.png",
+  "11-court-result-box.png",
+  "12-dashboard-after-match.png",
+  "13-second-match-day.png",
+  "14-settings.png",
+  "15-sort-market-sort.png",
+  "16-sort-staff-sort.png",
+  "17-sort-medical-sort.png",
+  "18-exit-asked.png"
+ ],
+ "robBefore": {
+  "C:\\Users\\rbonn\\AppData\\Roaming\\Beach Volleyball Empire\\volleyball-empire.sqlite": {
+   "size": 2408448,
+   "mtime": "2026-10-16T01:04:43.372Z",
+   "sha1": "80556109407bca5379037bce3c54e8aa3406fe61"
+  }
+ },
+ "profileFolder": "C:\\Users\\rbonn\\AppData\\Local\\Temp\\vbe-1.1.0-proof-kBOMSf\\Beach Volleyball Empire",
+ "firstScreen": "/login :: SELECT MANAGER Pick a profile, or create a new one. No profiles yet — create one below. New Profile Beach Volleyball Empire",
+ "advanceRefused": {
+  "said": true,
+  "noPath": true,
+  "openTheDraft": true,
+  "wentToDraft": true
+ },
+ "draftCap": "Senior wages $32,500 of $60,000",
+ "draftClosedMessage": true,
+ "staffBannerJan1": true,
+ "afterDraft": {
+  "date": "Jan 1, 2026",
+  "squad": {
+   "open": false,
+   "picks": []
+  }
+ },
+ "matchDay": {
+  "date": "Feb 17, 2026",
+  "box": "MATCH DAY! | WORLD TOUR R1 | BRONZE | Sydney RiptidevsAmsterdam Dune Riders | "
+ },
+ "staffBannerOnMatchDay": false,
+ "pause": {
+  "pressed": true,
+  "shownPaused": true,
+  "stillWhilePaused": true,
+  "movingAfterResume": true,
+  "resumed": true
+ },
+ "secondMatchDay": "Feb 22, 2026",
+ "settings": "Back Settings Display Changes apply at once and again next time you start the game. Windowed Fullscreen Window size 1280 × 800 1400 × 900 (default) 1600 × 1000 1920 × 1080 The game fills the screen until you pick a size. Zoom: 100% Sound The master volume over everything; the music, the same as the music bar (which is still there for skipping songs); and the match sound on the 3D court. Master volume 100% Everything: the music, the crowd and the commentary. Mute Music volume 40% Mute mutes only the songs. Crowd volume 100% The crowd, its cheers and the buzzer. Commentary volume 100% The t",
+ "sortMenus": [
+  {
+   "where": "/players",
+   "options": [
+    "Default order",
+    "Price: highest first",
+    "Price: lowest first",
+    "Rating: best first",
+    "Age: youngest first",
+    "Injuries: fit first",
+    "Injuries: injured first",
+    "Contract: least time left first"
+   ],
+   "chosen": "price_desc"
+  },
+  {
+   "where": "/staff-market",
+   "options": [
+    "Default order",
+    "Price: highest first",
+    "Price: lowest first",
+    "Rating: best first",
+    "Age: youngest first"
+   ],
+   "chosen": "age_asc"
+  },
+  {
+   "where": "/medical-market",
+   "options": [
+    "Default order",
+    "Price: highest first",
+    "Price: lowest first",
+    "Rating: best first",
+    "Age: youngest first"
+   ],
+   "chosen": "rating_desc"
+  }
+ ],
+ "exitGame": {
+  "asked": "Exit Beach Volleyball Empire?\n\nYour career i   aved.\n\nCancel\nExit",
+  "cancelKeptTheGame": true,
+  "appClosedItself": true,
+  "exitCode": 0,
+  "secondsToClose": 0.2,
+  "saveCheckpointed": true
+ },
+ "robAfter": {
+  "C:\\Users\\rbonn\\AppData\\Roaming\\Beach Volleyball Empire\\volleyball-empire.sqlite": {
+   "size": 2408448,
+   "mtime": "2026-10-16T01:04:43.372Z",
+   "sha1": "80556109407bca5379037bce3c54e8aa3406fe61"
+  }
+ },
+ "robSaveUntouched": true,
+ "proofSaveFolder": [
+  "blob_storage",
+  "Cache",
+  "Code Cache",
+  "DawnGraphiteCache",
+  "DawnWebGPUCache",
+  "DevToolsActivePort",
+  "GPUCache",
+  "IndexedDB",
+  "Local State",
+  "Local Storage",
+  "Network",
+  "Preferences",
+  "Service Worker",
+  "Session Storage",
+  "Shared Dictionary",
+  "SharedStorage",
+  "starter-reference.db",
+  "starter-reference.db-shm",
+  "starter-reference.db-wal",
+  "volleyball-empire.sqlite",
+  "WebStorage"
+ ]
+}

@@ -1,0 +1,59 @@
+
+1. SETTINGS > SOUND: THE MASTER, THE MUSIC AND ITS MUTE (only the music plays here)
+PASS  Sound: the master first, then the music (Mute and volume), the crowd and the commentary  ["sound-master-volume","sound-mute","sound-volume","sound-crowd-volume","sound-commentary-volume"]
+PASS  the master starts at 100%  
+PASS  the music plays at 40% (master 100%) and is heard  element {"volume":0.4,"muted":false,"paused":false}, Windows peak 0.19033
+PASS  master 50%: the music plays at 0.2 (40% x 50%) and is heard  element {"volume":0.2,"muted":false,"paused":false}, Windows peak 0.09207
+PASS  master 0%: the music is silent  element {"volume":0,"muted":false,"paused":false}, Windows peak 0
+PASS  the music's Mute: the songs are silent  element {"volume":0.4,"muted":true,"paused":false}, Windows peak 0
+PASS  and it changes nothing else (the master, crowd and commentary stored as before)  {"master":1,"crowd":1,"commentary":1}
+PASS  Rob's sliders stored: master 100%, crowd 100%, commentary 100%  {"court":{"master":1,"crowd":1,"commentary":1},"music":{"volume":0.4,"muted":false}}
+
+2. THE MATCH, AS STORED
+PASS  Next match, then Watch Match  
+PASS  when the court loaded, the page sent the stored volumes (crowd 1.00, commentary 1.00)  [Sound] crowd volume 1.00 | [Sound] commentary volume 1.00
+  heard (as stored: crowd 1, commentary 1): peak 0.89384, mean RMS 0.07056, 366 reads, 1 output tap(s), running; Windows: peak 0.97672, sessions [{"pid":2920,"mixerVolume":1,"mixerMuted":false,"state":1}], device 1
+PASS  heard: as stored (crowd 1, commentary 1)  court peak 0.89384, Windows peak 0.97672, 366 reads, 1 tap(s), running
+
+PAUSE AND RESUME (THE BUTTON ABOVE THE COURT)
+PASS  Pause pauses the court (its log, PAUSED shown, the button now says Resume)  pressed "Pause"
+  heard (paused): peak 0, mean RMS 0, 97 reads, 1 output tap(s), running; Windows: peak 0, sessions [{"pid":2920,"mixerVolume":1,"mixerMuted":false,"state":1}], device 1
+PASS  paused: the court's picture stands still and nothing is heard  picture still, peak 0 over 97 reads
+PASS  a click on the court while paused does not start it  
+  heard (resumed): peak 0.92139, mean RMS 0.07147, 178 reads, 1 output tap(s), running; Windows: peak 0.99127, sessions [{"pid":2920,"mixerVolume":1,"mixerMuted":false,"state":1}], device 1
+PASS  Resume: the court plays on and is heard again  picture moving, peak 0.92139
+
+3. SETTINGS ON THE MATCH SCREEN (THE GEAR ABOVE THE COURT)
+PASS  the gear above the court opens the settings over it  
+PASS  it holds Sound (master, music, crowd, commentary) and Controls (Auto, Manual, the controls table), and the page is still the court  {"master":true,"music":true,"crowd":true,"commentary":true,"auto":true,"manual":true,"table":true,"path":"/court","focus":"INPUT"}
+PASS  the focus is on the settings, off the court  INPUT
+PASS  the match carries on with the settings open (the court's picture changes)  
+  heard (the settings open over the match): peak 0.95128, mean RMS 0.07002, 293 reads, 1 output tap(s), running; Windows: peak 0.97207, sessions [{"pid":2920,"mixerVolume":1,"mixerMuted":false,"state":1}], device 1
+PASS  heard: with the settings open (crowd 1, commentary 1)  court peak 0.95128, Windows peak 0.97207, 293 reads, 1 tap(s), running
+PASS  master 100%, crowd 0%, commentary 100%: the court gets crowd 0.00, commentary 1.00  got 0 / 1
+  heard (master 1, crowd 0, commentary 1): peak 0.91989, mean RMS 0.05182, 366 reads, 1 output tap(s), running; Windows: peak 0.91989, sessions [{"pid":2920,"mixerVolume":1,"mixerMuted":false,"state":1}], device 1
+PASS  heard: commentary alone (crowd 0)  court peak 0.91989, Windows peak 0.91989, 366 reads, 1 tap(s), running
+PASS  master 100%, crowd 100%, commentary 0%: the court gets crowd 1.00, commentary 0.00  got 1 / 0
+  heard (master 1, crowd 1, commentary 0): peak 0.47666, mean RMS 0.05201, 220 reads, 1 output tap(s), running; Windows: peak 0.74803, sessions [{"pid":2920,"mixerVolume":1,"mixerMuted":false,"state":1}], device 1
+PASS  heard: crowd alone (commentary 0)  court peak 0.47666, Windows peak 0.74803, 220 reads, 1 tap(s), running
+PASS  master 100%, crowd 0%, commentary 0%: the court gets crowd 0.00, commentary 0.00  got 0 / 0
+  heard (master 1, crowd 0, commentary 0): peak 0, mean RMS 0, 147 reads, 1 output tap(s), running; Windows: peak 0, sessions [{"pid":2920,"mixerVolume":1,"mixerMuted":false,"state":1}], device 1
+PASS  silent: master 1, crowd 0, commentary 0  court peak 0 over 147 reads, Windows peak 0
+PASS  master 0%, crowd 100%, commentary 100%: the court gets crowd 0.00, commentary 0.00  got 0 / 0
+  heard (master 0, crowd 1, commentary 1): peak 0, mean RMS 0, 146 reads, 1 output tap(s), running; Windows: peak 0, sessions [{"pid":2920,"mixerVolume":1,"mixerMuted":false,"state":1}], device 1
+PASS  silent: master 0, crowd 1, commentary 1  court peak 0 over 146 reads, Windows peak 0
+PASS  master 50%, crowd 100%, commentary 100%: the court gets crowd 0.50, commentary 0.50  got 0.5 / 0.5
+  heard (master 0.5, crowd 1, commentary 1): peak 0, mean RMS 0, 175 reads, 1 output tap(s), running; Windows: peak 0, sessions [{"pid":2920,"mixerVolume":1,"mixerMuted":false,"state":0}], device 1
+FAIL  heard: master 50%, crowd and commentary 100%  court peak 0, Windows peak 0, 175 reads, 1 tap(s), running
+PASS  master 100%, crowd 100%, commentary 100%: the court gets crowd 1.00, commentary 1.00  got 1 / 1
+  heard (master 1, crowd 1, commentary 1): peak 0, mean RMS 0, 147 reads, 1 output tap(s), running; Windows: peak 0, sessions [{"pid":2920,"mixerVolume":1,"mixerMuted":false,"state":0}], device 1
+FAIL  heard: everything at 100%  court peak 0, Windows peak 0, 147 reads, 1 tap(s), running
+PASS  Auto chosen over the match reaches the court and is remembered  [Manual] mode Auto (page); controlling Camila Santiago
+PASS  Manual chosen over the match reaches the court and is remembered  [Manual] mode Manual (page); controlling Camila Santiago
+PASS  Exit game over the match asks in the page, saying the career is saved and the match in play counts as a forfeit  
+PASS  Cancel keeps the match: no question, still on the court  
+PASS  closing the settings gives the keyboard back to the court  {"open":false,"focus":"IFRAME"}
+  heard (after closing the settings): peak 0, mean RMS 0, 147 reads, 1 output tap(s), running; Windows: peak 0, sessions [{"pid":2920,"mixerVolume":1,"mixerMuted":false,"state":0}], device 1
+FAIL  heard: after closing the settings  court peak 0, Windows peak 0, 147 reads, 1 tap(s), running
+PASS  still on the 3D court  
+PASS  no page errors  

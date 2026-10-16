@@ -227,6 +227,40 @@ try {
   const asStored = await listen(`as stored: crowd ${START[0]}, commentary ${START[1]}`, 25000);
   if (START[0] > 0 || START[1] > 0) heard(`as stored (crowd ${START[0]}, commentary ${START[1]})`, asStored);
 
+  // In Manual nobody plays our side, so the match is soon lost and over: there Pause is checked early, while it is played.
+  const pauseCheck = async () => {
+    // Rob, 16 Oct: the Pause button above the court: the picture and every sound stop, a click on the
+    // court doesn't start it again, and Resume does.
+    console.error("\nPAUSE AND RESUME (THE BUTTON ABOVE THE COURT)");
+    const pauseFrame = async () => crypto.createHash("sha1").update((await send("Page.captureScreenshot", { format: "png" })).result?.data ?? "").digest("hex");
+    const pauseClick = () => js(`(() => { const b = document.querySelector('[data-testid="button-court-pause"]'); if (b) b.click(); return b ? b.textContent.trim() : null; })()`);
+    const pausesBefore = count(/\[Pause\] paused/);
+    const pressedLabel = await pauseClick();
+    const pausedNow = (await waitFor(/\[Pause\] paused/, 5000, pausesBefore + 1)) && (await js(`!!document.querySelector('[data-testid="court-paused"]')`));
+    check("Pause pauses the court (its log, PAUSED shown, the button now says Resume)", pressedLabel === "Pause" && pausedNow
+      && (await js(`document.querySelector('[data-testid="button-court-pause"]')?.textContent.trim()`)) === "Resume", `pressed "${pressedLabel}"`);
+    await sleep(1000);
+    const pf1 = await pauseFrame(); await sleep(4000); const pf2 = await pauseFrame();
+    const heardPaused = await listen("paused", 6000);
+    check("paused: the court's picture stands still and nothing is heard", pf1 === pf2 && heardPaused.samples > 0 && heardPaused.peak === 0,
+      `picture ${pf1 === pf2 ? "still" : "moved"}, peak ${heardPaused.peak} over ${heardPaused.samples} reads`);
+    await shot("p1-court-paused.png");
+    for (const type of ["mousePressed", "mouseReleased"]) await send("Input.dispatchMouseEvent", { type, x: 640, y: 420, button: "left", clickCount: 1 });
+    await sleep(1500);
+    const pf3 = await pauseFrame(); await sleep(3000); const pf4 = await pauseFrame();
+    check("a click on the court while paused does not start it", pf3 === pf4 && (await js(`!!document.querySelector('[data-testid="court-paused"]')`)));
+    const resumesBefore = count(/\[Pause\] resumed/);
+    await pauseClick();
+    const resumedNow = (await waitFor(/\[Pause\] resumed/, 5000, resumesBefore + 1)) && !(await js(`!!document.querySelector('[data-testid="court-paused"]')`));
+    await sleep(1500);
+    const pf5 = await pauseFrame(); await sleep(4000); const pf6 = await pauseFrame();
+    const heardResumed = await listen("resumed", 12000);
+    check("Resume: the court plays on and is heard again", resumedNow && pf5 !== pf6 && heardResumed.peak > 0.001,
+      `picture ${pf5 !== pf6 ? "moving" : "still"}, peak ${heardResumed.peak}`);
+
+  };
+  if (MANUAL) await pauseCheck();
+
   if (BLUR) {
     await js(`(() => { const b = document.querySelector('[data-testid="button-leave-match"]'); b.focus(); return document.activeElement === b; })()`);
     await sleep(1000);
@@ -341,34 +375,7 @@ try {
       got && line.includes(`mode ${m === "auto" ? "Auto" : "Manual"}`) && (await js(`localStorage.getItem("vbe-court-control-mode")`)) === m, line);
   }
 
-  // Rob, 16 Oct: the Pause button above the court: the picture and every sound stop, a click on the
-  // court doesn't start it again, and Resume does.
-  console.error("\nPAUSE AND RESUME (THE BUTTON ABOVE THE COURT)");
-  const pauseFrame = async () => crypto.createHash("sha1").update((await send("Page.captureScreenshot", { format: "png" })).result?.data ?? "").digest("hex");
-  const pauseClick = () => js(`(() => { const b = document.querySelector('[data-testid="button-court-pause"]'); if (b) b.click(); return b ? b.textContent.trim() : null; })()`);
-  const pausesBefore = count(/\[Pause\] paused/);
-  const pressedLabel = await pauseClick();
-  const pausedNow = (await waitFor(/\[Pause\] paused/, 5000, pausesBefore + 1)) && (await js(`!!document.querySelector('[data-testid="court-paused"]')`));
-  check("Pause pauses the court (its log, PAUSED shown, the button now says Resume)", pressedLabel === "Pause" && pausedNow
-    && (await js(`document.querySelector('[data-testid="button-court-pause"]')?.textContent.trim()`)) === "Resume", `pressed "${pressedLabel}"`);
-  await sleep(1000);
-  const pf1 = await pauseFrame(); await sleep(4000); const pf2 = await pauseFrame();
-  const heardPaused = await listen("paused", 6000);
-  check("paused: the court's picture stands still and nothing is heard", pf1 === pf2 && heardPaused.samples > 0 && heardPaused.peak === 0,
-    `picture ${pf1 === pf2 ? "still" : "moved"}, peak ${heardPaused.peak} over ${heardPaused.samples} reads`);
-  await shot("p1-court-paused.png");
-  for (const type of ["mousePressed", "mouseReleased"]) await send("Input.dispatchMouseEvent", { type, x: 640, y: 420, button: "left", clickCount: 1 });
-  await sleep(1500);
-  const pf3 = await pauseFrame(); await sleep(3000); const pf4 = await pauseFrame();
-  check("a click on the court while paused does not start it", pf3 === pf4 && (await js(`!!document.querySelector('[data-testid="court-paused"]')`)));
-  const resumesBefore = count(/\[Pause\] resumed/);
-  await pauseClick();
-  const resumedNow = (await waitFor(/\[Pause\] resumed/, 5000, resumesBefore + 1)) && !(await js(`!!document.querySelector('[data-testid="court-paused"]')`));
-  await sleep(1500);
-  const pf5 = await pauseFrame(); await sleep(4000); const pf6 = await pauseFrame();
-  const heardResumed = await listen("resumed", 12000);
-  check("Resume: the court plays on and is heard again", resumedNow && pf5 !== pf6 && heardResumed.peak > 0.001,
-    `picture ${pf5 !== pf6 ? "moving" : "still"}, peak ${heardResumed.peak}`);
+  if (!MANUAL) await pauseCheck();
 
   // Rob, 16 Oct: Exit game over the match asks first and says the match in play is forfeited; Cancel keeps playing.
   check("Exit game over the match asks in the page, saying the career is saved and the match in play counts as a forfeit",
