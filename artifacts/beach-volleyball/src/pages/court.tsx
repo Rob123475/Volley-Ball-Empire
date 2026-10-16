@@ -4,7 +4,7 @@ import { SoundSettings } from "@/components/sound-settings";
 import { ControlsSettings } from "@/components/controls-settings";
 import { useLocation } from "wouter";
 import { useQueryClient } from "@tanstack/react-query";
-import { Monitor, UploadCloud, Loader2, LogOut, Settings as SettingsIcon, X } from "lucide-react";
+import { Monitor, UploadCloud, Loader2, LogOut, Settings as SettingsIcon, X, Pause, Play } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,6 +27,10 @@ type BuildState = "checking" | "available" | "unavailable";
 // goes to the court in its URL when the court opens; the court can still
 // switch it with Tab / View / Share, and tells this page, which stores it.
 //
+// Rob, 16 Oct: a Pause button above the court, in Auto and Manual. The court's
+// own page pauses it (unity-build/index.html, "vbe-pause") and says when it has
+// ("unity-paused:1" / ":0"); only Resume starts it again.
+//
 // Rob, 16 Oct: Settings on the match screen, without leaving the match (which
 // forfeits it). The gear above the court opens Sound (master, music, crowd,
 // commentary) and Controls (Auto / Manual and the controls) over the court;
@@ -48,6 +52,7 @@ export default function ThreeDCourt() {
   // The mode now: the opening one, then the court's own switches and the settings over the match.
   const [mode, setMode] = useState<ControlMode>(openingMode);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [paused, setPaused] = useState(false);
 
   // matchId set by match-day-modal's "Watch Match" button (navigate(`/court?matchId=...`)).
   // Unity reads this from its own iframe location and calls
@@ -108,6 +113,7 @@ export default function ThreeDCourt() {
         saveControlMode(m);
         setMode(m);
       }
+      if (e.data === "unity-paused:1" || e.data === "unity-paused:0") setPaused(e.data === "unity-paused:1");
       if (e.data === "unity-match-finished") {
         queryClient.invalidateQueries();
         navigate("/");
@@ -139,6 +145,9 @@ export default function ThreeDCourt() {
     setMode(m);
     saveControlMode(m);
     iframeRef.current?.contentWindow?.postMessage({ type: "vbe-control-mode", mode: m }, "*");
+  }
+  function togglePause() {
+    iframeRef.current?.contentWindow?.postMessage({ type: "vbe-pause", paused: !paused }, "*");
   }
   function closeSettings() {
     setSettingsOpen(false);
@@ -181,6 +190,23 @@ export default function ThreeDCourt() {
       <span style={{ flex: "1 1 160px", minWidth: 0, overflowWrap: "anywhere" }}>
         {leaveError ? `Could not leave: ${leaveError}` : matchId ? "Leaving forfeits the match." : ""}
       </span>
+      {unityLoaded && (
+        <button
+          type="button"
+          data-testid="button-court-pause"
+          aria-pressed={paused}
+          onClick={togglePause}
+          style={{
+            flexShrink: 0, whiteSpace: "nowrap", marginLeft: "auto",
+            display: "flex", alignItems: "center", gap: "6px", padding: "6px 14px", borderRadius: "6px",
+            background: paused ? "rgba(245,158,11,0.85)" : "rgba(255,255,255,0.12)", color: paused ? "black" : "white", fontWeight: 700, fontSize: "12px",
+            border: "1px solid rgba(255,255,255,0.25)", cursor: "pointer",
+          }}
+        >
+          {paused ? <Play style={{ width: 14, height: 14 }} /> : <Pause style={{ width: 14, height: 14 }} />}
+          {paused ? "Resume" : "Pause"}
+        </button>
+      )}
       <button
         type="button"
         data-testid="button-court-settings"
@@ -188,7 +214,7 @@ export default function ThreeDCourt() {
         aria-expanded={settingsOpen}
         onClick={() => (settingsOpen ? closeSettings() : setSettingsOpen(true))}
         style={{
-          flexShrink: 0, whiteSpace: "nowrap", marginLeft: "auto",
+          flexShrink: 0, whiteSpace: "nowrap", marginLeft: unityLoaded ? undefined : "auto",
           display: "flex", alignItems: "center", gap: "6px", padding: "6px 14px", borderRadius: "6px",
           background: settingsOpen ? "rgba(255,255,255,0.25)" : "rgba(255,255,255,0.12)", color: "white", fontWeight: 700, fontSize: "12px",
           border: "1px solid rgba(255,255,255,0.25)", cursor: "pointer",
@@ -246,6 +272,18 @@ export default function ThreeDCourt() {
     return (
       <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
         {leaveBar}
+        {paused && (
+          <div
+            data-testid="court-paused"
+            style={{
+              position: "fixed", top: "50%", left: "50%", transform: "translate(-50%, -50%)", zIndex: 40,
+              padding: "14px 28px", borderRadius: 12, background: "rgba(0,0,0,0.8)", color: "white",
+              fontWeight: 900, fontSize: 28, letterSpacing: 2, pointerEvents: "none",
+            }}
+          >
+            PAUSED
+          </div>
+        )}
         {settingsOpen && (
           <div
             role="dialog"

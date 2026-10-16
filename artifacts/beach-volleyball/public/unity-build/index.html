@@ -43,7 +43,28 @@
       // "Run In Background" off, so on this window's blur the court stopped, silent, until it had the
       // focus again (measured: scripts/webgl-proof/package-sound-proof.mjs --blur). Unity's own blur
       // handler is on this window and is added after this one, so this keeps the blur from reaching it.
-      window.addEventListener("blur", function (e) { e.stopImmediatePropagation(); }, true);
+      window.addEventListener("blur", function (e) { if (!e.vbePause) e.stopImmediatePropagation(); }, true);
+
+      // Rob, 16 Oct: the Pause button above the court (pages/court.tsx), in Auto and Manual. The court
+      // has no pause the page can call in both modes (Manual's Esc pause is its own), but this build stops
+      // dead, picture and sound, when its window loses focus and starts again when it gets it back. So
+      // Pause hands Unity one blur and Resume one focus; while paused, a real focus (a click on the court,
+      // the keyboard given back after Settings) is kept from Unity, so only Resume starts it again.
+      var vbePaused = false;
+      window.addEventListener("focus", function (e) { if (vbePaused && !e.vbePause) e.stopImmediatePropagation(); }, true);
+      window.addEventListener("message", function (e) {
+        var d = e.data;
+        if (!d || d.type !== "vbe-pause") return;
+        var on = d.paused === true;
+        if (on !== vbePaused) {
+          vbePaused = on;
+          var ev = new FocusEvent(on ? "blur" : "focus");
+          ev.vbePause = true;
+          window.dispatchEvent(ev);
+          console.log("[Pause] " + (on ? "paused" : "resumed"));
+        }
+        try { window.parent.postMessage("unity-paused:" + (vbePaused ? "1" : "0"), "*"); } catch (err) { console.warn(err); }
+      });
 
       var canvas = document.getElementById("unity-canvas");
       var buildUrl = "/unity-build/Build";

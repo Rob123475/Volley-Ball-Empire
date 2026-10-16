@@ -19,6 +19,7 @@
  * Prints one JSON summary line; exits 1 if a check fails.
  */
 import { fork, spawn } from "node:child_process";
+import crypto from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -94,7 +95,7 @@ try {
     if (m.method === "Runtime.executionContextCreated") contexts.set(m.params.context.id, m.params.context.auxData?.frameId);
     if (m.method === "Runtime.consoleAPICalled") {
       const line = (m.params.args ?? []).map((a) => a.value ?? a.description ?? "").join(" ");
-      if (/\[Sound\]|\[Commentary\]|MatchManager\] match starts/.test(line)) summary.console.push(line.slice(0, 200));
+      if (/\[Sound\]|\[Pause\]|\[Commentary\]|MatchManager\] match starts/.test(line)) summary.console.push(line.slice(0, 200));
     }
     if (m.method === "Runtime.exceptionThrown") summary.errors.push(m.params.exceptionDetails?.exception?.description ?? m.params.exceptionDetails?.text);
   };
@@ -184,6 +185,35 @@ try {
     if (st.heard) check(`heard: ${st.what ?? `crowd ${st.crowd}, commentary ${st.commentary}`}${MUSIC_MUTED ? ", music muted" : ""}`, h.taps > 0 && h.peak > 0.001, `peak ${h.peak}, ${h.samples} reads, ${h.taps} tap(s), ${h.state}`);
     else check(`silent: crowd ${st.crowd}, commentary ${st.commentary}`, h.samples > 0 && h.peak === 0, `peak ${h.peak} over ${h.samples} reads`);
   }
+  // Rob, 16 Oct: the Pause button above the court: the picture and every sound stop, a click on the
+  // court doesn't start it again, and Resume does.
+  console.error("\nPAUSE AND RESUME (THE BUTTON ABOVE THE COURT)");
+  const pauseFrame = async () => crypto.createHash("sha1").update((await send("Page.captureScreenshot", { format: "png" })).result?.data ?? "").digest("hex");
+  const pauseClick = () => js(`(() => { const b = document.querySelector('[data-testid="button-court-pause"]'); if (b) b.click(); return b ? b.textContent.trim() : null; })()`);
+  const pausesBefore = count(/\[Pause\] paused/);
+  const pressedLabel = await pauseClick();
+  const pausedNow = (await waitFor(/\[Pause\] paused/, 5000, pausesBefore + 1)) && (await js(`!!document.querySelector('[data-testid="court-paused"]')`));
+  check("Pause pauses the court (its log, PAUSED shown, the button now says Resume)", pressedLabel === "Pause" && pausedNow
+    && (await js(`document.querySelector('[data-testid="button-court-pause"]')?.textContent.trim()`)) === "Resume", `pressed "${pressedLabel}"`);
+  await sleep(1000);
+  const pf1 = await pauseFrame(); await sleep(4000); const pf2 = await pauseFrame();
+  const heardPaused = await listen("paused", 6000);
+  check("paused: the court's picture stands still and nothing is heard", pf1 === pf2 && heardPaused.samples > 0 && heardPaused.peak === 0,
+    `picture ${pf1 === pf2 ? "still" : "moved"}, peak ${heardPaused.peak} over ${heardPaused.samples} reads`);
+  await shot("p1-court-paused.png");
+  for (const type of ["mousePressed", "mouseReleased"]) await send("Input.dispatchMouseEvent", { type, x: 640, y: 420, button: "left", clickCount: 1 });
+  await sleep(1500);
+  const pf3 = await pauseFrame(); await sleep(3000); const pf4 = await pauseFrame();
+  check("a click on the court while paused does not start it", pf3 === pf4 && (await js(`!!document.querySelector('[data-testid="court-paused"]')`)));
+  const resumesBefore = count(/\[Pause\] resumed/);
+  await pauseClick();
+  const resumedNow = (await waitFor(/\[Pause\] resumed/, 5000, resumesBefore + 1)) && !(await js(`!!document.querySelector('[data-testid="court-paused"]')`));
+  await sleep(1500);
+  const pf5 = await pauseFrame(); await sleep(4000); const pf6 = await pauseFrame();
+  const heardResumed = await listen("resumed", 12000);
+  check("Resume: the court plays on and is heard again", resumedNow && pf5 !== pf6 && heardResumed.peak > 0.001,
+    `picture ${pf5 !== pf6 ? "moving" : "still"}, peak ${heardResumed.peak}`);
+
   await shot("s2-court-after.png");
   check("no page errors", summary.errors.length === 0, summary.errors.slice(0, 2).join(" | "));
   ws.close();

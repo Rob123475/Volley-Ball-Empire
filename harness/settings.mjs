@@ -25,6 +25,8 @@
  *      to the court at once, and the court keeps playing (and is heard) with the
  *      focus off it. What is heard is proved by scripts/webgl-proof/
  *      package-sound-proof.mjs and sound-volume-proof.mjs
+ *   9. (source) Rob, 16 Oct: a Pause button above the court, in Auto and Manual
+ *      (heard and seen paused, and resumed, in the same two proofs)
  */
 import fs from "node:fs";
 import os from "node:os";
@@ -162,8 +164,20 @@ check("(source) the volumes chosen there go to the court at once (saved, the eve
 check("(source) closing it gives the keyboard back to the court",
   /function closeSettings\(\) \{\s*setSettingsOpen\(false\);[\s\S]{0,120}iframeRef\.current\?\.focus\(\);/.test(courtPage));
 check("(source) the court keeps playing with the focus off it: its page keeps the window's blur from Unity, before Unity loads",
-  /window\.addEventListener\("blur", function \(e\) \{ e\.stopImmediatePropagation\(\); \}, true\);/.test(unityHtml)
+  /window\.addEventListener\("blur", function \(e\) \{ if \(!e\.vbePause\) e\.stopImmediatePropagation\(\); \}, true\);/.test(unityHtml)
     && unityHtml.indexOf('window.addEventListener("blur"') < unityHtml.indexOf("createUnityInstance("));
+
+// ── 9. The Pause button (Rob, 16 Oct) ────────────────────────────────────────
+console.log("\n9. THE PAUSE BUTTON ABOVE THE COURT, IN AUTO AND MANUAL");
+check("(source) a Pause button beside Settings and Leave match, once the court has loaded; it says Resume while paused",
+  /data-testid="button-court-pause"/.test(courtPage) && courtPage.indexOf('data-testid="button-court-pause"') < courtPage.indexOf('data-testid="button-leave-match"')
+    && /\{unityLoaded && \(/.test(courtPage) && /\{paused \? "Resume" : "Pause"\}/.test(courtPage));
+check("(source) it asks the court's page, which pauses in either mode by Unity's own stop on losing focus, and says so back",
+  courtPage.includes(`postMessage({ type: "vbe-pause", paused: !paused }, "*")`) && unityHtml.includes(`d.type !== "vbe-pause"`)
+    && /new FocusEvent\(on \? "blur" : "focus"\)/.test(unityHtml) && unityHtml.includes(`"unity-paused:" + (vbePaused ? "1" : "0")`)
+    && /e\.data === "unity-paused:1"/.test(courtPage));
+check("(source) while paused only Resume starts it: a real focus (a click on the court) is kept from Unity",
+  /window\.addEventListener\("focus", function \(e\) \{ if \(vbePaused && !e\.vbePause\) e\.stopImmediatePropagation\(\); \}, true\);/.test(unityHtml));
 
 console.log(`\n${checks - failures}/${checks} checks passed`);
 process.exit(failures === 0 ? 0 : 1);
