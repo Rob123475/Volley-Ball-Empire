@@ -1,5 +1,6 @@
 import { seasonPhase } from "../utils/seasonPhase.js";
 import { Router } from "express";
+import { mainSponsorResultTx } from "../utils/staffBudget.js";
 import type { Request } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db, isContinentKey, type Team, careerSavesTable, careerHistoryEntriesTable } from "@workspace/db";
@@ -882,6 +883,12 @@ export async function completeMatch(
         }).run();
       }
     });
+  }
+
+  // 1.1.1, Part 11 (SB-2): the main sponsor's bonus on this result (a win, a share of the prize, reaching the World Finals).
+  {
+    const sponsorDay = await getGameDate(team.id);
+    db.transaction((tx) => mainSponsorResultTx(tx, ctx.careerSaveId, { teamId: team.id }, { won: homeWon, prize: prizeEarned, finals: isFinal || isWorldSemiFinal, today: sponsorDay }));
   }
 
   const playerEvents = await applyPostMatchEffects(team.id, pair.map((p) => p.id), match.weather, facilityLevels, hasRecoveryCamp, matchWindSpeed, matchTemp);

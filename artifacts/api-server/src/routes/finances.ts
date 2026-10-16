@@ -3,7 +3,9 @@ import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
 import { financeTransactionsTable, matchesTable, playersTable, promoDealsTable, staffTable, teamsTable, calendarStateTable } from "@workspace/db";
 import { eq, and, desc, sql, count } from "drizzle-orm";
-import { generateOfferBatch } from "../utils/sponsor-generator.js";
+import { generateOfferBatch, CATEGORY_LABELS } from "../utils/sponsor-generator.js";
+import { activeSeasonYearTx, ensureMainSponsorOffersTx, mainSponsorOffersTx, staffBudgetTx, chooseMainSponsorTx } from "../utils/staffBudget.js";
+import { bonusText } from "@workspace/db";
 import { specialityFactor } from "../utils/managerFaces.js";
 import { getGameDate } from "../utils/gameDate.js";
 import { isSeniorPlayer, isActiveYouthPlayer } from "../utils/playerClassification.js";
@@ -417,6 +419,42 @@ function daysDiff(from: string, to: string): number {
 
 /* ── Regenerative sponsor offers ─────────────────────────────── */
 
+/**
+ * 1.1.1, Part 11 (Rob, SB-2/SB-5): the main sponsor. Its staff budget, the
+ * wages against it and the room left; its bonus and what it has paid; and, at
+ * choosing time (Day 1, each season's start, or a save from before 1.1.1 on
+ * first look), the three offers. Sponsors have no logos: name and type.
+ */
+router.get("/finances/main-sponsor", async (req, res) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const team = await getActiveTeam(req);
+  if (!team) { res.status(404).json({ error: "No team" }); return; }
+  const cid = await careerSaveIdForTeamOrThrow(team.id);
+  const today = await getGameDate(team.id);
+  const body = db.transaction((tx) => {
+    const year = activeSeasonYearTx(tx, cid);
+    ensureMainSponsorOffersTx(tx, cid, team.id, year, today);
+    const offers = mainSponsorOffersTx(tx, team.id, year).map((o) => ({
+      id: o.id, sponsor: o.sponsor, tier: o.tier, type: o.category ? (CATEGORY_LABELS as Record<string, string>)[o.category] ?? o.category : null,
+      staffBudget: Number(o.staffBudget), bonusType: o.bonusType, bonusValue: Number(o.bonusValue ?? 0), bonus: bonusText(o.bonusType, o.bonusValue),
+    }));
+    const view = staffBudgetTx(tx, cid, { teamId: team.id });
+    return { seasonYear: year, ...view, sponsor: view.sponsor ? { ...view.sponsor, type: view.sponsor.type ? (CATEGORY_LABELS as Record<string, string>)[view.sponsor.type] ?? view.sponsor.type : null } : null, offers };
+  });
+  res.json(body);
+});
+
+router.post("/finances/main-sponsor/:id/choose", async (req, res) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const team = await getActiveTeam(req);
+  if (!team) { res.status(404).json({ error: "No team" }); return; }
+  const cid = await careerSaveIdForTeamOrThrow(team.id);
+  const today = await getGameDate(team.id);
+  const error = db.transaction((tx) => chooseMainSponsorTx(tx, cid, team.id, Number(req.params.id), today));
+  if (error) { res.status(409).json({ error }); return; }
+  res.json(db.transaction((tx) => staffBudgetTx(tx, cid, { teamId: team.id })));
+});
+
 router.get("/finances/sponsor-offers", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const team = await getActiveTeam(req);
@@ -505,12 +543,14 @@ router.get("/finances/sponsor-active", async (req, res) => {
       sql`${promoDealsTable.contractEndDate} IS NOT NULL AND ${promoDealsTable.contractEndDate} < ${gameDate}`,
     ));
 
-  // Fetch active contracts
+  // Fetch active contracts. 1.1.1, Part 11: the main sponsor (a staff budget and a bonus, no monthly
+  // payment) is shown on its own card (GET /finances/main-sponsor), not among these.
   const active = await db.select().from(promoDealsTable)
     .where(and(
       eq(promoDealsTable.teamId, team.id),
       eq(promoDealsTable.isAccepted, true),
       eq(promoDealsTable.status, "accepted"),
+      sql`${promoDealsTable.staffBudget} IS NULL`,
     ));
 
   // Process due monthly payments. P-09: the promotions manager's bonus is paid

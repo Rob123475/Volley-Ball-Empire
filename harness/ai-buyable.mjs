@@ -147,7 +147,7 @@ try {
 
   console.log("\n3. BOUGHT FROM HER AI CLUB");
   // 1.1.1 (no dumping): the interchange's place is freed in this suite's own database.
-  for (const p of (await api("GET", "/players")).data.filter((p) => p.squadRole === "interchange")) freeSquadPlace(DB, p.id);
+  for (const p of (await api("GET", "/players")).data.filter((p) => p.squadRole === "interchange")) freeSquadPlace(DB, p.id, team.id);
   makeCapRoom(DB, team.id);   // item 4a: room under the cap, which is not this suite's subject
   const seller = seen.aiClubId;
   const sellerBefore = balanceOf(cid, seller), robBefore = Number((await api("GET", "/team")).data.budget);
@@ -179,7 +179,7 @@ try {
   const poorClub = [...squadSizes(cid)].find(([id, n]) => n === 2 && id !== seller)[0];
   w(`UPDATE career_pool_team_state SET balance = 0 WHERE career_save_id = ? AND pool_team_id = ?`, cid, poorClub);
   const hers = q(`SELECT player_id AS id FROM career_player_state WHERE career_save_id = ? AND pool_team_id = ? AND team_id IS NULL LIMIT 1`, cid, poorClub)[0].id;
-  for (const p of (await api("GET", "/players")).data.filter((p) => p.squadRole === "interchange")) freeSquadPlace(DB, p.id);
+  for (const p of (await api("GET", "/players")).data.filter((p) => p.squadRole === "interchange")) freeSquadPlace(DB, p.id, team.id);
   const refused = await api("POST", "/contracts", { playerId: hers, salary: 10000, bonusPerWin: 0, squadRole: "interchange", length: "1s", confirm: true });
   check("refused, in plain words", refused.status === 409 && /won't sell.*two players/i.test(refused.data?.error ?? ""), `HTTP ${refused.status}: ${refused.data?.error}`);
   check("and she is still at her club", q(`SELECT pool_team_id AS c FROM career_player_state WHERE career_save_id = ? AND player_id = ?`, cid, hers)[0].c === poorClub);

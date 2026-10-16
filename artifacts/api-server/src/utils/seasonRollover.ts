@@ -1,4 +1,5 @@
 import { releaseAiAcademyGraduatesTx, withdrawGraduatedListingsTx } from "./youthLoans.js";
+import { rolloverMainSponsorsTx } from "./staffBudget.js";
 import {
   db, seasonsTable, careerSavesTable, calendarStateTable, teamsTable,
   seasonFinalStandingsTable, careerHistoryEntriesTable,
@@ -298,6 +299,9 @@ export function rolloverSeason(careerSaveId: number, teamId: number): RolloverRe
     // season just played (two failed running = sacked); last season's open
     // jobs are filled (utils/aiManagers.ts).
     aiManagersSeasonEndTx(tx, careerSaveId, season.year, nextYear, `${nextYear}-01-01`);
+    // 1.1.1, Part 11 (SB-2): every club's staff budget level moves on the season just ended; the
+    // player's club gets its three main sponsor offers, the AI clubs choose theirs.
+    rolloverMainSponsorsTx(tx, careerSaveId, teamId, season.year, nextYear, `${nextYear}-01-01`, worldTourStandingsTx(tx, careerSaveId, season.year));
     // Six clubs to a continent, every season, whether anything was sold or not:
     // the regional season's thirty fixtures are built on that number and it
     // throws on any other. Restored rather than reasoned about

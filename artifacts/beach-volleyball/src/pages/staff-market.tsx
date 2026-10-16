@@ -1,4 +1,5 @@
 import { ContractLengthPicker } from "@/components/contract-length-picker";
+import { StaffBudgetLine } from "@/components/main-sponsor";
 import { CONTRACT_LENGTH_LABELS, type ContractLength } from "@/lib/contract-lengths";
 import { attributeLabel, skillAttributes } from "@/lib/staff-attributes";
 import {
@@ -16,7 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
-import {
+import { Stethoscope,
   UserPlus,
   DollarSign,
   Calendar,
@@ -58,7 +59,7 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { Link } from "wouter";
 import { serverMessage } from "@/lib/api-error";
-import { SortMenu, sortList, sortKeysFor, midpoint, type SortKey, type SortReaders } from "@/components/sort-menu";
+import { SortMenu, sortList, scoutedFirst, sortKeysFor, midpoint, type SortKey, type SortReaders } from "@/components/sort-menu";
 import { normaliseRole, isMedicalRole, SCOUTING_ROLE_KEYS, MAX_STAFF } from "@shared/staff-roles";
 
 const ROLE_LABELS: Record<string, string> = {
@@ -500,6 +501,9 @@ export default function StaffMarket() {
         </div>
       </div>
 
+      {/* 1.1.1, Part 11 (SB-5): the room left in the staff budget. */}
+      <StaffBudgetLine />
+
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
         <SortMenu value={sortKey} onChange={setSortKey} keys={sortKeysFor(STAFF_SORT)} testId="staff-sort" />
@@ -524,6 +528,12 @@ export default function StaffMarket() {
               {role === "all" ? "All Roles" : ROLE_LABELS[role]}
             </Button>
           ))}
+          {/* 1.1.1, Part 10 (Rob): another way in to the medical hiring list (the Medical Market). */}
+          <Link href="/medical-market">
+            <Button variant="outline" size="sm" className="text-xs gap-1 border-red-500/40 text-red-600 dark:text-red-400" data-testid="staff-market-medical">
+              <Stethoscope className="h-3 w-3" /> Medical
+            </Button>
+          </Link>
         </div>
       </div>
 
@@ -557,7 +567,7 @@ export default function StaffMarket() {
         </div>
       ) : (
         <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {sortList(inButtonOrder(marketStaff), sortKey, STAFF_SORT).map((member) => (
+          {scoutedFirst(sortList(inButtonOrder(marketStaff), sortKey, STAFF_SORT), (m: any) => m.scouting?.state).map((member) => (
             <StaffMarketCard
               key={member.id}
               member={member}

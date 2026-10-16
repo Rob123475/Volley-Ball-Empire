@@ -14,7 +14,7 @@
 import fs from "node:fs";
 import { DatabaseSync } from "node:sqlite";
 import path from "node:path";
-import { healSquadByTeam, trainThroughCalendar, startCareer } from "./harness-club.mjs";
+import { healSquadByTeam, trainThroughCalendar, startCareer, freeSquadPlace } from "./harness-club.mjs";
 
 const BASE = (process.argv[2] ?? "http://localhost:4199") + "/api";
 
@@ -65,7 +65,8 @@ async function newCareer(api, label) {
 const market = async (api) => {
   const r = await api("GET", "/players/market-all?playerType=senior");
   const all = Array.isArray(r.data) ? r.data : (r.data?.players ?? []);
-  return all.filter((p) => !p.teamId && !p.currentTeamId);
+  // 1.1.1: an AI club's senior is bought with a bid and joins later; the free pool is the free agents.
+  return all.filter((p) => !p.teamId && !p.currentTeamId && (p.status === "free_agent" || p.status === "player_pool"));
 };
 const roster = async (api) => {
   const r = await api("GET", "/team/roster");
@@ -101,8 +102,9 @@ const roster = async (api) => {
   // Release A's seeded squad so the rest of this suite — signing, training,
   // playing matches with a specific tracked player — still walks up from an
   // empty roster exactly as it did before R-04 seeded one at creation.
+  // 1.1.1 (no dumping): a mid-season release is refused, so the squad leaves in this run's database.
   for (const p of [...(rosterA0.data?.starters ?? []), ...(rosterA0.data?.interchanges ?? [])]) {
-    await A("POST", `/players/${p.id}/release`, {});
+    if (DB_PATH) freeSquadPlace(DB_PATH, p.id, teamA.id); else await A("POST", `/players/${p.id}/release`, {});
   }
   // Update 1 (Rob, 14 Oct, 4b-2): releasing the drafted squad pays its contracts out; the money is put back.
   if (DB_PATH) { const bw = new DatabaseSync(DB_PATH); bw.prepare(`UPDATE teams SET budget = 500000 WHERE id = ?`).run(teamA.id); bw.close(); }
@@ -209,8 +211,14 @@ const roster = async (api) => {
 
   // ── 5. Release ────────────────────────────────────────────────────────────
   console.log("\n5. RELEASE");
+  // 1.1.1 (no dumping): outside the transfer window a senior can't be released; in it (10 December) she can.
+  const midSeason = await A("POST", `/players/${target.id}/release`, {});
+  check("mid-season, release is refused until the transfer window", midSeason.status === 409 && /transfer window/i.test(midSeason.data?.error ?? ""), `HTTP ${midSeason.status}`);
+  const realDay = (await A("GET", "/calendar")).data?.currentDate;
+  if (DB_PATH) { const bw = new DatabaseSync(DB_PATH); bw.prepare(`UPDATE calendar_state SET "current_date" = ? WHERE team_id = ?`).run(`${realDay.slice(0, 4)}-12-10`, teamA.id); bw.close(); }
   const relRes = await A("POST", `/players/${target.id}/release`, {});
-  check("release succeeds", relRes.status < 400, `HTTP ${relRes.status}`);
+  if (DB_PATH) { const bw = new DatabaseSync(DB_PATH); bw.prepare(`UPDATE calendar_state SET "current_date" = ? WHERE team_id = ?`).run(realDay, teamA.id); bw.close(); }
+  check("in the window, release succeeds", relRes.status < 400, `HTTP ${relRes.status}`);
   const rosterA2 = await roster(A);
   check("leaves the squad", !rosterA2.some(p => p.id === target.id));
   const marketA2 = await market(A);
@@ -336,7 +344,7 @@ const roster = async (api) => {
   // A fresh career now starts with a seeded squad (R-04, section 0) — release
   // it first so this test can still walk the cap from empty to full.
   for (const p of await roster(C)) {
-    await C("POST", `/players/${p.id}/release`, {});
+    if (DB_PATH) freeSquadPlace(DB_PATH, p.id, teamC.id); else await C("POST", `/players/${p.id}/release`, {});
   }
   // Update 1 (4b-2): the releases paid the drafted contracts out; the money is put back.
   if (DB_PATH) { const bw = new DatabaseSync(DB_PATH); bw.prepare(`UPDATE teams SET budget = 500000 WHERE id = ?`).run(teamC.id); bw.close(); }

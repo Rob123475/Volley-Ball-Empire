@@ -25,7 +25,7 @@ import os from "node:os";
 import { DatabaseSync } from "node:sqlite";
 import { requireElectronBinary } from "./electron-binary.mjs";
 import { forkServer, stopServer } from "./server-harness.mjs";
-import { healAllSquads, renewExpiringContracts, keepSideFielded, startCareer } from "./harness-club.mjs";
+import { healAllSquads, renewExpiringContracts, keepSideFielded, startCareer, turnDownBids } from "./harness-club.mjs";
 
 const REPO = path.join(import.meta.dirname, "..");
 const SHIPPED = path.join(REPO, "lib", "db", "volleyball-empire.sqlite");
@@ -212,6 +212,8 @@ try {
   let boundary = null, stopped = "";
   for (let i = 0; i < 600; i++) {
     healAllSquads(dbFile);
+    // 1.1.1: the manager keeps his squad (an unanswered AI bid takes a player; transfers are not this suite's subject).
+    turnDownBids(dbFile);
     await keepSideFielded(api);
     const r = await api("POST", "/calendar/advance", {});
     if (r.status >= 400) { stopped = `advance HTTP ${r.status} ${JSON.stringify(r.data).slice(0, 80)}`; break; }
@@ -351,6 +353,30 @@ try {
     Number(team?.budget ?? 0) > 0 && Number(team?.budget ?? 0) !== 120_000,
     money(Number(team?.budget ?? 0)));
 
+  // 1.1.1, Part 12 (a fault found 12 Oct): at a club the job market gave him, an academy youth's contract
+  // in its final season showed Renew, and renewing said "Renewal refused". Driven on purpose: one of the
+  // new club's academy youths is put in her final season; the Contracts page offers Renew (the page's
+  // own rule: active and ending by the season's end), and the renewal goes through.
+  {
+    const seasonNow = (await api("GET", "/seasons/current")).data;
+    const youthIds = read(`SELECT s.player_id AS id FROM career_player_state s JOIN players p ON p.id = s.player_id
+      WHERE s.team_id = ? AND p.player_type = 'youth' AND s.is_promoted = 0 AND s.is_retired = 0`, team?.id).map((r) => r.id);
+    const contractsNow = (await api("GET", "/contracts")).data ?? [];
+    const yc = contractsNow.find((c) => youthIds.includes(c.playerId));
+    check("Part 12: the new club's academy youths hold contracts on the Contracts page", youthIds.length > 0 && !!yc,
+      `${youthIds.length} youths, ${contractsNow.filter((c) => youthIds.includes(c.playerId)).length} with contracts`);
+    if (yc && seasonNow?.endDate) {
+      write(`UPDATE contracts SET end_date = ? WHERE id = ?`, seasonNow.endDate, yc.id);
+      write(`UPDATE career_player_state SET contract_end_date = ? WHERE player_id = ? AND team_id = ?`, seasonNow.endDate, yc.playerId, team?.id);
+      const shown = ((await api("GET", "/contracts")).data ?? []).find((c) => c.id === yc.id);
+      const offered = shown?.status === "active" && shown.endDate <= seasonNow.endDate;
+      const renewed = await api("POST", `/contracts/${yc.id}/renew`, { length: "1s" });
+      check("Part 12: in her final season the page offers Renew, and renewing works (not \"Renewal refused\")",
+        offered && renewed.status === 200 && renewed.data?.endDate > seasonNow.endDate,
+        `offered ${offered}; HTTP ${renewed.status} ${renewed.data?.error ?? ""} -> ${renewed.data?.endDate ?? ""}`);
+    }
+  }
+
   const seats = read(`SELECT COUNT(*) AS n FROM competitors WHERE team_id IS NOT NULL`)[0].n;
   check("the club the manager left kept its seat, and the new club has it — not a second one",
     seats === 1, `${seats} club(s) with a seat of their own`);
@@ -448,6 +474,7 @@ try {
     await keepSideFielded(api);
     await renewExpiringContracts(api);
     write(`UPDATE teams SET budget = ? WHERE id = ?`, HELD_BALANCE, team?.id);
+    turnDownBids(dbFile);
     const r = await api("POST", "/calendar/advance", {});
     if (r.status >= 400) { stopped2 = `advance HTTP ${r.status} ${JSON.stringify(r.data).slice(0, 80)}`; break; }
     if (r.data?.blocked === "pending_match") {

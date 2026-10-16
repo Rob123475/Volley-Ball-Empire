@@ -146,8 +146,8 @@ async function careerToOlympics() {
     {
       const season = (await api("GET", "/seasons/current")).data;
       // 1.1.1 (no dumping): the squad leaves in this suite's own database (a release outside the window is refused).
-      for (const p of (await api("GET", "/team/roster")).data?.starters ?? []) freeSquadPlace(dbFile, p.id);
-      for (const p of (await api("GET", "/team/roster")).data?.interchanges ?? []) freeSquadPlace(dbFile, p.id);
+      for (const p of (await api("GET", "/team/roster")).data?.starters ?? []) freeSquadPlace(dbFile, p.id, teamId);
+      for (const p of (await api("GET", "/team/roster")).data?.interchanges ?? []) freeSquadPlace(dbFile, p.id, teamId);
       // Update 1 (Rob, 14 Oct, 4b-2): releasing the drafted squad pays its contracts out; the money is put back.
       { const bw = new DatabaseSync(dbFile); bw.prepare(`UPDATE teams SET budget = 500000 WHERE id = ?`).run(teamId); bw.close(); }
       let aus = ((await api("GET", "/players/free-agents")).data ?? []).filter((p) => p.nationality === "Australia").slice(0, 3);

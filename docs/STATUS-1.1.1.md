@@ -16,7 +16,10 @@ Brief: `docs/UPDATE1-1.1.1-BRIEF.md`. Branch **update-1**, on top of 1.1.0 (`359
 | 6. The calendar | done | `97deef35` |
 | 7. Words | done | `26802392` |
 | 8. Tests | done (one open finding, below) | (Part 8 commit) |
-| 9. Full build, soak, 1.1.1 | | |
+| 9. Full build, soak, 1.1.1 | (below) | |
+| 10. Scouting limit, youth cards, Watch List, Medical pill, scouted first | done | (Part 10 commit) |
+| 11. Staff budget (main sponsor) | done | (Part 10 commit) |
+| 12. Academy Renew at a job-market club | checked: it no longer happens; a check now drives it | (Part 10 commit) |
 
 ## Decisions made
 
@@ -60,6 +63,48 @@ Brief: `docs/UPDATE1-1.1.1-BRIEF.md`. Branch **update-1**, on top of 1.1.0 (`359
 - A bought youth joins the buyer's academy. For his club that means an academy contract (as a youth signed off the market) and the youth team if it has a place. The selling club is paid her youth price ($500 to $2,000 by talent; 10% less at a Negotiator's club). The sale is recorded in `transfer_deals` (squad role `academy`, status `moved`). His fee goes in the ledger as `transfer_fee`.
 - **AI clubs buy from each other** in their weekly academy step. Up to 2 clubs a week try, the best negotiators first. A club tries only if it has academy room, money above its reserve ($150,000) and a negotiator above the floor. It goes for the best youth at another AI club who beats its weakest youth-team player by 5. If it is offered only a loan, it takes the loan, provided it has none in already.
 - The AI clubs don't ask for his youths. A youth of his is his to list for loan (Team > Youth Loans), as before.
+
+**Scouting limit and the Watch List (Part 10)**
+- **What I found first:** a continental youth mission recorded which Scout went, but did not tie him up. He could still write reports, and could be sent on missions in other regions at the same time. Now a Scout away on a mission writes no reports and can't be sent on a second mission until he's back. Reports he had already started still finish; he isn't called back.
+- **Who works on a report:** the best person of the right role who is on duty and has a place free.
+  - players and youths: a Scout (as before)
+  - staff and medical candidates: a Scout, Head Coach or Assistant Coach
+  - a youth deal's negotiation: a Scout, else a coach (AI clubs too)
+- **A third report is refused,** naming who is busy (or away) and the first day one of them is free.
+- **A youth deal's negotiation is a job.** It holds one of the negotiator's two places for 5 days (SCOUT_DAYS). Asking again for the same youth while it runs adds no job. A loan needs no negotiation, so it still goes when everyone is busy.
+- **Left out:** the academy's older club-level "youth scouting" trip (`/youth-scouting`). It has no person attached, and no page in the game uses it.
+- **Saves from before 1.1.1:** reports already in progress have no job row, so they don't count toward the limit.
+- **Watch List:**
+  - its own top-row pill, "Watch List (N)", beside Senior and Youth Players; the second-row pill is gone, so there aren't two
+  - a Seniors / Youths filter
+  - each card has Remove from list, Scout and Buy, using the market's own handlers and contract box ("Buy" is the box's own button, relabelled)
+  - a watched youth in an AI club's academy is bought through her club, with the Clubs page's Loan-or-buy dialog
+- **Youth cards** have the senior card's full-width Scout button (and Scout her again), plus the Watch star. The Clubs page's youths have the star too.
+- **The Staff Market's Medical pill** links to the Medical Market. The role pills are unchanged.
+- **Scouted first:** one helper (`components/sort-menu.tsx` `scoutedFirst`) on every list. A card's order is report in, then in progress, then unscouted, with the chosen sort kept inside each group. The state is the game's own for the day, so a card moves up the day its report is in.
+
+**Staff budget (Part 11)**
+- **One sponsor system.** The main sponsor is the existing system's "primary" slot.
+  - **The player's club:** its chosen deal is a primary `promo_deals` row, with new columns for its staff budget, bonus, what the bonus has paid, and the season.
+  - **Offers:** they wait as status `main_offer`. The Finances page's own sponsor offers no longer include the primary slot. Old-style primary deals in saves from before 1.1.1 run to their end.
+  - **AI clubs:** they keep their main sponsor on their own state row (they have no `promo_deals` rows).
+- **When offers appear:** on Day 1 (made with the career, shown beside the draft and on Finances), at each season's start (the rollover), and on first look in a save from before 1.1.1. Until the club chooses, its budget is its level: a new club's first-season figure.
+- **The bonuses:**
+  - **per win:** paid with each win
+  - **prize share:** a share on top of each prize
+  - **World Finals:** paid once, the first time the club plays a World Finals match that season
+  - The player's club is paid on its ledger (category `sponsorship`, "Main sponsor bonus …"); AI clubs to their balance.
+- **No monthly payment.** The main sponsor gives a staff budget and a bonus. The flat weekly sponsor income is unchanged.
+- **The cap is checked** at the player's staff hire (`POST /staff`), medical hire (`POST /medical-staff`) and renewal (`POST /staff/:id/renew`), and at the AI clubs' Jan 8 hiring (`hireAiStaffTx`). AI staff contracts aren't renewed; they end and the club hires again on Jan 8.
+- **The budget level moves at the boundary** on the season just ended: by its World Tour finish (top 4 +30%, top 8 +20%, top 16 +10%, otherwise −5%) and money ($3M+ +10%, $1M+ +5%). It never goes below the first season's level or above $90,000.
+- **AI clubs choose too:** the biggest staff budget while they lack a coach or a medic, otherwise any of the three.
+- **Logos:** sponsors have none. `promo_deals.image_url` exists but no page reads it. The two images in `public/` (`prohydrate-sponsor.webp`, `swimwear-sponsor.webp`) are referenced nowhere. Cards show name and type (category).
+- **The harness:** like `VBE_STAFF_ABSENCES`, a harness-only `VBE_STAFF_BUDGET=off` lifts the refusals for suites about other things. The game never sets it; the staff-budget suite and the soak run with it on.
+
+**Found while checking Parts 10 and 11 (fixed in the game)**
+- **Committed wage bill.** An AI club that agreed a buy-ahead (checked against its cap on her arrival date) could then refill or renew against today's wages, and be over the cap when she arrived. The soak found 12–21 such clubs a season. New spending is now checked against the committed bill: today's seniors plus every player bought ahead. That covers signings, renewals, raises, counter-offers and AI refills, for every club, the player's included.
+- **Borrowed youths.** An AI club could promote a youth it only had on loan as injured-list cover. When her loan ended she went back, and the club was left with one senior. No club now promotes a youth on loan to it (AI clubs in `academyBestTx`; the player's club is refused with a plain message).
+- **Same-day trim.** A full AI club that bought ahead trims only itself, the day the bought player arrives; it had been trimming every club.
 
 ## Constants
 
@@ -128,6 +173,42 @@ chance = scout share x position x plans x cash, capped at 0.95.
 | 90 | 20% | 80% |
 
 At the usual AI academy of 4 (one spare), the chances are 8% / 24% / 40%. If she plays in its youth team, halve them; if her club needs cash, raise them by half. A scout at 30 always gets 0%.
+
+**Scouting limit** (`lib/db/src/schema/staff-roles.ts`): `SCOUT_REPORTS_AT_ONCE = 2`. A negotiation lasts SCOUT_DAYS (5).
+
+**Staff budget** (`lib/db/src/schema/staff-budget.ts`, `STAFF_BUDGET`):
+
+| Constant | Value |
+|---|---|
+| `firstSeason` | $39,500 a month |
+| `max` | $90,000 a month |
+| `finishSteps` | top 4: +30%, top 8: +20%, top 16: +10% |
+| `poorSeasonStep` | −5% (no World Tour place, or below the top 16) |
+| `moneySteps` | balance $3M+: +10%, $1M+: +5% |
+| the three offers | per win (100% of the level, $1,500 a win × level/first); prize share (95%, 25% on top); World Finals (90%, $150,000 × level/first) |
+
+**SB-3, the staff wages measured** (the shipped 243 staff, monthly):
+
+| Role | Lowest | Median | Highest |
+|---|---:|---:|---:|
+| Head Coach | $9,833 | $14,833 | $20,000 |
+| Assistant Coach | $5,750 | $7,982 | $10,083 |
+| Doctor | $14,083 | $14,667 | $15,667 |
+| Physiotherapist | $8,750 | $13,500 | $16,250 |
+| Medical Specialist | $11,333 | $14,667 | $16,500 |
+| Nutritionist | $8,333 | $14,084 | $16,667 |
+| Sports Scientist | $12,333 | $13,667 | $14,917 |
+| Strength Coach | $5,667 | $7,000 | $9,000 |
+| Promotional Manager | $5,833 | $7,792 | $9,833 |
+| Scout | $4,833 | $6,375 | $7,667 |
+| Fitness Trainer | $4,800 | $5,554 | $8,083 |
+| Massage Therapist | $4,833 | $5,625 | $6,500 |
+
+**The first-season budget: $39,500, which is 98.75% of the two highest wages combined ($40,000: two Head Coaches at $20,000).**
+- **What it buys:** a good Head Coach (skill 79, $14,583) + a good Physio (skill 81, $13,500) + two average staff (a median Fitness Trainer $5,554 + a median Massage Therapist $5,625) = $39,262.
+- **What it doesn't:** the two highest-paid together.
+- **Why it can't do more:** Rob's two targets pull against each other. A median "good" Head Coach + a good medic + two median support staff (about $7,400 each) is about $43,000, which is more than $40,000. A club can hold two Head Coaches (there's no limit per role), so the budget has to stay under $40,000. "Average staff" is therefore taken as the cheaper support roles.
+- **Growth:** with top staff at about $17,900 a month (Head Coaches of skill 85+), three top-4 seasons with $3M in the bank take the level from $39,500 (two top staff) towards $90,000 (four or five). The suite prints the path.
 
 ## The transfer window (off-season dates)
 
@@ -268,6 +349,14 @@ Unchanged and passing alone: youth-loans 26/26, youth-market 9/9, youth-contract
 **Part 6 (the calendar).**
 - `utils/calendarDatedRules.ts`; GET /calendar/annual adds its events and reads only this career's seasons.
 - Client: the `transfer` type, and the legend's "Transfers" (indigo).
+
+**Part 12 (the academy Renew fault, 12 Oct).**
+- **It no longer happens.** job-market's new check takes the job market's path on purpose:
+  1. the club is sold and the manager takes an AI club;
+  2. one of its academy youths is put into her final season;
+  3. the Contracts page offers Renew (the page's own rule);
+  4. the renewal goes through: HTTP 200, new end 31 Dec 2028.
+- **Likely cause of the old fault:** 15 Oct's O-5 fix, which gives a taken-over academy's youths academy contracts (`repairTakeoverYouthContracts`, and the takeover itself). Nothing was changed for Part 12 beyond the check.
 
 **Part 7 (words).**
 - The Rules page has seven new topics: The transfer window, Buying ahead, No dumping, One chance to keep her, Perks, Youth deals and scouts, and The Clubs page. Their numbers come from `@shared/transfers`, so the page and the game agree.

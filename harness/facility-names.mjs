@@ -125,7 +125,8 @@ try {
     JSON.stringify(upcoming.map((e) => e.title)));
 
   const year = Number(((await api("GET", "/calendar")).data?.currentDate ?? "2026").slice(0, 4));
-  const annual = ((await api("GET", `/calendar/annual?year=${year}`)).data?.events ?? []).filter((e) => e.type === "facility");
+  // 1.1.1, Part 6: the "Facility / Club" colour also carries the club's dated rules (the draft, the staff day, the pre-season); the upgrade is the one "Upgrade Complete".
+  const annual = ((await api("GET", `/calendar/annual?year=${year}`)).data?.events ?? []).filter((e) => e.type === "facility" && /^Upgrade Complete/.test(e.title));
   check("season calendar: \"Upgrade Complete: Training Centre\"", annual.length === 1 && annual[0].title === "Upgrade Complete: Training Centre",
     JSON.stringify(annual.map((e) => e.title)));
 

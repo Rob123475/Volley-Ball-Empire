@@ -46,7 +46,7 @@ import { pathToFileURL } from "node:url";
 
 import { requireElectronBinary } from "./electron-binary.mjs";
 import { forkServer, stopServer } from "./server-harness.mjs";
-import { healAllSquads, startCareer } from "./harness-club.mjs";
+import { healAllSquads, startCareer, turnDownBids } from "./harness-club.mjs";
 
 const REPO = path.join(import.meta.dirname, "..");
 const { nationName, CORE_NATIONS, continentKeyForNationality } =
@@ -195,6 +195,8 @@ async function play(career, stopAfter) {
   const rolls = [];
   await renewExpiringContracts(api);
   for (let day = 0; day < 4000; day++) {
+    // 1.1.1: the manager keeps his squad (an unanswered AI bid takes a player; transfers are not this suite's subject).
+    turnDownBids(dbFile);
     const r = await api("POST", "/calendar/advance", {});
     if (r.status >= 400) throw new Error(`advance ${r.status} ${JSON.stringify(r.data)}`);
     if (r.data?.fired) return { rolls, sacked: true };

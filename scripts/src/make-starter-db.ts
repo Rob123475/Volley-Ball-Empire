@@ -99,6 +99,7 @@ const CLEAR_TABLES = [
   "career_injuries",
   // 1.1.1: bids, counter-offers and players bought ahead (per career).
   "transfer_deals",
+  "scouting_jobs",
   "manager_season_summaries",
   "match_live_state",
   "matches",

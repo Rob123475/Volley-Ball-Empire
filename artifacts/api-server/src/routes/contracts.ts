@@ -25,7 +25,7 @@ import { marketPrice, youthPrice, isRevealed } from "../utils/marketScouting.js"
 import { askingWage, freeAgentInjuryWeeks } from "../utils/wageCurve.js";
 import { monthlySalaryFor } from "../utils/clubFinances.js";
 import { overallRating } from "../utils/overallRating.js";
-import { seniorWageBill, wageCapRefusal, wageCapView } from "../utils/salaryCap.js";
+import { seniorWageBill, committedWageBill, wageCapRefusal, wageCapView } from "../utils/salaryCap.js";
 import { day1DraftOpen, undoDraftPickTx } from "../utils/day1Draft.js";
 import { specialityFactor } from "../utils/managerFaces.js";
 
@@ -51,7 +51,7 @@ router.get("/contracts", async (req, res) => {
   // Update 1, item 4a (C-4): what each senior asks to renew (the wage for her
   // current rating) and whether it fits under the cap, so the page never offers
   // a renewal the server then refuses.
-  const bill = seniorWageBill(cid, { teamId: team.id });
+  const bill = committedWageBill(cid, { teamId: team.id });
   const contractsExpert = specialityFactor(team.id, "Contracts Expert");
   const withPlayers = await Promise.all(contracts.map(async (c) => {
     const player = await loadPlayer(cid, c.playerId);
@@ -227,7 +227,7 @@ router.post("/contracts", async (req, res) => {
     }
     // Update 1, item 4a (C-3 A): a signing that takes the senior wages over the cap is refused.
     // 1.1.1: her perks count with her wage; a bid is checked on her arrival date (bidTx).
-    const overCap = isBid ? null : wageCapRefusal(seniorWageBill(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id }), offered + perksMonthly(perks));
+    const overCap = isBid ? null : wageCapRefusal(committedWageBill(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id }), offered + perksMonthly(perks));
     if (overCap) { res.status(422).json({ error: overCap, wageCap: true }); return; }
   }
 
@@ -394,7 +394,7 @@ router.post("/contracts/:id/renew", async (req, res) => {
       return;
     }
     // Update 1, item 4a (C-3 A, C-4): a renewal at a higher wage that breaks the cap is refused.
-    const overCap = wageCapRefusal(seniorWageBill(cid, { teamId: team.id }), costAfter - costNow);
+    const overCap = wageCapRefusal(committedWageBill(cid, { teamId: team.id }), costAfter - costNow);
     if (overCap) { res.status(422).json({ error: overCap, wageCap: true }); return; }
   }
 

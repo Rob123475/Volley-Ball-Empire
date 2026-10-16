@@ -37,6 +37,8 @@ const results = [];
 // but the one about it runs with that roll off, so a coach's flu cannot fail a
 // suite about something else (harness/staff-injuries.mjs turns it back on).
 process.env.VBE_STAFF_ABSENCES = "off";
+// 1.1.1, Part 11: the staff budget's refusals are off too, except in its own suite (harness/staff-budget.mjs).
+process.env.VBE_STAFF_BUDGET = "off";
 
 function runSuite(name, file) {
   const started = Date.now();
@@ -650,6 +652,10 @@ console.log("\n########## 98w/100  YOUTH DEALS AND SCOUTS (1.1.1 PART 5) #######
 runSuite("youth deals", path.join(REPO, "harness", "youth-deals.mjs"));
 console.log("\n########## 98x/100  THE CALENDAR'S DATED RULES (1.1.1 PART 6) ##########");
 runSuite("calendar rules", path.join(REPO, "harness", "calendar-rules.mjs"));
+console.log("\n########## 98y/100  THE SCOUTING LIMIT (1.1.1 PART 10) ##########");
+runSuite("scouting limit", path.join(REPO, "harness", "scouting-limit.mjs"));
+console.log("\n########## 98z/100  THE STAFF BUDGET (1.1.1 PART 11) ##########");
+runSuite("staff budget", path.join(REPO, "harness", "staff-budget.mjs"));
 
 // ── Smoke needs a server; boot one on a throwaway copy of the shipped DB ─────
 console.log("\n########## 99/100  GAMEPLAY SMOKE ##########");

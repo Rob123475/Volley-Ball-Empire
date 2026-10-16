@@ -99,6 +99,7 @@ const aiSeniors = () => q(`SELECT s.player_id AS id, p.name, s.pool_team_id AS c
     AND (p.player_type = 'senior' OR s.is_promoted = 1)`, cid);
 const injured = (s) => s.inj === 1 || (s.status ?? "Healthy") !== "Healthy";
 
+let myBudget = {};
 function seasonTable(season, year, counters) {
   const seniors = aiSeniors();
   const rated = seniors.map((s) => ({ ...s, r: overallRating(s) })).sort((a, b) => b.r - a.r);
@@ -171,8 +172,23 @@ function seasonTable(season, year, counters) {
   const topClub = [...byClub].sort((a, b) => b[1] - a[1])[0] ?? ["none", 0];
   const topPlayer = [...byPlayer].sort((a, b) => b[1] - a[1])[0] ?? [null, 0];
   const topPlayerName = topPlayer[0] == null ? "none" : (q(`SELECT name FROM players WHERE id = ?`, topPlayer[0])[0]?.name ?? `player ${topPlayer[0]}`);
+  // 1.1.1, Part 11: the AI clubs' staff under their main sponsors' budgets: how many staff, how many top
+  // staff (skill 85+), and the clubs with no coach or no medic whose room left can't pay the cheapest one.
+  const aiStaff = q(`SELECT s.pool_team_id c, st.role, st.skill_level k, s.salary w FROM career_staff_state s JOIN staff st ON st.id = s.staff_id WHERE s.career_save_id = ? AND s.pool_team_id IS NOT NULL`, cid);
+  const budgets = new Map(q(`SELECT pool_team_id c, staff_budget b, main_sponsor m FROM career_pool_team_state WHERE career_save_id = ? AND taken_over_at IS NULL`, cid).map((r) => [r.c, r]));
+  const allStaff = q(`SELECT st.role, s.salary w FROM career_staff_state s JOIN staff st ON st.id = s.staff_id WHERE s.career_save_id = ?`, cid);
+  const cheapest = (roles) => Math.min(...allStaff.filter((r) => roles.includes(r.role)).map((r) => r.w));
+  const cheapCoach = cheapest(COACHING), cheapMedic = cheapest(MEDICAL);
+  const cantAfford = [...budgets.keys()].filter((c) => {
+    const mine = aiStaff.filter((r) => r.c === c), wages = mine.reduce((t, r) => t + r.w, 0), room = Number(budgets.get(c)?.b ?? 0) - wages;
+    return (!mine.some((r) => COACHING.includes(r.role)) && room < cheapCoach) || (!mine.some((r) => MEDICAL.includes(r.role)) && room < cheapMedic);
+  });
+  const aiBudgets = [...budgets.values()].map((r) => Number(r.b ?? 0));
   return {
     season, year,
+    aiStaffTotal: aiStaff.length, aiTopStaff: aiStaff.filter((r) => r.k >= 85).length, aiBudgetMedian: Math.round(median(aiBudgets)), aiBudgetTop: Math.max(...aiBudgets),
+    aiCantAffordCoachOrMedic: cantAfford.length, aiWithSponsor: [...budgets.values()].filter((r) => r.m).length,
+    myStaffBudget: myBudget.budget ?? null, myMainSponsor: myBudget.sponsor ?? null,
     bidsOnMine: bidsOnMine.length, lostToBids, mostBidsOneClub: topClub[1], mostBidsClub: topClub[0],
     mostBidsOnePlayer: topPlayer[1], mostBidsPlayer: topPlayerName, aiBidsAll: bidsThisSeason.length,
     windowMoves, movesOutsideWindow, boughtAhead, countersWon, countersLost, moodDecided, myCounters, fellThrough,
@@ -216,6 +232,7 @@ function printTable(t) {
   console.log(`  1.1.1 transfers: ${t.windowMoves} moves in the window (${t.movesOutsideWindow} outside it, on a contract's end); ${t.boughtAhead} bought ahead; counters ${t.countersWon} won, ${t.countersLost} lost (${t.moodDecided} by mood; ${t.myCounters} on his players); ${t.fellThrough} fell through`);
   console.log(`  AI bids: ${t.aiBidsAll} in all; ${t.bidsOnMine} on his seniors, ${t.lostToBids} of his players lost to bids (he never answers in the soak, so an unanswered bid takes her); most on one club ${t.mostBidsOneClub} (${t.mostBidsClub}); most on one player ${t.mostBidsOnePlayer} (${t.mostBidsPlayer})`);
   console.log(`  Perks paid: player's club $${t.perksPaidMine.toLocaleString("en-US")}, AI clubs about $${t.perksPaidAi.toLocaleString("en-US")}; ${t.perkContracts} contracts with perks now`);
+  console.log(`  Staff budget: AI clubs' staff ${t.aiStaffTotal} (top staff, skill 85+: ${t.aiTopStaff}); AI budgets median $${t.aiBudgetMedian.toLocaleString("en-US")}, top $${t.aiBudgetTop.toLocaleString("en-US")}; ${t.aiWithSponsor} with a main sponsor; ${t.aiCantAffordCoachOrMedic} can't afford a missing coach or medic; his budget $${Number(t.myStaffBudget ?? 0).toLocaleString("en-US")} (${t.myMainSponsor ?? "none"})`);
   console.log(`  Youth deals: ${t.youthSales} sales (${t.youthSalesAiToAi} AI to AI), ${t.youthLoans} loans started`);
 }
 
@@ -245,6 +262,10 @@ try {
     healMine();
     await keepSideFielded(api);
     await renewExpiringContracts(api);
+    // 1.1.1, Part 11: the main sponsor, when offers wait (the first; the soak's club takes what comes).
+    const ms = (await api("GET", "/finances/main-sponsor")).data;
+    if (ms?.offers?.length) await api("POST", `/finances/main-sponsor/${ms.offers[0].id}/choose`);
+    if (ms) myBudget = { budget: ms.budget, sponsor: ms.sponsor?.name ?? null };
     const pre = (await api("GET", "/preseason")).data;
     if (pre?.offseason && pre.open) {
       const plan = PLAN[(season - 1) % PLAN.length];
@@ -300,6 +321,8 @@ try {
   }
   if (tables.some((t) => t.overCapAdders > 0)) flags.push("an AI club over the cap added a senior");
   if (tables.some((t) => t.outOfRange > 0)) flags.push("a stat went outside 1-99");
+  // 1.1.1, Part 11 (Rob): AI clubs that can't afford a coach or a medic under their staff budget.
+  if (tables.some((t) => t.aiCantAffordCoachOrMedic > 0)) flags.push(`AI clubs that can't afford a missing coach or medic under their staff budget: ${tables.map((t) => t.aiCantAffordCoachOrMedic).join("/")} a season`);
   // Rob, 16 Oct: nothing limits how often the AI clubs bid on one club or one player (only 2 bids a week in
   // the world, one open bid per player, one open deal per buyer, and 365 days at his club first). Flagged with
   // the numbers, not limited: Rob decides.
@@ -314,8 +337,10 @@ try {
   if (stuck > 0) flags.push(`${stuck} agreed deals past their arrival day`);
   const twoClubs = q(`SELECT COUNT(*) n FROM career_player_state WHERE career_save_id = ? AND team_id IS NOT NULL AND pool_team_id IS NOT NULL`, cid)[0].n;
   if (twoClubs > 0) flags.push(`${twoClubs} players at two clubs`);
-  const offWindow = q(`SELECT d.moved_on m, d.arrives_on a FROM transfer_deals d WHERE d.career_save_id = ? AND d.status = 'moved' AND d.squad_role IS NOT 'academy'
-    AND substr(d.moved_on, 6) < '12-07'`, cid).filter((d) => d.a !== d.m).length;
+  // She moves on her arrival day, or the day the deal is agreed if that day has passed (a bid for a player
+  // whose contract had already ended: she is free, so she comes at once).
+  const offWindow = q(`SELECT d.moved_on m, d.arrives_on a, d.agreed_on g FROM transfer_deals d WHERE d.career_save_id = ? AND d.status = 'moved' AND d.squad_role IS NOT 'academy'
+    AND substr(d.moved_on, 6) < '12-07'`, cid).filter((d) => d.m !== (d.a > d.g ? d.a : d.g)).length;
   if (offWindow > 0) flags.push(`${offWindow} senior moves outside the window not on their arrival day`);
   console.log(`\nFLAGS: ${flags.length ? flags.join("; ") : "none"}`);
   if (process.env.SOAK_OUT) fs.writeFileSync(process.env.SOAK_OUT, JSON.stringify({ difficulty: DIFFICULTY, seasons: SEASONS, stopped, tables, flags }, null, 2));

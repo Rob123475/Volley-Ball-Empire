@@ -1,6 +1,7 @@
 import { updateCareerStats } from "../utils/check-achievements.js";
 import { MANAGER_SALARY_PER_SEASON } from "@workspace/db";
 import { Router } from "express";
+import { openMainSponsorsTx } from "../utils/staffBudget.js";
 import { db } from "@workspace/db";
 import {
   careerSavesTable,
@@ -313,6 +314,8 @@ router.post("/careers", async (req, res) => {
   // senior in the world before the first day; then the AI clubs fill their
   // gaps and the AI managers' faces are dealt (finishDay1DraftTx).
   withCareerStateTx((w) => openDay1DraftTx(w, inserted!.id));
+  // 1.1.1, Part 11 (SB-2): beside the draft, the club's three main sponsor offers; the AI clubs choose theirs.
+  db.transaction((tx) => openMainSponsorsTx(tx, inserted!.id, inserted!.teamId!, `${firstYear}-01-01`));
 
   // R-26: fixture generation used to be lazy — only GET /matches/fixture ever
   // called it, so a career had no schedule until the player happened to open

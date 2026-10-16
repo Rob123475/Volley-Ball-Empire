@@ -4,6 +4,7 @@ import { MONEY } from "@shared/money";
 
 import { WAGE_CAP_QUERY_KEY } from "@/lib/wage-cap";
 import { youthWageText } from "@/lib/youth-wage";
+import { YouthDealDialog } from "@/components/youth-deal-dialog";
 import { ContractModal, type ContractOffer } from "@/components/contract-offer-dialog";
 import { CONTINENT_KEYS, continentLabel, type ContinentKey } from "@shared/continents";
 import {
@@ -40,7 +41,7 @@ import {
   ArrowUp,
 } from "lucide-react";
 import { useState } from "react";
-import { SortMenu, sortList, sortKeysFor, midpoint, type SortKey, type SortReaders } from "@/components/sort-menu";
+import { SortMenu, sortList, scoutedFirst, sortKeysFor, midpoint, type SortKey, type SortReaders } from "@/components/sort-menu";
 import {
   Dialog,
   DialogContent,
@@ -83,8 +84,9 @@ const POSITION_LABELS: Record<string, string> = {
   blocker: "Blocker", all_rounder: "All-Rounder",
 };
 
-type PageSection = "senior" | "youth";
-type MarketFilter = "all" | "free_agents" | "ai_clubs" | "player_pool" | "signed" | "joining" | "watch";
+// 1.1.1, Part 10 (Rob): the Watch List is its own section, beside Senior and Youth Players.
+type PageSection = "senior" | "youth" | "watch";
+type MarketFilter = "all" | "free_agents" | "ai_clubs" | "player_pool" | "signed" | "joining";
 type PlayerStatus = "signed" | "free_agent" | "player_pool" | "at_club" | "ai_club";
 
 // ── Status config ─────────────────────────────────────────────────────────────
@@ -237,6 +239,7 @@ export function MarketPlayerCard({
   isScoutingThis,
   signPending,
   hasScout,
+  watchView = false,
 }: {
   player: any;
   onSign: (id: number, values: any) => void;
@@ -247,6 +250,8 @@ export function MarketPlayerCard({
   signPending: boolean;
   /** Overnight 30 Sep, item 5: only a hired Scout scouts players. */
   hasScout: boolean;
+  /** 1.1.1, Part 10: on the Watch List: "Remove from list", "Scout" and "Buy". */
+  watchView?: boolean;
 }) {
   // Item 15: an unscouted player's attributes are not sent; she shows "?".
   const revealed  = player.revealed !== false;
@@ -411,11 +416,20 @@ export function MarketPlayerCard({
           )}
         </div>
 
-        {canSign && (
+        {watchView && (
+          <WatchListButtons player={player} onRemove={() => onWatch(player.id, false)} onScout={() => onScout(player.id)}
+            scoutDisabled={!canSign || isScoutingThis || scouting === "in_progress" || !!player.rescouting || !hasScout}
+            scoutTitle={!hasScout ? "Hire a Scout on the Staff Market to scout players." : `5 days, ${scoutCostText(player)}`}
+            scoutNote={scouting === "in_progress" ? `Scouting: report in ${player.scouting.daysLeft} day${player.scouting.daysLeft === 1 ? "" : "s"}`
+              : player.rescouting ? `Scouting her again: report in ${player.rescouting.daysLeft} day${player.rescouting.daysLeft === 1 ? "" : "s"}` : null}
+            buy={canSign ? <ContractModal player={player} onSign={(v) => onSign(player.id, v)} isPending={signPending} triggerLabel="Buy" triggerTestId={`watch-buy-button-${player.id}`} />
+              : <Button size="sm" className="w-full h-9" disabled title={player.joins ? `Joins ${player.joins.club}` : "Not for sale"}>Buy</Button>} />
+        )}
+        {!watchView && canSign && (
           <ContractModal player={player} onSign={(v) => onSign(player.id, v)} isPending={signPending} />
         )}
         {/* Item 15: a small "Scout player" under the sign button; 5 game days. */}
-        {canSign && scouting !== "done" && (
+        {!watchView && canSign && scouting !== "done" && (
           <Button
             variant="ghost"
             size="sm"
@@ -433,7 +447,7 @@ export function MarketPlayerCard({
           </Button>
         )}
         {/* B-3: scout her again whenever you like, same price and 5 days; every report is kept. */}
-        {canSign && scouting === "done" && (
+        {!watchView && canSign && scouting === "done" && (
           <Button
             variant="ghost"
             size="sm"
@@ -460,23 +474,54 @@ export function MarketPlayerCard({
   );
 }
 
+/**
+ * 1.1.1, Part 10 (Rob): on the Watch List every card has three buttons,
+ * "Remove from list", "Scout" and "Buy". Scout and Buy are the market card's
+ * own (the same routes and rules: cost, 5 days, the 2-at-a-time limit, the
+ * cap, the transfer window); `buy` is the market's own contract box.
+ */
+function WatchListButtons({ player, onRemove, onScout, scoutDisabled, scoutTitle, scoutNote, buy }: {
+  player: any; onRemove: () => void; onScout: () => void; scoutDisabled: boolean; scoutTitle?: string; scoutNote?: string | null; buy: React.ReactNode;
+}) {
+  return (
+    <div className="space-y-1.5" data-testid={`watch-buttons-${player.id}`}>
+      <div className="grid grid-cols-3 gap-2">
+        <Button variant="outline" size="sm" className="h-9 text-xs" onClick={onRemove} data-testid={`watch-remove-${player.id}`}>Remove from list</Button>
+        <Button variant="outline" size="sm" className="h-9 text-xs gap-1" onClick={onScout} disabled={scoutDisabled} title={scoutTitle} data-testid={`watch-scout-${player.id}`}>
+          <Search className="h-3 w-3" />Scout
+        </Button>
+        <div data-testid={`watch-buy-${player.id}`}>{buy}</div>
+      </div>
+      {scoutNote && <p className="text-[11px] text-muted-foreground text-center">{scoutNote}</p>}
+    </div>
+  );
+}
+
 // ── Youth pool card (same as MarketPlayerCard but for youth players) ───────────
 
-function YouthPoolCard({
+export function YouthPoolCard({
   player,
   onSign,
   onScout,
+  onWatch,
   isScoutingThis,
   signPending,
   hasScout,
+  watchView = false,
+  onYouthDeal,
 }: {
   player: any;
   onSign: (id: number, values: any) => void;
   onScout: (id: number) => void;
+  /** 1.1.1, Part 10: the Watch star, as on a senior card. */
+  onWatch: (id: number, watch: boolean) => void;
   isScoutingThis: boolean;
   signPending: boolean;
   /** Overnight 30 Sep, item 5: only a hired Scout scouts players. */
   hasScout: boolean;
+  watchView?: boolean;
+  /** An AI club's academy youth is asked for through her club (the Clubs page's Loan or buy). */
+  onYouthDeal?: (player: any) => void;
 }) {
   // Overnight 30 Sep, item 12: the youth market by the senior rules. Until a
   // scout's report is in (or she signs) the server sends no stats: rating "?",
@@ -500,6 +545,15 @@ function YouthPoolCard({
           heightClass="h-72"
         />
         <NameStrip name={player.name} />
+        <button
+          type="button"
+          onClick={() => onWatch(player.id, !player.watched)}
+          className="absolute left-2 top-2 z-20 rounded-full bg-black/50 p-1.5 hover:bg-black/70"
+          title={player.watched ? "On your Watch list: click to take her off" : "Add her to your Watch list"}
+          data-testid={`watch-${player.id}`}
+        >
+          <Star className={cn("h-4 w-4", player.watched ? "fill-yellow-400 text-yellow-400" : "text-white/80")} />
+        </button>
         <div className="absolute right-0 top-0 bottom-0 flex flex-col items-center justify-center z-10" style={{ width: "19%", gap: "5px", padding: "8px 3px" }}>
           <div className="text-center">
             <div className="text-[22px] font-black text-white leading-none" style={{ textShadow: "0 1px 4px rgba(0,0,0,0.95)" }} data-testid={`youth-ovr-${player.id}`}>{overall ?? "?"}</div>
@@ -550,16 +604,59 @@ function YouthPoolCard({
               <><span className="font-medium text-foreground">Development potential</span><PotentialBadge potential={player.scoutedPotential!} size="xs" /></>
             ) : <span className="italic">Potential not assessed</span>}
           </div>
-          {scouting !== "done" && <Button variant="ghost" size="sm" className="h-6 px-2 text-[10px] gap-1"
-            onClick={() => onScout(player.id)} disabled={isScoutingThis || !hasScout || player.scouting?.state === "in_progress"}
-            title={!hasScout ? "Hire a Scout on the Staff Market to scout players." : player.scoutReportBy ?? undefined}
-            data-testid={`button-scout-${player.id}`}>
-            <Search className="h-3 w-3" />
-            {player.scouting?.state === "in_progress" ? `Report in ${player.scouting.daysLeft} day${player.scouting.daysLeft === 1 ? "" : "s"}`
-              : !hasScout ? "Hire a Scout" : isScoutingThis ? "Scouting…" : `Scout (5 days, ${scoutCostText(player)})`}
-          </Button>}
         </div>
-        <ContractModal player={player} onSign={(v) => onSign(player.id, v)} isPending={signPending} />
+        {player.currentTeamName && <p className="text-xs text-muted-foreground">In the academy at <span className="font-medium text-foreground">{player.currentTeamName}</span></p>}
+        {/* 1.1.1, Part 10 (Rob): the Watch List's three buttons. */}
+        {watchView && (
+          <WatchListButtons player={player} onRemove={() => onWatch(player.id, false)} onScout={() => onScout(player.id)}
+            scoutDisabled={isScoutingThis || scouting === "in_progress" || !!player.rescouting || !hasScout}
+            scoutTitle={!hasScout ? "Hire a Scout on the Staff Market to scout players." : `5 days, ${scoutCostText(player)}`}
+            scoutNote={scouting === "in_progress" ? `Scouting: report in ${player.scouting.daysLeft} day${player.scouting.daysLeft === 1 ? "" : "s"}`
+              : player.rescouting ? `Scouting her again: report in ${player.rescouting.daysLeft} day${player.rescouting.daysLeft === 1 ? "" : "s"}` : null}
+            buy={player.status === "ai_academy"
+              ? <Button className="w-full h-9 gap-1" onClick={() => onYouthDeal?.(player)} data-testid={`watch-buy-button-${player.id}`}><UserPlus className="h-4 w-4" />Buy</Button>
+              : <ContractModal player={player} onSign={(v) => onSign(player.id, v)} isPending={signPending} triggerLabel="Buy" triggerTestId={`watch-buy-button-${player.id}`} />} />
+        )}
+        {!watchView && <ContractModal player={player} onSign={(v) => onSign(player.id, v)} isPending={signPending} />}
+        {/* 1.1.1, Part 10 (Rob): the senior card's Scout button, the same size and place ($500, 5 days). */}
+        {!watchView && scouting !== "done" && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-full h-7 text-[11px] gap-1 text-muted-foreground"
+            onClick={() => onScout(player.id)}
+            disabled={isScoutingThis || scouting === "in_progress" || !hasScout}
+            title={!hasScout ? "Hire a Scout on the Staff Market to scout players." : undefined}
+            data-testid={`button-scout-${player.id}`}
+          >
+            <Search className="h-3 w-3" />
+            {scouting === "in_progress"
+              ? `Scouting: report in ${player.scouting.daysLeft} day${player.scouting.daysLeft === 1 ? "" : "s"}`
+              : !hasScout ? "Hire a Scout to scout players"
+              : isScoutingThis ? "Sending the scout…" : `Scout player (5 days, ${scoutCostText(player)})`}
+          </Button>
+        )}
+        {!watchView && scouting === "done" && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-full h-7 text-[11px] gap-1 text-muted-foreground"
+            onClick={() => onScout(player.id)}
+            disabled={isScoutingThis || !!player.rescouting || !hasScout}
+            data-testid={`button-rescout-${player.id}`}
+          >
+            <Search className="h-3 w-3" />
+            {player.rescouting
+              ? `Scouting her again: report in ${player.rescouting.daysLeft} day${player.rescouting.daysLeft === 1 ? "" : "s"}`
+              : !hasScout ? "Hire a Scout to scout her again"
+              : isScoutingThis ? "Sending the scout…" : `Scout her again (5 days, ${scoutCostText(player)})`}
+          </Button>
+        )}
+        {player.scoutReportBy && scouting !== "none" && (
+          <p className="text-[11px] text-muted-foreground text-center" data-testid={`scout-report-by-${player.id}`}>
+            {scouting === "done" ? "Scout's report" : "Scouting"}: {player.scoutReportBy}
+          </p>
+        )}
       </CardContent>
     </Card>
   );
@@ -582,8 +679,6 @@ const FILTER_PILLS: FilterPillConfig[] = [
   { id: "signed",      label: "Signed Players",      icon: CheckCircle2 as any, desc: "Players currently under contract with a club." },
   // 1.1.1, Part 2: bought ahead, by any club, waiting for the window.
   { id: "joining",     label: "Joining Clubs",       icon: Handshake   as any, desc: "Players who have agreed to join a club and move when the transfer window opens." },
-  // Update 1, overnight part 4 (B-3).
-  { id: "watch",       label: "Watch List",          icon: Star        as any, desc: "The players you have starred, at any club or none. Click the star on a card to add or take her off." },
 ];
 
 // ── Main page ─────────────────────────────────────────────────────────────────
@@ -620,6 +715,7 @@ export function useMarketActions() {
   const invalidateAll = () => {
     queryClient.invalidateQueries({ queryKey: ["players-market-all"] });
     queryClient.invalidateQueries({ queryKey: ["players-youth-pool"] });
+    queryClient.invalidateQueries({ queryKey: ["players-watched-youths"] });
     queryClient.invalidateQueries({ queryKey: getListFreeAgentsQueryKey() });
     queryClient.invalidateQueries({ queryKey: getListContractsQueryKey() });
     queryClient.invalidateQueries({ queryKey: getGetTeamRosterQueryKey() });
@@ -657,7 +753,7 @@ export function useMarketActions() {
   const handleWatch = async (playerId: number, watch: boolean) => {
     const res = await fetch(`/api/players/${playerId}/watch`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ watch }) });
     if (!res.ok) { toast({ title: "Could not change the Watch list", variant: "destructive" }); return; }
-    queryClient.invalidateQueries({ queryKey: ["players-market-all"] });
+    for (const key of [["players-market-all"], ["players-youth-pool"], ["players-watched-youths"], ["club"]]) queryClient.invalidateQueries({ queryKey: key });
   };
 
   const handleScout = (playerId: number) => {
@@ -729,6 +825,14 @@ export default function PlayerMarket() {
     queryFn: () => fetch("/api/players/youth-pool").then(r => r.json()),
     staleTime: 30_000,
   });
+  // 1.1.1, Part 10: the watched youths, on the market or in an AI club's academy.
+  const { data: watchedYouths } = useQuery<any[]>({
+    queryKey: ["players-watched-youths"],
+    queryFn: () => fetch("/api/players/watched-youths").then(r => r.json()),
+    staleTime: 30_000,
+  });
+  const [watchKind, setWatchKind] = useState<"seniors" | "youths">("seniors");
+  const [youthDeal, setYouthDeal] = useState<{ id: number; name: string; club: string } | null>(null);
 
   // ── Mutations ─────────────────────────────────────────────────────────────
 
@@ -745,7 +849,6 @@ export default function PlayerMarket() {
     player_pool: all.filter(p => p.status === "player_pool").length,
     signed:      all.filter(p => p.status === "signed" || p.status === "at_club").length,
     joining:     all.filter(p => !!p.joins).length,
-    watch:       all.filter(p => p.watched).length,
   };
 
   const applySearch = (list: any[]) =>
@@ -762,25 +865,29 @@ export default function PlayerMarket() {
       case "player_pool": return all.filter(p => p.status === "player_pool");
       case "signed":      return all.filter(p => p.status === "signed" || p.status === "at_club");
       case "joining":     return all.filter(p => !!p.joins);
-      case "watch":       return all.filter(p => p.watched);
       default:            return all;
     }
   })();
 
-  const visiblePlayers = (() => {
+  // 1.1.1, Part 10: scouted first, then reports in progress, then unscouted; the chosen order inside each.
+  const scoutState = (p: any) => p.scouting?.state;
+  const visiblePlayers = scoutedFirst((() => {
     const list = applySearch(baseFiltered);
     if (!statSort) return sortList(list, menuSort, PLAYER_SORT);
     const { stat, dir } = statSort;
     return [...list].sort((a, b) =>
       dir === "desc" ? (b[stat] ?? 0) - (a[stat] ?? 0) : (a[stat] ?? 0) - (b[stat] ?? 0)
     );
-  })();
+  })(), scoutState);
 
-  const youthFiltered = applySearch(
+  const youthFiltered = scoutedFirst(applySearch(
     (youthPool ?? []).filter(p => p.age >= 14 && p.age <= 17)
-  );
+  ), scoutState);
 
   const activeDesc = FILTER_PILLS.find(f => f.id === filter)?.desc ?? "";
+  const watchedSeniors = scoutedFirst(sortList(all.filter((p) => p.watched), menuSort, PLAYER_SORT), scoutState);
+  const watchedYouthList = scoutedFirst(watchedYouths ?? [], scoutState);
+  const watchCount = watchedSeniors.length + watchedYouthList.length;
 
   return (
     <div className="space-y-8">
@@ -794,6 +901,8 @@ export default function PlayerMarket() {
           <p className="text-muted-foreground mt-1">
             {section === "senior"
               ? (filter === "all" ? `All ${counts.all} senior players in the game.` : activeDesc)
+              : section === "watch"
+              ? "The players you have starred, at any club or none. Remove one, scout her or buy her from here."
               : "Emerging talent aged 14–17 — sign on a regular contract."}
           </p>
           {/* Live database summary */}
@@ -864,7 +973,56 @@ export default function PlayerMarket() {
             </Badge>
           )}
         </button>
+        {/* 1.1.1, Part 10 (Rob): the Watch List, easy to find, in the top row. */}
+        <button
+          onClick={() => setSection("watch")}
+          data-testid="market-watch-list"
+          className={cn(
+            "inline-flex items-center gap-2 rounded-full px-5 py-2 text-sm font-bold transition-colors",
+            section === "watch"
+              ? "bg-primary text-primary-foreground shadow-sm"
+              : "bg-amber-500/15 text-amber-700 dark:text-amber-300 hover:bg-amber-500/25",
+          )}
+        >
+          <Star className={cn("h-3.5 w-3.5", section === "watch" ? "" : "fill-yellow-400 text-yellow-500")} />
+          Watch List ({watchCount})
+        </button>
       </div>
+
+      {/* ── WATCH LIST section (1.1.1, Part 10) ── */}
+      {section === "watch" && (
+        <>
+          <div className="flex gap-2" data-testid="watch-kind">
+            {([["seniors", "Seniors", watchedSeniors.length], ["youths", "Youths", watchedYouthList.length]] as const).map(([k, label, n]) => (
+              <button key={k} onClick={() => setWatchKind(k)} data-testid={`watch-kind-${k}`}
+                className={cn("inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-semibold transition-colors",
+                  watchKind === k ? "bg-primary text-primary-foreground shadow-sm" : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground")}>
+                {label}
+                <Badge variant="secondary" className="ml-0.5 h-4 min-w-[1.5rem] px-1.5 text-[10px] rounded-full">{n}</Badge>
+              </button>
+            ))}
+          </div>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3" data-testid="watch-grid">
+            {watchKind === "seniors" && applySearch(watchedSeniors).map((player) => (
+              <MarketPlayerCard key={player.id} player={player} onSign={handleSign} onScout={handleScout} onWatch={handleWatch} watchView
+                isScoutingThis={scoutMutation.isPending && scoutMutation.variables?.id === player.id} signPending={signMutation.isPending} hasScout={hasScout} />
+            ))}
+            {watchKind === "youths" && applySearch(watchedYouthList).map((player) => (
+              <YouthPoolCard key={player.id} player={player} onSign={handleSign} onScout={handleScout} onWatch={handleWatch} watchView
+                onYouthDeal={(p) => setYouthDeal({ id: p.id, name: p.name, club: p.currentTeamName ?? "Her club" })}
+                isScoutingThis={scoutMutation.isPending && scoutMutation.variables?.id === player.id} signPending={signMutation.isPending} hasScout={hasScout} />
+            ))}
+            {(watchKind === "seniors" ? watchedSeniors : watchedYouthList).length === 0 && (
+              <div className="col-span-full text-center py-16 text-muted-foreground">
+                <Star className="h-16 w-16 mx-auto mb-4 opacity-20" />
+                <p className="text-lg">No {watchKind} on your Watch List yet.</p>
+                <p className="text-sm">Click the star on any player's card to add her.</p>
+              </div>
+            )}
+          </div>
+          <YouthDealDialog youth={youthDeal} club={youthDeal?.club ?? ""} onClose={() => setYouthDeal(null)} />
+        </>
+      )}
 
       {/* ── SENIOR section ── */}
       {section === "senior" && (
@@ -1062,6 +1220,7 @@ export default function PlayerMarket() {
                   player={player}
                   onSign={handleSign}
                   onScout={handleScout}
+                  onWatch={handleWatch}
                   isScoutingThis={scoutMutation.isPending && scoutMutation.variables?.id === player.id}
                   signPending={signMutation.isPending}
                   hasScout={hasScout}

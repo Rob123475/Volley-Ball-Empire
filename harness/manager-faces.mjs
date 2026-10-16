@@ -236,7 +236,7 @@ try {
   check("Negotiator: every senior's price on the market is 10% lower", moved(m0, m1), `e.g. ${m0[0]?.name}: ${$(m0[0]?.priceRange.low)}-${$(m0[0]?.priceRange.high)} -> ${$(m1[0]?.priceRange.low)}-${$(m1[0]?.priceRange.high)}`);
   check("and so is every youth's", moved(y0, y1), `e.g. ${$(y0[0]?.priceRange.low)}-${$(y0[0]?.priceRange.high)} -> ${$(y1[0]?.priceRange.low)}-${$(y1[0]?.priceRange.high)}`);
   const inter = q(`SELECT s.player_id AS id FROM career_player_state s JOIN players p ON p.id = s.player_id WHERE s.career_save_id = ? AND s.team_id = ? AND p.player_type = 'senior' AND s.squad_role = 'interchange'`, cidA, teamA)[0]?.id;
-  if (inter) freeSquadPlace(DB, inter);   // 1.1.1 (no dumping): the place is freed in this suite's own database
+  if (inter) freeSquadPlace(DB, inter, teamA);   // 1.1.1 (no dumping): the place is freed in this suite's own database
   const target = m1[0];
   const confirmStep = await A("POST", "/contracts", { playerId: target.id, salary: target.salary, bonusPerWin: 0, squadRole: "interchange", length: "1s" });
   check("and the signing's confirm step names the same, lower range (shown = charged)",

@@ -259,6 +259,59 @@ try {
   await shot("team-transfers-incoming");
   step("buy-ahead", out.buyAhead);
 
+  // 1.1.1, Part 10 (Rob): youth cards (the senior card's Scout button, the Watch star), the Watch List pill
+  // in the top row with its Seniors / Youths filter and three buttons per card, the Staff Market's Medical
+  // pill, and the Staff page's scouting work.
+  out.part10 = {};
+  await nav("/players");
+  await waitFor(`!!document.querySelector('[data-testid="market-watch-list"]')`, 20000); await sleep(1500);
+  out.part10.watchPillTopRow = await ev(`(() => { const w = document.querySelector('[data-testid="market-watch-list"]'); const row = w?.parentElement; return !!w && /Senior Players/.test(row?.innerText ?? "") && /Youth Players/.test(row?.innerText ?? "") && /^Watch List \\(\\d+\\)$/.test(w.innerText.trim()); })()`);
+  out.part10.secondRowHasNoWatch = await ev(`![...document.querySelectorAll("button")].some((b) => b !== document.querySelector('[data-testid="market-watch-list"]') && /^Watch List/.test(b.innerText.trim()))`);
+  await clickText(/^Youth Players/); await sleep(2000);
+  out.part10.youthCard = await ev(`(() => { const c = document.querySelector('[data-testid^="youth-ovr-"]')?.closest(".overflow-hidden"); if (!c) return null;
+    const scout = c.querySelector('[data-testid^="button-scout-"]'); const star = c.querySelector('[data-testid^="watch-"]');
+    return { scout: scout?.innerText.trim() ?? null, scoutFullWidth: !!scout && scout.className.includes("w-full"), star: !!star }; })()`);
+  await shot("youth-card");
+  // Star a youth and a senior, then open the Watch List.
+  await ev(`document.querySelector('[data-testid^="youth-ovr-"]')?.closest(".overflow-hidden")?.querySelector('[data-testid^="watch-"]')?.click()`); await sleep(1500);
+  await clickText(/^Senior Players/); await sleep(1500);
+  await ev(`document.querySelector('[data-testid^="watch-"]')?.click()`); await sleep(1500);
+  await click('[data-testid="market-watch-list"]'); await sleep(2000);
+  out.part10.watchSeniors = await ev(`[...document.querySelectorAll('[data-testid^="watch-buttons-"]')].map((b) => [...b.querySelectorAll("button")].map((x) => x.innerText.trim()).join(" | "))`);
+  await shot("watch-list-seniors");
+  await click('[data-testid="watch-kind-youths"]'); await sleep(1500);
+  out.part10.watchYouths = await ev(`[...document.querySelectorAll('[data-testid^="watch-buttons-"]')].map((b) => [...b.querySelectorAll("button")].map((x) => x.innerText.trim()).join(" | "))`);
+  await shot("watch-list-youths");
+  // The Staff Market's Medical pill opens the Medical Market.
+  await nav("/staff-market");
+  await waitFor(`!!document.querySelector('[data-testid="staff-market-medical"]')`, 20000); await sleep(1000);
+  await shot("staff-market-medical-pill");
+  await click('[data-testid="staff-market-medical"]'); await sleep(2500);
+  out.part10.medicalPill = await ev(`location.pathname`);
+  await shot("medical-market");
+  // The Staff page: who scouts, and what each is working on. A Scout is hired and sent to two
+  // players, then a third is asked for (the game's own routes, from the page).
+  out.part10.limit = await ev(`(async () => {
+    const J = async (u, o = {}) => { const r = await fetch(u, { headers: { "content-type": "application/json" }, ...o }); return { status: r.status, data: await r.json().catch(() => null) }; };
+    const scout = ((await J("/api/staff/market?role=scout")).data ?? []).find((m) => /scout/i.test(m.role));
+    if (scout) await J("/api/staff", { method: "POST", body: JSON.stringify({ staffId: scout.id, length: "1s" }) });
+    const free = (await J("/api/players/market-all")).data.filter((p) => p.status === "free_agent").slice(0, 3);
+    const r = [];
+    for (const p of free) r.push((await J("/api/players/" + p.id + "/scout", { method: "POST", body: "{}" })).status);
+    const third = await J("/api/players/" + free[2].id + "/scout", { method: "POST", body: "{}" });
+    return { scout: scout?.name ?? null, statuses: r, thirdSays: third.data?.error ?? null }; })()`);
+  // Item 6: scouted first. The two reports just sent are in progress, so on the market they come
+  // before every unscouted card (Free Agents, the default order).
+  await nav("/players"); await sleep(2500);
+  out.part10.scoutedFirst = await ev(`(() => { const cards = [...document.querySelectorAll('[data-testid^="button-scout-"], [data-testid^="button-rescout-"]')].map((b) => b.innerText.trim());
+    const firstUnscouted = cards.findIndex((t) => /^Scout player/.test(t)); const lastInProgress = cards.map((t) => /^Scouting/.test(t)).lastIndexOf(true);
+    return { inProgress: cards.filter((t) => /^Scouting/.test(t)).length, inProgressBeforeUnscouted: lastInProgress < firstUnscouted || firstUnscouted < 0, firstCards: cards.slice(0, 4) }; })()`);
+  await shot("market-scouted-first");
+  await nav("/staff"); await sleep(2500);
+  out.part10.scoutingWork = await ev(`document.querySelector('[data-testid="scouting-work"]')?.innerText.replace(/\\s+/g, " ").slice(0, 300) ?? null`);
+  await shot("staff-scouting-work");
+  step("Part 10: youth cards, Watch List, Medical pill, scouting work", out.part10);
+
   // Rob, 16 Oct: Exit game, from Settings: asked in the page; Cancel keeps the game; Exit closes the app itself.
   await nav("/settings");
   await waitFor(`!!document.querySelector('[data-testid="settings-exit"]')`, 20000);

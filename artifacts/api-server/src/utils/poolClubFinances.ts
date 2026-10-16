@@ -43,9 +43,11 @@ import {
 } from "@workspace/db";
 import { and, asc, desc, eq, inArray, isNull, isNotNull, lt, sql } from "drizzle-orm";
 import { aiSquadsTx } from "./aiSquads.js";
-import { seniorWageBillTx, fitsUnderCap } from "./salaryCap.js";
+import { committedWageBillTx, fitsUnderCap } from "./salaryCap.js";
 import { WORLD_TOUR } from "../data/worldTour.js";
 import { prizeFor } from "./prizeDistribution.js";
+import { mainSponsorResultTx } from "./staffBudget.js";
+import { FINALS_START, FINALS_END } from "./calendarSlots.js";
 import { purseAccessFor, tierForPoints, type Tier } from "./tierQualification.js";
 import {
   weeklyClubOutgoings, sponsorWeeklyIncome, decayedReputation, monthlySalaryFor,
@@ -231,7 +233,7 @@ export function renewExpiredPoolContractsTx(
   let renewed = 0;
   for (const c of expired) {
     const wage = monthlySalaryFor(overallRating(c));
-    if (!fitsUnderCap(seniorWageBillTx(tx, careerSaveId, { poolTeamId: c.poolTeamId }), wage - Number(c.salary))) continue;
+    if (!fitsUnderCap(committedWageBillTx(tx, careerSaveId, { poolTeamId: c.poolTeamId }), wage - Number(c.salary))) continue;
     const length = isContractLength(c.length) ? c.length : CONTRACT_LENGTHS[0];
     tx.update(poolPlayerContractsTable).set({
       startDate: c.endDate,
@@ -432,6 +434,10 @@ export function creditPoolClubResultTx(tx: Tx, args: {
     eq(careerPoolTeamStateTable.careerSaveId, args.careerSaveId),
     eq(careerPoolTeamStateTable.poolTeamId, args.poolTeamId),
   )).run();
+  // 1.1.1, Part 11 (SB-2): its main sponsor's bonus on the result (a win, a prize share, the World Finals).
+  mainSponsorResultTx(tx, args.careerSaveId, { poolTeamId: args.poolTeamId }, {
+    won: args.won, prize, finals: args.round != null && args.round >= FINALS_START && args.round <= FINALS_END, today: `${args.seasonYear}-01-01`,
+  });
   return prize;
 }
 

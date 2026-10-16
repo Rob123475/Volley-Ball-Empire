@@ -33,7 +33,7 @@
  *   - aiSeniorsTrainWeekTx (weekly, Update 1 item 3): its seniors train.
  */
 import {
-  careerPlayerStateTable, playersTable, continentalPoolPlayersTable, continentalPoolTeamsTable,
+  youthLoansTable, careerPlayerStateTable, playersTable, continentalPoolPlayersTable, continentalPoolTeamsTable,
   poolPlayerContractsTable, careerPoolTeamStateTable, seasonsTable, careerSavesTable, db, MONEY, rollPotential,
   GAME_DIFFICULTY, gameDifficultyOf, type DevelopmentProfile, transferDealsTable, contractsTable, AI_TRANSFER_TERMS,
 } from "@workspace/db";
@@ -50,7 +50,7 @@ import { marketPrice } from "./marketScouting.js";
 import { trainingSessionXp } from "./trainingXp.js";
 import { aiProgrammeFor, aiTrainsThisWeek, careerWeekOf } from "./aiTraining.js";
 import { specialityFactor } from "./managerFaces.js";
-import { seniorWageBillTx, fitsUnderCap, SALARY_CAP } from "./salaryCap.js";
+import { seniorWageBillTx, committedWageBillTx, fitsUnderCap, SALARY_CAP } from "./salaryCap.js";
 import { contractEndFrom, inTransferWindow } from "./transferWindow.js";
 import { coverOnRoster } from "./injuredList.js";
 import { bidTx, aiOfferPerks, arrivalDateFor, openDealForTx, careerTeamIdTx, hasAgreedMoveTx } from "./transfers.js";
@@ -332,6 +332,8 @@ export function aiSeniorsTrainWeekTx(w: CareerStateTx, careerSaveId: number, tod
 
 /** An AI club's best academy youth (not out on loan; `minAge` and up), for when no free agent can be signed. */
 function academyBestTx(tx: Tx, careerSaveId: number, poolTeamId: number, minAge = 0) {
+  const onLoanIn = new Set(tx.select({ id: youthLoansTable.playerId }).from(youthLoansTable).where(and(
+    eq(youthLoansTable.careerSaveId, careerSaveId), eq(youthLoansTable.status, "active"), eq(youthLoansTable.borrowerPoolTeamId, poolTeamId))).all().map((r) => r.id));
   return tx.select({
     id: playersTable.id, age: careerPlayerStateTable.age,
     speed: careerPlayerStateTable.speed, power: careerPlayerStateTable.power, defense: careerPlayerStateTable.defense,
@@ -347,6 +349,9 @@ function academyBestTx(tx: Tx, careerSaveId: number, poolTeamId: number, minAge 
       eq(careerPlayerStateTable.isPromoted, false),
     )).all()
     .filter((p) => p.age >= minAge)
+    // 1.1.1 (found by the AI-squad trace): a youth on loan to the club is not its to promote: she goes
+    // back when the loan ends, and the club would be left short of two.
+    .filter((p) => !onLoanIn.has(p.id))
     .map((p) => ({ id: p.id, rating: overallRating(p) }))
     .sort((a, b) => b.rating - a.rating || a.id - b.id)[0] ?? null;
 }
@@ -417,7 +422,7 @@ function signToAiClub(w: CareerStateTx, careerSaveId: number, poolTeamId: number
  */
 function bestAffordableFreeAgent(tx: Tx, careerSaveId: number, poolTeamId: number, freeing = 0, allowInjured = false) {
   const balance = balanceOf(tx, careerSaveId, poolTeamId);
-  const bill = seniorWageBillTx(tx, careerSaveId, { poolTeamId }) - freeing;
+  const bill = committedWageBillTx(tx, careerSaveId, { poolTeamId }) - freeing;
   return freeAgentsTx(tx, careerSaveId)
     .filter((f) => allowInjured || !f.injured)
     .find((f) => {
@@ -474,7 +479,7 @@ export function keepAiSquadsTx(w: CareerStateTx, careerSaveId: number, today: st
         released++; left--;
         continue;
       }
-      if (fitsUnderCap(seniorWageBillTx(w.tx, careerSaveId, { poolTeamId }), wage - m.salary)) {
+      if (fitsUnderCap(committedWageBillTx(w.tx, careerSaveId, { poolTeamId }), wage - m.salary)) {
         const length = lengthForRating(clubRating(w.tx, poolTeamId));
         w.setPlayerState(careerSaveId, m.id, { salary: wage, contractEndDate: renewalEndDate(isContractLength(length) ? length : CONTRACT_LENGTHS[0], m.contractEndDate, seasonEnds) });
         renewed++;
@@ -510,7 +515,7 @@ export function keepAiSquadsTx(w: CareerStateTx, careerSaveId: number, today: st
       // Two on the sand comes first, so it signs the cheapest free agent there
       // is, on credit: her wage goes on its books like any other, five
       // loss-making seasons sell it, and the sale clears its debts.
-      const bill = seniorWageBillTx(w.tx, careerSaveId, { poolTeamId });
+      const bill = committedWageBillTx(w.tx, careerSaveId, { poolTeamId });
       const cheapest = freeAgentsTx(w.tx, careerSaveId).filter((f) => !f.injured && fitsUnderCap(bill, monthlySalaryFor(f.rating))).at(-1);
       if (!cheapest) { short++; break; }
       signToAiClub(w, careerSaveId, poolTeamId, cheapest.id, cheapest.rating, today, seasonEnds);
@@ -671,9 +676,11 @@ function robsSeniorsForBidsTx(tx: Tx, careerSaveId: number, teamId: number, toda
  * places (a bought-ahead player arrived, or a fit player came back) lets its
  * weakest go until it has AI_MAX_SQUAD. Outside the window it carries them.
  */
-export function aiTrimSquadsTx(w: CareerStateTx, careerSaveId: number): number {
+export function aiTrimSquadsTx(w: CareerStateTx, careerSaveId: number, onlyClubs?: ReadonlySet<number>): number {
   let released = 0;
-  for (const [, squad] of aiSquadsTx(w.tx, careerSaveId)) {
+  for (const [poolTeamId, squad] of aiSquadsTx(w.tx, careerSaveId)) {
+    // Outside the window only a club a bought player has just joined trims (its bid counted the weakest gone).
+    if (onlyClubs && !onlyClubs.has(poolTeamId)) continue;
     const placed = squad.filter((m) => !m.onList);
     const spare = placed.filter((m) => m.kind === "player").sort((a, b) => a.rating - b.rating);
     for (let n = placed.length; n > AI_MAX_SQUAD && spare.length > 0; n--) {

@@ -17,6 +17,12 @@
  * scouting rating. One rule for every club: the AI clubs hire no Scouts, so
  * their coaches negotiate.
  *
+ * 1.1.1, Part 10 (Rob, S-1 A): the negotiator works on at most
+ * SCOUT_REPORTS_AT_ONCE jobs at a time, as a report: asking to buy a youth puts
+ * a negotiation (SCOUT_DAYS long) on that person's list. With every Scout and
+ * coach busy, no sale can be asked for (a loan needs no negotiation). The same
+ * person keeps a youth's negotiation while it runs: asking again then adds no job.
+ *
  * The club's answer for a youth and a buyer holds for YOUTH_DEALS.answerDays
  * (asking again the same week gets the same answer): the roll is fixed by the
  * career, the youth, the buyer and the week.
@@ -30,10 +36,12 @@
  */
 import {
   careerPlayerStateTable, playersTable, contractsTable, youthLoansTable, transferDealsTable,
-  normaliseRole, staffOnDuty, YOUTH_DEALS, youthSaleChance, type TransferDeal,
+  normaliseRole, YOUTH_DEALS, youthSaleChance, type TransferDeal,
 } from "@workspace/db";
 import { and, eq } from "drizzle-orm";
 import { loadStaffTx, type CareerStateTx } from "../lib/playerDto.js";
+import { pickScouterTx, addScoutingJobTx, jobsInProgressTx } from "./scoutingWork.js";
+import { addDays } from "./scoutReports.js";
 import { ACADEMY_CAP, ACADEMY_YOUTH_TEAM } from "./squadRules.js";
 import {
   academyAtTx, academyCountTx, allowedMonths, borrowTx, ensureYouthTeamTx, loansTx, placeSignedYouthTx, youthRating, AI_BORROW_GAP,
@@ -41,7 +49,7 @@ import {
 } from "./youthLoans.js";
 import { balanceOf, AI_BUY_RESERVE } from "./aiSquads.js";
 import { canPayTx, moveFeeTx } from "./transfers.js";
-import { youthPrice } from "./marketScouting.js";
+import { youthPrice, SCOUT_DAYS } from "./marketScouting.js";
 import { academyMonthlySalary } from "./academy.js";
 import { contractEndDate, type ContractLength } from "./contractTerms.js";
 import { seasonEndsForCareerTx } from "./seasonDates.js";
@@ -50,13 +58,22 @@ type Tx = CareerStateTx["tx"];
 const isTeam = (c: Club): c is { teamId: number } => "teamId" in c;
 const clubKey = (c: Club) => (isTeam(c) ? `t${c.teamId}` : `p${c.poolTeamId}`);
 
-/** The buyer's negotiator: its best Scout on duty, else its best coach on duty; 0 with neither. */
-export function negotiatorSkillTx(tx: Tx, careerSaveId: number, club: Club): { skill: number; name: string | null; role: string | null } {
-  const staff = loadStaffTx(tx, careerSaveId, isTeam(club) ? { teamId: club.teamId } : { poolTeamId: club.poolTeamId }).filter(staffOnDuty);
-  const pick = (roles: string[]) => staff.filter((s) => roles.includes(normaliseRole(s.role ?? "") ?? ""))
-    .sort((a, b) => (b.scoutingRating ?? b.overallRating) - (a.scoutingRating ?? a.overallRating))[0];
-  const who = pick(["scout"]) ?? pick(["head_coach", "assistant_coach"]);
-  return who ? { skill: who.scoutingRating ?? who.overallRating, name: who.name, role: normaliseRole(who.role ?? "") } : { skill: 0, name: null, role: null };
+export type Negotiator = { id: number | null; skill: number; name: string | null; role: string | null; busy: string | null; already: boolean };
+
+/**
+ * The buyer's negotiator for this youth: whoever already has her negotiation in
+ * hand, else its best Scout on duty with a job free, else its best coach on
+ * duty with one free; skill 0 with nobody (`busy` says why when everyone is).
+ */
+export function negotiatorSkillTx(tx: Tx, careerSaveId: number, club: Club, today: string, playerId?: number): Negotiator {
+  const staff = loadStaffTx(tx, careerSaveId, isTeam(club) ? { teamId: club.teamId } : { poolTeamId: club.poolTeamId });
+  const running = playerId == null ? undefined
+    : jobsInProgressTx(tx, careerSaveId, club, today).find((j) => j.kind === "youth_deal" && j.targetId === playerId);
+  const holder = running ? staff.find((s) => s.id === running.staffId) : undefined;
+  if (holder) return { id: holder.id, skill: holder.scoutingRating ?? holder.overallRating, name: holder.name, role: normaliseRole(holder.role ?? ""), busy: null, already: true };
+  const pick = pickScouterTx(tx, careerSaveId, club, [["scout"], ["head_coach", "assistant_coach"]], today);
+  if (pick.scouter) return { id: pick.scouter.id, skill: pick.scouter.rating, name: pick.scouter.name, role: pick.scouter.role, busy: null, already: false };
+  return { id: null, skill: 0, name: null, role: null, busy: pick.busy, already: false };
 }
 
 /** A fixed number in [0, 1): this career, youth, buyer and week (FNV-1a). */
@@ -93,7 +110,7 @@ export function sellerPositionTx(tx: Tx, careerSaveId: number, poolTeamId: numbe
 }
 
 export type YouthAsk = {
-  chance: number; roll: number; sells: boolean; scout: ReturnType<typeof negotiatorSkillTx>;
+  chance: number; roll: number; sells: boolean; scout: Negotiator;
   position: ReturnType<typeof sellerPositionTx>; loanMonths: number[]; price: number;
 };
 
@@ -102,7 +119,7 @@ export function askYouthTx(tx: Tx, careerSaveId: number, buyer: Club, playerId: 
   const her = aiYouthTx(tx, careerSaveId, playerId);
   if ("error" in her) return her;
   if (!isTeam(buyer) && buyer.poolTeamId === her.poolTeamId) return { error: "She is the club's own youth." };
-  const scout = negotiatorSkillTx(tx, careerSaveId, buyer);
+  const scout = negotiatorSkillTx(tx, careerSaveId, buyer, today, playerId);
   const position = sellerPositionTx(tx, careerSaveId, her.poolTeamId, playerId);
   const chance = youthSaleChance(scout.skill, position.ownYouths, position.inYouthTeam, position.needsCash);
   const roll = weekRoll(careerSaveId, playerId, buyer, today);
@@ -149,6 +166,11 @@ export function youthDealTx(
     return { outcome: "loaned", loanId: r.loan.id, months, endsOn: r.loan.endsOn, weeklyWage: r.loan.weeklyWage ?? 0, yourHalf: r.halves.borrower };
   }
 
+  // Part 10: asking to buy is a negotiation, one of the negotiator's jobs. With everyone busy it can't be asked.
+  if (ask.scout.id == null && ask.scout.busy) return { error: ask.scout.busy };
+  if (ask.scout.id != null && !ask.scout.already) {
+    addScoutingJobTx(tx, careerSaveId, buyer, ask.scout.id, { kind: "youth_deal", targetId: playerId, targetName: her.name, startedOn: today, readyOn: addDays(today, SCOUT_DAYS) });
+  }
   if (!ask.sells) return { outcome: "loan_only", chance: ask.chance, loanMonths: ask.loanMonths, scout: ask.scout };
   if (!canPayTx(tx, careerSaveId, buyer, ask.price)) {
     return { error: isTeam(buyer) ? `Not enough money: ${her.name} costs $${ask.price.toLocaleString()}.` : "The club can't pay her price." };
@@ -193,7 +215,7 @@ export function aiYouthBuysWeekTx(w: CareerStateTx, careerSaveId: number, today:
   const bought: Array<{ playerId: number; from: number; to: number; fee: number }> = [];
   let loaned = 0, asked = 0;
   // The clubs with the best negotiators go looking first (ties in a random order).
-  const order = clubs.map((id) => ({ id, skill: negotiatorSkillTx(tx, careerSaveId, { poolTeamId: id }).skill, r: Math.random() }))
+  const order = clubs.map((id) => ({ id, skill: negotiatorSkillTx(tx, careerSaveId, { poolTeamId: id }, today).skill, r: Math.random() }))
     .sort((a, b) => b.skill - a.skill || a.r - b.r).map((c) => c.id);
   for (const poolTeamId of order) {
     if (asked >= YOUTH_DEALS.aiBuysPerWeek) break;
@@ -201,7 +223,7 @@ export function aiYouthBuysWeekTx(w: CareerStateTx, careerSaveId: number, today:
     if (academyCountTx(tx, careerSaveId, club) >= ACADEMY_CAP) continue;
     if (balanceOf(tx, careerSaveId, poolTeamId) < AI_BUY_RESERVE) continue;
     // No one to negotiate a sale (no Scout or coach above the floor): it borrows from the loan list instead.
-    if (negotiatorSkillTx(tx, careerSaveId, club).skill <= YOUTH_DEALS.scoutFloor) continue;
+    if (negotiatorSkillTx(tx, careerSaveId, club, today).skill <= YOUTH_DEALS.scoutFloor) continue;
     const team = academyAtTx(tx, careerSaveId, club).filter((r) => r.academyRole === "youth_team");
     const weakest = team.length < ACADEMY_YOUTH_TEAM ? 0 : Math.min(...team.map(youthRating));
     const onLoan = new Set(loansTx(tx, careerSaveId, "active").map((l) => l.playerId));

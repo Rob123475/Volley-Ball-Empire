@@ -33,6 +33,7 @@ import { and, eq, isNull } from "drizzle-orm";
 import { withCareerStateTx, type CareerStateTx, type CareerStaffFields } from "../lib/playerDto.js";
 import { CONTRACT_LENGTHS, contractEndDate } from "./contractTerms.js";
 import { seasonEndsForCareerTx } from "./seasonDates.js";
+import { staffBudgetTx, staffBudgetRefusal } from "./staffBudget.js";
 
 /** Every tunable number of the AI staff deal, in one place. */
 export const AI_STAFF = {
@@ -136,6 +137,8 @@ export function hireAiStaffTx(
       const pool = market.filter((r) => r.role === role);
       const pick = pool[Math.floor(random() * pool.length)]!;
       if (balance < pick.salary) continue;
+      // 1.1.1, Part 11 (SB-1): the AI club's staff budget from its main sponsor (this deal's hires counted).
+      if (staffBudgetRefusal(staffBudgetTx(w.tx, careerSaveId, { poolTeamId: club.poolTeamId }), pick.salary, "")) continue;
       const length = CONTRACT_LENGTHS[Math.floor(random() * CONTRACT_LENGTHS.length)]!;
       w.setStaffState(careerSaveId, pick.staffId, {
         poolTeamId: club.poolTeamId, isAvailable: false,

@@ -105,6 +105,15 @@ export const AI_STAFF_DEAL_DAY = 8;
 /** Roles that unlock scouting (staff market, continental scouting, youth prospects). */
 export const SCOUTING_ROLE_KEYS: ReadonlySet<StaffRoleKey> = new Set(["head_coach", "assistant_coach", "scout"]);
 
+/**
+ * 1.1.1, Part 10 (Rob, S-1 A): the reports one person who scouts (a Scout, a
+ * Head Coach or an Assistant Coach) works on at once: players, youths, staff
+ * and medical alike, and a youth deal's negotiation (AI clubs too). A third is
+ * refused, naming who is busy and the day the next report finishes. A Scout
+ * away on a continental youth mission works on none until it ends.
+ */
+export const SCOUT_REPORTS_AT_ONCE = 2;
+
 /** The medical department's six roles (routes/medical-staff.ts, pages/medical.tsx). */
 export const MEDICAL_ROLE_KEYS: ReadonlySet<StaffRoleKey> = new Set([
   "doctor", "medical_specialist", "physiotherapist", "nutritionist", "sports_scientist", "massage_therapist",

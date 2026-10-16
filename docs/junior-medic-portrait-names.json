@@ -1,0 +1,231 @@
+{
+  "_note": "Rob's 37 junior medics and surgeons, 16 Oct 2026. Key: the exact picture file name inside its folder in Desktop\\staff portraits\\ (copies also in Desktop\\extra download cards\\). Ages and nationality read off the pictures (the file names give none). Skip 'orthapaedic surgeon\\... crop at mid-chest (10).png': it is a byte-for-byte copy of the unnumbered file; there is no (11).",
+  "registrar": {
+    "Agent Image - Photorealistic square corporate medical headshot_ head-and-shoulders crop at mid-chest.png": {
+      "name": "Amara Nwosu",
+      "age": 29,
+      "nationality": "Nigerian",
+      "gender": "female"
+    },
+    "Agent Image - Photorealistic square corporate medical headshot_ head-and-shoulders crop at mid-chest (1).png": {
+      "name": "Karim Haddad",
+      "age": 31,
+      "nationality": "Lebanese",
+      "gender": "male"
+    },
+    "Agent Image - Photorealistic square corporate medical headshot_ head-and-shoulders crop at mid-chest (2).png": {
+      "name": "Arash Rahimi",
+      "age": 32,
+      "nationality": "Iranian",
+      "gender": "male"
+    },
+    "Agent Image - Photorealistic square corporate medical headshot_ head-and-shoulders crop at mid-chest (3).png": {
+      "name": "Ayesha Siddiqui",
+      "age": 28,
+      "nationality": "Pakistani",
+      "gender": "female"
+    },
+    "Agent Image - Photorealistic square corporate medical headshot_ head-and-shoulders crop at mid-chest (4).png": {
+      "name": "Minh Tran",
+      "age": 28,
+      "nationality": "Vietnamese",
+      "gender": "male"
+    },
+    "Agent Image - Photorealistic square corporate medical headshot_ head-and-shoulders crop at mid-chest (5).png": {
+      "name": "Henok Girma",
+      "age": 30,
+      "nationality": "Ethiopian",
+      "gender": "male"
+    },
+    "Agent Image - Photorealistic square corporate medical headshot_ head-and-shoulders crop at mid-chest (6).png": {
+      "name": "Freya Lindqvist",
+      "age": 27,
+      "nationality": "Swedish",
+      "gender": "female"
+    },
+    "Agent Image - Photorealistic square corporate medical headshot_ head-and-shoulders crop at mid-chest (7).png": {
+      "name": "Leila Benali",
+      "age": 30,
+      "nationality": "Moroccan",
+      "gender": "female"
+    },
+    "Agent Image - Photorealistic square corporate medical headshot_ head-and-shoulders crop at mid-chest (8).png": {
+      "name": "Rohan Mehta",
+      "age": 28,
+      "nationality": "Indian",
+      "gender": "male"
+    },
+    "Agent Image - Photorealistic square corporate medical headshot_ head-and-shoulders crop at mid-chest (9).png": {
+      "name": "Ximena Quispe",
+      "age": 29,
+      "nationality": "Peruvian",
+      "gender": "female"
+    },
+    "Agent Image - Photorealistic square corporate medical headshot_ head-and-shoulders crop at mid-chest (10).png": {
+      "name": "Youssef Amrani",
+      "age": 30,
+      "nationality": "Moroccan",
+      "gender": "male"
+    },
+    "Agent Image - Photorealistic square corporate medical headshot_ head-and-shoulders crop at mid-chest (11).png": {
+      "name": "Stavros Kalogeropoulos",
+      "age": 31,
+      "nationality": "Greek",
+      "gender": "male"
+    },
+    "Agent Image - Photorealistic square corporate medical headshot_ head-and-shoulders crop at mid-chest (12).png": {
+      "name": "Mei Lin Chen",
+      "age": 29,
+      "nationality": "Chinese",
+      "gender": "female"
+    },
+    "Agent Image - Photorealistic square corporate medical headshot_ head-and-shoulders crop at mid-chest (13).png": {
+      "name": "Elena Moretti",
+      "age": 33,
+      "nationality": "Italian",
+      "gender": "female"
+    }
+  },
+  "physio-assistants": {
+    "Agent Image - Photorealistic square corporate headshot_ tight head-and-shoulders chest-up portrait.png": {
+      "name": "Sofia Romano",
+      "age": 27,
+      "nationality": "Italian",
+      "gender": "female"
+    },
+    "Agent Image - Photorealistic square corporate headshot_ tight head-and-shoulders chest-up portrait (1).png": {
+      "name": "Hana Sato",
+      "age": 24,
+      "nationality": "Japanese",
+      "gender": "female"
+    },
+    "Agent Image - Photorealistic square corporate headshot_ tight head-and-shoulders chest-up portrait (2).png": {
+      "name": "Omar Saleh",
+      "age": 27,
+      "nationality": "Egyptian",
+      "gender": "male"
+    },
+    "Agent Image - Photorealistic square corporate headshot_ tight head-and-shoulders chest-up portrait (3).png": {
+      "name": "Emma Larsen",
+      "age": 23,
+      "nationality": "Danish",
+      "gender": "female"
+    },
+    "Agent Image - Photorealistic square corporate headshot_ tight head-and-shoulders chest-up portrait (4).png": {
+      "name": "Liam O'Connor",
+      "age": 28,
+      "nationality": "Irish",
+      "gender": "male"
+    },
+    "Agent Image - Photorealistic square corporate headshot_ tight head-and-shoulders chest-up portrait (5).png": {
+      "name": "Lucia Fernandez",
+      "age": 26,
+      "nationality": "Spanish",
+      "gender": "female"
+    },
+    "Agent Image - Photorealistic square corporate headshot_ tight head-and-shoulders chest-up portrait (6).png": {
+      "name": "Diego Ramirez",
+      "age": 25,
+      "nationality": "Mexican",
+      "gender": "male"
+    },
+    "Agent Image - Photorealistic square corporate headshot_ tight head-and-shoulders chest-up portrait (7).png": {
+      "name": "Grace Mensah",
+      "age": 24,
+      "nationality": "Ghanaian",
+      "gender": "female"
+    },
+    "Agent Image - Photorealistic square corporate headshot_ tight head-and-shoulders chest-up portrait (8).png": {
+      "name": "Samuel Tesfaye",
+      "age": 26,
+      "nationality": "Ethiopian",
+      "gender": "male"
+    },
+    "Agent Image - Photorealistic square corporate headshot_ tight head-and-shoulders chest-up portrait (9).png": {
+      "name": "Noor Al-Khatib",
+      "age": 25,
+      "nationality": "Jordanian",
+      "gender": "female"
+    }
+  },
+  "orthapaedic surgeon": {
+    "Agent Image - Photorealistic square corporate medical headshot_ head-and-shoulders crop at mid-chest.png": {
+      "name": "Ricardo Almeida",
+      "age": 52,
+      "nationality": "Brazilian",
+      "gender": "male"
+    },
+    "Agent Image - Photorealistic square corporate medical headshot_ head-and-shoulders crop at mid-chest (1).png": {
+      "name": "Hans Becker",
+      "age": 60,
+      "nationality": "German",
+      "gender": "male"
+    },
+    "Agent Image - Photorealistic square corporate medical headshot_ head-and-shoulders crop at mid-chest (2).png": {
+      "name": "Yuki Tanaka",
+      "age": 48,
+      "nationality": "Japanese",
+      "gender": "female"
+    },
+    "Agent Image - Photorealistic square corporate medical headshot_ head-and-shoulders crop at mid-chest (3).png": {
+      "name": "Priya Raman",
+      "age": 50,
+      "nationality": "Indian",
+      "gender": "female"
+    },
+    "Agent Image - Photorealistic square corporate medical headshot_ head-and-shoulders crop at mid-chest (4).png": {
+      "name": "Ji-ho Park",
+      "age": 44,
+      "nationality": "South Korean",
+      "gender": "male"
+    },
+    "Agent Image - Photorealistic square corporate medical headshot_ head-and-shoulders crop at mid-chest (5).png": {
+      "name": "Carmen Ortega",
+      "age": 56,
+      "nationality": "Spanish",
+      "gender": "female"
+    },
+    "Agent Image - Photorealistic square corporate medical headshot_ head-and-shoulders crop at mid-chest (6).png": {
+      "name": "Emmanuel Okafor",
+      "age": 57,
+      "nationality": "Nigerian",
+      "gender": "male"
+    },
+    "Agent Image - Photorealistic square corporate medical headshot_ head-and-shoulders crop at mid-chest (7).png": {
+      "name": "Li Na Zhou",
+      "age": 46,
+      "nationality": "Chinese",
+      "gender": "female"
+    },
+    "Agent Image - Photorealistic square corporate medical headshot_ head-and-shoulders crop at mid-chest (8).png": {
+      "name": "Mehmet Yilmaz",
+      "age": 61,
+      "nationality": "Turkish",
+      "gender": "male"
+    },
+    "Agent Image - Photorealistic square corporate medical headshot_ head-and-shoulders crop at mid-chest (9).png": {
+      "name": "Fatima Khan",
+      "age": 49,
+      "nationality": "Pakistani",
+      "gender": "female"
+    },
+    "Agent Image - Photorealistic square corporate medical headshot_ head-and-shoulders crop at mid-chest (12).png": {
+      "name": "Marco Bianchi",
+      "age": 45,
+      "nationality": "Italian",
+      "gender": "male"
+    },
+    "Agent Image - Photorealistic square corporate medical headshot_ head-and-shoulders crop at mid-chest (13).png": {
+      "name": "Anne Dubois",
+      "age": 58,
+      "nationality": "French",
+      "gender": "female"
+    },
+    "Agent Image - Photorealistic square corporate medical headshot_ head-and-shoulders crop at mid-chest (14).png": {
+      "name": "Ramon Santos",
+      "age": 63,
+      "nationality": "Filipino",
+      "gender": "male"
+    }
+  }
+}

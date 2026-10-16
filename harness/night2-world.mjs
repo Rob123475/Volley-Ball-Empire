@@ -44,7 +44,7 @@ export function createWorld(name, port) {
     async boot(env = {}) {
       const out = fs.openSync(path.join(work, `server-${Date.now()}.log`), "w");
       child = forkServer({ server: SERVER, electron: requireElectronBinary(REPO), out,
-        env: { ...process.env, ELECTRON_RUN_AS_NODE: "1", DB_PATH: db, PORT: String(port), NODE_ENV: "development", SESSION_SECRET: name, VBE_STAFF_ABSENCES: "off", ...env } });
+        env: { ...process.env, ELECTRON_RUN_AS_NODE: "1", DB_PATH: db, PORT: String(port), NODE_ENV: "development", SESSION_SECRET: name, VBE_STAFF_ABSENCES: "off", VBE_STAFF_BUDGET: "off", ...env } });
       for (let i = 0; i < 360; i++) { try { if ((await fetch(`${BASE}/healthz`)).ok) return; } catch { /* booting */ } await new Promise((r) => setTimeout(r, 250)); }
       throw new Error("server never came up");
     },

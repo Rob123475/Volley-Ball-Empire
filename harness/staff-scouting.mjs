@@ -103,6 +103,12 @@ try {
     const scout = ((await api("GET", "/staff/market?role=scout")).data ?? [])[0];
     await api("POST", "/staff", { staffId: scout.id, length: "6m" });
   }
+  // 1.1.1, Part 10: each person who scouts works on 2 reports at a time; three at once need two people
+  // (the limit itself is harness/scouting-limit.mjs's subject).
+  if (((await api("GET", "/staff")).data ?? []).filter((s) => /scout|coach/i.test(s.role)).length < 2) {
+    const coach = ((await api("GET", "/staff/market?role=assistant_coach")).data ?? [])[0];
+    await api("POST", "/staff", { staffId: coach.id, length: "6m" });
+  }
 
   const medMarket = async () => (await api("GET", "/medical-staff/market")).data ?? [];
   const m0 = await medMarket();

@@ -34,6 +34,7 @@ import { materializeAiSeniorsTx } from "../utils/aiSquads.js";
 import { isRevealed, scoutState } from "../utils/marketScouting.js";
 import { overallRating } from "../utils/overallRating.js";
 import { youthRating } from "../utils/youthLoans.js";
+import { watchedTx } from "../utils/scoutReports.js";
 import { academyWeeklyWage } from "../utils/academy.js";
 import { loadLeagueSeasons } from "../lib/regionalLeague.js";
 import { computeLadderForSeason } from "../utils/regionalSeason.js";
@@ -178,6 +179,7 @@ router.get("/clubs/:id", async (req, res) => {
     return { lastFive, staff, wages: wageCapView(seniorWageBillTx(tx, cid, { poolTeamId })) };
   });
 
+  const watched = db.transaction((tx) => watchedTx(tx, cid));
   const playerRow = (p: PlayerDTO) => {
     const youth = isYouthPlayer(p);
     // The Player Market's rule: unscouted, her rating and attributes are hidden ("?").
@@ -190,6 +192,8 @@ router.get("/clubs/:id", async (req, res) => {
       // A youth's wage is her academy wage a week; a senior's is a month.
       wage: youth ? academyWeeklyWage(p.potential) : Math.round(Number(p.salary)), wagePer: youth ? "week" : "month",
       contractEndDate: youth ? null : (p.contractEndDate ?? null),
+      // 1.1.1, Part 10: the Watch List's star (seniors carry it on their market card).
+      watched: watched.has(p.id),
       injury: p.isInjured || (p.injuryStatus ?? "Healthy") !== "Healthy"
         ? { name: p.injuryStatus, weeksOut: Math.ceil(Number(p.injuryWeeksRemaining ?? 0)) } : null,
     };

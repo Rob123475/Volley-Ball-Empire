@@ -209,6 +209,8 @@ export const teamsTable = sqliteTable("teams", {
   managerRepPoints: integer("manager_rep_points").notNull().default(0),
   winStreak: integer("win_streak").notNull().default(0),
   sponsorReputation: integer("sponsor_reputation").notNull().default(50),
+  /** 1.1.1, Part 11: the club's staff budget level (schema/staff-budget.ts); null: the first season's. */
+  staffBudgetLevel: real("staff_budget_level"),
   boardConfidence: integer("board_confidence").notNull().default(60),
   youthScoutingContinent: text("youth_scouting_continent"),
   youthScoutingStatus: text("youth_scouting_status").notNull().default("idle"),
@@ -497,6 +499,17 @@ export const careerPoolTeamStateTable = sqliteTable("career_pool_team_state", {
    */
   balance:            real("balance").notNull().default(0),
   sponsorReputation:  integer("sponsor_reputation").notNull().default(50),
+  /**
+   * 1.1.1, Part 11: the AI club's main sponsor, chosen at each season's start as
+   * the player's club chooses: its name, the staff budget it sets, its bonus and
+   * what the bonus has paid this season; and the club's budget level.
+   */
+  mainSponsor:        text("main_sponsor"),
+  staffBudget:        real("staff_budget"),
+  staffBudgetLevel:   real("staff_budget_level"),
+  sponsorBonusType:   text("sponsor_bonus_type"),
+  sponsorBonusValue:  real("sponsor_bonus_value"),
+  sponsorBonusPaid:   real("sponsor_bonus_paid").notNull().default(0),
   /** Stamped when five loss-making seasons sold this club (L-02e, for AI clubs). */
   soldAt:             integer("sold_at", { mode: "timestamp" }),
   /**
@@ -573,6 +586,27 @@ export const careerManagerFacesTable = sqliteTable("career_manager_faces", {
  * her potential. The card shows the history ("Mar 2027 71 → Jun 73 → Sep 76").
  * The latest report in is what career_player_state.scouted_potential holds.
  */
+/**
+ * 1.1.1, Part 10 (Rob, S-1 A): who is working on what. One row per report (a
+ * player, a youth, a staff or medical candidate) or youth-deal negotiation, for
+ * the person doing it (staff_id) at the player's club (team_id) or an AI club
+ * (pool_team_id), from started_on until ready_on. A person works on at most
+ * SCOUT_REPORTS_AT_ONCE (staff-roles.ts) with ready_on still to come.
+ */
+export const scoutingJobsTable = sqliteTable("scouting_jobs", {
+  id:           integer("id").primaryKey({ autoIncrement: true }),
+  careerSaveId: integer("career_save_id").notNull().references(() => careerSavesTable.id),
+  staffId:      integer("staff_id").notNull(),
+  teamId:       integer("team_id"),
+  poolTeamId:   integer("pool_team_id"),
+  /** player | youth | staff | medical | youth_deal */
+  kind:         text("kind").notNull(),
+  targetId:     integer("target_id").notNull(),
+  targetName:   text("target_name").notNull(),
+  startedOn:    text("started_on").notNull(),
+  readyOn:      text("ready_on").notNull(),
+}, (t) => [index("scouting_jobs_staff").on(t.careerSaveId, t.staffId)]);
+
 export const careerScoutReportsTable = sqliteTable("career_scout_reports", {
   id:           integer("id").primaryKey({ autoIncrement: true }),
   careerSaveId: integer("career_save_id").notNull().references(() => careerSavesTable.id),
@@ -968,6 +1002,17 @@ export const promoDealsTable = sqliteTable("promo_deals", {
   status: text("status").default("available"),
   lastPaymentDate: text("last_payment_date"),
   signingBonusPaid: integer("signing_bonus_paid", { mode: "boolean" }).default(false),
+  /**
+   * 1.1.1, Part 11 (Rob, SB-1/SB-2): a main sponsor deal (slot "primary"): the
+   * monthly staff budget it sets, its bonus (schema/staff-budget.ts), what the
+   * bonus has paid, and the season it is for. Offers wait as status
+   * "main_offer" until the club chooses one.
+   */
+  staffBudget: real("staff_budget"),
+  bonusType: text("bonus_type"),
+  bonusValue: real("bonus_value"),
+  bonusPaid: real("bonus_paid").notNull().default(0),
+  seasonYear: integer("season_year"),
 });
 
 export type PromoDeal = typeof promoDealsTable.$inferSelect;

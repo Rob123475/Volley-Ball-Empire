@@ -4,6 +4,8 @@ import { MONEY } from "@shared/money";
 import { PRESEASON } from "@shared/preseason";
 import { GAME_DIFFICULTY } from "@shared/game-difficulty";
 import { PERKS, COUNTER_OFFER, AI_TRANSFER_TERMS, YOUTH_DEALS, youthSaleChance } from "@shared/transfers";
+import { SCOUT_REPORTS_AT_ONCE } from "@shared/staff-roles";
+import { STAFF_BUDGET } from "@shared/staff-budget";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -199,6 +201,9 @@ export const UPDATE1_RULES: ReadonlyArray<{ title: string; points: string[] }> =
     "Star any player on the Player Market to put her on your Watch list (its own tab).",
     "Scout a player again whenever you like, at the same price and 5 days. Every report is kept with its date, so you can see her rating move.",
     "Reports no longer run out at the end of the season. Scouting works on AI clubs' players too, and stays with a player who moves club.",
+    `Each person who scouts (a Scout, Head Coach or Assistant Coach) works on ${SCOUT_REPORTS_AT_ONCE} reports at a time: players, youths, staff and medical alike. Ask for another and you're told who is busy and the day the next report is ready. The Staff page shows who is working on what.`,
+    "A Scout away on a youth scouting mission does no reports, and can't be sent on a second mission, until he is back.",
+    `Asking an AI club to sell you a youth is a negotiation: it takes one of your negotiator's ${SCOUT_REPORTS_AT_ONCE} places for 5 days (a loan needs none). The AI clubs work to the same limit.`,
   ] },
   // 1.1.1 (Rob, 16 Oct; docs/UPDATE1-1.1.1-BRIEF.md part 7).
   { title: "The transfer window", points: [
@@ -237,6 +242,14 @@ export const UPDATE1_RULES: ReadonlyArray<{ title: string; points: string[] }> =
     "Every club in the game, yours included: badge, continent, tier, World Tour ladder and regional position, record, balance, wages against the cap and injuries.",
     "Sort by richest, poorest, most successful, most injury prone, continent or name.",
     "Open an AI club for its players (scout, watch or buy each senior on her market card; loan or buy each youth) and its staff and medical team.",
+  ] },
+  // 1.1.1, Part 11 (Rob, SB-1 to SB-5).
+  { title: "Your main sponsor and the staff budget", points: [
+    `Your main sponsor sets your staff budget: all your staff and medical wages together must stay under it. A new club's is about ${money(STAFF_BUDGET.firstSeason)} a month: enough for a good head coach, a good medic and two average staff, but not the two best-paid staff in the game together.`,
+    "On Day 1 and at the start of every season you choose one of three main sponsor offers. Each has its own staff budget and its own bonus: money for every win, a share on top of your prize money, or a big payment for reaching the World Finals.",
+    `The offers grow with your success and your money: a top-${STAFF_BUDGET.finishSteps[0].rankAtMost} World Tour finish and money in the bank make the next season's offers bigger, up to ${money(STAFF_BUDGET.max)} a month, enough for several top staff.`,
+    "A hire that would take you over is refused, with the amount to free up. Staff you already have keep their jobs, but while you're over you can't hire or renew anyone. Finances and the Staff and Medical markets show the room left.",
+    "The AI clubs choose a main sponsor too, and hire their staff within their budget.",
   ] },
   { title: "Manager specialities", points: [
     "Your manager's face comes with a speciality: Talent Recruiter, Negotiator, Contracts Expert, Sponsor Magnet, Leader, Coach, Youth Developer or Fitness Guru.",

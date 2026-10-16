@@ -56,13 +56,17 @@ export function healSquad(dbPath, careerSaveId, teamId) {
     const count = db.prepare(
       `SELECT COUNT(*) AS n FROM career_player_state
         WHERE career_save_id = ? AND team_id = ?
-          AND (is_injured = 1 OR injury_status <> 'Healthy')`,
+          AND (is_injured = 1 OR injury_status <> 'Healthy' OR on_injured_list = 1)`,
     ).get(careerSaveId, teamId)?.n ?? 0;
 
     if (count > 0) {
+      // Night 2 (O-10): a long injury also puts her on the injured list, where she holds no place on the
+      // sand; healed, she comes off it (as the soak's healing does), or the club forfeits anyway.
       db.prepare(
         `UPDATE career_player_state
-            SET injury_status = 'Healthy', injury_weeks_remaining = 0, is_injured = 0
+            SET injury_status = 'Healthy', injury_weeks_remaining = 0, is_injured = 0, injury_base_weeks_left = 0,
+                on_injured_list = 0, is_active = CASE WHEN squad_role = 'injured' THEN 1 ELSE is_active END,
+                squad_role = CASE WHEN squad_role = 'injured' THEN 'interchange' ELSE squad_role END
           WHERE career_save_id = ? AND team_id = ?`,
       ).run(careerSaveId, teamId);
     }
@@ -372,11 +376,13 @@ export function addStandInStaff(dbPath) {
  * as a release would: she leaves for the market, her contract terminated.
  * Release itself is harness/transfer-window.mjs's subject.
  */
-export function freeSquadPlace(dbPath, playerId) {
-  const db = new DatabaseSync(dbPath);
+export function freeSquadPlace(dbPath, playerId, teamId) {
+  // The club's own row only: a database holding several careers has the same athlete in each.
+  if (teamId == null) throw new Error("freeSquadPlace needs the club's team id");
+  const db = new DatabaseSync(dbPath, { timeout: 5000 });   // the server may be writing
   try {
-    db.prepare(`UPDATE contracts SET status = 'terminated' WHERE player_id = ? AND status = 'active'`).run(playerId);
-    db.prepare(`UPDATE career_player_state SET team_id = NULL, contract_end_date = NULL, is_active = 0, squad_role = 'interchange', perks = '' WHERE player_id = ? AND team_id IS NOT NULL`).run(playerId);
+    db.prepare(`UPDATE contracts SET status = 'terminated' WHERE player_id = ? AND team_id = ? AND status = 'active'`).run(playerId, teamId);
+    db.prepare(`UPDATE career_player_state SET team_id = NULL, contract_end_date = NULL, is_active = 0, squad_role = 'interchange', perks = '' WHERE player_id = ? AND team_id = ?`).run(playerId, teamId);
   } finally {
     db.close();
   }
@@ -389,10 +395,13 @@ export function freeSquadPlace(dbPath, playerId) {
  * bid waiting for an answer is turned down, as if he had kept her. Counters are
  * harness/counter-offer.mjs's subject.
  */
-export function turnDownBids(dbPath, teamId) {
-  const db = new DatabaseSync(dbPath);
+export function turnDownBids(dbPath, teamId = null) {
+  const db = new DatabaseSync(dbPath, { timeout: 5000 });   // the server may be writing
   try {
-    return db.prepare(`UPDATE transfer_deals SET status = 'kept' WHERE from_team_id = ? AND status = 'offered'`).run(teamId).changes;
+    // With no team: every club a manager runs (a suite whose manager changes clubs).
+    return teamId == null
+      ? db.prepare(`UPDATE transfer_deals SET status = 'kept' WHERE from_team_id IS NOT NULL AND status = 'offered'`).run().changes
+      : db.prepare(`UPDATE transfer_deals SET status = 'kept' WHERE from_team_id = ? AND status = 'offered'`).run(teamId).changes;
   } finally {
     db.close();
   }

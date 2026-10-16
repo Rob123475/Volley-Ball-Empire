@@ -57,6 +57,19 @@ export function sortList<T>(list: readonly T[], key: SortKey, readers: SortReade
   return cmp ? [...list].sort(cmp) : [...list];
 }
 
+/**
+ * 1.1.1, Part 10 (Rob): scouted first. Every market list (the Player Market's
+ * seniors and youths, the Staff Market, the Medical list, the Watch List and
+ * the Clubs page) shows the cards whose report is in at the top, then those
+ * with a report in progress, then the unscouted; inside each group the chosen
+ * Sort order stands. The state is the server's for today, so a card moves up
+ * the day its report comes in.
+ */
+export function scoutedFirst<T>(list: readonly T[], stateOf: (t: T) => string | null | undefined): T[] {
+  const rank = (s: string | null | undefined) => (s === "done" ? 0 : s === "in_progress" ? 1 : 2);
+  return list.map((t, i) => ({ t, i, r: rank(stateOf(t)) })).sort((a, b) => a.r - b.r || a.i - b.i).map((x) => x.t);
+}
+
 export function SortMenu({ value, onChange, keys, testId }: { value: SortKey; onChange: (k: SortKey) => void; keys: readonly SortKey[]; testId: string }) {
   return (
     <label className="inline-flex items-center gap-2 text-xs font-semibold text-muted-foreground">

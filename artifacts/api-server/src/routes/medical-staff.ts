@@ -2,6 +2,7 @@ import { releaseStaffMember } from "./staff.js";
 import { refreshClubInjuryClocks } from "../utils/injuries.js";
 import { withStaffScouting } from "../utils/marketScouting.js";
 import { Router } from "express";
+import { staffBudgetTx, staffBudgetRefusal } from "../utils/staffBudget.js";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
 import { staffTable, teamsTable, isMedicalRole, normaliseRole, MAX_MEDICAL_STAFF } from "@workspace/db";
@@ -98,6 +99,9 @@ router.post("/medical-staff", async (req, res) => {
   // expires on the calendar tick like any other.
   const wantedTerm = readContractLength(req.body);
   if ("error" in wantedTerm) { res.status(400).json({ error: wantedTerm.error }); return; }
+  // 1.1.1, Part 11 (SB-1): the staff budget covers the medical department too.
+  const overBudget = db.transaction((tx) => staffBudgetRefusal(staffBudgetTx(tx, cid, { teamId: team.id }), Number(member.salary), `Hiring ${member.name} ($${Math.round(Number(member.salary)).toLocaleString()} a month)`));
+  if (overBudget) { res.status(422).json({ error: overBudget, staffBudget: true }); return; }
   const hireDate = await getGameDate(team.id);
   const termPatch = await staffContractPatch(cid, wantedTerm.length, hireDate);
   await updateStaffState(cid, Number(staffId), { teamId: team.id, isAvailable: false, ...termPatch });

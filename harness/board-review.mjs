@@ -51,7 +51,7 @@ import os from "node:os";
 
 import { requireElectronBinary } from "./electron-binary.mjs";
 import { forkServer, stopServer } from "./server-harness.mjs";
-import { healAllSquads, startCareer, maxOutSquad } from "./harness-club.mjs";
+import { healAllSquads, startCareer, maxOutSquad, freeSquadPlace } from "./harness-club.mjs";
 
 const REPO = path.join(import.meta.dirname, "..");
 const SHIPPED = path.join(REPO, "lib", "db", "volleyball-empire.sqlite");
@@ -445,7 +445,8 @@ try {
   let abMatch = await nextMatchDay(AB);
   await AB("GET", "/board-confidence");
   const abContracts = (await AB("GET", "/contracts")).data ?? [];
-  for (const c of abContracts.slice(0, 2)) await AB("DELETE", `/contracts/${c.id}`);
+  // 1.1.1 (no dumping): a mid-season release is refused, so two leave in this suite's own database.
+  for (const c of abContracts.slice(0, 2)) freeSquadPlace(dbFile, c.playerId, ab.teamId);
   const able = read(`SELECT COUNT(*) AS n FROM career_player_state WHERE career_save_id = ? AND team_id = ? AND is_active = 1`, ab.careerSaveId, ab.teamId)[0].n;
   check("the club is down to one contracted player", able === 1, `${able} able`);
   const forfeits = [];

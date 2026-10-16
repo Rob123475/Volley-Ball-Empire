@@ -150,6 +150,9 @@ export default defineConfig(async ({ command }): Promise<UserConfig> => ({
         import.meta.dirname, "..", "..", "lib", "db", "src", "schema", "continents.ts",
       ),
       // P-09: staff roles, the same way and for the same reason.
+      "@shared/staff-budget": path.resolve(
+        import.meta.dirname, "..", "..", "lib", "db", "src", "schema", "staff-budget.ts",
+      ),
       "@shared/staff-roles": path.resolve(
         import.meta.dirname, "..", "..", "lib", "db", "src", "schema", "staff-roles.ts",
       ),

@@ -47,7 +47,9 @@ const ACADEMY_DESTINATIONS: { role: AcademyRole; label: string }[] = [
 
 const money = (n: number) => `$${Math.round(n).toLocaleString()}`;
 
-export function ContractModal({ player, onSign, isPending, triggerTestId }: { player: any; onSign: (v: ContractOffer) => void; isPending: boolean; triggerTestId?: string }) {
+export function ContractModal({ player, onSign, isPending, triggerTestId, triggerLabel }: { player: any; onSign: (v: ContractOffer) => void; isPending: boolean; triggerTestId?: string;
+  /** 1.1.1, Part 10: the Watch List's card names it "Buy" (the same box, the same rules). */
+  triggerLabel?: string }) {
   // Item 15 (Rob's design): signing is a confirm step with her price on it:
   // the exact price for a scouted player, the range for an unscouted one,
   // whose exact price is revealed, with her attributes, when she signs.
@@ -84,7 +86,7 @@ export function ContractModal({ player, onSign, isPending, triggerTestId }: { pl
       <DialogTrigger asChild>
         <Button className="w-full gap-2" data-testid={triggerTestId ?? `button-sign-${player.id}`}>
           <UserPlus className="h-4 w-4" />
-          {isBid ? (blind ? "Bid (unscouted)" : "Bid") : blind ? "Sign (unscouted)" : "Sign"}
+          {triggerLabel ?? (isBid ? (blind ? "Bid (unscouted)" : "Bid") : blind ? "Sign (unscouted)" : "Sign")}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">

@@ -132,6 +132,14 @@ router.patch("/team/roster/:id/role", async (req, res) => {
       res.status(422).json({ error: `Youth players under ${PROMOTION_MIN_AGE} cannot occupy Match Player or Interchange slots.` });
       return;
     }
+    // 1.1.1: a youth on loan is not his to promote: she goes back to her club when the loan ends
+    // (the AI clubs' rule too, utils/aiSquads.ts academyBestTx).
+    const loanIn = player ? db.select().from(youthLoansTable).where(and(eq(youthLoansTable.playerId, player.id),
+      eq(youthLoansTable.status, "active"), eq(youthLoansTable.borrowerTeamId, team.id))).get() : undefined;
+    if (player && loanIn && player.playerType === "youth" && !player.isPromoted) {
+      res.status(422).json({ error: `${player.name} is on loan to you until ${loanIn.endsOn}: a youth on loan can't be promoted into your seniors.` });
+      return;
+    }
     // Unity brief item 14: the Team page says an injured player "cannot be
     // selected"; the server now agrees, so she cannot be put in a Match Player slot.
     if (role === "starter" && player && isInjured(player)) {

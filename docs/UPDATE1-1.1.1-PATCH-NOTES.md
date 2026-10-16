@@ -58,6 +58,44 @@
 - A youth you buy joins your academy, and her club is paid her youth price.
 - The AI clubs buy each other's youths the same way.
 
+## The Watch List and youth cards
+- **The Watch List is easy to find:** a "Watch List" pill in the Player Market's top row, beside Senior Players and Youth Players, with how many you're watching.
+- **Every card on the Watch List has three buttons:** Remove from list, Scout and Buy. Scout and Buy work exactly as they do on the market:
+  - the same cost and 5 days;
+  - the same two-at-a-time limit;
+  - the same salary cap and transfer window.
+- **Youths on the Watch List:** star any youth and she appears there, under a Seniors / Youths filter. A youth in an AI club's academy is bought through her club, as on the Clubs page.
+- **Youth cards have a proper Scout button:** the same size and place as on a senior's card ($500, 5 days). They also get the Watch star, on the Player Market and on the Clubs page.
+
+## Scouted players first
+- **Every list puts the players and staff you've scouted at the top.** Next come those with a report on the way, then the rest. That covers both Player Market lists (seniors and youths), the Staff Market, the Medical list, the Watch List and the Clubs page.
+- The Sort menu still orders each group.
+- A card moves up the day its report comes in.
+
+## Staff Market
+- **A "Medical" pill** at the top of the Staff Market opens the medical hiring list. Everything else is where it was.
+
+## Scouting: two reports at a time
+- **Each Scout, Head Coach and Assistant Coach works on two reports at a time.** Players, youths, staff and medical all count.
+- **Ask for a third and you're told who is busy**, and the day the next report is ready.
+- **A Scout away on a youth scouting mission does no reports**, and can't be sent on a second mission, until he's back.
+- **Asking an AI club to sell you a youth is a negotiation.** It takes one of your negotiator's two places for 5 days. A loan needs none.
+- The Staff page shows each of your scouts' reports in progress, and any mission.
+- The AI clubs work to the same limit.
+
+## Your main sponsor and the staff budget
+- **Your main sponsor sets your staff budget.** All your staff and medical wages together must stay under it.
+- **A hire that would take you over is refused**, and you're told how much to free up.
+- **Choose your main sponsor** on Day 1 (beside the draft) and at the start of every season, from three offers. Each has its own staff budget and its own bonus:
+  - money for every win;
+  - a share on top of your prize money;
+  - a big payment for reaching the World Finals.
+- **A new club's budget** covers a good head coach, a good medic and two average staff, but not the two best-paid staff in the game together.
+- **The offers grow as you succeed.** Good World Tour finishes and money in the bank bring bigger offers, enough for several top staff.
+- **Staff you already have keep their jobs.** But while you're over your budget you can't hire or renew anyone.
+- **Where to see it:** Finances shows your main sponsor, its bonus, what it has paid you, and your staff wages against the budget. The Staff and Medical markets show the room left.
+- The AI clubs choose a main sponsor too, and hire within their budget.
+
 ## The calendar
 New dates on the calendar:
 - the Day 1 draft;

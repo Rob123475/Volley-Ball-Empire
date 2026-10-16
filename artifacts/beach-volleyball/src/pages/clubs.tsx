@@ -10,7 +10,7 @@
 import { useMemo, useState } from "react";
 import { useLocation, useRoute } from "wouter";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Shield, Stethoscope, Users } from "lucide-react";
+import { ArrowLeft, Shield, Star, Stethoscope, Users } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -19,6 +19,7 @@ import { ClubCrest } from "@/components/club-crest";
 import { PlayerPortrait } from "@/components/player-portrait";
 import { MarketPlayerCard, RevealedSigningDialog, useMarketActions } from "@/pages/players";
 import { YouthDealDialog } from "@/components/youth-deal-dialog";
+import { scoutedFirst } from "@/components/sort-menu";
 import { cn } from "@/lib/utils";
 
 type Manager = { name: string; image: string; speciality: string; effect: string; isPlayer: boolean } | null;
@@ -34,6 +35,10 @@ type ClubPlayer = {
   id: number; name: string; imageUrl: string | null; nationality: string | null; continent: string | null; age: number;
   youth: boolean; role: string; rating: number | null; revealed: boolean; wage: number; wagePer: "week" | "month";
   contractEndDate: string | null; injury: { name: string | null; weeksOut: number } | null;
+  /** 1.1.1, Part 10: on the Watch List. */
+  watched?: boolean;
+  /** This club's scouting of her (the market's rule): scouted cards sit first. */
+  scouting?: { state: string };
 };
 type ClubStaff = { id: number; name: string; role: string; imageUrl: string | null; skill: number; wage: number; contractEndDate: string | null };
 type ClubDetail = {
@@ -191,7 +196,8 @@ export function ClubDetailPage() {
         <div className="space-y-6">
           <h3 className="font-bold">Seniors ({data.seniors.length})</h3>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {data.seniors.map((p) => {
+            {/* 1.1.1, Part 10: scouted first, then reports in progress, then unscouted (the order kept inside each). */}
+            {scoutedFirst(data.seniors, (p) => marketById.get(p.id)?.scouting?.state ?? p.scouting?.state).map((p) => {
               const card = marketById.get(p.id);
               return (
                 <div key={p.id} className="space-y-1.5" data-testid={`club-senior-${p.id}`}>
@@ -210,10 +216,18 @@ export function ClubDetailPage() {
           </div>
           <h3 className="font-bold">Academy ({data.youths.length})</h3>
           <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
-            {data.youths.map((p) => (
+            {scoutedFirst(data.youths, (p) => p.scouting?.state).map((p) => (
               <Card key={p.id} data-testid={`club-youth-${p.id}`}>
                 <CardContent className="p-3 space-y-2">
-                  <PlayerPortrait name={p.name} imageUrl={p.imageUrl} continent={p.continent} nationality={p.nationality} playerType="youth" age={p.age} heightClass="h-40" />
+                  <div className="relative">
+                    <PlayerPortrait name={p.name} imageUrl={p.imageUrl} continent={p.continent} nationality={p.nationality} playerType="youth" age={p.age} heightClass="h-40" />
+                    {/* 1.1.1, Part 10 (Rob): the Watch star, as on the market's cards. */}
+                    <button type="button" onClick={() => actions.handleWatch(p.id, !p.watched)} data-testid={`watch-${p.id}`}
+                      className="absolute left-2 top-2 z-20 rounded-full bg-black/50 p-1.5 hover:bg-black/70"
+                      title={p.watched ? "On your Watch list: click to take her off" : "Add her to your Watch list"}>
+                      <Star className={cn("h-4 w-4", p.watched ? "fill-yellow-400 text-yellow-400" : "text-white/80")} />
+                    </button>
+                  </div>
                   <div className="flex items-center justify-between">
                     <span className="font-semibold text-sm">{p.name}</span>
                     <span className="text-lg font-black" data-testid={`club-youth-rating-${p.id}`}>{p.revealed ? p.rating : "?"}</span>

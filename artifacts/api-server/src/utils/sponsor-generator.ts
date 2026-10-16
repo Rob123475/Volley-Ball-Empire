@@ -298,8 +298,10 @@ export function generateOfferBatch(params: {
   const { team, usedNames, gameDate, count, factor = 1 } = params;
   const appealScore = computeAppealScore(team);
 
+  // 1.1.1, Part 11 (Rob, SB-2): the primary slot is the main sponsor, chosen from its own three
+  // offers on Day 1 and at each season's start (utils/staffBudget.ts); the open offers are the rest.
   const slotOrder: SponsorSlot[] = [
-    "primary", "kit",
+    "kit",
     "supporting", "supporting", "supporting", "supporting",
     "supporting", "supporting",
   ];

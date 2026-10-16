@@ -1,4 +1,5 @@
 import { gameDateText } from "@/lib/game-date";
+import { MainSponsorCard } from "@/components/main-sponsor";
 import { WageCapLine } from "@/lib/wage-cap";
 import { ledgerCategoryLabel } from "@/lib/ledger-categories";
 import { 
@@ -336,6 +337,8 @@ export default function Finances() {
       <SponsorProgressCard deals={sponsorProgress ?? []} isLoading={progressLoading} />
 
       {/* Sponsor Reputation */}
+      {/* 1.1.1, Part 11: the main sponsor, its bonus, and the staff budget it sets. */}
+      <MainSponsorCard />
       <SponsorReputationCard data={sponsorRep} isLoading={sponsorRepLoading} />
 
       {/* ── Active Sponsorships ── */}

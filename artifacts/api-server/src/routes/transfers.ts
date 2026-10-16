@@ -18,7 +18,7 @@ import { loadPlayer, requireCareerSaveId, withCareerStateTx } from "../lib/playe
 import { getGameDate } from "../utils/gameDate.js";
 import { myTransfersTx, answerWithCounterTx, agreeTx } from "../utils/transfers.js";
 import { readContractLength } from "../utils/contractTerms.js";
-import { seniorWageBill, wageCapRefusal } from "../utils/salaryCap.js";
+import { committedWageBill, wageCapRefusal } from "../utils/salaryCap.js";
 import { checkSpendingAllowed } from "../utils/board-confidence.js";
 import { transferWindowFor } from "../utils/transferWindow.js";
 
@@ -63,7 +63,7 @@ router.post("/transfers/:id/counter", async (req, res) => {
   if (adding > 0) {
     const frozen = await checkSpendingAllowed(cid);
     if (frozen) { res.status(403).json({ error: frozen }); return; }
-    const over = wageCapRefusal(seniorWageBill(cid, { teamId: team.id }), adding);
+    const over = wageCapRefusal(committedWageBill(cid, { teamId: team.id }), adding);
     if (over) { res.status(422).json({ error: over, wageCap: true }); return; }
   }
   const today = await getGameDate(team.id);

@@ -157,7 +157,7 @@ try {
     // Release anyone already signed so the squad cap never refuses the next one.
     // 1.1.1 (no dumping): outside the window that is done in this suite's own database.
     const roster = (await api("GET", "/team/roster")).data ?? {};
-    for (const p of [...(roster.activePlayers ?? []), ...(roster.benchPlayers ?? [])]) freeSquadPlace(dbFile, p.id);
+    for (const p of [...(roster.activePlayers ?? []), ...(roster.benchPlayers ?? [])]) freeSquadPlace(dbFile, p.id, teamId);
     // Update 1 (Rob, 14 Oct, 4b-2): ending the drafted squad's contracts pays them out; the money is put back.
     write(`UPDATE teams SET budget = 1000000 WHERE id = ?`, teamId);
     const r = await api("POST", "/contracts", { confirm: true,
@@ -297,7 +297,7 @@ try {
     `HTTP ${poolRes.status}, ${Array.isArray(pool) ? pool.length : typeof poolRes.data}`);
   const target = pool.find((p) => !p.teamId);
   const roster2 = (await api("GET", "/team/roster")).data ?? {};
-  for (const p of [...(roster2.activePlayers ?? []), ...(roster2.benchPlayers ?? [])]) freeSquadPlace(dbFile, p.id);
+  for (const p of [...(roster2.activePlayers ?? []), ...(roster2.benchPlayers ?? [])]) freeSquadPlace(dbFile, p.id, teamId);
   // Paying the squad off above leaves the club in the red, and since Unity item
   // 15 a signing costs the player's price: fund the club so the scene can sign.
   write(`UPDATE teams SET budget = 1000000 WHERE id = ?`, teamId);

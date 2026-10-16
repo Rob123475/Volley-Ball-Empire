@@ -12,6 +12,7 @@
  * draft is open, an undo; an AI club's player goes back to her club).
  */
 import { useMemo, useState } from "react";
+import { MainSponsorCard } from "@/components/main-sponsor";
 import { useLocation } from "wouter";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
@@ -127,6 +128,8 @@ export default function Day1Draft() {
             Senior wages <span className="font-semibold text-foreground">{money(data.wageCap?.seniorWages ?? 0)}</span> of {money(data.wageCap?.cap ?? 0)}
           </p>
         </div>
+        {/* 1.1.1, Part 11 (SB-2): beside the draft, the main sponsor: three offers, each a staff budget and a bonus. */}
+        <MainSponsorCard />
 
         <Card>
           <CardContent className="p-4 space-y-3">

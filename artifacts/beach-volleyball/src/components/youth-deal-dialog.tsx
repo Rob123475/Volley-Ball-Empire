@@ -13,7 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 
 type Ask = {
   chance: number; price: number; loanMonths: number[];
-  scout: { skill: number; name: string | null; role: string | null };
+  scout: { skill: number; name: string | null; role: string | null; busy: string | null };
   position: { ownYouths: number; inYouthTeam: boolean; needsCash: boolean };
 };
 
@@ -73,6 +73,7 @@ export function YouthDealDialog({ youth, club, onClose }: { youth: { id: number;
             <p data-testid="youth-deal-scout">
               {data.scout.name
                 ? <>{ROLE[data.scout.role ?? ""] ?? "Staff"} {data.scout.name} (scouting {data.scout.skill}) negotiates.</>
+                : data.scout.busy ? <>{data.scout.busy} {club} will only lend her for now.</>
                 : <>You have no Scout or coach to negotiate: {club} will only lend her.</>}
             </p>
             <p data-testid="youth-deal-chance">

@@ -230,7 +230,7 @@ try {
   // A place for her: the player's interchange goes (three seniors is the most a club holds).
   const mine = q(`SELECT s.player_id AS id FROM career_player_state s JOIN players p ON p.id = s.player_id
     WHERE s.team_id = ? AND (p.player_type = 'senior' OR s.is_promoted = 1) ORDER BY s.squad_role = 'interchange' DESC`, teamId);
-  if (mine.length >= 3) freeSquadPlace(DB, mine[0].id);   // 1.1.1 (no dumping): freed in this suite's own database
+  if (mine.length >= 3) freeSquadPlace(DB, mine[0].id, teamId);   // 1.1.1 (no dumping): freed in this suite's own database
   const lowball = await api("POST", "/contracts", { playerId: market.find((p) => p.status === "free_agent" && !p.isInjured && (p.injuryStatus ?? "Healthy") === "Healthy")?.id, salary: 1, bonusPerWin: 0, squadRole: "interchange", length: "1s", confirm: true });
   check("(a fit free agent still refuses less than her full asking wage)", lowball.status === 422, `${lowball.status}`);
   const signed = await api("POST", "/contracts", { playerId: hurtFa.id, salary: card?.salary, bonusPerWin: 0, squadRole: "interchange", length: "1s", confirm: true });
@@ -257,7 +257,7 @@ try {
       && /const bar = \(weakest \?\? mine\[AI_MIN_SQUAD - 1\]!\)\.rating \+ AI_BUY_GAP;/.test(aiSrc)
       // 1.1.1: she goes the day the bought player arrives (utils/transfers.ts transfersDayTx -> aiTrimSquadsTx).
       && /const weakest = spare\.shift\(\)!;[\s\S]{0,120}releaseToMarket\(w, careerSaveId, weakest\.id/.test(aiSrc)
-      && /if \(aiBuyerFull \|\| inTransferWindow\(today\)\) aiTrimSquadsTx\(w, careerSaveId\);/.test(fs.readFileSync(path.join(REPO, "artifacts", "api-server", "src", "utils", "transfers.ts"), "utf8"))
+      && /else if \(aiBuyers\.size > 0\) aiTrimSquadsTx\(w, careerSaveId, aiBuyers\);/.test(fs.readFileSync(path.join(REPO, "artifacts", "api-server", "src", "utils", "transfers.ts"), "utf8"))
       && /- \(weakest\?\.salary \?\? 0\)/.test(aiSrc));
 
   // ── 8. The cap ─────────────────────────────────────────────────────────────

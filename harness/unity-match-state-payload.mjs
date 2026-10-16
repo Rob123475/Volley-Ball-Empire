@@ -199,7 +199,7 @@ try {
     { const w = new DatabaseSync(dbFile); w.prepare("UPDATE teams SET budget = 5000000 WHERE id = ?").run(teamId); w.close(); }
     const market = (await api("GET", "/players/market-all")).data ?? [];
     // 1.1.1 (no dumping): the interchange's place is freed in this suite's own database, and room made under the cap.
-    for (const p of (await api("GET", "/players")).data.filter((p) => p.squadRole === "interchange")) freeSquadPlace(dbFile, p.id);
+    for (const p of (await api("GET", "/players")).data.filter((p) => p.squadRole === "interchange")) freeSquadPlace(dbFile, p.id, teamId);
     makeCapRoom(dbFile, teamId);
     // 1.1.1: a bid's player joins when the window opens, or the day after her contract ends. Her
     // contract is put as ending yesterday, so the bid (well over her wage: her club can't keep her)

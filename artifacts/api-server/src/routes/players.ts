@@ -30,6 +30,7 @@ import { recordScoutReportTx, scoutReportsByPlayerTx, scoutHistoryView, watchedT
 import { generateDevelopment } from "../utils/player-development";
 import { getGameDate, gameDateText, careerGameDateTx } from "../utils/gameDate.js";
 import { agreedMovesTx, releaseRefusalTx } from "../utils/transfers.js";
+import { pickScouterTx, addScoutingJobTx } from "../utils/scoutingWork.js";
 import { terminationPayout } from "../utils/contractTerms.js";
 import { day1DraftOpen, undoDraftPickTx } from "../utils/day1Draft.js";
 
@@ -146,8 +147,46 @@ router.get("/players/youth-pool", async (req, res) => {
   const cidYouth = requireCareerSaveId(req.activeCareerSaveId);
   // Update 1, item 2: a Negotiator's club sees (and pays) 10% less.
   const youthNegotiator = specialityFactor(youthTeam?.id, "Negotiator");
-  res.json(result.map((p) => marketView(cidYouth, { ...p, ...serializePlayer(p) } as PlayerDTO, youthTeam?.id ?? null, youthToday, true,
-    (c, pl) => youthPrice(c, pl, youthNegotiator))));
+  // 1.1.1, Part 10 (Rob): a youth card has the Watch star too.
+  const youthWatched = db.transaction((tx) => watchedTx(tx, cidYouth));
+  const youthReports = db.transaction((tx) => scoutReportsByPlayerTx(tx, cidYouth));
+  res.json(result.map((p) => ({
+    ...marketView(cidYouth, { ...p, ...serializePlayer(p) } as PlayerDTO, youthTeam?.id ?? null, youthToday, true, (c, pl) => youthPrice(c, pl, youthNegotiator)),
+    // A youth is scouted again as a senior is (B-3): her report in progress shows on her card.
+    ...scoutHistoryView(youthReports.get(p.id), youthToday),
+    watched: youthWatched.has(p.id),
+  })));
+});
+
+/**
+ * 1.1.1, Part 10 (Rob): the Watch List's youths, wherever they are: on the
+ * youth market ("free") or in an AI club's academy ("ai_academy", asked for
+ * through her club: POST /youth-deals). His own academy's are not listed.
+ */
+router.get("/players/watched-youths", async (req, res) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const team = await getActiveTeam(req);
+  if (!team) { res.status(404).json({ error: "No team" }); return; }
+  const cid = requireCareerSaveId(req.activeCareerSaveId);
+  const today = await getGameDate(team.id);
+  const negotiator = specialityFactor(team.id, "Negotiator");
+  const ids = [...db.transaction((tx) => watchedTx(tx, cid))];
+  const reports = db.transaction((tx) => scoutReportsByPlayerTx(tx, cid));
+  const clubNames = new Map(db.select({ id: continentalPoolTeamsTable.id, name: continentalPoolTeamsTable.teamName }).from(continentalPoolTeamsTable).all().map((c) => [c.id, c.name]));
+  const out = [];
+  for (const id of ids) {
+    const p = await loadPlayer(cid, id);
+    if (!p || !isYouthPlayer(p) || p.teamId === team.id) continue;
+    out.push({
+      ...marketView(cid, { ...p, ...serializePlayer(p) } as PlayerDTO, team.id, today, true, (c, pl) => youthPrice(c, pl, negotiator)),
+      ...scoutHistoryView(reports.get(p.id), today),
+      watched: true,
+      status: p.poolTeamId != null ? "ai_academy" : p.teamId != null ? "at_club" : "free",
+      aiClubId: p.teamId == null ? (p.poolTeamId ?? null) : null,
+      currentTeamName: p.poolTeamId != null ? (clubNames.get(p.poolTeamId) ?? null) : null,
+    });
+  }
+  res.json(out);
 });
 
 /**
@@ -674,16 +713,22 @@ router.post("/players/:id/scout", async (req, res) => {
   const broke = cannotAffordScout(team.budget, cost);
   if (broke) { res.status(400).json({ error: broke }); return; }
 
-  const rating = (s: typeof scouts[number]) => s.scoutingRating ?? s.overallRating;
-  const bestScout = scouts.reduce((a, b) => rating(a) >= rating(b) ? a : b);
-  const scoutRating = rating(bestScout);
+  // 1.1.1, Part 10 (Rob, S-1 A): the best Scout on duty with a report free (each works on
+  // SCOUT_REPORTS_AT_ONCE at a time; one away on a youth mission does none).
+  const pick = db.transaction((tx) => pickScouterTx(tx, cid, { teamId: team.id }, [["scout"]], today));
+  if (!pick.scouter) { res.status(409).json({ error: pick.busy ?? "No Scout is free.", scoutsBusy: true }); return; }
+  const bestScout = pick.scouter;
+  const scoutRating = bestScout.rating;
   const { scoutedPotential, confidence } = computeScoutedPotential(player.potential, scoutRating);
   const scoutReportBy = `${bestScout.name} (Scouting ${scoutRating})`;
 
   const budgetAfter = chargeScout(team, `Scouting: ${player.name}`, today, cost);
   // B-3: the report is kept. A first scout starts her clock as before; a
   // re-scout leaves her card as it is until the new report is in.
-  db.transaction((tx) => recordScoutReportTx(tx, cid, playerId, { startedOn: today, rating: overallRating(player), potential: scoutedPotential, scoutName: scoutReportBy }));
+  db.transaction((tx) => {
+    const report = recordScoutReportTx(tx, cid, playerId, { startedOn: today, rating: overallRating(player), potential: scoutedPotential, scoutName: scoutReportBy });
+    addScoutingJobTx(tx, cid, { teamId: team.id }, bestScout.id, { kind: isYouthPlayer(player) ? "youth" : "player", targetId: playerId, targetName: player.name, startedOn: today, readyOn: report.readyOn });
+  });
   if (!rescout) await updatePlayerState(cid, playerId, { scoutedPotential, scoutStartedOn: today, scoutReportBy });
   const scouting = scoutState({ scoutStartedOn: today, scoutedPotential }, today);
 

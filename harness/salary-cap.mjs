@@ -130,7 +130,7 @@ try {
   console.log("\n2. A SIGNING THAT FITS GOES THROUGH; ONE THAT DOESN'T IS REFUSED");
   // One senior kept, on $30,000; the rest leave (1.1.1, no dumping: freed in this suite's own database).
   const keep = mySeniors().find((p) => p.role === "starter") ?? mySeniors()[0];
-  for (const p of mySeniors().filter((x) => x.id !== keep.id)) freeSquadPlace(DB, p.id);
+  for (const p of mySeniors().filter((x) => x.id !== keep.id)) freeSquadPlace(DB, p.id, teamId);
   setWage(keep.id, 30_000);
   const fas = (await freeAgents()).sort((a, b) => a.salary - b.salary);
   const cheap = fas.find((p) => p.salary <= 20_000);
@@ -237,7 +237,7 @@ try {
   await toNextWeek();
   check("nobody is forced out: every senior is still there a week later", squadIds.every((id) => mySeniors().some((p) => p.id === id)), `${squadIds.length} seniors`);
   const fa6 = (await freeAgents()).sort((a, b) => a.salary - b.salary)[0];
-  if (mySeniors().length >= 3) freeSquadPlace(DB, squadIds.at(-1));   // a squad place for her (1.1.1: no release outside the window)
+  if (mySeniors().length >= 3) freeSquadPlace(DB, squadIds.at(-1), teamId);   // a squad place for her (1.1.1: no release outside the window)
   const billAfterRelease = mySeniors().reduce((t, p) => t + Number(p.salary), 0);
   const s6 = await sign(fa6);
   check("it can't sign anyone, not even the cheapest free agent, while over", billAfterRelease > CAP && s6.status === 422 && s6.data?.error === refusal(billAfterRelease + fa6.salary),
@@ -245,7 +245,7 @@ try {
   const youth6 = q(`SELECT s.player_id AS id, s.age FROM career_player_state s JOIN players p ON p.id = s.player_id WHERE s.career_save_id = ? AND s.team_id = ? AND p.player_type = 'youth' AND s.is_promoted = 0 ORDER BY s.age DESC LIMIT 1`, cid, teamId)[0];
   if (youth6) {
     w(`UPDATE career_player_state SET age = 19 WHERE career_save_id = ? AND player_id = ?`, cid, youth6.id);
-    if (mySeniors().length >= 3) freeSquadPlace(DB, mySeniors().at(-1).id);
+    if (mySeniors().length >= 3) freeSquadPlace(DB, mySeniors().at(-1).id, teamId);
     const promo = await api("PATCH", `/team/roster/${youth6.id}/role`, { role: "interchange", length: "1s" });
     check("a youth promoted into the seniors is never blocked (she then counts)", promo.status === 200 && mySeniors().some((p) => p.id === youth6.id), `HTTP ${promo.status} ${promo.data?.error ?? ""}`);
   }

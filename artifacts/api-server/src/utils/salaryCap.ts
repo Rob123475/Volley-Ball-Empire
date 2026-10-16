@@ -78,6 +78,27 @@ export function seniorWageBillTx(tx: Tx, careerSaveId: number, club: WageClub, o
   return seniors.reduce((sum, r) => sum + r.salary + perksMonthly(r.perks), 0) + extra;
 }
 
+/**
+ * 1.1.1 (found by the soak): what a club has committed to, for new spending (a
+ * signing, a renewal, a raise, a counter-offer, an AI club's refill). Its
+ * seniors today (one sold ahead is still paid until she goes) plus every
+ * player it has bought ahead, on her new wage and perks. Without the players
+ * bought ahead, a club could agree a deal that fits on her arrival date, then
+ * sign or renew someone in the meantime, and be over the cap the day she
+ * arrives. The pages show the bill today (seniorWageBillTx).
+ */
+export function committedWageBillTx(tx: Tx, careerSaveId: number, club: WageClub): number {
+  const isClub = (teamId: number | null, poolTeamId: number | null) => ("teamId" in club ? teamId === club.teamId : poolTeamId === club.poolTeamId);
+  const coming = tx.select().from(transferDealsTable).where(and(eq(transferDealsTable.careerSaveId, careerSaveId), eq(transferDealsTable.status, "agreed"))).all()
+    .filter((d) => isClub(d.toTeamId, d.toPoolTeamId))
+    .reduce((t, d) => t + Number(d.wage) + perksMonthly(d.perks), 0);
+  return seniorWageBillTx(tx, careerSaveId, club) + coming;
+}
+
+export function committedWageBill(careerSaveId: number, club: WageClub): number {
+  return db.transaction((tx) => committedWageBillTx(tx, careerSaveId, club));
+}
+
 /** Outside a transaction (the routes). */
 export function seniorWageBill(careerSaveId: number, club: WageClub): number {
   return db.transaction((tx) => seniorWageBillTx(tx, careerSaveId, club));

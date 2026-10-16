@@ -4,6 +4,7 @@ import { UserCog, ShoppingBag, Radar } from "lucide-react";
 import StaffManagement    from "@/pages/staff";
 import StaffMarket        from "@/pages/staff-market";
 import ContinentalScouting from "@/pages/continental-scouting";
+import { ScoutingWork } from "@/components/scouting-work";
 
 type Tab = "my-staff" | "market" | "scouting";
 
@@ -34,9 +35,9 @@ export default function StaffHub() {
           </button>
         ))}
       </div>
-      {tab === "my-staff" && <StaffManagement />}
+      {tab === "my-staff" && <><ScoutingWork /><StaffManagement /></>}
       {tab === "market"   && <StaffMarket />}
-      {tab === "scouting" && <ContinentalScouting />}
+      {tab === "scouting" && <><ScoutingWork /><ContinentalScouting /></>}
     </div>
   );
 }

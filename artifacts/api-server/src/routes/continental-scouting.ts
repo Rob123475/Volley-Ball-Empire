@@ -17,6 +17,7 @@ import { specialityFactor } from "../utils/managerFaces.js";
 import { blankReport } from "../utils/missionFinds.js";
 import { loadStaff, requireCareerSaveId } from "../lib/playerDto.js";
 import { getGameDate, gameDateText } from "../utils/gameDate.js";
+import { missionAwayTx } from "../utils/scoutingWork.js";
 
 const router = Router();
 
@@ -240,6 +241,15 @@ router.post("/continental-scouting/start", async (req, res) => {
         : "Choose which of your Scouts goes on the mission.",
       noScout: scouts.length === 0,
     });
+    return;
+  }
+
+  // 1.1.1, Part 10 (Rob, S-1 A): a Scout on a mission is away until it ends: he can't be sent on a
+  // second one (and does no reports meanwhile, utils/scoutingWork.ts). Reports he had started still finish.
+  const missionDay = await getGameDate(team.id);
+  const away = db.transaction((tx) => missionAwayTx(tx, team.id, Number(staffId), missionDay));
+  if (away) {
+    res.status(409).json({ error: `${chosen!.name} is away on a scouting mission in ${away.region} until ${gameDateText(away.endsOn)}: send another Scout, or wait.`, scoutAway: true });
     return;
   }
 

@@ -1,4 +1,5 @@
 import { ContractLengthPicker } from "@/components/contract-length-picker";
+import { StaffBudgetLine } from "@/components/main-sponsor";
 import { CONTRACT_LENGTH_LABELS, type ContractLength } from "@/lib/contract-lengths";
 import { attributeLabel, skillAttributes } from "@/lib/staff-attributes";
 import {
@@ -50,7 +51,7 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { Link } from "wouter";
 import { serverMessage } from "@/lib/api-error";
-import { SortMenu, sortList, sortKeysFor, midpoint, type SortKey, type SortReaders } from "@/components/sort-menu";
+import { SortMenu, sortList, scoutedFirst, sortKeysFor, midpoint, type SortKey, type SortReaders } from "@/components/sort-menu";
 import { normaliseRole, MAX_MEDICAL_STAFF } from "@shared/staff-roles";
 
 
@@ -412,6 +413,9 @@ export default function MedicalMarket() {
         </Link>
       </div>
 
+      {/* 1.1.1, Part 11 (SB-5): the room left in the staff budget (staff and medical share it). */}
+      <StaffBudgetLine />
+
       <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
         <SortMenu value={sortKey} onChange={setSortKey} keys={sortKeysFor(STAFF_SORT)} testId="medical-sort" />
         <div className="relative flex-1 max-w-xs">
@@ -450,7 +454,7 @@ export default function MedicalMarket() {
         </div>
       ) : (
         <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {sortList(inButtonOrder(marketStaff), sortKey, STAFF_SORT).map((member: any) => (
+          {scoutedFirst(sortList(inButtonOrder(marketStaff), sortKey, STAFF_SORT), (m: any) => m.scouting?.state).map((member: any) => (
             <MedicalMarketCard
               key={member.id}
               member={member}

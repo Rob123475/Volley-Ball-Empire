@@ -3,7 +3,10 @@ import { refreshClubInjuryClocks } from "../utils/injuries.js";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db, MAX_STAFF, MAX_MEDICAL_STAFF, isMedicalRole } from "@workspace/db";
 import { staffTable, teamsTable, financeTransactionsTable, careerHistoryEntriesTable, careerSavesTable } from "@workspace/db";
-import { isRole, normaliseRole, SCOUTING_ROLE_KEYS, staffOnDuty } from "@workspace/db";
+import { isRole, normaliseRole, SCOUTING_ROLE_KEYS, MEDICAL_ROLE_KEYS, SCOUT_REPORTS_AT_ONCE, staffOnDuty } from "@workspace/db";
+import { addDays } from "../utils/scoutReports.js";
+import { pickScouterTx, addScoutingJobTx, scoutingWorkTx } from "../utils/scoutingWork.js";
+import { staffBudgetTx, staffBudgetRefusal, staffRenewalRefusal } from "../utils/staffBudget.js";
 import { eq, and } from "drizzle-orm";
 import { generateStaffMarket, generateAttributesForRole, pickTraitForRole, type StaffRole } from "../utils/staff-generator";
 import { getGameDate, gameDateText } from "../utils/gameDate.js";
@@ -90,6 +93,9 @@ router.post("/staff", async (req, res) => {
     });
     return;
   }
+  // 1.1.1, Part 11 (SB-1): the staff budget from the main sponsor.
+  const overBudget = db.transaction((tx) => staffBudgetRefusal(staffBudgetTx(tx, cid, { teamId: team.id }), Number(member.salary), `Hiring ${member.name} ($${Math.round(Number(member.salary)).toLocaleString()} a month)`));
+  if (overBudget) { res.status(422).json({ error: overBudget, staffBudget: true }); return; }
 
   // L-02a: a staff hire is a CONTRACT, on one of Rob's three lengths, and it
   // expires on the calendar like a player's. Nothing ever ended a staff deal
@@ -153,6 +159,9 @@ router.post("/staff/:id/renew", async (req, res) => {
 
   const wanted = readContractLength(req.body);
   if ("error" in wanted) { res.status(400).json({ error: wanted.error }); return; }
+  // 1.1.1, Part 11 (SB-4): a club over its staff budget can't renew until it is back under.
+  const overRenew = db.transaction((tx) => staffRenewalRefusal(staffBudgetTx(tx, cid, { teamId: team.id }), member.name));
+  if (overRenew) { res.status(422).json({ error: overRenew, staffBudget: true }); return; }
 
   const newEnd = renewalEndDate(
     wanted.length, member.contractEndDate, await seasonEndsFrom(cid, member.contractEndDate),
@@ -302,6 +311,16 @@ export async function releaseStaffMember(req: Request, res: Response): Promise<v
 
 router.delete("/staff/:id", releaseStaffMember);
 
+// 1.1.1, Part 10: who scouts at this club, and what each is working on (the Staff page).
+router.get("/staff/scouting-work", async (req, res) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const team = await getActiveTeam(req);
+  if (!team) { res.status(404).json({ error: "No team" }); return; }
+  const cid = requireCareerSaveId(req.activeCareerSaveId);
+  const today = await getGameDate(team.id);
+  res.json({ today, perScout: SCOUT_REPORTS_AT_ONCE, scouts: db.transaction((tx) => scoutingWorkTx(tx, cid, { teamId: team.id }, today)) });
+});
+
 // Overnight brief 30 Sep, item 4: scouting a staff or medical candidate takes
 // SCOUT_DAYS game days and costs SCOUT_COST, charged when the scout is sent, as
 // scouting a player does. It was instant and $1,000.
@@ -334,9 +353,17 @@ router.post("/staff/:id/scout", async (req, res) => {
     return;
   }
 
+  // 1.1.1, Part 10 (Rob, S-1 A): a Scout, Head Coach or Assistant Coach on duty with a report
+  // free (each works on SCOUT_REPORTS_AT_ONCE at a time; a Scout away on a youth mission does none).
+  const pick = db.transaction((tx) => pickScouterTx(tx, cid, { teamId: team.id }, [["scout", "head_coach", "assistant_coach"]], today));
+  if (!pick.scouter) { res.status(409).json({ error: pick.busy ?? "No one is free to scout.", scoutsBusy: true }); return; }
+
   const broke = cannotAffordScout(team.budget);
   if (broke) { res.status(400).json({ error: broke }); return; }
   const budgetAfter = chargeScout(team, `Scouting: ${member.name} (${member.role})`, today);
+  const medical = MEDICAL_ROLE_KEYS.has(normaliseRole(member.role)!);
+  db.transaction((tx) => addScoutingJobTx(tx, cid, { teamId: team.id }, pick.scouter.id,
+    { kind: medical ? "medical" : "staff", targetId: id, targetName: member.name, startedOn: today, readyOn: addDays(today, SCOUT_DAYS) }));
 
   // Scouting is per-career knowledge: scouting someone in one save must not
   // reveal them in another.

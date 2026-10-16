@@ -29,7 +29,7 @@ import {
 } from "@workspace/db";
 import { and, eq, inArray, lt, lte } from "drizzle-orm";
 import type { CareerStateTx } from "../lib/playerDto.js";
-import { seniorWageBillTx, wageCapRefusal } from "./salaryCap.js";
+import { seniorWageBillTx, committedWageBillTx, wageCapRefusal } from "./salaryCap.js";
 import { inTransferWindow, nextWindowOpening, contractEndFrom } from "./transferWindow.js";
 import { seasonEndsForCareerTx } from "./seasonDates.js";
 import { worldTourStandingsTx } from "./worldTour.js";
@@ -135,7 +135,7 @@ export function aiCounterFor(tx: Tx, careerSaveId: number, poolTeamId: number, c
   const wage = Math.min(bid.wage, Math.round(monthlySalaryFor(current.rating) * AI_TRANSFER_TERMS.counterCeiling));
   const extra = (wage + perksMonthly(bid.perks)) - (current.salary + perksMonthly(current.perks));
   if (extra > 0 && balanceOf(tx, careerSaveId, poolTeamId) - AI_BUY_RESERVE < extra * AI_TRANSFER_TERMS.counterMonths) return null;
-  if (wageCapRefusal(seniorWageBillTx(tx, careerSaveId, { poolTeamId }), extra)) return null;
+  if (wageCapRefusal(committedWageBillTx(tx, careerSaveId, { poolTeamId }), extra)) return null;
   return { wage, length: bid.length, perks: bid.perks };
 }
 
@@ -296,7 +296,8 @@ export function transfersDayTx(w: CareerStateTx, careerSaveId: number, today: st
   const news: string[] = [];
   const myTeam = careerTeamIdTx(tx, careerSaveId);
   const nameOf = (id: number) => tx.select({ n: playersTable.name }).from(playersTable).where(eq(playersTable.id, id)).get()?.n ?? "A player";
-  let aiSellerLeft = false, aiBuyerFull = false;
+  let aiSellerLeft = false;
+  const aiBuyers = new Set<number>();
   for (const d of tx.select().from(transferDealsTable).where(and(eq(transferDealsTable.careerSaveId, careerSaveId),
     eq(transferDealsTable.status, "offered"), lt(transferDealsTable.answerBy, today))).all()) {
     const outcome = agreeTx(w, careerSaveId, d.id, today);
@@ -306,7 +307,7 @@ export function transfersDayTx(w: CareerStateTx, careerSaveId: number, today: st
     eq(transferDealsTable.status, "agreed"), lte(transferDealsTable.arrivesOn, today))).all()) {
     const outcome = completeTx(w, careerSaveId, d.id, today);
     if (outcome === "moved" && d.fromPoolTeamId != null) aiSellerLeft = true;
-    if (outcome === "moved" && d.toPoolTeamId != null) aiBuyerFull = true;
+    if (outcome === "moved" && d.toPoolTeamId != null) aiBuyers.add(d.toPoolTeamId);
     if (outcome === "moved" && (d.toTeamId === myTeam || d.fromTeamId === myTeam)) {
       news.push(d.toTeamId === myTeam ? `${nameOf(d.playerId)} arrives from ${clubNameTx(tx, fromOf(d))}.` : `${nameOf(d.playerId)} leaves for ${clubNameTx(tx, toOf(d))}.`);
     }
@@ -316,7 +317,8 @@ export function transfersDayTx(w: CareerStateTx, careerSaveId: number, today: st
   if (aiSellerLeft) keepAiSquadsTx(w, careerSaveId, today, seasonEndsForCareerTx(tx, careerSaveId));
   // A full AI club that bought lets its weakest go the day the new one arrives (its bid counted her wage
   // gone, bidTx `freeing`), even outside the window; in the window every club over its places trims.
-  if (aiBuyerFull || inTransferWindow(today)) aiTrimSquadsTx(w, careerSaveId);
+  if (inTransferWindow(today)) aiTrimSquadsTx(w, careerSaveId);
+  else if (aiBuyers.size > 0) aiTrimSquadsTx(w, careerSaveId, aiBuyers);
   return news;
 }
 
