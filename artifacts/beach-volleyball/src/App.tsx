@@ -15,6 +15,7 @@ import PlayerMarket     from "@/pages/players";
 import Matches          from "@/pages/matches";
 import ThreeDCourt      from "@/pages/court";
 import Finances         from "@/pages/finances";
+import ClubsPage, { ClubDetailPage } from "@/pages/clubs";
 import NewCareer        from "@/pages/new-career";
 import Day1Draft        from "@/pages/day1-draft";
 import Preseason        from "@/pages/preseason";
@@ -192,6 +193,8 @@ function Router() {
               <Route path="/olympics"    component={OlympicsHub}  />
               <Route path="/club"        component={ClubHub}      />
               <Route path="/finances"    component={Finances}     />
+              <Route path="/clubs"       component={ClubsPage}    />
+              <Route path="/clubs/:id"   component={ClubDetailPage} />
               <Route path="/career"      component={CareerHub}    />
 
               {/* ── Backward-compatible leaf routes ── */}

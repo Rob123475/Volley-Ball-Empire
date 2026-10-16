@@ -636,6 +636,12 @@ runSuite("staff roles", path.join(REPO, "harness", "staff-roles.mjs"));
 console.log("\n########## 98r/100  THE INJURED LIST, COVER AND PROMOTION AT 16 (UPDATE 1, NIGHT 2 PART 6) ##########");
 runSuite("injured list", path.join(REPO, "harness", "injured-list.mjs"));
 
+// 1.1.1 (Rob, 16 Oct): the Clubs page, the transfer window, one chance to keep her, perks,
+// AI clubs' youths and the calendar.
+console.log("
+########## 98s/100  THE CLUBS PAGE (1.1.1 PART 1) ##########");
+runSuite("clubs page", path.join(REPO, "harness", "clubs-page.mjs"));
+
 // ── Smoke needs a server; boot one on a throwaway copy of the shipped DB ─────
 console.log("\n########## 99/100  GAMEPLAY SMOKE ##########");
 {

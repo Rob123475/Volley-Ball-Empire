@@ -229,7 +229,7 @@ function priceText(player: any): string | null {
 
 // ── Player card with full stats (free agents, transfer, signed) ───────────────
 
-function MarketPlayerCard({
+export function MarketPlayerCard({
   player,
   onSign,
   onScout,
@@ -593,35 +593,14 @@ const PLAYER_SORT: SortReaders<any> = {
   contractEnd: (p) => (p.currentTeamName && p.contractEndDate ? String(p.contractEndDate).slice(0, 10) : null),
 };
 
-export default function PlayerMarket() {
+/**
+ * 1.1.1: what a market card's buttons do (Buy, Scout and the Watch star),
+ * shared by the Player Market and the Clubs page so both go through the same
+ * routes and say the same things.
+ */
+export function useMarketActions() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
-
-  const [section, setSection]     = useState<PageSection>("senior");
-  const [filter, setFilter]       = useState<MarketFilter>("all");
-  const [posFilter, setPosFilter] = useState<string>("ALL");
-  const [continent, setContinent] = useState<ContinentFilter>("ALL");
-  const [search, setSearch]       = useState("");
-  const [statSort, setStatSort]   = useState<{ stat: string; dir: "desc" | "asc" } | null>(null);
-  // Rob, 16 Oct: the Sort menu; it and the stat pills replace each other.
-  const [menuSort, setMenuSort]   = useState<SortKey>("none");
-
-  // ── Data ──────────────────────────────────────────────────────────────────
-
-  const { data: marketAll, isLoading: marketLoading } = useQuery<any[]>({
-    queryKey: ["players-market-all"],
-    queryFn: () => fetch("/api/players/market-all").then(r => r.json()),
-    staleTime: 30_000,
-  });
-
-  const { data: youthPool, isLoading: youthLoading } = useQuery<any[]>({
-    queryKey: ["players-youth-pool"],
-    queryFn: () => fetch("/api/players/youth-pool").then(r => r.json()),
-    staleTime: 30_000,
-  });
-
-  // ── Mutations ─────────────────────────────────────────────────────────────
-
   const signMutation     = useSignContract();
   const scoutMutation    = useScoutPlayer();
   // Item 5: player scouting needs a hired Scout.
@@ -673,6 +652,68 @@ export default function PlayerMarket() {
       },
     });
   };
+
+  return { signMutation, scoutMutation, hasScout, revealedSigning, setRevealedSigning, handleSign, handleWatch, handleScout };
+}
+
+/** Item 15: what signing revealed: her exact price and, blind, her attributes. */
+export function RevealedSigningDialog({ signing, onClose }: { signing: any | null; onClose: () => void }) {
+  return (
+    <Dialog open={!!signing} onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogContent className="sm:max-w-sm" data-testid="signing-revealed">
+        <DialogHeader>
+          <DialogTitle>{signing?.player?.name ?? "Player"} signed</DialogTitle>
+          <DialogDescription>
+            {signing?.signedBlind
+              ? `Signed unscouted. Her price was ${money(signing?.fee ?? 0)} (range ${money(signing?.priceRange?.low ?? 0)} - ${money(signing?.priceRange?.high ?? 0)}).`
+              : `Her price: ${money(signing?.fee ?? 0)}.`}
+          </DialogDescription>
+        </DialogHeader>
+        {signing?.player && (
+          <div className="grid grid-cols-2 gap-2">
+            <StatMini label="Power"   value={signing.player.power}   icon={Zap}      color="text-orange-500" />
+            <StatMini label="Speed"   value={signing.player.speed}   icon={Wind}     color="text-blue-500"   />
+            <StatMini label="Defense" value={signing.player.defense} icon={Shield}   color="text-green-500"  />
+            <StatMini label="Serve"   value={signing.player.serve}   icon={Target}   color="text-purple-500" />
+            <StatMini label="Block"   value={signing.player.block}   icon={Shield}   color="text-red-500"    />
+            <StatMini label="Stamina" value={signing.player.stamina} icon={Activity} color="text-cyan-500"   />
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+export default function PlayerMarket() {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  const [section, setSection]     = useState<PageSection>("senior");
+  const [filter, setFilter]       = useState<MarketFilter>("all");
+  const [posFilter, setPosFilter] = useState<string>("ALL");
+  const [continent, setContinent] = useState<ContinentFilter>("ALL");
+  const [search, setSearch]       = useState("");
+  const [statSort, setStatSort]   = useState<{ stat: string; dir: "desc" | "asc" } | null>(null);
+  // Rob, 16 Oct: the Sort menu; it and the stat pills replace each other.
+  const [menuSort, setMenuSort]   = useState<SortKey>("none");
+
+  // ── Data ──────────────────────────────────────────────────────────────────
+
+  const { data: marketAll, isLoading: marketLoading } = useQuery<any[]>({
+    queryKey: ["players-market-all"],
+    queryFn: () => fetch("/api/players/market-all").then(r => r.json()),
+    staleTime: 30_000,
+  });
+
+  const { data: youthPool, isLoading: youthLoading } = useQuery<any[]>({
+    queryKey: ["players-youth-pool"],
+    queryFn: () => fetch("/api/players/youth-pool").then(r => r.json()),
+    staleTime: 30_000,
+  });
+
+  // ── Mutations ─────────────────────────────────────────────────────────────
+
+  const { signMutation, scoutMutation, hasScout, revealedSigning, setRevealedSigning, handleSign, handleWatch, handleScout } = useMarketActions();
 
   // ── Filtering ─────────────────────────────────────────────────────────────
 
@@ -1019,29 +1060,7 @@ export default function PlayerMarket() {
         </>
       )}
 
-      {/* Item 15: what signing revealed: her exact price and, blind, her attributes. */}
-      <Dialog open={!!revealedSigning} onOpenChange={(open) => { if (!open) setRevealedSigning(null); }}>
-        <DialogContent className="sm:max-w-sm" data-testid="signing-revealed">
-          <DialogHeader>
-            <DialogTitle>{revealedSigning?.player?.name ?? "Player"} signed</DialogTitle>
-            <DialogDescription>
-              {revealedSigning?.signedBlind
-                ? `Signed unscouted. Her price was ${money(revealedSigning?.fee ?? 0)} (range ${money(revealedSigning?.priceRange?.low ?? 0)} - ${money(revealedSigning?.priceRange?.high ?? 0)}).`
-                : `Her price: ${money(revealedSigning?.fee ?? 0)}.`}
-            </DialogDescription>
-          </DialogHeader>
-          {revealedSigning?.player && (
-            <div className="grid grid-cols-2 gap-2">
-              <StatMini label="Power"   value={revealedSigning.player.power}   icon={Zap}      color="text-orange-500" />
-              <StatMini label="Speed"   value={revealedSigning.player.speed}   icon={Wind}     color="text-blue-500"   />
-              <StatMini label="Defense" value={revealedSigning.player.defense} icon={Shield}   color="text-green-500"  />
-              <StatMini label="Serve"   value={revealedSigning.player.serve}   icon={Target}   color="text-purple-500" />
-              <StatMini label="Block"   value={revealedSigning.player.block}   icon={Shield}   color="text-red-500"    />
-              <StatMini label="Stamina" value={revealedSigning.player.stamina} icon={Activity} color="text-cyan-500"   />
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+      <RevealedSigningDialog signing={revealedSigning} onClose={() => setRevealedSigning(null)} />
     </div>
   );
 }
