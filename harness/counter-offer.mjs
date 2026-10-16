@@ -99,7 +99,10 @@ try {
   const dealt = new Set(W.q(`SELECT player_id id FROM transfer_deals WHERE career_save_id = ?`, cid).map((r) => r.id));
   const market = (await W.api("GET", "/players/market-all")).data.filter((p) => p.status === "ai_club" && !p.joins && !dealt.has(p.id) && p.contractEndDate >= "2026-12-07")
     .sort((a, b) => a.salary - b.salary);
-  const [p1, p2, p3] = [market[0], market.find((p) => p.aiClubId !== market[0].aiClubId), market.find((p) => p.aiClubId !== market[0].aiClubId && p.aiClubId !== market[1]?.aiClubId && p.id !== market[1]?.id)];
+  // Three players at three different clubs.
+  const p1 = market[0];
+  const p2 = market.find((p) => p.aiClubId !== p1.aiClubId);
+  const p3 = market.find((p) => p.aiClubId !== p1.aiClubId && p.aiClubId !== p2.aiClubId);
   W.w(`UPDATE career_player_state SET morale = 95 WHERE career_save_id = ? AND player_id = ?`, cid, p1.id);
   const at1 = await W.api("POST", "/contracts", { playerId: p1.id, salary: p1.salary, length: "1s", confirm: true, perks: [] });
   const k1 = W.q(`SELECT status, counter_wage cw, mood_decided m FROM transfer_deals WHERE career_save_id = ? AND player_id = ? ORDER BY id DESC`, cid, p1.id)[0];
