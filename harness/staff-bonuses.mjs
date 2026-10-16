@@ -214,7 +214,8 @@ try {
   }
 
   const withStaff = await powerCamp();
-  const above = (m) => Math.max(0, m.skillLevel - 50);
+  // Night 2: a bonus is full at skill 95 (utils/staffBonuses.ts fullAt), so a 96 counts as 95.
+  const above = (m) => Math.min(45, Math.max(0, m.skillLevel - 50));
   const wantXp = (1 + above(hired.head_coach) * (0.15 / 45)) * (1 + above(hired.assistant_coach) * (0.08 / 45));
   const wantFatigue = above(hired.fitness_trainer) * (5 / 45);
   check("the session now reports the coaches' XP multiplier and the trainer's fatigue reduction",
