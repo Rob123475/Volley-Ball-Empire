@@ -104,11 +104,15 @@ export function seniorsAtTx(tx: Tx, careerSaveId: number, teamId: number): numbe
 /**
  * The draft closes once he has 2 or 3: the AI clubs fill their gaps from what
  * is left (Day 2), in random order, by item 4a's rule, and the AI managers'
- * faces are dealt. Null when it closed; else why not.
+ * faces are dealt. Null when it closed; else why not, in plain words: on the
+ * draft page how many he has, and from the calendar (Advance, Next match)
+ * where to pick them (Rob, 16 Oct).
  */
-export function finishDay1DraftTx(w: CareerStateTx, careerSaveId: number, teamId: number): string | null {
+export function finishDay1DraftTx(w: CareerStateTx, careerSaveId: number, teamId: number, fromCalendar = false): string | null {
   const n = seniorsAtTx(w.tx, careerSaveId, teamId);
-  if (n < DRAFT_MIN || n > DRAFT_MAX) return `Pick ${DRAFT_MIN} or ${DRAFT_MAX} seniors to start: ${DRAFT_MIN} to play and an optional interchange (you have ${n}).`;
+  if (n < DRAFT_MIN || n > DRAFT_MAX) return fromCalendar
+    ? `Pick ${DRAFT_MIN} or ${DRAFT_MAX} seniors in the Day 1 draft first.`
+    : `Pick ${DRAFT_MIN} or ${DRAFT_MAX} seniors to start: ${DRAFT_MIN} to play and an optional interchange (you have ${n}).`;
   const season = w.tx.select({ year: seasonsTable.year, start: seasonsTable.startDate }).from(seasonsTable)
     .where(eq(seasonsTable.careerSaveId, careerSaveId)).orderBy(asc(seasonsTable.year)).limit(1).get();
   if (!season) return "The career has no season yet.";

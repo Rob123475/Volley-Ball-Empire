@@ -1,5 +1,8 @@
+import { createElement } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { toast } from "@/hooks/use-toast";
+import { ToastAction, type ToastActionElement } from "@/components/ui/toast";
 
 export type AnnualEventType = "regional" | "world_tour" | "finals" | "holiday" | "financial" | "contract" | "facility" | "olympic_qualifier" | "olympic";
 
@@ -160,9 +163,19 @@ export const SPEED_MS: Record<CalendarSpeed, number | null> = {
   fast:   200,
 };
 
+/** A refusal, in the server's own plain words (its `error` or `reason`), with its body. */
+class ApiError extends Error {
+  constructor(message: string, readonly status: number, readonly body: Record<string, unknown> | null) { super(message); }
+}
+
 async function apiFetch<T>(path: string, opts?: RequestInit): Promise<T> {
   const res = await fetch(path, opts);
-  if (!res.ok) throw new Error(`${path} ${res.status}`);
+  if (!res.ok) {
+    // Rob, 16 Oct: the red box said "/api/calendar/advance 409"; the server says why.
+    const body = (await res.json().catch(() => null)) as Record<string, unknown> | null;
+    const said = typeof body?.error === "string" ? body.error : typeof body?.reason === "string" ? body.reason : null;
+    throw new ApiError(said ?? `${path} ${res.status}`, res.status, body);
+  }
   return res.json() as Promise<T>;
 }
 
@@ -190,6 +203,19 @@ export function useRoundNames() {
 
 export function useCalendar() {
   const queryClient = useQueryClient();
+  const [, navigate] = useLocation();
+  // A refused day in plain words; while the Day 1 draft is open, with the way to it.
+  const refused = (title: string) => (err: unknown) => {
+    const day1Draft = err instanceof ApiError && err.body?.day1Draft === true;
+    toast({
+      variant: "destructive",
+      title,
+      description: (err instanceof Error && err.message) || "Please try again.",
+      action: day1Draft
+        ? (createElement(ToastAction, { altText: "Open the Day 1 draft", onClick: () => navigate("/day1-draft") }, "Open the draft") as unknown as ToastActionElement)
+        : undefined,
+    });
+  };
 
   const { data: calendar, isLoading, error } = useQuery<CalendarState>({
     queryKey: ["calendar"],
@@ -218,14 +244,7 @@ export function useCalendar() {
         });
       }
     },
-    onError: (err) => {
-      const message = err instanceof Error ? err.message : String(err);
-      toast({
-        variant: "destructive",
-        title: "Could not advance the day",
-        description: message.replace(/^HTTP \d+ [^:]*: /, "") || "Please try again.",
-      });
-    },
+    onError: refused("Could not advance the day"),
     // Overnight brief 30 Sep, item 6: a day on, every page on screen reads
     // itself again. Only the calendar did, so a market card kept "report in 1
     // day" for days after its scout's report was in, until the page was left.
@@ -248,14 +267,7 @@ export function useCalendar() {
         });
       }
     },
-    onError: (err) => {
-      const message = err instanceof Error ? err.message : String(err);
-      toast({
-        variant: "destructive",
-        title: "Could not run to the next match",
-        description: message.replace(/^HTTP \d+ [^:]*: /, "") || "Please try again.",
-      });
-    },
+    onError: refused("Could not run to the next match"),
     onSettled: () => { queryClient.invalidateQueries(); },
   });
 

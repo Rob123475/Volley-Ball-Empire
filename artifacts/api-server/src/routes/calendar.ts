@@ -337,7 +337,7 @@ async function advanceOneDay(req: Request): Promise<DayResult> {
   // 2: the AI clubs fill from what is left, the managers' faces are dealt).
   if (day1DraftOpen(req.activeCareerSaveId)) {
     const cid = requireCareerSaveId(req.activeCareerSaveId);
-    const refused = withCareerStateTx((w) => finishDay1DraftTx(w, cid, team.id));
+    const refused = withCareerStateTx((w) => finishDay1DraftTx(w, cid, team.id, true));
     if (refused) return { status: 409, body: { error: refused, day1Draft: true } };
     // Item 21: the starting squad's ratings as they join (Future Superstar).
     await developedPlayers(team.id);
