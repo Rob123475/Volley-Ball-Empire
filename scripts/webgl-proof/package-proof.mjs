@@ -199,6 +199,9 @@ try {
   out.secondMatchDay = await ev(`document.querySelector('[data-testid="calendar-date"]')?.textContent`);
   step("next match day", { date: out.secondMatchDay });
   await shot("second-match-day");
+  // 17 Oct: the match-day box is closed (not played) so the pages below are seen, not covered by it.
+  const closeBox = () => ev(`(() => { const b = [...document.querySelectorAll('[role="dialog"] button')].find((x) => /close/i.test(x.textContent) || x.getAttribute("aria-label") === "Close"); if (b) b.click(); return !!b; })()`);
+  out.matchDayBoxClosed = await closeBox(); await sleep(1000);
 
   // Settings.
   await nav("/settings");
@@ -230,7 +233,7 @@ try {
   for (const key of await ev(`[...document.querySelector('[data-testid="clubs-sort"]').options].map(o => o.value)`)) {
     await ev(`(() => { const el = document.querySelector('[data-testid="clubs-sort"]'); Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, "value").set.call(el, "${key}"); el.dispatchEvent(new Event("change", { bubbles: true })); return true; })()`);
     await sleep(800);
-    out.clubs.sorts.push({ sort: key, first: await ev(`document.querySelector('[data-testid^="club-row-"]')?.innerText.split("\t")[0].split("\n").filter(Boolean).slice(0, 2).join(" ")`) });
+    out.clubs.sorts.push({ sort: key, first: await ev(`document.querySelector('[data-testid^="club-row-"]')?.innerText.split("\\t")[0].split("\\n").filter(Boolean).slice(0, 2).join(" ")`) });
   }
   await shot("clubs-sorted");
   await click('[data-testid^="club-row-ai-"]');
@@ -268,12 +271,12 @@ try {
   out.part10.watchPillTopRow = await ev(`(() => { const w = document.querySelector('[data-testid="market-watch-list"]'); const row = w?.parentElement; return !!w && /Senior Players/.test(row?.innerText ?? "") && /Youth Players/.test(row?.innerText ?? "") && /^Watch List \\(\\d+\\)$/.test(w.innerText.trim()); })()`);
   out.part10.secondRowHasNoWatch = await ev(`![...document.querySelectorAll("button")].some((b) => b !== document.querySelector('[data-testid="market-watch-list"]') && /^Watch List/.test(b.innerText.trim()))`);
   await clickText(/^Youth Players/); await sleep(2000);
-  out.part10.youthCard = await ev(`(() => { const c = document.querySelector('[data-testid^="youth-ovr-"]')?.closest(".overflow-hidden"); if (!c) return null;
+  out.part10.youthCard = await ev(`(() => { const c = document.querySelector('[data-testid^="youth-ovr-"]')?.closest(".group"); if (!c) return null;
     const scout = c.querySelector('[data-testid^="button-scout-"]'); const star = c.querySelector('[data-testid^="watch-"]');
     return { scout: scout?.innerText.trim() ?? null, scoutFullWidth: !!scout && scout.className.includes("w-full"), star: !!star }; })()`);
   await shot("youth-card");
   // Star a youth and a senior, then open the Watch List.
-  await ev(`document.querySelector('[data-testid^="youth-ovr-"]')?.closest(".overflow-hidden")?.querySelector('[data-testid^="watch-"]')?.click()`); await sleep(1500);
+  await ev(`document.querySelector('[data-testid^="youth-ovr-"]')?.closest(".group")?.querySelector('[data-testid^="watch-"]')?.click()`); await sleep(1500);
   await clickText(/^Senior Players/); await sleep(1500);
   await ev(`document.querySelector('[data-testid^="watch-"]')?.click()`); await sleep(1500);
   await click('[data-testid="market-watch-list"]'); await sleep(2000);
@@ -302,7 +305,12 @@ try {
     return { scout: scout?.name ?? null, statuses: r, thirdSays: third.data?.error ?? null }; })()`);
   // Item 6: scouted first. The two reports just sent are in progress, so on the market they come
   // before every unscouted card (Free Agents, the default order).
-  await nav("/players"); await sleep(2500);
+  // The scouts were sent through the game's routes from the page, not its buttons, so the page's lists are
+  // still the cached ones: it is reloaded (the title screen, CONTINUE), as a player coming back would see it.
+  await send("Page.reload"); await sleep(4000);
+  await waitFor(`[...document.querySelectorAll("button")].some(b => b.textContent.trim().toUpperCase() === "CONTINUE")`, 30000);
+  await clickText(/^CONTINUE$/i); await sleep(3000); await closeBox(); await sleep(800);
+  await nav("/players"); await sleep(3000);
   out.part10.scoutedFirst = await ev(`(() => { const cards = [...document.querySelectorAll('[data-testid^="button-scout-"], [data-testid^="button-rescout-"]')].map((b) => b.innerText.trim());
     const firstUnscouted = cards.findIndex((t) => /^Scout player/.test(t)); const lastInProgress = cards.map((t) => /^Scouting/.test(t)).lastIndexOf(true);
     return { inProgress: cards.filter((t) => /^Scouting/.test(t)).length, inProgressBeforeUnscouted: lastInProgress < firstUnscouted || firstUnscouted < 0, firstCards: cards.slice(0, 4) }; })()`);

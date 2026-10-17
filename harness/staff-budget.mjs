@@ -112,7 +112,8 @@ try {
   // ── 6. The bonus ──────────────────────────────────────────────────────────
   console.log("\n6. THE BONUS IS PAID");
   let won = 0;
-  for (let i = 0; i < 60 && won === 0; i++) {
+  // (17 Oct: up to 150 days: the first 60 hold only four or five of his matches, and he can lose them all.)
+  for (let i = 0; i < 150 && won === 0; i++) {
     await W.day();
     won = W.q(`SELECT COUNT(*) n FROM finance_transactions WHERE team_id = ? AND description LIKE 'Main sponsor bonus%'`, teamId)[0].n;
   }

@@ -17,7 +17,7 @@
  * Usage: node harness/rollover.mjs [baseUrl]
  */
 import { DatabaseSync } from "node:sqlite";
-import { healAllSquads, keepClubSolvent, startCareer } from "./harness-club.mjs";
+import { healAllSquads, keepClubSolvent, startCareer, turnDownBids } from "./harness-club.mjs";
 const BASE = (process.argv[2] ?? "http://localhost:4199") + "/api";
 
 /**
@@ -223,6 +223,10 @@ async function advanceToBoundaryPlaying(api, maxDays = 500) {
   for (let i = 0; i < maxDays; i++) {
     const r = await api("POST", "/calendar/advance", {});
     if (r.status >= 400) throw new Error(`advance failed: ${JSON.stringify(r.data)}`);
+    // 1.1.1 (17 Oct): AI clubs bid for his seniors and an unanswered bid takes her after 14 days. The walk keeps
+    // them, as economy, job-market and olympics-tournament do: it is about the seasons rolling over, not transfers.
+    // (Without it a 30-season career lost ten graduates to bids in five seasons and was sacked with one player.)
+    if (DB_FILE) turnDownBids(DB_FILE);
     if (r.data?.blocked === "pending_match") {
       const played = await playPendingMatch(api, r.data.pendingMatchId);
       if ((played.data?.homeScore ?? 0) > (played.data?.awayScore ?? 0)) wins++; else losses++;

@@ -1,0 +1,12 @@
+"AppBuild"
+{
+	"AppID" "5233750"
+	"Desc" "v1.1.1 Clubs page, transfers, staff budget, junior medics (update-1 898cf287)"
+	"SetLive" ""
+	"ContentRoot" "C:\build\vbe-1.1.1\win-unpacked\"
+	"BuildOutput" "..\output\"
+	"Depots"
+	{
+		"5233751" "depot_build_5233751.vdf"
+	}
+}

@@ -128,6 +128,11 @@ try {
   // ── 5 and 6. AI clubs buy ahead, from each other and from him ─────────────
   console.log("\n5-6. AI CLUBS BUY AHEAD (FROM EACH OTHER AND FROM HIM); A PLAYER SOLD AHEAD CAN'T BE RENEWED");
   // His star: held a year (her contract started last season) and the best in the world.
+  // (17 Oct: AI squads sit near the cap, so in some years no AI club has room to buy at all. Six get room here,
+  // in this suite's own database, as in ai-buyable: the check is that AI clubs do bid for each other's seniors.)
+  for (const { c } of W.q(`SELECT pool_team_id AS c FROM career_pool_team_state WHERE career_save_id = ? AND taken_over_at IS NULL ORDER BY pool_team_id LIMIT 6`, cid)) {
+    W.w(`UPDATE career_player_state SET salary = 10000, perks = '' WHERE career_save_id = ? AND pool_team_id = ? AND team_id IS NULL`, cid, c);
+  }
   const star = mine[1];
   W.w(`UPDATE career_player_state SET speed = 99, power = 99, defense = 99, serve = 99, block = 99 WHERE career_save_id = ? AND player_id = ?`, cid, star.id);
   W.w(`UPDATE contracts SET start_date = '2025-01-01' WHERE player_id = ? AND team_id = ? AND status = 'active'`, star.id, teamId);

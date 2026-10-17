@@ -270,7 +270,7 @@ try {
       // 1.1.1: she goes the day the bought player arrives (utils/transfers.ts transfersDayTx -> aiTrimSquadsTx).
       && /const weakest = spare\.shift\(\)!;[\s\S]{0,120}releaseToMarket\(w, careerSaveId, weakest\.id/.test(aiSrc)
       && /else if \(aiBuyers\.size > 0\) aiTrimSquadsTx\(w, careerSaveId, new Set\(aiBuyers\.keys\(\)\)\);/.test(fs.readFileSync(path.join(REPO, "artifacts", "api-server", "src", "utils", "transfers.ts"), "utf8"))
-      && /seniorWageBillTx\(w\.tx, careerSaveId, \{ poolTeamId: buyer \}, arrivesOn\) - freeing \+ Math\.min\(keepCost, fillCost\)\) - wage;/.test(aiSrc)
+      && /seniorWageBillTx\(w\.tx, careerSaveId, \{ poolTeamId: buyer \}, arrivesOn, squads\) - freeing \+ Math\.min\(keepCost, fillCost\)\) - wage;/.test(aiSrc)
       // 1.1.1 (the soak): and on the day she arrives the club is under its cap (aiCapOnArrivalTx).
       && /if \(aiBuyers\.size > 0\) aiCapOnArrivalTx\(w, careerSaveId, aiBuyers\);/.test(fs.readFileSync(path.join(REPO, "artifacts", "api-server", "src", "utils", "transfers.ts"), "utf8")));
 

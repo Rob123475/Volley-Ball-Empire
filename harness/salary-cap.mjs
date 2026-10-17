@@ -223,10 +223,10 @@ try {
       // (the soak, 17 Oct: a contract ending before then is room only for a player it can do without; it counts
       // the cheaper way to field two until she comes: its cheapest such players kept, or the cheapest free agents)
       && /const keep = mine\.filter\(\(m\) => m !== weakest && !runsPast\(m\)\)\.sort\(\(a, b\) => a\.salary - b\.salary\)\.slice\(0, Math\.max\(0, AI_MIN_SQUAD - staying\)\);/.test(aiSrc)
-      && /SALARY_CAP - \(seniorWageBillTx\(w\.tx, careerSaveId, \{ poolTeamId: buyer \}, arrivesOn\) - freeing \+ Math\.min\(keepCost, fillCost\)\) - wage;\s*if \(room < 0\) continue;/.test(aiSrc)
+      && /SALARY_CAP - \(seniorWageBillTx\(w\.tx, careerSaveId, \{ poolTeamId: buyer \}, arrivesOn, squads\) - freeing \+ Math\.min\(keepCost, fillCost\)\) - wage;\s*if \(room < 0\) continue;/.test(aiSrc)
       // Item 4c: the wage is her asking wage (an injured free agent's is less).
       && /const wage = askingWage\(monthlySalaryFor\(f\.rating\), 1, f\.injuryWeeks\);\s*return balance >= 3 \* wage && fitsUnderCap\(bill, wage\);/.test(aiSrc)
-      && (aiSrc.match(/function bestAffordableFreeAgent/g) ?? []).length === 1 && /canSellTx\(w\.tx, careerSaveId, holding, "", m\.salary\)/.test(aiSrc));
+      && (aiSrc.match(/function bestAffordableFreeAgent/g) ?? []).length === 1 && /canSellTx\(w\.tx, careerSaveId, holding, "", m\.salary, squads\)/.test(aiSrc));
   const overAi = clubs.filter((c) => {
     const bill = aiSquad(c).reduce((s, p) => s + Number(p.salary), 0);
     return bill > CAP && !(c === Y);
