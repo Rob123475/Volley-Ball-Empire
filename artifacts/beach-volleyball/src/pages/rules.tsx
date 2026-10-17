@@ -97,6 +97,8 @@ const COMP_TIERS = [
       "Europe, Asia, North America, South America, Africa & Middle East, Australia & Pacific Islands",
       "57 rounds: each round one club, yours included, has a bye — no match and 0 ranking points",
       "Every club plays 54 matches and has 3 byes, one in every 19 rounds",
+      // 1.1.1 (Rob, 18 Oct): the AI clubs' first-season tier (api-server utils/poolClubFinances.ts seasonOneTiersTx).
+      "In a career's first season the 10 strongest AI clubs in the field are paid Silver, as an Established club is; after that, last season's ranking points decide every club's tier",
     ],
   },
   {

@@ -563,6 +563,27 @@ export const poolClubSeasonsTable = sqliteTable("pool_club_seasons", {
 export type PoolClubSeason = typeof poolClubSeasonsTable.$inferSelect;
 
 /**
+ * 1.1.1 (Rob, 18 Oct): in a career's first season an AI club has no last
+ * season's points to be paid on, so the World Tour field is ranked once by
+ * squad strength and the strongest ten are paid Silver
+ * (utils/poolClubFinances.ts seasonOneTiersTx). Stored, so a club's tier does
+ * not move mid-season as squads change.
+ */
+export const poolClubStartTiersTable = sqliteTable("pool_club_start_tiers", {
+  id:           integer("id").primaryKey({ autoIncrement: true }),
+  careerSaveId: integer("career_save_id").notNull().references(() => careerSavesTable.id),
+  poolTeamId:   integer("pool_team_id").notNull().references(() => continentalPoolTeamsTable.id),
+  seasonYear:   integer("season_year").notNull(),
+  /** Its squad strength when ranked (utils/aiSquads.ts aiClubRatingsTx, the board's measure). */
+  rating:       real("rating").notNull().default(0),
+  strengthRank: integer("strength_rank").notNull(),
+  tier:         text("tier").notNull(),
+  createdAt:    integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
+}, (t) => [
+  uniqueIndex("pool_club_start_tiers_unique").on(t.careerSaveId, t.poolTeamId, t.seasonYear),
+]);
+
+/**
  * Update 1, item 2 (Rob, 14 Oct): a manager face out of work in a career, and
  * the clubs that have sacked it (utils/managerFaces.ts). A club appointing a
  * manager takes the free face that has been out of work longest, never one it

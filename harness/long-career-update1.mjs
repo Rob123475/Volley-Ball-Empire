@@ -186,8 +186,16 @@ function seasonTable(season, year, counters) {
     return (!mine.some((r) => COACHING.includes(r.role)) && room < cheapCoach) || (!mine.some((r) => MEDICAL.includes(r.role)) && room < cheapMedic);
   });
   const aiBudgets = [...budgets.values()].map((r) => Number(r.b ?? 0));
+  // 1.1.1 (Rob, 18 Oct): the AI clubs in this season's World Tour field by the tier they are paid at (a first
+  // season: the stored strength ranking, pool_club_start_tiers; after it: last season's points, Silver 55, Gold 63).
+  const fieldIds = q(`SELECT pool_team_id id FROM world_tour_qualifications WHERE career_save_id = ? AND season_year = ?`, cid, year - 2025).map((r) => r.id);
+  const lastPoints = new Map(q(`SELECT c.pool_team_id id, cr.ranking_points p FROM competitor_rankings cr JOIN competitors c ON c.id = cr.competitor_id
+    WHERE cr.career_save_id = ? AND cr.season_year = ? AND c.pool_team_id IS NOT NULL`, cid, year - 1).map((r) => [r.id, r.p]));
+  const startTiers = new Map(q(`SELECT pool_team_id id, tier FROM pool_club_start_tiers WHERE career_save_id = ? AND season_year = ?`, cid, year).map((r) => [r.id, r.tier]));
+  const paidTier = (id) => lastPoints.has(id) ? (lastPoints.get(id) >= 63 ? "Gold" : lastPoints.get(id) >= 55 ? "Silver" : "Bronze") : (startTiers.get(id) ?? "Bronze");
+  const aiPaid = { Silver: fieldIds.filter((id) => paidTier(id) === "Silver").length, Gold: fieldIds.filter((id) => paidTier(id) === "Gold").length, field: fieldIds.length };
   return {
-    season, year,
+    season, year, aiPaid,
     aiStaffTotal: aiStaff.length, aiTopStaff: aiStaff.filter((r) => r.k >= 85).length, aiBudgetMedian: Math.round(median(aiBudgets)), aiBudgetTop: Math.max(...aiBudgets),
     aiCantAffordCoachOrMedic: cantAfford.length, aiWithSponsor: [...budgets.values()].filter((r) => r.m).length,
     myStaffBudget: myBudget.budget ?? null, myMainSponsor: myBudget.sponsor ?? null,
@@ -225,6 +233,7 @@ function printTable(t) {
   console.log(`  Stats above 99 or below 1: ${t.outOfRange}`);
   console.log(`  AI injuries this season: ${t.aiInjuries}; long-injured released to the market: ${t.longReleased}`);
   console.log(`  Free agents left: ${t.freeAgents}`);
+  console.log(`  AI clubs paid at Silver / Gold this season: ${t.aiPaid.Silver} / ${t.aiPaid.Gold} of ${t.aiPaid.field} in the World Tour field`);
   console.log(`  AI balances: lowest $${t.balanceLowest.toLocaleString("en-US")}, median $${t.balanceMedian.toLocaleString("en-US")}, ${t.broke} below zero, ${t.sold} sold`);
   console.log(`  Champion (first in the final standings): ${t.champion}`);
   console.log(`  Player's club balance: ${t.myBalance.toLocaleString("en-US")}; AI originals retired so far: ${t.originalsRetired}`);

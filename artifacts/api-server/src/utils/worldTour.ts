@@ -41,6 +41,7 @@ import { and, asc, eq, gte, inArray, isNull, lte } from "drizzle-orm";
 import { sideRating, pointProbability, simulateMatch, type SetScore, type MatchResult } from "./matchEngine.js";
 import { aiClubRatingsTx, aiMatchRatingsTx, aiMatchInjuriesTx } from "./aiSquads.js";
 import { creditCompetitorTx } from "./rankingPoints.js";
+import { seasonOneTiersTx } from "./poolClubFinances.js";
 import { competitorIdForTeamTx, competitorIdForPoolTeamTx } from "./competitors.js";
 import { WORLD_TOUR_START, WORLD_TOUR_END, FINALS_START, FINALS_END, REGIONAL_END } from "./calendarSlots.js";
 import { seasonNumberForYear } from "./seasonRollover.js";
@@ -330,6 +331,10 @@ export function drawWorldTourTx(
       }).run();
     });
   });
+
+  // 1.1.1 (Rob, 18 Oct): a career's first season ranks this field by squad
+  // strength now, at the draw, and stores who is paid Silver (no-op after).
+  seasonOneTiersTx(tx, careerSaveId, seasonYear);
 
   return { drawn: true, fieldSize: entrants.length };
 }

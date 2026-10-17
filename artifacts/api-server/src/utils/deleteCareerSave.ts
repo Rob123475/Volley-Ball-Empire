@@ -9,6 +9,7 @@ import {
   playerRankingPointsTable,
   boardSeasonsTable,
   poolClubSeasonsTable,
+  poolClubStartTiersTable,
   careerManagerFacesTable,
   careerScoutReportsTable,
   careerWatchListTable,
@@ -68,6 +69,8 @@ export function deleteCareerSave(careerSaveId: number, tx?: DbTx): void {
     // contract can name the same club.
     t.delete(poolPlayerContractsTable).where(eq(poolPlayerContractsTable.careerSaveId, careerSaveId)).run();
     t.delete(poolClubSeasonsTable).where(eq(poolClubSeasonsTable.careerSaveId, careerSaveId)).run();
+    // 1.1.1 (18 Oct): the first season's strength tiers (NOT NULL).
+    t.delete(poolClubStartTiersTable).where(eq(poolClubStartTiersTable.careerSaveId, careerSaveId)).run();
     t.delete(careerManagerFacesTable).where(eq(careerManagerFacesTable.careerSaveId, careerSaveId)).run();
     // Update 1, overnight part 4 (B-3): the scout reports and the watch list (NOT NULL).
     t.delete(careerScoutReportsTable).where(eq(careerScoutReportsTable.careerSaveId, careerSaveId)).run();

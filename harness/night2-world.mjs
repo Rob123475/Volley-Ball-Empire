@@ -49,13 +49,13 @@ export function createWorld(name, port) {
       throw new Error("server never came up");
     },
     async stop() { if (child) { await stopServer(child); child = null; } },
-    /** A new career through the Day 1 draft; returns { profileId, teamId, cid }. */
-    async newCareer(label = name) {
+    /** A new career through the Day 1 draft (Established unless told); returns { profileId, teamId, cid }. */
+    async newCareer(label = name, difficulty = "established") {
       const prof = await world.api("POST", "/profiles", { name: label });
       await world.api("POST", `/profiles/${prof.data.id}/select`);
       const club = ((await world.api("GET", "/club-templates")).data?.clubs ?? [])[0];
       await startCareer(world.api, { managerFaceId: 8, slotNumber: 1, managerName: label, managerNationality: "Australia", clubName: club.name, originalClubName: club.name,
-        budget: club.startingBudget, difficulty: "established", gameDifficulty: "medium", primaryColor: "#1e3a8a", secondaryColor: "#f59e0b", crestShapeIndex: 0 });
+        budget: club.startingBudget, difficulty, gameDifficulty: "medium", primaryColor: "#1e3a8a", secondaryColor: "#f59e0b", crestShapeIndex: 0 });
       const teamId = (await world.api("GET", "/team")).data?.id;
       const cid = world.q(`SELECT id FROM career_saves WHERE team_id = ?`, teamId)[0]?.id;
       return { profileId: prof.data.id, teamId, cid };

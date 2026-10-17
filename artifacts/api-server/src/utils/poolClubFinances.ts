@@ -39,16 +39,16 @@ import {
   careerPoolTeamStateTable, continentalPoolTeamsTable, continentalPoolPlayersTable,
   poolClubSeasonsTable, poolPlayerContractsTable, competitorsTable,
   competitorRankingsTable, worldTourQualificationsTable, careerSavesTable,
-  seasonsTable, careerStaffStateTable, careerPlayerStateTable, db, managerSalaryFor, perksMonthly,
+  seasonsTable, careerStaffStateTable, careerPlayerStateTable, poolClubStartTiersTable, db, managerSalaryFor, perksMonthly,
 } from "@workspace/db";
 import { and, asc, desc, eq, inArray, isNull, isNotNull, lt, sql } from "drizzle-orm";
-import { aiSquadsTx } from "./aiSquads.js";
+import { aiSquadsTx, aiClubRatingsTx } from "./aiSquads.js";
 import { renewalCapRefusalTx } from "./salaryCap.js";
 import { WORLD_TOUR } from "../data/worldTour.js";
 import { prizeFor } from "./prizeDistribution.js";
 import { mainSponsorResultTx } from "./staffBudget.js";
 import { FINALS_START, FINALS_END } from "./calendarSlots.js";
-import { purseAccessFor, tierForPoints, type Tier } from "./tierQualification.js";
+import { purseAccessFor, tierForPoints, isTier, type Tier } from "./tierQualification.js";
 import {
   weeklyClubOutgoings, sponsorWeeklyIncome, decayedReputation, monthlySalaryFor,
   managerWeeklySalary, weeklyWageBill, SPONSOR_REP_BASELINE,
@@ -268,7 +268,50 @@ function fieldPoolIdsTx(tx: Tx, careerSaveId: number, seasonYear: number): Set<n
   );
 }
 
-/** The tier each pool club is paid in full at this season, from last season's points (none: Bronze). */
+/** 1.1.1 (Rob, 18 Oct): how many AI clubs in a first season's field are paid Silver (tierQualification.ts: #5-10 of a real season). */
+export const SEASON_ONE_SILVER_CLUBS = 10;
+
+/**
+ * A career's first season: no club has last season's points, so the World
+ * Tour field is ranked by squad strength (aiClubRatingsTx, the measure the
+ * board's bands use) and the strongest SEASON_ONE_SILVER_CLUBS are paid
+ * Silver, the rest Bronze, whatever the player's difficulty. Ranked once, the
+ * first time it is needed once the field is known (the draw, or an existing
+ * season-1 save's first read), and stored per career and season. Any other
+ * season, or before the field is known: an empty map.
+ */
+export function seasonOneTiersTx(tx: Tx, careerSaveId: number, seasonYear: number): Map<number, Tier> {
+  if (seasonNumberForYear(seasonYear) !== 1) return new Map();
+  const where = and(
+    eq(poolClubStartTiersTable.careerSaveId, careerSaveId),
+    eq(poolClubStartTiersTable.seasonYear, seasonYear),
+  );
+  const stored = tx.select({ poolTeamId: poolClubStartTiersTable.poolTeamId, tier: poolClubStartTiersTable.tier })
+    .from(poolClubStartTiersTable).where(where).all();
+  if (stored.length > 0) return new Map(stored.map((r) => [r.poolTeamId, isTier(r.tier) ? r.tier : "Bronze"]));
+
+  const field = [...fieldPoolIdsTx(tx, careerSaveId, seasonYear)];
+  if (field.length === 0) return new Map();
+  const ratings = aiClubRatingsTx(tx, careerSaveId);
+  const ranked = field
+    .map((poolTeamId) => ({ poolTeamId, rating: ratings.get(poolTeamId) ?? 0 }))
+    .sort((a, b) => b.rating - a.rating || a.poolTeamId - b.poolTeamId);
+  const map = new Map<number, Tier>();
+  ranked.forEach((r, i) => {
+    const tier: Tier = i < SEASON_ONE_SILVER_CLUBS ? "Silver" : "Bronze";
+    tx.insert(poolClubStartTiersTable).values({
+      careerSaveId, seasonYear, poolTeamId: r.poolTeamId, rating: r.rating, strengthRank: i + 1, tier,
+    }).onConflictDoNothing().run();
+    map.set(r.poolTeamId, tier);
+  });
+  return map;
+}
+
+/**
+ * The tier each pool club is paid in full at this season, from last season's
+ * points; a club with no row for last season in a career's first season takes
+ * its strength tier (seasonOneTiersTx); otherwise none: Bronze.
+ */
 export function accessTierByPoolIdTx(tx: Tx, careerSaveId: number, seasonYear: number): Map<number, Tier> {
   const rows = tx.select({
     poolTeamId: competitorsTable.poolTeamId,
@@ -283,6 +326,9 @@ export function accessTierByPoolIdTx(tx: Tx, careerSaveId: number, seasonYear: n
     )).all();
   const map = new Map<number, Tier>();
   for (const r of rows) if (r.poolTeamId != null) map.set(r.poolTeamId, tierForPoints(r.points));
+  for (const [poolTeamId, tier] of seasonOneTiersTx(tx, careerSaveId, seasonYear)) {
+    if (!map.has(poolTeamId)) map.set(poolTeamId, tier);
+  }
   return map;
 }
 

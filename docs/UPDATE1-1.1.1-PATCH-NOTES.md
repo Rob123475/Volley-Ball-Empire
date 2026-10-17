@@ -119,5 +119,6 @@ New dates on the calendar:
 Transfers have their own colour in the legend.
 
 ## Also
+- **In a career's first season the 10 strongest AI clubs in the World Tour field are paid Silver**, as an Established club is, so yours is no longer the only Silver club. From the second season, last season's ranking points decide every club's tier, as before.
 - The Rules page explains all of the above.
 - Your saved careers carry on. Existing contracts have no perks, and the AI clubs start bidding in their next week.

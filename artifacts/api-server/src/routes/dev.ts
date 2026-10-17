@@ -35,7 +35,7 @@
  */
 import { Router } from "express";
 import { rollInjuryType, treatmentFactor, startInjuryTx } from "../utils/injuries.js";
-import { injuryInfo } from "@workspace/db";
+import { injuryInfo, db } from "@workspace/db";
 import { loadPlayer, requireCareerSaveId, withCareerStateTx } from "../lib/playerDto.js";
 import { getGameDate } from "../utils/gameDate.js";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
@@ -46,6 +46,8 @@ import {
 } from "../utils/board-confidence.js";
 import { pairSideRating } from "../utils/condition.js";
 import { pointProbability, simulateMatch, type RatedPlayer } from "../utils/matchEngine.js";
+import { accessTierByPoolIdTx, creditPoolClubResultTx, purseForRound } from "../utils/poolClubFinances.js";
+import { prizeFor } from "../utils/prizeDistribution.js";
 
 const router = Router();
 
@@ -135,6 +137,28 @@ router.post("/dev/achievements/check", async (req, res) => {
   const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team" }); return; }
   res.json({ newlyUnlocked: await checkAchievements(team.id) });
+});
+
+/**
+ * 1.1.1 (Rob, 18 Oct): an AI club paid for one result through the game's own
+ * creditPoolClubResultTx, at the tier it is paid at (accessTierByPoolIdTx), next
+ * to the event's full share. harness/season-one-tiers.mjs pays a club the first
+ * season ranked Silver and one it left Bronze for the same Silver win. Writes
+ * the payment to its balance.
+ */
+router.post("/dev/pool-clubs/credit", (req, res) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const cid = requireCareerSaveId(req.activeCareerSaveId);
+  const b = req.body as { poolTeamId?: number; seasonYear?: number; eventTier?: string; round?: number; won?: boolean };
+  if (!Number.isInteger(b?.poolTeamId) || !Number.isInteger(b?.seasonYear) || !Number.isInteger(b?.round)) {
+    res.status(400).json({ error: "poolTeamId, seasonYear and round are required" });
+    return;
+  }
+  res.json(db.transaction((tx) => {
+    const args = { careerSaveId: cid, seasonYear: b.seasonYear!, poolTeamId: b.poolTeamId!, eventTier: b.eventTier ?? null, round: b.round!, won: !!b.won };
+    const access = accessTierByPoolIdTx(tx, cid, args.seasonYear).get(args.poolTeamId) ?? "Bronze";
+    return { access, prize: creditPoolClubResultTx(tx, args), fullPrize: prizeFor(purseForRound(args.round), args.won, 1) };
+  }));
 });
 
 export default router;
