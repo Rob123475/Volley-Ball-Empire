@@ -2,9 +2,111 @@
 
 Brief: `docs/UPDATE1-1.1.1-BRIEF.md`. Branch **update-1**, on top of 1.1.0 (`3592767f`, BuildID 25976250). Nothing pushed, nothing uploaded to Steam, `main` and `launch-final` untouched, Rob's save never opened.
 
-*Written as the work goes. The 17 October report comes first; the summary table and the parts follow.*
+*Written as the work goes. The newest report comes first (the night of 17–18 October), then 17 October's, then the summary table and the parts.*
 
-## 17 October: the morning's work (read this first)
+## 17–18 October overnight: Rob's on-screen check (read this first)
+
+**Where it stands:** 
+- **All seven items are checked.**
+  - Fixed: 1 (the name), 2 (continent names), 3 (one tier rule), 4 (old injuries carried over) and 7 (AI managers for older careers).
+  - Not faults: 5 (Lima) and 6 (Bangkok) are carried over from 1.0. Under 1.1.1's rules they put themselves right.
+- **The full build passed 126 of 127 suites.** The one failure is a check that depends on how the season goes; it passes alone, twice.
+- **The package:** 1.1.1 repackaged from `15c60557`. The proof passes, the exe reads 1.1.1, and a 1.1.0 save still loads (17/17).
+- **TEST 1.1.1** is refreshed from Rob's real save. The original is untouched, and his earlier test play is kept.
+- **The Steam script** names `15c60557`. **Not uploaded.**
+
+**New for Rob to decide (nothing changed for these):**
+1. **A brand-new career starts some AI clubs over the cap** from their generated squads: in tonight's proof career, Miami $62,000 and Bali $69,846 on 22 Feb. Nobody signed them over, and like Lima they can't sign or renew until they're back under.
+2. **Thirty-season careers run short of players.** In the build's 30-season career, by season 24 there were no free agents and only 107 seniors across 60 AI clubs.
+   - The suite's manager, who never improves his squad, was sacked by his board for two failed seasons.
+   - The job market then gave him an AI club with one player and nobody to sign, and that club sacked him for having fewer than two players.
+   - The suite tries again for this reason, and its second career played all 30 seasons. Retirements outpacing new seniors is worth a look in 1.1.2.
+
+How it was checked: every item was read in the code, then reproduced on a **copy** of Rob's TEST 1.1.1 save (game date 13 May 2026), with the server run on that copy. The fixes were confirmed the same way. Rob's real save was never opened.
+
+| # | What Rob saw | What it was | What changed |
+|---|---|---|---|
+| 1 | "Clubs" sits under "Club" | Wording | **"Other Clubs"** in the side menu, the page title and its back button, the Rules topic ("The Other Clubs page"), the line about youth deals, the Player Market's refusal message, and the patch notes. The address stays `/clubs`. |
+| 2 | Continents as code (`south_america`) | The page printed the stored key, though the game has a helper for names (`continentLabel`) | The list, its Continent sort, and each club's page now show South America, Africa & Middle East, Asia… |
+| 3 | Every club "Bronze", his Dashboard "Silver" | **The Other Clubs page was wrong.** The Dashboard shows the higher of the tier this season's points reach and the tier the club is paid at this season (the 30 Sep rule, Q-1: an Established career is paid Silver from day one). Other Clubs showed the points tier alone. | **One rule for every screen** (`shownTier`, `utils/tierQualification.ts`): the Dashboard, the list and each club's page. A club's paid tier is the one it is really paid at: last season's points tier, or for a first season the difficulty's starting tier (the player's) or Bronze (an AI club's, as the game pays them). Rob's club now reads Silver on both screens. |
+| 4 | Injuries 0 for every club, 18 matches in | **The column was right:** it counts this season's injuries in `career_injuries`. Rob's season was played on 1.0, where AI players were never injured. His own club's one injury (Nyasha Ncube, 26 Feb) sat in 1.0's old `injury_history` table, which nothing has read since night 2. On a copy, 25 more days on 1.1.1 recorded injuries at 8 clubs. | 1.0's injury records are carried into `career_injuries` once, when an older save loads (`carryLegacyInjuryHistory`). Rob's club now shows 1, and the Medical page and the reconstruction rule count it too. AI clubs stay 0 for this season: they had no injuries in 1.0. |
+| 5 | Lima Pacific Soarers $71,245 of $60,000 | **The existing-save rule, not a bug.** Ashley Carter ($24,500) moved from LA Beach Legends to Lima on 7 May with no transfer record; every 1.1.1 move writes one. That was 1.0's AI transfer, before any salary cap. | Nothing. Under 1.1.1 no one is forced to sell: Lima keeps her, but can't sign or renew over the cap. It comes back under as contracts end (all three run to 31 Dec 2027). |
+| 6 | Bangkok Palm Beach Stars on 2 seniors | **Not a fault.** 56 of the 60 AI clubs had 2 seniors, as 1.0 kept them. 1.1.1 tops every club up to 3 at its weekly step (when it can afford one under the cap), and Rob's save stops on 13 May, before its first one. On a copy, the 14 May step signed a third senior at 52 clubs, Bangkok included; 4 stayed on 2 because of the cap or the bank. | Nothing. |
+| 7 | Bangkok "Manager's job vacant" | **A fault, at every AI club, not just Bangkok.** AI managers are appointed at a new career's Day 1 draft, at a season's end, or when the job market opens. Rob's career is older than them, so all 60 jobs read vacant until his season ended. | Careers older than the AI managers get them when the save loads (`appointManagersForOlderCareers`), by the new-career rule (the free face out of work longest). A real vacancy stays open. On a copy of Rob's save: 60 appointed, Bangkok's is Min-jun Kim. |
+
+**Found on the way, and fixed.** Adding the tier imports to the Other Clubs route crashed the server at load. `utils/worldTour.ts` imports `routes/matches.ts`, which imports `utils/seasonPhase.ts`, which read `WORLD_TOUR_EVENT_ROUNDS` from `worldTour.ts` before it was set. It had only worked because of the order modules happened to load in. The round list and the two finals tier names now live with the schedule (`data/worldTour.ts`, which imports nothing), and `worldTour.ts` re-exports them.
+
+**New checks (clubs-page, 25/25):**
+- his row's tier equals his Dashboard's;
+- "Other Clubs" in the menu and title;
+- continents shown by name;
+- a career made older on purpose and restarted gets all its AI managers and its old injury, and a second restart carries nothing twice.
+
+The settings suite checks the renamed Rules topic.
+
+**Suites run alone after the fixes:** clubs-page 25/25, settings 40/40, scouting-limit 27/27, dashboard-standing 12/12, manager-faces 56/56, ai-job-market 32/32, injury-treatment 17/17, reconstruction 16/16, injured-list 17/17, condition 27/27, commentary-she 7/7, market-order 4/4.
+
+### The full build
+
+`pnpm run build`, 21:51 to 00:11, timestamped and watched.
+- **Watching:** the watcher flagged failures and any suite over 30 minutes, and I checked progress at least every 10 minutes. The PC was kept awake throughout, and nothing stalled.
+- **Typecheck, build and sync:** clean.
+- **126 of 127 suites passed.**
+- **The one failure:** ai-job-market's "when the window opens the AI boards' sackings are announced" found no AI manager sacked this time.
+  - The suite gives every AI manager one failed season. A manager is sacked only if their club then fails again, which depends on results; usually one is.
+  - Alone it passed twice (32/32, one sacked each time).
+  - Tonight's changes don't touch the AI boards' judgement, and the check was left as it is.
+- **Long suites (none stalled):**
+  - youth-rebirth: 16 min 10 s (30 min yesterday, before the speed-up).
+  - ai-club-economy: 27 min 46 s, 22/22.
+  - season rollover: 55 min, passed. Its first 30-season career ended in season 24 (see "for Rob to decide", item 2) and its second played all 30. Each season was checked as it ran.
+
+### The package, its proof, the Steam script, the TEST copy
+
+- **The package:** `C:\build\vbe-1.1.1\win-unpacked`, from `15c60557`. The exe's Properties read **1.1.1** (FileVersion 1.1.1, ProductVersion 1.1.1.0).
+  - The packaged server has the tier rule and the two load-time repairs, and the client says "Other Clubs".
+  - After-pack checks: OK.
+  - The previous proof is kept as `proof-898cf287`.
+- **The package proof:** a throwaway profile, screenshots in `C:\build\vbe-1.1.1\proof` (31). It passes start to finish: 26 steps, no error, Rob's save folder untouched.
+  - Draft, a match on the 3D court (2-0, Continue), sort menus.
+  - **Other Clubs:** 61 rows, every sort, an AI club's page.
+  - Buy-ahead, the Part 10 checks, junior medics on the Medical Market, and Exit.
+  - The Other Clubs screenshot shows the new title and menu entry, continents by name ("Africa & Middle East", "North America"…), Sydney Riptide at **Silver** and the others at Bronze, and injuries counted.
+- **A 1.1.0 save** (a copy of the genuine one from 16 Oct) on the new package: 17/17.
+- **TEST 1.1.1** is refreshed from Rob's real save the same safe way.
+  - The game was closed, the save had no working files, and the copy is byte-identical (SHA-256 checked before and after). The original's date is still 16 Oct 2:00 PM.
+  - Rob's real save hasn't changed since the first copy, so the TEST copy starts from the same point as before.
+  - His test play from last night is kept in `C:\vbe-test-1.1.1\previous-test-play-17oct`.
+  - Started once from the Desktop shortcut on the new package, it opened his profile from the copy, then closed cleanly.
+- **The Steam script:** `steam/app_build_5233750-1.1.1.vdf`, Desc "v1.1.1 Clubs page, transfers, staff budget, junior medics (update-1 15c60557)". ContentRoot `C:\build\vbe-1.1.1\win-unpacked\`, SetLive empty.
+  - The commit after `15c60557` holds only this report and the script.
+  - **Not uploaded.**
+
+### For tomorrow: Rob's 1.1.2 portraits (read only, nothing installed)
+
+| Folder | Pictures | Needed |
+|---|---|---|
+| staff portraits 1.1.2\head coach | 10 | 0 |
+| staff portraits 1.1.2\assistant coach | 11 | 0 |
+| staff portraits 1.1.2\doctor | 13 | 5 |
+| staff portraits 1.1.2\registrar | 12 | 14 |
+| staff portraits 1.1.2\physiotherapist | 12 | 6 |
+| staff portraits 1.1.2\Physio Assistant | 12 | 16 |
+| staff portraits 1.1.2\scouts | 61 (60 different) | 55 |
+| staff portraits\scouts | 10 | (the 10 already in the game) |
+
+- **Duplicates:** every picture was compared with every other, 302 in all, the new folders and all of "staff portraits".
+  - `staff portraits 1.1.2\scouts\…(15).png` and `…(16).png` are the same file. Install one.
+  - The only other pair is the surgeon picture already skipped on 17 Oct.
+  - Every other pair differs clearly: the closest are 5.5 out of 255 on a 64×64 comparison, and they are different people.
+- **The 41 medics are covered.**
+  - Rob made 49: Registrars are 2 short of my 14 and Physio Assistants 4 short of my 16, but there are 8 extra Doctors and 6 extra Physios.
+  - The game keeps 5 back per role, and a Registrar counts as a Doctor, a Physio Assistant as a Physiotherapist. Per role that is +25 Doctor-role against 19 needed, and +24 Physio-role against 22.
+  - The 8 January deal, simulated 20,000 times with Rob's numbers: every AI club gets a doctor or physio, and at least 5 of every grade stay on the market, in 99.2% of new careers. My 41 managed 99.1%.
+- **Scouts are covered:** 60 different new pictures plus the 10 already in the game makes 70, against the 65 needed for every AI club to have one with 5 left. That's 5 to spare. AI clubs don't hire Scouts yet; that's a 1.1.2 change.
+- **Coaches:** none were needed, and Rob made 21 (10 Head, 11 Assistant). They give slack: today a coach the player signs before 8 January leaves an AI club without one.
+
+## 17 October: the morning's work
 
 **Where it stands:**
 - **1.1.1 is packaged** at `C:\build\vbe-1.1.1\win-unpacked` from `898cf287`.
@@ -208,13 +310,14 @@ Nothing pushed, nothing uploaded to Steam, `main` and `launch-final` untouched, 
 | 6. The calendar | done | `97deef35` |
 | 7. Words | done | `26802392` |
 | 8. Tests | done (one open finding, below) | (Part 8 commit) |
-| 9. Full build, soak, 1.1.1 | done 17 Oct: full build watched, package, proof, a 1.1.0 save (top of this report) | `898cf287` (package) |
+| 9. Full build, soak, 1.1.1 | done: full builds watched, package, proof, a 1.1.0 save (top of this report) | `15c60557` (package, 18 Oct); was `898cf287` |
 | 10. Scouting limit, youth cards, Watch List, Medical pill, scouted first | done | (Part 10 commit) |
 | 11. Staff budget (main sponsor) | done | (Part 10 commit) |
 | 12. Academy Renew at a job-market club | checked: it no longer happens; a check now drives it | (Part 10 commit) |
 | 17 Oct: AI clubs over the cap | done: 0 in every season of the soak | `ae383571` |
 | 17 Oct: junior medics | done | `ae383571` |
 | 17 Oct: what the full build found | done (rollover's speed, Pakistan, the installer, suites) | `898cf287`, 938ba1b3 |
+| 17–18 Oct night: Rob's on-screen check (7 items) | done: 5 fixed, 2 carried over from 1.0 (not faults) | `15c60557` |
 
 ## Decisions made
 
