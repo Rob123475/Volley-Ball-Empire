@@ -2,9 +2,142 @@
 
 Brief: `docs/UPDATE1-1.1.1-BRIEF.md`. Branch **update-1**, on top of 1.1.0 (`3592767f`, BuildID 25976250). Nothing pushed, nothing uploaded to Steam, `main` and `launch-final` untouched, Rob's save never opened.
 
-*Written as the work goes. The newest report comes first (the night of 17–18 October), then 17 October's, then the summary table and the parts.*
+*Written as the work goes. The newest report comes first (18 October, daytime), then the night of 17–18 October, then 17 October's, then the summary table and the parts.*
 
-## 17–18 October overnight: Rob's on-screen check (read this first)
+## 18 October, daytime: the stronger AI clubs start at Silver, and why long careers run out of players (read this first)
+
+Brief: `Downloads\TIER-START-BRIEF-18OCT.md`. Commit `f7fcb4cc` (local, not pushed). **No full build, no package and no soak today:** all three are held for tonight's overnight run. Rob's real save was never opened. The TEST save was only copied.
+
+### 1. Silver in season 1
+
+**Done in code, proven alone. The full build, package and soak are tonight's.**
+
+**The rule, as built:**
+- In a career's first season, the AI clubs in the World Tour field are ranked by squad strength. This is the board's measure, `aiClubRatingsTx` (what `poolClubRatingsTx` returns).
+- **The top 10 are paid Silver and the other 8 Bronze**, on Underdog and Established alike. No club starts Gold.
+- The ranking is taken once and stored in a new table, `pool_club_start_tiers` (one row per career, club and season):
+  - a new career stores it at the World Tour draw;
+  - an existing season-1 save stores it the first time the tier is read.
+- The stored tier is used only when the season is season 1 and the club has no ranking row for last season. **From season 2, last season's points decide, as before.**
+- **Change in one place:** `accessTierByPoolIdTx` (`utils/poolClubFinances.ts`) calls the new `seasonOneTiersTx`. Everything below already reads that function, so all of it agrees:
+  - the Other Clubs list and each club's page;
+  - AI purses;
+  - AI weekly tour costs.
+- A deleted career deletes its rows. The starter database has the table. A tie on strength goes to the lower club id.
+
+**Words:**
+- **Rules page:** there is no tier topic as such, so the line went on the World Tour card under Competition Structure: "In a career's first season the 10 strongest AI clubs in the field are paid Silver, as an Established club is; after that, last season's ranking points decide every club's tier."
+- **Patch notes** (`docs/UPDATE1-1.1.1-PATCH-NOTES.md`, "Also"): the same rule.
+
+**Proof 1: a copy of Rob's TEST 1.1.1 save** (game date 13 May 2026, World Tour round 19). The server ran on the copy (the db with its -wal and -shm). The save had no stored ranking, and loading it stored one.
+- **Sydney Riptide: Silver** (paid Silver as an Established club; 3 points; #19, 3-15). The Dashboard agrees.
+- **10 AI clubs Silver**, each on the list and on its own page. None Gold, the other 8 Bronze.
+- The ranking is from 13 May squads, because this save is older than the change.
+
+| Rank | Club | Continent | Squad strength | WT now |
+|---|---|---|---|---|
+| 1 | Rio Copacabana Queens | South America | 84.25 | #3, 14-4 |
+| 2 | Miami Shoreline Queens | North America | 83.67 | #4, 13-5 |
+| 3 | Berlin Sand Queens | Europe | 83.42 | #9, 9-9 |
+| 4 | Buenos Aires Pampas Storm | South America | 82.67 | #7, 12-6 |
+| 5 | LA Beach Legends | North America | 81.67 | #15, 8-10 |
+| 6 | Barcelona Playa Elites | Europe | 81.50 | #11, 8-10 |
+| 7 | Tokyo Surf Samurai | Asia | 81.33 | #13, 8-10 |
+| 8 | São Paulo Beach Warriors | South America | 81.25 | #5, 11-7 |
+| 9 | Gold Coast Thunderbirds | Australia & Pacific | 80.17 | #14, 7-11 |
+| 10 | Cancún Coral Storm | North America | 80.00 | #12, 8-10 |
+
+- 11th was Lagos Surf Queens, also on exactly 80.00. The tie goes to the lower club id, Cancún.
+- Then Paris 78.17, Bangkok 75.00, Durban 75.00, Maui 74.33, Fiji 72.00, Bali 70.67, Casablanca 68.67, all Bronze.
+
+**Proofs 2, 3 and 5: the new suite `harness/season-one-tiers.mjs`, 32/32 alone** (in run-all as 98zb).
+- **A new Established and a new Underdog career:** the World Tour is drawn on 17 Feb, the field of 18 is stored, and 10 AI clubs are Silver in each.
+  - The list and every Silver club's page agree.
+  - His own club reads Silver (Established) or Bronze (Underdog), as before.
+- **Stored:** three weeks and 36 World Tour fixtures later, the ranking is unchanged.
+- **Purse, through the game's own `creditPoolClubResultTx`** (dev probe `/dev/pool-clubs/credit`, development only):
+  - one of the 10, for a Silver-event win: **$13,667, the full purse**;
+  - a Bronze club, for the same win: $1,367 (10%).
+- **Season 2:**
+  - a club ranked Silver with 3 points is paid Bronze (10%);
+  - a club left Bronze that finished on Gold points is paid Gold;
+  - nothing is ranked for season 2.
+- **An existing season-1 save:** its stored rows deleted and the server restarted. The first read stores 10 Silver again, and the list shows them.
+- **Source checks:** the one place, the draw, the Rules line, the patch note, and the delete.
+
+**Existing suites, alone:** clubs-page 25/25, settings 40/40, salary-cap 16/16, schema-drift 12/12. The write-boundary guard, the starter-db check and the typecheck are clean. The API server was built for the suites; the full build was not run.
+
+**Proof 4 (the 5-season soak) is held for tonight.**
+- The soak now prints each season's AI clubs paid Silver and Gold in the field.
+- Tonight's AI median balances go next to last night's: $577,635 / $598,248 / $660,097 / $714,643 / $720,661.
+- Expect season 1 to rise: ten clubs now take full Silver purses (the two Silver events' purses are $20,500 and $24,000), against 10% before. They also pay Silver tour costs.
+
+**Tonight:** one full build on the new commit, the 5-season soak, the 1.1.1 package and its proof, and the Steam script refreshed to name the new commit. Nothing uploaded.
+
+### 2. Why a 30-season career runs out of players (read only, no build)
+
+**More images alone will not fix it.**
+- A graduate's picture is only her card. When her continent's pictures run out she keeps her flag card and plays on (`utils/graduatePortraits.ts`).
+- **What runs out is players:** too few new seniors come in. That intake rate is what has to change, and that is Rob's call.
+
+**Where seniors go: retirement at 40, flat** (`RETIREMENT_AGE`, `utils/seasonRollover.ts`).
+- A new world has 312 seniors, all 19 to 37 in 2026, most of them 22 to 27. Each one retires at the turn of the season she reaches 40.
+- Seniors retiring each season, from the shipped ages. Last night's 30-season run matched this to within 1 to 4 a season:
+
+| Seasons | 1–10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20–22 | 23 | 24 | 25 | 26 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Retiring | 0–2 a season | 6 | 25 | 40 | 47 | 53 | 56 | 22 | 35 | 20 | 2, 2, 0 | 24 | 19 | 15 | 14 |
+
+- Every shipped senior is gone by season 21. Seasons 23 to 26 are the 72 shipped youths, who became seniors in seasons 2 to 5.
+
+**Where seniors come from:** no code ever makes a new senior. They all come from academies:
+- **The 72 shipped youths who belong to nobody** (12 per continent) join the senior market at 19, at the turns of seasons 2 to 5: 24, 19, 15, 14. This happens once and is never refilled.
+- **The player's academy:** at most 3 a season (an intake of 3, at most 6 in the academy). Last night's manager promoted 16 in 30 seasons.
+- **The AI academies:** 60 clubs keep 4 youths each and refill every week. But **at 19 an AI academy youth leaves the game** (`releaseAiAcademyGraduatesTx`, C15, 30 Sep). That is about 76 at the first turn and about 120 a season after.
+  - An AI youth becomes a senior only if her club promotes her early: as cover for a senior on the injured list, or when it can't find two seniors it can afford.
+- **Measured:** after the 72, about **2.7 new seniors a season**. A model on the shipped ages at that rate gives 105 seniors in season 24; last night's run had 107. At that rate there are 57 by season 27.
+
+**What it would take** (the same model, new seniors joining at 19 and playing to 40):
+
+| To keep, through season 30 | New seniors needed a season | Graduates in 30 seasons |
+|---|---|---|
+| 2 seniors at every AI club and his 3 (123), no free agents | **5.9** | 243 |
+| 3 at every AI club and his 4 (184) | **8.8** | 327 |
+| 184 and a market of 30 free agents (214) | **10.2** | 368 |
+
+- The lowest point is season 27, when the last shipped players have gone.
+- **Today's 2.7 a season is between a half and a quarter of what is needed.**
+
+**Pictures:**
+- **Unused graduate pictures:** 121 in every new career (Africa & Middle East 21, each other continent 20). Rob's TEST save has used none yet.
+- A picture is never used twice in a career, even after its player retires.
+- (The 12 spare faces are for youth cards, not graduates.)
+- **Under today's rules** about 150 graduates need one in 30 seasons, so about 30 go without. The player's own continent runs out first: his graduates come first, and all are from his region.
+
+**New images needed** if the intake is raised. This assumes the new seniors come evenly from the six regions (10 AI clubs each) plus the 12 shipped youths per continent:
+
+| Continent | Have | For 5.9 a season | For 8.8 a season | For 10.2 a season |
+|---|---|---|---|---|
+| Africa & Middle East | 21 | 20 | 34 | 41 |
+| Asia | 20 | 21 | 35 | 42 |
+| Europe | 20 | 21 | 35 | 42 |
+| North America | 20 | 21 | 35 | 42 |
+| South America | 20 | 21 | 35 | 42 |
+| Australia & Pacific | 20 | 21 | 35 | 42 |
+| **Total new** | 121 | **125** | **209** | **251** |
+
+- The player's academy adds up to 3 a season from his own continent, about 87 over 30 seasons, on top of his column.
+- So either his continent needs about 70 more, or a retired graduate's picture comes free again. That is Q-2 from 5 October, still open.
+
+**For Rob to decide (nothing changed):**
+1. **How new seniors come in.** Ways to reach about 10 a season, lowest effort first:
+   - let about 1 in 10 of the AI academy youths who turn 19 join the free-agent market instead of leaving the game (about 120 turn 19 each season);
+   - each AI club keeps its best 19-year-old about one season in six;
+   - generate a few new free agents each season.
+2. **Then pictures to match:** 42 per continent for full squads and a small market (251 in all), or 21 per continent (125) for the bare minimum.
+3. **Whether a retired graduate's picture may be reused** (Q-2). If yes, the player's own continent needs no extra.
+
+## 17–18 October overnight: Rob's on-screen check
 
 **Where it stands:** 
 - **All seven items are checked.**
