@@ -2,7 +2,199 @@
 
 Brief: `docs/UPDATE1-1.1.1-BRIEF.md`. Branch **update-1**, on top of 1.1.0 (`3592767f`, BuildID 25976250). Nothing pushed, nothing uploaded to Steam, `main` and `launch-final` untouched, Rob's save never opened.
 
-*Written as the work goes; the summary at the top is filled in at the end.*
+*Written as the work goes. The 17 October report comes first; the summary table and the parts follow.*
+
+## 17 October: the morning's work (read this first)
+
+**Where it stands:**
+- **1.1.1 is packaged** at `C:\build\vbe-1.1.1\win-unpacked` from `898cf287`.
+- **The package proof passes** on a throwaway profile.
+- **A copy of a 1.1.0 save loads** and plays on.
+- **AI clubs over the cap that signed anyone: 0** in every season of the soak.
+- **The 37 junior medics are in.**
+- **The full build ran, watched:** 121 of 126 suites passed first time. Every failure is fixed and passes alone, and rollover's slowdown is found and fixed.
+- **The Steam script is ready. Nothing is uploaded.**
+
+**For Rob to decide (nothing was changed for these):**
+1. **AI transfers are rare** now that the cap holds: 0–3 AI players bought ahead a season (none at all in one 5-season re-run), against 24–39 through the hole (section 2).
+2. **Nothing limits AI bids per club or per player.** There are few bids now, so the most on one club or one player in a season was 3.
+3. **Rollover and ai-club-economy run past 30 minutes by design.** They play about 60 and 30 seasons; neither hangs (section 4).
+4. **About half the AI clubs have no coach-and-medic pair:** 28–38 of 60 a season in the soak. Every one of them could afford one; there aren't enough staff on the market for 60 clubs.
+
+### 1. Last night's "hung" build: the PC went to sleep
+
+- **What happened:** no suite hung. Windows' own log (Kernel-Power) shows the PC sleeping at 22:24:46 and waking at 07:03:33. Every process stopped while it slept, so the build sat still for 8½ hours and then carried on.
+- **The check:** the suite that was running (the season rollover) was run alone on its own, and again after a smoke run. It runs normally both times, about 32 s a season.
+- **The fix:** this session now asks the app to keep the PC awake while it works (`request_keep_awake`). Nothing in the game or the harness was wrong.
+- **The watch:** this morning's build was timestamped line by line. A watcher flagged any suite running more than 30 minutes and any failure. What it found is in section 4.
+
+### 2. AI clubs over the cap: now 0 in every season
+
+Last night's two fixes (the committed wage bill, and a weakest player counted as gone only if her contract still runs on the arrival day) were not enough. The soak still had 2, 16, 3, 7 and 5 AI clubs over the cap that had signed someone. A day-by-day trace found two holes:
+
+1. **The arrival-day trim never trimmed.** `wageCapRefusal` passes any change of $0 or less, so "is the club under the cap?" asked as `fitsUnderCap(bill, 0)` was always yes. It is now a plain comparison.
+2. **Room counted twice.** A bid is checked against the club's bill on the arrival day, so a contract ending before then makes room (Rob's rule, AC-8 A). The club then renewed that player at the same wage, which was always allowed. Example: club 60 bid in January with all three of its seniors' contracts ending 1 July. Its bill on 7 December was $0, so it agreed $41,975. It renewed all three, and was at $76,320 when she arrived.
+
+**The rule now (every club, the player's too):** renewing a contract that ends before a player bought ahead arrives must fit under the cap on that day, even at the same wage. Otherwise, as before, only a raise is checked. The Rules page ("Buying ahead") and the patch notes say so, in one line: *that room is spoken for*.
+
+**AI clubs:**
+- An AI club counts that room only for players it can do without. It must still field two until the new player comes, so it counts the cheaper of two ways: keeping its cheapest such players, or the cheapest healthy free agents.
+- A club short of two keeps room for the cheapest free agent who would make two. Then its first signing can't take all the room.
+
+| Soak (5 seasons, Medium) | s1 | s2 | s3 | s4 | s5 |
+|---|---|---|---|---|---|
+| AI clubs over the cap that signed anyone (before this morning) | 2 | 16 | 3 | 7 | 5 |
+| **AI clubs over the cap that signed anyone (now)** | **0** | **0** | **0** | **0** | **0** |
+| over it only through a promoted youth (C-5, allowed) | 7 | 5 | 2 | 4 | 5 |
+| AI clubs with 3 seniors | 49 | 53 | 50 | 51 | 52 |
+| AI players bought ahead (before) | 24–39 a season | | | | |
+| **AI players bought ahead (now)** | 0 | 0 | 3 | 2 | 2 |
+| AI bids on his seniors / players he lost | 0/0 | 0/0 | 1/1 | 0/0 | 0/0 |
+
+**For Rob: AI transfers are now rare.**
+- Nearly all the AI buying ahead (24–39 a season) went through hole 2. AI squads sit close to the $60,000 cap, so once the hole is shut there is little room to buy.
+- The AI still buys (0–3 a season, more from season 3, when contracts have spread out). The suites that check AI-to-AI buying give clubs room in their own databases (ai-buyable, six clubs on $10,000 wages), and transfer-window does the same and counts over the whole year (7, 1 and 6 AI-to-AI bids in three runs). One 5-season soak re-run had no AI bids at all.
+- **If Rob wants more movement between AI clubs, that's his call; nothing was changed for it.** The levers: a higher cap, lower AI wages, or shorter AI contracts.
+- **The soak now also records:** the first day any AI club goes over the cap with a senior signed that year (none), and the club-days an AI club had fewer than two seniors to play (14 in 5 seasons, against 17 before the free-agent rule).
+
+**Suites run alone after the fix:**
+
+| Suite | Result |
+|---|---|
+| salary-cap | 16/16 |
+| ai-injuries | 16/16 |
+| transfer-window | 19/19 (new check: the renewal is refused, naming 7 December) |
+| ai-buyable | 25/25 |
+| contract-renewal | 31/31 |
+| counter-offer | 10/10 |
+| injured-list | 17/17 |
+| staff-budget | 18/18 |
+| junior-medics | 12/12 |
+| settings | 40/40 |
+
+ai-club-economy was left to the full build: 22/22 there (section 4).
+
+### 3. Junior medics
+
+- **37 new medical staff, with Rob's portraits:** 14 Registrars (Doctors), 10 Physio Assistants (Physiotherapists), 13 Orthopaedic Surgeons (Medical Specialists).
+  - Installed by `scripts/install-staff-portraits.cjs --juniors` from `docs/junior-medic-portrait-names.json`, into `public/images/staff/medical_doctor` (staff-22 to 35), `physiotherapist` (staff-22 to 31) and `medical_specialist` (staff-21 to 33).
+  - `orthapaedic surgeon\...mid-chest (10).png` was skipped as a duplicate.
+  - Ids are 10001 up, so a 1.1.0 save gets them on first load.
+- **The constants:** one block, `JUNIOR_MEDICS` and `JUNIOR_PROMOTION` in `lib/db/src/schema/staff-roles.ts`.
+
+| Grade | Works as | Skill | Wage a month | The full role |
+|---|---|---|---|---|
+| Registrar | Doctor | 62–78 | $6,237–$7,846 | Doctors: skill 84–92, $14,083–$15,667 |
+| Physio Assistant | Physiotherapist | 50–66 | $4,605–$6,319 | Physios: skill 57–95, $8,750–$16,250 |
+| Orthopaedic Surgeon | Medical Specialist | 84–98 | $16,195–$18,975 | Specialists: skill 70–96, $11,333–$16,500 |
+
+- **Wages:** a junior's wage is 60% (`wageShare`) of the full role's wage for her skill. Below the role's lowest skill that wage falls in proportion, so Registrars come out at about half a Doctor's. A Surgeon's is 115%.
+- **Promotion:** a Registrar or Physio Assistant is promoted on a fixed day between 1 and 3 years after joining a club (a move starts the clock again).
+  - She gets the full role's title, +10 skill (Registrar) or +12 (Physio Assistant), and the full role's wage for her new skill (never less than she was on).
+  - Club News says so. The staff table keeps her as she was, so another career starts her as a junior again.
+- **They treat as their role**, count under the staff budget, and AI clubs hire and promote them by the same rules (`utils/juniorMedics.ts`, daily).
+- **Cards read** "Registrar · Team Doctor" on the Medical Market, the Staff page and the Staff Market.
+- **Words:** Rules topic "Junior medics", patch notes "Junior medics". settings checks twenty-one topics.
+- **Suite:** `harness/junior-medics.mjs` (run-all 98za), 12/12. It checks:
+  - the 37 and their portraits;
+  - cheaper and weaker, a Surgeon dearer and stronger;
+  - a Registrar hired as a Doctor under the budget;
+  - not promoted at 300 days, promoted at 3 years with the title, skill, wage and news;
+  - an AI club's Physio Assistant promoted too.
+
+### 4. The full build
+
+`pnpm run build`, 08:27 to 11:16, timestamped line by line and watched.
+
+- **Typecheck, build and sync:** clean.
+- **126 suites ran. 121 passed in full.** Four failed one or two checks each, and rollover was stopped (below). Each failure is understood, fixed, and passes alone:
+
+| Suite | In the build | Why | Fixed | Alone after |
+|---|---|---|---|---|
+| condition (R-50) | 25/27 | By chance: at fitness 0 a match gave one of the pair a serious injury, which lowers a stat. The check read the stats after the match. Match-day substitution then left one starter, so the panel said "Squad Incomplete" instead of "Not Enough Fit Players". | Reads the pair's stats before the match; puts two starters back before that scene | 27/27 (three runs) |
+| wizard-career-economy (R-67) | 11/12 | Counted 123 portrait staff; there are 160 with the 37 juniors | Counts 160 | 12/12 |
+| nationality-countries | 6/7 | **A real gap:** Pakistan wasn't in the game's nation table, so the two Pakistani junior medics had no flag or country | `iso("PK", …)` in `continents.ts`; every starter nationality now resolves (556 checked) | 7/7 |
+| ai-injuries (4c) | 15/16 | By chance: since the night-2 injured list, a club with two out 6 weeks may sign or promote cover and play. The check only allowed walkovers. | Allows a match played while the club had two fit besides the injured pair | 16/16 (three runs) |
+| season rollover | stopped at 37 min | See below | | 90/90 (39 min 40 s, nothing else running) |
+
+Also found by this build, before its own run reached them:
+- **staff-portrait-install:** my junior change to the installer numbered a normal re-run's pictures after its own earlier ones, so a re-run made duplicates. Fixed: a role's run numbers after its seeded staff again, as before; a junior grade numbers after everything else in the folder. A dry run of the juniors maps to the same 37 pictures. 15/15 alone, and 15/15 in the build.
+
+Found while re-checking after the fixes, and made reliable:
+- **staff-budget:** waited only 60 days for his club's first win (four or five matches) and once lost them all. It now waits up to 150 days: 18/18 twice.
+- **transfer-window:** AI-to-AI bids over a year fell to 0 in one run. AI buying is rare now (section 2). Six AI clubs get room in its own database, as in ai-buyable: 19/19 twice (1 and 6 bids).
+
+**The 30-minute rule:**
+- **youth-rebirth:** 29 min 40 s, 19/19. It runs 30 seasons in each of 3 regions.
+- **ai-club-economy:** 41 min 25 s, **22/22**. That includes the academy check that was open last night (21/22).
+  - Checked while it ran: 14 of 30 seasons at 19 minutes, 22 at 30 minutes, steady. Each day averaged 117 ms against 104 ms on 16 October.
+  - Not stopped, since it was advancing and is the main check of the AI economy changed this morning. Its slowdown has the same cause as rollover's, fixed below. Alone after the fix: **22/22 in 33 min 17 s**, with rollover and the package proof running beside it.
+- **Season rollover:** stopped at 37 minutes. Its 30-season arc (L-01) was running at about 58 s a season, against about 32 s last night.
+  - **Why:** traced by timing every database transaction by call site over 200 game days. One weekly step dominated: the AI clubs' transfer step, about 500 ms a game week.
+    - Each of the 60 buyers rebuilt every AI squad (`aiSquadsTx`), his club's bid-able seniors, and each candidate's price and open deal.
+    - Its cap check and `canSellTx` rebuilt the squads again.
+    - Before this morning most clubs had a deal open and skipped all that. Once the cap holes were shut, almost none did.
+  - **The fix:** that work is done once a week, and again only after a bid. The cap bill and `canSellTx` take the squads already built. What each club chooses is unchanged: the saved values only change when a bid is made, and they are worked out again then.
+  - **Result:** the weekly step is about 130 ms; 200 game days took 15 s, against 24 s before.
+  - **After the fix**, rollover alone (with ai-club-economy and the proof running beside it) passed **90/90** but took 60 minutes.
+    - Its first 30-season career was sacked in season 24 with one player. It had lost ten academy graduates to AI bids in five seasons.
+    - The walk never answers a bid (an unanswered bid takes her after 14 days). Now that AI clubs aren't tied up in each other's deals, his good graduates draw bids.
+    - The suite allows three attempts, and the second played all 30 seasons.
+    - The walk now turns bids down, as economy, job-market, olympics-tournament and youth-intake already do. Timed alone with nothing else running: **90/90 in 39 min 40 s**, the 30-season career played through with no sacking (31 s a season early on, about 43 s by its later seasons as its database grows).
+- **Both are long by design.**
+  - Rollover plays about 60 seasons (six 5-season careers and one of 30); ai-club-economy plays 30 seasons of the whole world.
+  - Neither hung; each advanced steadily when checked.
+  - **Rob decides** whether 30 minutes is the line for these two. They can be shortened with `LONG_SEASONS` / `SEASONS`.
+
+### 5. The package, its proof, a 1.1.0 save, the Steam script
+
+- **The package:** `C:\build\vbe-1.1.1\win-unpacked`, from `898cf287` (code), built with `electron-builder --win dir`.
+  - The exe's Properties read **1.1.1** (FileVersion 1.1.1, ProductVersion 1.1.1.0).
+  - The packaged starter database has 280 staff, 37 of them junior medics.
+  - The Unity court's compressed data (`.br`) is in, unchanged since 1.1.0.
+  - After-pack checks: no `-wal`/`-shm`, no `steam_appid.txt`, steamworks unpacked.
+- **The package proof:** `scripts/webgl-proof/package-proof.mjs` runs the real exe on a throwaway profile (`--user-data-dir` in Temp). Screenshots are in `C:\build\vbe-1.1.1\proof`. **It passes, start to finish:**
+
+| Step | What it saw |
+|---|---|
+| Title screen, Day 1 draft | Advance refused during the draft; three picks; the draft closes |
+| The court | The first match on the 3D court, with Pause and Resume; the result recorded (1-2), Continue back to the dashboard |
+| Sort menus | Market, Staff and Medical |
+| Clubs page | 61 rows, his own marked; every sort (richest, poorest, most successful, injury-prone, continent, name); an AI club's Players (3 seniors, 3 youths) and Staff & Medical |
+| Buy-ahead | Valeria Mamani from Honolulu Aloha Warriors: agreed, fee $16,900, "arrives 7 Dec 2026 ($26,385 a month, 1 season, perks: none)", listed on the Team page's Transfers tab |
+| Part 10 | The Watch List pill in the top row (not the second); a youth card with the full-width Scout button and the star; Remove / Scout / Buy on Watch List cards (seniors and youths); the Staff Market's Medical pill opens the Medical Market; a Scout with two reports refuses a third ("Ana Vieira is working on 2 reports (the next is ready on 27 Feb 2026)…"); on the Player Market the two in progress come first; the Staff page shows her two reports |
+| Junior medics | The Medical Market's cards read "Registrar · Team Doctor"; 2 Registrars, 1 Physio Assistant and 11 Surgeons still on the market on 22 Feb (the AI clubs hired the rest on 8 January); the staff budget line "$7,667 of $39,500 a month — $31,833 room left" |
+| Exit game | Asked; Cancel keeps the game; Exit closes the app itself (0.2 s) |
+
+Rob's save folder was checked before and after: untouched.
+
+The proof itself had three faults, found on its first runs and fixed (screenshots of the first run kept in `proof-stopped-at-clubs`):
+- the Clubs page step sent the page `"\t"` and `"\n"` inside a template string, real tab and newline characters, so its code didn't parse and the proof stopped there. That step had been added in Part 8 and never run on a package until today;
+- it looked for the youth card's Scout button inside the portrait (`.closest(".overflow-hidden")`), not the card;
+- it sent the scouts through the game's routes and then read the page's cached lists. It now reloads, and closes the match-day box before the screenshots.
+- **A 1.1.0 save:** a copy of a genuine 1.1.0 save (made by the 1.1.0 package's own server with `scripts/make-110-save.mjs`; never Rob's), loaded by the packaged 1.1.1 server. **17/17:**
+  - it boots, the career loads, and the team and money are there;
+  - the Market, Staff, Medical, Clubs, Transfers, main sponsor, scouting work, Contracts and annual calendar pages all answer;
+  - the 37 junior medics are added (the `grade` column too), with career state;
+  - the `scouting_jobs` and `transfer_deals` tables are added;
+  - three main-sponsor offers wait at the $39,500 first-season budget;
+  - it plays on 30 days (5 matches) with no server errors.
+- **The Steam script:** `steam/app_build_5233750-1.1.1.vdf`.
+  - ContentRoot `C:\build\vbe-1.1.1\win-unpacked\`, SetLive empty, Desc "v1.1.1 Clubs page, transfers, staff budget, junior medics (update-1 898cf287)".
+  - **Not uploaded.** Rob's Steamworks folder was not touched or opened. His SDK copy of the scripts would need this one for an upload.
+
+### 6. Commits this morning
+
+| Commit | What |
+|---|---|
+| `ae383571` | Junior medics; the AI clubs' cap holes |
+| `898cf287` | What the full build found: the weekly AI transfer step's speed, Pakistan, the portrait installer's numbering, four suites; **the package is built from this** |
+| `938ba1b3` | The proof's three fixes; rollover's walk turns AI bids down; staff-budget and transfer-window made reliable; salary-cap and ai-injuries source checks; the Steam script |
+| (the next) | This report |
+
+Nothing pushed, nothing uploaded to Steam, `main` and `launch-final` untouched, Rob's save never opened, Rob's Steamworks folder untouched.
+
+
 
 ## Summary
 
@@ -16,10 +208,13 @@ Brief: `docs/UPDATE1-1.1.1-BRIEF.md`. Branch **update-1**, on top of 1.1.0 (`359
 | 6. The calendar | done | `97deef35` |
 | 7. Words | done | `26802392` |
 | 8. Tests | done (one open finding, below) | (Part 8 commit) |
-| 9. Full build, soak, 1.1.1 | (below) | |
+| 9. Full build, soak, 1.1.1 | done 17 Oct: full build watched, package, proof, a 1.1.0 save (top of this report) | `898cf287` (package) |
 | 10. Scouting limit, youth cards, Watch List, Medical pill, scouted first | done | (Part 10 commit) |
 | 11. Staff budget (main sponsor) | done | (Part 10 commit) |
 | 12. Academy Renew at a job-market club | checked: it no longer happens; a check now drives it | (Part 10 commit) |
+| 17 Oct: AI clubs over the cap | done: 0 in every season of the soak | `ae383571` |
+| 17 Oct: junior medics | done | `ae383571` |
+| 17 Oct: what the full build found | done (rollover's speed, Pakistan, the installer, suites) | `898cf287`, 938ba1b3 |
 
 ## Decisions made
 
@@ -100,6 +295,13 @@ Brief: `docs/UPDATE1-1.1.1-BRIEF.md`. Branch **update-1**, on top of 1.1.0 (`359
 - **AI clubs choose too:** the biggest staff budget while they lack a coach or a medic, otherwise any of the three.
 - **Logos:** sponsors have none. `promo_deals.image_url` exists but no page reads it. The two images in `public/` (`prohydrate-sponsor.webp`, `swimwear-sponsor.webp`) are referenced nowhere. Cards show name and type (category).
 - **The harness:** like `VBE_STAFF_ABSENCES`, a harness-only `VBE_STAFF_BUDGET=off` lifts the refusals for suites about other things. The game never sets it; the staff-budget suite and the soak run with it on.
+
+**17 October**
+- **Renewals and buying ahead (every club).** A renewal of a contract that ends before a player bought ahead arrives must fit under the cap on that day, even at the same wage (`renewalCapRefusalTx`). The room that contract made is spoken for. Otherwise, as before, only a raise is checked (C-3 A).
+- **AI clubs count that room only for players they can do without.** A club must still field two until the new player comes, so it counts the cheaper of keeping its cheapest such players or the cheapest healthy free agents. A club short of two keeps room for the cheapest free agent who makes two.
+- **Junior medics.** A Registrar or Physio Assistant is promoted on a fixed day, between one and three years after joining a club (a hash of who she is, so a run is repeatable). A move starts the clock again. Her wage rises to the full role's wage for her new skill, never below what she was on. Promotion is this career's (`career_staff_state`), so the staff table and other careers keep her as a junior. A Surgeon doesn't promote.
+- **Two long suites over 30 minutes were let finish** (ai-club-economy, rollover's second run): each was advancing steadily when checked, and both are long by design. Rollover in the build was stopped, because it had slowed; the cause was found and fixed.
+- **Suites given room or patience, not looser checks:** ai-buyable and transfer-window give six AI clubs room in their own databases; staff-budget waits up to 150 days for a win; rollover's walk turns AI bids down. Each check still asks for the same thing.
 
 **Found while checking Parts 10 and 11 (fixed in the game)**
 - **Committed wage bill.** An AI club that agreed a buy-ahead (checked against its cap on her arrival date) could then refill or renew against today's wages, and be over the cap when she arrived. The soak found 12–21 such clubs a season. New spending is now checked against the committed bill: today's seniors plus every player bought ahead. That covers signings, renewals, raises, counter-offers and AI refills, for every club, the player's included.
@@ -312,7 +514,36 @@ Unchanged and passing alone: youth-loans 26/26, youth-market 9/9, youth-contract
 
 ## The soak
 
+`harness/long-career-update1.mjs`, 5 seasons, Medium, staff absences on, staff budget on. Final run, 17 Oct (cap fixes, junior medics), before the speed-up:
+
+| Season | 1 (2026) | 2 | 3 | 4 | 5 (2030) |
+|---|---|---|---|---|---|
+| AI clubs over the cap that signed anyone (must be 0) | **0** | **0** | **0** | **0** | **0** |
+| over it only through a promoted youth (C-5, allowed) | 7 | 5 | 2 | 4 | 5 |
+| AI clubs with 3 seniors (of 60) | 49 | 53 | 50 | 51 | 52 |
+| AI clubs with a coach and a medic | 36 | 36 | 28 | 30 | 38 |
+| AI seniors' average rating | 75.0 | 76.4 | 75.8 | 76.4 | 75.3 |
+| moves in the window / bought ahead | 0 / 0 | 0 / 0 | 3 / 3 | 1 / 2 | 2 / 2 |
+| AI bids in all | 0 | 0 | 3 | 4 | 2 |
+| AI bids on his seniors / players he lost | 0 / 0 | 0 / 0 | 1 / 1 | 0 / 0 | 0 / 0 |
+| most bids on one club (club) | 0 | 0 | 1 (42) | 3 (25) | 1 (2) |
+| most bids on one player | 0 | 0 | 1 | 3 (Beatriz Costa) | 1 |
+| youth sales (AI to AI) / loans started | 4 / 48 | 5 / 61 | 9 / 63 | 11 / 56 | 12 / 50 |
+| AI injuries | 102 | 119 | 100 | 83 | 116 |
+| AI balances: median (below zero) | $577,635 (0) | $598,248 (0) | $660,097 (0) | $714,643 (1) | $720,661 (1) |
+| free agents left | 162 | 183 | 228 | 261 | 295 |
+| AI clubs' staff (top staff, skill 85+) | 87 (36) | 94 (37) | 84 (28) | 88 (32) | 95 (39) |
+| AI staff budgets: median / top | $39,500 / $39,500 | $39,500 / $51,400 | $39,500 / $64,300 | $39,500 / $86,800 | $41,000 / $90,000 |
+| AI clubs that can't afford a missing coach or medic | 0 | 0 | 0 | 0 | 0 |
+| his staff budget (main sponsor) | $39,500 | $49,400 | $56,800 | $56,800 | $65,300 |
+
+- All 60 AI clubs have a main sponsor every season. AI clubs with fewer than two seniors to play: 14 club-days in 5 seasons.
+- **The re-run after the speed-up** (same code apart from the saved values): AI clubs over the cap that signed anyone 0/0/0/0/0; no AI bids at all in 5 seasons; 8 club-days short of two. AI buying is rare now, so one 5-season career can have none. AI-to-AI bids do happen under the same code: transfer-window saw 7, 1 and 6 in a year, and ai-buyable 25/25.
+- **AI bids per club or per player: still no limit (flagged, Rob decides).** In these runs the most on one club in a season was 3 and on one player 3, because there are few bids at all now.
+
 ## The package proof
+
+At the top of this report (section 5).
 
 ## What a 1.1.0 save gets on first load
 
@@ -320,6 +551,10 @@ Unchanged and passing alone: youth-loans 26/26, youth-market 9/9, youth-contract
 - No transfer deals exist yet. AI clubs start bidding in their next weekly step, and they buy ahead into the next window.
 - His players already under contract stay. Anyone he has held for 365 days or more can draw AI bids, and he answers each within 14 days.
 - AI academies and loans carry on. Any AI youth can now be asked for on loan or to buy from the Clubs page.
+- (17 Oct) The 37 junior medics are added (ids from 10001, `ensureSchema` Pass 3b), with this career's state; `staff.grade` and the `career_staff_state` promotion columns are added empty.
+- (17 Oct) Three main-sponsor offers wait (Finances, Staff Market, Medical Market); until one is chosen the staff budget is the first season's $39,500. Staff he already has stay, even if that is over it (SB-4).
+- (17 Oct) `scouting_jobs` is added empty. A report already out in a 1.1.0 save was not tested against the two-at-a-time limit.
+- Checked on the package: a copy of a genuine 1.1.0 save, 17/17 (top of this report, section 5).
 
 ## Part by part
 
