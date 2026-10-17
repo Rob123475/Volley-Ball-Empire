@@ -265,8 +265,11 @@ try {
     // squadRating - so the check read "squadRating undefined, pair stats NaN".
     // Caught by Gate 3 run 2 after run 1 passed on identical code.
     for (const p of [B, C]) setInjury(p.id, "Healthy", 0);
+    // 17 Oct (found by a full build): the stats are read BEFORE the match. At fitness 0 an injury is likely, and
+    // a serious one lowers a stat, so stats read after it can be below the ones the side was rated on.
+    const before = new Map([A, B, C].map((p) => [p.id, byId(p.id)]));
     const sim = await api("POST", `/matches/${matchId}/simulate`, {});
-    const pair = (sim.data?.lineup ?? []).map(byId);
+    const pair = (sim.data?.lineup ?? []).map((id) => before.get(id) ?? byId(id));
     const raw = pair.reduce((s, p) => s + mean6(p), 0) / pair.length;
     check(`at fitness ${fitness} the side is rated at ${factor} of the pair's stats`,
       sim.status === 200 && pair.length === 2 && Math.abs(sim.data?.squadRating - raw * factor) < 1e-6,
@@ -311,6 +314,12 @@ try {
   check("a one-week injury heals on the calendar's weekly tick, with no match rested required",
     aHealed.injury === "Healthy" && aHealed.injured === 0, `A ${aHealed.injury}, weeks ${aHealed.weeks}`);
 
+  // 17 Oct (found by a full build): the matches above can injure a starter and match-day substitution then
+  // swaps roles, leaving one starter ("Squad Incomplete" instead). This scene is two starters signed and two of
+  // three injured, so the roles are put back first.
+  for (const [p, role] of [[A, "interchange"], [B, "starter"], [C, "starter"]]) {
+    writeOne(`UPDATE career_player_state SET squad_role = ?, is_active = 1, on_injured_list = 0 WHERE career_save_id = ? AND player_id = ?`, role, cid, p.id);
+  }
   setInjury(B.id, "Minor Injury", 2);
   setInjury(C.id, "Major Injury", 3);
   const dash2 = (await api("GET", "/dashboard")).data?.nextMatchSelection;

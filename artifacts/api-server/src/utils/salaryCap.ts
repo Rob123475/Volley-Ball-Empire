@@ -26,7 +26,7 @@
  */
 import { MONEY, careerPlayerStateTable, playersTable, transferDealsTable, perksMonthly, db } from "@workspace/db";
 import { and, eq, inArray, or } from "drizzle-orm";
-import { aiSquadsTx } from "./aiSquads.js";
+import { aiSquadsTx, type AiMember } from "./aiSquads.js";
 
 type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
@@ -37,8 +37,8 @@ export const SALARY_CAP = MONEY.salaryCap.monthlyCap;
 
 type Senior = { playerId: number | null; salary: number; perks: string; contractEndDate: string | null };
 
-/** The seniors on a club's books, each with her wage, perks and contract end. */
-function seniorsOfTx(tx: Tx, careerSaveId: number, club: WageClub): Senior[] {
+/** The seniors on a club's books, each with her wage, perks and contract end. `squads`: the AI squads already built (aiSquadsTx), if the caller has them. */
+function seniorsOfTx(tx: Tx, careerSaveId: number, club: WageClub, squads?: ReadonlyMap<number, AiMember[]>): Senior[] {
   if ("teamId" in club) {
     return tx.select({
       playerId: careerPlayerStateTable.playerId, salary: careerPlayerStateTable.salary,
@@ -54,7 +54,7 @@ function seniorsOfTx(tx: Tx, careerSaveId: number, club: WageClub): Senior[] {
   }
   // An AI club's squad as every reader sees it (utils/aiSquads.ts): a pool
   // player not yet on a contract in this career is not on its books yet.
-  const squad = (aiSquadsTx(tx, careerSaveId).get(club.poolTeamId) ?? []).filter((m) => m.kind === "player" || m.contractEndDate != null);
+  const squad = ((squads ?? aiSquadsTx(tx, careerSaveId)).get(club.poolTeamId) ?? []).filter((m) => m.kind === "player" || m.contractEndDate != null);
   const ids = squad.filter((m) => m.kind === "player").map((m) => m.id);
   const perks = new Map(ids.length ? tx.select({ id: careerPlayerStateTable.playerId, perks: careerPlayerStateTable.perks }).from(careerPlayerStateTable)
     .where(and(eq(careerPlayerStateTable.careerSaveId, careerSaveId), inArray(careerPlayerStateTable.playerId, ids))).all().map((r) => [r.id, r.perks]) : []);
@@ -66,8 +66,8 @@ function seniorsOfTx(tx: Tx, careerSaveId: number, club: WageClub): Senior[] {
  * that date (1.1.1, AC-8 A): contracts ending before it, and players sold ahead
  * who have left by then, are out; players bought ahead who have arrived by then are in.
  */
-export function seniorWageBillTx(tx: Tx, careerSaveId: number, club: WageClub, on?: string): number {
-  let seniors = seniorsOfTx(tx, careerSaveId, club);
+export function seniorWageBillTx(tx: Tx, careerSaveId: number, club: WageClub, on?: string, squads?: ReadonlyMap<number, AiMember[]>): number {
+  let seniors = seniorsOfTx(tx, careerSaveId, club, squads);
   let extra = 0;
   if (on) {
     const deals = tx.select().from(transferDealsTable).where(and(eq(transferDealsTable.careerSaveId, careerSaveId), eq(transferDealsTable.status, "agreed"))).all()

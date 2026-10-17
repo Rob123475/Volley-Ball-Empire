@@ -202,10 +202,12 @@ function attributesFor(template, person, skill, wage) {
     const lo = band ? band[0] : existing[0].skill_level, hi = band ? band[1] : existing[existing.length - 1].skill_level;
     // Oldest first, then the names file's order; the picture numbers follow it.
     const order = [...people].sort((a, b) => b.age - a.age || a.file.localeCompare(b.file));
-    // Picture numbers after every picture already in the role's folder (the juniors share it).
-    const inFolder = db.prepare("SELECT image_url FROM staff WHERE image_url LIKE ?").all(`/images/staff/${folder}/%`);
-    const ownBefore = grade ? db.prepare("SELECT image_url FROM staff WHERE grade = ?").all(grade).map((r) => r.image_url) : [];
-    const firstNo = Math.max(0, ...inFolder.filter((r) => !ownBefore.includes(r.image_url)).map((r) => Number(r.image_url?.match(/staff-(\d+)\.webp$/)?.[1] ?? 0))) + 1;
+    // Picture numbers: a role's own run follows its seeded staff (so a re-run finds the pictures it wrote);
+    // a junior grade (1.1.1) follows every other picture in the role's folder, which it shares.
+    const before = grade
+      ? db.prepare("SELECT image_url FROM staff WHERE image_url LIKE ? AND (grade IS NULL OR grade <> ?)").all(`/images/staff/${folder}/%`, grade)
+      : existing;
+    const firstNo = Math.max(0, ...before.map((r) => Number(r.image_url?.match(/staff-(\d+)\.webp$/)?.[1] ?? 0))) + 1;
     order.forEach((p, i) => {
       const skill = order.length === 1 ? Math.round((lo + hi) / 2) : Math.round(hi - ((hi - lo) * i) / (order.length - 1));
       const template = existing.reduce((best, r) => (Math.abs(r.skill_level - skill) < Math.abs(best.skill_level - skill) ? r : best));

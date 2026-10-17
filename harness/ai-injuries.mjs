@@ -159,6 +159,9 @@ try {
   // and a physio together halve it, and 1.1.1's junior medics make that pair cheaper), so the results are
   // taken up to the first day either is fit again.
   let xWhileOut = null;
+  // 17 Oct (found by a full build): the injured list (night 2, O-10) lets the club sign or promote cover for two
+  // out 6 weeks, if its cap and bank allow; then it plays. The most fit seniors it had besides the two, while out:
+  let xCover = 0;
   const xResultIds = () => new Set(q(`SELECT r.id FROM regional_league_results r JOIN regional_league_fixtures f ON f.id = r.fixture_id
     WHERE r.career_save_id = ? AND (f.home_pool_team_id = ? OR f.away_pool_team_id = ?)`, cid, xClub, xClub).map((r) => r.id));
   for (let i = 0; i < 120; i++) {
@@ -166,6 +169,7 @@ try {
     await day();
     const now = aiSeniors();
     if (xWhileOut == null && xClub != null && now.some((s) => xHurt.has(s.id) && !injured(s))) xWhileOut = xResultIds();
+    if (xWhileOut == null && xClub != null) xCover = Math.max(xCover, now.filter((s) => s.club === xClub && !xHurt.has(s.id) && !injured(s)).length);
     const weekTicked = lastSalary() !== wasSalary;
     for (const s of now) {
       const p = prev.get(s.id);
@@ -195,8 +199,9 @@ try {
     WHERE r.career_save_id = ? AND (f.home_pool_team_id = ? OR f.away_pool_team_id = ?) ORDER BY f.round`, cid, xClub, xClub);
   // Only the matches played after the two were hurt (one may already have been played that day).
   const xEarly = xResults.filter((r) => !xResultsBefore.has(r.id) && (xWhileOut == null || xWhileOut.has(r.id))).slice(0, 4);
-  check("a club with two of its three out 6 weeks forfeited its next matches (0 sets, a walkover)",
-    xEarly.length > 0 && xEarly.every((r) => (r.home === xClub ? r.hs : r.as_) === 0), `${xEarly.map((r) => `${r.hs}-${r.as_}`).join(" ")}`);
+  check("a club with two of its three out 6 weeks forfeited its next matches (0 sets, a walkover), or played them with cover from its injured list",
+    xEarly.length > 0 && xEarly.every((r) => (r.home === xClub ? r.hs : r.as_) === 0 || xCover >= 2),
+    `${xEarly.map((r) => `${r.hs}-${r.as_}`).join(" ")}; at most ${xCover} fit besides the two while they were out`);
   const xNow = aiSeniors().filter((s) => xHurt.has(s.id));
   check("and its two healed on the clock (6 weeks, about 42 days on)", xNow.every((s) => !injured(s) || s.weeks < 6), xNow.map((s) => s.weeks).join(", "));
 

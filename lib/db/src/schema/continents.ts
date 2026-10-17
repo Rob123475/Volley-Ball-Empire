@@ -290,6 +290,7 @@ iso("NZ", ["New Zealand", "New Zealander"]);
 iso("NG", ["Nigeria", "Nigerian"]);
 iso("NO", ["Norway", "Norwegian"]);
 iso("OM", ["Oman", "Omani"]);
+iso("PK", ["Pakistan", "Pakistani"]);   // 1.1.1 (17 Oct): two junior medics are Pakistani; they had no flag
 iso("PA", ["Panama", "Panamanian"]);
 iso("PG", ["Papua New Guinea", "Papua New Guinean"]);
 iso("PE", ["Peru", "Peruvian"]);

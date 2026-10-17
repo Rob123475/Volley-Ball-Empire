@@ -442,8 +442,8 @@ function bestAffordableFreeAgent(tx: Tx, careerSaveId: number, poolTeamId: numbe
  * once `freeing`, the departing player's wage, has left). The refusal is in
  * plain words.
  */
-export function canSellTx(tx: Tx, careerSaveId: number, poolTeamId: number, clubName: string, freeing = 0): { ok: true } | { ok: false; reason: string } {
-  const squad = aiSquadsTx(tx, careerSaveId).get(poolTeamId) ?? [];
+export function canSellTx(tx: Tx, careerSaveId: number, poolTeamId: number, clubName: string, freeing = 0, squads?: ReadonlyMap<number, AiMember[]>): { ok: true } | { ok: false; reason: string } {
+  const squad = (squads ?? aiSquadsTx(tx, careerSaveId)).get(poolTeamId) ?? [];
   if (squad.length - 1 >= AI_MIN_SQUAD) return { ok: true };
   if (bestAffordableFreeAgent(tx, careerSaveId, poolTeamId, freeing)) return { ok: true };
   return { ok: false, reason: `${clubName} won't sell: it would be left without two players to put on the sand, and there is no free agent it can sign in her place.` };
@@ -616,13 +616,19 @@ export function aiTransfersWeekTx(w: CareerStateTx, careerSaveId: number, today:
     .where(and(eq(careerPoolTeamStateTable.careerSaveId, careerSaveId), isNull(careerPoolTeamStateTable.takenOverAt))).all().map((r) => r.id));
   const myTeam = careerTeamIdTx(w.tx, careerSaveId);
   let freeWages: number[] | undefined;
+  // 1.1.1 (17 Oct, found by the full build's timings): the squads, his bid-able seniors, and each candidate's
+  // price and open deal are the same for every buyer until a bid is made, so they are worked out once and
+  // again only after a bid (each buyer had rebuilt them: half a second a game week once few clubs had a deal).
+  let squadsNow: Map<number, AiMember[]> | null = null;
+  let robsNow: ReturnType<typeof robsSeniorsForBidsTx> | null = null;
+  const feeOf = new Map<number, number>(), openOf = new Map<number, boolean>();
   for (const buyer of weekOrder([...active], `${careerSaveId}:${today}:ai-transfers`)) {
     if (bids.length >= AI_TRANSFERS_PER_WEEK) break;
     // One deal at a time: a club already buying someone ahead waits for her.
     const buying = w.tx.select({ id: transferDealsTable.id }).from(transferDealsTable).where(and(eq(transferDealsTable.careerSaveId, careerSaveId),
       eq(transferDealsTable.toPoolTeamId, buyer), inArray(transferDealsTable.status, ["offered", "agreed"]))).get();
     if (buying) continue;
-    const squads = aiSquadsTx(w.tx, careerSaveId);
+    const squads = (squadsNow ??= aiSquadsTx(w.tx, careerSaveId));
     const mine = (squads.get(buyer) ?? []).filter((m) => !m.onList);
     if (mine.length < AI_MIN_SQUAD) continue;
     // Update 1, item 4c (Rob, 14 Oct): a full club may buy too, a player at
@@ -637,16 +643,18 @@ export function aiTransfersWeekTx(w: CareerStateTx, careerSaveId: number, today:
     const theirs = [...squads.entries()].filter(([club]) => club !== buyer && active.has(club)).flatMap(([, squad]) => squad)
       .filter((m) => m.kind === "player" && !m.injured && !m.onList && (m.joinedOn == null || daysBetween(m.joinedOn, today) >= AI_KEEP_DAYS))
       .map((m) => ({ id: m.id, name: m.name, rating: m.rating, salary: m.salary, contractEndDate: m.contractEndDate, priced: { ...m, askingPrice: null } }));
-    const robs = myTeam == null ? [] : robsSeniorsForBidsTx(w.tx, careerSaveId, myTeam, today);
+    const robs = myTeam == null ? [] : (robsNow ??= robsSeniorsForBidsTx(w.tx, careerSaveId, myTeam, today));
+    const open = (id: number) => { let o = openOf.get(id); if (o == null) { o = !!openDealForTx(w.tx, careerSaveId, id); openOf.set(id, o); } return o; };
+    const priceOf = (m: { id: number; priced: unknown }) => { let f = feeOf.get(m.id); if (f == null) { f = marketPrice(careerSaveId, m.priced as Parameters<typeof marketPrice>[1]).price; feeOf.set(m.id, f); } return f; };
     const target = [...theirs, ...robs]
-      .filter((m) => m.rating >= bar && !openDealForTx(w.tx, careerSaveId, m.id))
-      .map((m) => ({ m, fee: marketPrice(careerSaveId, m.priced as Parameters<typeof marketPrice>[1]).price }))
+      .filter((m) => m.rating >= bar && !open(m.id))
+      .map((m) => ({ m, fee: priceOf(m) }))
       .filter(({ fee }) => balance >= fee + AI_BUY_RESERVE)
       .sort((a, b) => b.m.rating - a.m.rating || a.m.id - b.m.id)
       .find(({ m }) => {
         const holding = w.tx.select({ p: careerPlayerStateTable.poolTeamId }).from(careerPlayerStateTable)
           .where(and(eq(careerPlayerStateTable.careerSaveId, careerSaveId), eq(careerPlayerStateTable.playerId, m.id))).get()?.p ?? null;
-        return holding == null || canSellTx(w.tx, careerSaveId, holding, "", m.salary).ok;
+        return holding == null || canSellTx(w.tx, careerSaveId, holding, "", m.salary, squads).ok;
       });
     if (!target) continue;
     // Its terms: her wage plus AI_TRANSFER_TERMS.wageRise, its own length, and perks it can afford under the cap.
@@ -666,11 +674,12 @@ export function aiTransfersWeekTx(w: CareerStateTx, careerSaveId: number, today:
       .where(and(eq(careerPlayerStateTable.careerSaveId, careerSaveId), eq(careerPlayerStateTable.playerId, m.id))).get()?.p ?? "")), 0);
     const free = keep.length === 0 ? [] : (freeWages ??= cheapestFreeWagesTx(w.tx, careerSaveId)).slice(0, keep.length);
     const fillCost = free.length === keep.length ? free.reduce((t, x) => t + x, 0) : Infinity;
-    const room = SALARY_CAP - (seniorWageBillTx(w.tx, careerSaveId, { poolTeamId: buyer }, arrivesOn) - freeing + Math.min(keepCost, fillCost)) - wage;
+    const room = SALARY_CAP - (seniorWageBillTx(w.tx, careerSaveId, { poolTeamId: buyer }, arrivesOn, squads) - freeing + Math.min(keepCost, fillCost)) - wage;
     if (room < 0) continue;
     const terms ={ wage, length: lengthForRating(clubRating(w.tx, buyer)), perks: aiOfferPerks(wage, room) };
     const r = bidTx(w, careerSaveId, { poolTeamId: buyer }, target.m.id, terms, target.fee, today, freeing);
     if (!r.ok) continue;
+    squadsNow = null; robsNow = null; feeOf.clear(); openOf.clear();
     bids.push({ player: target.m.name, from: r.deal.fromTeamId != null ? "player" : String(r.deal.fromPoolTeamId), to: buyer, fee: target.fee, outcome: r.outcome });
   }
   keepAiSquadsTx(w, careerSaveId, today, seasonEnds);

@@ -312,6 +312,15 @@ try {
   await shot("staff-scouting-work");
   step("Part 10: youth cards, Watch List, Medical pill, scouting work", out.part10);
 
+  // 1.1.1 (Rob, 17 Oct): the junior medics on the Medical Market, each card titled with her grade and role.
+  await nav("/medical-market");
+  await waitFor(`/Registrar/.test(document.body.innerText)`, 20000); await sleep(1500);
+  out.juniorMedics = await ev(`(() => { const t = document.body.innerText;
+    const n = (re) => (t.match(re) ?? []).length;
+    return { registrars: n(/Registrar · /g), physioAssistants: n(/Physio Assistant · /g), surgeons: n(/Orthopaedic Surgeon · /g), sample: (t.match(/Registrar · [^\\n]+/) ?? [null])[0] }; })()`);
+  await shot("medical-market-junior-medics");
+  step("junior medics on the Medical Market", out.juniorMedics);
+
   // Rob, 16 Oct: Exit game, from Settings: asked in the page; Cancel keeps the game; Exit closes the app itself.
   await nav("/settings");
   await waitFor(`!!document.querySelector('[data-testid="settings-exit"]')`, 20000);
