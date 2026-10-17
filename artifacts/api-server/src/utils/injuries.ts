@@ -22,7 +22,7 @@
  * (utils/condition.ts matchInjuryRoll).
  */
 import {
-  careerPlayerStateTable, careerInjuriesTable, playersTable, facilitiesTable, careerPoolTeamStateTable, MONEY,
+  careerPlayerStateTable, careerInjuriesTable, playersTable, facilitiesTable, careerPoolTeamStateTable, careerSavesTable, db, sqlite, MONEY,
   INJURY_TYPES, INJURY_TREATMENT, RECONSTRUCTION, INJURED_LIST, LEGACY_INJURIES, injuryInfo, reconstructionName,
   type BodyArea,
 } from "@workspace/db";
@@ -258,6 +258,41 @@ export function refreshClubInjuryClocks(careerSaveId: number, teamId: number): n
  * weeks out stay as they are, her base weeks left are what gives that at her
  * club's factor today, and she gets no history. Boot, every save; idempotent.
  */
+/**
+ * 1.1.1 (Rob's check, 17 Oct): a save from before night 2 still keeps that season's injuries in the old
+ * injury_history table (the player's club's only: AI players were never injured then), which nothing reads
+ * since career_injuries replaced it. They are carried into career_injuries once, named as
+ * convertLegacyInjuries names them, so the Other Clubs page's injuries this season, the Medical page's
+ * figures and the reconstruction rule count them. Boot, every save; a row already carried is not carried again.
+ */
+export function carryLegacyInjuryHistory(): number {
+  if (!sqlite.prepare("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'injury_history'").get()) return 0;
+  const rows = sqlite.prepare("SELECT team_id AS teamId, player_id AS playerId, injury_type AS type, days_missed AS days, date_injured AS at FROM injury_history")
+    .all() as Array<{ teamId: number | null; playerId: number | null; type: string | null; days: number | null; at: number | null }>;
+  let carried = 0;
+  db.transaction((tx) => {
+    for (const r of rows) {
+      if (r.teamId == null || r.playerId == null || r.at == null) continue;
+      const save = tx.select({ id: careerSavesTable.id }).from(careerSavesTable)
+        .where(or(eq(careerSavesTable.teamId, r.teamId), eq(careerSavesTable.formerTeamId, r.teamId))).get();
+      if (!save) continue;
+      const gameDate = new Date(Number(r.at) > 1e12 ? Number(r.at) : Number(r.at) * 1000).toISOString().slice(0, 10);
+      const name = LEGACY_INJURIES[r.type ?? ""] ?? r.type ?? "Minor Injury";
+      const info = injuryInfo(name);
+      if (!info?.area) continue;
+      const already = tx.select({ id: careerInjuriesTable.id }).from(careerInjuriesTable).where(and(
+        eq(careerInjuriesTable.careerSaveId, save.id), eq(careerInjuriesTable.playerId, r.playerId), eq(careerInjuriesTable.gameDate, gameDate))).get();
+      if (already) continue;
+      const weeks = round2(Math.max(0, Number(r.days ?? 0)) / 7);
+      tx.insert(careerInjuriesTable).values({
+        careerSaveId: save.id, playerId: r.playerId, injury: name, area: info.area, gameDate, weeksOut: weeks, baseWeeks: weeks, reconstruction: false, teamId: r.teamId,
+      }).run();
+      carried++;
+    }
+  });
+  return carried;
+}
+
 export function convertLegacyInjuries(): { converted: number } {
   return withCareerStateTx((w) => {
     const s = careerPlayerStateTable;

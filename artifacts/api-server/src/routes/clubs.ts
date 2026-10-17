@@ -12,8 +12,8 @@
  * Two ladders: the World Tour's (worldTourStandingsTx), for the clubs in this
  * season's field (the player's club plays only this one), and each AI club's
  * regional league (computeLadderForSeason, this year's season of its
- * continent). Tier is this season's ranking points' tier (tierForPoints), as
- * the Dashboard shows it. A player's attributes are
+ * continent). Tier is the Dashboard's (shownTier: the higher of this season's
+ * points' tier and the tier the club is paid at this season). A player's attributes are
  * hidden until scouted, by the Player Market's own rule (isRevealed); the page
  * shows each senior through her Player Market card (GET /players/market-all).
  */
@@ -27,7 +27,9 @@ import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { loadPlayers, loadStaffTx, requireCareerSaveId, withCareerStateTx, type PlayerDTO } from "../lib/playerDto.js";
 import { careerGameDateTx } from "../utils/gameDate.js";
 import { worldTourStandingsTx, type StandingRow } from "../utils/worldTour.js";
-import { tierForPoints } from "../utils/tierQualification.js";
+import { tierForPoints, shownTier } from "../utils/tierQualification.js";
+import { purseAccessTierFor } from "../utils/rankingPoints.js";
+import { accessTierByPoolIdTx } from "../utils/poolClubFinances.js";
 import { seniorWageBillTx, wageCapView } from "../utils/salaryCap.js";
 import { clubManagersOf, playerManagerCard } from "../utils/managerFaces.js";
 import { materializeAiSeniorsTx } from "../utils/aiSquads.js";
@@ -85,8 +87,11 @@ router.get("/clubs", async (req, res) => {
   const { today, year, standings } = careerContext(cid);
   const managers = clubManagersOf(cid);
   const regional = await regionalPositions(cid);
+  // The tier each club is paid at this season (shownTier): his by his difficulty or last season, an AI club's by last season.
+  const myPaidTier = await purseAccessTierFor(cid, team.id, year);
 
   const rows = db.transaction((tx) => {
+    const aiPaidTier = accessTierByPoolIdTx(tx, cid, year);
     const injuries = tx.select({ teamId: careerInjuriesTable.teamId, poolTeamId: careerInjuriesTable.poolTeamId }).from(careerInjuriesTable)
       .where(and(eq(careerInjuriesTable.careerSaveId, cid), gte(careerInjuriesTable.gameDate, `${year}-01-01`))).all();
     const injuriesOf = (c: { teamId?: number; poolTeamId?: number }) =>
@@ -95,7 +100,8 @@ router.get("/clubs", async (req, res) => {
       const s = standingFor(standings, c);
       const bill = seniorWageBillTx(tx, cid, c.teamId != null ? { teamId: c.teamId } : { poolTeamId: c.poolTeamId! });
       return {
-        tier: tierForPoints(s?.points ?? 0), ladderPosition: s?.rank ?? null, points: s?.points ?? 0,
+        tier: shownTier(tierForPoints(s?.points ?? 0), c.teamId != null ? myPaidTier : (aiPaidTier.get(c.poolTeamId!) ?? "Bronze")),
+        ladderPosition: s?.rank ?? null, points: s?.points ?? 0,
         regionalPosition: c.poolTeamId != null ? (regional.get(c.poolTeamId) ?? null) : null,
         wins: s?.wins ?? 0, losses: s?.losses ?? 0, form: s?.form ?? [],
         wages: wageCapView(bill), injuries: injuriesOf(c),
@@ -203,7 +209,8 @@ router.get("/clubs/:id", async (req, res) => {
     club: { id: club.id, name: club.name, continent: club.continent, primaryColor: club.primaryColor, secondaryColor: club.secondaryColor,
       balance: Math.round(Number(club.balance)) },
     manager: clubManagersOf(cid).get(poolTeamId) ?? null,
-    tier: tierForPoints(s?.points ?? 0), ladderPosition: s?.rank ?? null, regionalPosition, points: s?.points ?? 0, wins: s?.wins ?? 0, losses: s?.losses ?? 0,
+    tier: shownTier(tierForPoints(s?.points ?? 0), db.transaction((tx) => accessTierByPoolIdTx(tx, cid, year)).get(poolTeamId) ?? "Bronze"),
+    ladderPosition: s?.rank ?? null, regionalPosition, points: s?.points ?? 0, wins: s?.wins ?? 0, losses: s?.losses ?? 0,
     seasonYear: year,
     lastFive: detail.lastFive,
     wages: detail.wages,

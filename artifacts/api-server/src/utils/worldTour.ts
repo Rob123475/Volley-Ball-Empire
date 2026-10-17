@@ -53,8 +53,10 @@ import { updatePlayerState, withCareerStateTx, type CareerStateTx } from "../lib
 
 type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
-export const SEMI_FINAL_TIER = "World Semi Final";
-export const FINAL_TIER = "World Final";
+// 1.1.1 (17 Oct): these three live with the schedule (data/worldTour.ts), which imports nothing, so
+// utils/seasonPhase.ts can read them without the cycle worldTour -> routes/matches -> seasonPhase -> worldTour.
+import { SEMI_FINAL_TIER, FINAL_TIER, WORLD_TOUR_EVENT_ROUNDS } from "../data/worldTour.js";
+export { SEMI_FINAL_TIER, FINAL_TIER, WORLD_TOUR_EVENT_ROUNDS };
 
 /** A player match the player did not earn a place in. Never played, never paid. */
 export const NOT_QUALIFIED = "not_qualified";
@@ -174,15 +176,6 @@ export type DrawOutcome =
 export const BYE = "bye";
 export const BYE_MESSAGE = "Your club has a bye this round: there is no match to play.";
 
-/**
- * The regular World Tour's event rounds, from the schedule itself. R-44 took three
- * Bronze events off the calendar (rounds 41, 51 and 61 are open dates), leaving 57:
- * three full cycles of a 19-club field.
- */
-export const WORLD_TOUR_EVENT_ROUNDS: readonly number[] = WORLD_TOUR
-  .filter((e) => e.tier !== SEMI_FINAL_TIER && e.tier !== FINAL_TIER)
-  .map((e) => e.round)
-  .sort((a, b) => a - b);
 
 /**
  * Where the player's club sits in the rotation. The circle method rests the fixed

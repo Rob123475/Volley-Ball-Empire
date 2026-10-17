@@ -115,7 +115,7 @@ const topics = ["The Day 1 draft", "The salary cap", "Hire your staff and medica
   // Night 2 (O-6 to O-10): the staff roles, real injuries, and the injured list.
   "Every staff role has its own job", "Real injuries", "The injured list, cover and promotion at ",
   // 1.1.1 (part 7): transfers, perks, youth deals and the Clubs page.
-  "The transfer window", "Buying ahead", "No dumping", "One chance to keep her", "Perks", "Youth deals and scouts", "The Clubs page",
+  "The transfer window", "Buying ahead", "No dumping", "One chance to keep her", "Perks", "Youth deals and scouts", "The Other Clubs page",
   // 1.1.1, part 11: the staff budget.
   "Your main sponsor and the staff budget",
   // 1.1.1 (17 Oct): junior medics.

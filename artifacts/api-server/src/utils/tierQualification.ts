@@ -64,6 +64,16 @@ export function isTier(value: unknown): value is Tier {
 }
 
 /** The tier a season's ranking points reach. */
+/**
+ * 1.1.1 (Rob's check, 17 Oct): the tier a club is shown at, on every screen (the Dashboard, the Other Clubs
+ * list and each club's page): the higher of the tier this season's points reach and the tier it is paid in
+ * full at this season (the overnight brief of 30 Sep, Q-1; the player's: rankingPoints.ts purseAccessTierFor,
+ * an AI club's: poolClubFinances.ts accessTierByPoolIdTx). The Other Clubs page had shown the points alone.
+ */
+export function shownTier(pointsTier: Tier, paidTier: Tier): Tier {
+  return TIERS[Math.max(TIERS.indexOf(pointsTier), TIERS.indexOf(paidTier))]!;
+}
+
 export function tierForPoints(points: number): Tier {
   if (points >= TIER_THRESHOLDS.Gold) return "Gold";
   if (points >= TIER_THRESHOLDS.Silver) return "Silver";

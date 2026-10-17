@@ -102,7 +102,7 @@ router.post("/contracts", async (req, res) => {
   // market. 1.1.1, Part 5: she is asked for from her club, on loan or to buy
   // (the Clubs page; POST /youth-deals).
   if (player.poolTeamId != null && isYouth) {
-    res.status(422).json({ error: `${player.name} is at an AI club's academy: ask her club for her on loan or to buy (Clubs page).` });
+    res.status(422).json({ error: `${player.name} is at an AI club's academy: ask her club for her on loan or to buy (Other Clubs page).` });
     return;
   }
   // Daytime 2 Oct, U-6: a senior at an AI club is bought from it, on the same

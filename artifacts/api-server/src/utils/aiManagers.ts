@@ -21,7 +21,7 @@
  */
 import {
   careerPoolTeamStateTable, continentalPoolTeamsTable, competitorRankingsTable, competitorsTable, careerSavesTable,
-  boardSeasonsTable, CONTINENT_LABEL, MANAGER_LEVELS, db, type ContinentKey,
+  boardSeasonsTable, seasonsTable, CONTINENT_LABEL, MANAGER_LEVELS, db, type ContinentKey,
 } from "@workspace/db";
 import { and, eq, isNotNull, isNull } from "drizzle-orm";
 import { worldTourFieldTx, worldTourStandingsTx, poolClubRatingsTx } from "./worldTour.js";
@@ -64,6 +64,24 @@ export function ensureAiManagersTx(tx: Tx, careerSaveId: number, year: number): 
     if (c.managerName == null && c.vacantSince == null && appoint(tx, careerSaveId, c, year) != null) n++;
   }
   return n;
+}
+
+/**
+ * 1.1.1 (Rob's check, 17 Oct): a career made before the AI clubs had managers showed every AI club's job
+ * as vacant until its season ended. It gets them when it loads, as a new career does at its Day 1 draft
+ * (ensureAiManagersTx: every club with no manager and no open vacancy; a vacancy stays open). Boot, every
+ * save; a career whose clubs all have managers is left as it is.
+ */
+export function appointManagersForOlderCareers(): number {
+  let appointed = 0;
+  for (const { id } of db.select({ id: careerSavesTable.id }).from(careerSavesTable).all()) {
+    db.transaction((tx) => {
+      const season = tx.select({ year: seasonsTable.year }).from(seasonsTable)
+        .where(and(eq(seasonsTable.careerSaveId, id), eq(seasonsTable.status, "active"))).get();
+      if (season) appointed += ensureAiManagersTx(tx, id, season.year);
+    });
+  }
+  return appointed;
 }
 
 /** Where each club in this season's field finished, by competitor standings. */

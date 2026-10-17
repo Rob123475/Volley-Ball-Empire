@@ -21,6 +21,7 @@ import { MarketPlayerCard, RevealedSigningDialog, useMarketActions } from "@/pag
 import { YouthDealDialog } from "@/components/youth-deal-dialog";
 import { scoutedFirst } from "@/components/sort-menu";
 import { cn } from "@/lib/utils";
+import { continentLabel } from "@shared/continents";
 
 type Manager = { name: string; image: string; speciality: string; effect: string; isPlayer: boolean } | null;
 type Wages = { seniorWages: number; cap: number; room: number };
@@ -68,7 +69,7 @@ const CLUB_SORTS = {
   poorest:        { label: "Poorest",               cmp: (a: ClubRow, b: ClubRow) => a.balance - b.balance },
   successful:     { label: "Most successful",       cmp: (a: ClubRow, b: ClubRow) => (a.ladderPosition ?? 999) - (b.ladderPosition ?? 999) || b.points - a.points || (a.regionalPosition ?? 999) - (b.regionalPosition ?? 999) },
   injuryProne:    { label: "Most injury-prone",     cmp: (a: ClubRow, b: ClubRow) => b.injuries - a.injuries },
-  continent:      { label: "Continent",             cmp: (a: ClubRow, b: ClubRow) => (a.continent ?? "~").localeCompare(b.continent ?? "~") || a.name.localeCompare(b.name) },
+  continent:      { label: "Continent",             cmp: (a: ClubRow, b: ClubRow) => (a.continent ? continentLabel(a.continent) : "~").localeCompare(b.continent ? continentLabel(b.continent) : "~") || a.name.localeCompare(b.name) },
   name:           { label: "Name",                  cmp: (a: ClubRow, b: ClubRow) => a.name.localeCompare(b.name) },
 } as const;
 type ClubSort = keyof typeof CLUB_SORTS;
@@ -93,7 +94,7 @@ export default function ClubsPage() {
     <div className="space-y-5" data-testid="clubs-page">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight text-primary flex items-center gap-3"><Shield className="h-8 w-8 text-secondary" /> Clubs</h2>
+          <h2 className="text-3xl font-bold tracking-tight text-primary flex items-center gap-3"><Shield className="h-8 w-8 text-secondary" /> Other Clubs</h2>
           <p className="text-muted-foreground text-sm">Every club this season{data ? ` (${data.seasonYear})` : ""}. Ladder: World Tour position for the clubs in this season's World Tour, and each AI club's regional league position. Record: World Tour.</p>
         </div>
         <label className="inline-flex items-center gap-2 text-xs font-semibold text-muted-foreground">
@@ -125,7 +126,7 @@ export default function ClubsPage() {
                         <span>{c.name}{c.kind === "mine" ? " (you)" : ""}</span>
                       </span>
                     </td>
-                    <td className="p-2">{c.continent ?? "—"}</td>
+                    <td className="p-2">{c.continent ? continentLabel(c.continent) : "—"}</td>
                     <td className="p-2">{c.tier}</td>
                     <td className="p-2 whitespace-nowrap">{c.ladderPosition ? `WT #${c.ladderPosition}` : "—"}{c.regionalPosition ? ` · Reg #${c.regionalPosition}` : ""}</td>
                     <td className="p-2">{c.wins}-{c.losses}</td>
@@ -159,14 +160,14 @@ export function ClubDetailPage() {
   const { club } = data;
   return (
     <div className="space-y-5" data-testid="club-detail">
-      <Button variant="ghost" size="sm" className="gap-1" onClick={() => navigate("/clubs")}><ArrowLeft className="h-4 w-4" /> Clubs</Button>
+      <Button variant="ghost" size="sm" className="gap-1" onClick={() => navigate("/clubs")}><ArrowLeft className="h-4 w-4" /> Other Clubs</Button>
       <Card>
         <CardContent className="p-4 flex flex-wrap items-center gap-5">
           <ClubCrest name={club.name} primaryColor={club.primaryColor ?? undefined} secondaryColor={club.secondaryColor ?? undefined} size={56} />
           <div className="space-y-1">
             <h2 className="text-2xl font-black text-primary" data-testid="club-name">{club.name}</h2>
             <p className="text-sm text-muted-foreground">
-              {club.continent} · {data.tier} tier · World Tour {data.ladderPosition ? `#${data.ladderPosition}` : "—"} ({data.points} pts){data.regionalPosition ? ` · Regional #${data.regionalPosition}` : ""} · {data.wins}-{data.losses} in {data.seasonYear}
+              {continentLabel(club.continent)} · {data.tier} tier · World Tour {data.ladderPosition ? `#${data.ladderPosition}` : "—"} ({data.points} pts){data.regionalPosition ? ` · Regional #${data.regionalPosition}` : ""} · {data.wins}-{data.losses} in {data.seasonYear}
             </p>
             <p className="text-sm">Balance {money(club.balance)} · Senior wages {money(data.wages.seniorWages)} of {money(data.wages.cap)}</p>
             <ManagerLine manager={data.manager} />

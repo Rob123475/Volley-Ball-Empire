@@ -19,7 +19,7 @@
 import {
   FINALS_SLOTS, FINALS_START, REGIONAL_SLOTS, getSlotType,
 } from "./calendarSlots.js";
-import { WORLD_TOUR_EVENT_ROUNDS } from "./worldTour.js";
+import { WORLD_TOUR_EVENT_ROUNDS } from "../data/worldTour.js";
 
 export type SeasonPhaseKey = "continental" | "world_tour" | "finals" | "off_season";
 

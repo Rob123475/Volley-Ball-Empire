@@ -234,12 +234,12 @@ export const UPDATE1_RULES: ReadonlyArray<{ title: string; points: string[] }> =
     "Contracts signed before 1.1.1 have none. Add them at renewal.",
   ] },
   { title: "Youth deals and scouts", points: [
-    "Any AI club's academy youth can be asked for, on loan or to buy, at any time (the Clubs page). A loan of 6 or 12 months is always agreed while her age allows it.",
+    "Any AI club's academy youth can be asked for, on loan or to buy, at any time (the Other Clubs page). A loan of 6 or 12 months is always agreed while her age allows it.",
     "A sale is her club's choice, and your Scout does the talking. Without a Scout, your best coach does.",
     `A weak scout gets only a loan. With a scout of 50, 70 or 90, a club with few youths sells about ${[50, 70, 90].map((k) => `${Math.round(youthSaleChance(k, 3, false, false) * 100)}%`).join(", ")} of the time, and a club with many about ${[50, 70, 90].map((k) => `${Math.round(youthSaleChance(k, 5, false, false) * 100)}%`).join(", ")}. Half that if she plays in its youth team; more if it needs cash.`,
     `Its answer holds for ${YOUTH_DEALS.answerDays} days. A bought youth joins your academy (6 places), and her club is paid her youth price. The AI clubs buy each other's youths the same way.`,
   ] },
-  { title: "The Clubs page", points: [
+  { title: "The Other Clubs page", points: [
     "Every club in the game, yours included: badge, continent, tier, World Tour ladder and regional position, record, balance, wages against the cap and injuries.",
     "Sort by richest, poorest, most successful, most injury prone, continent or name.",
     "Open an AI club for its players (scout, watch or buy each senior on her market card; loan or buy each youth) and its staff and medical team.",

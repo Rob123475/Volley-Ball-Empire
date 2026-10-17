@@ -1,4 +1,4 @@
-import { TIERS } from "../utils/tierQualification.js";
+import { shownTier } from "../utils/tierQualification.js";
 import { Router } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
@@ -121,7 +121,7 @@ router.get("/dashboard", async (req, res) => {
     ? await (async () => {
         const now = await currentRanking(cid, team.id, activeSeason.year);
         const purseAccessTier = await purseAccessTierFor(cid, team.id, activeSeason.year);
-        const tier = TIERS[Math.max(TIERS.indexOf(now.tier), TIERS.indexOf(purseAccessTier))]!;
+        const tier = shownTier(now.tier, purseAccessTier);
         return { points: now.rankingPoints, tier, pointsTier: now.tier, purseAccessTier };
       })()
     : null;

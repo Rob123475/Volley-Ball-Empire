@@ -268,8 +268,8 @@ function fieldPoolIdsTx(tx: Tx, careerSaveId: number, seasonYear: number): Set<n
   );
 }
 
-/** The tier each pool club is paid in full at this season, from last season's points. */
-function accessTierByPoolIdTx(tx: Tx, careerSaveId: number, seasonYear: number): Map<number, Tier> {
+/** The tier each pool club is paid in full at this season, from last season's points (none: Bronze). */
+export function accessTierByPoolIdTx(tx: Tx, careerSaveId: number, seasonYear: number): Map<number, Tier> {
   const rows = tx.select({
     poolTeamId: competitorsTable.poolTeamId,
     points:     competitorRankingsTable.rankingPoints,

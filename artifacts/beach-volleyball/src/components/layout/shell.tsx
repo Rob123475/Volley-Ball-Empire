@@ -121,7 +121,7 @@ const NAV_GROUPS: NavGroup[] = [
   { id: "calendar", label: "Season Cal",   icon: CalendarDays, href: "/annual-calendar" },
   { id: "finances", label: "Finances",     icon: DollarSign,  href: "/finances"         },
   // 1.1.1, Part 1: every club, the player's included.
-  { id: "clubs",    label: "Clubs",        icon: Shield,      href: "/clubs"            },
+  { id: "clubs",    label: "Other Clubs",  icon: Shield,      href: "/clubs"            },
   { id: "career",   label: "Career",   icon: FolderOpen, href: "/career"   },
   // Update 1, overnight part 8: the gear.
   { id: "settings", label: "Settings", icon: SettingsIcon, href: "/settings" },

@@ -28,7 +28,7 @@ console.log("=".repeat(72));
 
 try {
   await W.boot();
-  const { teamId, cid } = await W.newCareer("Clubs Page");
+  const { teamId, cid, profileId } = await W.newCareer("Clubs Page");
 
   // ── 1. The list ───────────────────────────────────────────────────────────
   console.log("\n1. EVERY CLUB, THE PLAYER'S INCLUDED");
@@ -41,6 +41,11 @@ try {
     && c.wages?.cap === 60000 && typeof c.wages.seniorWages === "number" && typeof c.injuries === "number" && typeof c.wins === "number" && typeof c.losses === "number";
   check("each row: badge colours, continent, tier, ladder, record, balance, \"$X of $60,000\", injuries",
     clubs.every(whole) && clubs.filter((c) => c.kind === "ai").every((c) => !!c.continent && !!c.primaryColor), JSON.stringify(clubs[1]).slice(0, 200));
+  // 1.1.1 (Rob's check, 17 Oct): his row said Bronze while his Dashboard said Silver. One rule now (shownTier):
+  // the higher of this season's points' tier and the tier the club is paid at (an Established career: Silver).
+  const dash = (await W.api("GET", "/dashboard")).data;
+  check("his row's tier is his Dashboard's (the higher of this season's points' tier and the tier he is paid at)",
+    !!dash?.ranking?.tier && mine?.tier === dash.ranking.tier, `row ${mine?.tier}, Dashboard ${dash?.ranking?.tier} (points ${dash?.ranking?.pointsTier}, paid ${dash?.ranking?.purseAccessTier})`);
 
   // ── 2. The Sort menu ──────────────────────────────────────────────────────
   console.log("\n2. THE SORT MENU AND THE MENU ENTRY");
@@ -50,8 +55,14 @@ try {
     sorts.every((k) => new RegExp(`\\b${k}:\\s*\\{ label:`).test(page)) && /label: "Most successful"/.test(page) && /label: "Most injury-prone"/.test(page));
   check("(source) most successful is the World Tour ladder position, then ranking points, then the regional position",
     /successful:[^\n]*\(a\.ladderPosition \?\? 999\) - \(b\.ladderPosition \?\? 999\) \|\| b\.points - a\.points \|\| \(a\.regionalPosition \?\? 999\) - \(b\.regionalPosition \?\? 999\)/.test(page));
-  check("(source) Clubs is in the side menu between Finances and Career",
-    shell.indexOf('id: "finances"') < shell.indexOf('id: "clubs"') && shell.indexOf('id: "clubs"') < shell.indexOf('id: "career"') && /label: "Clubs"/.test(shell));
+  // 1.1.1 (Rob's check, 17 Oct): "Other Clubs", as "Club" sits right above it.
+  check("(source) Other Clubs is in the side menu between Finances and Career, and the page is titled so",
+    shell.indexOf('id: "finances"') < shell.indexOf('id: "clubs"') && shell.indexOf('id: "clubs"') < shell.indexOf('id: "career"') && /label: "Other Clubs"/.test(shell)
+      && page.includes("/> Other Clubs</h2>"));
+  // And continents by the game's names (South America, not south_america), on the list, its sort and each club's page.
+  check("(source) continents show by name (continentLabel) on the list, in its sort and on each club's page",
+    page.includes('{c.continent ? continentLabel(c.continent) : "—"}') && page.includes("{continentLabel(club.continent)} · ")
+      && page.includes("a.continent ? continentLabel(a.continent)") && page.includes('import { continentLabel } from "@shared/continents";'));
   check("(source) the player's own club opens his Club page", /navigate\(c\.kind === "mine" \? "\/club" : `\/clubs\/\$\{c\.id\}`\)/.test(page));
 
   // Into the season: Jan 8's staff and the first World Tour matches.
@@ -121,6 +132,28 @@ try {
     /<MarketPlayerCard player=\{card\} onSign=\{actions\.handleSign\} onScout=\{actions\.handleScout\} onWatch=\{actions\.handleWatch\}/.test(page)
       && /export function useMarketActions\(\)/.test(players) && /export function MarketPlayerCard\(/.test(players));
   check("an unknown club is refused", (await W.api("GET", "/clubs/999999")).status === 404);
+
+  // ── 6. A career from before 1.1.1 ─────────────────────────────────────────
+  // Rob's check (17 Oct): every AI club read "Manager's job vacant" (his career was older than the AI managers,
+  // who were appointed only at a Day 1 draft or a season's end), and the injuries column read 0 (his season's
+  // injuries were in the old injury_history table). Made here in this suite's own database, then restarted.
+  console.log("\n6. A CAREER FROM BEFORE 1.1.1: ITS AI MANAGERS AND ITS OLD INJURY HISTORY");
+  W.w(`UPDATE career_pool_team_state SET manager_name = NULL, manager_face_id = NULL, vacant_since = NULL WHERE career_save_id = ? AND taken_over_at IS NULL`, cid);
+  W.w(`CREATE TABLE IF NOT EXISTS injury_history (id INTEGER PRIMARY KEY AUTOINCREMENT, team_id INTEGER, season_id INTEGER, player_id INTEGER,
+    player_name TEXT, injury_type TEXT, days_missed INTEGER, date_injured INTEGER)`);
+  const hurt = W.q(`SELECT player_id id FROM career_player_state WHERE career_save_id = ? AND team_id = ? LIMIT 1`, cid, teamId)[0];
+  const today6 = (await W.api("GET", "/calendar")).data.currentDate;
+  W.w(`INSERT INTO injury_history (team_id, season_id, player_id, player_name, injury_type, days_missed, date_injured) VALUES (?, ?, ?, 'x', 'Minor Injury', 7, ?)`,
+    teamId, Number(today6.slice(0, 4)), hurt.id, Date.parse(`${today6}T00:00:00Z`) / 1000);
+  const injuriesBefore = (await W.api("GET", "/clubs")).data.clubs.find((c) => c.kind === "mine").injuries;
+  const reload = async () => { await W.stop(); await W.boot(); await W.select(profileId); await W.api("POST", `/careers/${cid}/load`); return (await W.api("GET", "/clubs")).data.clubs; };
+  let reloaded = await reload();
+  check("restarted: every AI club has a manager again (none reads \"Manager's job vacant\")",
+    reloaded.filter((c) => c.kind === "ai").every((c) => c.manager?.name), `${reloaded.filter((c) => c.kind === "ai" && !c.manager).length} without`);
+  check("and his club's old injury counts in this season's injuries", reloaded.find((c) => c.kind === "mine").injuries === injuriesBefore + 1,
+    `${injuriesBefore} -> ${reloaded.find((c) => c.kind === "mine").injuries}`);
+  reloaded = await reload();
+  check("restarted again: nothing is carried twice", reloaded.find((c) => c.kind === "mine").injuries === injuriesBefore + 1);
 } catch (err) {
   W.fail(err);
 } finally {

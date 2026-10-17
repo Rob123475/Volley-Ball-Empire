@@ -1,8 +1,8 @@
 # Beach Volleyball Empire, v1.1.1
 
-1.1.1 adds a Clubs page and changes how players move between clubs: a transfer window, buying ahead, one chance to keep a player another club wants, perks, and deals for the AI clubs' academy youths.
+1.1.1 adds an Other Clubs page and changes how players move between clubs: a transfer window, buying ahead, one chance to keep a player another club wants, perks, and deals for the AI clubs' academy youths.
 
-## The Clubs page
+## The Other Clubs page
 - **Every club in the game on one page**, yours included. Each club shows:
   - its badge, continent and tier;
   - its World Tour ladder and regional league positions;
@@ -50,7 +50,7 @@
 - Add them when you sign, renew or counter. Contracts from before 1.1.1 have none.
 
 ## The AI clubs' youths
-- **Ask any AI club for one of its academy youths, on loan or to buy, at any time.** Use the Clubs page: open a club and click "Loan or buy" on her card.
+- **Ask any AI club for one of its academy youths, on loan or to buy, at any time.** Use the Other Clubs page: open a club and click "Loan or buy" on her card.
 - **A loan** of 6 or 12 months is always agreed while her age allows it.
 - **A sale is her club's choice, and your Scout does the talking.**
   - With a weak scout, or none, the club offers only a loan. Without a Scout, your best coach negotiates.
@@ -65,11 +65,11 @@
   - the same cost and 5 days;
   - the same two-at-a-time limit;
   - the same salary cap and transfer window.
-- **Youths on the Watch List:** star any youth and she appears there, under a Seniors / Youths filter. A youth in an AI club's academy is bought through her club, as on the Clubs page.
-- **Youth cards have a proper Scout button:** the same size and place as on a senior's card ($500, 5 days). They also get the Watch star, on the Player Market and on the Clubs page.
+- **Youths on the Watch List:** star any youth and she appears there, under a Seniors / Youths filter. A youth in an AI club's academy is bought through her club, as on the Other Clubs page.
+- **Youth cards have a proper Scout button:** the same size and place as on a senior's card ($500, 5 days). They also get the Watch star, on the Player Market and on the Other Clubs page.
 
 ## Scouted players first
-- **Every list puts the players and staff you've scouted at the top.** Next come those with a report on the way, then the rest. That covers both Player Market lists (seniors and youths), the Staff Market, the Medical list, the Watch List and the Clubs page.
+- **Every list puts the players and staff you've scouted at the top.** Next come those with a report on the way, then the rest. That covers both Player Market lists (seniors and youths), the Staff Market, the Medical list, the Watch List and the Other Clubs page.
 - The Sort menu still orders each group.
 - A card moves up the day its report comes in.
 

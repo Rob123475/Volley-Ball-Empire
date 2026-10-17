@@ -1,11 +1,12 @@
 import { convertRealWorldDates } from "./utils/realWorldDates.js";
 import { convertNationalitiesToCountries } from "./utils/nationalityNames.js";
 import { dealFacesToOlderCareers } from "./utils/managerFaces.js";
+import { appointManagersForOlderCareers } from "./utils/aiManagers.js";
 import { repriceFreeAgentsOnce } from "./utils/freeAgentWages.js";
 import { dealAiStaffToOlderCareers } from "./utils/aiStaff.js";
 import { giveEveryPlayerAProfile } from "./utils/player-development.js";
 import { repairTakeoverYouthContracts } from "./utils/youthLoans.js";
-import { convertLegacyInjuries } from "./utils/injuries.js";
+import { convertLegacyInjuries, carryLegacyInjuryHistory } from "./utils/injuries.js";
 import { giveOpenStaffContractsAnEnd } from "./utils/staffContractBackfill.js";
 import { refileScoutingLines } from "./utils/ledgerRefile.js";
 import { renameLedgerRounds } from "./utils/ledgerRoundNames.js";
@@ -293,6 +294,15 @@ try {
   logger.error({ err }, "dealing manager faces failed");
 }
 
+// 1.1.1 (Rob's check, 17 Oct): a career made before the AI clubs had managers gets them now, as a new
+// career does at its Day 1 draft (utils/aiManagers.ts).
+try {
+  const appointed = appointManagersForOlderCareers();
+  if (appointed > 0) logger.info({ appointed }, "AI clubs given managers in careers made before them");
+} catch (err) {
+  logger.error({ err }, "appointing AI managers to older careers failed");
+}
+
 // Update 1, item 4a (Rob, 14 Oct, 4a-3): an existing career's free agents are
 // re-priced once to the wage rise above rating 77; contracts keep their wage.
 try {
@@ -317,6 +327,14 @@ try {
   if (fixed > 0) logger.info({ fixed }, "taken-over clubs' academy youths given the academy's terms");
 } catch (err) {
   logger.error({ err }, "repairing taken-over academy youths failed");
+}
+
+// 1.1.1 (Rob's check, 17 Oct): an older save's injury history (injury_history) is carried into career_injuries.
+try {
+  const carried = carryLegacyInjuryHistory();
+  if (carried > 0) logger.info({ carried }, "older injury history carried into career_injuries");
+} catch (err) {
+  logger.error({ err }, "carrying older injury history failed");
 }
 
 // Update 1, night 2 (O-7): an older save's injuries become named ones of the same length.
