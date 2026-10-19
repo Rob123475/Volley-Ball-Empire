@@ -1,0 +1,26 @@
+build Succeeded, finished 2026-10-19 22:25:43Z, output C:/Users/rbonn/Game_Dev/VolleyBall Empire/webgl-out, 343.7 MB
+  Material           1672 B  Assets/Resources/CourtsideBanners/board_adbc24c3_bve.mat
+  Material           1672 B  Assets/Resources/CourtsideBanners/board_adbc24c3_gb.mat
+  Material           1672 B  Assets/Resources/CourtsideBanners/board_ba3ddaef_bve.mat
+  Material           1672 B  Assets/Resources/CourtsideBanners/board_ba3ddaef_gb.mat
+  Material           1672 B  Assets/Resources/CourtsideBanners/board_f1a8c817_bve.mat
+  Material           1672 B  Assets/Resources/CourtsideBanners/board_f1a8c817_gb.mat
+  Texture2D       1198956 B 1024x293  Assets/Resources/CourtsideBanners/board_adbc24c3_bve.png
+  Texture2D       1018788 B 1024x249  Assets/Resources/CourtsideBanners/board_ba3ddaef_bve.png
+  Texture2D       1550748 B 1024x379  Assets/Resources/CourtsideBanners/board_f1a8c817_bve.png
+  Texture2D       1198956 B 1024x293  Assets/Resources/CourtsideBanners/board_adbc24c3_gb.png
+  Texture2D       1550748 B 1024x379  Assets/Resources/CourtsideBanners/board_f1a8c817_gb.png
+  Texture2D       1018788 B 1024x249  Assets/Resources/CourtsideBanners/board_ba3ddaef_gb.png
+  Material           1692 B  Assets/my assets/Environment/timex+watch+banner+3d+model/tripo_convert_f1a8c817-d12a-43b5-8589-5efd4d9dcbb7.fbx
+  Material           1692 B  Assets/my assets/Environment/Banner 1/tripo_convert_adbc24c3-e8d7-4779-bea4-6dcf0e3974d6.fbx
+  Material           1692 B  Assets/my assets/Environment/advertising+banner+3d+model/tripo_convert_ba3ddaef-4225-498b-b493-60094b22776f.fbx
+  Texture2D         87552 B 256x256  Assets/my assets/Environment/timex+watch+banner+3d+model/tripo_convert_f1a8c817-d12a-43b5-8589-5efd4d9dcbb7.fbm/timexwatchbanner3dmodel_normal.JPEG
+  Texture2D         87552 B 256x256  Assets/my assets/Environment/advertising+banner+3d+model/tripo_convert_ba3ddaef-4225-498b-b493-60094b22776f.fbm/advertisingbanner3dmodel_normal.JPEG
+  Texture2D         87556 B 256x256  Assets/my assets/Environment/Banner 1/tripo_convert_adbc24c3-e8d7-4779-bea4-6dcf0e3974d6.fbm/beachvolleyballbanner3dmodel_normal.JPEG
+  Texture2D         43852 B 256x256  Assets/my assets/Environment/advertising+banner+3d+model/tripo_convert_ba3ddaef-4225-498b-b493-60094b22776f.fbm/advertisingbanner3dmodel_basecolor.JPEG
+  Texture2D         43856 B 256x256  Assets/my assets/Environment/Banner 1/tripo_convert_adbc24c3-e8d7-4779-bea4-6dcf0e3974d6.fbm/beachvolleyballbanner3dmodel_basecolor.JPEG
+  Texture2D         43852 B 256x256  Assets/my assets/Environment/timex+watch+banner+3d+model/tripo_convert_f1a8c817-d12a-43b5-8589-5efd4d9dcbb7.fbm/timexwatchbanner3dmodel_basecolor.JPEG
+  Mesh               1360 B  Assets/my assets/Environment/Banner 1/tripo_convert_adbc24c3-e8d7-4779-bea4-6dcf0e3974d6.fbx
+  Mesh               1360 B  Assets/my assets/Environment/advertising+banner+3d+model/tripo_convert_ba3ddaef-4225-498b-b493-60094b22776f.fbx
+  Mesh               1360 B  Assets/my assets/Environment/timex+watch+banner+3d+model/tripo_convert_f1a8c817-d12a-43b5-8589-5efd4d9dcbb7.fbx
+24 packed entries from the board folders, 7950392 bytes in all
