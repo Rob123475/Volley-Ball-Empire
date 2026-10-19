@@ -371,7 +371,7 @@ router.post("/careers/end", async (req, res) => {
     await endCareer(req, teamId, req.user.id, {
       type: "retirement",
       description: (s) =>
-        `${s.managerName} retired after a career spanning ${s.totalWins + s.totalLosses} matches, ${s.worldTitles} title${s.worldTitles !== 1 ? "s" : ""}, and ${s.olympicMedals} Olympic medal${s.olympicMedals !== 1 ? "s" : ""}.`,
+        `${s.managerName} retired after a career spanning ${s.totalWins + s.totalLosses} matches, ${s.worldTitles} title${s.worldTitles !== 1 ? "s" : ""}, and ${s.olympicMedals} Nations Cup medal${s.olympicMedals !== 1 ? "s" : ""}.`,
     });
     res.json({ ok: true });
     return;

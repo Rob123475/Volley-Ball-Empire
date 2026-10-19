@@ -74,7 +74,7 @@ export default function ManagerRecords() {
             <Row icon={Trophy} label="World Finals won" value={r.worldFinalsWon} colour="text-yellow-500" />
             <Row icon={Medal} label="Gold events won" value={r.goldEventsWon} colour="text-amber-500" />
             <Row icon={Star} label="Unbeaten seasons" value={r.perfectSeasons} colour="text-pink-500" />
-            <Row icon={Medal} label="Olympic golds (your players)" value={r.olympicGolds} colour="text-yellow-400" />
+            <Row icon={Medal} label="Nations Cup golds (your players)" value={r.olympicGolds} colour="text-yellow-400" />
             <Row icon={DollarSign} label="Prize money won" value={money(r.prizeMoneyWon)} colour="text-emerald-500" />
           </CardContent>
         </Card>

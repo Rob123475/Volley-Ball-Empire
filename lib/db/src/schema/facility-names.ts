@@ -40,7 +40,7 @@ export const FACILITY_NAMES: Record<string, string> = {
   beach_resort:               "Beach Resort",
   // Rows every club has, but not on the Facilities page and never upgradeable.
   psychology_centre:          "Psychology Centre",
-  olympic_performance_centre: "Olympic Performance Centre",
+  olympic_performance_centre: "Nations Cup Performance Centre",
 };
 
 /** A facility's name as a player reads it. Never the raw key. */

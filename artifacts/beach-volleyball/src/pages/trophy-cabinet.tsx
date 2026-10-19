@@ -254,7 +254,7 @@ export default function TrophyCabinet() {
           </div>
           <div className="text-center px-4 py-2 rounded-xl border bg-card">
             <div className="text-2xl font-black text-yellow-500">{olympicMedals.gold + olympicMedals.silver + olympicMedals.bronze}</div>
-            <div className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Olympic Medals</div>
+            <div className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Nations Cup Medals</div>
           </div>
           <div className="text-center px-4 py-2 rounded-xl border bg-card">
             <div className="text-2xl font-black text-purple-500">{unlockedCount}<span className="text-base font-normal text-muted-foreground">/{totalCount}</span></div>
@@ -267,7 +267,7 @@ export default function TrophyCabinet() {
       <Tabs defaultValue="honours">
         <TabsList className="w-full md:w-auto flex-wrap">
           <TabsTrigger value="honours"  className="gap-1.5"><Trophy className="h-3.5 w-3.5" /> Club Honours</TabsTrigger>
-          <TabsTrigger value="olympics" className="gap-1.5"><Medal  className="h-3.5 w-3.5" /> Olympic Medals</TabsTrigger>
+          <TabsTrigger value="olympics" className="gap-1.5"><Medal  className="h-3.5 w-3.5" /> Nations Cup Medals</TabsTrigger>
           <TabsTrigger value="achievements" className="gap-1.5"><Award className="h-3.5 w-3.5" /> Achievements</TabsTrigger>
           <TabsTrigger value="records"  className="gap-1.5"><Star   className="h-3.5 w-3.5" /> Records</TabsTrigger>
           <TabsTrigger value="hall-of-fame" className="gap-1.5"><Crown className="h-3.5 w-3.5" /> Hall of Fame</TabsTrigger>
@@ -338,7 +338,7 @@ export default function TrophyCabinet() {
           </div>
         </TabsContent>
 
-        {/* ── Olympic Medals ── */}
+        {/* ── Nations Cup Medals ── */}
         <TabsContent value="olympics" className="mt-6">
           <div className="grid gap-5 md:grid-cols-2">
             <Card>
@@ -346,7 +346,7 @@ export default function TrophyCabinet() {
                 <CardTitle className="text-base flex items-center gap-2">
                   <Medal className="h-4 w-4 text-yellow-400" /> Medal Haul
                 </CardTitle>
-                <CardDescription>Olympic medals won by your club's players for their nations</CardDescription>
+                <CardDescription>Nations Cup medals won by your club's players for their nations</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="flex items-center justify-around py-4">
@@ -355,7 +355,7 @@ export default function TrophyCabinet() {
                   <MedalCircle label="Bronze" count={olympicMedals.bronze} colour="bg-amber-600"  ring="border-amber-700" />
                 </div>
                 <div className="mt-4 pt-4 border-t border-border flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Total Olympic Appearances</span>
+                  <span className="text-muted-foreground">Total Nations Cup Appearances</span>
                   <span className="font-bold">{olympicMedals.appearances}</span>
                 </div>
               </CardContent>
@@ -364,7 +364,7 @@ export default function TrophyCabinet() {
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
-                  <Calendar className="h-4 w-4 text-blue-400" /> Olympic Campaigns
+                  <Calendar className="h-4 w-4 text-blue-400" /> Nations Cup Campaigns
                 </CardTitle>
                 <CardDescription>Years and locations you've competed</CardDescription>
               </CardHeader>
@@ -372,8 +372,8 @@ export default function TrophyCabinet() {
                 {olympicMedals.hosts.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
                     <Globe className="h-10 w-10 opacity-10 mb-3" />
-                    <p className="text-sm">No Olympic campaigns yet</p>
-                    <p className="text-xs opacity-60 mt-1">Select your country in the Olympics section</p>
+                    <p className="text-sm">No Nations Cup campaigns yet</p>
+                    <p className="text-xs opacity-60 mt-1">Select your country in the Empire Nations Cup section</p>
                   </div>
                 ) : (
                   <div className="space-y-2">
@@ -435,7 +435,7 @@ export default function TrophyCabinet() {
               </CardHeader>
               <CardContent>
                 <RecordRow icon={Calendar} label="Seasons Managed"      value={records.seasonsManaged} colour="text-blue-500"   />
-                <RecordRow icon={Medal}    label="Olympic Medals Total"  value={records.olympicMedals}  colour="text-yellow-400" />
+                <RecordRow icon={Medal}    label="Nations Cup Medals Total"  value={records.olympicMedals}  colour="text-yellow-400" />
               </CardContent>
             </Card>
           </div>

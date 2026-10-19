@@ -183,7 +183,7 @@ router.get("/events/upcoming", async (req, res) => {
     items.push({
       id: `olympics_${olympicsYear}`,
       type: "olympic",
-      title: `🏅 Olympic Games ${olympicsYear}`,
+      title: `🏅 Empire Nations Cup ${olympicsYear}`,
       subtitle: played
         ? `Played — gold to ${played.medals.gold.nation}`
         : isOlympicYear(seasonYear) ? "This season, before the World Finals" : `Qualification on the ${olympicsYear} World Tour`,

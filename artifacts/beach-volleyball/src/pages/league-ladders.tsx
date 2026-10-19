@@ -466,7 +466,7 @@ function HistoryRecords() {
   const stats = [
     { label: "World Championships", value: records.worldChampionships, sub: "All-time titles" },
     { label: "Continental Titles", value: records.continentalTitles, sub: "All-time" },
-    { label: "Olympic Golds", value: records.olympicGolds, sub: "Career" },
+    { label: "Nations Cup Golds", value: records.olympicGolds, sub: "Career" },
     { label: "Seasons Completed", value: records.seasonsCompleted, sub: "World Finals played" },
     { label: "Perfect Seasons", value: records.perfectSeasons, sub: "Zero losses" },
     { label: "Best Win Streak", value: records.bestStreak, sub: "Consecutive wins" },
@@ -650,7 +650,7 @@ function HistoryHallOfFame() {
                   </div>
                   <div>
                     <p className="text-lg font-bold text-amber-500">{m.olympicMedals}</p>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Olympic</p>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Nations Cup</p>
                   </div>
                   <div>
                     <p className="text-lg font-bold text-emerald-600">{m.totalWins}</p>

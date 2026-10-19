@@ -180,7 +180,7 @@ const FACILITY_CONFIG: Record<string, FacilityConfig> = {
     bg: "bg-violet-50 dark:bg-violet-950/20",
     border: "border-violet-400/50",
     text: "text-violet-600 dark:text-violet-400",
-    affects: ["Sponsorship income", "Olympic prestige", "Club reputation"],
+    affects: ["Sponsorship income", "Nations Cup prestige", "Club reputation"],
     benefitAt: FACILITY_BENEFIT.commercial_department,
   },
   beach_resort: {
@@ -588,7 +588,7 @@ export default function FacilitiesPage() {
               { icon: "💰", label: "Sponsorship", desc: "Commercial Department boosts sponsor deal value" },
               { icon: "🌴", label: "Player Morale", desc: "Beach Resort adds morale bonus to every wellbeing camp" },
               { icon: "🏆", label: "Free Agent Attraction", desc: "Youth Academy + Beach Resort attract higher-quality signings" },
-              { icon: "🎖️", label: "Olympic Prestige", desc: "Club Rating influences Olympic selection and national prestige" },
+              { icon: "🎖️", label: "Nations Cup Prestige", desc: "Club Rating influences Nations Cup selection and national prestige" },
             ].map(({ icon, label, desc }) => (
               <div key={label} className="flex gap-2 p-3 rounded-lg border border-border/50 bg-muted/30">
                 <span className="text-lg shrink-0">{icon}</span>

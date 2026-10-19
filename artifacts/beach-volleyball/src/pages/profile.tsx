@@ -353,7 +353,7 @@ export default function ManagerProfile() {
         />
         <HighlightRow
           icon={Medal}
-          label="Olympic Medals"
+          label="Nations Cup Medals"
           value={olympicMedals}
           iconColour="text-amber-300"
         />

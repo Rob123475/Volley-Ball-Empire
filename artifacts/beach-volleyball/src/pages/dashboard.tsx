@@ -228,7 +228,7 @@ function OlympicDashboardWidget() {
             </div>
             <div>
               <CardTitle className="text-base">
-                {data ? `${data.olympicsYear} Olympic Qualifying` : "Olympic Qualifying"}
+                {data ? `${data.olympicsYear} Nations Cup Qualifying` : "Nations Cup Qualifying"}
               </CardTitle>
               <p className="text-xs text-muted-foreground mt-0.5">
                 National teams — the top {data?.totalSpots ?? 12} countries on this season's World Tour ranking points
@@ -1106,9 +1106,9 @@ function TrophyCabinetPreview({ cabinet }: { cabinet: import("@workspace/api-cli
     { emoji: "🏆", label: "World Tour Titles",        count: h.worldChampionships.length,      accent: "text-yellow-500",  glow: "shadow-yellow-500/20" },
     { emoji: "🌍", label: "Continental Championships",count: h.continentalChampionships.length, accent: "text-violet-400",  glow: "shadow-violet-500/20" },
     { emoji: "🏅", label: "Grand Finals",             count: h.grandFinals.length,              accent: "text-blue-400",    glow: "shadow-blue-500/20"   },
-    { emoji: "🥇", label: "Olympic Gold",             count: o.gold,                            accent: "text-yellow-400",  glow: "shadow-yellow-400/20" },
-    { emoji: "🥈", label: "Olympic Silver",           count: o.silver,                          accent: "text-slate-300",   glow: "shadow-slate-400/20"  },
-    { emoji: "🥉", label: "Olympic Bronze",           count: o.bronze,                          accent: "text-amber-600",   glow: "shadow-amber-500/20"  },
+    { emoji: "🥇", label: "Nations Cup Gold",             count: o.gold,                            accent: "text-yellow-400",  glow: "shadow-yellow-400/20" },
+    { emoji: "🥈", label: "Nations Cup Silver",           count: o.silver,                          accent: "text-slate-300",   glow: "shadow-slate-400/20"  },
+    { emoji: "🥉", label: "Nations Cup Bronze",           count: o.bronze,                          accent: "text-amber-600",   glow: "shadow-amber-500/20"  },
   ];
 
   const totalTrophies = h.worldChampionships.length + h.continentalChampionships.length +
@@ -1272,7 +1272,7 @@ const EVENT_META: Record<string, { icon: string; label: string; color: string; b
   match:           { icon: "🏐", label: "Match",    color: "text-sky-300",     bg: "bg-sky-500/10",     border: "border-sky-500/25",     barColor: "bg-sky-500"     },
   season_end:      { icon: "📅", label: "Season",   color: "text-violet-300",  bg: "bg-violet-500/10",  border: "border-violet-500/25",  barColor: "bg-violet-500"  },
   scouting_return: { icon: "🔭", label: "Scouting", color: "text-amber-300",   bg: "bg-amber-500/10",   border: "border-amber-500/25",   barColor: "bg-amber-500"   },
-  olympic:         { icon: "🏅", label: "Olympic",  color: "text-yellow-300",  bg: "bg-yellow-500/10",  border: "border-yellow-500/25",  barColor: "bg-yellow-500"  },
+  olympic:         { icon: "🏅", label: "Nations Cup", color: "text-yellow-300",  bg: "bg-yellow-500/10",  border: "border-yellow-500/25",  barColor: "bg-yellow-500"  },
   facility_action: { icon: "🏗️",  label: "Facility", color: "text-rose-300",   bg: "bg-rose-500/10",    border: "border-rose-500/25",    barColor: "bg-rose-500"    },
 };
 
@@ -1446,7 +1446,7 @@ const NEWS_META: Record<string, { icon: string; label: string; pill: string; dot
   board:    { icon: "📋", label: "Board",       pill: "bg-slate-400/15 text-slate-300 border-slate-400/25",    dot: "bg-slate-400"  },
   trophy:   { icon: "🏆", label: "Honour",      pill: "bg-yellow-400/15 text-yellow-300 border-yellow-400/25", dot: "bg-yellow-400" },
   champion: { icon: "👑", label: "World Final", pill: "bg-amber-400/15 text-amber-300 border-amber-400/25",    dot: "bg-amber-400"  },
-  olympic:  { icon: "🥇", label: "Olympics",    pill: "bg-orange-400/15 text-orange-300 border-orange-400/25", dot: "bg-orange-400" },
+  olympic:  { icon: "🥇", label: "Nations Cup", pill: "bg-orange-400/15 text-orange-300 border-orange-400/25", dot: "bg-orange-400" },
   academy:  { icon: "🌱", label: "Academy",     pill: "bg-emerald-400/15 text-emerald-300 border-emerald-400/25", dot: "bg-emerald-400" },
   // Final brief 5 Oct, Part B: a member of staff off ill or hurt, and back.
   staff:    { icon: "🩹", label: "Staff",       pill: "bg-rose-400/15 text-rose-300 border-rose-400/25",       dot: "bg-rose-400"   },

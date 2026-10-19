@@ -113,7 +113,7 @@ function entryConfig(type: EntryType): EntryConfig {
         cardBorder:  "border-sky-500/20",
         badgeBg:     "bg-sky-500/15",
         badgeText:   "text-sky-300",
-        label:       "Olympic Medal",
+        label:       "Nations Cup Medal",
       };
     case "retirement":
       return {

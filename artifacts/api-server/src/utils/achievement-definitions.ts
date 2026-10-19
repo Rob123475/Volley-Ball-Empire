@@ -113,8 +113,8 @@ export const ACHIEVEMENT_DEFS: AchievementDef[] = [
   },
   {
     key: "olympic_gold",
-    name: "Olympic Gold",
-    description: "Have a player from your club win Olympic gold.",
+    name: "Nations Cup Gold",
+    description: "Have a player from your club win Nations Cup gold.",
     category: "competition",
     check: (_t, stats) => stats.olympicGolds >= 1,
     progress: (_t, stats) => ({ current: Math.min(stats.olympicGolds, 1), target: 1 }),
@@ -124,7 +124,7 @@ export const ACHIEVEMENT_DEFS: AchievementDef[] = [
     // 2036, ...), so two golds need a career at least seven seasons long.
     key: "double_olympic_gold",
     name: "Back-to-Back Gold",
-    description: "Have players from your club win Olympic gold at two Games.",
+    description: "Have players from your club win Nations Cup gold at two Nations Cups.",
     category: "competition",
     check: (_t, stats) => stats.olympicGolds >= 2,
     progress: (_t, stats) => ({ current: Math.min(stats.olympicGolds, 2), target: 2 }),

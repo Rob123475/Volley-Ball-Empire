@@ -43,16 +43,16 @@ const CATEGORY_LABEL: Record<AnnualEventType, string> = {
   contract:          "Contract Deadline",
   facility:          "Facility / Club",
   transfer:          "Transfers",
-  olympic_qualifier: "Olympic Qualifier",
-  olympic:           "Olympics",
+  olympic_qualifier: "Nations Cup Qualifier",
+  olympic:           "Empire Nations Cup",
 };
 
 const LEGEND = [
   { type: "regional"          as AnnualEventType, label: "Regional / Pool",   dot: "bg-blue-500"    },
   { type: "world_tour"        as AnnualEventType, label: "World Tour",        dot: "bg-amber-500"   },
   { type: "finals"            as AnnualEventType, label: "World Finals",      dot: "bg-red-500"     },
-  { type: "olympic_qualifier" as AnnualEventType, label: "Olympic Qualifier", dot: "bg-orange-500"  },
-  { type: "olympic"           as AnnualEventType, label: "Olympics",          dot: "bg-pink-500"    },
+  { type: "olympic_qualifier" as AnnualEventType, label: "Nations Cup Qualifier", dot: "bg-orange-500"  },
+  { type: "olympic"           as AnnualEventType, label: "Empire Nations Cup", dot: "bg-pink-500"    },
   { type: "holiday"           as AnnualEventType, label: "Off-Season",        dot: "bg-slate-400"   },
   { type: "financial"         as AnnualEventType, label: "Financial",         dot: "bg-emerald-500" },
   { type: "contract"          as AnnualEventType, label: "Contract Deadline", dot: "bg-purple-500"  },
@@ -394,7 +394,7 @@ export default function AnnualCalendar() {
             <strong className="text-foreground">{formatDateLabel(data.seasonEnd!)}</strong>
           </span>
           {data.isOlympicSeason && (
-            <span className="text-amber-400 font-semibold">🏅 Olympic Season</span>
+            <span className="text-amber-400 font-semibold">🏅 Nations Cup Season</span>
           )}
           <span>{data.events.length} event{data.events.length !== 1 ? "s" : ""} scheduled</span>
         </div>

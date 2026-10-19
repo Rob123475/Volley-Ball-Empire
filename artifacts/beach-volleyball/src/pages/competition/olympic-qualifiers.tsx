@@ -66,7 +66,7 @@ export default function OlympicQualifiers() {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <Medal className="h-5 w-5 text-amber-400" />
-            <h2 className="text-xl font-bold">{data.olympicsYear} Olympic Qualifying</h2>
+            <h2 className="text-xl font-bold">{data.olympicsYear} Nations Cup Qualifying</h2>
           </div>
           <p className="text-sm text-muted-foreground">
             National teams qualify on the World Tour ranking points their players earned in the {data.seasonYear} season:

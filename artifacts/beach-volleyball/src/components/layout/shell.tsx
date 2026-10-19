@@ -111,7 +111,7 @@ const NAV_GROUPS: NavGroup[] = [
       // "coming in a future update" stub page, both here and as a tab on
       // /olympics itself. Not built, removed from nav so nothing can reach
       // one.
-      { sectionHeader: true, label: "Olympics" },
+      { sectionHeader: true, label: "Empire Nations Cup" },
       { href: "/olympics",                         label: "Qualification",       icon: Medal        },
       { href: "/competition/national-squads",      label: "National Squads",     icon: Users        },
       { href: "/competition/olympic-schedule",     label: "Schedule",            icon: CalendarDays },

@@ -661,6 +661,11 @@ runSuite("junior medics", path.join(REPO, "harness", "junior-medics.mjs"));
 console.log("\n########## 98zb/100  THE STRONGER AI CLUBS START SEASON 1 AT SILVER (1.1.1, 18 OCT) ##########");
 runSuite("season one tiers", path.join(REPO, "harness", "season-one-tiers.mjs"));
 
+// Trademark cleanup (19 Oct): stored Olympic display text becomes the Empire
+// Nations Cup at boot; keys stay; a second boot changes nothing. Own DB and server.
+console.log("\n########## 98zt/100  STORED OLYMPIC TEXT RENAMED (TRADEMARK CLEANUP, 19 OCT) ##########");
+runSuite("trademark renames", path.join(REPO, "harness", "trademark-renames.mjs"));
+
 // ── Smoke needs a server; boot one on a throwaway copy of the shipped DB ─────
 console.log("\n########## 99/100  GAMEPLAY SMOKE ##########");
 {

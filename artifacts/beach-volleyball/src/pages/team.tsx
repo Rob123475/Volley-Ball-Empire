@@ -100,6 +100,7 @@ import { Label } from "@/components/ui/label";
 import { PlayerPortrait } from "@/components/player-portrait";
 import { cn } from "@/lib/utils";
 import { serverMessage } from "@/lib/api-error";
+import { eliteEventLabel } from "@/lib/elite-event";
 
 type Role = "starter" | "interchange" | "reserve";
 
@@ -633,7 +634,7 @@ export default function TeamRoster() {
                       eliteCfg.bannerClass,
                     )}>
                       {eliteCfg.icon}
-                      <span>{eliteEvent}</span>
+                      <span>{eliteEventLabel(eliteEvent)}</span>
                     </div>
                   )}
                 </div>

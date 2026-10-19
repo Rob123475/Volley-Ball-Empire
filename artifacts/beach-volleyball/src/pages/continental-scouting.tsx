@@ -53,6 +53,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { eliteEventLabel } from "@/lib/elite-event";
 import { Link } from "wouter";
 import {
   Globe,
@@ -200,7 +201,7 @@ function ProspectCard({
           eliteCfg.bannerClass,
         )}>
           {eliteCfg.icon}
-          <span className="text-[11px] font-black uppercase tracking-wide">{eliteEvent}</span>
+          <span className="text-[11px] font-black uppercase tracking-wide">{eliteEventLabel(eliteEvent)}</span>
         </div>
       )}
 

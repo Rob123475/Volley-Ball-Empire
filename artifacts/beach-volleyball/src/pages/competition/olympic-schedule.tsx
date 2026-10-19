@@ -97,11 +97,11 @@ export default function OlympicSchedule() {
     return (
       <div className="rounded-xl border bg-card p-8 text-center space-y-2" data-testid="olympic-not-played">
         <CalendarDays className="h-8 w-8 text-muted-foreground mx-auto" />
-        <h2 className="text-lg font-bold">Olympic Games {data.olympicsYear}</h2>
+        <h2 className="text-lg font-bold">Empire Nations Cup {data.olympicsYear}</h2>
         <p className="text-sm text-muted-foreground">
           {data.isOlympicYear
             ? `Played this season on ${gameDateText(data.olympicsDate)}, after the last regular World Tour round and before the World Finals.`
-            : `The next Games are in ${data.olympicsYear}, played after the last regular World Tour round and before the World Finals.`}
+            : `The next Nations Cup is in ${data.olympicsYear}, played after the last regular World Tour round and before the World Finals.`}
           {" "}The 12 nations with the most World Tour ranking points that season qualify.
         </p>
       </div>
@@ -113,7 +113,7 @@ export default function OlympicSchedule() {
       <div>
         <div className="flex items-center gap-2 mb-1">
           <Flame className="h-5 w-5 text-amber-400" />
-          <h2 className="text-xl font-bold">{t.seasonYear} Olympic Beach Volleyball</h2>
+          <h2 className="text-xl font-bold">{t.seasonYear} Empire Nations Cup</h2>
           <Badge variant="outline">Played {gameDateText(t.playedOn)}</Badge>
         </div>
         {t.passedOver.length > 0 && (

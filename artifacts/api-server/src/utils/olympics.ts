@@ -322,7 +322,7 @@ export function playOlympicsTx(tx: Tx, careerSaveId: number, seasonYear: number,
     if (ours.length > 0) {
       tx.insert(trophiesTable).values({
         teamId: playerTeamId, type: `olympic_${medal}`, year: seasonYear, season,
-        name: `Olympic ${title(medal)} ${seasonYear} — ${entry.nation}`,
+        name: `Nations Cup ${title(medal)} ${seasonYear} — ${entry.nation}`,
         notes: `${ours.map((p) => p.name).join(" & ")} for ${entry.nation}`,
       }).run();
     }
@@ -333,7 +333,7 @@ export function playOlympicsTx(tx: Tx, careerSaveId: number, seasonYear: number,
   if (appearing.length > 0) {
     tx.insert(trophiesTable).values({
       teamId: playerTeamId, type: "olympic_appearance", year: seasonYear, season,
-      name: `Olympic Games ${seasonYear}`, notes: appearing.join(", "),
+      name: `Empire Nations Cup ${seasonYear}`, notes: appearing.join(", "),
     }).run();
   }
 

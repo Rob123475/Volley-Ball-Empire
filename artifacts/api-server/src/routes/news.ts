@@ -147,7 +147,7 @@ router.get("/news", async (req, res) => {
       .some((m) => t.medals[m].pair.some((p) => p.kind === "player" && p.teamId === team.id));
     items.push({
       id: `olympic-${year}`, type: "olympic", isUserTeam: clubMedal, date: t.playedOn,
-      headline: `${t.medals.gold.nation} win Olympic gold ${year}`,
+      headline: `${t.medals.gold.nation} win Nations Cup gold ${year}`,
       detail: `Beat ${t.medals.silver.nation} in the gold medal match; bronze to ${t.medals.bronze.nation}`,
     });
   }

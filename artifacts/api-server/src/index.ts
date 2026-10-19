@@ -34,6 +34,7 @@ import { rerateOldProspects } from "./utils/youthProspects.js";
 import { alignYouthWages } from "./utils/youthWages.js";
 import { raiseHighestBalances } from "./utils/highestBalance.js";
 import { applyReferenceRenames } from "./utils/referenceRenames.js";
+import { applyTrademarkRenames } from "./utils/trademarkRenames.js";
 import { applyAiSkinToneChanges } from "./utils/aiSkinTones.js";
 import { assignGraduatePortraitsAtBoot } from "./utils/graduatePortraits.js";
 import { giveAiSeniorsTheirPictures } from "./utils/aiSeniorPortraits.js";
@@ -231,6 +232,15 @@ try {
   if (r.contractsMoved + r.namesChanged > 0) logger.info(r, "reference corrections applied to the saves");
 } catch (err) {
   logger.error({ err }, "applying reference corrections failed");
+}
+
+// Trademark cleanup (Rob, 19 Oct): text saves stored before the Empire Nations
+// Cup was renamed from the Olympics (trophy names, history and ledger lines).
+try {
+  const r = applyTrademarkRenames();
+  if (r.rowsChanged > 0) logger.info(r, "stored Olympic text renamed to the Empire Nations Cup");
+} catch (err) {
+  logger.error({ err }, "renaming stored Olympic text failed");
 }
 
 // Pictures brief 10 Oct: an AI club player's skin tone follows her new picture,

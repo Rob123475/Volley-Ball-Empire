@@ -102,20 +102,20 @@ const COMP_TIERS = [
     ],
   },
   {
-    title: "Olympics",
+    title: "Empire Nations Cup",
     badge: "12 national teams",
     color: "text-yellow-400",
     bg: "bg-yellow-500/10",
     border: "border-yellow-500/25",
     points: [
-      "The Olympics are for national teams, not clubs",
+      "The Empire Nations Cup is for national teams, not clubs",
       "A country qualifies on the World Tour ranking points its players earned this season: the sum across all of that country's players, whichever club they play for",
       "The top 12 countries qualify; ties are broken by the best single-player total",
       "Player ratings play no part in qualifying",
-      "Played in Olympic years only (years divisible by 4), after the last regular World Tour round and before the World Finals",
+      "Played in Nations Cup years only (years divisible by 4), after the last regular World Tour round and before the World Finals",
       "Each nation is represented by its two highest-rated players at any club; injured players cannot be picked, and a nation that cannot field two gives its place to the next nation that can",
       "4 groups of 3, each a round robin; the top two of each group reach the quarter-finals, then semi-finals, a bronze medal match and the gold medal match",
-      "Medals go on the players' records, and a club whose player wins one gets the Olympic medal in its trophy cabinet",
+      "Medals go on the players' records, and a club whose player wins one gets the Nations Cup medal in its trophy cabinet",
     ],
   },
   {
@@ -347,7 +347,7 @@ export default function Rules() {
             <Globe className="h-4 w-4 text-muted-foreground" />
             How the Competition Works
           </CardTitle>
-          <CardDescription>The path from regional league to Olympic gold</CardDescription>
+          <CardDescription>The path from regional league to Nations Cup gold</CardDescription>
         </CardHeader>
         <CardContent className="pt-0 space-y-3">
           {COMP_TIERS.map((tier, i) => (

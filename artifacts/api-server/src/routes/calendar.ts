@@ -1254,7 +1254,7 @@ router.get("/calendar/annual", async (req, res) => {
     const date = olympicDate(season.year);
     if (date >= yearStart && date <= yearEnd) {
       events.push({
-        date, type: "olympic", title: "Olympic Games",
+        date, type: "olympic", title: "Empire Nations Cup",
         subtitle: "12 national pairs · groups, quarter-finals, semi-finals, bronze and gold",
         link: "/olympics",
       });

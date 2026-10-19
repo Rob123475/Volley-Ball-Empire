@@ -1,0 +1,109 @@
+# Trademark cleanup — 19 Oct 2026
+
+Branch `fix/trademark-cleanup` (worktree `C:/vbe-tm`). **Nothing built or packaged, nothing uploaded.**
+
+**Branch base: `update-1` at 7649b762, not `main`.** The brief said "off main". But `main` (2c17431e) is 403 commits behind `update-1`, and `update-1` is what 1.1.x ships from. A branch off `main` would have missed most of the Olympic text and the 1.1.x code the boot fix runs in. The branch merges straight into `update-1`. The main tree's uncommitted new-seniors work was not touched: everything here was done in a separate worktree.
+
+## Read this first: what is still NOT clean
+
+1. **Every senior card's wall says "BEACH VOLLEYBALL WORLD TOUR".** I looked at contact sheets of all 205 cards in `public/images/players/seniors` (after job 3's copy). The black wall behind the player carries that text on essentially every card, the 100 "fixed" cards included: the fix changed the ball (MIKASA/FIVB → BVE), not the wall. The second brief calls the same words on staff shirts a copy of the FIVB World Tour logo. Some cards (e.g. Tahiti 03/04, Australia 03) also show a second, smaller "BEACH VOLLEYBALL WORLD TOUR" banner. These cards need the wall text taken out, by regenerating them or by painting it out.
+2. **A small chevron logo sits on many bikinis** (top-left of the crop top and on the bottom, e.g. both Taiwan cards). It looks like a sportswear brand mark (Macron-style). Worth a look while the cards are being redone.
+3. **The 3D match ball (Unity) has FIVB-style emblems and Mikasa trade dress.** See part 4.
+4. **"World Tour" is the game's own competition name** (World Tour rounds, World Tour ranking points, the rules page, the news). The brief did not list it, so I changed nothing. It is the FIVB circuit's old name ("FIVB Beach Volleyball World Tour", now Beach Pro Tour). The plain words are generic (ATP, UCI and others use them), but together with "Beach Volleyball" on the cards it points straight at FIVB. Your call.
+
+## 1. "Olympic" → "Empire Nations Cup" (display text only)
+
+Keys, table and column names, routes, query keys, test ids and code identifiers are unchanged (`olympic_gold`, `olympic_medals`, `/olympics`, `isOlympicYear`, ...). Saves and Steam API names keep working.
+
+Wording used: "Olympics"/"Olympic Games" → "Empire Nations Cup"; "Olympic gold/silver/bronze/medal(s)" → "Nations Cup ..."; "Olympic year" → "Nations Cup year"; "Olympian" → "Nations Cup player"; "an Olympic podium" → "a Nations Cup podium".
+
+| Where | Was | Now |
+|---|---|---|
+| Side menu section (shell.tsx) | Olympics | Empire Nations Cup |
+| Rules page | Olympics section title, "The Olympics are for national teams", "Played in Olympic years only", "the Olympic medal in its trophy cabinet", "regional league to Olympic gold" | Empire Nations Cup / Nations Cup equivalents |
+| Qualifying page + dashboard widget | Olympic Qualifying | Nations Cup Qualifying |
+| Schedule page | Olympic Games {year}, "The next Games are in", "{year} Olympic Beach Volleyball" | Empire Nations Cup {year}, "The next Nations Cup is in", "{year} Empire Nations Cup" |
+| National Squads | "At the Olympics each nation..." | "At the Empire Nations Cup each nation..." |
+| Annual calendar | Olympic Qualifier, Olympics, 🏅 Olympic Season | Nations Cup Qualifier, Empire Nations Cup, 🏅 Nations Cup Season |
+| Dashboard | Olympic Gold/Silver/Bronze labels, "Olympic" and "Olympics" chips | Nations Cup ... |
+| Trophy cabinet | Olympic Medals (stat, tab), "Olympic medals won by...", Total Olympic Appearances, Olympic Campaigns, "No Olympic campaigns yet", "...in the Olympics section", Olympic Medals Total | Nations Cup ... / Empire Nations Cup section |
+| Profile, Retire modal | Olympic Medals | Nations Cup Medals |
+| Career history | Olympic Medal | Nations Cup Medal |
+| League ladders | Olympic Golds, "Olympic" column | Nations Cup Golds, "Nations Cup" |
+| Manager records | Olympic golds (your players) | Nations Cup golds (your players) |
+| Club hall of fame badge | "{n} Olympic gold(s)" | "{n} Nations Cup gold(s)" |
+| Facilities | Olympic prestige, Olympic Prestige, "influences Olympic selection" | Nations Cup ... |
+| Facility name (lib/db facility-names.ts) | Olympic Performance Centre | Nations Cup Performance Centre |
+| Youth/scouting/team cards: elite event badge | Olympic Wonderkid | Nations Cup Wonderkid (new `src/lib/elite-event.ts`: the stored value and API enum stay "Olympic Wonderkid", only the drawn label changes) |
+| Scouting report texts (server) | "compete at Olympic level", "OLYMPIC CALIBRE.", "FUTURE OLYMPIAN.", "an Olympic podium" | Nations Cup level, NATIONS CUP CALIBRE., FUTURE NATIONS CUP PLAYER., a Nations Cup podium |
+| Trophies written (utils/olympics.ts) | "Olympic Gold 2028 — Brazil", "Olympic Games 2028" | "Nations Cup Gold 2028 — Brazil", "Empire Nations Cup 2028" |
+| Club News (news.ts) | "{nation} win Olympic gold {year}" | "{nation} win Nations Cup gold {year}" |
+| Events list / calendar (events.ts, calendar.ts) | 🏅 Olympic Games {year}, Olympic Games | 🏅 Empire Nations Cup {year}, Empire Nations Cup |
+| Retirement summary (careers.ts) | "...and N Olympic medal(s)" | "...and N Nations Cup medal(s)" |
+| Starter staff (scripts/src/seed-staff.ts) | Olympic Gold Medallist, Olympic Weightlifting & Power | Nations Cup Gold Medallist, Competition Weightlifting & Power |
+
+### Achievement display names to change in Steamworks
+
+The keys / Steam API names are unchanged (`olympic_gold`, `double_olympic_gold`). Only the display text changed; please mirror it in Steamworks (all languages you have set):
+
+| API name | Display name: was → now | Description: was → now |
+|---|---|---|
+| `olympic_gold` | Olympic Gold → **Nations Cup Gold** | "Have a player from your club win Olympic gold." → **"Have a player from your club win Nations Cup gold."** |
+| `double_olympic_gold` | Back-to-Back Gold (unchanged) | "Have players from your club win Olympic gold at two Games." → **"Have players from your club win Nations Cup gold at two Nations Cups."** |
+
+Check the Steamworks texts themselves too. They were typed there by hand and may differ from the game's.
+
+### Saves already on players' machines: boot fix
+
+`artifacts/api-server/src/utils/trademarkRenames.ts`, called at boot from `index.ts`, right after the reference corrections. It rewrites capitalised whole words only (Olympic, Olympics, Olympic Games, Olympian(s), OLYMPIC..., "an Olympic" → "a Nations Cup") in these stored text columns:
+trophies.name/notes, career_history_entries.description, finance_transactions.description, manager_season_summaries.world_result/continental_result, staff.specialty/special_trait/coach_speciality, youth_prospects.scouting_report_text, continental_scouting_missions.report, promo_deals.description/appeal_reason, career_saves.leaving_reason, career_pool_team_state.vacancy_reason, olympic_matches.label, seasons.name.
+Lower-case keys are never matched. `elite_event_type` is not in the list. A player named "Olympia" is not a whole-word match. It is idempotent: the second boot changes nothing and logs nothing.
+
+Not stored, so nothing to fix: Club News, events and calendar titles are built when read, and achievements are stored by key only.
+
+The starter DB `lib/db/volleyball-empire.sqlite` still has 5 staff text values with "Olympic" (Olympic Gold Medallist ×3, Olympic Weightlifting & Power ×2). I deliberately did not rewrite that binary here: the main tree has an uncommitted starter DB change (new seniors), and two binary edits can't be merged. The boot fix rewrites these on the first boot of every new install, before the server listens. If you want the shipped file clean as well, boot a server once on it after the merge, or run the rename on it.
+
+**Harness:** new suite `harness/trademark-renames.mjs` (port 4996), added to run-all as 98zt. It plants old rows into a copy of your 2 Oct backup (or the starter DB if that's missing): trophies, a history line, a ledger line, a scouting report plus elite event, a season summary, a player named Olympia. Then it boots twice. **14/14 PASS** on this branch: every line renamed, keys kept, no whole-word Olympic left in any text column of the save outside key columns, and the second boot changes nothing and says nothing. The other suites were searched for checks on the old wording: none assert it (olympics-tournament checks the news by id and winner nation, not by text).
+
+Typecheck: libs, api-server and frontend `tsc --noEmit` all clean. `check:captions` passes.
+
+### Grep of the built output for /olympi/i
+
+Built in this worktree only (api-server `build.mjs`, frontend `vite build`, no sync:public, no package).
+
+- **Frontend bundle** (`dist/public/assets/index-*.js`): every remaining hit is a route (`/olympics`, `/competition/olympic-schedule`, `/api/olympics/*`), a react-query key, a `data-testid`, a field name (`olympicMedals`, `olympicGolds`, `isOlympicYear`, `olympicsYear`), a type key (`olympic`, `olympic_qualifier`, `olympic_gold`), a tab value (`olympics`), the `"Olympic Wonderkid"` lookup keys (label shown is "Nations Cup Wonderkid"), and the finances colour key `Olympics` (a lookup key nothing produces; never drawn). **Player-visible hits: 0.**
+- **api-server bundle** (`dist/index.mjs`): capitalised strings left are `"Olympic Wonderkid"` (the stored enum value; never drawn as such) and four server log lines ("Olympic season flags corrected", "correcting Olympic season flags failed", plus the two new boot-fix log lines). These go to the log file, not the screen. **Player-visible hits: 0.**
+- In Electron there is no address bar, so `/olympics` routes are not seen.
+
+## 2. Brand-name grep
+
+Searched case-insensitively, whole word: FIVB, Mikasa, Molten, Wilson, AVP, "Beach Pro Tour", "Volleyball World", Swatch, Nike, Adidas, Puma, Mizuno, Errea, Macron, Hummel, Speedo, Red Bull. Locations: all tracked text in the branch (src, data JSON, seed scripts, docs, harness), the starter DB (every text column), the Unity WebGL build (`unity-build/Build/*.data/.wasm/.js`, `unity-build/index.html`), public/ text files, electron/, the main tree's uncommitted and untracked files, and `steam/store-assets` (two PNGs, no text files).
+
+| Hit | Where | Player-visible? | Action |
+|---|---|---|---|
+| `outfit-swatch-${id}` | beach-volleyball/src/pages/team.tsx (test id) | No | none |
+| "FIVB vocabulary" / "FIVB names" | scripts/check-captions.cjs, scripts/captions.json note, docs/caption-audit.md, docs/triage.md | No (dev comments/docs) | none |
+| "red Nike runner" comment + Unsplash URL for sponsor "AirJump Footwear" | scripts/src/seed.ts (old seed script) | No: the starter DB holds no Unsplash URL at all, so the script's pictures never reach the game | none |
+| "Wilson" (Dr. Andrew Wilson, Christine/Brenda/Emma/Morgan/Alyssa/Ella Wilson) | staff/medical data, generators, seed scripts, starter DB staff row | Surnames: fine per brief | none |
+| "AVP" / "avp" / "Macron" | Unity .data/.wasm | No: random bytes in compressed data, and font glyph names (macron = the accent mark) | none |
+| docs/DAYTIME-STATUS-02OCT.md line matching | dev report | No | none |
+
+**No player-visible brand text was found, and no text needed fixing.** The brand problems are all in pictures (see "What is still NOT clean", and part 4).
+
+## 3. Leftover images
+
+`public/player-vera-petrakis.webp` and `public/opengraph.jpg` are referenced nowhere: not in src, index.html, CSS, electron, the starter DB, or the api-server. "Vera Petrakis" appears only in the old seed scripts as a name with an Unsplash URL. **Both deleted.**
+
+## 4. Unity 3D ball (report only, nothing changed)
+
+- Scene: `Assets/BeachVolleyball V19.unity` (the only scene in the build settings). The ball is the GameObject with `BallController`, a prefab instance of `Assets/my assets/Environment/ball/tripo_convert_12743fa7-8708-4a36-9a84-3f527b047c88.fbx` (a Tripo AI-generated model). It uses the FBX's own material, with no override in the scene.
+- Texture: `.../tripo_convert_12743fa7-....fbm/beachvolleyballball3dmodel_basecolor.JPEG` (4096×4096), plus metallic/normal/roughness maps.
+- **What it shows:** no legible text: no "MIKASA", no "FIVB". But:
+  - four white emblem marks on the blue panels: two are **a swirl wrapped around a ball** (the same kind of swirl volleyball emblem the second brief describes on the staff shirts), two are garbled letter-like shapes, i.e. an AI imitation of a printed logo and word mark;
+  - the whole ball is **yellow and blue curved panels**, the look of the Mikasa beach ball (VLS300 / V200W colourway).
+- Suggestion: repaint the base colour (remove the four white marks, ideally change the colours or the panel shapes away from Mikasa's), then re-export WebGL. That needs the Unity Editor licence sign-in (it lapsed: see earlier reports).
+
+## 5. Also on this branch (jobs 2 and 3)
+
+- Job 3: 100 fixed senior cards, commit 757581ce "Replace Mikasa/FIVB balls and wall emblems on senior cards". Backup of the replaced files: `Documents/BVE-image-backup-19oct/seniors`. Exactly 100 replaced, all with the same pixel size and format. `scripts/captions.json` re-pinned (the fixed cards are proven to be the same players: `docs/proof-19oct/senior-cards-ball-fix-check.json`), so check:captions passes. **But see the top of this doc: the wall text is still on them.**
+- Job 2 (staff/manager logo paint-out): see `docs/STAFF-LOGO-CLEANUP.md`.

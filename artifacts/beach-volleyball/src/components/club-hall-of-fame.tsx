@@ -40,7 +40,7 @@ function Why({ c }: { c: Candidate }) {
       {c.olympicGolds > 0 && (
         <Badge variant="outline" className="gap-1 border-amber-500/50 text-amber-700 text-[10px]">
           <Medal className="h-2.5 w-2.5" />
-          {c.olympicGolds} Olympic {c.olympicGolds === 1 ? "gold" : "golds"}
+          {c.olympicGolds} Nations Cup {c.olympicGolds === 1 ? "gold" : "golds"}
         </Badge>
       )}
       {c.worldTitles > 0 && (

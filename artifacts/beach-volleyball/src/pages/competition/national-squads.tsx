@@ -44,7 +44,7 @@ export default function NationalSquads() {
       <div>
         <h1 className="text-2xl font-bold">National Pairs</h1>
         <p className="text-muted-foreground mt-1 text-sm">
-          At the Olympics each nation is represented by its two highest-rated players at any club.
+          At the Empire Nations Cup each nation is represented by its two highest-rated players at any club.
           Injured players cannot be picked. A nation that cannot field two gives its place to the next nation that can.
         </p>
       </div>

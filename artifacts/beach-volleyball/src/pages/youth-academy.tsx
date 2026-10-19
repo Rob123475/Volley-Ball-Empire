@@ -27,6 +27,7 @@ import { cn } from "@/lib/utils";
 import { AvatarPortrait } from "@/components/player-portrait";
 import { YouthPlayerCard, type YouthPlayerData } from "@/components/youth-player-card";
 import { serverMessage } from "@/lib/api-error";
+import { eliteEventLabel } from "@/lib/elite-event";
 import {
   Globe,
   MapPin,
@@ -373,7 +374,7 @@ export default function YouthAcademy() {
                     {eliteCfg && eliteEvent && (
                       <div className={cn("flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 border", eliteCfg.bannerClass)}>
                         {eliteCfg.icon}
-                        <span className="text-[11px] font-black uppercase tracking-wide">{eliteEvent}</span>
+                        <span className="text-[11px] font-black uppercase tracking-wide">{eliteEventLabel(eliteEvent)}</span>
                       </div>
                     )}
 

@@ -207,7 +207,7 @@ function HofConfirmStep({
           <div className="grid grid-cols-2 gap-2">
             <SummaryCell label="Wins" value={summary.totalWins} accent="border-emerald-500/20 bg-emerald-500/8 text-emerald-300" icon={TrendingUp} />
             <SummaryCell label="Titles" value={summary.worldTitles} accent="border-amber-500/20 bg-amber-500/8 text-amber-300" icon={Trophy} />
-            <SummaryCell label="Olympic Medals" value={summary.olympicMedals} accent="border-sky-500/20 bg-sky-500/8 text-sky-300" icon={Award} />
+            <SummaryCell label="Nations Cup Medals" value={summary.olympicMedals} accent="border-sky-500/20 bg-sky-500/8 text-sky-300" icon={Award} />
             <SummaryCell label="Reputation" value={`Level ${summary.managerLevel} · ${summary.managerLevelName}`} accent="border-violet-500/20 bg-violet-500/8 text-violet-300" icon={Star} />
           </div>
         </div>
@@ -270,7 +270,7 @@ function FinalSummary({ summary, onDone }: { summary: CareerSummary; onDone: () 
         <SummaryCell label="Matches Played" value={totalMatches} accent="border-white/10 bg-white/4 text-white" icon={Activity} />
         <SummaryCell label="Wins" value={`${summary.totalWins} (${winPct})`} accent="border-emerald-500/20 bg-emerald-500/8 text-emerald-300" icon={TrendingUp} />
         <SummaryCell label="World Titles" value={summary.worldTitles} accent="border-amber-500/20 bg-amber-500/8 text-amber-300" icon={Trophy} />
-        <SummaryCell label="Olympic Medals" value={summary.olympicMedals} accent="border-sky-500/20 bg-sky-500/8 text-sky-300" icon={Award} />
+        <SummaryCell label="Nations Cup Medals" value={summary.olympicMedals} accent="border-sky-500/20 bg-sky-500/8 text-sky-300" icon={Award} />
         <SummaryCell label="Reputation" value={`Level ${summary.managerLevel} · ${summary.managerLevelName}`} accent="border-violet-500/20 bg-violet-500/8 text-violet-300" icon={Star} />
         <SummaryCell label="World Ranking" value={summary.worldRanking != null ? `#${summary.worldRanking}` : "—"} accent="border-blue-500/20 bg-blue-500/8 text-blue-300" icon={Globe} />
       </div>
