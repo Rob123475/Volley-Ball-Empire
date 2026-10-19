@@ -115,6 +115,18 @@ Searched case-insensitively, whole word: FIVB, Mikasa, Molten, Wilson, AVP, "Bea
 - **Normal map import fixed (19 Oct night):** the normal JPEG was imported as a Default sRGB texture, so URP read its flat blue as a strong tilt. Through the mesh's tangent frame, that tilt drew the old letter shapes and the dark jagged blotches even after the mesh was smoothed. It is now imported as a normal map (the setting the project's other normal maps use). Six views with everything on: no letters, no swirl, no blotches (`docs/proof-19oct/ball/ball-six-views-final.png`). Unity commit 4d25b9a. This also changes the ball's look a little: smoother and cleaner panels.
 - The decor balls by the court (racks and baskets, `Volleyball_Set_1` asset pack) carry only a generic "Volleyball" script and the pack's own small emblem; no Mikasa/FIVB.
 
+### 4c. Courtside advert boards (20 Oct)
+
+- **Found:** the match scene's 18 courtside boards were three Tripo "advertising banner" models. Their textures were cut-up real adverts: one was a Timex watch advert (watch faces, "TI", "MEX", "WHAT'S NE…"), one had red/blue script logos, one was yellow with "Sen…". Their meshes also had the adverts sculpted in: script lettering, a circled "V" emblem like the Volleyball World/FIVB mark, a player silhouette, and a 3D watch (`docs/proof-20oct/boards/before-relief-*.png`).
+- **Textures:** each model's four textures are now plain (white base colour, flat normal map). Originals are backed up in `Documents/BVE-image-backup-19oct/unity-boards/`. The normal maps are now imported as normal maps.
+- **Meshes:** `CourtsideBoardMeshes` (AssetPostprocessor, these three FBX files only; the files themselves are unchanged) turns each mesh into a plain A-frame board of the same footprint, with 18 vertices and flat faces.
+- **Colours:** `CourtsideBoards` (runtime) paints them per match from the kits the loader applies. On each club's half, the side boards take its primary colour and the end boards its secondary. The fallback is the loader's blue/white vs red/white.
+- **Proof:**
+  - Unity commits 7334c26 (boards) and c2823cf (build-report check).
+  - The build report lists only the plain 256 px textures and the 18-vertex boards from those folders (`docs/proof-20oct/boards/board-assets-in-build.txt`); the `.data` is 9.5 MB smaller.
+  - Game commit 982bc4e8. In the packaged game: plain blue (Sydney Riptide) and green (Athens Aegean Stars) boards.
+  - Note: the export changed `.data` and `.wasm` (the loader now paints the boards). The `.framework.js` and `.loader.js` changed too, because they carry the `.wasm` size; the commit message wrongly says those two were identical.
+
 ## 5. Also on this branch (jobs 2 and 3)
 
 - Final cards: 198 senior cards + `images/youth/player_youth_card_01.webp`, commit 362df513 "Final logo cleanup: 198 senior cards + youth card". These replace the 100 from 757581ce. All 199 have the same pixel size and format as the files they replaced. Originals: `Documents/BVE-image-backup-19oct/{seniors,youth}`. captions.json: 197 re-pinned; `peru_04` has no caption row and is referenced nowhere in the code. Proof: mean difference 0.3-1.9 of 255 against its own original, 4.7-48 against any other card.
