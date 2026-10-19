@@ -1,0 +1,12 @@
+"AppBuild"
+{
+	"AppID" "5233750"
+	"Desc" "v1.1.1 trademark cleanup: Empire Nations Cup, clean cards, staff and ball (fix/trademark-cleanup aaea520a)"
+	"SetLive" ""
+	"ContentRoot" "C:\build\vbe-1.1.1-trademark\win-unpacked\"
+	"BuildOutput" "..\output\"
+	"Depots"
+	{
+		"5233751" "depot_build_5233751.vdf"
+	}
+}
