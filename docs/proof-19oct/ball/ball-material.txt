@@ -1,0 +1,2 @@
+renderer Volleyball (MeshRenderer), bounds (0.49, 0.49, 0.49)
+  material tripo_mat_12743fa7, shader Universal Render Pipeline/Lit, base map Assets/my assets/Environment/ball/tripo_convert_12743fa7-8708-4a36-9a84-3f527b047c88.fbm/beachvolleyballball3dmodel_basecolor.JPEG 2048x2048

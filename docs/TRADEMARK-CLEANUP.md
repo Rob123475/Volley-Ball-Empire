@@ -104,6 +104,14 @@ Searched case-insensitively, whole word: FIVB, Mikasa, Molten, Wilson, AVP, "Bea
 - 19 Oct: the four texture files were copied unchanged to `Downloads/BVE-ball-texture/` (basecolor 908,278 B, metallic 479,282 B, normal 394,737 B, roughness 490,858 B; all 4096×4096 JPEG). The FBX references all four (DiffuseColor, NormalMap, and reflection/shininess slots).
 - Suggestion: repaint the base colour (remove the four white marks, ideally change the colours or the panel shapes away from Mikasa's), then re-export WebGL. That needs the Unity Editor licence sign-in (it lapsed: see earlier reports).
 
+### 4b. Ball texture swapped (19 Oct evening)
+
+- Original base colour backed up to `Documents/BVE-image-backup-19oct/unity-ball/`; Rob's new `beachvolleyballball3dmodel_basecolor.JPEG` (4096×4096, white and blue panels with yellow outlines, no emblems, no text) put in its place. Metallic, normal and roughness maps not touched. Unity commit a578d70 on `feat-manual-controls` (pushed), with a new batch proof `BallTextureProof`.
+- Unity reimported it (batch mode). The ball's material (`tripo_mat_12743fa7`, URP Lit) uses the new texture, imported at 2048×2048 (its import cap, as before). Pictures: `docs/proof-19oct/ball/` (two close-ups frozen on a serve, plus the match camera).
+- **Still on the ball: the old emblems as relief.** The normal map (`beachvolleyballball3dmodel_normal.JPEG`) has the four old marks embossed (two swirl-around-a-ball emblems, two letter shapes). On the close-ups they show faintly as raised shapes (one reads like "MA"). They can't be seen from the match camera. Fix: flatten those four areas of the normal map to neutral, then re-export.
+- WebGL export: `WebBuild.Step7`, Succeeded (1 error, the old IDA_Skin gles3 sampler-limit one that earlier exports also log). Only `.data` changed (267,974,607 bytes); `.wasm`, `.framework.js` and `.loader.js` are byte-identical to the deployed ones. Copied under the deployed names into `public/unity-build/Build/`; Brotli regenerated (data.br 216,422,569 B, wasm.br 8,999,034 B; both checked to decompress to the exact files). `verify-unity-brotli` will pass once the frontend is rebuilt (it checks dist/public, which is not built). **Not built, not packaged.**
+- The decor balls by the court (racks and baskets, `Volleyball_Set_1` asset pack) carry only a generic "Volleyball" script and the pack's own small emblem; no Mikasa/FIVB.
+
 ## 5. Also on this branch (jobs 2 and 3)
 
 - Final cards: 198 senior cards + `images/youth/player_youth_card_01.webp`, commit 362df513 "Final logo cleanup: 198 senior cards + youth card". These replace the 100 from 757581ce. All 199 have the same pixel size and format as the files they replaced. Originals: `Documents/BVE-image-backup-19oct/{seniors,youth}`. captions.json: 197 re-pinned; `peru_04` has no caption row and is referenced nowhere in the code. Proof: mean difference 0.3-1.9 of 255 against its own original, 4.7-48 against any other card.
