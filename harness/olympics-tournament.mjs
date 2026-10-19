@@ -73,7 +73,7 @@ check("the draw-only schedule and the manager-picked squads are gone",
 check("the tournament plays on the World Tour's engine",
   /sideRating\(/.test(engine) && /pointProbability\(home\.rating, away\.rating, \{ homeAdvantage: false \}\)/.test(engine) && /simulateMatch\(/.test(engine));
 check("the rules page says what the tournament does",
-  /Played in Olympic years only/.test(rules) && /two highest-rated players at any club/.test(rules)
+  /Played in Nations Cup years only/.test(rules) && /two highest-rated players at any club/.test(rules)
     && /4 groups of 3/.test(rules) && /top two of each group reach the quarter-finals/.test(rules)
     && /bronze medal match and the gold medal match/.test(rules));
 

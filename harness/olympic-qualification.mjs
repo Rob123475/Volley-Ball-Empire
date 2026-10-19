@@ -56,7 +56,7 @@ const SEASON_A = 2026;
 const SEASON_B = 2027;
 const SPOTS = 12;
 const RULE_LINES = [
-  "The Olympics are for national teams, not clubs",
+  "The Empire Nations Cup is for national teams, not clubs",
   "A country qualifies on the World Tour ranking points its players earned this season: the sum across all of that country's players, whichever club they play for",
   "The top 12 countries qualify; ties are broken by the best single-player total",
   "Player ratings play no part in qualifying",

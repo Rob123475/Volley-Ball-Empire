@@ -25,8 +25,8 @@ Each one also needs two icons, 64x64: coloured for achieved, grey for not.
 | `world_champion` | World Champion | Win the World Final in two different seasons. |
 | `dynasty_begins` | Dynasty Begins | Win the World Final three times. |
 | `volleyball_empire` | Beach Volleyball Empire | Win the World Final ten times. |
-| `olympic_gold` | Olympic Gold | Have a player from your club win Olympic gold. |
-| `double_olympic_gold` | Back-to-Back Gold | Have players from your club win Olympic gold at two Games. |
+| `olympic_gold` | Nations Cup Gold | Have a player from your club win Nations Cup gold. |
+| `double_olympic_gold` | Back-to-Back Gold | Have players from your club win Nations Cup gold at two Nations Cups. |
 
 ## Finance (4)
 
