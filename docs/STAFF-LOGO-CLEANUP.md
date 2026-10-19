@@ -60,4 +60,4 @@ No visible mark remains in any of these, but the repair shows up close:
 
 ## Not covered by this pass
 
-The senior cards are covered in `docs/TRADEMARK-CLEANUP.md`: their wall still says BEACH VOLLEYBALL WORLD TOUR. Nobody has checked the AI-club cards (`players/seniors/ai/`), the graduates or the youth pictures yet.
+The senior cards are covered in `docs/TRADEMARK-CLEANUP.md`: since 19 Oct evening their walls are clean. The AI-club cards, the graduates and the staff/manager portraits were checked afterwards for wall writing and tour emblems: none found.

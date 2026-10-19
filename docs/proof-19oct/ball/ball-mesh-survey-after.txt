@@ -1,0 +1,6 @@
+mesh tripo_node_12743fa7: 12278 vertices, 19370 triangles, 1 submeshes, bounds (0.00, 0.00, 0.00) (0.97, 0.98, 0.98), mean radius 0.4912
+all: 12278 vertices, residual mean 0.00003, min -0.01151, max 0.00732, raised > 1.5 mm: 1215
+box 0 (1562,86): 296 vertices, residual mean -0.00001, min -0.00124, max 0.00167, raised > 1.5 mm: 1
+box 1 (2724,283): 145 vertices, residual mean 0.00002, min -0.00158, max 0.00293, raised > 1.5 mm: 2
+box 2 (1124,2914): 325 vertices, residual mean 0.00001, min -0.00094, max 0.00200, raised > 1.5 mm: 1
+box 3 (3606,2727): 143 vertices, residual mean -0.00003, min -0.00106, max 0.00031, raised > 1.5 mm: 0
