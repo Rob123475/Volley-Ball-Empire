@@ -1,0 +1,802 @@
+[
+ {
+  "file": "player_senior_australia_01.webp",
+  "meanDiffOwnFull": 1.51,
+  "pixelsChanged": 0.0079,
+  "meanDiffOwnSmall": 0.95,
+  "nearestOtherSmall": 42.44,
+  "nearestOther": "player_senior_australia_03.webp"
+ },
+ {
+  "file": "player_senior_australia_02.webp",
+  "meanDiffOwnFull": 1.7,
+  "pixelsChanged": 0.0096,
+  "meanDiffOwnSmall": 1.08,
+  "nearestOtherSmall": 30.6,
+  "nearestOther": "player_senior_new_zealand_01.webp"
+ },
+ {
+  "file": "player_senior_australia_03.webp",
+  "meanDiffOwnFull": 1.85,
+  "pixelsChanged": 0.0063,
+  "meanDiffOwnSmall": 1.34,
+  "nearestOtherSmall": 27.43,
+  "nearestOther": "player_senior_australia_04.webp"
+ },
+ {
+  "file": "player_senior_australia_04.webp",
+  "meanDiffOwnFull": 2.08,
+  "pixelsChanged": 0.013,
+  "meanDiffOwnSmall": 1.37,
+  "nearestOtherSmall": 26.14,
+  "nearestOther": "player_senior_new_zealand_02.webp"
+ },
+ {
+  "file": "player_senior_bahamas_01.webp",
+  "meanDiffOwnFull": 1.68,
+  "pixelsChanged": 0.01,
+  "meanDiffOwnSmall": 0.98,
+  "nearestOtherSmall": 17.61,
+  "nearestOther": "player_senior_bahamas_02.webp"
+ },
+ {
+  "file": "player_senior_bahamas_02.webp",
+  "meanDiffOwnFull": 1.92,
+  "pixelsChanged": 0.0126,
+  "meanDiffOwnSmall": 1.24,
+  "nearestOtherSmall": 17.66,
+  "nearestOther": "player_senior_bahamas_01.webp"
+ },
+ {
+  "file": "player_senior_bahamas_03.webp",
+  "meanDiffOwnFull": 1.83,
+  "pixelsChanged": 0.0103,
+  "meanDiffOwnSmall": 1.08,
+  "nearestOtherSmall": 19.65,
+  "nearestOther": "player_senior_switzerland_03.webp"
+ },
+ {
+  "file": "player_senior_bolivia_01.webp",
+  "meanDiffOwnFull": 1.93,
+  "pixelsChanged": 0.0108,
+  "meanDiffOwnSmall": 1.27,
+  "nearestOtherSmall": 8.26,
+  "nearestOther": "player_senior_bolivia_03.webp"
+ },
+ {
+  "file": "player_senior_brazil_03.webp",
+  "meanDiffOwnFull": 2.15,
+  "pixelsChanged": 0.0119,
+  "meanDiffOwnSmall": 1.37,
+  "nearestOtherSmall": 25.85,
+  "nearestOther": "player_senior_south_africa_01.webp"
+ },
+ {
+  "file": "player_senior_cook_islands_01.webp",
+  "meanDiffOwnFull": 1.97,
+  "pixelsChanged": 0.0139,
+  "meanDiffOwnSmall": 1.31,
+  "nearestOtherSmall": 27.21,
+  "nearestOther": "player_senior_cook_islands_02.webp"
+ },
+ {
+  "file": "player_senior_cook_islands_02.webp",
+  "meanDiffOwnFull": 1.55,
+  "pixelsChanged": 0.0099,
+  "meanDiffOwnSmall": 0.93,
+  "nearestOtherSmall": 21.49,
+  "nearestOther": "player_senior_cook_islands_03.webp"
+ },
+ {
+  "file": "player_senior_cook_islands_03.webp",
+  "meanDiffOwnFull": 1.58,
+  "pixelsChanged": 0.01,
+  "meanDiffOwnSmall": 0.95,
+  "nearestOtherSmall": 18.41,
+  "nearestOther": "player_senior_panama_01.webp"
+ },
+ {
+  "file": "player_senior_dominican_republic_01.webp",
+  "meanDiffOwnFull": 1.93,
+  "pixelsChanged": 0.0097,
+  "meanDiffOwnSmall": 1.23,
+  "nearestOtherSmall": 17.83,
+  "nearestOther": "player_senior_dominican_republic_02.webp"
+ },
+ {
+  "file": "player_senior_dominican_republic_03.webp",
+  "meanDiffOwnFull": 2.17,
+  "pixelsChanged": 0.0127,
+  "meanDiffOwnSmall": 1.49,
+  "nearestOtherSmall": 12.15,
+  "nearestOther": "player_senior_dominican_republic_02.webp"
+ },
+ {
+  "file": "player_senior_ecuador_01.webp",
+  "meanDiffOwnFull": 1.64,
+  "pixelsChanged": 0.0092,
+  "meanDiffOwnSmall": 1.05,
+  "nearestOtherSmall": 19.76,
+  "nearestOther": "player_senior_ecuador_02.webp"
+ },
+ {
+  "file": "player_senior_ecuador_02.webp",
+  "meanDiffOwnFull": 1.68,
+  "pixelsChanged": 0.0098,
+  "meanDiffOwnSmall": 1.06,
+  "nearestOtherSmall": 17.83,
+  "nearestOther": "player_senior_ecuador_03.webp"
+ },
+ {
+  "file": "player_senior_ecuador_03.webp",
+  "meanDiffOwnFull": 1.75,
+  "pixelsChanged": 0.0102,
+  "meanDiffOwnSmall": 1.11,
+  "nearestOtherSmall": 18.15,
+  "nearestOther": "player_senior_ecuador_02.webp"
+ },
+ {
+  "file": "player_senior_england_01.webp",
+  "meanDiffOwnFull": 1.84,
+  "pixelsChanged": 0.0106,
+  "meanDiffOwnSmall": 1.14,
+  "nearestOtherSmall": 19.35,
+  "nearestOther": "player_senior_england_03.webp"
+ },
+ {
+  "file": "player_senior_england_02.webp",
+  "meanDiffOwnFull": 1.6,
+  "pixelsChanged": 0.0082,
+  "meanDiffOwnSmall": 0.88,
+  "nearestOtherSmall": 29.05,
+  "nearestOther": "player_senior_england_03.webp"
+ },
+ {
+  "file": "player_senior_fiji_02.webp",
+  "meanDiffOwnFull": 1.71,
+  "pixelsChanged": 0.0084,
+  "meanDiffOwnSmall": 1.08,
+  "nearestOtherSmall": 22.92,
+  "nearestOther": "player_senior_new_zealand_02.webp"
+ },
+ {
+  "file": "player_senior_france_02.webp",
+  "meanDiffOwnFull": 1.61,
+  "pixelsChanged": 0.0092,
+  "meanDiffOwnSmall": 0.92,
+  "nearestOtherSmall": 14.51,
+  "nearestOther": "player_senior_new_zealand_03.webp"
+ },
+ {
+  "file": "player_senior_france_03.webp",
+  "meanDiffOwnFull": 1.46,
+  "pixelsChanged": 0.0054,
+  "meanDiffOwnSmall": 0.96,
+  "nearestOtherSmall": 16.18,
+  "nearestOther": "player_senior_italy_01.webp"
+ },
+ {
+  "file": "player_senior_germany_01.webp",
+  "meanDiffOwnFull": 1.65,
+  "pixelsChanged": 0.0093,
+  "meanDiffOwnSmall": 0.97,
+  "nearestOtherSmall": 17.13,
+  "nearestOther": "player_senior_france_02.webp"
+ },
+ {
+  "file": "player_senior_germany_02.webp",
+  "meanDiffOwnFull": 1.76,
+  "pixelsChanged": 0.0106,
+  "meanDiffOwnSmall": 0.96,
+  "nearestOtherSmall": 22.81,
+  "nearestOther": "player_senior_tonga_02.webp"
+ },
+ {
+  "file": "player_senior_greece_02.webp",
+  "meanDiffOwnFull": 1.65,
+  "pixelsChanged": 0.0101,
+  "meanDiffOwnSmall": 0.99,
+  "nearestOtherSmall": 20.75,
+  "nearestOther": "player_senior_usa_03.webp"
+ },
+ {
+  "file": "player_senior_greece_03.webp",
+  "meanDiffOwnFull": 1.63,
+  "pixelsChanged": 0.008,
+  "meanDiffOwnSmall": 0.93,
+  "nearestOtherSmall": 25.86,
+  "nearestOther": "player_senior_greece_01.webp"
+ },
+ {
+  "file": "player_senior_guyana_03.webp",
+  "meanDiffOwnFull": 2.0,
+  "pixelsChanged": 0.0106,
+  "meanDiffOwnSmall": 1.26,
+  "nearestOtherSmall": 11.11,
+  "nearestOther": "player_senior_guyana_02.webp"
+ },
+ {
+  "file": "player_senior_india_03.webp",
+  "meanDiffOwnFull": 1.44,
+  "pixelsChanged": 0.0047,
+  "meanDiffOwnSmall": 0.86,
+  "nearestOtherSmall": 23.47,
+  "nearestOther": "player_senior_sweden_02.webp"
+ },
+ {
+  "file": "player_senior_indonesia_01.webp",
+  "meanDiffOwnFull": 1.86,
+  "pixelsChanged": 0.0103,
+  "meanDiffOwnSmall": 1.22,
+  "nearestOtherSmall": 14.8,
+  "nearestOther": "player_senior_taiwan_02.webp"
+ },
+ {
+  "file": "player_senior_indonesia_02.webp",
+  "meanDiffOwnFull": 2.17,
+  "pixelsChanged": 0.0143,
+  "meanDiffOwnSmall": 1.47,
+  "nearestOtherSmall": 17.82,
+  "nearestOther": "player_senior_indonesia_03.webp"
+ },
+ {
+  "file": "player_senior_indonesia_03.webp",
+  "meanDiffOwnFull": 1.96,
+  "pixelsChanged": 0.0101,
+  "meanDiffOwnSmall": 1.32,
+  "nearestOtherSmall": 17.74,
+  "nearestOther": "player_senior_indonesia_02.webp"
+ },
+ {
+  "file": "player_senior_ireland_01.webp",
+  "meanDiffOwnFull": 1.82,
+  "pixelsChanged": 0.0098,
+  "meanDiffOwnSmall": 1.19,
+  "nearestOtherSmall": 8.67,
+  "nearestOther": "player_senior_ireland_02.webp"
+ },
+ {
+  "file": "player_senior_ireland_02.webp",
+  "meanDiffOwnFull": 1.79,
+  "pixelsChanged": 0.0093,
+  "meanDiffOwnSmall": 1.16,
+  "nearestOtherSmall": 8.67,
+  "nearestOther": "player_senior_ireland_01.webp"
+ },
+ {
+  "file": "player_senior_ireland_03.webp",
+  "meanDiffOwnFull": 1.71,
+  "pixelsChanged": 0.0086,
+  "meanDiffOwnSmall": 1.07,
+  "nearestOtherSmall": 10.3,
+  "nearestOther": "player_senior_ireland_01.webp"
+ },
+ {
+  "file": "player_senior_italy_02.webp",
+  "meanDiffOwnFull": 1.33,
+  "pixelsChanged": 0.0044,
+  "meanDiffOwnSmall": 0.85,
+  "nearestOtherSmall": 16.78,
+  "nearestOther": "player_senior_italy_01.webp"
+ },
+ {
+  "file": "player_senior_italy_03.webp",
+  "meanDiffOwnFull": 1.85,
+  "pixelsChanged": 0.0109,
+  "meanDiffOwnSmall": 1.17,
+  "nearestOtherSmall": 21.95,
+  "nearestOther": "player_senior_france_02.webp"
+ },
+ {
+  "file": "player_senior_jamaica_01.webp",
+  "meanDiffOwnFull": 2.31,
+  "pixelsChanged": 0.0157,
+  "meanDiffOwnSmall": 1.64,
+  "nearestOtherSmall": 17.59,
+  "nearestOther": "player_senior_jamaica_03.webp"
+ },
+ {
+  "file": "player_senior_jamaica_02.webp",
+  "meanDiffOwnFull": 2.08,
+  "pixelsChanged": 0.0122,
+  "meanDiffOwnSmall": 1.36,
+  "nearestOtherSmall": 21.43,
+  "nearestOther": "player_senior_jamaica_03.webp"
+ },
+ {
+  "file": "player_senior_jamaica_03.webp",
+  "meanDiffOwnFull": 2.07,
+  "pixelsChanged": 0.0121,
+  "meanDiffOwnSmall": 1.45,
+  "nearestOtherSmall": 17.9,
+  "nearestOther": "player_senior_jamaica_01.webp"
+ },
+ {
+  "file": "player_senior_laos_01.webp",
+  "meanDiffOwnFull": 1.87,
+  "pixelsChanged": 0.0093,
+  "meanDiffOwnSmall": 1.22,
+  "nearestOtherSmall": 20.97,
+  "nearestOther": "player_senior_laos_03.webp"
+ },
+ {
+  "file": "player_senior_laos_02.webp",
+  "meanDiffOwnFull": 1.77,
+  "pixelsChanged": 0.0088,
+  "meanDiffOwnSmall": 1.1,
+  "nearestOtherSmall": 18.01,
+  "nearestOther": "player_senior_taiwan_01.webp"
+ },
+ {
+  "file": "player_senior_madagascar_01.webp",
+  "meanDiffOwnFull": 1.68,
+  "pixelsChanged": 0.0092,
+  "meanDiffOwnSmall": 1.1,
+  "nearestOtherSmall": 20.03,
+  "nearestOther": "player_senior_madagascar_03.webp"
+ },
+ {
+  "file": "player_senior_madagascar_02.webp",
+  "meanDiffOwnFull": 1.98,
+  "pixelsChanged": 0.0133,
+  "meanDiffOwnSmall": 1.31,
+  "nearestOtherSmall": 19.61,
+  "nearestOther": "player_senior_madagascar_03.webp"
+ },
+ {
+  "file": "player_senior_madagascar_03.webp",
+  "meanDiffOwnFull": 1.83,
+  "pixelsChanged": 0.0099,
+  "meanDiffOwnSmall": 1.18,
+  "nearestOtherSmall": 19.85,
+  "nearestOther": "player_senior_madagascar_01.webp"
+ },
+ {
+  "file": "player_senior_malaysia_01.webp",
+  "meanDiffOwnFull": 1.69,
+  "pixelsChanged": 0.0092,
+  "meanDiffOwnSmall": 0.97,
+  "nearestOtherSmall": 13.32,
+  "nearestOther": "player_senior_malaysia_02.webp"
+ },
+ {
+  "file": "player_senior_malaysia_02.webp",
+  "meanDiffOwnFull": 1.72,
+  "pixelsChanged": 0.0096,
+  "meanDiffOwnSmall": 1.03,
+  "nearestOtherSmall": 13.41,
+  "nearestOther": "player_senior_malaysia_01.webp"
+ },
+ {
+  "file": "player_senior_malaysia_03.webp",
+  "meanDiffOwnFull": 1.85,
+  "pixelsChanged": 0.0094,
+  "meanDiffOwnSmall": 1.12,
+  "nearestOtherSmall": 13.39,
+  "nearestOther": "player_senior_malaysia_02.webp"
+ },
+ {
+  "file": "player_senior_maldives_02.webp",
+  "meanDiffOwnFull": 1.76,
+  "pixelsChanged": 0.0093,
+  "meanDiffOwnSmall": 1.12,
+  "nearestOtherSmall": 21.57,
+  "nearestOther": "player_senior_maldives_03.webp"
+ },
+ {
+  "file": "player_senior_maldives_03.webp",
+  "meanDiffOwnFull": 1.64,
+  "pixelsChanged": 0.0087,
+  "meanDiffOwnSmall": 1.0,
+  "nearestOtherSmall": 13.66,
+  "nearestOther": "player_senior_maldives_01.webp"
+ },
+ {
+  "file": "player_senior_malta_01.webp",
+  "meanDiffOwnFull": 1.72,
+  "pixelsChanged": 0.009,
+  "meanDiffOwnSmall": 1.12,
+  "nearestOtherSmall": 18.44,
+  "nearestOther": "player_senior_malta_03.webp"
+ },
+ {
+  "file": "player_senior_malta_02.webp",
+  "meanDiffOwnFull": 1.79,
+  "pixelsChanged": 0.0092,
+  "meanDiffOwnSmall": 1.1,
+  "nearestOtherSmall": 17.57,
+  "nearestOther": "player_senior_ireland_02.webp"
+ },
+ {
+  "file": "player_senior_malta_03.webp",
+  "meanDiffOwnFull": 1.96,
+  "pixelsChanged": 0.0108,
+  "meanDiffOwnSmall": 1.32,
+  "nearestOtherSmall": 18.12,
+  "nearestOther": "player_senior_malta_01.webp"
+ },
+ {
+  "file": "player_senior_morocco_02.webp",
+  "meanDiffOwnFull": 1.78,
+  "pixelsChanged": 0.009,
+  "meanDiffOwnSmall": 1.12,
+  "nearestOtherSmall": 12.7,
+  "nearestOther": "player_senior_morocco_04.webp"
+ },
+ {
+  "file": "player_senior_mozambique_01.webp",
+  "meanDiffOwnFull": 1.96,
+  "pixelsChanged": 0.0115,
+  "meanDiffOwnSmall": 1.34,
+  "nearestOtherSmall": 13.15,
+  "nearestOther": "player_senior_tanzania_01.webp"
+ },
+ {
+  "file": "player_senior_mozambique_02.webp",
+  "meanDiffOwnFull": 1.69,
+  "pixelsChanged": 0.01,
+  "meanDiffOwnSmall": 1.03,
+  "nearestOtherSmall": 15.4,
+  "nearestOther": "player_senior_mozambique_03.webp"
+ },
+ {
+  "file": "player_senior_mozambique_03.webp",
+  "meanDiffOwnFull": 1.78,
+  "pixelsChanged": 0.0094,
+  "meanDiffOwnSmall": 1.15,
+  "nearestOtherSmall": 15.32,
+  "nearestOther": "player_senior_mozambique_02.webp"
+ },
+ {
+  "file": "player_senior_new_zealand_01.webp",
+  "meanDiffOwnFull": 1.73,
+  "pixelsChanged": 0.01,
+  "meanDiffOwnSmall": 1.08,
+  "nearestOtherSmall": 17.94,
+  "nearestOther": "player_senior_new_zealand_02.webp"
+ },
+ {
+  "file": "player_senior_new_zealand_02.webp",
+  "meanDiffOwnFull": 1.83,
+  "pixelsChanged": 0.0115,
+  "meanDiffOwnSmall": 1.19,
+  "nearestOtherSmall": 18.01,
+  "nearestOther": "player_senior_new_zealand_01.webp"
+ },
+ {
+  "file": "player_senior_new_zealand_03.webp",
+  "meanDiffOwnFull": 1.57,
+  "pixelsChanged": 0.0089,
+  "meanDiffOwnSmall": 0.92,
+  "nearestOtherSmall": 14.78,
+  "nearestOther": "player_senior_france_02.webp"
+ },
+ {
+  "file": "player_senior_nigeria_03.webp",
+  "meanDiffOwnFull": 1.71,
+  "pixelsChanged": 0.0096,
+  "meanDiffOwnSmall": 1.04,
+  "nearestOtherSmall": 15.47,
+  "nearestOther": "player_senior_malaysia_02.webp"
+ },
+ {
+  "file": "player_senior_panama_01.webp",
+  "meanDiffOwnFull": 1.58,
+  "pixelsChanged": 0.01,
+  "meanDiffOwnSmall": 0.93,
+  "nearestOtherSmall": 14.19,
+  "nearestOther": "player_senior_panama_02.webp"
+ },
+ {
+  "file": "player_senior_panama_02.webp",
+  "meanDiffOwnFull": 1.61,
+  "pixelsChanged": 0.0101,
+  "meanDiffOwnSmall": 0.96,
+  "nearestOtherSmall": 13.96,
+  "nearestOther": "player_senior_panama_01.webp"
+ },
+ {
+  "file": "player_senior_panama_03.webp",
+  "meanDiffOwnFull": 1.57,
+  "pixelsChanged": 0.01,
+  "meanDiffOwnSmall": 0.92,
+  "nearestOtherSmall": 14.33,
+  "nearestOther": "player_senior_panama_02.webp"
+ },
+ {
+  "file": "player_senior_puerto_rico_02.webp",
+  "meanDiffOwnFull": 2.17,
+  "pixelsChanged": 0.013,
+  "meanDiffOwnSmall": 1.52,
+  "nearestOtherSmall": 20.65,
+  "nearestOther": "player_senior_puerto_rico_01.webp"
+ },
+ {
+  "file": "player_senior_russia_01.webp",
+  "meanDiffOwnFull": 1.68,
+  "pixelsChanged": 0.009,
+  "meanDiffOwnSmall": 1.1,
+  "nearestOtherSmall": 17.91,
+  "nearestOther": "player_senior_russia_03.webp"
+ },
+ {
+  "file": "player_senior_russia_02.webp",
+  "meanDiffOwnFull": 2.03,
+  "pixelsChanged": 0.0103,
+  "meanDiffOwnSmall": 1.26,
+  "nearestOtherSmall": 15.19,
+  "nearestOther": "player_senior_russia_03.webp"
+ },
+ {
+  "file": "player_senior_russia_03.webp",
+  "meanDiffOwnFull": 1.93,
+  "pixelsChanged": 0.0097,
+  "meanDiffOwnSmall": 1.22,
+  "nearestOtherSmall": 15.43,
+  "nearestOther": "player_senior_russia_02.webp"
+ },
+ {
+  "file": "player_senior_solomon_islands_01.webp",
+  "meanDiffOwnFull": 1.76,
+  "pixelsChanged": 0.0102,
+  "meanDiffOwnSmall": 1.1,
+  "nearestOtherSmall": 17.56,
+  "nearestOther": "player_senior_solomon_islands_02.webp"
+ },
+ {
+  "file": "player_senior_solomon_islands_02.webp",
+  "meanDiffOwnFull": 1.96,
+  "pixelsChanged": 0.0122,
+  "meanDiffOwnSmall": 1.29,
+  "nearestOtherSmall": 17.14,
+  "nearestOther": "player_senior_solomon_islands_01.webp"
+ },
+ {
+  "file": "player_senior_solomon_islands_03.webp",
+  "meanDiffOwnFull": 2.05,
+  "pixelsChanged": 0.0137,
+  "meanDiffOwnSmall": 1.34,
+  "nearestOtherSmall": 20.35,
+  "nearestOther": "player_senior_solomon_islands_02.webp"
+ },
+ {
+  "file": "player_senior_sweden_02.webp",
+  "meanDiffOwnFull": 1.46,
+  "pixelsChanged": 0.0045,
+  "meanDiffOwnSmall": 0.87,
+  "nearestOtherSmall": 16.25,
+  "nearestOther": "player_senior_sweden_03.webp"
+ },
+ {
+  "file": "player_senior_sweden_03.webp",
+  "meanDiffOwnFull": 1.41,
+  "pixelsChanged": 0.0044,
+  "meanDiffOwnSmall": 0.85,
+  "nearestOtherSmall": 16.23,
+  "nearestOther": "player_senior_sweden_02.webp"
+ },
+ {
+  "file": "player_senior_switzerland_01.webp",
+  "meanDiffOwnFull": 1.85,
+  "pixelsChanged": 0.0095,
+  "meanDiffOwnSmall": 1.19,
+  "nearestOtherSmall": 7.31,
+  "nearestOther": "player_senior_switzerland_02.webp"
+ },
+ {
+  "file": "player_senior_switzerland_02.webp",
+  "meanDiffOwnFull": 1.81,
+  "pixelsChanged": 0.0092,
+  "meanDiffOwnSmall": 1.16,
+  "nearestOtherSmall": 7.33,
+  "nearestOther": "player_senior_switzerland_01.webp"
+ },
+ {
+  "file": "player_senior_switzerland_03.webp",
+  "meanDiffOwnFull": 1.99,
+  "pixelsChanged": 0.0114,
+  "meanDiffOwnSmall": 1.34,
+  "nearestOtherSmall": 19.77,
+  "nearestOther": "player_senior_bahamas_03.webp"
+ },
+ {
+  "file": "player_senior_tahiti_01.webp",
+  "meanDiffOwnFull": 1.53,
+  "pixelsChanged": 0.0055,
+  "meanDiffOwnSmall": 0.99,
+  "nearestOtherSmall": 11.73,
+  "nearestOther": "player_senior_tahiti_02.webp"
+ },
+ {
+  "file": "player_senior_tahiti_02.webp",
+  "meanDiffOwnFull": 1.55,
+  "pixelsChanged": 0.0054,
+  "meanDiffOwnSmall": 1.01,
+  "nearestOtherSmall": 11.72,
+  "nearestOther": "player_senior_tahiti_01.webp"
+ },
+ {
+  "file": "player_senior_tahiti_03.webp",
+  "meanDiffOwnFull": 1.58,
+  "pixelsChanged": 0.0054,
+  "meanDiffOwnSmall": 0.98,
+  "nearestOtherSmall": 16.03,
+  "nearestOther": "player_senior_tahiti_01.webp"
+ },
+ {
+  "file": "player_senior_tahiti_04.webp",
+  "meanDiffOwnFull": 1.35,
+  "pixelsChanged": 0.0045,
+  "meanDiffOwnSmall": 0.83,
+  "nearestOtherSmall": 26.5,
+  "nearestOther": "player_senior_tonga_04.webp"
+ },
+ {
+  "file": "player_senior_taiwan_01.webp",
+  "meanDiffOwnFull": 1.76,
+  "pixelsChanged": 0.0091,
+  "meanDiffOwnSmall": 1.15,
+  "nearestOtherSmall": 4.69,
+  "nearestOther": "player_senior_taiwan_02.webp"
+ },
+ {
+  "file": "player_senior_taiwan_02.webp",
+  "meanDiffOwnFull": 1.76,
+  "pixelsChanged": 0.0091,
+  "meanDiffOwnSmall": 1.14,
+  "nearestOtherSmall": 4.67,
+  "nearestOther": "player_senior_taiwan_01.webp"
+ },
+ {
+  "file": "player_senior_taiwan_03.webp",
+  "meanDiffOwnFull": 1.65,
+  "pixelsChanged": 0.0097,
+  "meanDiffOwnSmall": 1.05,
+  "nearestOtherSmall": 16.5,
+  "nearestOther": "player_senior_taiwan_01.webp"
+ },
+ {
+  "file": "player_senior_tanzania_01.webp",
+  "meanDiffOwnFull": 1.98,
+  "pixelsChanged": 0.0117,
+  "meanDiffOwnSmall": 1.36,
+  "nearestOtherSmall": 13.34,
+  "nearestOther": "player_senior_mozambique_01.webp"
+ },
+ {
+  "file": "player_senior_tanzania_02.webp",
+  "meanDiffOwnFull": 1.95,
+  "pixelsChanged": 0.0132,
+  "meanDiffOwnSmall": 1.31,
+  "nearestOtherSmall": 11.84,
+  "nearestOther": "player_senior_tanzania_03.webp"
+ },
+ {
+  "file": "player_senior_tanzania_03.webp",
+  "meanDiffOwnFull": 1.74,
+  "pixelsChanged": 0.0103,
+  "meanDiffOwnSmall": 1.14,
+  "nearestOtherSmall": 11.88,
+  "nearestOther": "player_senior_tanzania_02.webp"
+ },
+ {
+  "file": "player_senior_tonga_01.webp",
+  "meanDiffOwnFull": 1.75,
+  "pixelsChanged": 0.0106,
+  "meanDiffOwnSmall": 1.03,
+  "nearestOtherSmall": 14.22,
+  "nearestOther": "player_senior_tonga_03.webp"
+ },
+ {
+  "file": "player_senior_tonga_02.webp",
+  "meanDiffOwnFull": 1.76,
+  "pixelsChanged": 0.0101,
+  "meanDiffOwnSmall": 1.09,
+  "nearestOtherSmall": 22.75,
+  "nearestOther": "player_senior_germany_02.webp"
+ },
+ {
+  "file": "player_senior_tonga_03.webp",
+  "meanDiffOwnFull": 1.66,
+  "pixelsChanged": 0.0076,
+  "meanDiffOwnSmall": 0.93,
+  "nearestOtherSmall": 14.19,
+  "nearestOther": "player_senior_tonga_01.webp"
+ },
+ {
+  "file": "player_senior_tonga_04.webp",
+  "meanDiffOwnFull": 1.86,
+  "pixelsChanged": 0.0103,
+  "meanDiffOwnSmall": 1.1,
+  "nearestOtherSmall": 25.79,
+  "nearestOther": "player_senior_tonga_01.webp"
+ },
+ {
+  "file": "player_senior_tunisia_03.webp",
+  "meanDiffOwnFull": 1.95,
+  "pixelsChanged": 0.011,
+  "meanDiffOwnSmall": 1.28,
+  "nearestOtherSmall": 27.95,
+  "nearestOther": "player_senior_tunisia_01.webp"
+ },
+ {
+  "file": "player_senior_uruguay_01.webp",
+  "meanDiffOwnFull": 1.78,
+  "pixelsChanged": 0.0092,
+  "meanDiffOwnSmall": 1.13,
+  "nearestOtherSmall": 5.78,
+  "nearestOther": "player_senior_uruguay_02.webp"
+ },
+ {
+  "file": "player_senior_uruguay_02.webp",
+  "meanDiffOwnFull": 1.7,
+  "pixelsChanged": 0.009,
+  "meanDiffOwnSmall": 1.07,
+  "nearestOtherSmall": 5.75,
+  "nearestOther": "player_senior_uruguay_01.webp"
+ },
+ {
+  "file": "player_senior_uruguay_03.webp",
+  "meanDiffOwnFull": 1.83,
+  "pixelsChanged": 0.0093,
+  "meanDiffOwnSmall": 1.14,
+  "nearestOtherSmall": 15.63,
+  "nearestOther": "player_senior_uruguay_02.webp"
+ },
+ {
+  "file": "player_senior_usa_03.webp",
+  "meanDiffOwnFull": 1.58,
+  "pixelsChanged": 0.0092,
+  "meanDiffOwnSmall": 0.93,
+  "nearestOtherSmall": 20.57,
+  "nearestOther": "player_senior_greece_02.webp"
+ },
+ {
+  "file": "player_senior_vanuatu_01.webp",
+  "meanDiffOwnFull": 1.86,
+  "pixelsChanged": 0.0112,
+  "meanDiffOwnSmall": 1.18,
+  "nearestOtherSmall": 10.83,
+  "nearestOther": "player_senior_vanuatu_02.webp"
+ },
+ {
+  "file": "player_senior_venezuela_01.webp",
+  "meanDiffOwnFull": 1.91,
+  "pixelsChanged": 0.011,
+  "meanDiffOwnSmall": 1.28,
+  "nearestOtherSmall": 18.08,
+  "nearestOther": "player_senior_mozambique_03.webp"
+ },
+ {
+  "file": "player_senior_venezuela_02.webp",
+  "meanDiffOwnFull": 1.61,
+  "pixelsChanged": 0.0091,
+  "meanDiffOwnSmall": 0.87,
+  "nearestOtherSmall": 14.98,
+  "nearestOther": "player_senior_uruguay_01.webp"
+ },
+ {
+  "file": "player_senior_venezuela_03.webp",
+  "meanDiffOwnFull": 1.7,
+  "pixelsChanged": 0.0104,
+  "meanDiffOwnSmall": 0.94,
+  "nearestOtherSmall": 17.52,
+  "nearestOther": "player_senior_venezuela_02.webp"
+ },
+ {
+  "file": "player_senior_zimbabwe_01.webp",
+  "meanDiffOwnFull": 1.96,
+  "pixelsChanged": 0.0097,
+  "meanDiffOwnSmall": 1.22,
+  "nearestOtherSmall": 11.64,
+  "nearestOther": "player_senior_zimbabwe_02.webp"
+ },
+ {
+  "file": "player_senior_zimbabwe_03.webp",
+  "meanDiffOwnFull": 1.6,
+  "pixelsChanged": 0.008,
+  "meanDiffOwnSmall": 0.97,
+  "nearestOtherSmall": 9.56,
+  "nearestOther": "player_senior_zimbabwe_02.webp"
+ }
+]
