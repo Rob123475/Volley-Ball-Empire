@@ -117,6 +117,15 @@ Searched case-insensitively, whole word: FIVB, Mikasa, Molten, Wilson, AVP, "Bea
 
 ### 4c. Courtside advert boards (20 Oct)
 
+**Final (20 Oct, later): the boards carry Rob's banners**, Beach Volleyball Empire and GB Sunglasses, alternating around the court; the club-colour tint below was dropped (Rob: plain colours looked bad).
+- Each board model's face has its own shape (4.11:1, 3.49:1, 2.70:1); the banners are 3:1. So each banner is letterboxed per model, never stretched or cropped: the padding repeats the banner's own edge pixels. That gives 6 PNGs of 1024 px plus matte URP Lit materials in `Assets/Resources/CourtsideBanners` (`CourtsideBannerSetup`).
+- `CourtsideBoardMeshes` maps both sloping faces to read upright and left to right from outside; the ends take the padding colour.
+- `CourtsideBoards` dresses the 18 boards at load in order of their angle around the net: 9 BVE, 9 GB. `UnityMatchDataLoader` is back exactly as it was.
+- Unity commits 07d07f8 and 27c84e0; game commit cf78fb2d.
+- The build report (`docs/proof-20oct/banners/board-assets-in-build.txt`) lists, from the three old board models, only the plain 256 px placeholders, the materials and the 18-vertex meshes; plus the six banner textures. Proofs: `docs/proof-20oct/banners/`.
+
+The steps before (plain boards in club colours, superseded):
+
 - **Found:** the match scene's 18 courtside boards were three Tripo "advertising banner" models. Their textures were cut-up real adverts: one was a Timex watch advert (watch faces, "TI", "MEX", "WHAT'S NE…"), one had red/blue script logos, one was yellow with "Sen…". Their meshes also had the adverts sculpted in: script lettering, a circled "V" emblem like the Volleyball World/FIVB mark, a player silhouette, and a 3D watch (`docs/proof-20oct/boards/before-relief-*.png`).
 - **Textures:** each model's four textures are now plain (white base colour, flat normal map). Originals are backed up in `Documents/BVE-image-backup-19oct/unity-boards/`. The normal maps are now imported as normal maps.
 - **Meshes:** `CourtsideBoardMeshes` (AssetPostprocessor, these three FBX files only; the files themselves are unchanged) turns each mesh into a plain A-frame board of the same footprint, with 18 vertices and flat faces.
