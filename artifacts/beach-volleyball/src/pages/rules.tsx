@@ -261,6 +261,19 @@ export const UPDATE1_RULES: ReadonlyArray<{ title: string; points: string[] }> =
     "An Orthopaedic Surgeon is a Medical Specialist who is a little stronger and a little dearer.",
     "They count under your staff budget like anyone else, and the AI clubs hire and promote them by the same rules.",
   ] },
+  // 1.1.1 (Rob, 18 Oct): retirement rebuilt, and new seniors every season (api-server utils/retirement.ts, utils/newSeniors.ts).
+  { title: "Retirement", points: [
+    "There is no retirement age: a player may retire at the end of any season. The chance is small in her late twenties and grows through her thirties.",
+    "Injuries bring it closer: a reconstruction, or repeat serious injuries, can end a career early. So can a falling rating, or a season without a club.",
+    "A player still playing in the season she turns 40 retires at its end. A player under contract who retires ends her contract, with nothing paid either way. Retirements are in Club News.",
+    "Ask her to retire (on her card): she retires at once and you pay out the rest of her contract. Like releasing, only in the transfer window, unless she has had a reconstruction or is on the injured list.",
+    "Put her on the transfer list (on her card): she is marked as available, and the AI clubs can see her and bid, under the usual transfer rules.",
+    "The AI clubs do the same with their older or broken-down players.",
+  ] },
+  { title: "New talent", points: [
+    "New talent from around the world arrives on the free-agent market every season.",
+    "Each season 15 of the AI academies' best 19-year-olds stay on as seniors, and 5 players arrive from nations around the world, some of them new to the game.",
+  ] },
   { title: "Manager specialities", points: [
     "Your manager's face comes with a speciality: Talent Recruiter, Negotiator, Contracts Expert, Sponsor Magnet, Leader, Coach, Youth Developer or Fitness Guru.",
     "The AI clubs' managers have them too; for an AI club, Coach, Youth Developer and Fitness Guru count.",

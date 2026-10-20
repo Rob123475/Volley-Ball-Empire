@@ -1452,6 +1452,9 @@ const NEWS_META: Record<string, { icon: string; label: string; pill: string; dot
   staff:    { icon: "🩹", label: "Staff",       pill: "bg-rose-400/15 text-rose-300 border-rose-400/25",       dot: "bg-rose-400"   },
   // Night 2 (O-7): one of the club's players hurt: the injury, its area and time out.
   injury:   { icon: "🤕", label: "Injury",      pill: "bg-red-400/15 text-red-300 border-red-400/25",          dot: "bg-red-400"    },
+  // 1.1.1 (18 Oct): retirements, and the season's new seniors on the market.
+  retirement: { icon: "👋", label: "Retirement", pill: "bg-stone-400/15 text-stone-300 border-stone-400/25",   dot: "bg-stone-400"  },
+  talent:   { icon: "🌍", label: "New talent",  pill: "bg-teal-400/15 text-teal-300 border-teal-400/25",       dot: "bg-teal-400"   },
 };
 
 function gameDateLabel(date: string) {

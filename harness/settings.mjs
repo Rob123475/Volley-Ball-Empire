@@ -119,9 +119,11 @@ const topics = ["The Day 1 draft", "The salary cap", "Hire your staff and medica
   // 1.1.1, part 11: the staff budget.
   "Your main sponsor and the staff budget",
   // 1.1.1 (17 Oct): junior medics.
-  "Junior medics"];
+  "Junior medics",
+  // 1.1.1 (18 Oct): retirement rebuilt, and new talent every season.
+  "Retirement", "New talent"];
 const missing = topics.filter((t) => !rules.includes(`title: "${t}"`));
-check("each of the twenty-one topics is on the Rules page", missing.length === 0, missing.join(", ") || "all twenty-one");
+check("each of the twenty-three topics is on the Rules page", missing.length === 0, missing.join(", ") || "all twenty-three");
 // 1.1.0 (Rob, 16 Oct): the AI clubs take staff on 8 January every season (Day 8 of a new career).
 check("and \"On 8 January every season the AI clubs take\" staff is said in plain words", /On 8 January every season \(Day 8 of a new career\) the AI clubs take a coach and a medical member each/.test(rules));
 

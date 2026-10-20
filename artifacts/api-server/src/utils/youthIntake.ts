@@ -52,6 +52,8 @@ import { and, eq, ne, isNull, isNotNull, asc, sql } from "drizzle-orm";
 import type { CareerStateTx } from "../lib/playerDto.js";
 import { generateDevelopment } from "./player-development.js";
 import { ACADEMY_CAP, academyMonthlySalary } from "./academy.js";
+import { NATION_NAMES } from "../data/nationNames.js";
+import { NEW_SENIOR_PICTURE_PREFIX } from "../data/newSeniorPictures.js";
 
 export const INTAKE_SIZE = 3;
 export const INTAKE_AGE_MIN = 16;
@@ -110,13 +112,13 @@ export function drawYouthStats(roll = Math.random()): { stats: YouthStats; super
 /** Half of each intake comes from the club's own country. */
 const HOME_SHARE = 0.5;
 
-function normal(mean: number, sd: number, min: number, max: number): number {
+export function normal(mean: number, sd: number, min: number, max: number): number {
   const u = 1 - Math.random(), v = Math.random();
   const z = Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
   return Math.max(min, Math.min(max, Math.round(mean + z * sd)));
 }
 
-function weighted(counts: Record<string, number>): string {
+export function weighted(counts: Record<string, number>): string {
   const total = Object.values(counts).reduce((a, b) => a + b, 0);
   let r = Math.random() * total;
   for (const [k, n] of Object.entries(counts)) { r -= n; if (r < 0) return k; }
@@ -188,6 +190,9 @@ export function intakeNamePoolTx(tx: Tx, nations: readonly string[]): Map<string
       firsts.add(parts[0]!);
       lasts.add(last);
     }
+    // 1.1.1 (Rob, 18 Oct): a nation the game has no athletes of has its real names (data/nationNames.ts).
+    const listed = NATION_NAMES[nationName(nation) ?? nation];
+    if (listed) { for (const f of listed.first) firsts.add(f); for (const l of listed.last) lasts.add(l); }
     const names: string[] = [];
     for (const f of firsts) for (const l of lasts) {
       const full = `${f} ${l}`;
@@ -243,7 +248,8 @@ export function recycledPortraitsTx(tx: Tx, careerSaveId: number): Array<{ id: n
     ))
     .orderBy(asc(playerRetirementsTable.seasonYear))
     .all()
-    .filter((r): r is { id: number; imageUrl: string } => !!r.imageUrl);
+    // 1.1.1 (Rob, 18 Oct): a new senior picture shows her nation's flag; it is never anyone else's face.
+    .filter((r): r is { id: number; imageUrl: string } => !!r.imageUrl && !r.imageUrl.startsWith(NEW_SENIOR_PICTURE_PREFIX));
 }
 
 /**

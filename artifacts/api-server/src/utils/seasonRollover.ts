@@ -17,6 +17,8 @@ import { isOlympicYear } from "./olympics.js";
 import { youthIntakeTx, type IntakeResult } from "./youthIntake.js";
 import { releaseSurplusGraduatesTx, type ReleasedGraduate } from "./graduates.js";
 import { assignGraduatePortraitsTx } from "./graduatePortraits.js";
+import { seasonEndRetirementsTx } from "./retirement.js";
+import { youthsStayingOnTx, newSeniorsArriveTx } from "./newSeniors.js";
 import { backfillContractsTx } from "./backfillContracts.js";
 import {
   sellBrokePoolClubsTx, openPoolClubSeasonsTx, renewExpiredPoolContractsTx,
@@ -66,6 +68,10 @@ import { seasonEndsForCareerTx } from "./seasonDates.js";
  *
  * Deliberately a flat threshold and not a probability curve: the spec asks for
  * "a handful per season, not a system".
+ *
+ * 1.1.1 (Rob, 18 Oct): replaced. A player may now retire at the end of any
+ * season, by a chance (utils/retirement.ts); 40 is the hard limit, the age she
+ * reaches at the turn that ends the season she turns 40 (RETIREMENT_LIMIT_AGE).
  */
 export const RETIREMENT_AGE = 40;
 
@@ -111,7 +117,7 @@ export type RolloverResult =
  */
 export function rolloverSeason(careerSaveId: number, teamId: number): RolloverResult {
   return withCareerStateTx((w) => {
-    const { tx, ageAllPlayers, retireAgedPlayers, promoteAgedYouth } = w;
+    const { tx, ageAllPlayers, promoteAgedYouth } = w;
     const [season] = tx
       .select()
       .from(seasonsTable)
@@ -132,8 +138,10 @@ export function rolloverSeason(careerSaveId: number, teamId: number): RolloverRe
     void agedCount;
 
     // Retire AFTER ageing, so the threshold is applied to the age a player has
-    // reached rather than the one they are leaving behind.
-    const retired = retireAgedPlayers(careerSaveId, RETIREMENT_AGE, season.year);
+    // reached rather than the one they are leaving behind. 1.1.1 (Rob, 18 Oct):
+    // no retirement age any more: a chance at every turn (utils/retirement.ts),
+    // and the season she turns 40 is her last.
+    const retired = seasonEndRetirementsTx(w, careerSaveId, season.year);
 
     // Update 1, overnight part 4 (B-2): after ageing, every player's fading
     // stats lose their season's points (utils/seasonFade.ts; never below 1).
@@ -143,12 +151,19 @@ export function rolloverSeason(careerSaveId: number, teamId: number): RolloverRe
     // at the same one rather than sitting empty for a season.
     // C15: an AI academy's 19-year-olds leave the game first (utils/youthLoans.ts);
     // only the player's academy and the unattached youth graduate into the market.
-    releaseAiAcademyGraduatesTx(tx, careerSaveId);
+    // 1.1.1 (Rob, 18 Oct): NEW_SENIOR_YOUTHS of them stay on as senior free agents
+    // (utils/newSeniors.ts); promotion puts them on the market with the rest.
+    const staying = youthsStayingOnTx(tx, careerSaveId);
+    releaseAiAcademyGraduatesTx(tx, careerSaveId, new Set(staying.playerIds));
     const promoted = promoteAgedYouth(careerSaveId, PROMOTION_AGE);
     withdrawGraduatedListingsTx(tx, careerSaveId, promoted.map((p) => p.playerId));
+    // ... with their cards and wages, and this year's picture players.
+    newSeniorsArriveTx(w, careerSaveId, staying, season.year + 1, `${season.year + 1}-01-01`);
     // Final brief 5 Oct, A4: every adult graduate without one is given an
     // unused picture of her continent, never one used before in this career.
     const graduatePortraits = assignGraduatePortraitsTx(tx, careerSaveId, `${season.year + 1}-01-01`);
+    // 1.1.1: this turn's ratings and free agents, for the next turn's retirement chances.
+    w.snapshotForRetirement(careerSaveId);
 
     // Update 1, overnight part 4 (B-3): a player's scout reports no longer lapse
     // (they are kept, dated: utils/scoutReports.ts). Item 17: those on staff and

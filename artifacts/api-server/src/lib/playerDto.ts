@@ -4,7 +4,7 @@ import { db, playersTable, careerPlayerStateTable, staffTable, careerStaffStateT
   regionalLeagueResultsTable, contractsTable,
   playerRetirementsTable, clubHallOfFameTable, careerGraduatePortraitsTable, nationName } from "@workspace/db";
 import type { CareerPlayerState, CareerStaffState, CareerPoolTeamState } from "@workspace/db";
-import { and, eq, gte, isNull, isNotNull, or, sql, type SQL } from "drizzle-orm";
+import { and, eq, gte, inArray, isNull, isNotNull, or, sql, type SQL } from "drizzle-orm";
 import staffIds from "../data/staff-ids.json";
 
 /**
@@ -50,6 +50,8 @@ export type CareerPlayerFields = {
   injuredListSquad: string | null;
   /** 1.1.1: her contract's perks (schema/transfers.ts). */
   perks: string;
+  /** 1.1.1 (18 Oct): her club has put her on the transfer list. */
+  transferListed: boolean;
   consecutiveMatchesPlayed: number;
   speed: number;
   power: number;
@@ -130,6 +132,7 @@ export function assemblePlayer(
     injuredListSince:     state.injuredListSince ?? null,
     injuredListSquad:     state.injuredListSquad ?? null,
     perks:                state.perks ?? "",
+    transferListed:       !!state.transferListed,
     consecutiveMatchesPlayed: state.consecutiveMatchesPlayed,
     speed:                state.speed,
     power:                state.power,
@@ -245,13 +248,29 @@ export async function loadPlayer(
 }
 
 /** Update a player's career state. The only write path. */
+/**
+ * 1.1.1 (Rob, 18 Oct): a transfer listing is her club's, so it ends when she changes club (a move, a
+ * release, a signing). Returns the listing's part of a patch that moves her, given where she is now.
+ */
+function listingAfterMove(
+  patch: Partial<CareerPlayerFields>, now: { teamId: number | null; poolTeamId: number | null } | undefined,
+): Partial<CareerPlayerFields> {
+  if (!now || "transferListed" in patch || !("teamId" in patch || "poolTeamId" in patch)) return {};
+  const moved = ("teamId" in patch && (patch.teamId ?? null) !== now.teamId) || ("poolTeamId" in patch && (patch.poolTeamId ?? null) !== now.poolTeamId);
+  return moved ? { transferListed: false } : {};
+}
+
 export async function updatePlayerState(
   careerSaveId: number,
   playerId: number,
   patch: Partial<CareerPlayerFields>,
 ): Promise<void> {
+  const where = and(eq(careerPlayerStateTable.careerSaveId, careerSaveId), eq(careerPlayerStateTable.playerId, playerId));
+  const now = "teamId" in patch || "poolTeamId" in patch
+    ? (await db.select({ teamId: careerPlayerStateTable.teamId, poolTeamId: careerPlayerStateTable.poolTeamId }).from(careerPlayerStateTable).where(where))[0]
+    : undefined;
   await db.update(careerPlayerStateTable)
-    .set({ ...patch, updatedAt: new Date() })
+    .set({ ...patch, ...listingAfterMove(patch, now), updatedAt: new Date() })
     .where(and(
       eq(careerPlayerStateTable.careerSaveId, careerSaveId),
       eq(careerPlayerStateTable.playerId, playerId),
@@ -543,6 +562,19 @@ export type CareerStateTx = {
     playerId: number; teamId: number | null; age: number;
   }>;
   /**
+   * 1.1.1 (Rob, 18 Oct): retire these players now, each with her reason (utils/retirement.ts), on the
+   * rules retireAgedPlayers keeps (the Hall of Fame keeps her whole, everyone else leaves the career,
+   * her contract ends with no payout, player_retirements records her). `retiredOn` is the game day.
+   */
+  retirePlayers(careerSaveId: number, picks: ReadonlyArray<{ playerId: number; reason: string }>, seasonYear: number, retiredOn: string): Array<{
+    playerId: number; teamId: number | null; age: number;
+  }>;
+  /**
+   * 1.1.1 (Rob, 18 Oct): at the season's turn, after it, each living player's rating and whether she is
+   * a free agent, for the next turn's retirement chances (a falling rating, a season unsigned).
+   */
+  snapshotForRetirement(careerSaveId: number): void;
+  /**
    * Promote academy players who have aged out of the youth band into the first
    * team. Returns who went up. Promotion is career state: players.player_type
    * stays 'youth' forever because it is shared by every save.
@@ -572,7 +604,8 @@ export type CareerStateTx = {
 
 
 export function withCareerStateTx<T>(fn: (w: CareerStateTx) => T): T {
-  return db.transaction((tx) => fn({
+  return db.transaction((tx) => {
+    const api: CareerStateTx = {
     tx,
     setStaffState(careerSaveId, staffId, patch) {
       tx.update(careerStaffStateTable)
@@ -584,8 +617,12 @@ export function withCareerStateTx<T>(fn: (w: CareerStateTx) => T): T {
         .run();
     },
     setPlayerState(careerSaveId, playerId, patch) {
+      const now = "teamId" in patch || "poolTeamId" in patch
+        ? tx.select({ teamId: careerPlayerStateTable.teamId, poolTeamId: careerPlayerStateTable.poolTeamId }).from(careerPlayerStateTable)
+          .where(and(eq(careerPlayerStateTable.careerSaveId, careerSaveId), eq(careerPlayerStateTable.playerId, playerId))).get()
+        : undefined;
       tx.update(careerPlayerStateTable)
-        .set({ ...patch, updatedAt: new Date() })
+        .set({ ...patch, ...listingAfterMove(patch, now), updatedAt: new Date() })
         .where(and(
           eq(careerPlayerStateTable.careerSaveId, careerSaveId),
           eq(careerPlayerStateTable.playerId, playerId),
@@ -645,6 +682,24 @@ export function withCareerStateTx<T>(fn: (w: CareerStateTx) => T): T {
       return Number((r as { changes?: number }).changes ?? 0);
     },
     retireAgedPlayers(careerSaveId, minAge, seasonYear) {
+      const aged = tx.select({ playerId: careerPlayerStateTable.playerId }).from(careerPlayerStateTable)
+        .where(and(
+          eq(careerPlayerStateTable.careerSaveId, careerSaveId),
+          eq(careerPlayerStateTable.isRetired, false),
+          gte(careerPlayerStateTable.age, minAge),
+        )).all();
+      return api.retirePlayers(careerSaveId, aged.map((r) => ({ playerId: r.playerId, reason: "limit" })), seasonYear, `${seasonYear + 1}-01-01`);
+    },
+    snapshotForRetirement(careerSaveId) {
+      const s = careerPlayerStateTable;
+      tx.update(s).set({
+        lastRolloverRating:    sql`ROUND((${s.speed} + ${s.power} + ${s.defense} + ${s.serve} + ${s.block} + ${s.stamina}) / 6.0)`,
+        lastRolloverFreeAgent: sql`(${s.teamId} IS NULL AND ${s.poolTeamId} IS NULL)`,
+      }).where(and(eq(s.careerSaveId, careerSaveId), eq(s.isRetired, false))).run();
+    },
+    retirePlayers(careerSaveId, picks, seasonYear, retiredOn) {
+      if (picks.length === 0) return [];
+      const reasonOf = new Map(picks.map((p) => [p.playerId, p.reason]));
       const going = tx.select({
         playerId:    careerPlayerStateTable.playerId,
         teamId:      careerPlayerStateTable.teamId,
@@ -659,7 +714,7 @@ export function withCareerStateTx<T>(fn: (w: CareerStateTx) => T): T {
         .where(and(
           eq(careerPlayerStateTable.careerSaveId, careerSaveId),
           eq(careerPlayerStateTable.isRetired, false),
-          gte(careerPlayerStateTable.age, minAge),
+          inArray(careerPlayerStateTable.playerId, [...reasonOf.keys()]),
         ))
         .all();
 
@@ -694,6 +749,8 @@ export function withCareerStateTx<T>(fn: (w: CareerStateTx) => T): T {
           seasonYear,
           lastTeamId:  g.teamId,
           inHallOfFame,
+          reason:      reasonOf.get(g.playerId) ?? null,
+          retiredOn,
           // An honoured player's name and face are hers for good, so they are
           // stamped as used the moment she retires and no pool can draw them.
           nameReusedAt:     inHallOfFame ? now : null,
@@ -813,7 +870,9 @@ export function withCareerStateTx<T>(fn: (w: CareerStateTx) => T): T {
         ))
         .run();
     },
-  }));
+    };
+    return fn(api);
+  });
 }
 
 

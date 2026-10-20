@@ -393,6 +393,13 @@ export function MarketPlayerCard({
           </div>
         )}
 
+        {/* 1.1.1 (Rob, 18 Oct): her club has put her on the transfer list. */}
+        {(player as { transferListed?: boolean }).transferListed && !player.joins && (
+          <div className="text-xs font-semibold text-sky-600 dark:text-sky-400" data-testid={`listed-${player.id}`}>
+            On the transfer list
+          </div>
+        )}
+
         {/* Update 1, item 4c (C-6): an injured free agent asks less (the server's askingWage). */}
         {!player.currentTeamName && (player.isInjured || (player.injuryStatus ?? "Healthy") !== "Healthy") && (
           <div className="rounded-md border border-red-500/40 bg-red-500/10 px-2 py-1.5 text-xs" data-testid={`injured-${player.id}`}>

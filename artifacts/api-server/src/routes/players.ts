@@ -32,6 +32,8 @@ import { getGameDate, gameDateText, careerGameDateTx } from "../utils/gameDate.j
 import { agreedMovesTx, releaseRefusalTx } from "../utils/transfers.js";
 import { pickScouterTx, addScoutingJobTx } from "../utils/scoutingWork.js";
 import { terminationPayout } from "../utils/contractTerms.js";
+import { inTransferWindow, nextWindowOpening } from "../utils/transferWindow.js";
+import { brokenDownTx } from "../utils/retirement.js";
 import { day1DraftOpen, undoDraftPickTx } from "../utils/day1Draft.js";
 
 const router = Router();
@@ -587,54 +589,61 @@ router.post("/players/:id/release", async (req, res) => {
   res.json({ ...serializePlayer(player), payout });
 });
 
+/**
+ * 1.1.1 (Rob, 18 Oct; utils/retirement.ts): "Ask her to retire". One of his seniors retires at once,
+ * on the rules every retirement keeps (playerDto retirePlayers: the Hall of Fame, the records), and
+ * his club pays out the rest of her contract, as ending it early does. Like releasing, only in the
+ * transfer window, unless she has had a reconstruction or is on the injured list.
+ */
 router.post("/players/:id/retire", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const id = parseInt(req.params.id);
-
-  const player = await loadPlayer(requireCareerSaveId(req.activeCareerSaveId), id);
+  const cid = requireCareerSaveId(req.activeCareerSaveId);
+  const player = await loadPlayer(cid, id);
   if (!player) { res.status(404).json({ error: "Player not found" }); return; }
-
   const team = await getActiveTeam(req);
   if (!team || player.teamId !== team.id) { res.status(403).json({ error: "Not your player" }); return; }
-
-  const peakOverallRating = Math.round((player.power + player.speed + player.defense + player.serve + player.block) / 5);
-
-  const trophies = await db.select().from(trophiesTable).where(eq(trophiesTable.teamId, team.id));
-  const careerTitles      = trophies.filter(t => ["world_championship", "continental_championship", "grand_final"].includes(t.type)).length;
-  const continentalTitles = trophies.filter(t => t.type === "continental_championship").length;
-  const worldTitles       = trophies.filter(t => t.type === "world_championship").length;
-  const olympicMedalsCount = trophies.filter(t => ["olympic_gold", "olympic_silver", "olympic_bronze"].includes(t.type)).length;
-
-  const legendScore =
-    worldTitles * 20 +
-    olympicMedalsCount * 15 +
-    continentalTitles * 10 +
-    careerTitles * 5 +
-    Math.max(0, peakOverallRating - 70) * 2;
-
-  const retiredSeasonYear = new Date().getFullYear();
-
-  // Retirement is career state; the legend fields that belong to the athlete
-  // (peak rating, honours, legend score) stay on the reference row.
-  await updatePlayerState(requireCareerSaveId(req.activeCareerSaveId), id, {
-    isRetired: true,
-    isActive: false,
-    contractEndDate: null,
-    careerWins: team.wins,
-    retiredSeasonYear,
-    // Achieved inside THIS career, counted from THIS career's trophies.
-    peakOverallRating,
-    careerTitles,
-    continentalTitles,
-    worldTitles,
-    olympicMedalsCount,
-    legendScore,
-    careerSeasons: 1,
+  if (player.playerType === "youth" && !player.isPromoted) { res.status(409).json({ error: "An academy player can't be asked to retire: release her instead." }); return; }
+  const today = await getGameDate(team.id);
+  const out = withCareerStateTx((w) => {
+    if (!inTransferWindow(today) && !brokenDownTx(w.tx, cid, id)) {
+      return { refused: `You can ask ${player.name} to retire only in the transfer window (it opens on ${gameDateText(nextWindowOpening(today))}), unless she has had a reconstruction or is on the injured list.` };
+    }
+    const open = w.tx.select().from(contractsTable).where(and(eq(contractsTable.playerId, id), eq(contractsTable.teamId, team.id), eq(contractsTable.status, "active"))).get();
+    const payout = open ? terminationPayout(Number(open.salary), today, open.endDate) : 0;
+    if (payout > 0) {
+      const club = w.tx.select({ budget: teamsTable.budget }).from(teamsTable).where(eq(teamsTable.id, team.id)).get();
+      w.tx.update(teamsTable).set({ budget: Number(club?.budget ?? 0) - payout }).where(eq(teamsTable.id, team.id)).run();
+      w.tx.insert(financeTransactionsTable).values({
+        teamId: team.id, type: "expense", amount: payout, category: "player_salary", date: today,
+        description: `Contract paid out — ${player.name} retired at your request (to ${gameDateText(open!.endDate)})`,
+      }).run();
+    }
+    w.retirePlayers(cid, [{ playerId: id, reason: "asked" }], Number(today.slice(0, 4)), today);
+    return { payout };
   });
+  if ("refused" in out) { res.status(409).json({ error: out.refused }); return; }
+  afterSquadChange(cid, team.id);
+  res.json({ ...serializePlayer(player), isRetired: true, isActive: false, payout: out.payout });
+});
 
-  const retired = await loadPlayer(requireCareerSaveId(req.activeCareerSaveId), id);
-  if (!retired) { res.status(404).json({ error: "Player not found" }); return; }
-  res.json(serializePlayer(retired));
+/**
+ * 1.1.1 (Rob, 18 Oct): "Put her on the transfer list" ({ listed: false } takes her off). She is marked
+ * as available; the AI clubs see her and may bid, under the transfer rules (utils/aiSquads.ts
+ * aiTransfersWeekTx: a listed player is wanted at a lower bar and a lower fee, LISTED_TERMS).
+ */
+router.post("/players/:id/transfer-list", async (req, res) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const id = parseInt(req.params.id);
+  const cid = requireCareerSaveId(req.activeCareerSaveId);
+  const player = await loadPlayer(cid, id);
+  if (!player) { res.status(404).json({ error: "Player not found" }); return; }
+  const team = await getActiveTeam(req);
+  if (!team || player.teamId !== team.id) { res.status(403).json({ error: "Not your player" }); return; }
+  if (player.playerType === "youth" && !player.isPromoted) { res.status(409).json({ error: "Only a senior can go on the transfer list." }); return; }
+  const listed = req.body?.listed !== false;
+  await updatePlayerState(cid, id, { transferListed: listed });
+  res.json({ playerId: id, transferListed: listed });
 });
 
 /**
