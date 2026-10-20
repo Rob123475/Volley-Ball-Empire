@@ -1,3 +1,1639 @@
 {
-  "pictures": []
+  "pictures": [
+    {
+      "url": "/images/players/new-seniors/africa-and-middle-east/egypt/egypt_01.webp",
+      "nation": "Egypt",
+      "continent": "africa_middle_east"
+    },
+    {
+      "url": "/images/players/new-seniors/africa-and-middle-east/egypt/egypt_02.webp",
+      "nation": "Egypt",
+      "continent": "africa_middle_east"
+    },
+    {
+      "url": "/images/players/new-seniors/africa-and-middle-east/egypt/egypt_03.webp",
+      "nation": "Egypt",
+      "continent": "africa_middle_east"
+    },
+    {
+      "url": "/images/players/new-seniors/africa-and-middle-east/egypt/egypt_04.webp",
+      "nation": "Egypt",
+      "continent": "africa_middle_east"
+    },
+    {
+      "url": "/images/players/new-seniors/africa-and-middle-east/ghana/ghana_01.webp",
+      "nation": "Ghana",
+      "continent": "africa_middle_east"
+    },
+    {
+      "url": "/images/players/new-seniors/africa-and-middle-east/ghana/ghana_02.webp",
+      "nation": "Ghana",
+      "continent": "africa_middle_east"
+    },
+    {
+      "url": "/images/players/new-seniors/africa-and-middle-east/ghana/ghana_03.webp",
+      "nation": "Ghana",
+      "continent": "africa_middle_east"
+    },
+    {
+      "url": "/images/players/new-seniors/africa-and-middle-east/ghana/ghana_04.webp",
+      "nation": "Ghana",
+      "continent": "africa_middle_east"
+    },
+    {
+      "url": "/images/players/new-seniors/africa-and-middle-east/ghana/ghana_05.webp",
+      "nation": "Ghana",
+      "continent": "africa_middle_east"
+    },
+    {
+      "url": "/images/players/new-seniors/africa-and-middle-east/ghana/ghana_06.webp",
+      "nation": "Ghana",
+      "continent": "africa_middle_east"
+    },
+    {
+      "url": "/images/players/new-seniors/africa-and-middle-east/ghana/ghana_07.webp",
+      "nation": "Ghana",
+      "continent": "africa_middle_east"
+    },
+    {
+      "url": "/images/players/new-seniors/africa-and-middle-east/kenya/kenya_01.webp",
+      "nation": "Kenya",
+      "continent": "africa_middle_east"
+    },
+    {
+      "url": "/images/players/new-seniors/africa-and-middle-east/kenya/kenya_02.webp",
+      "nation": "Kenya",
+      "continent": "africa_middle_east"
+    },
+    {
+      "url": "/images/players/new-seniors/africa-and-middle-east/kenya/kenya_03.webp",
+      "nation": "Kenya",
+      "continent": "africa_middle_east"
+    },
+    {
+      "url": "/images/players/new-seniors/africa-and-middle-east/kenya/kenya_04.webp",
+      "nation": "Kenya",
+      "continent": "africa_middle_east"
+    },
+    {
+      "url": "/images/players/new-seniors/africa-and-middle-east/madagascar/madagascar_01.webp",
+      "nation": "Madagascar",
+      "continent": "africa_middle_east"
+    },
+    {
+      "url": "/images/players/new-seniors/africa-and-middle-east/madagascar/madagascar_02.webp",
+      "nation": "Madagascar",
+      "continent": "africa_middle_east"
+    },
+    {
+      "url": "/images/players/new-seniors/africa-and-middle-east/madagascar/madagascar_03.webp",
+      "nation": "Madagascar",
+      "continent": "africa_middle_east"
+    },
+    {
+      "url": "/images/players/new-seniors/africa-and-middle-east/madagascar/madagascar_04.webp",
+      "nation": "Madagascar",
+      "continent": "africa_middle_east"
+    },
+    {
+      "url": "/images/players/new-seniors/africa-and-middle-east/mauritius/mauritius_01.webp",
+      "nation": "Mauritius",
+      "continent": "africa_middle_east"
+    },
+    {
+      "url": "/images/players/new-seniors/africa-and-middle-east/mauritius/mauritius_02.webp",
+      "nation": "Mauritius",
+      "continent": "africa_middle_east"
+    },
+    {
+      "url": "/images/players/new-seniors/africa-and-middle-east/mauritius/mauritius_03.webp",
+      "nation": "Mauritius",
+      "continent": "africa_middle_east"
+    },
+    {
+      "url": "/images/players/new-seniors/africa-and-middle-east/mauritius/mauritius_04.webp",
+      "nation": "Mauritius",
+      "continent": "africa_middle_east"
+    },
+    {
+      "url": "/images/players/new-seniors/africa-and-middle-east/mauritius/mauritius_05.webp",
+      "nation": "Mauritius",
+      "continent": "africa_middle_east"
+    },
+    {
+      "url": "/images/players/new-seniors/africa-and-middle-east/mauritius/mauritius_06.webp",
+      "nation": "Mauritius",
+      "continent": "africa_middle_east"
+    },
+    {
+      "url": "/images/players/new-seniors/africa-and-middle-east/morocco/morocco_01.webp",
+      "nation": "Morocco",
+      "continent": "africa_middle_east"
+    },
+    {
+      "url": "/images/players/new-seniors/africa-and-middle-east/morocco/morocco_02.webp",
+      "nation": "Morocco",
+      "continent": "africa_middle_east"
+    },
+    {
+      "url": "/images/players/new-seniors/africa-and-middle-east/morocco/morocco_03.webp",
+      "nation": "Morocco",
+      "continent": "africa_middle_east"
+    },
+    {
+      "url": "/images/players/new-seniors/africa-and-middle-east/morocco/morocco_04.webp",
+      "nation": "Morocco",
+      "continent": "africa_middle_east"
+    },
+    {
+      "url": "/images/players/new-seniors/africa-and-middle-east/mozambique/mozambique_01.webp",
+      "nation": "Mozambique",
+      "continent": "africa_middle_east"
+    },
+    {
+      "url": "/images/players/new-seniors/africa-and-middle-east/mozambique/mozambique_02.webp",
+      "nation": "Mozambique",
+      "continent": "africa_middle_east"
+    },
+    {
+      "url": "/images/players/new-seniors/africa-and-middle-east/mozambique/mozambique_03.webp",
+      "nation": "Mozambique",
+      "continent": "africa_middle_east"
+    },
+    {
+      "url": "/images/players/new-seniors/africa-and-middle-east/mozambique/mozambique_04.webp",
+      "nation": "Mozambique",
+      "continent": "africa_middle_east"
+    },
+    {
+      "url": "/images/players/new-seniors/africa-and-middle-east/nigeria/nigeria_01.webp",
+      "nation": "Nigeria",
+      "continent": "africa_middle_east"
+    },
+    {
+      "url": "/images/players/new-seniors/africa-and-middle-east/nigeria/nigeria_02.webp",
+      "nation": "Nigeria",
+      "continent": "africa_middle_east"
+    },
+    {
+      "url": "/images/players/new-seniors/africa-and-middle-east/nigeria/nigeria_03.webp",
+      "nation": "Nigeria",
+      "continent": "africa_middle_east"
+    },
+    {
+      "url": "/images/players/new-seniors/africa-and-middle-east/nigeria/nigeria_04.webp",
+      "nation": "Nigeria",
+      "continent": "africa_middle_east"
+    },
+    {
+      "url": "/images/players/new-seniors/africa-and-middle-east/south-africa/south-africa_01.webp",
+      "nation": "South Africa",
+      "continent": "africa_middle_east"
+    },
+    {
+      "url": "/images/players/new-seniors/africa-and-middle-east/south-africa/south-africa_02.webp",
+      "nation": "South Africa",
+      "continent": "africa_middle_east"
+    },
+    {
+      "url": "/images/players/new-seniors/africa-and-middle-east/south-africa/south-africa_03.webp",
+      "nation": "South Africa",
+      "continent": "africa_middle_east"
+    },
+    {
+      "url": "/images/players/new-seniors/africa-and-middle-east/south-africa/south-africa_04.webp",
+      "nation": "South Africa",
+      "continent": "africa_middle_east"
+    },
+    {
+      "url": "/images/players/new-seniors/africa-and-middle-east/tanzania/tanzania_01.webp",
+      "nation": "Tanzania",
+      "continent": "africa_middle_east"
+    },
+    {
+      "url": "/images/players/new-seniors/africa-and-middle-east/tanzania/tanzania_02.webp",
+      "nation": "Tanzania",
+      "continent": "africa_middle_east"
+    },
+    {
+      "url": "/images/players/new-seniors/africa-and-middle-east/tanzania/tanzania_03.webp",
+      "nation": "Tanzania",
+      "continent": "africa_middle_east"
+    },
+    {
+      "url": "/images/players/new-seniors/africa-and-middle-east/tanzania/tanzania_04.webp",
+      "nation": "Tanzania",
+      "continent": "africa_middle_east"
+    },
+    {
+      "url": "/images/players/new-seniors/africa-and-middle-east/tanzania/tanzania_05.webp",
+      "nation": "Tanzania",
+      "continent": "africa_middle_east"
+    },
+    {
+      "url": "/images/players/new-seniors/africa-and-middle-east/tanzania/tanzania_06.webp",
+      "nation": "Tanzania",
+      "continent": "africa_middle_east"
+    },
+    {
+      "url": "/images/players/new-seniors/africa-and-middle-east/tunisia/tunisia_01.webp",
+      "nation": "Tunisia",
+      "continent": "africa_middle_east"
+    },
+    {
+      "url": "/images/players/new-seniors/africa-and-middle-east/tunisia/tunisia_02.webp",
+      "nation": "Tunisia",
+      "continent": "africa_middle_east"
+    },
+    {
+      "url": "/images/players/new-seniors/africa-and-middle-east/tunisia/tunisia_03.webp",
+      "nation": "Tunisia",
+      "continent": "africa_middle_east"
+    },
+    {
+      "url": "/images/players/new-seniors/africa-and-middle-east/tunisia/tunisia_04.webp",
+      "nation": "Tunisia",
+      "continent": "africa_middle_east"
+    },
+    {
+      "url": "/images/players/new-seniors/africa-and-middle-east/zimbabwe/zimbabwe_01.webp",
+      "nation": "Zimbabwe",
+      "continent": "africa_middle_east"
+    },
+    {
+      "url": "/images/players/new-seniors/africa-and-middle-east/zimbabwe/zimbabwe_02.webp",
+      "nation": "Zimbabwe",
+      "continent": "africa_middle_east"
+    },
+    {
+      "url": "/images/players/new-seniors/africa-and-middle-east/zimbabwe/zimbabwe_03.webp",
+      "nation": "Zimbabwe",
+      "continent": "africa_middle_east"
+    },
+    {
+      "url": "/images/players/new-seniors/africa-and-middle-east/zimbabwe/zimbabwe_04.webp",
+      "nation": "Zimbabwe",
+      "continent": "africa_middle_east"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/china/china_01.webp",
+      "nation": "China",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/china/china_02.webp",
+      "nation": "China",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/china/china_03.webp",
+      "nation": "China",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/china/china_04.webp",
+      "nation": "China",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/china/china_05.webp",
+      "nation": "China",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/china/china_06.webp",
+      "nation": "China",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/india/india_01.webp",
+      "nation": "India",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/india/india_02.webp",
+      "nation": "India",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/india/india_03.webp",
+      "nation": "India",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/india/india_04.webp",
+      "nation": "India",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/india/india_05.webp",
+      "nation": "India",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/indonesia/indonesia_01.webp",
+      "nation": "Indonesia",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/indonesia/indonesia_02.webp",
+      "nation": "Indonesia",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/indonesia/indonesia_03.webp",
+      "nation": "Indonesia",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/indonesia/indonesia_04.webp",
+      "nation": "Indonesia",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/indonesia/indonesia_05.webp",
+      "nation": "Indonesia",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/japan/japan_01.webp",
+      "nation": "Japan",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/japan/japan_02.webp",
+      "nation": "Japan",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/japan/japan_03.webp",
+      "nation": "Japan",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/japan/japan_04.webp",
+      "nation": "Japan",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/laos/laos_01.webp",
+      "nation": "Laos",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/laos/laos_02.webp",
+      "nation": "Laos",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/laos/laos_03.webp",
+      "nation": "Laos",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/laos/laos_04.webp",
+      "nation": "Laos",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/laos/laos_05.webp",
+      "nation": "Laos",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/malaysia/malaysia_01.webp",
+      "nation": "Malaysia",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/malaysia/malaysia_02.webp",
+      "nation": "Malaysia",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/malaysia/malaysia_03.webp",
+      "nation": "Malaysia",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/malaysia/malaysia_04.webp",
+      "nation": "Malaysia",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/philippines/philippines_01.webp",
+      "nation": "Philippines",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/philippines/philippines_02.webp",
+      "nation": "Philippines",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/philippines/philippines_03.webp",
+      "nation": "Philippines",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/philippines/philippines_04.webp",
+      "nation": "Philippines",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/south-korea/south-korea_01.webp",
+      "nation": "South Korea",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/south-korea/south-korea_02.webp",
+      "nation": "South Korea",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/south-korea/south-korea_03.webp",
+      "nation": "South Korea",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/south-korea/south-korea_04.webp",
+      "nation": "South Korea",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/south-korea/south-korea_05.webp",
+      "nation": "South Korea",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/south-korea/south-korea_06.webp",
+      "nation": "South Korea",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/sri-lanka/sri-lanka_01.webp",
+      "nation": "Sri Lanka",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/sri-lanka/sri-lanka_02.webp",
+      "nation": "Sri Lanka",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/sri-lanka/sri-lanka_03.webp",
+      "nation": "Sri Lanka",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/sri-lanka/sri-lanka_04.webp",
+      "nation": "Sri Lanka",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/sri-lanka/sri-lanka_05.webp",
+      "nation": "Sri Lanka",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/sri-lanka/sri-lanka_06.webp",
+      "nation": "Sri Lanka",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/taiwan/taiwan_01.webp",
+      "nation": "Taiwan",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/taiwan/taiwan_02.webp",
+      "nation": "Taiwan",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/taiwan/taiwan_03.webp",
+      "nation": "Taiwan",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/taiwan/taiwan_04.webp",
+      "nation": "Taiwan",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/taiwan/taiwan_05.webp",
+      "nation": "Taiwan",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/taiwan/taiwan_06.webp",
+      "nation": "Taiwan",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/taiwan/taiwan_07.webp",
+      "nation": "Taiwan",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/taiwan/taiwan_08.webp",
+      "nation": "Taiwan",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/thailand/thailand_01.webp",
+      "nation": "Thailand",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/thailand/thailand_02.webp",
+      "nation": "Thailand",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/thailand/thailand_03.webp",
+      "nation": "Thailand",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/thailand/thailand_04.webp",
+      "nation": "Thailand",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/thailand/thailand_05.webp",
+      "nation": "Thailand",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/vietnam/vietnam_01.webp",
+      "nation": "Vietnam",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/vietnam/vietnam_02.webp",
+      "nation": "Vietnam",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/vietnam/vietnam_03.webp",
+      "nation": "Vietnam",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/vietnam/vietnam_04.webp",
+      "nation": "Vietnam",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/asia/vietnam/vietnam_05.webp",
+      "nation": "Vietnam",
+      "continent": "asia"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/croatia/croatia_01.webp",
+      "nation": "Croatia",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/croatia/croatia_02.webp",
+      "nation": "Croatia",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/croatia/croatia_03.webp",
+      "nation": "Croatia",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/croatia/croatia_04.webp",
+      "nation": "Croatia",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/croatia/croatia_05.webp",
+      "nation": "Croatia",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/croatia/croatia_06.webp",
+      "nation": "Croatia",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/england/england_01.webp",
+      "nation": "England",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/england/england_02.webp",
+      "nation": "England",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/england/england_03.webp",
+      "nation": "England",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/england/england_04.webp",
+      "nation": "England",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/france/france_01.webp",
+      "nation": "France",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/france/france_02.webp",
+      "nation": "France",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/france/france_03.webp",
+      "nation": "France",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/france/france_04.webp",
+      "nation": "France",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/germany/germany_01.webp",
+      "nation": "Germany",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/germany/germany_02.webp",
+      "nation": "Germany",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/germany/germany_03.webp",
+      "nation": "Germany",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/germany/germany_04.webp",
+      "nation": "Germany",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/greece/greece_01.webp",
+      "nation": "Greece",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/greece/greece_02.webp",
+      "nation": "Greece",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/greece/greece_03.webp",
+      "nation": "Greece",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/greece/greece_04.webp",
+      "nation": "Greece",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/ireland/ireland_01.webp",
+      "nation": "Ireland",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/ireland/ireland_02.webp",
+      "nation": "Ireland",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/ireland/ireland_03.webp",
+      "nation": "Ireland",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/ireland/ireland_04.webp",
+      "nation": "Ireland",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/ireland/ireland_05.webp",
+      "nation": "Ireland",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/ireland/ireland_06.webp",
+      "nation": "Ireland",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/italy/italy_01.webp",
+      "nation": "Italy",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/italy/italy_02.webp",
+      "nation": "Italy",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/italy/italy_03.webp",
+      "nation": "Italy",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/italy/italy_04.webp",
+      "nation": "Italy",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/netherlands/netherlands_01.webp",
+      "nation": "Netherlands",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/netherlands/netherlands_02.webp",
+      "nation": "Netherlands",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/netherlands/netherlands_03.webp",
+      "nation": "Netherlands",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/netherlands/netherlands_04.webp",
+      "nation": "Netherlands",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/portugal/portugal_01.webp",
+      "nation": "Portugal",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/portugal/portugal_02.webp",
+      "nation": "Portugal",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/portugal/portugal_03.webp",
+      "nation": "Portugal",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/portugal/portugal_04.webp",
+      "nation": "Portugal",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/portugal/portugal_05.webp",
+      "nation": "Portugal",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/portugal/portugal_06.webp",
+      "nation": "Portugal",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/portugal/portugal_07.webp",
+      "nation": "Portugal",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/portugal/portugal_08.webp",
+      "nation": "Portugal",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/spain/spain_01.webp",
+      "nation": "Spain",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/spain/spain_02.webp",
+      "nation": "Spain",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/spain/spain_03.webp",
+      "nation": "Spain",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/spain/spain_04.webp",
+      "nation": "Spain",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/sweden/sweden_01.webp",
+      "nation": "Sweden",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/sweden/sweden_02.webp",
+      "nation": "Sweden",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/sweden/sweden_03.webp",
+      "nation": "Sweden",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/sweden/sweden_04.webp",
+      "nation": "Sweden",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/switzerland/switzerland_01.webp",
+      "nation": "Switzerland",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/switzerland/switzerland_02.webp",
+      "nation": "Switzerland",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/switzerland/switzerland_03.webp",
+      "nation": "Switzerland",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/switzerland/switzerland_04.webp",
+      "nation": "Switzerland",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/ukraine/ukraine_01.webp",
+      "nation": "Ukraine",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/ukraine/ukraine_02.webp",
+      "nation": "Ukraine",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/ukraine/ukraine_03.webp",
+      "nation": "Ukraine",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/europe/ukraine/ukraine_04.webp",
+      "nation": "Ukraine",
+      "continent": "europe"
+    },
+    {
+      "url": "/images/players/new-seniors/north-america/bahamas/bahamas_01.webp",
+      "nation": "Bahamas",
+      "continent": "north_america"
+    },
+    {
+      "url": "/images/players/new-seniors/north-america/bahamas/bahamas_02.webp",
+      "nation": "Bahamas",
+      "continent": "north_america"
+    },
+    {
+      "url": "/images/players/new-seniors/north-america/bahamas/bahamas_03.webp",
+      "nation": "Bahamas",
+      "continent": "north_america"
+    },
+    {
+      "url": "/images/players/new-seniors/north-america/bahamas/bahamas_04.webp",
+      "nation": "Bahamas",
+      "continent": "north_america"
+    },
+    {
+      "url": "/images/players/new-seniors/north-america/canada/canada_01.webp",
+      "nation": "Canada",
+      "continent": "north_america"
+    },
+    {
+      "url": "/images/players/new-seniors/north-america/canada/canada_02.webp",
+      "nation": "Canada",
+      "continent": "north_america"
+    },
+    {
+      "url": "/images/players/new-seniors/north-america/canada/canada_03.webp",
+      "nation": "Canada",
+      "continent": "north_america"
+    },
+    {
+      "url": "/images/players/new-seniors/north-america/canada/canada_04.webp",
+      "nation": "Canada",
+      "continent": "north_america"
+    },
+    {
+      "url": "/images/players/new-seniors/north-america/costa-rica/costa-rica_01.webp",
+      "nation": "Costa Rica",
+      "continent": "north_america"
+    },
+    {
+      "url": "/images/players/new-seniors/north-america/costa-rica/costa-rica_02.webp",
+      "nation": "Costa Rica",
+      "continent": "north_america"
+    },
+    {
+      "url": "/images/players/new-seniors/north-america/costa-rica/costa-rica_03.webp",
+      "nation": "Costa Rica",
+      "continent": "north_america"
+    },
+    {
+      "url": "/images/players/new-seniors/north-america/costa-rica/costa-rica_04.webp",
+      "nation": "Costa Rica",
+      "continent": "north_america"
+    },
+    {
+      "url": "/images/players/new-seniors/north-america/cuba/cuba_01.webp",
+      "nation": "Cuba",
+      "continent": "north_america"
+    },
+    {
+      "url": "/images/players/new-seniors/north-america/cuba/cuba_02.webp",
+      "nation": "Cuba",
+      "continent": "north_america"
+    },
+    {
+      "url": "/images/players/new-seniors/north-america/cuba/cuba_03.webp",
+      "nation": "Cuba",
+      "continent": "north_america"
+    },
+    {
+      "url": "/images/players/new-seniors/north-america/cuba/cuba_04.webp",
+      "nation": "Cuba",
+      "continent": "north_america"
+    },
+    {
+      "url": "/images/players/new-seniors/north-america/dominican-republic/dominican-republic_01.webp",
+      "nation": "Dominican Republic",
+      "continent": "north_america"
+    },
+    {
+      "url": "/images/players/new-seniors/north-america/dominican-republic/dominican-republic_02.webp",
+      "nation": "Dominican Republic",
+      "continent": "north_america"
+    },
+    {
+      "url": "/images/players/new-seniors/north-america/dominican-republic/dominican-republic_03.webp",
+      "nation": "Dominican Republic",
+      "continent": "north_america"
+    },
+    {
+      "url": "/images/players/new-seniors/north-america/dominican-republic/dominican-republic_04.webp",
+      "nation": "Dominican Republic",
+      "continent": "north_america"
+    },
+    {
+      "url": "/images/players/new-seniors/north-america/guatemala/guatemala_01.webp",
+      "nation": "Guatemala",
+      "continent": "north_america"
+    },
+    {
+      "url": "/images/players/new-seniors/north-america/guatemala/guatemala_02.webp",
+      "nation": "Guatemala",
+      "continent": "north_america"
+    },
+    {
+      "url": "/images/players/new-seniors/north-america/guatemala/guatemala_03.webp",
+      "nation": "Guatemala",
+      "continent": "north_america"
+    },
+    {
+      "url": "/images/players/new-seniors/north-america/guatemala/guatemala_04.webp",
+      "nation": "Guatemala",
+      "continent": "north_america"
+    },
+    {
+      "url": "/images/players/new-seniors/north-america/jamaica/jamaica_01.webp",
+      "nation": "Jamaica",
+      "continent": "north_america"
+    },
+    {
+      "url": "/images/players/new-seniors/north-america/jamaica/jamaica_02.webp",
+      "nation": "Jamaica",
+      "continent": "north_america"
+    },
+    {
+      "url": "/images/players/new-seniors/north-america/jamaica/jamaica_03.webp",
+      "nation": "Jamaica",
+      "continent": "north_america"
+    },
+    {
+      "url": "/images/players/new-seniors/north-america/jamaica/jamaica_04.webp",
+      "nation": "Jamaica",
+      "continent": "north_america"
+    },
+    {
+      "url": "/images/players/new-seniors/north-america/mexico/mexico_01.webp",
+      "nation": "Mexico",
+      "continent": "north_america"
+    },
+    {
+      "url": "/images/players/new-seniors/north-america/mexico/mexico_02.webp",
+      "nation": "Mexico",
+      "continent": "north_america"
+    },
+    {
+      "url": "/images/players/new-seniors/north-america/mexico/mexico_03.webp",
+      "nation": "Mexico",
+      "continent": "north_america"
+    },
+    {
+      "url": "/images/players/new-seniors/north-america/mexico/mexico_04.webp",
+      "nation": "Mexico",
+      "continent": "north_america"
+    },
+    {
+      "url": "/images/players/new-seniors/north-america/panama/panama_01.webp",
+      "nation": "Panama",
+      "continent": "north_america"
+    },
+    {
+      "url": "/images/players/new-seniors/north-america/panama/panama_02.webp",
+      "nation": "Panama",
+      "continent": "north_america"
+    },
+    {
+      "url": "/images/players/new-seniors/north-america/panama/panama_03.webp",
+      "nation": "Panama",
+      "continent": "north_america"
+    },
+    {
+      "url": "/images/players/new-seniors/north-america/panama/panama_04.webp",
+      "nation": "Panama",
+      "continent": "north_america"
+    },
+    {
+      "url": "/images/players/new-seniors/north-america/puerto-rico/puerto-rico_01.webp",
+      "nation": "Puerto Rico",
+      "continent": "north_america"
+    },
+    {
+      "url": "/images/players/new-seniors/north-america/puerto-rico/puerto-rico_02.webp",
+      "nation": "Puerto Rico",
+      "continent": "north_america"
+    },
+    {
+      "url": "/images/players/new-seniors/north-america/puerto-rico/puerto-rico_03.webp",
+      "nation": "Puerto Rico",
+      "continent": "north_america"
+    },
+    {
+      "url": "/images/players/new-seniors/north-america/puerto-rico/puerto-rico_04.webp",
+      "nation": "Puerto Rico",
+      "continent": "north_america"
+    },
+    {
+      "url": "/images/players/new-seniors/north-america/trinidad-and-tobago/trinidad-and-tobago_01.webp",
+      "nation": "Trinidad and Tobago",
+      "continent": "north_america"
+    },
+    {
+      "url": "/images/players/new-seniors/north-america/trinidad-and-tobago/trinidad-and-tobago_02.webp",
+      "nation": "Trinidad and Tobago",
+      "continent": "north_america"
+    },
+    {
+      "url": "/images/players/new-seniors/north-america/trinidad-and-tobago/trinidad-and-tobago_03.webp",
+      "nation": "Trinidad and Tobago",
+      "continent": "north_america"
+    },
+    {
+      "url": "/images/players/new-seniors/north-america/trinidad-and-tobago/trinidad-and-tobago_04.webp",
+      "nation": "Trinidad and Tobago",
+      "continent": "north_america"
+    },
+    {
+      "url": "/images/players/new-seniors/north-america/usa/usa_01.webp",
+      "nation": "USA",
+      "continent": "north_america"
+    },
+    {
+      "url": "/images/players/new-seniors/north-america/usa/usa_02.webp",
+      "nation": "USA",
+      "continent": "north_america"
+    },
+    {
+      "url": "/images/players/new-seniors/north-america/usa/usa_03.webp",
+      "nation": "USA",
+      "continent": "north_america"
+    },
+    {
+      "url": "/images/players/new-seniors/north-america/usa/usa_04.webp",
+      "nation": "USA",
+      "continent": "north_america"
+    },
+    {
+      "url": "/images/players/new-seniors/oceania/australia/australia_01.webp",
+      "nation": "Australia",
+      "continent": "oceania"
+    },
+    {
+      "url": "/images/players/new-seniors/oceania/australia/australia_02.webp",
+      "nation": "Australia",
+      "continent": "oceania"
+    },
+    {
+      "url": "/images/players/new-seniors/oceania/australia/australia_03.webp",
+      "nation": "Australia",
+      "continent": "oceania"
+    },
+    {
+      "url": "/images/players/new-seniors/oceania/australia/australia_04.webp",
+      "nation": "Australia",
+      "continent": "oceania"
+    },
+    {
+      "url": "/images/players/new-seniors/oceania/cook-islands/cook-islands_01.webp",
+      "nation": "Cook Islands",
+      "continent": "oceania"
+    },
+    {
+      "url": "/images/players/new-seniors/oceania/cook-islands/cook-islands_02.webp",
+      "nation": "Cook Islands",
+      "continent": "oceania"
+    },
+    {
+      "url": "/images/players/new-seniors/oceania/cook-islands/cook-islands_03.webp",
+      "nation": "Cook Islands",
+      "continent": "oceania"
+    },
+    {
+      "url": "/images/players/new-seniors/oceania/cook-islands/cook-islands_04.webp",
+      "nation": "Cook Islands",
+      "continent": "oceania"
+    },
+    {
+      "url": "/images/players/new-seniors/oceania/fiji/fiji_01.webp",
+      "nation": "Fiji",
+      "continent": "oceania"
+    },
+    {
+      "url": "/images/players/new-seniors/oceania/fiji/fiji_02.webp",
+      "nation": "Fiji",
+      "continent": "oceania"
+    },
+    {
+      "url": "/images/players/new-seniors/oceania/fiji/fiji_03.webp",
+      "nation": "Fiji",
+      "continent": "oceania"
+    },
+    {
+      "url": "/images/players/new-seniors/oceania/fiji/fiji_04.webp",
+      "nation": "Fiji",
+      "continent": "oceania"
+    },
+    {
+      "url": "/images/players/new-seniors/oceania/kiribati/kiribati_01.webp",
+      "nation": "Kiribati",
+      "continent": "oceania"
+    },
+    {
+      "url": "/images/players/new-seniors/oceania/kiribati/kiribati_02.webp",
+      "nation": "Kiribati",
+      "continent": "oceania"
+    },
+    {
+      "url": "/images/players/new-seniors/oceania/kiribati/kiribati_03.webp",
+      "nation": "Kiribati",
+      "continent": "oceania"
+    },
+    {
+      "url": "/images/players/new-seniors/oceania/kiribati/kiribati_04.webp",
+      "nation": "Kiribati",
+      "continent": "oceania"
+    },
+    {
+      "url": "/images/players/new-seniors/oceania/micronesia/micronesia_01.webp",
+      "nation": "Micronesia",
+      "continent": "oceania"
+    },
+    {
+      "url": "/images/players/new-seniors/oceania/micronesia/micronesia_02.webp",
+      "nation": "Micronesia",
+      "continent": "oceania"
+    },
+    {
+      "url": "/images/players/new-seniors/oceania/micronesia/micronesia_03.webp",
+      "nation": "Micronesia",
+      "continent": "oceania"
+    },
+    {
+      "url": "/images/players/new-seniors/oceania/micronesia/micronesia_04.webp",
+      "nation": "Micronesia",
+      "continent": "oceania"
+    },
+    {
+      "url": "/images/players/new-seniors/oceania/micronesia/micronesia_05.webp",
+      "nation": "Micronesia",
+      "continent": "oceania"
+    },
+    {
+      "url": "/images/players/new-seniors/oceania/micronesia/micronesia_06.webp",
+      "nation": "Micronesia",
+      "continent": "oceania"
+    },
+    {
+      "url": "/images/players/new-seniors/oceania/new-zealand/new-zealand_01.webp",
+      "nation": "New Zealand",
+      "continent": "oceania"
+    },
+    {
+      "url": "/images/players/new-seniors/oceania/new-zealand/new-zealand_02.webp",
+      "nation": "New Zealand",
+      "continent": "oceania"
+    },
+    {
+      "url": "/images/players/new-seniors/oceania/new-zealand/new-zealand_03.webp",
+      "nation": "New Zealand",
+      "continent": "oceania"
+    },
+    {
+      "url": "/images/players/new-seniors/oceania/new-zealand/new-zealand_04.webp",
+      "nation": "New Zealand",
+      "continent": "oceania"
+    },
+    {
+      "url": "/images/players/new-seniors/oceania/papua-new-guinea/papua-new-guinea_01.webp",
+      "nation": "Papua New Guinea",
+      "continent": "oceania"
+    },
+    {
+      "url": "/images/players/new-seniors/oceania/papua-new-guinea/papua-new-guinea_02.webp",
+      "nation": "Papua New Guinea",
+      "continent": "oceania"
+    },
+    {
+      "url": "/images/players/new-seniors/oceania/papua-new-guinea/papua-new-guinea_03.webp",
+      "nation": "Papua New Guinea",
+      "continent": "oceania"
+    },
+    {
+      "url": "/images/players/new-seniors/oceania/papua-new-guinea/papua-new-guinea_04.webp",
+      "nation": "Papua New Guinea",
+      "continent": "oceania"
+    },
+    {
+      "url": "/images/players/new-seniors/oceania/samoa/samoa_01.webp",
+      "nation": "Samoa",
+      "continent": "oceania"
+    },
+    {
+      "url": "/images/players/new-seniors/oceania/samoa/samoa_02.webp",
+      "nation": "Samoa",
+      "continent": "oceania"
+    },
+    {
+      "url": "/images/players/new-seniors/oceania/samoa/samoa_03.webp",
+      "nation": "Samoa",
+      "continent": "oceania"
+    },
+    {
+      "url": "/images/players/new-seniors/oceania/samoa/samoa_04.webp",
+      "nation": "Samoa",
+      "continent": "oceania"
+    },
+    {
+      "url": "/images/players/new-seniors/oceania/solomon-islands/solomon-islands_01.webp",
+      "nation": "Solomon Islands",
+      "continent": "oceania"
+    },
+    {
+      "url": "/images/players/new-seniors/oceania/solomon-islands/solomon-islands_02.webp",
+      "nation": "Solomon Islands",
+      "continent": "oceania"
+    },
+    {
+      "url": "/images/players/new-seniors/oceania/solomon-islands/solomon-islands_03.webp",
+      "nation": "Solomon Islands",
+      "continent": "oceania"
+    },
+    {
+      "url": "/images/players/new-seniors/oceania/solomon-islands/solomon-islands_04.webp",
+      "nation": "Solomon Islands",
+      "continent": "oceania"
+    },
+    {
+      "url": "/images/players/new-seniors/oceania/tahiti/tahiti_01.webp",
+      "nation": "Tahiti",
+      "continent": "oceania"
+    },
+    {
+      "url": "/images/players/new-seniors/oceania/tahiti/tahiti_02.webp",
+      "nation": "Tahiti",
+      "continent": "oceania"
+    },
+    {
+      "url": "/images/players/new-seniors/oceania/tahiti/tahiti_03.webp",
+      "nation": "Tahiti",
+      "continent": "oceania"
+    },
+    {
+      "url": "/images/players/new-seniors/oceania/tahiti/tahiti_04.webp",
+      "nation": "Tahiti",
+      "continent": "oceania"
+    },
+    {
+      "url": "/images/players/new-seniors/oceania/tonga/tonga_01.webp",
+      "nation": "Tonga",
+      "continent": "oceania"
+    },
+    {
+      "url": "/images/players/new-seniors/oceania/tonga/tonga_02.webp",
+      "nation": "Tonga",
+      "continent": "oceania"
+    },
+    {
+      "url": "/images/players/new-seniors/oceania/tonga/tonga_03.webp",
+      "nation": "Tonga",
+      "continent": "oceania"
+    },
+    {
+      "url": "/images/players/new-seniors/oceania/tonga/tonga_04.webp",
+      "nation": "Tonga",
+      "continent": "oceania"
+    },
+    {
+      "url": "/images/players/new-seniors/oceania/vanuatu/vanuatu_01.webp",
+      "nation": "Vanuatu",
+      "continent": "oceania"
+    },
+    {
+      "url": "/images/players/new-seniors/oceania/vanuatu/vanuatu_02.webp",
+      "nation": "Vanuatu",
+      "continent": "oceania"
+    },
+    {
+      "url": "/images/players/new-seniors/oceania/vanuatu/vanuatu_03.webp",
+      "nation": "Vanuatu",
+      "continent": "oceania"
+    },
+    {
+      "url": "/images/players/new-seniors/oceania/vanuatu/vanuatu_04.webp",
+      "nation": "Vanuatu",
+      "continent": "oceania"
+    },
+    {
+      "url": "/images/players/new-seniors/south-america/argentina/argentina_01.webp",
+      "nation": "Argentina",
+      "continent": "south_america"
+    },
+    {
+      "url": "/images/players/new-seniors/south-america/argentina/argentina_02.webp",
+      "nation": "Argentina",
+      "continent": "south_america"
+    },
+    {
+      "url": "/images/players/new-seniors/south-america/argentina/argentina_03.webp",
+      "nation": "Argentina",
+      "continent": "south_america"
+    },
+    {
+      "url": "/images/players/new-seniors/south-america/argentina/argentina_04.webp",
+      "nation": "Argentina",
+      "continent": "south_america"
+    },
+    {
+      "url": "/images/players/new-seniors/south-america/argentina/argentina_05.webp",
+      "nation": "Argentina",
+      "continent": "south_america"
+    },
+    {
+      "url": "/images/players/new-seniors/south-america/bolivia/bolivia_01.webp",
+      "nation": "Bolivia",
+      "continent": "south_america"
+    },
+    {
+      "url": "/images/players/new-seniors/south-america/bolivia/bolivia_02.webp",
+      "nation": "Bolivia",
+      "continent": "south_america"
+    },
+    {
+      "url": "/images/players/new-seniors/south-america/bolivia/bolivia_03.webp",
+      "nation": "Bolivia",
+      "continent": "south_america"
+    },
+    {
+      "url": "/images/players/new-seniors/south-america/bolivia/bolivia_04.webp",
+      "nation": "Bolivia",
+      "continent": "south_america"
+    },
+    {
+      "url": "/images/players/new-seniors/south-america/brazil/brazil_01.webp",
+      "nation": "Brazil",
+      "continent": "south_america"
+    },
+    {
+      "url": "/images/players/new-seniors/south-america/brazil/brazil_02.webp",
+      "nation": "Brazil",
+      "continent": "south_america"
+    },
+    {
+      "url": "/images/players/new-seniors/south-america/brazil/brazil_03.webp",
+      "nation": "Brazil",
+      "continent": "south_america"
+    },
+    {
+      "url": "/images/players/new-seniors/south-america/brazil/brazil_04.webp",
+      "nation": "Brazil",
+      "continent": "south_america"
+    },
+    {
+      "url": "/images/players/new-seniors/south-america/chile/chile_01.webp",
+      "nation": "Chile",
+      "continent": "south_america"
+    },
+    {
+      "url": "/images/players/new-seniors/south-america/chile/chile_02.webp",
+      "nation": "Chile",
+      "continent": "south_america"
+    },
+    {
+      "url": "/images/players/new-seniors/south-america/chile/chile_03.webp",
+      "nation": "Chile",
+      "continent": "south_america"
+    },
+    {
+      "url": "/images/players/new-seniors/south-america/chile/chile_04.webp",
+      "nation": "Chile",
+      "continent": "south_america"
+    },
+    {
+      "url": "/images/players/new-seniors/south-america/colombia/colombia_01.webp",
+      "nation": "Colombia",
+      "continent": "south_america"
+    },
+    {
+      "url": "/images/players/new-seniors/south-america/colombia/colombia_02.webp",
+      "nation": "Colombia",
+      "continent": "south_america"
+    },
+    {
+      "url": "/images/players/new-seniors/south-america/colombia/colombia_03.webp",
+      "nation": "Colombia",
+      "continent": "south_america"
+    },
+    {
+      "url": "/images/players/new-seniors/south-america/colombia/colombia_04.webp",
+      "nation": "Colombia",
+      "continent": "south_america"
+    },
+    {
+      "url": "/images/players/new-seniors/south-america/ecuador/ecuador_01.webp",
+      "nation": "Ecuador",
+      "continent": "south_america"
+    },
+    {
+      "url": "/images/players/new-seniors/south-america/ecuador/ecuador_02.webp",
+      "nation": "Ecuador",
+      "continent": "south_america"
+    },
+    {
+      "url": "/images/players/new-seniors/south-america/ecuador/ecuador_03.webp",
+      "nation": "Ecuador",
+      "continent": "south_america"
+    },
+    {
+      "url": "/images/players/new-seniors/south-america/ecuador/ecuador_04.webp",
+      "nation": "Ecuador",
+      "continent": "south_america"
+    },
+    {
+      "url": "/images/players/new-seniors/south-america/guyana/guyana_01.webp",
+      "nation": "Guyana",
+      "continent": "south_america"
+    },
+    {
+      "url": "/images/players/new-seniors/south-america/guyana/guyana_02.webp",
+      "nation": "Guyana",
+      "continent": "south_america"
+    },
+    {
+      "url": "/images/players/new-seniors/south-america/guyana/guyana_03.webp",
+      "nation": "Guyana",
+      "continent": "south_america"
+    },
+    {
+      "url": "/images/players/new-seniors/south-america/guyana/guyana_04.webp",
+      "nation": "Guyana",
+      "continent": "south_america"
+    },
+    {
+      "url": "/images/players/new-seniors/south-america/paraguay/paraguay_01.webp",
+      "nation": "Paraguay",
+      "continent": "south_america"
+    },
+    {
+      "url": "/images/players/new-seniors/south-america/paraguay/paraguay_02.webp",
+      "nation": "Paraguay",
+      "continent": "south_america"
+    },
+    {
+      "url": "/images/players/new-seniors/south-america/paraguay/paraguay_03.webp",
+      "nation": "Paraguay",
+      "continent": "south_america"
+    },
+    {
+      "url": "/images/players/new-seniors/south-america/paraguay/paraguay_04.webp",
+      "nation": "Paraguay",
+      "continent": "south_america"
+    },
+    {
+      "url": "/images/players/new-seniors/south-america/paraguay/paraguay_05.webp",
+      "nation": "Paraguay",
+      "continent": "south_america"
+    },
+    {
+      "url": "/images/players/new-seniors/south-america/peru/peru_01.webp",
+      "nation": "Peru",
+      "continent": "south_america"
+    },
+    {
+      "url": "/images/players/new-seniors/south-america/peru/peru_02.webp",
+      "nation": "Peru",
+      "continent": "south_america"
+    },
+    {
+      "url": "/images/players/new-seniors/south-america/peru/peru_03.webp",
+      "nation": "Peru",
+      "continent": "south_america"
+    },
+    {
+      "url": "/images/players/new-seniors/south-america/peru/peru_04.webp",
+      "nation": "Peru",
+      "continent": "south_america"
+    },
+    {
+      "url": "/images/players/new-seniors/south-america/suriname/suriname_01.webp",
+      "nation": "Suriname",
+      "continent": "south_america"
+    },
+    {
+      "url": "/images/players/new-seniors/south-america/suriname/suriname_02.webp",
+      "nation": "Suriname",
+      "continent": "south_america"
+    },
+    {
+      "url": "/images/players/new-seniors/south-america/suriname/suriname_03.webp",
+      "nation": "Suriname",
+      "continent": "south_america"
+    },
+    {
+      "url": "/images/players/new-seniors/south-america/suriname/suriname_04.webp",
+      "nation": "Suriname",
+      "continent": "south_america"
+    },
+    {
+      "url": "/images/players/new-seniors/south-america/suriname/suriname_05.webp",
+      "nation": "Suriname",
+      "continent": "south_america"
+    },
+    {
+      "url": "/images/players/new-seniors/south-america/uruguay/uruguay_01.webp",
+      "nation": "Uruguay",
+      "continent": "south_america"
+    },
+    {
+      "url": "/images/players/new-seniors/south-america/uruguay/uruguay_02.webp",
+      "nation": "Uruguay",
+      "continent": "south_america"
+    },
+    {
+      "url": "/images/players/new-seniors/south-america/uruguay/uruguay_03.webp",
+      "nation": "Uruguay",
+      "continent": "south_america"
+    },
+    {
+      "url": "/images/players/new-seniors/south-america/uruguay/uruguay_04.webp",
+      "nation": "Uruguay",
+      "continent": "south_america"
+    },
+    {
+      "url": "/images/players/new-seniors/south-america/venezuela/venezuela_01.webp",
+      "nation": "Venezuela",
+      "continent": "south_america"
+    },
+    {
+      "url": "/images/players/new-seniors/south-america/venezuela/venezuela_02.webp",
+      "nation": "Venezuela",
+      "continent": "south_america"
+    },
+    {
+      "url": "/images/players/new-seniors/south-america/venezuela/venezuela_03.webp",
+      "nation": "Venezuela",
+      "continent": "south_america"
+    },
+    {
+      "url": "/images/players/new-seniors/south-america/venezuela/venezuela_04.webp",
+      "nation": "Venezuela",
+      "continent": "south_america"
+    }
+  ]
 }

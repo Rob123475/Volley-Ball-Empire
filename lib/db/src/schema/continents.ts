@@ -188,7 +188,7 @@ nat("africa_middle_east", [
   "Gabon", "Gabonese", "Ghana", "Ghanaian", "Guinea", "Guinean", "Iran", "Iranian", "Iraq", "Iraqi",
   "Israel", "Israeli", "Ivory Coast", "Ivorian", "Jordan", "Jordanian", "Kenya", "Kenyan",
   "Kuwait", "Kuwaiti", "Lebanon", "Lebanese", "Libya", "Libyan", "Madagascar", "Malagasy",
-  "Mali", "Malian", "Morocco", "Moroccan", "Mozambique", "Mozambican", "Namibia", "Namibian",
+  "Mali", "Malian", "Mauritius", "Mauritian", "Morocco", "Moroccan", "Mozambique", "Mozambican", "Namibia", "Namibian",
   "Nigeria", "Nigerian", "Oman", "Omani", "Qatar", "Qatari", "Rwanda", "Rwandan",
   "Saudi Arabia", "Saudi", "Senegal", "Senegalese", "South Africa", "South African",
   "Sudan", "Sudanese", "Syria", "Syrian", "Tanzania", "Tanzanian", "Tunisia", "Tunisian",
@@ -201,6 +201,8 @@ nat("oceania", [
   "New Zealand", "New Zealander", "Papua New Guinea", "Papua New Guinean",
   "Samoa", "Samoan", "Solomon Islands", "Solomon Islander", "Tahiti", "Tahitian",
   "Tonga", "Tongan", "Vanuatu", "Ni-Vanuatu",
+  // 1.1.2 (Rob, 21 Oct): nations his new senior pictures bring.
+  "Kiribati", "I-Kiribati", "Micronesia", "Micronesian", "Federated States of Micronesia",
 ]);
 
 /** Best-effort continent key for a nationality. Null when unknown. */
@@ -262,6 +264,7 @@ iso("DE", ["Germany", "German"]);
 iso("GH", ["Ghana", "Ghanaian"]);
 iso("GR", ["Greece", "Greek"]);
 iso("GN", ["Guinea", "Guinean"]);
+iso("GT", ["Guatemala", "Guatemalan"]);   // 1.1.2 (Rob, 21 Oct): nations his new senior pictures bring
 iso("GY", ["Guyana", "Guyanese"]);
 iso("IS", ["Iceland", "Icelandic"]);
 iso("IN", ["India", "Indian"]);
@@ -273,6 +276,8 @@ iso("CI", ["Ivory Coast", "Ivorian"]);
 iso("JM", ["Jamaica", "Jamaican"]);
 iso("JP", ["Japan", "Japanese"]);
 iso("JO", ["Jordan", "Jordanian"]);
+iso("KI", ["Kiribati", "I-Kiribati"]);   // 1.1.2 (21 Oct)
+iso("LK", ["Sri Lanka", "Sri Lankan"]);   // 1.1.2 (21 Oct)
 iso("KE", ["Kenya", "Kenyan"]);
 iso("LA", ["Laos", "Laotian"]);
 iso("LV", ["Latvia", "Latvian"]);
@@ -281,7 +286,9 @@ iso("MG", ["Madagascar", "Malagasy"]);
 iso("MY", ["Malaysia", "Malaysian"]);
 iso("MV", ["Maldives", "Maldivian"]);
 iso("MT", ["Malta", "Maltese"]);
+iso("MU", ["Mauritius", "Mauritian"]);   // 1.1.2 (21 Oct)
 iso("MX", ["Mexico", "Mexican"]);
+iso("FM", ["Micronesia", "Micronesian", "Federated States of Micronesia"]);   // 1.1.2 (21 Oct)
 iso("MC", ["Monaco", "Monegasque"]);
 iso("MA", ["Morocco", "Moroccan"]);
 iso("MZ", ["Mozambique", "Mozambican"]);
@@ -293,6 +300,7 @@ iso("OM", ["Oman", "Omani"]);
 iso("PK", ["Pakistan", "Pakistani"]);   // 1.1.1 (17 Oct): two junior medics are Pakistani; they had no flag
 iso("PA", ["Panama", "Panamanian"]);
 iso("PG", ["Papua New Guinea", "Papua New Guinean"]);
+iso("PY", ["Paraguay", "Paraguayan"]);   // 1.1.2 (21 Oct)
 iso("PE", ["Peru", "Peruvian"]);
 iso("PH", ["Philippines", "Filipino"]);
 iso("PL", ["Poland", "Polish"]);
@@ -309,6 +317,7 @@ iso("ZA", ["South Africa", "South African"]);
 iso("KR", ["South Korea", "South Korean"]);
 iso("ES", ["Spain", "Spanish"]);
 iso("SD", ["Sudan", "Sudanese"]);
+iso("SR", ["Suriname", "Surinamese"]);   // 1.1.2 (21 Oct)
 iso("SE", ["Sweden", "Swedish"]);
 iso("CH", ["Switzerland", "Swiss"]);
 iso("PF", ["Tahiti", "Tahitian"]);           // French Polynesia
@@ -316,6 +325,7 @@ iso("TW", ["Taiwan", "Taiwanese"]);
 iso("TZ", ["Tanzania", "Tanzanian"]);
 iso("TH", ["Thailand", "Thai"]);
 iso("TO", ["Tonga", "Tongan"]);
+iso("TT", ["Trinidad and Tobago", "Trinidadian", "Tobagonian"]);   // 1.1.2 (21 Oct); "Trinidad & Tobago" folds to this
 iso("TN", ["Tunisia", "Tunisian"]);
 iso("TR", ["Turkey", "Turkish"]);
 iso("UA", ["Ukraine", "Ukrainian"]);
