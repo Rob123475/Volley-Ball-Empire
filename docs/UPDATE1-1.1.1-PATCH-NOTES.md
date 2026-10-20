@@ -118,13 +118,6 @@ New dates on the calendar:
 
 Transfers have their own colour in the legend.
 
-## Retirement and new talent
-- **New talent from around the world arrives on the free-agent market every season:** 15 of the AI academies' best 19-year-olds stay on as seniors, and 5 players arrive from nations around the world, some new to the game.
-- **No retirement age.** A player may retire at the end of any season. The chance grows with age, injuries (a reconstruction, repeat serious injuries), a falling rating or a season without a club. A player still playing in the season she turns 40 retires at its end.
-- **Ask her to retire:** she retires at once and you pay out the rest of her contract. Only in the transfer window, unless she has had a reconstruction or is on the injured list.
-- **Put her on the transfer list:** the AI clubs see she is available and can bid.
-- The AI clubs do both with their older or broken-down players. Retirements are in Club News.
-
 ## Also
 - **In a career's first season the 10 strongest AI clubs in the World Tour field are paid Silver**, as an Established club is, so yours is no longer the only Silver club. From the second season, last season's ranking points decide every club's tier, as before.
 - The Rules page explains all of the above.

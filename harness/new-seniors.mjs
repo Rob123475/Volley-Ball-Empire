@@ -177,7 +177,7 @@ try {
     /export function aiDeadwoodTx/.test(ai) && /aiDeadwoodTx\(w, careerSaveId, nextDate\);\s*return aiTransfersWeekTx/.test(cal));
   check("(source) a listed player is wanted without the gap and for 75% of her price", /listed\.has\(m\.id\) \? bar - AI_BUY_GAP : bar/.test(ai) && /feeShare: 0\.75/.test(ai));
   check("(source) a new nation picture is never recycled onto a youth", /!r\.imageUrl\.startsWith\(NEW_SENIOR_PICTURE_PREFIX\)/.test(SRC("artifacts/api-server/src/utils/youthIntake.ts")));
-  const rules = SRC("artifacts/beach-volleyball/src/pages/rules.tsx"), notes = SRC("docs/UPDATE1-1.1.1-PATCH-NOTES.md");
+  const rules = SRC("artifacts/beach-volleyball/src/pages/rules.tsx"), notes = SRC("docs/UPDATE1-1.1.2-PATCH-NOTES.md");
   check("(source) the Rules page: the new-talent line and the Retirement topic with both options",
     rules.includes("New talent from around the world arrives on the free-agent market every season.") && rules.includes('title: "Retirement"')
       && rules.includes("Ask her to retire (on her card)") && rules.includes("Put her on the transfer list (on her card)"));
