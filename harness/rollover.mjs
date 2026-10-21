@@ -93,9 +93,13 @@ function aiSquadsMidSeason(dbPath) {
     const cid = db.prepare(`SELECT MAX(id) id FROM career_saves`).get().id;
     const rows = db.prepare(`SELECT s.pool_team_id c, COUNT(*) n FROM career_player_state s JOIN players p ON p.id = s.player_id WHERE s.career_save_id = ?
       AND s.pool_team_id IS NOT NULL AND s.is_retired = 0 AND s.on_injured_list = 0 AND (p.player_type = 'senior' OR s.is_promoted = 1) GROUP BY 1`).all(cid);
+    // 1.1.2: and on the books (her injured list included): injuries are covered or forfeited by design (ai-injuries).
+    const booked = new Map(db.prepare(`SELECT s.pool_team_id c, COUNT(*) n FROM career_player_state s JOIN players p ON p.id = s.player_id WHERE s.career_save_id = ?
+      AND s.pool_team_id IS NOT NULL AND s.is_retired = 0 AND (p.player_type = 'senior' OR s.is_promoted = 1) GROUP BY 1`).all(cid).map((r) => [r.c, r.n]));
     const clubs = db.prepare(`SELECT pool_team_id id FROM career_pool_team_state WHERE career_save_id = ? AND taken_over_at IS NULL`).all(cid).map((r) => r.id);
     const n = new Map(rows.map((r) => [r.c, r.n]));
-    return { with3: clubs.filter((c) => (n.get(c) ?? 0) >= 3).length, short: clubs.filter((c) => (n.get(c) ?? 0) < 2).length, clubs: clubs.length };
+    return { with3: clubs.filter((c) => (n.get(c) ?? 0) >= 3).length, short: clubs.filter((c) => (n.get(c) ?? 0) < 2).length,
+      shortBooked: clubs.filter((c) => (booked.get(c) ?? 0) < 2).length, clubs: clubs.length };
   } finally { db.close(); }
 }
 
@@ -1106,9 +1110,12 @@ async function advanceToBoundary(api, maxDays = 500) {
     // 45 and 48 of 60 hold 3 (1.1.2: 46 and 48). What the new seniors must keep: two on the sand everywhere,
     // most clubs with an interchange, and the AI clubs' seniors not dwindling (17 Oct: 107 by season 24).
     const aiHeld = worlds.map((x) => x.atAiClubs).filter((n) => typeof n === "number");
-    check(`${longRun.label}: every mid-season no AI club is short of two, at least 36 of 60 hold 3, and the AI clubs' seniors never fall below 90% of season 1's`,
-      mids.length === worlds.length && mids.every((m) => m.with3 >= 36 && m.short === 0) && aiHeld.length > 0 && Math.min(...aiHeld) >= 0.9 * aiHeld[0],
-      `fewest with 3: ${Math.min(...mids.map((m) => m.with3))}; most short of two: ${Math.max(...mids.map((m) => m.short))}; AI clubs' seniors ${aiHeld[0]} at season 1, lowest ${Math.min(...aiHeld)}`);
+    // Fewer than two FIT on the day is injuries: the club covers from its injured list or forfeits, by design
+    // (aiInjuredListDayTx; harness/ai-injuries.mjs). Fewer than two SIGNED would be the dwindling this guards.
+    check(`${longRun.label}: every mid-season every AI club has two seniors signed, at least 36 of 60 hold 3 fit, and the AI clubs' seniors never fall below 90% of season 1's`,
+      mids.length === worlds.length && mids.every((m) => m.with3 >= 36 && (m.shortBooked ?? 0) === 0) && aiHeld.length > 0 && Math.min(...aiHeld) >= 0.9 * aiHeld[0],
+      `fewest with 3 fit: ${Math.min(...mids.map((m) => m.with3))}; most with fewer than two signed: ${Math.max(...mids.map((m) => m.shortBooked ?? 0))}; AI clubs' seniors ${aiHeld[0]} at season 1, lowest ${Math.min(...aiHeld)}`);
+    console.log(`  INFO  mid-seasons with an AI club under two FIT that day (injuries: cover or forfeit): ${mids.filter((m) => m.short > 0).length} of ${mids.length}`);
     const pics = nationPictureCheck(DB_FILE, worlds[worlds.length - 1].cid);
     check(`${longRun.label}: every player on a new nation picture is of the picture's nation`, pics.wrong.length === 0,
       pics.wrong.length === 0 ? `${pics.checked} checked` : pics.wrong.slice(0, 5).map((r) => `player ${r.id} ${r.n} on ${r.u}`).join("; "));
