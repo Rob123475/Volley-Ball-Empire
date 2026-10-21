@@ -1101,8 +1101,14 @@ async function advanceToBoundary(api, maxDays = 500) {
       + (outOfPictures ? `fewer than 5 first at the turn after season ${outOfPictures.season} (the pictures ran out)` : "the pictures lasted every turn"));
     check(`${longRun.label}: the free-agent market never ran dry`, worlds.every((w) => w.freeAgents > 0), `lowest ${Math.min(...worlds.map((w) => w.freeAgents))}`);
     const mids = worlds.map((w) => w.mid).filter(Boolean);
-    check(`${longRun.label}: every mid-season, at least 50 of the 60 AI clubs hold 3 seniors and none is short of two`,
-      mids.length === worlds.length && mids.every((m) => m.with3 >= 50 && m.short === 0), `fewest with 3: ${Math.min(...mids.map((m) => m.with3))}; most short of two: ${Math.max(...mids.map((m) => m.short))}`);
+    // 1.1.2 (21 Oct): an AI club signs its interchange only when it can pay her under its cap (keepAiSquadsTx),
+    // so many play the season with two. The 1.1.1 game, measured the same way on 1 July of seasons 1 and 2:
+    // 45 and 48 of 60 hold 3 (1.1.2: 46 and 48). What the new seniors must keep: two on the sand everywhere,
+    // most clubs with an interchange, and the AI clubs' seniors not dwindling (17 Oct: 107 by season 24).
+    const aiHeld = worlds.map((x) => x.atAiClubs).filter((n) => typeof n === "number");
+    check(`${longRun.label}: every mid-season no AI club is short of two, at least 36 of 60 hold 3, and the AI clubs' seniors never fall below 90% of season 1's`,
+      mids.length === worlds.length && mids.every((m) => m.with3 >= 36 && m.short === 0) && aiHeld.length > 0 && Math.min(...aiHeld) >= 0.9 * aiHeld[0],
+      `fewest with 3: ${Math.min(...mids.map((m) => m.with3))}; most short of two: ${Math.max(...mids.map((m) => m.short))}; AI clubs' seniors ${aiHeld[0]} at season 1, lowest ${Math.min(...aiHeld)}`);
     const pics = nationPictureCheck(DB_FILE, worlds[worlds.length - 1].cid);
     check(`${longRun.label}: every player on a new nation picture is of the picture's nation`, pics.wrong.length === 0,
       pics.wrong.length === 0 ? `${pics.checked} checked` : pics.wrong.slice(0, 5).map((r) => `player ${r.id} ${r.n} on ${r.u}`).join("; "));
