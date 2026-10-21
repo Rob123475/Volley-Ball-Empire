@@ -1,0 +1,12 @@
+"AppBuild"
+{
+	"AppID" "5233750"
+	"Desc" "v1.1.2 new seniors and new nations, retirement rebuilt, trademark cleanup (release-1.1.2 a17daa42)"
+	"SetLive" ""
+	"ContentRoot" "C:\build\vbe-1.1.2\win-unpacked\"
+	"BuildOutput" "..\output\"
+	"Depots"
+	{
+		"5233751" "depot_build_5233751.vdf"
+	}
+}
