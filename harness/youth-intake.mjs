@@ -430,6 +430,15 @@ try {
     w.exec("BEGIN");
     let n = 0;
     for (const f of firsts) for (const l of lasts) { const full = `${f} ${l}`; if (!taken.has(full)) { ins.run(full); n++; } }
+    // 1.1.2: and every combination of the name lists for nations the game has no athletes of
+    // (data/nationNames.ts, read from source so a list added later is covered); the intake recombines
+    // each nation's own list.
+    const listSrc = fs.readFileSync(path.join(REPO, "artifacts", "api-server", "src", "data", "nationNames.ts"), "utf8");
+    const listObj = listSrc.slice(listSrc.indexOf("= {") + 2, listSrc.lastIndexOf("};") + 1);
+    const nationLists = new Function(`return (${listObj});`)();
+    for (const { first, last } of Object.values(nationLists)) {
+      for (const f of first) for (const l of last) { const full = `${f} ${l}`; if (!taken.has(full)) { ins.run(full); taken.add(full); n++; } }
+    }
     w.exec("COMMIT");
     w.close();
     console.log(`  (took ${n} names: ${firsts.size} first names x ${lasts.size} surnames)`);
