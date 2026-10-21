@@ -349,7 +349,10 @@ try {
       WHERE NOT (p.player_type = 'youth' AND p.origin_career_save_id IN (SELECT id FROM career_saves)
         AND NOT EXISTS (SELECT 1 FROM career_player_state s WHERE s.player_id = p.id AND s.career_save_id = p.origin_career_save_id))`),
     ...read(`SELECT NULL AS id, name FROM continental_pool_players`)];
-  const clash = players.filter((p) => everyName.some((a) => a.name === p.name && a.id !== p.id));
+  // 1.1.2: a name a retiree of this career gave back (player_retirements.name_reused_at; the L-02c
+  // name-respawn rule) may be worn again; players now retire at any age, so it happens within these seasons.
+  const givenBack = new Set(read(`SELECT name FROM player_retirements WHERE career_save_id = ? AND name_reused_at IS NOT NULL`, careerSaveId).map((r) => r.name));
+  const clash = players.filter((p) => !givenBack.has(p.name) && everyName.some((a) => a.name === p.name && a.id !== p.id));
   check("every name is new: no other athlete, shipped, pool or created, has it", clash.length === 0,
     clash.map((p) => p.name).join(", ") || players.map((p) => `${p.name} (${p.nationality})`).join(", "));
   const unfit = players.filter((p) => {
@@ -432,17 +435,27 @@ try {
     console.log(`  (took ${n} names: ${firsts.size} first names x ${lasts.size} surnames)`);
   }
   // U-6: the AI clubs' pool players made into career seniors are not intake.
-  const made = `SELECT COUNT(*) AS n FROM players p WHERE p.origin_career_save_id = ? AND NOT EXISTS (SELECT 1 FROM career_player_state x WHERE x.player_id = p.id AND x.pool_player_id IS NOT NULL)`;
+  // 1.1.2: nor are the season's picture players (utils/newSeniors.ts, career_new_seniors), nor a player wearing a name a
+  // retiree of the career gave back (the L-02c name-respawn rule: a real name; players now retire at any age).
+  const made = `SELECT COUNT(*) AS n FROM players p WHERE p.origin_career_save_id = ? AND NOT EXISTS (SELECT 1 FROM career_player_state x WHERE x.player_id = p.id AND x.pool_player_id IS NOT NULL)
+    AND NOT EXISTS (SELECT 1 FROM career_new_seniors k WHERE k.player_id = p.id)
+    AND NOT EXISTS (SELECT 1 FROM player_retirements r WHERE r.career_save_id = p.origin_career_save_id AND r.name = p.name AND r.name_reused_at IS NOT NULL)`;
   const before = read(made, other.careerSaveId)[0].n;
   const dry = await play(other, 1);
   const dryRow = read(`SELECT season_year, player_ids FROM youth_intakes WHERE career_save_id = ?`, other.careerSaveId);
   const after = read(made, other.careerSaveId)[0].n;
   const dryNews = dry.rolls[0]?.news.find((n) => n.id === "academy-2027");
-  check("with no name left, the intake creates no one: never a player without a real name",
-    !dry.sacked && dryRow.length === 1 && JSON.parse(dryRow[0].player_ids).length === 0 && after === before && dry.rolls[0]?.roll.intake?.players.length === 0,
-    `${dryRow.length} intake row(s), ${dryRow[0] ? JSON.parse(dryRow[0].player_ids).length : "-"} players; ${after - before} created`);
-  check("Club News says the academy found no one that year",
-    !!dryNews && /academy found no one this year$/.test(dryNews.headline) && dryNews.date === "2027-01-01",
+  // 1.1.2: players retire at any age now, so the turn itself can give names back (the L-02c name-respawn
+  // rule) and the intake may still find a real name. What must hold: no new combination is made, and any
+  // youth it does take wears a name a retiree of this career gave back.
+  const dryIds = dryRow[0] ? JSON.parse(dryRow[0].player_ids) : [];
+  const givenBackNow = new Set(read(`SELECT name FROM player_retirements WHERE career_save_id = ? AND name_reused_at IS NOT NULL`, other.careerSaveId).map((r) => r.name));
+  const dryNames = dryIds.map((pid) => read(`SELECT name FROM players WHERE id = ?`, pid)[0]?.name);
+  check("with no name left, the intake creates no new name: never a player without a real name",
+    !dry.sacked && dryRow.length === 1 && after === before && dryNames.every((n) => n && givenBackNow.has(n)),
+    `${dryRow.length} intake row(s), ${dryIds.length} players (${dryNames.join(", ") || "none"}; all names given back by retirees: ${dryNames.every((n) => givenBackNow.has(n))}); ${after - before} created with a new name`);
+  check("Club News says what the academy found that year",
+    !!dryNews && dryNews.date === "2027-01-01" && (dryIds.length === 0 ? /academy found no one this year$/.test(dryNews.headline) : dryNews.headline.startsWith(`${dryIds.length} youth player`)),
     dryNews ? `"${dryNews.headline}" ${dryNews.date}` : "no academy-2027 item");
 } catch (err) {
   check("the run completed", false, String(err?.stack ?? err));

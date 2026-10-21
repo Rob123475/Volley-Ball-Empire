@@ -173,7 +173,10 @@ try {
   check("the season rolled over", !!rolled);
   const gp = rolled?.graduatePortraits ?? { given: [], ranOut: [] };
   // Every graduate now (the shipped youth who were 18 already graduate too).
-  const graduated = youthRows().filter((y) => y.promoted && y.age >= 18);
+  // 1.1.2: the AI youths who stayed on as seniors at the turn take their own nation's new picture first
+  // (utils/newSeniors.ts; harness/new-seniors.mjs checks them). The graduate rule is this suite's subject.
+  const keptOn = new Set(q(`SELECT player_id AS p FROM career_new_seniors WHERE career_save_id = ? AND kind = 'youth'`, cid).map((r) => r.p));
+  const graduated = youthRows().filter((y) => y.promoted && y.age >= 18 && !keptOn.has(y.id));
   const L = ledger().filter((r) => r.p < 900000);
   const has = new Map(L.map((r) => [r.p, r.u]));
   const ranOut = new Set(gp.ranOut.map((r) => r.playerId));
