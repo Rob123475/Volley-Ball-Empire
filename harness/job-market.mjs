@@ -326,6 +326,12 @@ try {
   check("and is no longer looking",
     save()?.seeking == null && save()?.team === team?.id && save()?.club === pick.name,
     JSON.stringify(save()));
+  // 1.1.2 (found by the rollover suite): the season before the move is reviewed under the club that played it.
+  const playedYear = boundary?.seasonRollover?.review?.seasonYear ?? 2026;
+  const pastReview = (await api("GET", `/seasons/${playedYear}/review`)).data;
+  check("the Season Review of the season before the move shows that club's final table",
+    Array.isArray(pastReview?.standings) && pastReview.standings.length > 0 && pastReview.playerRank != null,
+    `${playedYear}: ${pastReview?.standings?.length ?? "no"} rows, his rank ${pastReview?.playerRank}`);
 
   // The club plays out of a beach on its OWN continent. Tokyo Surf Samurai
   // running out of Copacabana Beach is the kind of thing a player notices in

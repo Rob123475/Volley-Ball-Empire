@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { kitColours } from "../utils/kits.js";
 import { db } from "@workspace/db";
-import { seasonsTable, matchesTable, teamsTable, seasonFinalStandingsTable, careerHistoryEntriesTable, competitorRankingsTable, competitorsTable, trophiesTable, playerRetirementsTable } from "@workspace/db";
+import { seasonsTable, matchesTable, teamsTable, seasonFinalStandingsTable, careerHistoryEntriesTable, competitorRankingsTable, competitorsTable, trophiesTable, playerRetirementsTable, boardSeasonsTable } from "@workspace/db";
 import { eq, desc, and } from "drizzle-orm";
 import { getActiveSeason } from "../lib/getActiveSeason.js";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
@@ -79,13 +79,24 @@ router.get("/seasons/:year/review", async (req, res) => {
   )).limit(1);
   if (!season) { res.status(404).json({ error: `No season ${year} in this career` }); return; }
 
+  // 1.1.2 (found by the rollover suite): a manager who took over another club (the job market) reviews an
+  // earlier season under the club that PLAYED it (board_seasons.team_id, L-02e), not the one they run now:
+  // its final table, fixture, record and honours. A save before that column: the current club.
+  const [board] = await db.select({ teamId: boardSeasonsTable.teamId }).from(boardSeasonsTable)
+    .where(and(eq(boardSeasonsTable.careerSaveId, cid), eq(boardSeasonsTable.seasonYear, year))).limit(1);
+  const playedId = board?.teamId ?? team.id;
+  const played = playedId === team.id ? team
+    : (await db.select().from(teamsTable).where(eq(teamsTable.id, playedId)).limit(1))[0] ?? team;
+
   const standings = await db.select().from(seasonFinalStandingsTable)
     .where(and(
-      eq(seasonFinalStandingsTable.teamId, team.id),
+      eq(seasonFinalStandingsTable.teamId, played.id),
       eq(seasonFinalStandingsTable.seasonYear, year),
     ))
     .orderBy(seasonFinalStandingsTable.rank);
 
+  // The ranking and the World Finals are the competitor seat's, and the seat moves with the manager to the
+  // new club (competitorIdForTeam would make the old club a second seat): read them through the current club.
   const ranking = await currentRanking(cid, team.id, year);
 
   // Who left, from the rows retirement itself wrote.
@@ -110,7 +121,7 @@ router.get("/seasons/:year/review", async (req, res) => {
   // R-29: how much of the season's fixture was the club's to play. A finals
   // match it did not qualify for is not an unplayed match; it was never its.
   const seasonMatches = await db.select({ status: matchesTable.status }).from(matchesTable)
-    .where(and(eq(matchesTable.homeTeamId, team.id), eq(matchesTable.season, year)));
+    .where(and(eq(matchesTable.homeTeamId, played.id), eq(matchesTable.season, year)));
   const fixture = {
     total:        seasonMatches.length,
     completed:    seasonMatches.filter((m) => m.status === "completed").length,
@@ -123,8 +134,8 @@ router.get("/seasons/:year/review", async (req, res) => {
     seasonNumber: seasonNumberForYear(year),
     name:         season.name,
     status:       season.status,
-    record:       { wins: team.wins, losses: team.losses },
-    balance:      Number(team.budget),
+    record:       { wins: played.wins, losses: played.losses },
+    balance:      Number(played.budget),
     ranking,
     playerRank:   standings.find((r) => r.isPlayer)?.rank ?? null,
     standings:    standings.slice(0, 10),
@@ -134,7 +145,7 @@ router.get("/seasons/:year/review", async (req, res) => {
     worldFinals:  worldFinalsSummary(cid, year, team.id),
     // R-42: the honours this season earned, as the rollover wrote them.
     trophies:     (await db.select().from(trophiesTable).where(and(
-      eq(trophiesTable.teamId, team.id),
+      eq(trophiesTable.teamId, played.id),
       eq(trophiesTable.year, year),
     ))).map((t) => ({ id: t.id, type: t.type, name: t.name, notes: t.notes ?? null })),
   });

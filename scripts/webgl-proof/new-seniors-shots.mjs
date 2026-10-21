@@ -94,7 +94,8 @@ try {
   await ev(`(() => { const el = document.querySelector('input[placeholder="Search players..."]'); Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value").set.call(el, ${JSON.stringify(pick?.name ?? "")}); el.dispatchEvent(new Event("input", { bubbles: true })); return true; })()`);
   await sleep(2000);
   const rect = await ev(`(() => { let e = document.querySelector('[data-testid="price-${pick?.id}"]') ?? document.querySelector('[data-testid="watch-${pick?.id}"]'); if (!e) return null;
-    while (e.parentElement && e.getBoundingClientRect().height < 420) e = e.parentElement;
+    // Up to the whole card: the first ancestor that holds her picture too.
+    while (e.parentElement && !e.querySelector("img")) e = e.parentElement;
     e.scrollIntoView({ block: "start" }); const r = e.getBoundingClientRect(); return { x: Math.max(0, r.left - 8), y: Math.max(0, r.top - 8), width: r.width + 16, height: Math.min(r.height + 16, 900 - Math.max(0, r.top - 8)) }; })()`);
   await sleep(800);
   await shot(`26-new-nation-player-${(pick?.nation ?? "player").toLowerCase().replace(/[^a-z]+/g, "-")}.png`, rect ?? undefined);
