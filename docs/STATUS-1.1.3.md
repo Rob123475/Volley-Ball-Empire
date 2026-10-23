@@ -212,5 +212,5 @@ Brief: `Downloads\FINAL-1.1.3-BRIEF.md` (23 Oct 2026). Worktree `C:/vbe-tm`, bra
 | A2 | Real flags: flag-icons, <Flag>, every nationality resolves | bf8104ac | flags 18/18; screenshots in Part C |
 | A3 | AI scouting and buying limits (10 a season, 2 at one club), counted from ai_market_moves | da1c34fb | ai-market-limits 19/19; transfer-window, ai-buyable, counter-offer, salary-cap, manager-faces |
 | A4 | The Nations Cup over days, watchable on the court in national colours; the national coach job | 04dd6a52 | nations-cup 45/45; olympics-tournament 24/24; trophies, board-review |
-| A5 | Medal ceremonies: the podium (Unity), the World Finals bronze rule, the ladder cups | (the A5 commit) | ceremonies 34/34; trophies 9/9; podium renders |
-| A6 | Patch notes, version 1.1.3, rules page, the Steam script | (the A6 commit) | |
+| A5 | Medal ceremonies: the podium (Unity), the World Finals bronze rule, the ladder cups | 4c656682 (Unity dd0a487) | ceremonies 34/34; trophies 9/9; podium renders |
+| A6 | Patch notes, version 1.1.3, rules page, the Steam script | (this commit) | rules page sections, read in Part C |

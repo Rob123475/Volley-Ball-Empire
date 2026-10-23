@@ -1,0 +1,12 @@
+"AppBuild"
+{
+	"AppID" "5233750"
+	"Desc" "v1.1.3 staff portraits, real flags, AI scouting and buying limits, the Nations Cup over days and the national coach, medal ceremonies (release-1.1.3, commit in the report)"
+	"SetLive" "default"
+	"ContentRoot" "C:\build\vbe-1.1.3\win-unpacked\"
+	"BuildOutput" "..\output\"
+	"Depots"
+	{
+		"5233751" "depot_build_5233751.vdf"
+	}
+}
