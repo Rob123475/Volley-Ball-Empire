@@ -53,7 +53,7 @@ import { specialityFactor } from "./managerFaces.js";
 import { seniorWageBillTx, committedWageBillTx, fitsUnderCap, renewalCapRefusalTx, SALARY_CAP } from "./salaryCap.js";
 import { contractEndFrom, inTransferWindow } from "./transferWindow.js";
 import { coverOnRoster } from "./injuredList.js";
-import { bidTx, aiOfferPerks, arrivalDateFor, openDealForTx, careerTeamIdTx, hasAgreedMoveTx } from "./transfers.js";
+import { bidTx, aiOfferPerks, arrivalDateFor, openDealForTx, careerTeamIdTx, hasAgreedMoveTx, type Club } from "./transfers.js";
 import { isInjured, matchInjuryRoll } from "./condition.js";
 import { startInjuryTx } from "./injuries.js";
 import { careerGameDateTx } from "./gameDate.js";
@@ -65,6 +65,9 @@ type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
 import { PROMOTION_MIN_AGE } from "@workspace/db";
 import { seasonEndsForCareerTx } from "./seasonDates.js";
+import { pickScouterTx, addScoutingJobTx } from "./scoutingWork.js";
+import { SCOUT_DAYS } from "./marketScouting.js";
+import { aiSeasonMovesTx, mayBid, mayScout, recordAiMoveTx } from "./aiMarketLimits.js";
 
 /** Two on the sand: an AI club never goes below this (Rob, U-6), and needs this many fit to play. */
 export const AI_MIN_SQUAD = 2;
@@ -607,6 +610,7 @@ function releaseToMarket(w: CareerStateTx, careerSaveId: number, playerId: numbe
 }
 
 const daysBetween = (a: string, b: string) => Math.round((Date.parse(`${b}T00:00:00Z`) - Date.parse(`${a}T00:00:00Z`)) / 86_400_000);
+const addDaysTo = (date: string, days: number) => { const d = new Date(`${date}T00:00:00Z`); d.setUTCDate(d.getUTCDate() + days); return d.toISOString().slice(0, 10); };
 
 /** A fixed shuffle for the week (the game date), so a run is repeatable. */
 function weekOrder<T>(items: T[], seed: string): T[] {
@@ -622,7 +626,9 @@ function weekOrder<T>(items: T[], seed: string): T[] {
  * market), and fits under its cap, if that club can sell
  * (canSellTx). The fee goes to the seller, the seller refills from free agents
  * if it must, and she joins on the buyer's terms. Only career seniors move:
- * the Player Market has made the AI clubs' players into them.
+ * the Player Market has made the AI clubs' players into them. 1.1.3 (A3): a
+ * club scouts her first and bids once its report is ready, within its season's
+ * limits (utils/aiMarketLimits.ts).
  */
 export function aiTransfersWeekTx(w: CareerStateTx, careerSaveId: number, today: string, seasonEnds: readonly string[]): Array<{ player: string; from: string; to: number; fee: number; outcome: string }> {
   const bids: Array<{ player: string; from: string; to: number; fee: number; outcome: string }> = [];
@@ -655,10 +661,11 @@ export function aiTransfersWeekTx(w: CareerStateTx, careerSaveId: number, today:
     const balance = balanceOf(w.tx, careerSaveId, buyer);
     // 1.1.1 (AC-9 A): any senior under contract at another club, the player's
     // included, held there at least AI_KEEP_DAYS, fit, with no deal already.
-    const theirs = [...squads.entries()].filter(([club]) => club !== buyer && active.has(club)).flatMap(([, squad]) => squad)
-      .filter((m) => m.kind === "player" && !m.injured && !m.onList && (m.joinedOn == null || daysBetween(m.joinedOn, today) >= AI_KEEP_DAYS))
-      .map((m) => ({ id: m.id, name: m.name, rating: m.rating, salary: m.salary, contractEndDate: m.contractEndDate, priced: { ...m, askingPrice: null } }));
-    const robs = myTeam == null ? [] : (robsNow ??= robsSeniorsForBidsTx(w.tx, careerSaveId, myTeam, today));
+    const theirs = [...squads.entries()].filter(([club]) => club !== buyer && active.has(club)).flatMap(([club, squad]) => squad.map((m) => ({ m, club })))
+      .filter(({ m }) => m.kind === "player" && !m.injured && !m.onList && (m.joinedOn == null || daysBetween(m.joinedOn, today) >= AI_KEEP_DAYS))
+      .map(({ m, club }) => ({ id: m.id, name: m.name, rating: m.rating, salary: m.salary, contractEndDate: m.contractEndDate, priced: { ...m, askingPrice: null },
+        at: { poolTeamId: club } as Club }));
+    const robs = myTeam == null ? [] : (robsNow ??= robsSeniorsForBidsTx(w.tx, careerSaveId, myTeam, today)).map((m) => ({ ...m, at: { teamId: myTeam } as Club }));
     listedNow ??= listedIdsTx(w.tx, careerSaveId);
     const listed = listedNow;
     const open = (id: number) => { let o = openOf.get(id); if (o == null) { o = !!openDealForTx(w.tx, careerSaveId, id); openOf.set(id, o); } return o; };
@@ -666,16 +673,37 @@ export function aiTransfersWeekTx(w: CareerStateTx, careerSaveId: number, today:
       f = marketPrice(careerSaveId, m.priced as Parameters<typeof marketPrice>[1]).price;
       if (listed.has(m.id)) f = Math.round(f * LISTED_TERMS.feeShare);
       feeOf.set(m.id, f); } return f; };
-    const target = [...theirs, ...robs]
-      .filter((m) => m.rating >= (listed.has(m.id) ? bar - AI_BUY_GAP : bar) && !open(m.id))
+    // 1.1.3 (A3): its season's scouting and bids (AI_SEASON_LIMITS, from the save). It bids for a senior
+    // only once its report on her is ready; with none, it starts one (a Scout's or coach's job, SCOUT_DAYS)
+    // and bids a later week. At most 10 reports and 10 bids a season, 2 of each at any one club.
+    const moves = aiSeasonMovesTx(w.tx, careerSaveId, buyer, today);
+    const sellable = (m: { id: number; salary: number }) => {
+      const holding = w.tx.select({ p: careerPlayerStateTable.poolTeamId }).from(careerPlayerStateTable)
+        .where(and(eq(careerPlayerStateTable.careerSaveId, careerSaveId), eq(careerPlayerStateTable.playerId, m.id))).get()?.p ?? null;
+      return holding == null || canSellTx(w.tx, careerSaveId, holding, "", m.salary, squads).ok;
+    };
+    const candidates = [...theirs, ...robs]
+      .filter((m) => m.rating >= (listed.has(m.id) ? bar - AI_BUY_GAP : bar) && !open(m.id) && mayBid(moves, m.at))
       .map((m) => ({ m, fee: priceOf(m) }))
       .filter(({ fee }) => balance >= fee + AI_BUY_RESERVE)
-      .sort((a, b) => b.m.rating - a.m.rating || a.m.id - b.m.id)
-      .find(({ m }) => {
-        const holding = w.tx.select({ p: careerPlayerStateTable.poolTeamId }).from(careerPlayerStateTable)
-          .where(and(eq(careerPlayerStateTable.careerSaveId, careerSaveId), eq(careerPlayerStateTable.playerId, m.id))).get()?.p ?? null;
-        return holding == null || canSellTx(w.tx, careerSaveId, holding, "", m.salary, squads).ok;
-      });
+      .sort((a, b) => b.m.rating - a.m.rating || a.m.id - b.m.id);
+    let target: (typeof candidates)[number] | undefined;
+    for (const c of candidates) {
+      const ready = moves.reports.get(c.m.id);
+      if (ready == null) {
+        if (!mayScout(moves, c.m.at) || !sellable(c.m)) continue;
+        const pick = pickScouterTx(w.tx, careerSaveId, { poolTeamId: buyer }, [["scout"], ["head_coach", "assistant_coach"]], today);
+        if (!pick.scouter) break;   // nobody free (or no Scout or coach): it waits
+        const readyOn = addDaysTo(today, SCOUT_DAYS);
+        addScoutingJobTx(w.tx, careerSaveId, { poolTeamId: buyer }, pick.scouter.id, { kind: "player", targetId: c.m.id, targetName: c.m.name, startedOn: today, readyOn });
+        recordAiMoveTx(w.tx, careerSaveId, buyer, "scout", c.m.id, c.m.at, today, readyOn, moves);
+        break;
+      }
+      if (ready > today) break;     // its report on her is not ready yet: it waits for it
+      if (!sellable(c.m)) continue;
+      target = c;
+      break;
+    }
     if (!target) continue;
     // Its terms: her wage plus AI_TRANSFER_TERMS.wageRise, its own length, and perks it can afford under the cap.
     const arrivesOn = arrivalDateFor(today, target.m.contractEndDate);
@@ -699,6 +727,8 @@ export function aiTransfersWeekTx(w: CareerStateTx, careerSaveId: number, today:
     const terms ={ wage, length: lengthForRating(clubRating(w.tx, buyer)), perks: aiOfferPerks(wage, room) };
     const r = bidTx(w, careerSaveId, { poolTeamId: buyer }, target.m.id, terms, target.fee, today, freeing);
     if (!r.ok) continue;
+    // 1.1.3 (A3): a bid made counts, whatever her club answers.
+    recordAiMoveTx(w.tx, careerSaveId, buyer, "bid", target.m.id, target.m.at, today, null, moves);
     squadsNow = null; robsNow = null; listedNow = null; feeOf.clear(); openOf.clear();
     bids.push({ player: target.m.name, from: r.deal.fromTeamId != null ? "player" : String(r.deal.fromPoolTeamId), to: buyer, fee: target.fee, outcome: r.outcome });
   }

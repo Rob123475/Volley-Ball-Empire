@@ -672,6 +672,10 @@ runSuite("trademark renames", path.join(REPO, "harness", "trademark-renames.mjs"
 console.log("\n########## 98zu/100  REAL FLAGS ON EVERY SCREEN (1.1.3 A2) ##########");
 runSuite("flags", path.join(REPO, "harness", "flags.mjs"));
 
+// 1.1.3 (A3): the AI clubs scout before they bid; 10 reports and 10 bids a season, 2 of each at one club. Own DB and server (4991).
+console.log("\n########## 98zv/100  AI SCOUTING AND BUYING LIMITS (1.1.3 A3) ##########");
+runSuite("ai market limits", path.join(REPO, "harness", "ai-market-limits.mjs"));
+
 // ── Smoke needs a server; boot one on a throwaway copy of the shipped DB ─────
 console.log("\n########## 99/100  GAMEPLAY SMOKE ##########");
 {

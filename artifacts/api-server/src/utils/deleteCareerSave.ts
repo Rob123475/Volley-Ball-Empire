@@ -18,6 +18,7 @@ import {
   careerInjuriesTable,
   transferDealsTable,
   scoutingJobsTable,
+  aiMarketMovesTable,
   poolPlayerContractsTable,
   careerHistoryEntriesTable,
   olympicTournamentsTable,
@@ -84,6 +85,8 @@ export function deleteCareerSave(careerSaveId: number, tx?: DbTx): void {
     // 1.1.1: its transfer deals (bids, counters, players bought ahead).
     t.delete(transferDealsTable).where(eq(transferDealsTable.careerSaveId, careerSaveId)).run();
     t.delete(scoutingJobsTable).where(eq(scoutingJobsTable.careerSaveId, careerSaveId)).run();
+    // 1.1.3 (A3): the AI clubs' scouting and bids this career, for their season limits (NOT NULL).
+    t.delete(aiMarketMovesTable).where(eq(aiMarketMovesTable.careerSaveId, careerSaveId)).run();
     // R-61: the Olympic tournaments reference the save (NOT NULL); medals and
     // matches reference their tournament, so they go first.
     t.delete(olympicMedalsTable).where(eq(olympicMedalsTable.careerSaveId, careerSaveId)).run();

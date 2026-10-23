@@ -57,6 +57,18 @@ export const COUNTER_OFFER = { answerDays: 14, closeShare: 0.05, moraleWeight: 0
  */
 export const AI_TRANSFER_TERMS = { wageRise: 1.15, perkShare: 0.10, counterMonths: 12, counterCeiling: 1.10 } as const;
 
+/**
+ * 1.1.3 (Rob, 23 Oct): "AI clubs can scout no more than 10 scouting missions in
+ * a year and no more than 2 from 1 club; this applies for buying as well."
+ * Each AI club, each season: at most `scoutingReports` scouting reports on
+ * seniors at other clubs, never more than `scoutingPerClub` on players at any
+ * one club; at most `bids` bids (seniors and youth buy offers together; a
+ * refused or countered bid still counts), never more than `bidsPerClub` to any
+ * one club. An AI club bids for a senior only once its report on her is ready.
+ * Continental youth missions are not covered.
+ */
+export const AI_SEASON_LIMITS = { scoutingReports: 10, scoutingPerClub: 2, bids: 10, bidsPerClub: 2 } as const;
+
 /** The perks of a stored list ("car,chef"), known ones only, in the table's order. */
 export function parsePerks(stored: string | null | undefined): Perk[] {
   const keys = new Set((stored ?? "").split(",").map((k) => k.trim()).filter(Boolean));

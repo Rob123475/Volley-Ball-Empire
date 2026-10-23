@@ -194,8 +194,20 @@ function seasonTable(season, year, counters) {
   const startTiers = new Map(q(`SELECT pool_team_id id, tier FROM pool_club_start_tiers WHERE career_save_id = ? AND season_year = ?`, cid, year).map((r) => [r.id, r.tier]));
   const paidTier = (id) => lastPoints.has(id) ? (lastPoints.get(id) >= 63 ? "Gold" : lastPoints.get(id) >= 55 ? "Silver" : "Bronze") : (startTiers.get(id) ?? "Bronze");
   const aiPaid = { Silver: fieldIds.filter((id) => paidTier(id) === "Silver").length, Gold: fieldIds.filter((id) => paidTier(id) === "Gold").length, field: fieldIds.length };
+  // 1.1.3 (A3): the AI clubs' season limits (10 reports and 10 bids, 2 of each at one club), from ai_market_moves.
+  const moves = q(`SELECT pool_team_id c, kind, target_team_id t, target_pool_team_id p FROM ai_market_moves WHERE career_save_id = ? AND season_year = ?`, cid, year);
+  const most = (rows, key) => { const m = new Map(); for (const r of rows) m.set(key(r), (m.get(key(r)) ?? 0) + 1); return Math.max(0, ...m.values()); };
+  const scoutMoves = moves.filter((r) => r.kind === "scout"), bidMoves = moves.filter((r) => r.kind === "bid");
+  const onClub = (r) => `${r.c}>${r.t != null ? `t${r.t}` : `p${r.p}`}`;
+  const aiLimits = {
+    scouts: scoutMoves.length, bids: bidMoves.length,
+    mostScoutsOneClub: most(scoutMoves, (r) => r.c), mostScoutsOnOneClub: most(scoutMoves, onClub),
+    mostBidsByOneClub: most(bidMoves, (r) => r.c), mostBidsOnOneClub: most(bidMoves, onClub),
+  };
+  // 1.1.3 (A1): AI clubs with no doctor or physio (Registrars and Physio Assistants are Doctors and Physiotherapists).
+  const aiNoMedic = clubs.filter((c) => !(staffBy.get(c.club) ?? []).some((x) => x === "Doctor" || x === "Physiotherapist")).length;
   return {
-    season, year, aiPaid,
+    season, year, aiPaid, aiLimits, aiNoMedic,
     aiStaffTotal: aiStaff.length, aiTopStaff: aiStaff.filter((r) => r.k >= 85).length, aiBudgetMedian: Math.round(median(aiBudgets)), aiBudgetTop: Math.max(...aiBudgets),
     aiCantAffordCoachOrMedic: cantAfford.length, aiWithSponsor: [...budgets.values()].filter((r) => r.m).length,
     myStaffBudget: myBudget.budget ?? null, myMainSponsor: myBudget.sponsor ?? null,
@@ -245,6 +257,8 @@ function printTable(t) {
   console.log(`  Perks paid: player's club $${t.perksPaidMine.toLocaleString("en-US")}, AI clubs about $${t.perksPaidAi.toLocaleString("en-US")}; ${t.perkContracts} contracts with perks now`);
   console.log(`  Staff budget: AI clubs' staff ${t.aiStaffTotal} (top staff, skill 85+: ${t.aiTopStaff}); AI budgets median $${t.aiBudgetMedian.toLocaleString("en-US")}, top $${t.aiBudgetTop.toLocaleString("en-US")}; ${t.aiWithSponsor} with a main sponsor; ${t.aiCantAffordCoachOrMedic} can't afford a missing coach or medic; his budget $${Number(t.myStaffBudget ?? 0).toLocaleString("en-US")} (${t.myMainSponsor ?? "none"})`);
   console.log(`  Youth deals: ${t.youthSales} sales (${t.youthSalesAiToAi} AI to AI), ${t.youthLoans} loans started`);
+  console.log(`  1.1.3 AI limits: ${t.aiLimits.scouts} scouting reports, ${t.aiLimits.bids} bids; most by one AI club ${t.aiLimits.mostScoutsOneClub} reports (limit 10) and ${t.aiLimits.mostBidsByOneClub} bids (limit 10); most by one AI club on one club ${t.aiLimits.mostScoutsOnOneClub} reports and ${t.aiLimits.mostBidsOnOneClub} bids (limit 2)`);
+  console.log(`  1.1.3 staff: AI clubs short of a doctor or physio: ${t.aiNoMedic} of ${t.clubs}`);
 }
 
 let child = null;
@@ -352,14 +366,11 @@ try {
   if (tables.some((t) => t.outOfRange > 0)) flags.push("a stat went outside 1-99");
   // 1.1.1, Part 11 (Rob): AI clubs that can't afford a coach or a medic under their staff budget.
   if (tables.some((t) => t.aiCantAffordCoachOrMedic > 0)) flags.push(`AI clubs that can't afford a missing coach or medic under their staff budget: ${tables.map((t) => t.aiCantAffordCoachOrMedic).join("/")} a season`);
-  // Rob, 16 Oct: nothing limits how often the AI clubs bid on one club or one player (only 2 bids a week in
-  // the world, one open bid per player, one open deal per buyer, and 365 days at his club first). Flagged with
-  // the numbers, not limited: Rob decides.
-  if (tables.length) {
-    const most = tables.reduce((a, t) => (t.mostBidsOneClub > a.mostBidsOneClub ? t : a));
-    const mostP = tables.reduce((a, t) => (t.mostBidsOnePlayer > a.mostBidsOnePlayer ? t : a));
-    flags.push(`no limit on AI bids per club or per player: up to ${tables.map((t) => t.bidsOnMine).join("/")} bids on his seniors a season (${tables.map((t) => t.lostToBids).join("/")} lost); most on one club ${most.mostBidsOneClub} (${most.mostBidsClub}, season ${most.season}); most on one player ${mostP.mostBidsOnePlayer} (${mostP.mostBidsPlayer}, season ${mostP.season})`);
-  }
+  // 1.1.3 (Rob, 23 Oct; A3): each AI club, each season, at most 10 scouting reports and 10 bids, 2 of each at one club.
+  const overLimit = tables.filter((t) => t.aiLimits.mostScoutsOneClub > 10 || t.aiLimits.mostBidsByOneClub > 10 || t.aiLimits.mostScoutsOnOneClub > 2 || t.aiLimits.mostBidsOnOneClub > 2);
+  if (overLimit.length) flags.push(`an AI club past its season limits in season(s) ${overLimit.map((t) => t.season).join(", ")}`);
+  // 1.1.3 (A1): every AI club keeps a doctor or physio.
+  if (tables.some((t) => t.aiNoMedic > 0)) flags.push(`AI clubs short of a doctor or physio: ${tables.map((t) => t.aiNoMedic).join("/")} a season`);
   // 1.1.1: a deal stuck past its arrival day; a player at two clubs; a move outside the window that wasn't on a contract's end.
   const endDay = q(`SELECT "current_date" AS d FROM calendar_state WHERE team_id = ?`, myTeam())[0]?.d ?? "";
   const stuck = q(`SELECT COUNT(*) n FROM transfer_deals WHERE career_save_id = ? AND status = 'agreed' AND arrives_on < ?`, cid, endDay)[0].n;

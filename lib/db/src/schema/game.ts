@@ -824,6 +824,32 @@ export const transferDealsTable = sqliteTable("transfer_deals", {
 
 export type TransferDeal = typeof transferDealsTable.$inferSelect;
 
+/**
+ * 1.1.3 (Rob, 23 Oct; brief A3): every scouting report an AI club runs on a
+ * senior at another club, and every bid it makes (a senior's and a youth buy
+ * offer alike, refused or countered too), with the club holding her that day.
+ * The season limits (schema/transfers.ts AI_SEASON_LIMITS) count these rows,
+ * so they hold across a save's reloads (utils/aiMarketLimits.ts).
+ */
+export const aiMarketMovesTable = sqliteTable("ai_market_moves", {
+  id:               integer("id").primaryKey({ autoIncrement: true }),
+  careerSaveId:     integer("career_save_id").notNull().references(() => careerSavesTable.id),
+  /** The AI club that scouts or bids. */
+  poolTeamId:       integer("pool_team_id").notNull(),
+  /** "scout" | "bid" */
+  kind:             text("kind").notNull(),
+  playerId:         integer("player_id").notNull(),
+  /** The club holding her that day: the player's (team) or an AI club (pool team). */
+  targetTeamId:     integer("target_team_id"),
+  targetPoolTeamId: integer("target_pool_team_id"),
+  seasonYear:       integer("season_year").notNull(),
+  onDate:           text("on_date").notNull(),
+  /** A scouting report: the day it is ready (the AI club bids only after it). */
+  readyOn:          text("ready_on"),
+}, (t) => [index("ai_market_moves_club_season").on(t.careerSaveId, t.poolTeamId, t.seasonYear)]);
+
+export type AiMarketMove = typeof aiMarketMovesTable.$inferSelect;
+
 export const contractsTable = sqliteTable("contracts", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   playerId: integer("player_id").notNull().references(() => playersTable.id),

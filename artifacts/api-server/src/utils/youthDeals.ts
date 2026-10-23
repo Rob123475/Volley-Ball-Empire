@@ -53,6 +53,7 @@ import { youthPrice, SCOUT_DAYS } from "./marketScouting.js";
 import { academyMonthlySalary } from "./academy.js";
 import { contractEndDate, type ContractLength } from "./contractTerms.js";
 import { seasonEndsForCareerTx } from "./seasonDates.js";
+import { aiSeasonMovesTx, mayBid, recordAiMoveTx } from "./aiMarketLimits.js";
 
 type Tx = CareerStateTx["tx"];
 const isTeam = (c: Club): c is { teamId: number } => "teamId" in c;
@@ -228,12 +229,17 @@ export function aiYouthBuysWeekTx(w: CareerStateTx, careerSaveId: number, today:
     const weakest = team.length < ACADEMY_YOUTH_TEAM ? 0 : Math.min(...team.map(youthRating));
     const onLoan = new Set(loansTx(tx, careerSaveId, "active").map((l) => l.playerId));
     const others = clubs.filter((c) => c !== poolTeamId);
+    // 1.1.3 (A3): a buy offer is one of the club's season's bids (AI_SEASON_LIMITS: 10, 2 to any one club).
+    const moves = aiSeasonMovesTx(tx, careerSaveId, poolTeamId, today);
     const best = others.flatMap((c) => academyAtTx(tx, careerSaveId, { poolTeamId: c }))
-      .filter((r) => r.poolTeamId != null && !onLoan.has(r.playerId) && youthRating(r) >= weakest + AI_BORROW_GAP)
+      .filter((r) => r.poolTeamId != null && !onLoan.has(r.playerId) && youthRating(r) >= weakest + AI_BORROW_GAP && mayBid(moves, { poolTeamId: r.poolTeamId }))
       .sort((a, b) => youthRating(b) - youthRating(a))[0];
     if (!best) continue;
     asked++;
     const r = youthDealTx(w, careerSaveId, club, best.playerId, "buy", today);
+    // Asked (sold, or refused with a loan offered instead): the bid counts. An ask that couldn't be made (no one
+    // free to negotiate, no money) is not a bid.
+    if ("outcome" in r) recordAiMoveTx(tx, careerSaveId, poolTeamId, "bid", best.playerId, { poolTeamId: best.poolTeamId! }, today);
     if ("outcome" in r && r.outcome === "bought") bought.push({ playerId: best.playerId, from: best.poolTeamId!, to: poolTeamId, fee: r.fee });
     else if ("outcome" in r && r.outcome === "loan_only" && r.loanMonths.length > 0
       && !loansTx(tx, careerSaveId, "active").some((l) => l.borrowerPoolTeamId === poolTeamId)) {

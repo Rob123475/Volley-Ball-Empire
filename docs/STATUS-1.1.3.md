@@ -79,9 +79,35 @@ Brief: `Downloads\FINAL-1.1.3-BRIEF.md` (23 Oct 2026). Worktree `C:/vbe-tm`, bra
 - `flag-icons` is not added to a `package.json`. The worktree's `node_modules` are junctions into the main tree, and a `pnpm add` here would change the main tree's install. The package was fetched with `npm pack flag-icons@7.5.0`, and its SVGs and licence are copied in by `scripts/install-flags.cjs`, which says where they came from.
 - The Players page's continent filter keeps its globe emoji (🌍 🌏 🌎 🌊). They stand for continents, not nations, so they aren't flags.
 
+### A3. AI scouting and buying limits
+
+**Done; proven alone. The soak lines run in Part C.**
+
+**What I found first:** AI clubs did not scout seniors at all. An AI club bid for a senior straight away, with no report (`aiTransfersWeekTx`, utils/aiSquads.ts). Its only scouting job was a youth deal's negotiation. So the scouting limit needed something to limit: **an AI club now scouts a senior before it bids for her.**
+
+**The rule, as built** (`AI_SEASON_LIMITS = { scoutingReports: 10, scoutingPerClub: 2, bids: 10, bidsPerClub: 2 }` in `lib/db/src/schema/transfers.ts`, beside `AI_TRANSFER_TERMS`):
+- **Scouting:** each week an AI club that wants a senior (the same choice as before: the best fit player it can afford, at least 5 better) first needs a report on her. With none, one of its Scouts or coaches starts one: a job in `scouting_jobs`, 5 days, under the existing 2-reports-at-once rule. It bids a later week, once the report is ready. **At most 10 reports a season, and never more than 2 on players at any one club** (the player's club counts as a club).
+- **Buying:** a senior bid and a youth buy offer are each one bid. **At most 10 bids a season, never more than 2 to any one club** (the player's club or the selling AI club). A bid her club refuses or counters still counts. An ask that couldn't be made (nobody free to negotiate, no money) is not a bid.
+- **Counted from the save:** every report and bid is a row in a new table, `ai_market_moves` (the AI club, kind, player, the club holding her that day, season, date, the report's ready day). `utils/aiMarketLimits.ts` counts from it, never from memory. A deleted career deletes its rows.
+- A season runs from 1 January, as the seasons table's do. Continental youth missions are not covered (AI clubs send none).
+
+**Proof: `harness/ai-market-limits.mjs`, 19/19 alone** (run-all 98zv). It sims 3 seasons, with a server reboot in the middle.
+- **Planted:** an AI club given 10 bids this season made no more. One given 2 reports on the player's club scouted none of his players again.
+- **Every season, from the table:** most reports by one AI club 4 / 3 / 3; most by one club on one club 2 / 2 / 1; most bids by one club 10 (the planted one) / 7 / 5; most to one club 2 / 2 / 2. All within the limits.
+- **The table agrees with the game:** 449 AI reports, each a Scout's or coach's job in `scouting_jobs` (and the other way round). Every AI senior bid in `transfer_deals` is on record as a bid, and every one came after the bidder's ready report on her. Every AI youth buy is on record, and refused asks are counted too (315 bids recorded against 5 senior bids and 12 youth sales).
+- **A reboot keeps every report and bid** (393 rows before, 393 after).
+- AI senior buying was already rare (0–3 a season in 1.1.1: AI squads sit near the cap). As in `ai-buyable` and `transfer-window`, the suite gives six AI clubs room so bids happen at all.
+- **The suites that rely on AI buying, run again alone:** transfer-window 19/19, ai-buyable 25/25, counter-offer 10/10, salary-cap 16/16, manager-faces 56/56.
+- **The soak** now prints, each season, the reports and bids, the most by one AI club, and the most by one AI club on one club. It flags any season past a limit. That replaces 1.1.1's "no limit on AI bids" flag.
+
+**Decisions (A3):**
+- AI clubs scout before buying, as described above. Without it, "10 scouting missions a year" would limit nothing. The cost: an AI bid now comes a week after the club picks her, once the report is in.
+- AI clubs hire coaches, not Scouts (one coach and one medic each), so a Head or Assistant Coach does an AI club's scouting, as for its youth deals. A club with no coach can't scout, and so can't buy a senior, until it hires one.
+
 ## Item table
 
 | Item | What | Commit | Proof |
 |---|---|---|---|
 | A1 | Staff portraits: 49 installed, 82 refused (logos) | 90a17739 | ai-staff 31/31, junior-medics 12/12, installer 15/15, live-save copy |
-| A2 | Real flags: flag-icons, <Flag>, every nationality resolves | (this commit) | flags 18/18; screenshots in Part C |
+| A2 | Real flags: flag-icons, <Flag>, every nationality resolves | bf8104ac | flags 18/18; screenshots in Part C |
+| A3 | AI scouting and buying limits (10 a season, 2 at one club), counted from ai_market_moves | (this commit) | ai-market-limits 19/19; transfer-window, ai-buyable, counter-offer, salary-cap, manager-faces |
