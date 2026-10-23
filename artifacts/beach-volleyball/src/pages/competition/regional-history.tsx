@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { FolderOpen, Trophy, AlertCircle } from "lucide-react";
+import { LadderCup } from "@/components/ladder-cup";
 
 /**
  * Driven by the canonical KEYS. Each of these screens used to declare its own
@@ -108,14 +109,8 @@ export default function RegionalHistory() {
                         .sort((a, b) => a.qualifyingPosition - b.qualifyingPosition)
                         .map(q => (
                           <div key={q.id} className="px-4 py-2.5 flex items-center gap-3">
-                            <span className={[
-                              "text-sm font-bold w-6 text-center",
-                              q.qualifyingPosition === 1 ? "text-yellow-500" :
-                              q.qualifyingPosition === 2 ? "text-slate-400" :
-                              "text-amber-700 dark:text-amber-500",
-                            ].join(" ")}>
-                              {q.qualifyingPosition === 1 ? "🥇" : q.qualifyingPosition === 2 ? "🥈" : "🥉"}
-                            </span>
+                            {/* 1.1.3 (A5): a past season's final ladder, its gold, silver and bronze cups. */}
+                            <span className="w-6 flex justify-center"><LadderCup place={q.qualifyingPosition} size={18} /></span>
                             <span className="text-sm font-medium flex-1 truncate">{q.teamName}</span>
                             <Badge variant="outline" className="text-xs shrink-0">
                               {q.qualifyingPosition === 1 ? "1st" : q.qualifyingPosition === 2 ? "2nd" : "3rd"}

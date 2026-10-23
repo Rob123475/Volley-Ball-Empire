@@ -149,6 +149,61 @@ Brief: `Downloads\FINAL-1.1.3-BRIEF.md` (23 Oct 2026). Worktree `C:/vbe-tm`, bra
 - **The camp** is applied once, at the draw: training adds +2 to the pair's Cup rating and +10 fatigue; recovery sets fitness 100 and fatigue 0. AI club players' fitness and fatigue stay off (item 4c), so recovery shows only on career players.
 - AI nations' pairs now also leave out an injured AI-club player (they had not), so every nation plays its best two **fit**.
 
+### A5. Medal ceremonies
+
+**Done; the suite passes alone, and the podium renders are below.**
+
+**The World Finals bronze** (`utils/worldFinalsBronze.ts`, a pure rule, and `worldTour.ts`):
+- The two losing semi-finalists are compared on the World Tour ladder: **ranking points, then wins, then set difference, then rally points won minus lost.** The higher one takes bronze.
+- **Only if they are dead level on all four** is a third-place match played (tier "World Finals Third Place"), on the final's day, by the same engine. It is left off the ladder: no prize and no points.
+- Only the bronze pair's club gets "World Finals bronze {year}" in its Trophy Cabinet (`seasonTrophies.ts`). Before, both losing semi-finalists got one. The World Finals page shows a bronze card.
+
+**The continental ladder cups** (`components/ladder-cup.tsx`): a gold, silver and bronze cup beside the top three once a season's ladder is final, on the Continental Ladders page and in its history of past seasons. No 3D ceremony.
+
+**The ceremony** (World Finals and Empire Nations Cup):
+- **When:** a row in a new table, `career_ceremonies`, is written when the Cup's medals are decided (27 Nov of a Cup year) and when the World Finals final is decided (3 Dec). `/ceremonies/pending` gives the next unseen one, and `components/ceremony-dialog.tsx` (mounted in the shell) opens it on the Dashboard, the same interrupt as the Season Review, with the court in an iframe in ceremony mode (`/court?ceremony=<event>&year=`) and a **Skip** button. Skipped or watched, it is marked seen and doesn't open again. It plays every time, whoever is on the podium.
+- **`/unity/ceremony-state?careerSaveId=&event=`** gives the 6 medallists (gold, silver and bronze pairs), each with place, name, nation, flag code, kit colours and skin tone, and the banner text: **"BEACH VOLLEYBALL EMPIRE WORLD TOUR"** or **"EMPIRE NATIONS CUP {year}"**. Cup players wear their nation's kit (A4's `national-kits.ts`), World Tour players their club's.
+- **Unity** (`Assets/Scripts/CeremonyDirector.cs`): in the existing beach venue it stands the match down, builds a podium at the court with steps marked **1, 2, 3**, and stands the six on it: the court's four BeachPlayer (Beach Girl 05) players and two copies of them, each painted with MaterialPropertyBlocks exactly as in a match (kit and skin). Each wears a **medal**, a disc on a ribbon in gold, silver or bronze (`MedalHang`), has a **name plate with her nation's flag** (A2's PNG textures in `Resources/Flags`) and **waves**. A big banner behind them is painted at run time (`BannerPainter`) with the event's text. The camera frames the podium.
+
+**The wave — what Rob's packs have:** none of the packs (Motion Cast VolleyballController, "Volley-ball animations", the Beach Girls pack) has a plain wave or a celebration clip. The closest is Motion Cast VolleyballController's **"10 - Rises from the chair and greets the audience" (no-root take)**, whose greeting is a raised-arm wave to the crowd. The ceremony loops that part of it, 4.63 s to 6.06 s of the clip (`Resources/Ceremony/CeremonyWave.controller` and `wave-range.txt`, made by `Assets/Editor/CeremonySetup.cs` in batch mode). Nothing is faked: it is the real clip, looped.
+
+**Proof: `harness/ceremonies.mjs`, 34/34 alone** (run-all 98zx):
+- **The rule:** points decide; points level, wins; then sets; then rally points; all four level, a third-place match.
+- **2026:** Bondi Beach Legends (65 points) took bronze over Tokyo Surf Samurai (62); no third-place match. The ceremony waited for the Dashboard (ready 3 Dec); banner "BEACH VOLLEYBALL EMPIRE WORLD TOUR"; gold Paris Sables Royales, silver Auckland Pacific Diamonds, bronze Bondi Beach Legends; three places on steps 1, 2, 3, two each, every one with a flag (fr fr nz ar au au), a kit and a skin tone, in club kits. Skipped, it didn't open again.
+- **2027, the two set dead level:** a third-place match was played on the final's day (Durban Indian Ocean Tides 1-2 Buenos Aires Pampas Storm), its winner took bronze and the bronze step, and it is not on the ladder.
+- **2028, the Nations Cup:** the ceremony waited once the medals were decided (27 Nov), banner "EMPIRE NATIONS CUP 2028", Papua New Guinea, Greece and South Korea in their national colours, with flags pg pg gr gr kr kr; the places are the Cup's medals.
+- `trophies` 9/9 (only the bronze club's trophy).
+
+**Podium renders** (`scripts/webgl-proof/ceremony-shots.mjs`, the real Unity build in headless Chromium with the GPU, on the suite's kept save; `docs/proof-1.1.3/podiums/`, three frames each, 6 s apart):
+- `podium-world_finals-2026-*.png` and `podium-nations_cup-2028-*.png`: steps 1, 2, 3; six medallists in kit (club kits for the World Finals, national colours for the Cup: Papua New Guinea black and red, Greece blue, South Korea white and red); gold, silver and bronze medals; the arms in a different place in each frame (the wave); a flag by every name plate; the banner. Court log: `[Ceremony] podium built: world_finals 2026, 6 medallists, banner 'BEACH VOLLEYBALL EMPIRE WORLD TOUR'` and the same for `nations_cup 2028 … 'EMPIRE NATIONS CUP 2028'`. No errors.
+- **Found by the first render and fixed:** the club or nation name floated above each step, over the banner's words. It is now on a low navy sign in the sand in front of each step. Unity re-exported, rendered again (the PNGs above are the second render).
+- **The World Finals podium shows each club's pair at the time of the ceremony.** In the game that is the night of the final. On this proof save, which is at the end of 2028, the 2026 podium shows the clubs' 2028 pairs (Bondi Beach Legends now has Alina Kora and Mere Raitoga, not the Australians who won bronze in 2026). In the game the ceremony opens the night of the final, or on the next Dashboard visit, so the pairs are the ones that played. Only a save kept for years before its ceremony is watched, like this one, shows newer pairs.
+
+**Found, not fixed (old data, not 1.1.3's):** the Nations Cup gold pair reads "ALINA KORA, ALINA KORA". They are two different players: world-roster player 81 (Bondi Beach Legends) and player 411, made from continental-pool player 105 (Dubai Sand Aces), both from Papua New Guinea with the same name. **The 1.1.2 starter DB already has 28 continental-pool players named like a world-roster player**, and a 3-season career had 86 such pairs of names (including generated youths). Renaming pool players changes every save's AI squads, so it is left for Rob to decide (see "Not done").
+
+### A6. Patch notes and rules
+
+**Done.**
+- `docs/UPDATE1-1.1.3-PATCH-NOTES.md`: every Part A item in the plain style of 1.1.1's and 1.1.2's notes (coach a nation, the Nations Cup day by day, medal ceremonies, the AI clubs' limits, flags, new staff faces). No "Olympic", "FIVB" or brand names.
+- **Version 1.1.3** in the root `package.json`, the one electron-builder reads (the app's About and the installer). The workspace packages stay 0.0.0, as before.
+- **Rules page** (`pages/rules.tsx`), new or changed sections: "The Empire Nations Cup, day by day", "National coach", "Medals and the podium" (the bronze rule, the third-place match, the ceremonies, the ladder cups), and the AI clubs' scouting and bid limits in the transfer rules.
+
+## Part B
+
+- **The merge into `update-1`:** not done, as the brief says. It is for after Rob uploads 1.1.3: merge `release-1.1.3` into `update-1` in `C:\Users\rbonn\Documents\Volley-Ball-Empire`, then push.
+- **The Steam script:** `steam/app_build_5233750-1.1.3.vdf`, ContentRoot `C:\build\vbe-1.1.3\win-unpacked\`, **SetLive "default"**, the Desc naming the final commit. **Not run.**
+- **The old worktrees** (`git worktree list` in the main repo, 23 Oct). **Nothing deleted.**
+
+| Worktree | Branch | Last commit | Notes |
+|---|---|---|---|
+| vbe-before | (detached) | f51d2c85 | 1 Oct 2026; 499 changed files not committed |
+| vbe-u3 | feat-job-market | 832596a5 | |
+| vbe-u6 | feat-ai-buyable | 55d91321 | |
+| vbe-try | try-02oct | 29cdfaa7 | |
+| vbe-mergetrial | (detached) | b7de2bfa | 1 changed file not committed |
+| vbe-staff | feat-staff-injuries | 98b969ad | |
+| vbe-controls | feat-manual-controls | 8e32cb93 | |
+
 ## Item table
 
 | Item | What | Commit | Proof |
@@ -156,4 +211,6 @@ Brief: `Downloads\FINAL-1.1.3-BRIEF.md` (23 Oct 2026). Worktree `C:/vbe-tm`, bra
 | A1 | Staff portraits: 49 installed, 82 refused (logos) | 90a17739 | ai-staff 31/31, junior-medics 12/12, installer 15/15, live-save copy |
 | A2 | Real flags: flag-icons, <Flag>, every nationality resolves | bf8104ac | flags 18/18; screenshots in Part C |
 | A3 | AI scouting and buying limits (10 a season, 2 at one club), counted from ai_market_moves | da1c34fb | ai-market-limits 19/19; transfer-window, ai-buyable, counter-offer, salary-cap, manager-faces |
-| A4 | The Nations Cup over days, watchable on the court in national colours; the national coach job | (this commit) | nations-cup 45/45; olympics-tournament 24/24; trophies, board-review |
+| A4 | The Nations Cup over days, watchable on the court in national colours; the national coach job | 04dd6a52 | nations-cup 45/45; olympics-tournament 24/24; trophies, board-review |
+| A5 | Medal ceremonies: the podium (Unity), the World Finals bronze rule, the ladder cups | (the A5 commit) | ceremonies 34/34; trophies 9/9; podium renders |
+| A6 | Patch notes, version 1.1.3, rules page, the Steam script | (the A6 commit) | |

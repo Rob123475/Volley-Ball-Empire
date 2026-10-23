@@ -23,7 +23,7 @@ import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { getActiveSeason } from "../lib/getActiveSeason.js";
 import { requireCareerSaveId } from "../lib/playerDto.js";
 import {
-  worldTourStandings, SEMI_FINAL_TIER, NOT_QUALIFIED, BYE, WORLD_TOUR_EVENT_ROUNDS,
+  worldTourStandings, SEMI_FINAL_TIER, NOT_QUALIFIED, BYE, WORLD_TOUR_EVENT_ROUNDS, FINAL_TIER, worldFinalsBronzeTx, competitorNameTx,
 } from "../utils/worldTour.js";
 import { WORLD_TOUR_START, WORLD_TOUR_END, FINALS_START, FINALS_END } from "../utils/calendarSlots.js";
 
@@ -149,10 +149,14 @@ router.get("/world-tour/finals", async (req, res) => {
     ? null
     : playerSemi?.status === NOT_QUALIFIED ? false : semis.some((s) => s.matchId != null);
 
-  const final = finals[0] ? serializeFixture(finals[0], names) : null;
+  const finalRow = finals.find((f) => f.tier === FINAL_TIER) ?? null;
+  const final = finalRow ? serializeFixture(finalRow, names) : null;
   const champion = final?.winnerCompetitorId != null
     ? (final.home.competitorId === final.winnerCompetitorId ? final.home : final.away)
     : null;
+  // 1.1.3 (A5): the bronze, the losing semi-finalist higher on the ladder (dead level, the third-place match).
+  const bronze = db.transaction((tx) => worldFinalsBronzeTx(tx, cid, season.year));
+  const bronzeName = bronze.competitorId != null ? db.transaction((tx) => competitorNameTx(tx, bronze.competitorId!)) : null;
 
   res.json({
     seasonYear: season.year,
@@ -161,6 +165,7 @@ router.get("/world-tour/finals", async (req, res) => {
     semis:      semis.map((s) => serializeFixture(s, names)),
     final,
     champion,
+    bronze: bronzeName ? { name: bronzeName, by: bronze.by } : null,
   });
 });
 

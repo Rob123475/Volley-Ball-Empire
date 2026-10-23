@@ -639,7 +639,7 @@ function playerFinalsMatchTx(tx: Tx, playerTeamId: number, seasonYear: number, t
   )).limit(1).get() ?? null;
 }
 
-function competitorNameTx(tx: Tx, competitorId: number): string {
+export function competitorNameTx(tx: Tx, competitorId: number): string {
   const r = tx.select({ teamName: teamsTable.name, poolName: continentalPoolTeamsTable.teamName })
     .from(competitorsTable)
     .leftJoin(teamsTable, eq(teamsTable.id, competitorsTable.teamId))

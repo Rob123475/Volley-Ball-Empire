@@ -680,6 +680,10 @@ runSuite("ai market limits", path.join(REPO, "harness", "ai-market-limits.mjs"))
 console.log("\n########## 98zw/100  THE NATIONS CUP OVER DAYS, AND THE NATIONAL COACH (1.1.3 A4) ##########");
 runSuite("nations cup", path.join(REPO, "harness", "nations-cup.mjs"));
 
+// 1.1.3 (A5): medal ceremonies on the podium, the World Finals bronze rule, the continental ladder cups. Own DB and server (4993).
+console.log("\n########## 98zx/100  MEDAL CEREMONIES AND THE WORLD FINALS BRONZE (1.1.3 A5) ##########");
+runSuite("ceremonies", path.join(REPO, "harness", "ceremonies.mjs"));
+
 // ── Smoke needs a server; boot one on a throwaway copy of the shipped DB ─────
 console.log("\n########## 99/100  GAMEPLAY SMOKE ##########");
 {

@@ -4,6 +4,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { BarChart2, AlertCircle } from "lucide-react";
+import { LadderCup } from "@/components/ladder-cup";
 
 /**
  * Driven by the canonical KEYS. Each of these screens used to declare its own
@@ -59,6 +60,8 @@ function positionBand(pos: number) {
 
 function ContinentLadder({ continent, data }: { continent: string; data: RegionalLeagueData }) {
   const round = currentRound(data);
+  // The ladder is final once its 10 rounds are played (or its season is closed).
+  const final = round >= 10 || data.season.status === "completed";
   return (
     <div className="rounded-xl border bg-card overflow-hidden">
       <div className="px-4 py-3 border-b bg-muted/30 flex items-center justify-between">
@@ -128,7 +131,11 @@ function ContinentLadder({ continent, data }: { continent: string; data: Regiona
                       </span>
                     </td>
                     <td className="py-2 px-3">
-                      <span className="text-sm font-medium truncate max-w-[140px] block">{entry.teamName}</span>
+                      <span className="flex items-center gap-1.5">
+                        {/* 1.1.3 (A5): the final ladder's top three, a gold, silver and bronze cup. */}
+                        {final && entry.position <= 3 && <LadderCup place={entry.position} />}
+                        <span className="text-sm font-medium truncate max-w-[140px] block">{entry.teamName}</span>
+                      </span>
                     </td>
                     <td className="py-2 px-2 text-center text-xs text-muted-foreground hidden sm:table-cell">{entry.played}</td>
                     <td className="py-2 px-2 text-center text-xs font-medium text-emerald-600 dark:text-emerald-400">{entry.wins}</td>

@@ -3,7 +3,7 @@ import { useGetCurrentSeason, useGetSeasonLadder } from "@workspace/api-client-r
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { Crown, Trophy, Lock, AlertCircle } from "lucide-react";
+import { Crown, Trophy, Lock, AlertCircle, Medal } from "lucide-react";
 
 type Side = { competitorId: number; name: string; isPlayer: boolean; seed: number | null };
 type Fixture = {
@@ -22,6 +22,8 @@ type FinalsData = {
   semis: Fixture[];
   final: Fixture | null;
   champion: Side | null;
+  /** 1.1.3 (A5): the bronze: the losing semi-finalist higher on the ladder (dead level: the third-place match). */
+  bronze?: { name: string; by: "ladder" | "match" } | null;
 };
 
 function TeamSlot({ side, sets, isWinner, isPending }: {
@@ -174,6 +176,18 @@ export default function WorldFinals() {
               <div>
                 <p className="text-xs uppercase tracking-wider text-muted-foreground">World Champion {data.seasonYear}</p>
                 <p className="text-lg font-bold">{data.champion.name}</p>
+              </div>
+            </div>
+          )}
+          {data.bronze && (
+            <div className="rounded-xl border border-amber-700/40 bg-amber-700/10 p-3 flex items-center gap-3 max-w-xl" data-testid="world-finals-bronze">
+              <Medal className="h-5 w-5 text-amber-600" />
+              <div>
+                <p className="text-xs uppercase tracking-wider text-muted-foreground">Bronze {data.seasonYear}</p>
+                <p className="font-bold">{data.bronze.name}</p>
+                <p className="text-xs text-muted-foreground">
+                  {data.bronze.by === "ladder" ? "The losing semi-finalist higher on the World Tour ladder." : "Dead level on the ladder: won the third-place match."}
+                </p>
               </div>
             </div>
           )}

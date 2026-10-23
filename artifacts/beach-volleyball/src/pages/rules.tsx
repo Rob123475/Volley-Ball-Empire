@@ -298,6 +298,13 @@ export const UPDATE1_RULES: ReadonlyArray<{ title: string; points: string[] }> =
     "The National Team page (in the menu while you coach): your nation's players at every club, with injuries and fitness. Pick your pair for the next Cup (an injured player can't be picked); don't pick by the Cup's first day and the best two fit players play, as for every other nation.",
     `Before the Cup, a short camp: training (the pair plays the Cup ${NATIONAL_CAMP.trainingBonus} better, and comes out ${NATIONAL_CAMP.trainingFatigue} more tired) or recovery (the pair starts the Cup at full fitness). It lasts for the Cup only.`,
   ] },
+  // 1.1.3 (Rob, 23 Oct; docs/STATUS-1.1.3.md A5).
+  { title: "Medals and the podium", points: [
+    "The World Finals have semi-finals and a final. Bronze goes to the losing semi-finalist higher on the season's World Tour ladder: ranking points, then wins, then set difference, then points won and lost. Only if the two are still level after all that is a third-place match played.",
+    "Only the bronze pair's club gets the World Finals bronze in its Trophy Cabinet (before 1.1.3 both losing semi-finalists did; those trophies stay).",
+    "The World Finals and the Empire Nations Cup end with a medal ceremony on the 3D court: the gold, silver and bronze pairs on the podium, medals round their necks. Nations Cup players wear their nation's colours, World Tour players their club's. It plays every time, whoever is on the podium, when the final is decided or on your next visit to the Dashboard. Skip it whenever you like.",
+    "A continental league has no ceremony: once its ladder is final, the top three have a gold, silver and bronze cup beside their names.",
+  ] },
 ];
 
 // — Camera Controls —

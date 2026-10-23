@@ -26,6 +26,7 @@ import {
   Award,
 } from "lucide-react";
 import { useNationalCoach } from "@/components/national-coach";
+import { CeremonyDialog } from "@/components/ceremony-dialog";
 import { GameplayHeader } from "@/components/gameplay-header";
 import { MatchDayModal } from "@/components/match-day-modal";
 import { cn } from "@/lib/utils";
@@ -393,6 +394,8 @@ export function Shell({ children }: { children: React.ReactNode }) {
     <div className="flex flex-col lg:flex-row min-h-screen bg-background">
       <AchievementWatcher />
       <MatchDayModal />
+      {/* 1.1.3 (A5): the medal ceremony, when a final has been decided. */}
+      <CeremonyDialog />
       <Sidebar />
       <div className="flex-1 flex flex-col min-w-0 lg:h-screen lg:overflow-hidden">
         <GameplayHeader />
