@@ -19,6 +19,11 @@ import {
   transferDealsTable,
   scoutingJobsTable,
   aiMarketMovesTable,
+  nationsCupFixturesTable,
+  nationalCoachJobsTable,
+  nationalCoachOffersTable,
+  nationsCupPrepTable,
+  careerCeremoniesTable,
   poolPlayerContractsTable,
   careerHistoryEntriesTable,
   olympicTournamentsTable,
@@ -90,6 +95,13 @@ export function deleteCareerSave(careerSaveId: number, tx?: DbTx): void {
     // R-61: the Olympic tournaments reference the save (NOT NULL); medals and
     // matches reference their tournament, so they go first.
     t.delete(olympicMedalsTable).where(eq(olympicMedalsTable.careerSaveId, careerSaveId)).run();
+    // 1.1.3 (A4): the Cup's fixtures (they reference the tournament), the national coach's jobs,
+    // offers and preparations, and (A5) the medal ceremonies (all NOT NULL).
+    t.delete(nationsCupFixturesTable).where(eq(nationsCupFixturesTable.careerSaveId, careerSaveId)).run();
+    t.delete(nationalCoachJobsTable).where(eq(nationalCoachJobsTable.careerSaveId, careerSaveId)).run();
+    t.delete(nationalCoachOffersTable).where(eq(nationalCoachOffersTable.careerSaveId, careerSaveId)).run();
+    t.delete(nationsCupPrepTable).where(eq(nationsCupPrepTable.careerSaveId, careerSaveId)).run();
+    t.delete(careerCeremoniesTable).where(eq(careerCeremoniesTable.careerSaveId, careerSaveId)).run();
     t.delete(olympicMatchesTable).where(eq(olympicMatchesTable.careerSaveId, careerSaveId)).run();
     t.delete(olympicTournamentsTable).where(eq(olympicTournamentsTable.careerSaveId, careerSaveId)).run();
     // R-62: the academy intakes reference the save (NOT NULL).

@@ -19,6 +19,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Building2, Globe, TrendingUp, DoorOpen } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { NationalCoachOffers } from "@/components/national-coach";
 
 type Vacancy = {
   poolTeamId: number;
@@ -131,6 +132,9 @@ export default function JobMarketPage() {
         {data.leaving && <p className="text-amber-500">You are leaving {data.formerClub} at the end of the season ({data.leaving.replace("_", " ")}).</p>}
         {data.pending && <p className="text-emerald-500 font-semibold" data-testid="job-market-pending">Agreed: you join {data.pending.name} at the start of next season.</p>}
       </div>
+
+      {/* 1.1.3 (A4c): a national job, on top of a club job, when one is offered (or the one he has). */}
+      <NationalCoachOffers />
 
       {data.window && data.offers.length > 0 && (
         <div className="space-y-3">

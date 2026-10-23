@@ -59,6 +59,10 @@ export default function ThreeDCourt() {
   // Unity reads this from its own iframe location and calls
   // GET /unity/match-state?matchId=<id>.
   const matchId = new URLSearchParams(window.location.search).get("matchId");
+  // 1.1.3 (A4b): an Empire Nations Cup match (the schedule's and Dashboard's Watch). Auto only,
+  // unless it is the nation the player coaches (nationsManual=1; the court checks it too).
+  const nationsMatchId = new URLSearchParams(window.location.search).get("nationsMatchId");
+  const manualAllowed = !nationsMatchId || new URLSearchParams(window.location.search).get("nationsManual") === "1";
 
   // R-38: the build also needs the career id. /unity/match-state is career-scoped
   // and used to read it from the session, which the Unity side never has - the
@@ -79,7 +83,8 @@ export default function ThreeDCourt() {
     const p = new URLSearchParams();
     if (careerSaveId != null) p.set("careerSaveId", String(careerSaveId));
     if (matchId) p.set("matchId", matchId);
-    if (openingMode === "manual") p.set("mode", "manual");
+    if (nationsMatchId) p.set("nationsMatchId", nationsMatchId);
+    if (openingMode === "manual" && manualAllowed) p.set("mode", "manual");
     const qs = p.toString();
     return qs ? `?${qs}` : "";
   })();
@@ -117,7 +122,7 @@ export default function ThreeDCourt() {
       if (e.data === "unity-paused:1" || e.data === "unity-paused:0") setPaused(e.data === "unity-paused:1");
       if (e.data === "unity-match-finished") {
         queryClient.invalidateQueries();
-        navigate("/");
+        navigate(nationsMatchId ? "/competition/olympic-schedule" : "/");
       }
     }
     window.addEventListener("message", handleMessage);
@@ -143,6 +148,8 @@ export default function ThreeDCourt() {
 
   // The settings over the match: Auto or Manual goes to the court at once (its own page passes it on).
   function chooseMode(m: ControlMode) {
+    // 1.1.3 (A4b): a Nations Cup match of a nation he doesn't coach is watched in Auto only.
+    if (m === "manual" && !manualAllowed) return;
     setMode(m);
     saveControlMode(m);
     iframeRef.current?.contentWindow?.postMessage({ type: "vbe-control-mode", mode: m }, "*");
@@ -169,7 +176,8 @@ export default function ThreeDCourt() {
         if (!r.ok && r.status !== 409) throw new Error(`HTTP ${r.status}`);
       }
       queryClient.invalidateQueries();
-      navigate("/");
+      // A Nations Cup match left part-way is finished by the engine at the end of its day, from its last score.
+      navigate(nationsMatchId ? "/competition/olympic-schedule" : "/");
     } catch (err) {
       setLeaveError(err instanceof Error ? err.message : String(err));
       setLeaving(false);
@@ -189,7 +197,10 @@ export default function ThreeDCourt() {
       }}
     >
       <span style={{ flex: "1 1 160px", minWidth: 0, overflowWrap: "anywhere" }}>
-        {leaveError ? `Could not leave: ${leaveError}` : matchId ? "Leaving forfeits the match." : ""}
+        {leaveError ? `Could not leave: ${leaveError}`
+          : matchId ? "Leaving forfeits the match."
+          : nationsMatchId ? `Empire Nations Cup${manualAllowed ? " · your nation: Auto or Manual" : " · Auto only"}. Leaving: the rest is played out at the end of the day.`
+          : ""}
       </span>
       {unityLoaded && (
         <button
@@ -237,7 +248,7 @@ export default function ThreeDCourt() {
         }}
       >
         {leaving ? <Loader2 style={{ width: 14, height: 14 }} /> : <LogOut style={{ width: 14, height: 14 }} />}
-        {matchId ? "Leave match" : "Back to dashboard"}
+        {matchId ? "Leave match" : nationsMatchId ? "Leave" : "Back to dashboard"}
       </button>
       <AlertDialog open={confirmLeave} onOpenChange={setConfirmLeave}>
         <AlertDialogContent data-testid="dialog-leave-match">

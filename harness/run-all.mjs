@@ -676,6 +676,10 @@ runSuite("flags", path.join(REPO, "harness", "flags.mjs"));
 console.log("\n########## 98zv/100  AI SCOUTING AND BUYING LIMITS (1.1.3 A3) ##########");
 runSuite("ai market limits", path.join(REPO, "harness", "ai-market-limits.mjs"));
 
+// 1.1.3 (A4): the Empire Nations Cup over days, on the 3D court, and the national coach job. Own DB and server (4992).
+console.log("\n########## 98zw/100  THE NATIONS CUP OVER DAYS, AND THE NATIONAL COACH (1.1.3 A4) ##########");
+runSuite("nations cup", path.join(REPO, "harness", "nations-cup.mjs"));
+
 // ── Smoke needs a server; boot one on a throwaway copy of the shipped DB ─────
 console.log("\n########## 99/100  GAMEPLAY SMOKE ##########");
 {

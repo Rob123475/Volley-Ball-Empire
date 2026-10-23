@@ -38,11 +38,12 @@ const MAX_CAREERS = 8;
 
 // Mirrors utils/tierQualification.ts on purpose (R-54: Silver 55, Gold 63).
 const tierFor = (points) => (points >= 63 ? "Gold" : points >= 55 ? "Silver" : "Bronze");
-function expectedRows(finals, points) {
+function expectedRows(finals, points, bronze = false) {
   const rows = [];
   if (finals === "champion") rows.push({ type: "world_championship", name: `World Champions ${YEAR}` });
   if (finals === "runner-up") rows.push({ type: "runner_up", name: `World Final runner-up ${YEAR}` });
-  if (finals === "semi-finalist") rows.push({ type: "bronze", name: `World Finals semi-finalist ${YEAR}` });
+  // 1.1.3 (A5): bronze only for the losing semi-finalist higher on the ladder (utils/worldFinalsBronze.ts).
+  if (finals === "semi-finalist" && bronze) rows.push({ type: "bronze", name: `World Finals bronze ${YEAR}` });
   const tier = tierFor(points);
   if (tier !== "Bronze") rows.push({ type: "world_tour_tier", name: `World Tour ${tier} tier ${YEAR}` });
   return rows;
@@ -171,7 +172,7 @@ try {
     const review = (await api("GET", `/seasons/${YEAR}/review`)).data;
     const finals = review?.worldFinals?.playerResult ?? null;
     const points = review?.ranking?.rankingPoints ?? 0;
-    const expected = expectedRows(finals, points);
+    const expected = expectedRows(finals, points, review?.worldFinals?.playerBronze === true);
     const dbRows = read(`SELECT type, name, year, season FROM trophies WHERE team_id = ?`, c.teamId);
     seasons.push({
       k, boundary: true, finals, points,

@@ -45,7 +45,8 @@ import {
 } from "../utils/seasonRollover.js";
 import { boardDay } from "../utils/board-confidence.js";
 import { endCareer, loseClub } from "../utils/careerLifecycle.js";
-import { isOlympicYear, olympicDate } from "../utils/olympics.js";
+import { isOlympicYear, nationsCupDays, nationsCupDayTx } from "../utils/olympics.js";
+import { coachedNationTx, nationalCoachDayTx } from "../utils/nationalCoach.js";
 import { REST_RECOVERY, isInjured, selectPair, PAIR_SIZE } from "../utils/condition.js";
 import { applyWeeklyInjuryRecovery, aiInjuryRecoveryWeekTx, refreshAllInjuryClocksTx } from "../utils/injuries.js";
 import { injuredListDayTx } from "../utils/injuredList.js";
@@ -831,6 +832,11 @@ async function advanceOneDay(req: Request): Promise<DayResult> {
   // staff today (utils/injuries.ts); (O-10) the injured list (utils/injuredList.ts).
   withCareerStateTx((w) => refreshAllInjuryClocksTx(w, expiryCareerId, [team.id]));
   events.push(...withCareerStateTx((w) => injuredListDayTx(w, expiryCareerId, team.id, nextDate)));
+  // 5g. 1.1.3 (A4): the end of today for the Empire Nations Cup (drawn at the end of
+  // round 70's day; today's matches not decided on the 3D court are decided by the
+  // engine), then the national coach job's new day (offers, a contract's end, pay).
+  events.push(...withCareerStateTx((w) => nationsCupDayTx(w, expiryCareerId, season.year, team.id, calendar.currentDate, coachedNationTx(w.tx, expiryCareerId))));
+  events.push(...withCareerStateTx((w) => nationalCoachDayTx(w, expiryCareerId, team.id, nextDate)));
 
   // 6. Advance the date
   await db.update(calendarStateTable)
@@ -1250,16 +1256,17 @@ router.get("/calendar/annual", async (req, res) => {
     events.push({ date: c.endDate, type: "contract", title: `Contract Expires: ${name}`, subtitle: "Review and renew if needed", link: "/team" });
   }
 
-  // 6. R-61: the Olympic Games — Olympic years only, played in one sitting after
-  // the last regular World Tour round and before the World Finals.
+  // 6. R-61: the Empire Nations Cup — Cup years only, after the last regular World
+  // Tour round and before the World Finals. 1.1.3 (A4a): one event a day it plays.
   if (season && isOlympicYear(season.year)) {
-    const date = olympicDate(season.year);
-    if (date >= yearStart && date <= yearEnd) {
-      events.push({
-        date, type: "olympic", title: "Empire Nations Cup",
-        subtitle: "12 national pairs · groups, quarter-finals, semi-finals, bronze and gold",
-        link: "/olympics",
-      });
+    const days = nationsCupDays(season.year, annualCid);
+    for (const [date, title, subtitle] of [
+      [days.group, "Empire Nations Cup: group day", "12 national pairs in 4 groups of 3"],
+      [days.quarter_final, "Empire Nations Cup: quarter-finals", "The top two of each group"],
+      [days.semi_final, "Empire Nations Cup: semi-finals", "Four nations left"],
+      [days.medal, "Empire Nations Cup: medal day", "Bronze and gold, before the World Finals' semi-finals"],
+    ] as const) {
+      if (date >= yearStart && date <= yearEnd) events.push({ date, type: "olympic", title, subtitle, link: "/competition/olympic-schedule" });
     }
   }
 

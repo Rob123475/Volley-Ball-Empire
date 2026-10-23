@@ -13,6 +13,13 @@ import { matchPointChance, completeMatch, type MatchContext } from "./matches.js
 import { isLegalResult, isLegalProgress, type SetScore } from "../utils/matchEngine.js";
 
 import { aiPairTx, type AiMember } from "../utils/aiSquads.js";
+import { careerPlayerStateTable, nationsCupFixturesTable, olympicMatchesTable, nationalKit, type OlympicPlayerEntry, type NationsCupFixture } from "@workspace/db";
+import { withCareerStateTx, type CareerStateTx } from "../lib/playerDto.js";
+import { careerGameDateTx } from "../utils/gameDate.js";
+import { coachedNationTx } from "../utils/nationalCoach.js";
+import {
+  nationsCupFixtureTx, fixturePairsTx, fixturePointChanceTx, decideNationsCupFixtureTx, advanceNationsCupTx,
+} from "../utils/olympics.js";
 const router = Router();
 
 type PoolOpponent = {
@@ -123,6 +130,15 @@ router.get("/unity/match-state", async (req, res): Promise<void> => {
     { careerSaveId, careerSource, teamId: career.teamId },
     "unity/match-state career resolved",
   );
+
+  // 1.1.3 (A4b): an Empire Nations Cup match (?nationsMatchId=), its nations' pairs in national colours.
+  if (req.query.nationsMatchId != null) {
+    const state = nationsMatchState(careerSaveId, Number(req.query.nationsMatchId));
+    if ("error" in state) { res.status(state.status).json({ error: state.error }); return; }
+    req.log.info({ nationsMatchId: state.nationsMatchId, players: state.players.length }, "unity/match-state served (Nations Cup)");
+    res.json(state);
+    return;
+  }
 
   let match: typeof matchesTable.$inferSelect | null = null;
 
@@ -471,6 +487,7 @@ async function courtMatch(body: CourtBody) {
  * After every point: the score so far, kept so a match left early is finished from it.
  */
 router.post("/unity/match-progress", async (req, res): Promise<void> => {
+  if (req.body?.nationsMatchId != null) { const r = nationsMatchProgress(req.body); res.status(r.status).json(r.body); return; }
   const found = await courtMatch(req.body ?? {});
   if ("error" in found) { res.status(found.status ?? 400).json({ error: found.error }); return; }
   const { match } = found;
@@ -500,6 +517,7 @@ router.post("/unity/match-progress", async (req, res): Promise<void> => {
  * changes nothing.
  */
 router.post("/unity/match-result", async (req, res): Promise<void> => {
+  if (req.body?.nationsMatchId != null) { const r = nationsMatchResult(req.body); res.status(r.status).json(r.body); return; }
   const found = await courtMatch(req.body ?? {});
   if ("error" in found) { res.status(found.status ?? 400).json({ error: found.error }); return; }
   const { save, match } = found;
@@ -526,5 +544,149 @@ router.post("/unity/match-result", async (req, res): Promise<void> => {
   if (!result) { res.json({ ok: true, alreadyRecorded: true }); return; }
   res.json({ ok: true, ...result });
 });
+
+// ── 1.1.3 (Rob, 23 Oct; brief A4b): an Empire Nations Cup match on the 3D court ──
+//
+// The two sides are the nations' pairs (the Cup's field, utils/olympics.ts), each
+// player in her nation's colours (lib/db schema/national-kits.ts; the away pair
+// changes to white when the two are too alike, the one kit rule, utils/kits.ts).
+// The court shows the Nations Cup courtside boards ("EMPIRE NATIONS CUP {year}")
+// in place of the club boards: `courtsideBoards` and `boardText` are the switch,
+// and `kitSource` says the kits are national. A match is watched only on its day:
+// fetching it then makes it live; its progress and result come back here as a
+// club match's do. Watched matches play in Auto; `manualAllowed` only for the
+// nation the player coaches.
+
+type NationsBody = { careerSaveId?: unknown; nationsMatchId?: unknown; sets?: unknown; current?: unknown };
+
+/** His nation is the fixture's away side: the court plays it as its home pair. */
+function courtSidesSwapped(f: NationsCupFixture, coached: string | null): boolean {
+  return coached != null && f.awayNation === coached && f.homeNation !== coached;
+}
+
+/** Scores between the fixture's sides and the court's (the same turn both ways). */
+function courtSides(sets: SetScore[], swap: boolean): SetScore[] {
+  return swap ? sets.map((s) => ({ home: s.away, away: s.home })) : sets;
+}
+
+function nationsMatchState(careerSaveId: number, id: number) {
+  return withCareerStateTx((w) => {
+    const tx = w.tx;
+    const f = Number.isInteger(id) ? nationsCupFixtureTx(tx, careerSaveId, id) : null;
+    if (!f) return { status: 404, error: "No such Nations Cup match in this career" } as const;
+    const today = careerGameDateTx(tx, careerSaveId);
+    const coached = coachedNationTx(tx, careerSaveId);
+    const watchable = f.status !== "decided" && f.scheduledOn === today;
+    if (watchable && f.status === "scheduled") tx.update(nationsCupFixturesTable).set({ status: "live" }).where(eq(nationsCupFixturesTable.id, f.id)).run();
+    const pairs = fixturePairsTx(tx, f);
+    const serialise = (entry: OlympicPlayerEntry, nation: string, kit: { primary: string | null; secondary: string | null }) => {
+      const stats = entry.kind === "player"
+        ? tx.select({
+            speed: careerPlayerStateTable.speed, power: careerPlayerStateTable.power, defense: careerPlayerStateTable.defense,
+            serve: careerPlayerStateTable.serve, block: careerPlayerStateTable.block, stamina: careerPlayerStateTable.stamina,
+            morale: careerPlayerStateTable.morale, fatigue: careerPlayerStateTable.fatigue, fitness: careerPlayerStateTable.fitness, age: careerPlayerStateTable.age,
+            v4: playersTable.playerV4, height: playersTable.height, position: playersTable.position, poolPlayerId: careerPlayerStateTable.poolPlayerId,
+          }).from(careerPlayerStateTable).innerJoin(playersTable, eq(playersTable.id, careerPlayerStateTable.playerId))
+            .where(and(eq(careerPlayerStateTable.careerSaveId, careerSaveId), eq(careerPlayerStateTable.playerId, entry.id))).get()
+        : undefined;
+      const poolId = entry.kind === "pool" ? entry.id : stats?.poolPlayerId ?? null;
+      const pool = poolId != null ? tx.select().from(continentalPoolPlayersTable).where(eq(continentalPoolPlayersTable.id, poolId)).get() : undefined;
+      const r = stats ?? pool ?? { speed: 60, power: 60, defense: 60, serve: 60, block: 60, stamina: 60 };
+      const ratings = { speed: r.speed, power: r.power, defense: r.defense, serve: r.serve, block: r.block, stamina: r.stamina };
+      return {
+        id: entry.id, name: entry.name, team: nation, position: stats?.position ?? null, ...ratings, overall: overallRating(ratings),
+        morale: stats?.morale ?? 80, fatigue: stats?.fatigue ?? 0, fitness: stats?.fitness ?? 100, injured: false, injuryStatus: "Healthy",
+        age: stats?.age ?? pool?.baseAge ?? 0, height: stats?.height ?? 0,
+        primaryColor: kit.primary, secondaryColor: kit.secondary,
+        skinTone: (stats?.v4 as { visual_identity?: { skin_tone?: string } } | null)?.visual_identity?.skin_tone ?? pool?.skinTone ?? null,
+        club: entry.club, source: entry.kind,
+      };
+    };
+    // The court's Manual control plays its home pair (Team A): when his nation is the fixture's away
+    // side, the court is sent it as home, and the scores it posts are turned back (courtSides).
+    const swap = courtSidesSwapped(f, coached);
+    const [homeNation, awayNation] = swap ? [f.awayNation, f.homeNation] : [f.homeNation, f.awayNation];
+    const [homePair, awayPair] = swap ? [pairs.away, pairs.home] : [pairs.home, pairs.away];
+    const homeKit = nationalKit(homeNation), awayOwn = nationalKit(awayNation);
+    const away = awayKit(homeKit?.primary ?? null, { primary: awayOwn?.primary ?? null, secondary: awayOwn?.secondary ?? null });
+    const players = [
+      ...(homePair?.pair ?? []).map((p) => serialise(p, homeNation, { primary: homeKit?.primary ?? null, secondary: homeKit?.secondary ?? null })),
+      ...(awayPair?.pair ?? []).map((p) => serialise(p, awayNation, { primary: away.primary, secondary: away.secondary })),
+    ];
+    const progress = f.progress ? courtSides(f.progress.sets, swap) : [];
+    const label = f.stage === "group" ? `Group ${f.groupName}` : f.stage === "quarter_final" ? "Quarter-final" : f.stage === "semi_final" ? "Semi-final" : f.stage === "bronze" ? "Bronze medal match" : "Gold medal match";
+    const chance = fixturePointChanceTx(tx, f);
+    return {
+      status: 200,
+      matchId: 0,
+      nationsMatchId: f.id,
+      event: "nations_cup",
+      venue: `Empire Nations Cup ${f.seasonYear} · ${label}`,
+      homeTeam: homeNation,
+      awayTeam: awayNation,
+      sidesSwapped: swap,
+      homeScore: progress.filter((s) => s.home > s.away).length,
+      awayScore: progress.filter((s) => s.away > s.home).length,
+      weather: null, windSpeed: null, crowdSize: 9000 + (f.id % 7) * 500, commentaryLine: "",
+      pointChanceHome: watchable ? (swap ? 1 - chance : chance) : null,
+      players,
+      awayKitChanged: away.changed,
+      kitSource: "national" as const,
+      courtsideBoards: "nations_cup" as const,
+      boardText: `EMPIRE NATIONS CUP ${f.seasonYear}`,
+      manualAllowed: coached != null && (f.homeNation === coached || f.awayNation === coached),
+      watchable,
+      fixtureStatus: watchable ? "live" : f.status,
+    };
+  });
+}
+
+/** The career's Cup fixture a court request is about, or why not. */
+function nationsCourtFixture(w: CareerStateTx, body: NationsBody): { status: number; error: string } | { careerSaveId: number; f: NationsCupFixture } {
+  const careerSaveId = Number(body.careerSaveId), id = Number(body.nationsMatchId);
+  if (!Number.isInteger(careerSaveId) || !Number.isInteger(id)) return { status: 400, error: "careerSaveId and nationsMatchId are required" };
+  const f = nationsCupFixtureTx(w.tx, careerSaveId, id);
+  if (!f) return { status: 404, error: "That Nations Cup match is not this career's" };
+  return { careerSaveId, f };
+}
+
+function nationsMatchProgress(body: NationsBody): { status: number; body: unknown } {
+  return withCareerStateTx((w) => {
+    const found = nationsCourtFixture(w, body);
+    if ("error" in found) return { status: found.status, body: { error: found.error } };
+    if (found.f.status !== "live") return { status: 409, body: { error: "This Nations Cup match is not being watched." } };
+    const swap = courtSidesSwapped(found.f, coachedNationTx(w.tx, found.careerSaveId));
+    const courtSets = toSets(body.sets);
+    const cur = body.current as { home?: unknown; away?: unknown } | undefined;
+    const courtCurrent = { home: Number(cur?.home), away: Number(cur?.away) };
+    if (!courtSets || !isLegalProgress(courtSets, courtCurrent)) return { status: 400, body: { error: "Not a legal score part-way through a best-of-3-to-11 match." } };
+    const sets = courtSides(courtSets, swap);
+    const current = swap ? { home: courtCurrent.away, away: courtCurrent.home } : courtCurrent;
+    w.tx.update(nationsCupFixturesTable).set({ progress: { sets, current } }).where(eq(nationsCupFixturesTable.id, found.f.id)).run();
+    return { status: 200, body: { ok: true } };
+  });
+}
+
+function nationsMatchResult(body: NationsBody): { status: number; body: unknown } {
+  return withCareerStateTx((w) => {
+    const found = nationsCourtFixture(w, body);
+    if ("error" in found) return { status: found.status, body: { error: found.error } };
+    const { careerSaveId, f } = found;
+    const courtSets = toSets(body.sets);
+    if (!courtSets || !isLegalResult(courtSets)) return { status: 400, body: { error: "Not a legal best-of-3-to-11 result (win by 2)." } };
+    const sets = courtSides(courtSets, courtSidesSwapped(f, coachedNationTx(w.tx, careerSaveId)));
+    const homeSets = sets.filter((s) => s.home > s.away).length;
+    if (f.status === "decided") {
+      const m = f.matchId != null ? w.tx.select().from(olympicMatchesTable).where(eq(olympicMatchesTable.id, f.matchId)).get() : undefined;
+      const same = m && m.homeSets === homeSets && JSON.stringify(m.sets) === JSON.stringify(sets);
+      return same ? { status: 200, body: { ok: true, alreadyRecorded: true } } : { status: 409, body: { error: "This Nations Cup match already has a different result." } };
+    }
+    if (f.status !== "live") return { status: 409, body: { error: "This Nations Cup match is not being watched." } };
+    decideNationsCupFixtureTx(w.tx, f, { homeSets, awaySets: sets.length - homeSets, sets }, "court");
+    const teamId = w.tx.select({ t: careerSavesTable.teamId }).from(careerSavesTable).where(eq(careerSavesTable.id, careerSaveId)).get()?.t ?? null;
+    const { finished } = advanceNationsCupTx(w, careerSaveId, f.seasonYear, teamId, careerGameDateTx(w.tx, careerSaveId));
+    return { status: 200, body: { ok: true, winner: homeSets > sets.length - homeSets ? f.homeNation : f.awayNation, cupFinished: finished } };
+  });
+}
 
 export default router;

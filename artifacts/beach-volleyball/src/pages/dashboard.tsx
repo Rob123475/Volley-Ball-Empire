@@ -84,6 +84,7 @@ import { FACILITY_NAMES } from "@shared/facility-names";
 import { FACILITY_BENEFIT_SHORT } from "@/lib/facility-benefits";
 import { showMatchDayBox, useMatchDayBoxHidden } from "@/hooks/use-match-day-box";
 import { Flag } from "@/components/flag";
+import { NationalCoachNotice } from "@/components/national-coach";
 
 const weatherIcons: Record<string, string> = {
   sunny: "☀️", windy: "💨", stormy: "⛈️", hot: "🔥", cloudy: "☁️", overcast: "⛅", perfect: "✨",
@@ -451,6 +452,9 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       )}
+
+      {/* 1.1.3 (A4c): a national job offer waiting; (A4b) today's Empire Nations Cup matches, with Watch. */}
+      <NationalCoachNotice />
 
       {preseason?.offseason && preseason.open && (
         <Card className="border-sky-500/50 bg-sky-500/10" data-testid="preseason-notice">

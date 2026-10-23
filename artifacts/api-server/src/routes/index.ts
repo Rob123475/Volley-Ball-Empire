@@ -44,6 +44,8 @@ import worldTourRouter from "./world-tour";
 import youthLoansRouter from "./youth-loans";
 import clubsRouter from "./clubs";
 import transfersRouter from "./transfers";
+import nationalTeamRouter from "./national-team";
+import ceremoniesRouter from "./ceremonies";
 
 const router: IRouter = Router();
 
@@ -63,6 +65,8 @@ router.use(financesRouter);
 router.use(leaderboardRouter);
 router.use(dashboardRouter);
 router.use(olympicsRouter);
+router.use(nationalTeamRouter);
+router.use(ceremoniesRouter);
 router.use(trophiesRouter);
 router.use(hallOfFameRouter);
 router.use(jobMarketRouter);

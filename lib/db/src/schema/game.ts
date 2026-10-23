@@ -1168,6 +1168,113 @@ export const olympicMedalsTable = sqliteTable("olympic_medals", {
 export type OlympicMedal = typeof olympicMedalsTable.$inferSelect;
 
 /**
+ * 1.1.3 (brief A4a): the Empire Nations Cup is played over days. Each match is
+ * a fixture here, scheduled for its day, live while it is watched on the 3D
+ * court, then decided (by the court, or by the engine at the end of its day).
+ * A decided fixture's result is its olympic_matches row (matchId), as before.
+ * The next stage's fixtures are made when a stage is decided.
+ */
+export const nationsCupFixturesTable = sqliteTable("nations_cup_fixtures", {
+  id:           integer("id").primaryKey({ autoIncrement: true }),
+  careerSaveId: integer("career_save_id").notNull().references(() => careerSavesTable.id),
+  tournamentId: integer("tournament_id").notNull().references(() => olympicTournamentsTable.id),
+  seasonYear:   integer("season_year").notNull(),
+  /** group | quarter_final | semi_final | bronze | gold */
+  stage:        text("stage").notNull(),
+  label:        text("label").notNull(),
+  groupName:    text("group_name"),
+  homeNation:   text("home_nation").notNull(),
+  awayNation:   text("away_nation").notNull(),
+  scheduledOn:  text("scheduled_on").notNull(),
+  /** scheduled | live | decided */
+  status:       text("status").notNull().default("scheduled"),
+  /** The olympic_matches row once decided. */
+  matchId:      integer("match_id"),
+  /** engine | court */
+  decidedBy:    text("decided_by"),
+  /** While live: the score so far from the court (sets finished, set in play). */
+  progress:     text("progress", { mode: "json" }).$type<{ sets: { home: number; away: number }[]; current: { home: number; away: number } }>(),
+}, (t) => [index("nations_cup_fixtures_career_day").on(t.careerSaveId, t.scheduledOn)]);
+
+export type NationsCupFixture = typeof nationsCupFixturesTable.$inferSelect;
+
+/**
+ * 1.1.3 (brief A4c): the player's national coach jobs (on top of his club job):
+ * one active at a time. Pay is the manager's own (never the club's books):
+ * `paid` is what he has been paid so far, `paidTo` the last day paid for.
+ */
+export const nationalCoachJobsTable = sqliteTable("national_coach_jobs", {
+  id:           integer("id").primaryKey({ autoIncrement: true }),
+  careerSaveId: integer("career_save_id").notNull().references(() => careerSavesTable.id),
+  nation:       text("nation").notNull(),
+  years:        integer("years").notNull(),
+  monthly:      real("monthly").notNull(),
+  startedOn:    text("started_on").notNull(),
+  endsOn:       text("ends_on").notNull(),
+  /** active | ended */
+  status:       text("status").notNull().default("active"),
+  paid:         real("paid").notNull().default(0),
+  paidTo:       text("paid_to"),
+});
+
+export type NationalCoachJob = typeof nationalCoachJobsTable.$inferSelect;
+
+/** 1.1.3 (A4c): the national jobs offered to him: 1 to 3 at a time, accepted or declined together. */
+export const nationalCoachOffersTable = sqliteTable("national_coach_offers", {
+  id:           integer("id").primaryKey({ autoIncrement: true }),
+  careerSaveId: integer("career_save_id").notNull().references(() => careerSavesTable.id),
+  nation:       text("nation").notNull(),
+  monthly:      real("monthly").notNull(),
+  /** The nation's strength rank when offered (1 = the strongest) and how many nations were ranked. */
+  strengthRank: integer("strength_rank").notNull(),
+  ranked:       integer("ranked").notNull(),
+  offeredOn:    text("offered_on").notNull(),
+  /** cup_window (the months before a Cup) | contract_end */
+  reason:       text("reason").notNull(),
+  /** The Cup the window was for (cup_window), or the next Cup (contract_end). */
+  cupYear:      integer("cup_year").notNull(),
+  /** open | accepted | declined */
+  status:       text("status").notNull().default("open"),
+  answeredOn:   text("answered_on"),
+});
+
+export type NationalCoachOffer = typeof nationalCoachOffersTable.$inferSelect;
+
+/**
+ * 1.1.3 (A4c): his nation's preparation for a Cup: the pair he picked on the
+ * National Team page (null: the best two fit players, as for every other
+ * nation) and the pre-Cup camp (training or recovery), applied when the Cup is drawn.
+ */
+export const nationsCupPrepTable = sqliteTable("nations_cup_prep", {
+  id:           integer("id").primaryKey({ autoIncrement: true }),
+  careerSaveId: integer("career_save_id").notNull().references(() => careerSavesTable.id),
+  seasonYear:   integer("season_year").notNull(),
+  nation:       text("nation").notNull(),
+  pair:         text("pair", { mode: "json" }).$type<Array<{ kind: "player" | "pool"; id: number }>>(),
+  camp:         text("camp"),
+  appliedOn:    text("applied_on"),
+}, (t) => [uniqueIndex("nations_cup_prep_career_season").on(t.careerSaveId, t.seasonYear)]);
+
+export type NationsCupPrep = typeof nationsCupPrepTable.$inferSelect;
+
+/**
+ * 1.1.3 (A5): the medal ceremonies (World Finals, Empire Nations Cup): one row
+ * when the final is decided; `seenOn` once he has watched or skipped it (it
+ * opens on his next visit to the dashboard until then).
+ */
+export const careerCeremoniesTable = sqliteTable("career_ceremonies", {
+  id:           integer("id").primaryKey({ autoIncrement: true }),
+  careerSaveId: integer("career_save_id").notNull().references(() => careerSavesTable.id),
+  /** world_finals | nations_cup */
+  event:        text("event").notNull(),
+  seasonYear:   integer("season_year").notNull(),
+  readyOn:      text("ready_on").notNull(),
+  seenOn:       text("seen_on"),
+}, (t) => [uniqueIndex("career_ceremonies_unique").on(t.careerSaveId, t.event, t.seasonYear)]);
+
+export type CareerCeremony = typeof careerCeremoniesTable.$inferSelect;
+
+/**
  * R-62: one row per academy intake — the club, the season it opened, the day it
  * arrived and who joined. Club News is built from it; an intake that found no
  * one is a row with no players, so the news can say so.

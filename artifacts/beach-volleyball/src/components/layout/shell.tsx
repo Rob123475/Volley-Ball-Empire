@@ -23,7 +23,9 @@ import {
   ArrowUpDown,
   Settings as SettingsIcon,
   Shield,
+  Award,
 } from "lucide-react";
+import { useNationalCoach } from "@/components/national-coach";
 import { GameplayHeader } from "@/components/gameplay-header";
 import { MatchDayModal } from "@/components/match-day-modal";
 import { cn } from "@/lib/utils";
@@ -48,6 +50,8 @@ type NavSubItem = {
   icon: React.ComponentType<{ className?: string }>;
   neverActive?: boolean;
   sectionHeader?: never;
+  /** 1.1.3 (A4c): shown only while the player coaches a nation. */
+  coachingOnly?: boolean;
 };
 
 type NavSectionHeader = {
@@ -115,6 +119,7 @@ const NAV_GROUPS: NavGroup[] = [
       { href: "/olympics",                         label: "Qualification",       icon: Medal        },
       { href: "/competition/national-squads",      label: "National Squads",     icon: Users        },
       { href: "/competition/olympic-schedule",     label: "Schedule",            icon: CalendarDays },
+      { href: "/national-team",                    label: "National Team",       icon: Award, coachingOnly: true },
     ],
   },
   { id: "club",     label: "Club",         icon: Building2,   href: "/club"             },
@@ -142,6 +147,8 @@ function findActiveGroupId(loc: string): string | null {
 
 export function Sidebar() {
   const [location] = useLocation();
+  // 1.1.3 (A4c): the National Team page is in the menu while he coaches a nation.
+  const coaching = !!useNationalCoach().data?.job;
 
   const { data: user } = useGetCurrentAuthUser({
     query: { queryKey: getGetCurrentAuthUserQueryKey() },
@@ -253,6 +260,7 @@ export function Sidebar() {
                         );
                       }
                       const navItem = item as NavSubItem;
+                      if (navItem.coachingOnly && !coaching) return null;
                       const ItemIcon = navItem.icon;
                       const isItemActive = !navItem.neverActive && location === navItem.href;
                       return (

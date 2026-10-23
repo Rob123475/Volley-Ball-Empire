@@ -6,6 +6,7 @@ import Achievements     from "@/pages/achievements";
 import ManagerRecords   from "@/pages/manager-records";
 import CareerHistory    from "@/pages/career-history";
 import ManagerContract  from "@/pages/manager-contract";
+import { NationalCoachOffers } from "@/components/national-coach";
 
 type Tab = "overview" | "achievements" | "records" | "history" | "options";
 
@@ -21,6 +22,8 @@ export default function CareerHub() {
   const [tab, setTab] = useState<Tab>("overview");
   return (
     <div className="space-y-6">
+      {/* 1.1.3 (A4c): national coach offers wait here (and on the job market); his contract once he has one. */}
+      <NationalCoachOffers />
       <div className="flex gap-2 flex-wrap border-b border-border pb-4">
         {TABS.map(({ id, label, icon: Icon }) => (
           <button

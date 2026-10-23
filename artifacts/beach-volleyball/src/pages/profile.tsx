@@ -208,6 +208,8 @@ export default function ManagerProfile() {
   const levelName = summary?.managerLevelName ?? "Local Coach";
   // Overnight 1 Oct, N-41: a monthly salary, paid weekly from the club's budget.
   const managerSalary = `$${Math.round(summary?.managerSalary ?? 0).toLocaleString("en-US")} / month`;
+  // 1.1.3 (A4c): a national job pays him too, on top (his own; the club pays nothing).
+  const nationalCoach = (summary as { nationalCoach?: { nation: string; monthly: number } | null } | undefined)?.nationalCoach ?? null;
 
   const seasonsLabel =
     seasonsManaged === 0
@@ -375,6 +377,14 @@ export default function ManagerProfile() {
           value={managerSalary}
           iconColour="text-violet-400"
         />
+        {nationalCoach && (
+          <HighlightRow
+            icon={DollarSign}
+            label={`National Coach (${nationalCoach.nation})`}
+            value={`$${Math.round(nationalCoach.monthly).toLocaleString("en-US")} / month`}
+            iconColour="text-amber-400"
+          />
+        )}
       </div>
 
     </div>

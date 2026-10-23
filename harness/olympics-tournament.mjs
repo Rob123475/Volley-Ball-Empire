@@ -70,8 +70,10 @@ check("the draw-only schedule and the manager-picked squads are gone",
   !/projected/i.test(route) && !/\/olympics\/selection|\/olympics\/countries/.test(route) && !/projected/i.test(schedulePage)
     && !/olympic_selections|olympicSelectionsTable/.test(schema)
     && !fs.existsSync(path.join(REPO, "artifacts/beach-volleyball/src/pages/locations.tsx")));
+// 1.1.3 (A4a): played over days, each fixture decided by the same engine (or the court).
 check("the tournament plays on the World Tour's engine",
-  /sideRating\(/.test(engine) && /pointProbability\(home\.rating, away\.rating, \{ homeAdvantage: false \}\)/.test(engine) && /simulateMatch\(/.test(engine));
+  /sideRating\(/.test(engine) && /pointProbability\(rating\(f\.homeNation\), rating\(f\.awayNation\), \{ homeAdvantage: false \}\)/.test(engine) && /simulateMatch\(/.test(engine)
+    && !/export function playOlympicsTx/.test(engine));
 check("the rules page says what the tournament does",
   /Played in Nations Cup years only/.test(rules) && /two highest-rated players at any club/.test(rules)
     && /4 groups of 3/.test(rules) && /top two of each group reach the quarter-finals/.test(rules)
@@ -124,9 +126,13 @@ async function renewExpiringContracts(api) {
   for (const c of contracts.filter((k) => k.endDate <= season.endDate)) await api("POST", `/contracts/${c.id}/renew`);
 }
 
-/** Play a career day by day until its Olympic tournament exists. A sacked career is replaced. */
+/** The nations' pairs the day the Cup was drawn (1.1.3: it is played over the days after). */
+let pairsAtDraw = null, drawnOn = null;
+
+/** Play a career day by day until its Cup has been played to its medals. A sacked career is replaced. */
 async function careerToOlympics() {
   for (let attempt = 1; attempt <= 4; attempt++) {
+    pairsAtDraw = null; drawnOn = null;
     const api = session();
     const name = `Olympian${attempt}`;
     const prof = await api("POST", "/profiles", { name });
@@ -190,7 +196,13 @@ async function careerToOlympics() {
         if (sim.data?.fired) { sacked = true; break; }
         continue;
       }
-      if (read(`SELECT COUNT(*) AS n FROM olympic_tournaments WHERE career_save_id = ?`, careerSaveId)[0].n > 0) {
+      // 1.1.3 (A4a): the Cup is drawn at the end of round 70's day and played over the days after it.
+      // The pairs are kept as they were at the draw (the pair check below), then it is played to its medals.
+      if (!pairsAtDraw && read(`SELECT COUNT(*) AS n FROM olympic_tournaments WHERE career_save_id = ?`, careerSaveId)[0].n > 0) {
+        pairsAtDraw = (await api("GET", "/olympics/pairs")).data;
+        drawnOn = read(`SELECT "current_date" AS d FROM calendar_state WHERE team_id = ?`, teamId)[0]?.d ?? null;
+      }
+      if (read(`SELECT COUNT(*) AS n FROM olympic_medals WHERE career_save_id = ?`, careerSaveId)[0].n > 0) {
         return { api, careerSaveId, teamId, attempt };
       }
       const roll = r.data?.seasonRollover?.kind;
@@ -231,7 +243,8 @@ try {
     sched.status === 200 && t?.seasonYear === OLYMPIC_YEAR && JSON.stringify(sched.data) === JSON.stringify(sched2.data));
 
   console.log("\n3. THE FIELD");
-  const pairsBody = (await api("GET", "/olympics/pairs")).data;
+  const pairsBody = pairsAtDraw;
+  console.log(`  INFO  drawn at the end of the day before ${drawnOn}; the pairs below are the nations' pairs then`);
   const pairs = new Map((pairsBody?.nations ?? []).map((n) => [n.nation, n]));
   const short = (pairsBody?.nations ?? []).filter((n) => n.pair.length < 2);
   console.log(`  REPORT  ${pairsBody?.canField} nations can field a pair; ${pairsBody?.cannotField} have fewer than two eligible players: ` +

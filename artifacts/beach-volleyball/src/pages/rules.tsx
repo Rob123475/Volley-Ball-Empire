@@ -3,7 +3,8 @@ import { INJURY_TYPES, INJURY_TREATMENT, RECONSTRUCTION, INJURED_LIST, PROMOTION
 import { MONEY } from "@shared/money";
 import { PRESEASON } from "@shared/preseason";
 import { GAME_DIFFICULTY } from "@shared/game-difficulty";
-import { PERKS, COUNTER_OFFER, AI_TRANSFER_TERMS, YOUTH_DEALS, youthSaleChance } from "@shared/transfers";
+import { PERKS, COUNTER_OFFER, AI_TRANSFER_TERMS, AI_SEASON_LIMITS, YOUTH_DEALS, youthSaleChance } from "@shared/transfers";
+import { NATIONS_CUP_DAYS, NATIONAL_COACH, NATIONAL_CAMP, nationalCoachPay } from "@shared/national-coach";
 import { SCOUT_REPORTS_AT_ONCE, JUNIOR_MEDICS, JUNIOR_PROMOTION } from "@shared/staff-roles";
 import { STAFF_BUDGET } from "@shared/staff-budget";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -113,7 +114,7 @@ const COMP_TIERS = [
       "The top 12 countries qualify; ties are broken by the best single-player total",
       "Player ratings play no part in qualifying",
       "Played in Nations Cup years only (years divisible by 4), after the last regular World Tour round and before the World Finals",
-      "Each nation is represented by its two highest-rated players at any club; injured players cannot be picked, and a nation that cannot field two gives its place to the next nation that can",
+      "Each nation is represented by its two highest-rated players at any club (or the pair its national coach picks, when you coach it); injured players cannot be picked, and a nation that cannot field two gives its place to the next nation that can",
       "4 groups of 3, each a round robin; the top two of each group reach the quarter-finals, then semi-finals, a bronze medal match and the gold medal match",
       "Medals go on the players' records, and a club whose player wins one gets the Nations Cup medal in its trophy cabinet",
     ],
@@ -277,6 +278,25 @@ export const UPDATE1_RULES: ReadonlyArray<{ title: string; points: string[] }> =
   { title: "Manager specialities", points: [
     "Your manager's face comes with a speciality: Talent Recruiter, Negotiator, Contracts Expert, Sponsor Magnet, Leader, Coach, Youth Developer or Fitness Guru.",
     "The AI clubs' managers have them too; for an AI club, Coach, Youth Developer and Fitness Guru count.",
+  ] },
+  // 1.1.3 (Rob, 23 Oct; docs/STATUS-1.1.3.md A3, A4).
+  { title: "The AI clubs' scouting and buying limits", points: [
+    `An AI club scouts a senior before it bids for her. Each AI club runs at most ${AI_SEASON_LIMITS.scoutingReports} scouting reports a season on players at other clubs, and never more than ${AI_SEASON_LIMITS.scoutingPerClub} on players at any one club (yours included).`,
+    `Each AI club makes at most ${AI_SEASON_LIMITS.bids} bids a season, seniors and youths together, and never more than ${AI_SEASON_LIMITS.bidsPerClub} to any one club. A bid that is refused or countered still counts.`,
+  ] },
+  { title: "The Empire Nations Cup, day by day", points: [
+    `The Cup is drawn at the end of the last regular World Tour round's day and played over the next four days: ${NATIONS_CUP_DAYS.map((d) => d.label.toLowerCase()).join(", ")}. The medal day is the morning of the World Finals' semi-finals.`,
+    "Every Cup match has a Watch button on its day (on the Nations Cup schedule and the Dashboard): watch it on the 3D court, each nation in its own colours, with the Nations Cup boards round the court.",
+    "Matches you don't watch, or leave part-way, are decided at the end of their day, as before. Results, medals, trophies and Club News are as they always were.",
+    "Watched matches play in Auto. Your own nation's matches you can play in Manual too.",
+  ] },
+  { title: "National coach", points: [
+    "You can coach a nation on top of your club job. When you have no national job, 1 to 3 nations offer you one: in the six months before a Nations Cup, and as soon as your national contract ends, so a job can come up before or after a Cup.",
+    "The better your record (your manager level), the better the nations that offer. The offers wait on the Career page and the job market, with a notice on the Dashboard; accept one or decline them all.",
+    `The contract is ${NATIONAL_COACH.contractYears.join(" or ")} years, your only choice. The pay is fixed and is not negotiated: the weakest nations pay the most (${money(nationalCoachPay(1))} a month) and the strongest the least (${money(nationalCoachPay(0))}). Weak nations are desperate; strong ones back their players and think any coach will do.`,
+    "The pay is yours: it is added to your earnings, never to the club's money.",
+    "The National Team page (in the menu while you coach): your nation's players at every club, with injuries and fitness. Pick your pair for the next Cup (an injured player can't be picked); don't pick by the Cup's first day and the best two fit players play, as for every other nation.",
+    `Before the Cup, a short camp: training (the pair plays the Cup ${NATIONAL_CAMP.trainingBonus} better, and comes out ${NATIONAL_CAMP.trainingFatigue} more tired) or recovery (the pair starts the Cup at full fitness). It lasts for the Cup only.`,
   ] },
 ];
 

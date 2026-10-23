@@ -206,8 +206,18 @@ function seasonTable(season, year, counters) {
   };
   // 1.1.3 (A1): AI clubs with no doctor or physio (Registrars and Physio Assistants are Doctors and Physiotherapists).
   const aiNoMedic = clubs.filter((c) => !(staffBy.get(c.club) ?? []).some((x) => x === "Doctor" || x === "Physiotherapist")).length;
+  // 1.1.3 (A4): the national coach (the soak takes the first offer each time) and, in a Cup year, the Cup over its days.
+  const ncOffers = q(`SELECT reason, nation, monthly FROM national_coach_offers WHERE career_save_id = ? AND offered_on >= ? AND offered_on <= ?`, cid, yearStart, `${year}-12-31`);
+  const ncJob = q(`SELECT nation, years, monthly, paid, status, ends_on FROM national_coach_jobs WHERE career_save_id = ? ORDER BY id DESC LIMIT 1`, cid)[0] ?? null;
+  const cupFx = q(`SELECT stage, status, decided_by, scheduled_on FROM nations_cup_fixtures WHERE career_save_id = ? AND season_year = ?`, cid, year);
+  const cupMedals = q(`SELECT COUNT(*) n FROM olympic_medals WHERE career_save_id = ? AND season_year = ?`, cid, year)[0].n;
+  const nationalCoach = {
+    offers: ncOffers.map((o) => `${o.nation} $${o.monthly} (${o.reason === "cup_window" ? "Cup window" : "contract end"})`),
+    job: ncJob ? `${ncJob.nation}, ${ncJob.years} years to ${ncJob.ends_on}, $${ncJob.monthly}/mo, $${Math.round(ncJob.paid).toLocaleString("en-US")} paid (${ncJob.status})` : "none",
+    cup: cupFx.length ? `${cupFx.length} matches over ${new Set(cupFx.map((f) => f.scheduled_on)).size} days, ${cupFx.filter((f) => f.status === "decided").length} decided, ${cupMedals} medals` : null,
+  };
   return {
-    season, year, aiPaid, aiLimits, aiNoMedic,
+    season, year, aiPaid, aiLimits, aiNoMedic, nationalCoach,
     aiStaffTotal: aiStaff.length, aiTopStaff: aiStaff.filter((r) => r.k >= 85).length, aiBudgetMedian: Math.round(median(aiBudgets)), aiBudgetTop: Math.max(...aiBudgets),
     aiCantAffordCoachOrMedic: cantAfford.length, aiWithSponsor: [...budgets.values()].filter((r) => r.m).length,
     myStaffBudget: myBudget.budget ?? null, myMainSponsor: myBudget.sponsor ?? null,
@@ -259,6 +269,7 @@ function printTable(t) {
   console.log(`  Youth deals: ${t.youthSales} sales (${t.youthSalesAiToAi} AI to AI), ${t.youthLoans} loans started`);
   console.log(`  1.1.3 AI limits: ${t.aiLimits.scouts} scouting reports, ${t.aiLimits.bids} bids; most by one AI club ${t.aiLimits.mostScoutsOneClub} reports (limit 10) and ${t.aiLimits.mostBidsByOneClub} bids (limit 10); most by one AI club on one club ${t.aiLimits.mostScoutsOnOneClub} reports and ${t.aiLimits.mostBidsOnOneClub} bids (limit 2)`);
   console.log(`  1.1.3 staff: AI clubs short of a doctor or physio: ${t.aiNoMedic} of ${t.clubs}`);
+  console.log(`  1.1.3 national coach: offers this season ${t.nationalCoach.offers.join("; ") || "none"}; job ${t.nationalCoach.job}${t.nationalCoach.cup ? `; Nations Cup ${t.nationalCoach.cup}` : ""}`);
 }
 
 let child = null;
@@ -292,6 +303,11 @@ try {
     const ms = (await api("GET", "/finances/main-sponsor")).data;
     if (ms?.offers?.length) await api("POST", `/finances/main-sponsor/${ms.offers[0].id}/choose`);
     if (ms) myBudget = { budget: ms.budget, sponsor: ms.sponsor?.name ?? null };
+    // 1.1.3 (A4c): a national job offered, the first is taken, for 3 and 5 years in turn (weekly look).
+    if (i % 7 === 0) {
+      const nc = (await api("GET", "/national-coach")).data;
+      if (!nc?.job && nc?.offers?.length) await api("POST", `/national-coach/offers/${nc.offers[0].id}/accept`, { years: [3, 5][season % 2] });
+    }
     const pre = (await api("GET", "/preseason")).data;
     if (pre?.offseason && pre.open) {
       const plan = PLAN[(season - 1) % PLAN.length];

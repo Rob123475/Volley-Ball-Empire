@@ -104,10 +104,56 @@ Brief: `Downloads\FINAL-1.1.3-BRIEF.md` (23 Oct 2026). Worktree `C:/vbe-tm`, bra
 - AI clubs scout before buying, as described above. Without it, "10 scouting missions a year" would limit nothing. The cost: an AI bid now comes a week after the club picks her, once the report is in.
 - AI clubs hire coaches, not Scouts (one coach and one medic each), so a Head or Assistant Coach does an AI club's scouting, as for its youth deals. A club with no coach can't scout, and so can't buy a senior, until it hires one.
 
+### A4. Empire Nations Cup: watchable, and the player can coach a nation
+
+**Done in code and proven alone. The 3D court's side (Unity) is exported with A5, and the packaged-game screenshots are in Part C.**
+
+**A4a. Played over days** (`utils/olympics.ts`; the one-shot `playOlympicsTx` is deleted, and the World Tour no longer calls it):
+- **Kept:** Cup years (divisible by 4), the 12-nation field and qualifying, 4 groups of 3, QF/SF/bronze/gold and the same match engine.
+- **The draw:** at the end of the last regular World Tour round's day (round 70, 23 November), once every regular fixture is decided. It makes the field, the pairs and the group day's 12 fixtures (a new table, `nations_cup_fixtures`).
+- **The days** (`NATIONS_CUP_DAYS`, `lib/db/src/schema/national-coach.ts`): **group day 24 Nov, quarter-finals 25 Nov, semi-finals 26 Nov, medal day 27 Nov.** Each stage's fixtures are made once the stage before is decided (QF from the group tables, SF from the QFs, bronze and gold from the SFs).
+- **A match** is *scheduled*, then *live* while it is watched on the court, then *decided*: by the court's result, or by the engine at the end of its day (`nationsCupDayTx`, run by the calendar's day). A match left part-way is finished from its last score, as a club match is.
+- **Results, medals, trophies, Club News and achievements** use the same tables as before: each decided match is its `olympic_matches` row, and the medal rows and trophies are written when gold and bronze are decided. Club News shows a Cup once it is finished.
+- The Season Calendar shows the four days, and the schedule page shows the Cup day by day, with today's matches marked.
+
+**A4b. Watch on the 3D court:**
+- **Watch buttons** on the Nations Cup schedule page and the Dashboard ("Empire Nations Cup today"), on the match's day only. They open `/court?nationsMatchId=…`.
+- **`/unity/match-state?nationsMatchId=`** serves the two nations' pairs, each player in **her nation's colours**. The colours come from a new kit table, `lib/db/src/schema/national-kits.ts`: the 42 national kits the AI club cards already wear, plus every other nation's two main flag colours, one line for each of the 128 nations the game knows. When the two kits are too alike, the away pair changes to white, under the one kit rule.
+- **The court's switch:** the payload carries `courtsideBoards: "nations_cup"`, `boardText: "EMPIRE NATIONS CUP 2028"` and `kitSource: "national"`. Unity's `CourtsideBoards.DressNationsCup` draws the banner text at run time into each board model's own texture size (`BannerPainter`, TextMeshPro), so every Cup year has its own boards.
+- **Results:** `/unity/match-progress` and `/unity/match-result` take `nationsMatchId` (MatchReporter posts it in place of `matchId`). A result sent twice changes nothing.
+- **Auto only,** except his own nation's matches. The payload's `manualAllowed` (Unity's `ManualControl.ForbidManual` refuses Manual from the page and from Tab / View / Share), and the court page's settings agree. Manual control always plays the court's home pair, so when his nation is the fixture's away side the court is sent it as home, and the scores it posts are turned back.
+
+**A4c. The national coach job** (`utils/nationalCoach.ts`, `routes/national-team.ts`; the numbers in `lib/db/src/schema/national-coach.ts`):
+- **Offers:** whenever he has no national job, **1 to 3 nations** offer: in the 6 months before a Cup (from its group day back), and as soon as his national contract ends. His manager level picks the band of the strength ranking they come from (level 1, Local Coach: the weakest 40%; level 5, Legend: the strongest 40%). Strength is a nation's best two fit players' average rating. The offers show on the **Career page** (top) and the **job market**, with a **Dashboard notice** while one waits. He accepts one or declines them all.
+- **Contract: 3 or 5 years** (anything else is refused). **Pay is fixed**, set when the offer is made, and **against strength** (`NATIONAL_COACH_PAY`, by strength share): **strongest 20% $3,000 a month, then $4,500, $6,000, $7,500, weakest 20% $9,000.** It is paid to him day by day (`national_coach_jobs.paid`), **never through the club's books**. It counts in his career earnings, and his Profile shows a "National Coach (nation)" pay line.
+- **National Team page** (side menu, Competition › Empire Nations Cup, only while he coaches): every player of his nation at any club (never a free agent) with injuries, fitness and fatigue. He picks the pair for the next Cup; an injured player can't be picked, and if he doesn't pick, the best two fit play. The **pre-Cup camp**: *training* (the pair plays the Cup +2, and +10 fatigue) or *recovery* (fitness 100, no fatigue), applied at the draw and for the Cup only. The page also shows his contract (nation, years left, pay, paid so far). It locks once the Cup is drawn.
+- **Rules page:** new sections, "The Empire Nations Cup, day by day" and "National coach". The Nations Cup card says the coach's pick is used.
+
+**Proof: `harness/nations-cup.mjs`, 45/45 alone** (run-all 98zw). It plays one career to the end of November 2028:
+- **First window:** no offer before 24 May 2028. On that day 3 offers came (Venezuela #34/50 $7,500, Vanuatu #43/50 $9,000, Ghana #47/50 $9,000). The Career page and Dashboard data read them. **4 years refused; 3 years accepted** (Venezuela, 25 May 2028 to 25 May 2031, $7,500 a month); the other two declined.
+- **Pay:** $7,644 for 31 days (monthly × 12 / 365 a day); nothing on the club's ledger; it shows on the career summary.
+- **The page:** every listed player is at a club (for the USA, which he was set to coach for the test: 8 listed, 8 free agents not listed); an injured player is shown and can't be picked; a pair that is *not* the best two was picked, with the training camp.
+- **The draw** (end of round 70's day): **his picked pair plays**, rated **+2** (85.75 against 83.75). Their fatigue: 50 that morning, 60 after the draw (the camp's +10; AI club players have no daily rest). **Every other nation played its best two fit** (11 of 11), and the page locked.
+- **Group day:** 12 watchable matches on the Dashboard data. His nation's match on the court was live, his nation the court's home pair, Manual allowed, **in national colours (#1B2A4A for the USA) with "EMPIRE NATIONS CUP 2028" boards.** Another nation's match: Auto only. **The court's result decided his match**, and a repeat changed nothing. A match left part-way was finished from its last score. **At the day's end the other 10 were decided by the engine**, and the quarter-finals were made for the next day.
+- **The rest:** one day for each stage (24, 25, 26, 27 Nov); 20 matches, each dated its own day; six medallists; **the podium ceremony queued**; Club News; the schedule page reads 4 days and 20 matches.
+- **Second window:** the day his contract ended, offers came at once. At Legend level they were stronger nations paying less (New Zealand #11/53, $3,000, against $7,500/$9,000/$9,000 at Local Coach). **5 years accepted.** "Decline them all" works.
+- **`harness/olympics-tournament.mjs` 24/24** (now waits for the medals; the pairs are compared with those at the draw). `trophies` 9/9, `board-review` 60/60, `trademark-renames` 14/14, `schema-drift` 12/12, `flags` 18/18, alone. `olympic-qualification` reads the built frontend, so it runs in Part C's full build.
+
+**Decisions (A4):**
+- **Only three days lie between round 70 (23 Nov) and the World Finals semis (27 Nov),** and the brief wants four Cup days (groups, QF, SF, medal day). The medal day is therefore 27 November, the World Finals semis' day. The Cup's bronze and gold are decided at that day's end, separately from the club semis. Groups, QFs and SFs fall between the two rounds, as asked.
+- **The Cup's pairs are set at the draw** (end of 23 Nov), so "picked by the Cup's first day" means before the draw. The page locks then.
+- **Unwatched matches are decided "at the end of their day"**, which is the end of that game day's processing, when the player moves the calendar on. A match watched part-way and left is finished by the engine from the court's last score.
+- **"Before or after a Cup":** offers come in the 6-month window before each Cup and the day a contract ends, whichever comes first. Declined, the next offers come with the next window or contract end.
+- **"Better manager record means better nations":** the record is his manager level, the game's one standing measure (`teams.manager_rep_points`). Each level opens a band of the strength ranking.
+- **Pay goes to the manager's salary line:** the club's "Manager salary" ledger line is a club expense, so the national pay is kept on the job (`paid`), shown on the Profile and the National Team page, and added to Career Earnings, never to the club's money.
+- **The camp** is applied once, at the draw: training adds +2 to the pair's Cup rating and +10 fatigue; recovery sets fitness 100 and fatigue 0. AI club players' fitness and fatigue stay off (item 4c), so recovery shows only on career players.
+- AI nations' pairs now also leave out an injured AI-club player (they had not), so every nation plays its best two **fit**.
+
 ## Item table
 
 | Item | What | Commit | Proof |
 |---|---|---|---|
 | A1 | Staff portraits: 49 installed, 82 refused (logos) | 90a17739 | ai-staff 31/31, junior-medics 12/12, installer 15/15, live-save copy |
 | A2 | Real flags: flag-icons, <Flag>, every nationality resolves | bf8104ac | flags 18/18; screenshots in Part C |
-| A3 | AI scouting and buying limits (10 a season, 2 at one club), counted from ai_market_moves | (this commit) | ai-market-limits 19/19; transfer-window, ai-buyable, counter-offer, salary-cap, manager-faces |
+| A3 | AI scouting and buying limits (10 a season, 2 at one club), counted from ai_market_moves | da1c34fb | ai-market-limits 19/19; transfer-window, ai-buyable, counter-offer, salary-cap, manager-faces |
+| A4 | The Nations Cup over days, watchable on the court in national colours; the national coach job | (this commit) | nations-cup 45/45; olympics-tournament 24/24; trophies, board-review |

@@ -14,3 +14,5 @@ export * from "./game-difficulty";
 export * from "./preseason";
 export * from "./transfers";
 export * from "./staff-budget";
+export * from "./national-coach";
+export * from "./national-kits";

@@ -81,6 +81,7 @@ import AnnualCalendar from "@/pages/annual-calendar";
 // a tab on OlympicsHub (pages/olympics.tsx). Not built, deleted.
 import NationalSquads   from "@/pages/competition/national-squads";
 import OlympicSchedule  from "@/pages/competition/olympic-schedule";
+import NationalTeam     from "@/pages/national-team";
 
 function isUnauthorized(error: unknown): boolean {
   return (error as { status?: number } | null)?.status === 401;
@@ -238,6 +239,8 @@ function Router() {
               {/* Competition — Olympics */}
               <Route path="/competition/national-squads"      component={NationalSquads}      />
               <Route path="/competition/olympic-schedule"     component={OlympicSchedule}     />
+              {/* 1.1.3 (A4c): while he coaches a nation */}
+              <Route path="/national-team"                    component={NationalTeam}        />
 
               <Route path="/annual-calendar" component={AnnualCalendar} />
 

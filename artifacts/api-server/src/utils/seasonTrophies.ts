@@ -30,14 +30,21 @@ type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
 export const SEASON_TROPHY_TYPES = ["world_championship", "runner_up", "bronze", "world_tour_tier"] as const;
 export type FinalsResult = "champion" | "runner-up" | "semi-finalist" | "did not qualify" | null;
 
-/** The honours a season earned — pure, so the harness and the rollover agree on the rule. */
+/**
+ * The honours a season earned — pure, so the harness and the rollover agree on the rule.
+ *
+ * 1.1.3 (Rob, 23 Oct; brief A5): a lost semi-final is bronze only for the losing
+ * semi-finalist higher on the season's ladder (or the third-place match's winner,
+ * when the two are dead level: utils/worldFinalsBronze.ts). Both used to get it.
+ * Trophies already written stay as they are.
+ */
 export function seasonTrophiesFor(
-  finals: FinalsResult, tier: Tier, rankingPoints: number, year: number,
+  finals: FinalsResult, tier: Tier, rankingPoints: number, year: number, bronze = false,
 ): Array<{ type: (typeof SEASON_TROPHY_TYPES)[number]; name: string; notes: string }> {
   const out: Array<{ type: (typeof SEASON_TROPHY_TYPES)[number]; name: string; notes: string }> = [];
   if (finals === "champion") out.push({ type: "world_championship", name: `World Champions ${year}`, notes: "Won the World Final" });
   if (finals === "runner-up") out.push({ type: "runner_up", name: `World Final runner-up ${year}`, notes: "Lost the World Final" });
-  if (finals === "semi-finalist") out.push({ type: "bronze", name: `World Finals semi-finalist ${year}`, notes: "Lost a World Semi Final" });
+  if (finals === "semi-finalist" && bronze) out.push({ type: "bronze", name: `World Finals bronze ${year}`, notes: "Lost a World Semi Final; the higher of the two on the ladder" });
   if (tier === "Silver" || tier === "Gold") {
     out.push({ type: "world_tour_tier", name: `World Tour ${tier} tier ${year}`, notes: `${rankingPoints} ranking points` });
   }
@@ -55,7 +62,8 @@ export function awardSeasonTrophiesTx(
   )).all();
   if (existing.length > 0) return existing;
 
-  const finals = worldFinalsSummaryTx(tx, careerSaveId, seasonYear, teamId).playerResult;
+  const summary = worldFinalsSummaryTx(tx, careerSaveId, seasonYear, teamId);
+  const finals = summary.playerResult;
   const ranking = tx.select({ points: competitorRankingsTable.rankingPoints }).from(competitorRankingsTable).where(and(
     eq(competitorRankingsTable.competitorId, competitorIdForTeamTx(tx, teamId)),
     eq(competitorRankingsTable.careerSaveId, careerSaveId),
@@ -63,7 +71,7 @@ export function awardSeasonTrophiesTx(
   )).get();
   const points = ranking?.points ?? 0;
 
-  const rows = seasonTrophiesFor(finals, tierForPoints(points), points, seasonYear);
+  const rows = seasonTrophiesFor(finals, tierForPoints(points), points, seasonYear, summary.playerBronze === true);
   if (rows.length === 0) return [];
   return tx.insert(trophiesTable).values(rows.map((r) => ({
     teamId, type: r.type, name: r.name, notes: r.notes,

@@ -36,8 +36,10 @@ import {
   worldTourQualificationsTable,
   worldTourFixturesTable,
   matchLiveStateTable,
+  careerPlayerStateTable,
 } from "@workspace/db";
-import { and, asc, eq, gte, inArray, isNull, lte } from "drizzle-orm";
+import { and, asc, eq, gte, inArray, isNull, lte, ne } from "drizzle-orm";
+import { bronzeOnLadder, type BronzeLine } from "./worldFinalsBronze.js";
 import { sideRating, pointProbability, simulateMatch, type SetScore, type MatchResult } from "./matchEngine.js";
 import { aiClubRatingsTx, aiMatchRatingsTx, aiMatchInjuriesTx } from "./aiSquads.js";
 import { creditCompetitorTx } from "./rankingPoints.js";
@@ -49,7 +51,6 @@ import { WORLD_TOUR } from "../data/worldTour.js";
 import { getWeatherEffects } from "../routes/matches.js";
 import { loadLeagueSeasons } from "../lib/regionalLeague.js";
 import { simulateRegionalRound, resolveRegionalSeason } from "./regionalSeason.js";
-import { playOlympicsTx, type OlympicOutcome } from "./olympics.js";
 import { updatePlayerState, withCareerStateTx, type CareerStateTx } from "../lib/playerDto.js";
 
 type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
@@ -58,6 +59,12 @@ type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
 // utils/seasonPhase.ts can read them without the cycle worldTour -> routes/matches -> seasonPhase -> worldTour.
 import { SEMI_FINAL_TIER, FINAL_TIER, WORLD_TOUR_EVENT_ROUNDS } from "../data/worldTour.js";
 export { SEMI_FINAL_TIER, FINAL_TIER, WORLD_TOUR_EVENT_ROUNDS };
+/**
+ * 1.1.3 (A5): a World Finals third-place match, played only when the two losing semi-finalists
+ * are dead level on the ladder (utils/worldFinalsBronze.ts). On the final's day, after it; no
+ * prize and no ranking points: it decides the bronze.
+ */
+export const THIRD_PLACE_TIER = "World Finals Third Place";
 
 /** A player match the player did not earn a place in. Never played, never paid. */
 export const NOT_QUALIFIED = "not_qualified";
@@ -573,6 +580,8 @@ export function worldTourStandingsTx(tx: Tx, careerSaveId: number, seasonYear: n
     eq(worldTourFixturesTable.careerSaveId, careerSaveId),
     eq(worldTourFixturesTable.seasonYear, seasonYear),
     eq(worldTourFixturesTable.status, "completed"),
+    // 1.1.3 (A5): a World Finals third-place match is for the bronze only, never the ladder.
+    ne(worldTourFixturesTable.tier, THIRD_PLACE_TIER),
   )).orderBy(asc(worldTourFixturesTable.round), asc(worldTourFixturesTable.id)).all();
 
   const sets = new Map<number, { for: number; against: number; form: Array<"W" | "L"> }>();
@@ -749,7 +758,70 @@ export function seedWorldFinalTx(
     }).run();
     markNotQualifiedTx(tx, playerFinal);
   }
+  // 1.1.3 (A5): the bronze. Dead level on the ladder, the two losing semi-finalists play for it today.
+  const bronze = worldFinalsBronzeTx(tx, careerSaveId, seasonYear);
+  if (bronze.by === "level") playThirdPlaceTx(tx, careerSaveId, seasonYear, playerTeamId, bronze.losers);
   return "seeded";
+}
+
+/** A losing semi-finalist's line on the season's ladder (utils/worldFinalsBronze.ts BronzeLine). */
+function bronzeLineTx(tx: Tx, careerSaveId: number, seasonYear: number, competitorId: number): BronzeLine {
+  const row = worldTourStandingsTx(tx, careerSaveId, seasonYear).find((s) => s.competitorId === competitorId);
+  let pointDiff = 0;
+  for (const f of tx.select({ h: worldTourFixturesTable.homeCompetitorId, a: worldTourFixturesTable.awayCompetitorId, sets: worldTourFixturesTable.sets }).from(worldTourFixturesTable).where(and(
+    eq(worldTourFixturesTable.careerSaveId, careerSaveId), eq(worldTourFixturesTable.seasonYear, seasonYear),
+    eq(worldTourFixturesTable.status, "completed"), ne(worldTourFixturesTable.tier, THIRD_PLACE_TIER),
+  )).all()) {
+    if (f.h !== competitorId && f.a !== competitorId) continue;
+    for (const s of f.sets ?? []) pointDiff += f.h === competitorId ? s.home - s.away : s.away - s.home;
+  }
+  return { competitorId, points: row?.points ?? 0, wins: row?.wins ?? 0, setDiff: (row?.setsFor ?? 0) - (row?.setsAgainst ?? 0), pointDiff };
+}
+
+export type WorldFinalsBronze = { competitorId: number | null; by: "ladder" | "match" | "level" | null; losers: [number, number] | null };
+
+/**
+ * 1.1.3 (A5): the World Finals bronze: the losing semi-finalist higher on the season's
+ * ladder (points, wins, set difference, rally-point difference); dead level, the winner of
+ * the third-place match (null while it is to be played). Null before both semis are decided.
+ */
+export function worldFinalsBronzeTx(tx: Tx, careerSaveId: number, seasonYear: number): WorldFinalsBronze {
+  const semis = roundFixturesTx(tx, careerSaveId, seasonYear, FINALS_START);
+  if (semis.length !== 2 || semis.some((s) => s.status !== "completed")) return { competitorId: null, by: null, losers: null };
+  const losers = semis.map((s) => ((s.homeSets ?? 0) > (s.awaySets ?? 0) ? s.awayCompetitorId : s.homeCompetitorId)) as [number, number];
+  const pick = bronzeOnLadder(bronzeLineTx(tx, careerSaveId, seasonYear, losers[0]), bronzeLineTx(tx, careerSaveId, seasonYear, losers[1]));
+  if (pick !== "level") return { competitorId: pick.competitorId, by: "ladder", losers };
+  const third = roundFixturesTx(tx, careerSaveId, seasonYear, FINALS_END).find((f) => f.tier === THIRD_PLACE_TIER && f.status === "completed");
+  if (!third) return { competitorId: null, by: "level", losers };
+  return { competitorId: (third.homeSets ?? 0) > (third.awaySets ?? 0) ? third.homeCompetitorId : third.awayCompetitorId, by: "match", losers };
+}
+
+/** A club's pair rating for the third-place match: an AI club's as its matches play, the player's best two fit. */
+function finalsPairRatingTx(tx: Tx, careerSaveId: number, competitorId: number, playerTeamId: number): number {
+  const c = tx.select({ teamId: competitorsTable.teamId, poolTeamId: competitorsTable.poolTeamId }).from(competitorsTable).where(eq(competitorsTable.id, competitorId)).get();
+  if (c?.poolTeamId != null) return aiMatchRatingsTx(tx, careerSaveId).get(c.poolTeamId) ?? 60;
+  const mine = tx.select({
+    speed: careerPlayerStateTable.speed, power: careerPlayerStateTable.power, defense: careerPlayerStateTable.defense,
+    serve: careerPlayerStateTable.serve, block: careerPlayerStateTable.block, stamina: careerPlayerStateTable.stamina,
+    injured: careerPlayerStateTable.isInjured,
+  }).from(careerPlayerStateTable).where(and(eq(careerPlayerStateTable.careerSaveId, careerSaveId), eq(careerPlayerStateTable.teamId, c?.teamId ?? playerTeamId),
+    eq(careerPlayerStateTable.isRetired, false), eq(careerPlayerStateTable.isActive, true))).all().filter((p) => !p.injured);
+  const best = mine.map((p) => sideRating([p])).sort((a, b) => b - a).slice(0, 2);
+  return best.length ? best.reduce((a, b) => a + b, 0) / best.length : 60;
+}
+
+/** Dead level: the two losing semi-finalists play for bronze on the final's day (the engine decides it). */
+function playThirdPlaceTx(tx: Tx, careerSaveId: number, seasonYear: number, playerTeamId: number, losers: [number, number] | null): void {
+  if (!losers) return;
+  if (roundFixturesTx(tx, careerSaveId, seasonYear, FINALS_END).some((f) => f.tier === THIRD_PLACE_TIER)) return;
+  const [home, away] = losers;
+  const result = simulateMatch(pointProbability(finalsPairRatingTx(tx, careerSaveId, home, playerTeamId), finalsPairRatingTx(tx, careerSaveId, away, playerTeamId), { homeAdvantage: false }));
+  const points = totalPoints(result.sets);
+  tx.insert(worldTourFixturesTable).values({
+    careerSaveId, seasonYear, round: FINALS_END, tier: THIRD_PLACE_TIER, homeCompetitorId: home, awayCompetitorId: away,
+    status: "completed", homeSets: result.homeScore, awaySets: result.awayScore, homePoints: points.home, awayPoints: points.away,
+    sets: result.sets, playedAt: new Date(),
+  }).run();
 }
 
 // ── Entry point ──────────────────────────────────────────────────────────────
@@ -759,8 +831,6 @@ export type WorldTourProgress = {
   /** Why the World Tour cannot move yet, for a 409. Null when it did. */
   blocked: string | null;
   aiPlayed: number;
-  /** R-61: the Olympic tournament, when this call is the one that played it. */
-  olympics?: OlympicOutcome | null;
 };
 
 /**
@@ -799,12 +869,10 @@ export async function advanceWorldTour(opts: {
 
     let aiPlayed = playWorldTourUpToTx(w, careerSaveId, seasonYear, playerTeamId,
       Math.min(upToRound, WORLD_TOUR_END));
-    let olympics: OlympicOutcome | null = null;
     if (upToRound >= FINALS_START) {
-      // R-61: in an Olympic year the Olympics come first — once every regular
-      // World Tour fixture is decided, before the semi-finals are seeded — so
-      // qualifying is on the regular season's points (utils/olympics.ts).
-      olympics = playOlympicsTx(tx, careerSaveId, seasonYear, playerTeamId);
+      // 1.1.3 (A4a): the Empire Nations Cup is no longer played here in one go: it is
+      // drawn at the end of round 70's day and played over the days after it
+      // (utils/olympics.ts nationsCupDayTx, from the calendar).
       seedWorldFinalsTx(tx, careerSaveId, seasonYear, playerTeamId);
       aiPlayed += playWorldTourUpToTx(w, careerSaveId, seasonYear, playerTeamId, FINALS_START);
     }
@@ -812,15 +880,8 @@ export async function advanceWorldTour(opts: {
       seedWorldFinalTx(tx, careerSaveId, seasonYear, playerTeamId);
       aiPlayed += playWorldTourUpToTx(w, careerSaveId, seasonYear, playerTeamId, FINALS_END);
     }
-    return { drawn: true, blocked: null, aiPlayed, olympics };
+    return { drawn: true, blocked: null, aiPlayed };
   });
-
-  // An Olympic medal is part of the player's own record. Player state is written
-  // through playerDto (check-write-boundaries), which cannot run inside the
-  // synchronous transaction above.
-  for (const h of progress.olympics?.honours ?? []) {
-    await updatePlayerState(careerSaveId, h.playerId, { olympicMedalsCount: h.olympicMedalsCount });
-  }
   return progress;
 }
 
@@ -863,6 +924,9 @@ export type WorldFinalsSummary = {
   playerResult: "champion" | "runner-up" | "semi-finalist" | "did not qualify" | null;
   champion: string | null;
   runnerUp: string | null;
+  /** 1.1.3 (A5): the bronze club (the losing semi-finalist higher on the ladder), and whether it is the player's. */
+  bronze?: string | null;
+  playerBronze?: boolean;
 };
 
 /** How a season's World Finals went, for the season review. */
@@ -878,11 +942,11 @@ export function worldFinalsSummaryTx(
 ): WorldFinalsSummary {
   const semis = roundFixturesTx(tx, careerSaveId, seasonYear, FINALS_START);
   if (semis.length === 0) {
-    return { seeded: false, playerQualified: null, playerResult: null, champion: null, runnerUp: null };
+    return { seeded: false, playerQualified: null, playerResult: null, champion: null, runnerUp: null, bronze: null, playerBronze: false };
   }
   const player = competitorIdForTeamTx(tx, playerTeamId);
   const inSemis = semis.some((s) => s.homeCompetitorId === player || s.awayCompetitorId === player);
-  const final = roundFixturesTx(tx, careerSaveId, seasonYear, FINALS_END)[0];
+  const final = roundFixturesTx(tx, careerSaveId, seasonYear, FINALS_END).find((f) => f.tier === FINAL_TIER);
 
   let championId: number | null = null;
   let runnerUpId: number | null = null;
@@ -898,11 +962,15 @@ export function worldFinalsSummaryTx(
     : decided ? "semi-finalist"
     : null;
 
+  // 1.1.3 (A5): only the losing semi-finalist higher on the ladder (or the third-place winner) takes bronze.
+  const bronze = worldFinalsBronzeTx(tx, careerSaveId, seasonYear);
   return {
     seeded: true,
     playerQualified: inSemis,
     playerResult,
     champion: championId != null ? competitorNameTx(tx, championId) : null,
     runnerUp: runnerUpId != null ? competitorNameTx(tx, runnerUpId) : null,
+    bronze: bronze.competitorId != null ? competitorNameTx(tx, bronze.competitorId) : null,
+    playerBronze: bronze.competitorId != null && bronze.competitorId === player,
   };
 }

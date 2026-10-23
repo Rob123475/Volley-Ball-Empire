@@ -4,7 +4,7 @@ import {
   hallOfFameTable, careerHistoryEntriesTable,
 } from "@workspace/db";
 import { eq, and, inArray } from "drizzle-orm";
-import { seasonsTable, managerLevelFor, MANAGER_SALARY_PER_SEASON, managerSalaryFor, financeTransactionsTable } from "@workspace/db";
+import { seasonsTable, managerLevelFor, MANAGER_SALARY_PER_SEASON, managerSalaryFor, financeTransactionsTable, nationalCoachJobsTable } from "@workspace/db";
 import { getGameDate } from "./gameDate.js";
 import { getSession, getSessionId, updateSession } from "../lib/auth.js";
 import { ACHIEVEMENT_DEFS } from "./achievement-definitions.js";
@@ -49,7 +49,13 @@ export async function managerEarnings(careerSaveId: number, today: string): Prom
       : Math.max(0, Math.min(length, day(until) - day(s.startDate) + 1));
     earned += MANAGER_SALARY_PER_SEASON * served / length;
   }
-  return Math.round(paid + earned);
+  return Math.round(paid + earned + nationalPaid(careerSaveId));
+}
+
+/** 1.1.3 (A4c): what he has been paid as a national coach: his own, never the club's books. */
+function nationalPaid(careerSaveId: number): number {
+  return db.select({ p: nationalCoachJobsTable.paid }).from(nationalCoachJobsTable).where(eq(nationalCoachJobsTable.careerSaveId, careerSaveId)).all()
+    .reduce((t, r) => t + Number(r.p), 0);
 }
 
 // ── Career summary ────────────────────────────────────────────────────────────
@@ -105,6 +111,11 @@ export async function buildCareerSummary(teamId: number, userId: string, careerS
     managerLevelName:     managerLevelFor(team?.managerRepPoints ?? 0).name,
     // Overnight 1 Oct, N-41: a month, from Rob's range (lib/db/src/schema/money.ts).
     managerSalary:        save ? managerSalaryFor(`career:${save.id}`) : 0,
+    // 1.1.3 (A4c): his national job's pay, a month, on top of the club's (his own; the club pays nothing).
+    nationalCoach:        save ? (() => {
+      const job = db.select().from(nationalCoachJobsTable).where(and(eq(nationalCoachJobsTable.careerSaveId, save.id), eq(nationalCoachJobsTable.status, "active"))).get();
+      return job ? { nation: job.nation, monthly: Number(job.monthly), endsOn: job.endsOn } : null;
+    })() : null,
     careerEarnings:       save ? await managerEarnings(save.id, await getGameDate(teamId)) : 0,
   };
 }
