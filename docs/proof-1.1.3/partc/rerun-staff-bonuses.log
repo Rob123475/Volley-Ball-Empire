@@ -1,0 +1,41 @@
+========================================================================
+  P-09 HIRED STAFF GIVE THEIR BONUSES
+========================================================================
+
+0. ONE NORMALISER
+  PASS  no two starter staff share a name, ignoring a leading "Dr." (P-08)  329 staff, all distinct
+  PASS  every role the starter data stores normalises to a key  12 roles
+  PASS  the four hired here are stored Title Case, which is the bug's premise  Head Coach, Assistant Coach, Fitness Trainer, Promotional Manager
+  PASS  both names the DB and the code disagree on land on one key  8 spellings
+  PASS  no route or page compares a staff role as stored, or keeps its own normaliser  210 files
+  PASS  the Staff page's bonus panel looks roles up normalised
+  PASS  the scout mission dropdown lists hired Scouts only, and says so when there are none (P-07)
+  PASS  so all four hired Title-Case roles show a bonus there  panel keys: head_coach, assistant_coach, fitness_trainer, strength_conditioner, massage_therapist, promotions_manager, scout; hired -> head_coach, assistant_coach, fitness_trainer, promotions_manager
+  PASS  a career is created  HTTP 200
+
+1. TRAINING: HEAD COACH, ASSISTANT COACH, FITNESS TRAINER
+  PASS  with no staff, the session reports no staff bonus  {"xpMultiplier":1,"fatigueReduction":0}
+  PASS  and a Power Camp adds its full fatigue  +26
+  PASS  hired a Head Coach stored as "Head Coach" (the market's head_coach filter found it)  Valentino Greco, skill 96, HTTP 201
+  PASS  hired a Assistant Coach stored as "Assistant Coach" (the market's assistant_coach filter found it)  Murat Yilmaz, skill 83, HTTP 201
+  PASS  hired a Fitness Trainer stored as "Fitness Trainer" (the market's fitness_trainer filter found it)  Lucas Anderson, skill 87, HTTP 201
+  PASS  hired a Promotional Manager stored as "Promotional Manager" (the market's promotions_manager filter found it)  Victoria Chen, skill 92, HTTP 201
+  PASS  the session now reports the coaches' XP multiplier and the trainer's fatigue reduction  x1.2175 (want x1.2175), -4.111 fatigue (want -4.111)
+  PASS  and XP per point of base XP really rose by that multiplier  27/31 -> 37/35: x1.214 measured, x1.217 expected (+/-3.0%)
+  PASS  and the Power Camp really added less fatigue, by the trainer's reduction (whole points)  +26 -> +22 (expected +22)
+
+2. SPONSORSHIP: PROMOTIONAL MANAGER
+  PASS  a week's sponsor income is paid with the manager on the staff  Weekly sponsor & commercial income (+17% Promotions Manager bonus)
+  PASS  and it is the unboosted reputation x 200 times the manager's multiplier, plus the flat weekly sum (not multiplied)  $30680 = $10000 x 1.1680 + $19000
+  PASS  and the ledger says why  Weekly sponsor & commercial income (+17% Promotions Manager bonus)
+  PASS  a sponsor's signing bonus is boosted by the same multiplier  $3500 offered -> $4088 paid
+
+3. MEDICAL: THE DOCTOR TREATS, THE SPORTS SCIENTIST PREVENTS
+  PASS  with no doctor, physio or sports scientist: a doctor's injury is x2, a physio's x2, and risk is untouched  {"t":{"doctorInjuries":2,"physioInjuries":2,"reconstruction":2},"r":1}
+  PASS  a doctor treats her own injuries at x0.7 to x0.6 by skill (and a physio's at x1)  doctor skill 92: x0.607
+  PASS  a sports scientist cuts match injury risk: x(1 - (skill-50)/45 x 0.15), at most 15% at skill 95 and above  sports scientist skill 88: x0.8733
+  PASS  (source) the one injuryRisk takes the sports scientist's factor, and both injury rolls (the player's and the AI clubs') pass it
+  PASS  (source) the Recovery Program is a week of rest at the treatment factor; the Medical page shows the server's figures
+  PASS  a sports scientist off ill prevents nothing  x1
+
+=== 28/28 passed ===

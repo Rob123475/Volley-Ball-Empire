@@ -1,7 +1,7 @@
 "AppBuild"
 {
 	"AppID" "5233750"
-	"Desc" "v1.1.3 staff portraits, real flags, AI scouting and buying limits, the Nations Cup over days and the national coach, medal ceremonies (release-1.1.3, commit in the report)"
+	"Desc" "v1.1.3 staff portraits, real flags, AI scouting and buying limits, the Nations Cup over days and the national coach, medal ceremonies (release-1.1.3 eb2dc65b, Unity dd0a487)"
 	"SetLive" "default"
 	"ContentRoot" "C:\build\vbe-1.1.3\win-unpacked\"
 	"BuildOutput" "..\output\"

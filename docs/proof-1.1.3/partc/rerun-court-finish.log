@@ -1,0 +1,16 @@
+========================================================================
+  UNITY 5: A PROPER FINISH, AND A WAY OUT
+========================================================================
+  PASS  court.tsx: the Leave match bar sits outside the Unity canvas, above it, whenever the court is up
+  PASS  court.tsx: Leave match asks first: "Leave the match?" / "Leaving forfeits it: it counts as a loss and pays no prize money.", Stay or Leave and forfeit
+  PASS  court.tsx: no option to simulate the rest of the match
+  PASS  court.tsx: leaving POSTs /matches/:id/leave, then goes to the dashboard
+  PASS  court.tsx: on "unity-match-finished" it goes straight to the dashboard, every screen refreshed
+  PASS  Unity: the result box has a Continue button, and only Continue sends the player back (no automatic return)
+  PASS  Unity: the banner shows the winner, the sets and each set's points
+  PASS  Unity: the message is exactly the one court.tsx listens for, posted to the parent page
+  PASS  Unity: the in-play header is the set, sets won and points: no clock, no halves
+  PASS  Unity: at the end, boosts stop, the serve text and the action word go, the commentators stop, the crowd stops
+  PASS  Unity: no A1/A2/B1/B2 name labels in the V19 scene, and the label script is gone
+
+=== 11/11 passed ===

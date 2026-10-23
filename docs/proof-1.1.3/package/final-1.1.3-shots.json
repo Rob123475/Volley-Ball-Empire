@@ -1,0 +1,311 @@
+{
+ "exe": "C:\\build\\vbe-1.1.3\\win-unpacked\\Beach Volleyball Empire.exe",
+ "shots": [
+  "01-dashboard-national-coach-notice.png",
+  "02-career-national-coach-offers.png",
+  "03-flags-job-market.png",
+  "04-flags-youth-list.png",
+  "04-flags-youth-card.png",
+  "05-dashboard-nations-cup-today.png",
+  "06-national-team-page.png",
+  "07-flags-nations-cup-schedule.png",
+  "08-nations-cup-court-20s.png",
+  "09-nations-cup-court-45s.png",
+  "10-podium-nations_cup.png",
+  "11-podium-world_finals.png",
+  "12-continental-ladder-cups.png",
+  "13-continental-ladder-cups-history.png"
+ ],
+ "steps": [
+  {
+   "s": "A: started the packaged exe",
+   "save": "2028-05-25"
+  },
+  {
+   "s": "A: profile selected",
+   "status": 200
+  },
+  {
+   "s": "A: CONTINUE",
+   "pressed": true
+  },
+  {
+   "s": "A: dashboard",
+   "date": "May 25, 2028",
+   "dialogs": []
+  },
+  {
+   "s": "A done",
+   "notice": "3 nations want you as their national coach | Accept one (3 or 5 years) or decline them all, on the Career page. | See the offers",
+   "offers": 3,
+   "offersText": "3 nations want you as their national coach | On top of your club job. The pay is fixed: the weaker the nation, the more it pays. You choose 3 or 5 years. Next Empire Nations Cup: 2028, from 24 Nov 2028. | Tunisia | Strength #24 of 55 nations | $6,000 / month | 3 years | 5 years | Accept | Jamaica | Strength #28 of 55 nations | $6,000 / month | 3 years",
+   "offerFlags": [
+    "tn.svg",
+    "jm.svg",
+    "ve.svg"
+   ],
+   "jobMarketOffers": "3 nations want you as their national coach | On top of your club job. The pay is fixed: the weaker the nation, the more it pays. You choose 3 or 5 years. Next Empire Nations Cup: 2028, from 24 Nov 2028. | Tunisia | Strength #24 of 55 nations | $6,000 / month | 3 years | 5 years | Accept | Jamaica | Strength #28 of 55 nations | $6,000 / month | 3 years",
+   "jobMarketFlags": [
+    "tn.svg",
+    "jm.svg",
+    "ve.svg"
+   ],
+   "youthFlags": [
+    "gr.svg",
+    "ch.svg",
+    "se.svg",
+    "it.svg",
+    "sb.svg",
+    "nl.svg",
+    "de.svg",
+    "ar.svg",
+    "br.svg",
+    "bo.svg",
+    "uy.svg",
+    "ar.svg"
+   ],
+   "youthCardOpened": true,
+   "youthCardFlags": [
+    "gr.svg"
+   ]
+  },
+  {
+   "s": "B: started the packaged exe",
+   "save": "2028-11-24"
+  },
+  {
+   "s": "B: profile selected",
+   "status": 200
+  },
+  {
+   "s": "B: CONTINUE",
+   "pressed": true
+  },
+  {
+   "s": "B: dashboard",
+   "date": "Nov 24, 2028",
+   "dialogs": []
+  },
+  {
+   "s": "B: on the court",
+   "pressed": "USA Group A Bahamas Watch",
+   "url": "?nationsMatchId=1&nationsManual=1"
+  },
+  {
+   "s": "B done",
+   "coached": "USA",
+   "yourMatch": {
+    "id": 1,
+    "h": "USA",
+    "a": "Bahamas"
+   },
+   "today": "Empire Nations Cup today | Schedule | Watch any match on the 3D court. A match not watched is decided at the end of the day. | USA | Group A | Bahamas | Watch | USA",
+   "page": "USA National Team | Your contract: 3 years, 2.5 left (to 25 May 2031) · $6,000 a month, your own pay · $36,296 earned so far | The pair for the 2028 Empire Nations Cup | from 24 Nov 2028 | Drawn: the pairs are set | Every USA player at a club. Pick two fit players. If you don't pick by the Cup's first day, the best two fit players play (now Jasmine Washington and Taylor Brooks). | Jasmine Washington · Miami Shoreline Queens | Rating 92 · fitness 100 · fatigue 10 | Picked | Taylor Brooks · LA Beach Legends",
+   "players": 7,
+   "scheduleFlags": [
+    "us.svg",
+    "us.svg",
+    "bs.svg",
+    "us.svg",
+    "my.svg",
+    "bs.svg",
+    "my.svg",
+    "cu.svg",
+    "co.svg",
+    "cu.svg",
+    "ck.svg",
+    "co.svg"
+   ],
+   "watchPressed": "USA Group A Bahamas Watch",
+   "court": "?nationsMatchId=1&nationsManual=1",
+   "unityLoaded": true,
+   "leaveBar": "Empire Nations Cup · your nation: Auto or Manual. Leaving: the rest is played out at the end of the day. | Pause | Settings",
+   "msgs": [
+    "unity-loaded"
+   ]
+  },
+  {
+   "s": "C: started the packaged exe",
+   "save": "2028-12-04"
+  },
+  {
+   "s": "C: profile selected",
+   "status": 200
+  },
+  {
+   "s": "C: CONTINUE",
+   "pressed": true
+  },
+  {
+   "s": "C: dashboard",
+   "date": "Dec 4, 2028",
+   "dialogs": [
+    "ceremony-dialog"
+   ]
+  },
+  {
+   "s": "C: ceremony 1 court loaded",
+   "event": "nations_cup",
+   "loaded": false
+  },
+  {
+   "s": "C: podium",
+   "event": "nations_cup",
+   "src": "/unity-build/index.html?careerSaveId=1&ceremony=nations_cup&year=2028",
+   "skipped": true,
+   "closed": true
+  },
+  {
+   "s": "C: ceremony 2 court loaded",
+   "event": "world_finals",
+   "loaded": false
+  },
+  {
+   "s": "C: podium",
+   "event": "world_finals",
+   "src": "/unity-build/index.html?careerSaveId=1&ceremony=world_finals&year=2028",
+   "skipped": true,
+   "closed": true
+  },
+  {
+   "s": "C done",
+   "ceremonies": [
+    {
+     "event": "nations_cup",
+     "y": 2028,
+     "r": "2028-11-27",
+     "s": null
+    }
+   ],
+   "podiums": [
+    {
+     "event": "nations_cup",
+     "src": "/unity-build/index.html?careerSaveId=1&ceremony=nations_cup&year=2028",
+     "skipped": true,
+     "closed": true
+    },
+    {
+     "event": "world_finals",
+     "src": "/unity-build/index.html?careerSaveId=1&ceremony=world_finals&year=2028",
+     "skipped": true,
+     "closed": true
+    }
+   ],
+   "pendingAfter": {
+    "pending": null
+   },
+   "cups": 18,
+   "historyCups": 18
+  }
+ ],
+ "robBefore": {
+  "C:\\Users\\rbonn\\AppData\\Roaming\\Beach Volleyball Empire\\volleyball-empire.sqlite": {
+   "size": 2592768,
+   "mtime": "2026-10-16T09:24:25.000Z",
+   "sha1": "98cc08de3efe30f1f4c8b8db86ff30c4a0e1a8b7"
+  }
+ },
+ "A": {
+  "notice": "3 nations want you as their national coach | Accept one (3 or 5 years) or decline them all, on the Career page. | See the offers",
+  "offers": 3,
+  "offersText": "3 nations want you as their national coach | On top of your club job. The pay is fixed: the weaker the nation, the more it pays. You choose 3 or 5 years. Next Empire Nations Cup: 2028, from 24 Nov 2028. | Tunisia | Strength #24 of 55 nations | $6,000 / month | 3 years | 5 years | Accept | Jamaica | Strength #28 of 55 nations | $6,000 / month | 3 years",
+  "offerFlags": [
+   "tn.svg",
+   "jm.svg",
+   "ve.svg"
+  ],
+  "jobMarketOffers": "3 nations want you as their national coach | On top of your club job. The pay is fixed: the weaker the nation, the more it pays. You choose 3 or 5 years. Next Empire Nations Cup: 2028, from 24 Nov 2028. | Tunisia | Strength #24 of 55 nations | $6,000 / month | 3 years | 5 years | Accept | Jamaica | Strength #28 of 55 nations | $6,000 / month | 3 years",
+  "jobMarketFlags": [
+   "tn.svg",
+   "jm.svg",
+   "ve.svg"
+  ],
+  "youthFlags": [
+   "gr.svg",
+   "ch.svg",
+   "se.svg",
+   "it.svg",
+   "sb.svg",
+   "nl.svg",
+   "de.svg",
+   "ar.svg",
+   "br.svg",
+   "bo.svg",
+   "uy.svg",
+   "ar.svg"
+  ],
+  "youthCardOpened": true,
+  "youthCardFlags": [
+   "gr.svg"
+  ]
+ },
+ "B": {
+  "coached": "USA",
+  "yourMatch": {
+   "id": 1,
+   "h": "USA",
+   "a": "Bahamas"
+  },
+  "today": "Empire Nations Cup today | Schedule | Watch any match on the 3D court. A match not watched is decided at the end of the day. | USA | Group A | Bahamas | Watch | USA",
+  "page": "USA National Team | Your contract: 3 years, 2.5 left (to 25 May 2031) · $6,000 a month, your own pay · $36,296 earned so far | The pair for the 2028 Empire Nations Cup | from 24 Nov 2028 | Drawn: the pairs are set | Every USA player at a club. Pick two fit players. If you don't pick by the Cup's first day, the best two fit players play (now Jasmine Washington and Taylor Brooks). | Jasmine Washington · Miami Shoreline Queens | Rating 92 · fitness 100 · fatigue 10 | Picked | Taylor Brooks · LA Beach Legends",
+  "players": 7,
+  "scheduleFlags": [
+   "us.svg",
+   "us.svg",
+   "bs.svg",
+   "us.svg",
+   "my.svg",
+   "bs.svg",
+   "my.svg",
+   "cu.svg",
+   "co.svg",
+   "cu.svg",
+   "ck.svg",
+   "co.svg"
+  ],
+  "watchPressed": "USA Group A Bahamas Watch",
+  "court": "?nationsMatchId=1&nationsManual=1",
+  "unityLoaded": true,
+  "leaveBar": "Empire Nations Cup · your nation: Auto or Manual. Leaving: the rest is played out at the end of the day. | Pause | Settings",
+  "msgs": [
+   "unity-loaded"
+  ]
+ },
+ "C": {
+  "ceremonies": [
+   {
+    "event": "nations_cup",
+    "y": 2028,
+    "r": "2028-11-27",
+    "s": null
+   }
+  ],
+  "podiums": [
+   {
+    "event": "nations_cup",
+    "src": "/unity-build/index.html?careerSaveId=1&ceremony=nations_cup&year=2028",
+    "skipped": true,
+    "closed": true
+   },
+   {
+    "event": "world_finals",
+    "src": "/unity-build/index.html?careerSaveId=1&ceremony=world_finals&year=2028",
+    "skipped": true,
+    "closed": true
+   }
+  ],
+  "pendingAfter": {
+   "pending": null
+  },
+  "cups": 18,
+  "historyCups": 18
+ },
+ "robAfter": {
+  "C:\\Users\\rbonn\\AppData\\Roaming\\Beach Volleyball Empire\\volleyball-empire.sqlite": {
+   "size": 2592768,
+   "mtime": "2026-10-16T09:24:25.000Z",
+   "sha1": "98cc08de3efe30f1f4c8b8db86ff30c4a0e1a8b7"
+  }
+ },
+ "robSaveUntouched": true
+}

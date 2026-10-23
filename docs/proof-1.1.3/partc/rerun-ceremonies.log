@@ -1,0 +1,54 @@
+========================================================================
+  1.1.3 (A5): MEDAL CEREMONIES, THE WORLD FINALS BRONZE, THE LADDER CUPS
+========================================================================
+
+1. THE BRONZE RULE
+  PASS  more ranking points takes bronze
+  PASS  points level: more wins
+  PASS  points and wins level: set difference
+  PASS  and then the rally points won and lost
+  PASS  still level after all four: a third-place match
+
+2. (SOURCE)
+  PASS  a lost semi-final is bronze only for the bronze pair's club
+  PASS  dead level, the third-place match is played on the final's day; the ladder leaves it out
+  PASS  the ceremony interrupts like the Season Review, with the court in ceremony mode and Skip
+  PASS  the continental ladder and its history show gold, silver and bronze cups
+  PASS  the Rules explain it
+  PASS  (Unity) the podium: steps 1-2-3, the six medallists, medals, the wave, flags by the name plates, the banner
+
+3. 2026: THE WORLD FINALS
+  PASS  the bronze is the losing semi-finalist higher on the ladder  Amsterdam Dune Riders {"competitorId":35,"points":72,"wins":34,"setDiff":26,"pointDiff":129} v LA Beach Legends {"competitorId":41,"points":69,"wins":35,"setDiff":21,"pointDiff":96}: Amsterdam Dune Riders
+  PASS  no third-place match when they are not level
+  PASS  the World Finals ceremony is waiting for the Dashboard  {"event":"world_finals","seasonYear":2026,"readyOn":"2026-12-03","careerSaveId":1}
+  PASS  the banner reads BEACH VOLLEYBALL EMPIRE WORLD TOUR
+  PASS  gold the champion, silver the runner-up, bronze the bronze club  1 Vancouver Pacific Orcas, 2 Rome Beach Gladiators, 3 Amsterdam Dune Riders
+  PASS  the World Finals podium: three places on steps 1, 2 and 3, two medallists each
+  PASS  the World Finals podium: each with her nation's flag  br ca it it nl au
+  PASS  the World Finals podium: each with a kit and a skin tone
+  PASS  World Tour players wear their clubs' kits
+  PASS  skipped (or watched), it doesn't open again
+
+4. 2027: THE TWO LOSING SEMI-FINALISTS DEAD LEVEL
+  PASS  (set-up) both semi-finals decided
+  PASS  (set-up) now dead level on all four  {"competitorId":24,"points":30,"wins":25,"setDiff":-2,"pointDiff":-4}
+  PASS  a third-place match was played on the final's day, between the two  Maui Hula Warriors 2-0 Bogotá Altitude Queens
+  PASS  and its winner takes bronze  {"name":"Maui Hula Warriors","by":"match"}
+  PASS  the podium's bronze step is hers
+  PASS  the third-place match is not on the ladder (no prize, no points)
+
+5. 2028: THE EMPIRE NATIONS CUP PODIUM
+  PASS  the Cup's ceremony is waiting once its medals are decided  {"event":"nations_cup","seasonYear":2028,"readyOn":"2028-11-27","careerSaveId":1}
+  PASS  the banner reads EMPIRE NATIONS CUP 2028
+  PASS  the Nations Cup podium: three places on steps 1, 2 and 3, two medallists each
+  PASS  the Nations Cup podium: each with her nation's flag  fr fr co co ke ke
+  PASS  the Nations Cup podium: each with a kit and a skin tone
+  PASS  each nation's pair in its national colours  France #002395, Colombia #FCD116, Kenya #151515
+  PASS  the places are the Cup's medals
+
+6. THE CONTINENTAL LADDER CUPS BETWEEN SEASONS
+  PASS  (set-up) the new regional season has not played a round yet  season 4, 0 played
+  PASS  until it does, the page is sent the last season's final ladder, all six, for its cups  season 3: 1 Samoa Southern Swells (10 played), 2 Auckland Pacific Diamonds (10 played), 3 Gold Coast Thunderbirds (10 played)
+  PASS  (source) and shows it, final, with the cups
+
+37/37 checks passed

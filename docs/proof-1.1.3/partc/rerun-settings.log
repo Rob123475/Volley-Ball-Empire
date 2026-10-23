@@ -1,0 +1,65 @@
+========================================================================
+  UPDATE 1, OVERNIGHT PART 8: SETTINGS
+========================================================================
+
+1. THE WINDOW SETTINGS, REMEMBERED ON THIS PC
+  PASS  no file yet: windowed, no size (the game opens maximised as it always has), zoom 100%  {"mode":"windowed","size":null,"zoom":1}
+  PASS  the sizes are 1280x800, 1400x900 (default), 1600x1000 and 1920x1080; zoom 80% to 150%
+  PASS  bad values are made good (mode windowed, an unknown size none, zoom held to 150%)  {"mode":"windowed","size":null,"zoom":1.5}
+  PASS  and a zoom below 80% is held to 80%
+  PASS  a change is merged into what is stored, and read back after a "relaunch"  {"mode":"fullscreen","size":"1600x1000","zoom":1.25}
+  PASS  a broken file reads as the defaults
+  PASS  "1920x1080" is 1920 by 1080
+
+2. ELECTRON APPLIES THEM AT LAUNCH AND AT ONCE
+  PASS  (source) the window reads them at launch and applies them when it shows; the zoom after every load
+  PASS  (source) a change is written and applied at once (fullscreen, size, zoom)
+  PASS  (source) the preload exposes only get and set (and Exit game's quit), and the window loads it with context isolation on
+
+3. AUTO / MANUAL IN SETTINGS; THE MATCH SCREEN'S BUTTON IS GONE
+  PASS  the same stored key as before (vbe-court-control-mode), read by the court and set by Settings
+  PASS  the match screen's bar has no Auto/Manual button (it is in the court's settings since 16 Oct, section 8)
+  PASS  the controls panel lists the court's keyboard and pad controls
+
+4. THE GEAR, IN THE SIDEBAR AND ON THE TITLE SCREEN
+  PASS  (source) a Settings entry in the sidebar and a gear on the title screen
+  PASS  (source) Settings and its Rules page need no career (outside the guard)
+  PASS  (source) the music volume and mute are the music bar's own (useMusic)
+
+5. THE RULES NAME EVERYTHING NEW
+  PASS  each of the twenty-three topics is on the Rules page  all twenty-three
+  PASS  and "On 8 January every season the AI clubs take" staff is said in plain words
+
+6. MATCH SOUND
+  PASS  (source) Settings > Sound has a crowd and a commentary slider, stored in one JSON object like the music's volume
+  PASS  (source) the court page sends them when the court has loaded and whenever they change
+  PASS  (source) the court's page passes them to MatchManager the way it passes the control mode
+  PASS  the court's WebGL build carries SetCrowdVolume and SetCommentaryVolume  Volleyball_WebGL_Uncompressed_2.data
+
+7. THE MASTER VOLUME
+  PASS  (source) Sound starts with a master volume, stored with the court's volumes (100% if never set)
+  PASS  (source) the court is sent each of its volumes times the master
+  PASS  (source) the music plays at its own volume times the master, and follows the master live
+  PASS  (source) the music's mute is the music element's own flag: it mutes only the songs
+
+8. SETTINGS ON THE MATCH SCREEN, WITHOUT LEAVING THE MATCH
+  PASS  (source) a Settings gear in the bar above the court, beside Leave match
+  PASS  (source) it opens Sound (master, music, crowd, commentary) and Controls (Auto / Manual and the controls table) over the court
+  PASS  (source) nothing in it leaves the court (no navigation, no leave) but Exit game, which asks first (section 10)
+  PASS  (source) Auto / Manual chosen there goes to the court at once, and is remembered
+  PASS  (source) the volumes chosen there go to the court at once (saved, the event, sent)
+  PASS  (source) closing it gives the keyboard back to the court
+  PASS  (source) the court keeps playing with the focus off it: its page keeps the window's blur from Unity, before Unity loads
+
+9. THE PAUSE BUTTON ABOVE THE COURT, IN AUTO AND MANUAL
+  PASS  (source) a Pause button beside Settings and Leave match, once the court has loaded; it says Resume while paused
+  PASS  (source) it asks the court's page, which pauses in either mode by Unity's own stop on losing focus, and says so back
+  PASS  (source) while paused only Resume starts it: a real focus (a click on the court) is kept from Unity
+
+10. EXIT GAME, FROM SETTINGS AND FROM THE 3D MATCH
+  PASS  (source) Exit game is on the Settings page and in the settings over the 3D match (with the match's id)
+  PASS  (source) it asks inside the page, Exit or Cancel: "Exit Beach Volleyball Empire? Your career is saved." (no browser dialog)
+  PASS  (source) during a match it says the game's rule (a forfeit, as leaving does) and records it through Leave match before closing
+  PASS  (source) Exit closes through Electron as closing the window does: app.quit, whose before-quit checkpoints and closes the save
+
+40/40 checks passed

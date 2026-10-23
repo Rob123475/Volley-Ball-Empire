@@ -2,11 +2,35 @@
 
 Brief: `Downloads\FINAL-1.1.3-BRIEF.md` (23 Oct 2026). Worktree `C:/vbe-tm`, branch **release-1.1.3**, made from `release-1.1.2` 39cebbbe (live on Steam as BuildID 26098080). Commit and push after every item. Nothing uploaded to Steam. Rob's live save was only copied, never opened.
 
-*Written as the work goes. The summary goes at the top once Part C is done.*
-
 ## Summary
 
-(Part C not run yet.)
+**1.1.3 is built, tested and packaged, ready for Rob's on-screen check. Not uploaded.**
+
+- **Package:** `C:\build\vbe-1.1.3\win-unpacked\` (version 1.1.3), built from **eb2dc65b**. That commit is on GitHub (release-1.1.3), and the suites re-run after the full build ran on it. Unity (volleyball-unity, release-1.1.3): **dd0a487**, whose WebGL export is in the package.
+- **Steam script:** `steam/app_build_5233750-1.1.3.vdf` (ContentRoot `C:\build\vbe-1.1.3\win-unpacked\`, SetLive "default"). **Not run.**
+- **Part A, all six items done:**
+  - A1: 49 new medic faces; the 82 head coach, assistant coach and scout pictures carry logos and are not installed.
+  - A2: real flags everywhere, from flag-icons.
+  - A3: AI clubs scout before they bid; at most 10 reports and 10 bids a season, 2 of each at one club.
+  - A4: the Empire Nations Cup over four days, watchable on the 3D court in national colours with Nations Cup boards; the national coach job.
+  - A5: podium ceremonies for the World Finals and the Cup, the World Finals bronze rule, and the continental ladder cups.
+  - A6: patch notes, version 1.1.3, the rules page.
+- **Part C:**
+  - **Typecheck, build and sync:** clean.
+  - **Full harness (b733edf1, 169 min):** 128 of 134 suites passed, including the four new ones (flags 18/18, ai-market-limits 19/19, nations-cup 45/45, ceremonies 34/34) and the reworked olympic tournament. Six failed:
+    - **Three were suite checks of things 1.1.3 changed on purpose:** court-finish, settings and staff-bonuses. Updated.
+    - **Two were old suite faults the build exposed:** ai-job-market's planted failed season always came too late, and ai-injuries didn't allow for a walkover won by default. Both fixed in the suite and proven by repeated runs.
+    - **One was a chance fault:** youth-intake, which passed both runs alone; its check now names the player if it happens again.
+  - **Re-run alone, all passed.**
+  - **30-season soak:** 30 of 30 seasons; every A3 limit held every season; all 7 Nations Cups played 20 matches over 4 days.
+  - **Packaged-game proof:** 13 screenshots of everything Part C lists; Rob's save untouched.
+- **Found by the proof and fixed (A5):** the Ladders page showed an empty "Pre-season" table, and no cups, from the last regional round (about April) to the next season. It now shows the last season's final ladder with its cups until the new season's first round.
+- **Not done, for Rob to decide:**
+  - The 82 logo staff pictures.
+  - Two players with the same name. The 1.1.2 starter DB has 28 continental-pool players named like world-roster players (seen on the Cup podium as "ALINA KORA, ALINA KORA").
+  - The youth card's printed "BEACH VOLLEYBALL WORLD TOUR", already open from the trademark list.
+  - The merge into update-1 waits for the upload, as the brief says.
+- **Rob's on-screen check** is at the end, with three ready saves that never touch his own save: `C:\build\vbe-1.1.3-check\`.
 
 ## Decisions I made
 
@@ -14,6 +38,16 @@ Brief: `Downloads\FINAL-1.1.3-BRIEF.md` (23 Oct 2026). Worktree `C:/vbe-tm`, bra
 - **A1, printed role words:** "PHYSIOTHERAPIST" and "PHYSIO ASSISTANT" on the physios' polos are generic role words, which the 19 Oct check left as they are (docs/STAFF-LOGO-CLEANUP.md, "Left as is"). They pass.
 - **A1, orthopaedic surgeons:** "the `orthapaedic surgeon` folder is out". The 17 Oct set has no surgeon folder, so none are installed. The 13 surgeons 1.1.1 already installed stay. Taking them out of saves would be a removal the brief doesn't ask for.
 - **A1, nationality and age:** the doctor and physiotherapist file names give the nationality (cut short, e.g. "of a Sou" is the South Korean woman); the registrar and physio assistant names give none, so it is read off the picture, as for 1.1.1's junior medics. No file name gives an age, so ages are read off the pictures. Names follow each nation's athletes' surnames where the game has them, and none repeats an existing staff name (two clashes, Seo-yeon Choi and Rania Khoury, were changed to Han and Saab).
+- **A2-A5:** each item's own decisions are listed under it below.
+- **Part C, the suites:** six failed in the full build.
+  - Three were checks that read code 1.1.3 changed on purpose; I updated the checks, not the game.
+  - Two were faults in the suites themselves (ai-job-market's late plant, ai-injuries' walkover); I fixed the suites, and repeated runs prove them.
+  - One (academy intake) I could not reproduce. It passed both runs alone, and I made its check name the player rather than guess at a cause.
+  - I re-ran only those suites, plus the three that read the one route I changed afterwards, as the brief says. The full harness was not run again.
+- **Part C, the ladder cups (A5):** the packaged proof showed the Ladders page never shows its cups (see C4). I fixed it, because the brief's A5 asks for the cups "once a season's ladder is final", which the page never reached.
+- **Part C, the AI medics between seasons:** the soak's medic line flags every season. It is the 8 January hiring rule, not a shortage of medics (C3), so I left the rule and report it.
+- **Part C, the Job Market:** the offers show there, but mid-season nothing leads to the Job Market, and it has no way back (already so before 1.1.3). I didn't add a way in, because that is a new screen flow the brief doesn't ask for. Rob can see the same offers on the Career page.
+- **Part C, the proof saves:** the offers came from the weak end, as they should. So for the Cup screens the proof save's job was set to a qualifying nation (the USA), as nations-cup.mjs does. The three saves are given to Rob, in a folder whose launchers can never open his own save.
 
 ## Part A
 
@@ -204,6 +238,123 @@ Brief: `Downloads\FINAL-1.1.3-BRIEF.md` (23 Oct 2026). Worktree `C:/vbe-tm`, bra
 | vbe-staff | feat-staff-injuries | 98b969ad | |
 | vbe-controls | feat-manual-controls | 8e32cb93 | |
 
+## Part C: the one full test
+
+### C1-C2. Typecheck, build, sync and the full harness
+
+`pnpm run build` at **b733edf1** (all of Part A), 169 min. Typecheck (with check:writes, check:starter-db and the others), build and sync: clean. **134 suites: 128 passed, 6 failed** (log: `docs/proof-1.1.3/partc/full-build-b733edf1.log`).
+- **The new suites all passed:** flags 18/18 (98zu), ai market limits 19/19 (98zv), nations cup 45/45 (98zw), ceremonies 34/34 (98zx). Also olympic qualification (which needs the built frontend, so it had not run alone before) and olympic tournament.
+- **The long ones:** season rollover 56 min, ai club economy 32 min, youth rebirth 20 min. All passed.
+
+**The six failures, and what was done** (each re-run alone with run-all's settings, VBE_STAFF_ABSENCES and VBE_STAFF_BUDGET off; logs in `docs/proof-1.1.3/partc/`):
+
+| Suite | Why it failed | Fix | Alone after |
+|---|---|---|---|
+| court finish | Its source check wanted `navigate("/")` after a match. Since A4b a Nations Cup match goes back to the Cup schedule (`navigate(nationsMatchId ? "/competition/olympic-schedule" : "/")`); a club match still goes to the Dashboard. | The check reads the 1.1.3 line. | passed |
+| settings | Its source check wanted `chooseMode` to start with `setMode`. Since A4b it first refuses Manual for a nation he doesn't coach. | The check allows that line. | 40/40 |
+| staff bonuses | It counts the starter staff: 280. A1 added 49. | 329. | passed |
+| ai job market | "When the window opens the AI boards' sackings are announced": none sacked. **An old fault in the suite.** It plants a failed season for one AI club "with one match of his left", but his two World Finals places are matches too, and when he doesn't qualify they turn to not_qualified on the last regular round's day, so his scheduled matches go 3 to 0 in one day. The plant always came after the boards had judged; the suite only passed when some club failed on its own (it failed 2 runs in 5, and once in 1.1.1). | Planted with one regular match left (3 scheduled). | 32/32 three times, the planted club sacked each time |
+| ai injuries | "A club with two of its three out forfeited its next matches": a 2-0 win while she had one fit. **The win was a walkover** (0-42 points the other way): the home side couldn't field two either, and the away side takes the walkover. About 1 run in 4. | A walkover either way is no match played. | passed 6 of 6 |
+| academy intake | "With no name left, the intake creates no new name": the intake made no one, but one player with a new name appeared in that career's season. **Not reproduced:** it passed both runs alone. 1.1.3 adds no code that creates players (the only makers are the intake, the new seniors, the pool players' materialising and the Day 1 paths, all excluded by the check). | The check now names any such player, so a repeat shows where she came from. | 25/25 twice |
+
+Then, after the A5 ladder fix below: **ceremonies 37/37** (a new section 6 for it), **manager-faces 56/56** and **world-tour-competitors 39/39** (the other two suites that read the regional league route). Typecheck, build and sync clean again.
+
+### C3. The 30-season soak
+
+`SEASONS=30 node harness/long-career-update1.mjs`, 43 min, **30 of 30 seasons** (log and tables: `docs/proof-1.1.3/partc/soak-30-seasons.*`).
+- **A3, every season within the limits:** scouting reports 59 to 477 a season across the 60 AI clubs. The most by one AI club was 10 (once, 2041) against a limit of 10; bids, most by one club 10 (once, 2040) against 10. **On any one club, never more than 2 reports or 2 bids.**
+- **A4:**
+  - The soak takes the first national offer each time. It took 7 national jobs over the 30 seasons (Jamaica 2028, USA 2033, Tanzania 2036, Vanuatu 2041 and again 2044, Jamaica 2049, Puerto Rico 2052).
+  - Offers came in the Cup window and at every contract's end. The pay was $3,000 to $4,500: as the soak's manager rose, the nations got stronger and the pay lower. It was paid day by day.
+  - **All 7 Cups (2028 to 2052): 20 matches over 4 days, all 20 decided, 6 medals.**
+- **A1, "AI clubs short of a doctor or physio" is flagged every season, 10 to 31 of 60 at the season's end.** I checked whether that is a shortage of medics; it isn't:
+  - On the proof saves, **in May 2028 none of the 60 is short**, with 55 doctors and physios unhired.
+  - **In December 17 are short, with 72 unhired.**
+  - The cause is timing. An AI club's medic whose contract ends mid-season goes back to the market, and AI clubs hire only on 8 January (Rob's rule of 16 Oct, `utils/aiStaff.ts`). The Day 8 proof (ai-staff, 0 of 60 short) is the deal-day view.
+  - I left the hiring rule as it is. A second deal day mid-season would close the gap, if Rob wants one.
+- **Other flags:** "AI clubs with fewer than two seniors to play: 27 club-days" in 30 seasons (1.1.1: 14 in 5).
+
+### C4. The packaged-game proof
+
+**The package:** `C:\build\vbe-1.1.3\win-unpacked\`, from eb2dc65b, with the Brotli Unity build. The after-pack checks are OK: starter DB only, no steam_appid.txt, steamworks.js unpacked.
+
+**The saves:** `scripts/webgl-proof/final-1.1.3-save.mjs` played one throwaway career on the built server from Day 1, kept at three dates:
+- **A, 25 May 2028.** Three offers: Tunisia #24 of 55 $6,000, Jamaica #28 $6,000, Venezuela #41 $7,500.
+- **B, 24 Nov 2028, the Cup's group day.** Tunisia was accepted for 3 years, then the job was set to the USA, a top-8 qualifier, so his nation plays. Its pair was picked and the training camp chosen.
+- **C, 4 Dec 2028.** The Cup and the World Finals are decided.
+
+**The run:** `scripts/webgl-proof/final-1.1.3-shots.mjs` ran the real exe on each save in turn, with `--user-data-dir` on a fresh folder. **Rob's AppData saves were hashed before and after: unchanged.**
+
+Screenshots in `docs/proof-1.1.3/package/`:
+
+| Shot | What it shows |
+|---|---|
+| 01-dashboard-national-coach-notice | "3 nations want you as their national coach", with the three flags and "See the offers" |
+| 02-career-national-coach-offers | the offers at the top of the Career page: flag, strength rank, fixed pay, 3 or 5 years, Accept, "Decline them all" |
+| 03-flags-job-market | **flags (1 of 3):** the job market with the same offers and flags |
+| 04-flags-youth-list, 04-flags-youth-card | **flags (2 of 3):** the Youth Player Database, and a youth card (Eleni Stavrou, the Greek flag by "Greece") |
+| 05-dashboard-nations-cup-today | "Empire Nations Cup today": the 12 group matches with flags and Watch buttons, his nation's two highlighted |
+| 06-national-team-page | the USA National Team page: contract and pay ($6,000 a month, $36,296 earned), the 7 USA players at clubs, the picked pair (Picked), the training camp chosen, locked once drawn |
+| 07-flags-nations-cup-schedule | **flags (3 of 3):** the 2028 Empire Nations Cup schedule, "You coach USA", group day marked today |
+| 08, 09-nations-cup-court | USA v Bahamas on the 3D court from the Dashboard's Watch (`nationsMatchId=1&nationsManual=1`): **"EMPIRE NATIONS CUP 2028" boards** round the court, USA in navy and Bahamas in teal (the national kits), the bar reading "Empire Nations Cup · your nation: Auto or Manual" |
+| 10-podium-nations_cup | the Cup's ceremony, opened by the Dashboard: banner "EMPIRE NATIONS CUP 2028"; USA gold, Cook Islands silver, Cuba bronze on steps 1-2-3; medals; the wave; flags by the name plates; Skip |
+| 11-podium-world_finals | after Skip, the World Finals' ceremony: "BEACH VOLLEYBALL EMPIRE WORLD TOUR"; Montevideo Río Elites gold, Gold Coast Thunderbirds silver, Honolulu Aloha Warriors bronze, in club kits. After Skip, nothing is pending |
+| 12-continental-ladder-cups | the Regional Ladders, "Season 3 final": gold, silver and bronze cups beside the top three of each league (after the fix below) |
+| 13-continental-ladder-cups-history | Regional History: the cups beside each league's three qualifiers |
+
+**Found by the proof and fixed:**
+- **The Ladders page's cups never showed (A5).** The next regional season is drawn the day the last one's 10th round is played (about April), so from then until the next season's first round the page showed an empty "Pre-season" table.
+  - Now `/regional-league/:continent` also sends the last season's final ladder until the new season plays a round, and the page shows it, marked "Season N final", with its cups.
+  - Committed (eb2dc65b), suites re-run (above), repackaged, and **all 13 shots taken again on the new package** (the ones in the folder).
+- **Save C on 3 December had only the Cup's ceremony.** The World Finals final is played when 3 December is processed, so the proof save is kept on 4 December. This was a fault in the proof script only.
+
+**Seen and not changed:**
+- **Two "ALINA KORA" on the Cup's gold step** are two players (see A5): old data, for Rob.
+- **The youth card's template prints "BEACH VOLLEYBALL WORLD TOUR"** under YOUTH PLAYER (shot 04). It was already open on the trademark list (World Tour wording); 1.1.3 didn't touch the card's art.
+- **The long names on the podium's name plates shrink to fit** (for example JASMINE WASHINGTON). They are readable full-screen but small in the dialog.
+
+## Not done, and why
+
+- **Upload to Steam:** not done, as the brief says. The script is ready.
+- **Merge release-1.1.3 into update-1:** for after Rob's upload, as the brief says.
+- **The 82 staff pictures with logos** (head coaches, assistant coaches, scouts): not installed (A1). They can be cleaned the 19 Oct way or made again without the emblem. **So there are no new scout faces,** although Rob's check list names scouts.
+- **Pool players named like world-roster players** (28 in the starter DB, e.g. two Alina Koras): renaming them changes every save's AI squads, so it is Rob's call.
+- **AI clubs' medics between seasons** (C3): the hiring day rule stays as Rob set it.
+- **academy intake's one-off "new name" player:** not reproduced. The check will name her if she comes again.
+
+## Rob's on-screen check (once, on the packaged build)
+
+**Three saves are ready in `C:\build\vbe-1.1.3-check\`.** Double-click a `.cmd` there. It opens `C:\build\vbe-1.1.3\win-unpacked\Beach Volleyball Empire.exe` on that folder's own copy of the save; **your own save in AppData is never opened.** Pick the profile **Rob Proof**, then CONTINUE. A save changes as you play. To start a save over, copy its file back from `C:\build\vbe-1.1.3-check\originals\` (e.g. `originals\A\volleyball-empire.sqlite` over `A\Beach Volleyball Empire\volleyball-empire.sqlite`).
+
+1. **Flags as pictures, not letters**
+   - **Youth card** (`open-A-offers-25-May-2028.cmd`): side menu **Team** › **Youth Team** tab, scroll to **Youth Player Database**, click any player. The card shows her flag by her nationality.
+   - **Nations Cup page** (`open-B-…`): side menu **Competition** › **Empire Nations Cup** › **Schedule** (or **Schedule** on the Dashboard's "Empire Nations Cup today").
+   - **Job market:** the game opens the Job Market only in the off-season window (when your club's season is over, or when you resign or are sacked). Mid-season no menu leads to it, and the page has no way back to the Dashboard. That was already so before 1.1.3. The offers come mid-season (May, and the day a contract ends), so in save A the Job Market can't be reached by clicking. Shot 03 opened it directly, and it shows the same offer card with the same flags as the **Career** page (side menu **Career**, top of the page). If you want a Job Market entry in the Career menu, say so.
+2. **New staff faces**
+   - Side menu **Staff** › **Browse Staff Market** › **Medical** (the Medical Market).
+   - Look for, for example, doctor Rafael Ribeiro, registrar Kwame Asante, physiotherapist Joanna Villanueva and physio assistant Diego Cruz (AI clubs may have hired some).
+   - **There are no new scouts:** their pictures carry the tour emblem and weren't installed.
+3. **A national job offer** (save A)
+   - The Dashboard notice "3 nations want you as their national coach" › **See the offers**.
+   - On the Career page pick **3 years** on one and **Accept**.
+   - Check the pay: the Career page's card turns into "National coach of …, $… a month, your own (the club pays nothing)". The Manager Profile below it gains a "National Coach (…)" pay line, and the National Team page shows the contract. The club's **Finances** should show no national pay.
+4. **National Team page** (save B; save A after accepting)
+   - Side menu **Competition** › **Empire Nations Cup** › **National Team** (it shows only while you coach).
+   - Check the players at clubs, an injured one marked Injured, picking a pair, and **Training** or **Recovery**.
+   - In save B the Cup is already drawn, so the page is locked. To pick, use save A after accepting, and pick before 23 Nov.
+5. **Watch a Nations Cup match** (save B)
+   - On the Dashboard's "Empire Nations Cup today", press **Watch** on **USA v Bahamas** (or USA v Malaysia).
+   - Check the national bikinis and the "EMPIRE NATIONS CUP 2028" boards.
+   - **Settings** (top bar) › **Manual** to play your own nation's match.
+   - Then try **Watch** on another nation's match: Auto only, and the bar says so.
+6. **Both podiums** (`open-C-ceremonies-4-Dec-2028.cmd`)
+   - CONTINUE opens the Dashboard, and the Nations Cup ceremony opens by itself. Check the 1-2-3 steps, medals, waving, the banner and the flags by the name plates.
+   - Press **Skip**: the World Finals ceremony opens next. **Skip** again and nothing more opens.
+7. **Continental ladder cups** (save C)
+   - Side menu **Competition** › **Ladders**: "Season 3 final" with gold, silver and bronze cups beside the top three.
+   - Also **Competition** › **History**.
+8. **Anything that looks wrong: screenshot it.**
+
 ## Item table
 
 | Item | What | Commit | Proof |
@@ -213,4 +364,6 @@ Brief: `Downloads\FINAL-1.1.3-BRIEF.md` (23 Oct 2026). Worktree `C:/vbe-tm`, bra
 | A3 | AI scouting and buying limits (10 a season, 2 at one club), counted from ai_market_moves | da1c34fb | ai-market-limits 19/19; transfer-window, ai-buyable, counter-offer, salary-cap, manager-faces |
 | A4 | The Nations Cup over days, watchable on the court in national colours; the national coach job | 04dd6a52 | nations-cup 45/45; olympics-tournament 24/24; trophies, board-review |
 | A5 | Medal ceremonies: the podium (Unity), the World Finals bronze rule, the ladder cups | 4c656682 (Unity dd0a487) | ceremonies 34/34; trophies 9/9; podium renders |
-| A6 | Patch notes, version 1.1.3, rules page, the Steam script | (this commit) | rules page sections, read in Part C |
+| A6 | Patch notes, version 1.1.3, rules page, the Steam script | b733edf1 | the rules page's sections are in the build |
+| C5 | The six failed suites (three checks of 1.1.3's changes, two suite faults, one named for next time); the packaged-proof scripts | 7d78723e | each alone after: court-finish, settings, staff-bonuses, ai-job-market x3, ai-injuries x6, youth-intake x2 |
+| C5 | The continental ladder cups between seasons (A5, found by the packaged proof) | **eb2dc65b** (the package) | ceremonies 37/37, manager-faces 56/56, world-tour-competitors 39/39; all 13 packaged shots again |

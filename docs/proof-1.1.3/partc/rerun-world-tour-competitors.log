@@ -1,0 +1,59 @@
+========================================================================
+  R-29 THE WORLD TOUR IS A REAL COMPETITION, PER CAREER
+========================================================================
+  PASS  two careers in one database  A=1 (team 1), B=2 (team 2)
+  PASS  career A played through World Tour round 22  110 calendar days
+  PASS  career B played through World Tour round 22  110 calendar days
+
+1. THE FIELD
+  PASS  A's ladder is the whole field of 19, one player row (was 1 row)  19 rows, fieldSize 19
+  PASS  B's ladder is the whole field of 19, one player row  19 rows, fieldSize 19
+  PASS  A's leaderboard is the same 19 clubs  19 rows
+  PASS  a World Tour round is 9 matches and one stored bye, the player's club in exactly one of them  9 matches, bye: Bogotá Altitude Queens
+  PASS  A: 18 regional qualifiers, 3 per continent, all carrying its career_save_id  [{"continent":"africa_middle_east","n":3},{"continent":"asia","n":3},{"continent":"europe","n":3},{"continent":"north_america","n":3},{"continent":"oceania","n":3},{"continent":"south_america","n":3}]
+  PASS  B: 18 regional qualifiers, 3 per continent, all carrying its career_save_id  [{"continent":"africa_middle_east","n":3},{"continent":"asia","n":3},{"continent":"europe","n":3},{"continent":"north_america","n":3},{"continent":"oceania","n":3},{"continent":"south_america","n":3}]
+  PASS  no qualification row is written without a career  0 unscoped
+  PASS  GET /regional-league/qualifications returns only this career's qualifiers  18 rows
+
+2. AFTER 12 ROUNDS EVERY AI CLUB HAS PLAYED ITS MATCHES, FOR REAL
+  PASS  A: 18 AI clubs in the field
+  PASS  A: every round has exactly one stored bye, and every club appears in it once
+  PASS  A: every club, the player's included, played exactly 12 rounds minus its byes  played 11-12, byes 0-1
+  PASS  A: every match in rounds 11-22 is completed, and no bye carries a score  108 matches, 12 byes
+  PASS  A: every result is a legal best-of-three (to 11, win by 2)  108 results
+  PASS  A: the player's own 12 rounds (matches and byes) are on the fixture list, linked to their match rows
+
+3. A: RECORDS AND POINTS RECONCILE
+  PASS  A: every ranking row's W/L equals its fixture results  19 rows
+  PASS  A: every ranking row's points equal the recomputation (tier table, every win scores)  19 rows over 108 fixtures
+  PASS  A: AI clubs actually hold ranking points  total 196, best 20
+  PASS  B: 18 AI clubs in the field
+  PASS  B: every round has exactly one stored bye, and every club appears in it once
+  PASS  B: every club, the player's included, played exactly 12 rounds minus its byes  played 11-12, byes 0-1
+  PASS  B: every match in rounds 11-22 is completed, and no bye carries a score  108 matches, 12 byes
+  PASS  B: every result is a legal best-of-three (to 11, win by 2)  108 results
+  PASS  B: the player's own 12 rounds (matches and byes) are on the fixture list, linked to their match rows
+
+3. B: RECORDS AND POINTS RECONCILE
+  PASS  B: every ranking row's W/L equals its fixture results  19 rows
+  PASS  B: every ranking row's points equal the recomputation (tier table, every win scores)  19 rows over 108 fixtures
+  PASS  B: AI clubs actually hold ranking points  total 204, best 21
+
+4. STANDINGS ORDER
+  PASS  A's ladder is in standings order, ranked 1..N
+  PASS  B's ladder is in standings order, ranked 1..N
+
+5. ISOLATION
+  PASS  B's ladder contains nothing of A's club
+  PASS  A's ladder contains nothing of B's club
+  PASS  B's season wrote nothing to A's matches (the old coin flip did)  59 A matches compared
+  PASS  B's season played none of A's World Tour fixtures  108 -> 108
+  (report) A's field: stronger half wins 49.5%, weaker half 50.0%
+
+6. SABOTAGE — the checks above must catch the bugs they exist for
+  PASS  S1 setup: the sabotaged server answered for career A  HTTP 200
+  PASS  S1: with the AI ranking rows gone, the whole-field check FAILS (it caught the one-row ladder)  sabotaged ladder has 1 row(s)
+  PASS  S2: with one AI club's points off by 1, the points check FAILS (it caught it)  competitor 3: table 11, recomputed 10
+  PASS  S3: a forfeit-shaped result (completed, no sets) FAILS the legality check  a real best-of-three passes; null, [], one set, 11-10 and a lying set tally are all rejected
+
+=== 39/39 passed ===
