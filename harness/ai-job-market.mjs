@@ -93,7 +93,11 @@ async function day() {
 function plantAFailedSeason(cid, teamId) {
   const year = q(`SELECT year FROM seasons WHERE career_save_id = ? AND status = 'active'`, cid)[0]?.year;
   const left = q(`SELECT COUNT(*) AS n FROM matches WHERE season = ? AND status = 'scheduled' AND (home_team_id = ? OR away_team_id = ?)`, year, teamId, teamId)[0].n;
-  if (left > 1) return null;
+  // 1.1.3 (found by the full build): his two World Finals places are matches too, scheduled until the last
+  // regular round's day, when a club that didn't qualify has them marked not_qualified. So "one match left"
+  // never came (3 went to 0 in one day), the plant came after the boards had judged, and only a club that
+  // failed on its own was ever sacked (2 runs in 5 found none). One regular match left is 3 scheduled.
+  if (left > 3) return null;
   const worst = q(`SELECT c.pool_team_id AS id FROM competitor_rankings r JOIN competitors c ON c.id = r.competitor_id
     JOIN career_pool_team_state s ON s.pool_team_id = c.pool_team_id AND s.career_save_id = r.career_save_id
     WHERE r.career_save_id = ? AND r.season_year = ? AND c.pool_team_id IS NOT NULL AND s.manager_name IS NOT NULL
@@ -115,8 +119,8 @@ async function toWindow(plant = null) {
     healAllSquads(DB);
     if (plant && planted == null) planted = plantAFailedSeason(plant.cid, plant.teamId);
     const r = await day();
-    if (r.data?.seasonRollover && r.data.seasonRollover.kind !== "none") return { rolledEarly: true, reply: r.data };
-    if (i % 3 === 0 && (await api("GET", "/job-market")).data?.window) return { rolledEarly: false };
+    if (r.data?.seasonRollover && r.data.seasonRollover.kind !== "none") return { rolledEarly: true, reply: r.data, planted };
+    if (i % 3 === 0 && (await api("GET", "/job-market")).data?.window) return { rolledEarly: false, planted };
   }
   return null;
 }
@@ -169,7 +173,9 @@ try {
   const year1 = q(`SELECT year FROM seasons WHERE career_save_id = ? AND status = 'active'`, cid)[0].year;
   const sackedNow = q(`SELECT vacancy_reason AS why FROM career_pool_team_state WHERE career_save_id = ? AND vacant_since IS NOT NULL`, cid);
   check("when the window opens the AI boards' sackings are announced, with the reason", sackedNow.length > 0 && sackedNow.every((r) => /sacked after 2 failed seasons running/.test(r.why ?? "")),
-    `${sackedNow.length} sacked; e.g. "${sackedNow[0]?.why}"`);
+    `${sackedNow.length} sacked; e.g. "${sackedNow[0]?.why}"; planted ${JSON.stringify(q(`SELECT s.pool_team_id id, s.manager_name m, s.manager_failed_seasons f, s.vacant_since v,
+      (SELECT r.ranking_points FROM competitor_rankings r JOIN competitors c ON c.id = r.competitor_id WHERE c.pool_team_id = s.pool_team_id AND r.career_save_id = s.career_save_id AND r.season_year = ?) pts
+      FROM career_pool_team_state s WHERE s.career_save_id = ? AND s.pool_team_id = ?`, year1, cid, win1?.planted ?? -1))}`);
   // His season is a good one (planted), so clubs come for him.
   w(`UPDATE board_seasons SET projected_grade = 'met' WHERE career_save_id = ? AND season_year = ? AND team_id = ?`, cid, year1, team.id);
   const jmW = (await api("GET", "/job-market")).data;

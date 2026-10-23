@@ -194,14 +194,16 @@ try {
 
   console.log("\n3. INJURED AI PLAYERS HEAL ON THE WEEKLY CLOCK AND ARE NOT PICKED");
   check("each week every injured AI player was nearer fit (her base weeks still to heal fell, at her club's treatment factor)", healChecks > 0 && healedSteps === healChecks, `${healedSteps} of ${healChecks}`);
-  const xResults = xClub == null ? [] : q(`SELECT r.id, r.home_sets AS hs, r.away_sets AS as_, f.home_pool_team_id AS home, f.away_pool_team_id AS away, f.round
+  const xResults = xClub == null ? [] : q(`SELECT r.id, r.home_sets AS hs, r.away_sets AS as_, r.home_match_points AS hp, r.away_match_points AS ap, f.home_pool_team_id AS home, f.away_pool_team_id AS away, f.round
     FROM regional_league_results r JOIN regional_league_fixtures f ON f.id = r.fixture_id
     WHERE r.career_save_id = ? AND (f.home_pool_team_id = ? OR f.away_pool_team_id = ?) ORDER BY f.round`, cid, xClub, xClub);
   // Only the matches played after the two were hurt (one may already have been played that day).
   const xEarly = xResults.filter((r) => !xResultsBefore.has(r.id) && (xWhileOut == null || xWhileOut.has(r.id))).slice(0, 4);
   check("a club with two of its three out 6 weeks forfeited its next matches (0 sets, a walkover), or played them with cover from its injured list",
-    xEarly.length > 0 && xEarly.every((r) => (r.home === xClub ? r.hs : r.as_) === 0 || xCover >= 2),
-    `${xEarly.map((r) => `${r.hs}-${r.as_}`).join(" ")}; at most ${xCover} fit besides the two while they were out`);
+    // 1.1.3 (found by the full build, about 1 run in 4): when the home side can't field two either, its walkover
+    // goes to the away side, so the club "wins" 2-0 on 42-0 points without playing. A walkover either way is no match played.
+    xEarly.length > 0 && xEarly.every((r) => (r.home === xClub ? r.hs : r.as_) === 0 || r.hp === 0 || r.ap === 0 || xCover >= 2),
+    `${xEarly.map((r) => `${r.hs}-${r.as_} (${r.hp}-${r.ap} points, ${r.home === xClub ? "home" : "away"})`).join(" ")}; at most ${xCover} fit besides the two while they were out`);
   const xNow = aiSeniors().filter((s) => xHurt.has(s.id));
   check("and its two healed on the clock (6 weeks, about 42 days on)", xNow.every((s) => !injured(s) || s.weeks < 6), xNow.map((s) => s.weeks).join(", "));
 

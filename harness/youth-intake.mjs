@@ -449,6 +449,7 @@ try {
   const made = `SELECT COUNT(*) AS n FROM players p WHERE p.origin_career_save_id = ? AND NOT EXISTS (SELECT 1 FROM career_player_state x WHERE x.player_id = p.id AND x.pool_player_id IS NOT NULL)
     AND NOT EXISTS (SELECT 1 FROM career_new_seniors k WHERE k.player_id = p.id)
     AND NOT EXISTS (SELECT 1 FROM player_retirements r WHERE r.career_save_id = p.origin_career_save_id AND r.name = p.name AND r.name_reused_at IS NOT NULL)`;
+  const maxBefore = read(`SELECT MAX(id) AS m FROM players`)[0].m;
   const before = read(made, other.careerSaveId)[0].n;
   const dry = await play(other, 1);
   const dryRow = read(`SELECT season_year, player_ids FROM youth_intakes WHERE career_save_id = ?`, other.careerSaveId);
@@ -462,7 +463,7 @@ try {
   const dryNames = dryIds.map((pid) => read(`SELECT name FROM players WHERE id = ?`, pid)[0]?.name);
   check("with no name left, the intake creates no new name: never a player without a real name",
     !dry.sacked && dryRow.length === 1 && after === before && dryNames.every((n) => n && givenBackNow.has(n)),
-    `${dryRow.length} intake row(s), ${dryIds.length} players (${dryNames.join(", ") || "none"}; all names given back by retirees: ${dryNames.every((n) => givenBackNow.has(n))}); ${after - before} created with a new name`);
+    `${dryRow.length} intake row(s), ${dryIds.length} players (${dryNames.join(", ") || "none"}; all names given back by retirees: ${dryNames.every((n) => givenBackNow.has(n))}); ${after - before} created with a new name${after === before ? "" : ": " + JSON.stringify(read(made.replace("COUNT(*) AS n", "p.id, p.name, p.player_type, p.nationality, p.image_url") + " AND p.id > ?", other.careerSaveId, maxBefore))}`);
   check("Club News says what the academy found that year",
     !!dryNews && dryNews.date === "2027-01-01" && (dryIds.length === 0 ? /academy found no one this year$/.test(dryNews.headline) : dryNews.headline.startsWith(`${dryIds.length} youth player`)),
     dryNews ? `"${dryNews.headline}" ${dryNews.date}` : "no academy-2027 item");

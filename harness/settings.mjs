@@ -171,7 +171,8 @@ check("(source) it opens Sound (master, music, crowd, commentary) and Controls (
   /data-testid="court-settings-overlay"/.test(overlay) && /<SoundSettings onCourt \/>/.test(overlay) && /<ControlsSettings mode=\{mode\} onChoose=\{chooseMode\} \/>/.test(overlay));
 check("(source) nothing in it leaves the court (no navigation, no leave) but Exit game, which asks first (section 10)", overlay.length > 0 && !/navigate\(|leaveMatch/.test(overlay));
 check("(source) Auto / Manual chosen there goes to the court at once, and is remembered",
-  /function chooseMode\(m: ControlMode\) \{\s*setMode\(m\);\s*saveControlMode\(m\);\s*iframeRef\.current\?\.contentWindow\?\.postMessage\(\{ type: "vbe-control-mode", mode: m \}, "\*"\);/.test(courtPage)
+  // 1.1.3 (A4b): Manual is refused first for a Nations Cup match of a nation he doesn't coach.
+  /function chooseMode\(m: ControlMode\) \{\s*(\/\/[^\n]*\s*)?if \(m === "manual" && !manualAllowed\) return;\s*setMode\(m\);\s*saveControlMode\(m\);\s*iframeRef\.current\?\.contentWindow\?\.postMessage\(\{ type: "vbe-control-mode", mode: m \}, "\*"\);/.test(courtPage)
     && unityHtml.includes(`d.type !== "vbe-control-mode"`));
 check("(source) the volumes chosen there go to the court at once (saved, the event, sent)",
   soundPanel.includes("saveMatchVolume(next)") && courtSettings.includes("window.dispatchEvent(new Event(MATCH_VOLUME_EVENT))"));

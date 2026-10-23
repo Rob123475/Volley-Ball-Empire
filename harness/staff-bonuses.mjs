@@ -77,7 +77,7 @@ console.log("\n0. ONE NORMALISER");
     const names = d2.prepare("SELECT name FROM staff").all().map((r) => r.name.replace(/^Dr\.\s+/, "").trim().toLowerCase());
     d2.close();
     const dupes = [...new Set(names.filter((n, i) => names.indexOf(n) !== i))];
-    check("no two starter staff share a name, ignoring a leading \"Dr.\" (P-08)", names.length === 280 && dupes.length === 0,   // night 2: 120 seeded + Rob's 123 portrait staff; 1.1.1: + his 37 junior medics
+    check("no two starter staff share a name, ignoring a leading \"Dr.\" (P-08)", names.length === 329 && dupes.length === 0,   // night 2: 120 seeded + Rob's 123 portrait staff; 1.1.1: + his 37 junior medics; 1.1.3 (A1): + 49 medics
       dupes.length ? `duplicates: ${dupes.join(", ")}` : `${names.length} staff, all distinct`);
   }
   const unmapped = stored.filter((r) => roles.normaliseRole(r) === null);
@@ -210,7 +210,7 @@ try {
     hired[key] = ((await api("GET", "/staff")).data ?? []).find((s) => s.id === pick?.id);
     check(`hired a ${roleName} stored as "${pick?.role}" (the market's ${key} filter found it)`,
       h.status === 201 && pick?.role === roleName && typeof hired[key]?.skillLevel === "number",
-      `${pick?.name ?? "none"}, skill ${hired[key]?.skillLevel}, HTTP ${h.status}`);
+      `${pick?.name ?? "none"}, skill ${hired[key]?.skillLevel}, HTTP ${h.status}${h.status === 201 ? "" : ` ${JSON.stringify(h.data).slice(0, 200)}`}`);
   }
 
   const withStaff = await powerCamp();
