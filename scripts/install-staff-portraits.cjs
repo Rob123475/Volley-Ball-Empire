@@ -36,7 +36,15 @@
  *      next free id, and ensureReferenceData matches staff by id, so a new
  *      starter row at, say, id 168 would overwrite a save's own 168. Existing
  *      saves get the new people on their next boot (ensureSchema.ts, Pass 3b).
- *      Re-running updates the people it wrote before (matched by picture).
+ *      Re-running updates the people it wrote before (matched by name and role,
+ *      keeping their pictures); a new person's picture number follows every
+ *      picture already in the role's folder (1.1.3: a second install, after
+ *      day 2's and 1.1.1's, never overwrites one of theirs).
+ *
+ * 1.1.3 (brief A1, 23 Oct): --names docs/staff-portrait-names-1.1.3.json installs the
+ * 17 Oct set (full roles and, with --juniors, the junior grades) from a folder laid
+ * out as above (Rob's folders copied under these names, only the pictures that pass
+ * the logo check; docs/STATUS-1.1.3.md A1).
  *
  * 1.1.1 (Rob, 17 Oct): --juniors installs the junior medics instead (Registrars,
  * Physio Assistants, Orthopaedic Surgeons): one folder each (JUNIOR_MEDICS
@@ -158,6 +166,22 @@ function attributesFor(template, person, skill, wage) {
   const plan = [];
 
   // --juniors: one folder per grade, written as its full role. Otherwise one folder per role.
+  // A person written before (by name and role) keeps her id and picture; a new one's picture
+  // number follows the highest in the folder, from the staff rows and the files on disk alike.
+  const findPerson = db.prepare("SELECT id, image_url FROM staff WHERE name = ? AND role = ? AND id >= ?");
+  const nextNo = new Map();
+  const nextPicture = (folder) => {
+    if (!nextNo.has(folder)) {
+      const nos = [
+        ...db.prepare("SELECT image_url FROM staff WHERE image_url LIKE ?").all(`/images/staff/${folder}/%`).map((r) => r.image_url),
+        ...(fs.existsSync(path.join(IMAGES, folder)) ? fs.readdirSync(path.join(IMAGES, folder)) : []),
+      ].map((u) => Number(String(u).match(/staff-(\d+)\.webp$/)?.[1] ?? 0));
+      nextNo.set(folder, Math.max(0, ...nos) + 1);
+    }
+    const n = nextNo.get(folder);
+    nextNo.set(folder, n + 1);
+    return `/images/staff/${folder}/staff-${String(n).padStart(2, "0")}.webp`;
+  };
   const groups = JUNIORS_ONLY
     ? Object.entries(JUNIOR).map(([grade, g]) => ({ key: g.folder, role: g.of, folder: ROLES[g.of], grade, skill: g.skill, wageShare: g.wageShare }))
     : Object.entries(ROLES).map(([role, folder]) => ({ key: role, role, folder, grade: null, skill: null, wageShare: 1 }));
@@ -202,20 +226,12 @@ function attributesFor(template, person, skill, wage) {
     const lo = band ? band[0] : existing[0].skill_level, hi = band ? band[1] : existing[existing.length - 1].skill_level;
     // Oldest first, then the names file's order; the picture numbers follow it.
     const order = [...people].sort((a, b) => b.age - a.age || a.file.localeCompare(b.file));
-    // Picture numbers: a role's own run follows its seeded staff (so a re-run finds the pictures it wrote);
-    // a junior grade (1.1.1) follows every other picture in the role's folder, which it shares.
-    const before = grade
-      ? db.prepare("SELECT image_url FROM staff WHERE image_url LIKE ? AND (grade IS NULL OR grade <> ?)").all(`/images/staff/${folder}/%`, grade)
-      : existing;
-    const firstNo = Math.max(0, ...before.map((r) => Number(r.image_url?.match(/staff-(\d+)\.webp$/)?.[1] ?? 0))) + 1;
     order.forEach((p, i) => {
       const skill = order.length === 1 ? Math.round((lo + hi) / 2) : Math.round(hi - ((hi - lo) * i) / (order.length - 1));
       const template = existing.reduce((best, r) => (Math.abs(r.skill_level - skill) < Math.abs(best.skill_level - skill) ? r : best));
       const wage = Math.round(wageFor(existing, skill) * wageShare);
-      plan.push({
-        ...p, role, folder, grade, skill, wage, template,
-        image: `/images/staff/${folder}/staff-${String(firstNo + i).padStart(2, "0")}.webp`,
-      });
+      const had = findPerson.get(p.name, role, FIRST_ID);
+      plan.push({ ...p, role, folder, grade, skill, wage, template, had: had?.id, image: had?.image_url ?? nextPicture(folder) });
     });
   }
 
@@ -253,7 +269,6 @@ function attributesFor(template, person, skill, wage) {
   // ── The staff rows ─────────────────────────────────────────────────────────
   const now = Math.floor(Date.now() / 1000);
   let nextId = Math.max(FIRST_ID - 1, db.prepare("SELECT max(id) AS m FROM staff").get().m ?? 0) + 1;
-  const find = db.prepare("SELECT id FROM staff WHERE image_url = ? AND id >= ?");
   const cols = ["name", "role", "specialty", "skill_level", "nationality", "image_url", "overall_rating", "coach_speciality",
     "personality", "attributes", "special_trait", "scouting_rating", "base_salary", "base_age", "grade"];
   const update = db.prepare(`UPDATE staff SET ${cols.map((c) => `${c} = ?`).join(", ")} WHERE id = ?`);
@@ -264,8 +279,7 @@ function attributesFor(template, person, skill, wage) {
     const t = p.template;
     const values = [p.name, p.role, t.specialty, p.skill, COUNTRY[p.word], p.image, p.skill, t.coach_speciality,
       t.personality, attributesFor(t, p, p.skill, p.wage), t.special_trait, t.scouting_rating, p.wage, p.age, p.grade ?? null];
-    const had = find.get(p.image, FIRST_ID);
-    if (had) { update.run(...values, had.id); updated++; } else { insert.run(nextId++, ...values, now); added++; }
+    if (p.had) { update.run(...values, p.had); updated++; } else { insert.run(nextId++, ...values, now); added++; }
   }
   db.exec("COMMIT");
   console.log(`${TAG} staff table (${DB}): ${added} added, ${updated} updated`);

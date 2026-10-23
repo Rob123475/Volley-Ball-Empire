@@ -3,7 +3,7 @@
  * schema/staff-roles.ts; api-server utils/juniorMedics.ts; installed by
  * scripts/install-staff-portraits.cjs --juniors from docs/junior-medic-portrait-names.json).
  *
- *   1. the 37 are in the game: 14 Registrars (Doctors), 10 Physio Assistants
+ *   1. the 61 are in the game: 26 Registrars (Doctors), 22 Physio Assistants
  *      (Physiotherapists), 13 Orthopaedic Surgeons (Medical Specialists), each
  *      with a portrait on disk
  *   2. a Registrar and a Physio Assistant are cheaper and weaker than the full
@@ -28,14 +28,14 @@ const addDays = (d, n) => { const x = new Date(`${d}T00:00:00Z`); x.setUTCDate(x
 
 try {
   // ── 1-2. In the game ──────────────────────────────────────────────────────
-  console.log("\n1. THE 37, IN THE STARTER DATABASE, WITH THEIR PORTRAITS");
+  console.log("\n1. THE 61, IN THE STARTER DATABASE, WITH THEIR PORTRAITS");
   const shipped = new DatabaseSync(path.join(REPO, "lib", "db", "volleyball-empire.sqlite"), { readOnly: true });
   const staff = shipped.prepare(`SELECT id, name, role, grade, skill_level k, base_salary w, image_url img FROM staff`).all();
   shipped.close();
   const of = (grade) => staff.filter((s) => s.grade === grade);
   const full = (role) => staff.filter((s) => s.role === role && !s.grade);
   const counts = { registrar: of("registrar").length, physio_assistant: of("physio_assistant").length, surgeon: of("surgeon").length };
-  check("14 Registrars, 10 Physio Assistants, 13 Orthopaedic Surgeons", counts.registrar === 14 && counts.physio_assistant === 10 && counts.surgeon === 13, JSON.stringify(counts));
+  check("26 Registrars, 22 Physio Assistants, 13 Orthopaedic Surgeons (1.1.3: 12 and 12 more, brief A1)", counts.registrar === 26 && counts.physio_assistant === 22 && counts.surgeon === 13, JSON.stringify(counts));
   check("as their full roles: Doctor, Physiotherapist, Medical Specialist",
     of("registrar").every((s) => s.role === "Doctor") && of("physio_assistant").every((s) => s.role === "Physiotherapist") && of("surgeon").every((s) => s.role === "Medical Specialist"));
   const juniors = [...of("registrar"), ...of("physio_assistant"), ...of("surgeon")];
