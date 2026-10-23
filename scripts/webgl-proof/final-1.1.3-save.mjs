@@ -8,7 +8,7 @@
  *   B  2028-11-24  the Nations Cup's group day: he coaches a nation in the Cup (set for the proof: a
  *                  top-8 qualifier, as the offers come from the weak end), its pair picked on the
  *                  National Team page with the training camp; today's 12 matches watchable
- *   C  2028-12-03  the Cup and the World Finals decided: both medal ceremonies waiting
+ *   C  2028-12-04  the Cup and the World Finals decided (the final is played on 3 Dec): both medal ceremonies waiting
  *
  * Usage: node scripts/webgl-proof/final-1.1.3-save.mjs <outDir>
  *   writes <outDir>/A|B|C/volleyball-empire.sqlite and <outDir>/final-1.1.3.json
@@ -75,7 +75,7 @@ try {
   info.yourMatch = info.cupToday.find((f) => f.h === top || f.a === top) ?? null;
   await keep("B");
 
-  await playTo("2028-12-03");
+  await playTo("2028-12-04");
   info.ceremonies = W.q(`SELECT event, season_year y, ready_on r, seen_on s FROM career_ceremonies WHERE career_save_id = ?`, cid);
   await keep("C");
 } catch (err) {

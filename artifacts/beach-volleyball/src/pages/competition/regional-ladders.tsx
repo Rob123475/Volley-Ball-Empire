@@ -30,6 +30,8 @@ type RegionalLeagueData = {
   season: { id: number; seasonYear: number; continent: string; status: string };
   fixtures: Array<{ id: number; round: number; status: string }>;
   ladder: LadderEntry[];
+  /** 1.1.3 (A5): before the season's first round, the last season's final ladder. */
+  previous?: { seasonYear: number; ladder: LadderEntry[] } | null;
 };
 
 function useAllRegionalLeagues() {
@@ -60,8 +62,11 @@ function positionBand(pos: number) {
 
 function ContinentLadder({ continent, data }: { continent: string; data: RegionalLeagueData }) {
   const round = currentRound(data);
+  // 1.1.3 (A5): until the new season's first round, the last season's final ladder stays on show, with its cups.
+  const previous = round === 0 ? data.previous ?? null : null;
+  const ladder = previous ? previous.ladder : data.ladder;
   // The ladder is final once its 10 rounds are played (or its season is closed).
-  const final = round >= 10 || data.season.status === "completed";
+  const final = !!previous || round >= 10 || data.season.status === "completed";
   return (
     <div className="rounded-xl border bg-card overflow-hidden">
       <div className="px-4 py-3 border-b bg-muted/30 flex items-center justify-between">
@@ -70,7 +75,7 @@ function ContinentLadder({ continent, data }: { continent: string; data: Regiona
           <h3 className="font-semibold text-sm">{continentLabel(continent)}</h3>
         </div>
         <Badge variant="outline" className="text-xs">
-          {round === 0 ? "Pre-season" : round >= 10 ? "Complete" : `Round ${round}/10`}
+          {previous ? `Season ${previous.seasonYear} final` : round === 0 ? "Pre-season" : round >= 10 ? "Complete" : `Round ${round}/10`}
         </Badge>
       </div>
 
@@ -89,7 +94,7 @@ function ContinentLadder({ continent, data }: { continent: string; data: Regiona
             </tr>
           </thead>
           <tbody>
-            {data.ladder.map((entry, idx) => {
+            {ladder.map((entry, idx) => {
               const band = positionBand(entry.position);
               const isQualLine = idx === 3;
               const isRelLine = idx === 5;

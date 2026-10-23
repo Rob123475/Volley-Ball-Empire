@@ -116,6 +116,11 @@ if (RUN.includes("A")) await session("A", async ({ ev, shot, waitFor, nav, into,
   await waitFor(`document.querySelectorAll('img[src*="/images/flags/"]').length > 0`, 20000); await sleep(2500);
   await ev(`(() => { const i = document.querySelector('img[src*="/images/flags/"]'); i?.scrollIntoView({ block: "center" }); return !!i; })()`); await sleep(1000);
   out.A.youthFlags = await flagsShown();
+  await shot("04-flags-youth-list.png");
+  // Her card: the first youth with a flag, clicked ("Click a player for her card").
+  out.A.youthCardOpened = await ev(`(() => { const i = document.querySelector('img[src*="/images/flags/"]'); let e = i; while (e && e.tagName !== "BUTTON" && !e.onclick && e.getAttribute?.("role") !== "button" && !(e.className ?? "").toString().includes("cursor-pointer")) e = e.parentElement; (e ?? i)?.click(); return !!e; })()`);
+  await waitFor(`!!document.querySelector('[role="dialog"] img[src*="/images/flags/"]')`, 10000); await sleep(1500);
+  out.A.youthCardFlags = await ev(`[...document.querySelectorAll('[role="dialog"] img[src*="/images/flags/"]')].map((i) => i.getAttribute("src").replace(/^.*\\//, ""))`);
   await shot("04-flags-youth-card.png");
   step("A done", out.A);
 });

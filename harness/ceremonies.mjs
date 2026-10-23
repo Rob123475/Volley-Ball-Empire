@@ -167,6 +167,19 @@ try {
   const medalNations = W.q(`SELECT medal, nation FROM olympic_medals WHERE career_save_id = ? AND season_year = 2028 GROUP BY medal`, cid);
   check("the places are the Cup's medals", ["gold", "silver", "bronze"].every((m, i) => nc.places[i].label === medalNations.find((x) => x.medal === m)?.nation));
   writeShotState("nations_cup", 2028);
+
+  // Found by the packaged-game proof: the next regional season is drawn the day the last one's 10th round
+  // is played, so the Ladders page sat on an empty "Pre-season" table (no cups) for the rest of the year.
+  console.log("\n6. THE CONTINENTAL LADDER CUPS BETWEEN SEASONS");
+  const league = (await W.api("GET", "/regional-league/oceania")).data;
+  const played = (league?.fixtures ?? []).filter((f) => f.status === "completed").length;
+  check("(set-up) the new regional season has not played a round yet", league?.season?.status === "active" && played === 0, `season ${league?.season?.seasonYear}, ${played} played`);
+  const lastDone = W.q(`SELECT season_year y FROM regional_league_seasons WHERE career_save_id = ? AND continent = 'oceania' AND status = 'completed' ORDER BY season_year DESC LIMIT 1`, cid)[0]?.y;
+  check("until it does, the page is sent the last season's final ladder, all six, for its cups",
+    league?.previous?.seasonYear === lastDone && league.previous.ladder.length === 6 && league.previous.ladder.slice(0, 3).every((e, i) => e.position === i + 1 && e.played === 10),
+    `season ${league?.previous?.seasonYear}: ${(league?.previous?.ladder ?? []).slice(0, 3).map((e) => `${e.position} ${e.teamName} (${e.played} played)`).join(", ")}`);
+  check("(source) and shows it, final, with the cups", /const ladder = previous \? previous\.ladder : data\.ladder;/.test(SRC("artifacts/beach-volleyball/src/pages/competition/regional-ladders.tsx"))
+    && /const final = !!previous \|\|/.test(SRC("artifacts/beach-volleyball/src/pages/competition/regional-ladders.tsx")));
 } catch (err) {
   W.fail(err);
 } finally {

@@ -134,8 +134,15 @@ router.get("/regional-league/:continent", async (req, res) => {
 
   const ladder = await computeLadderForSeason(season.id, cid);
 
+  // 1.1.3 (A5): a season's next one is drawn as soon as its 10th round is played, so until the new
+  // season's first round this would be an empty table. The last season's final ladder (and its cups)
+  // is sent with it, for the page to show instead.
+  const previous = completedIds.length > 0 ? null
+    : [...await loadLeagueSeasons(cid, { continent, status: "completed" })].sort((a, b) => b.seasonYear - a.seasonYear)[0] ?? null;
+  const previousLadder = previous ? await computeLadderForSeason(previous.id, cid) : [];
+
   // Enrich ladder with team names
-  const poolIds = ladder.map(e => e.poolTeamId);
+  const poolIds = [...ladder, ...previousLadder].map(e => e.poolTeamId);
   const poolTeams = poolIds.length > 0
     ? await db
         .select({ id: continentalPoolTeamsTable.id, teamName: continentalPoolTeamsTable.teamName })
@@ -171,7 +178,12 @@ router.get("/regional-league/:continent", async (req, res) => {
       awayTeamName: allTeamNameMap.get(f.awayPoolTeamId) ?? "Unknown",
       result: resultMap.get(f.id) ?? null,
     })),
-    ladder: ladder.map((entry, idx) => ({
+    ladder: ladder.map(ladderRow),
+    previous: previous ? { seasonYear: previous.seasonYear, ladder: previousLadder.map(ladderRow) } : null,
+  });
+
+  function ladderRow(entry: (typeof ladder)[number], idx: number) {
+    return {
       position:        idx + 1,
       poolTeamId:      entry.poolTeamId,
       teamName:        nameMap.get(entry.poolTeamId) ?? "Unknown",
@@ -181,8 +193,8 @@ router.get("/regional-league/:continent", async (req, res) => {
       points:          entry.points,
       setDiff:         entry.setDiff,
       matchPointDiff:  entry.matchPointDiff,
-    })),
-  });
+    };
+  }
 });
 
 // ── GET /regional-league/:continent/pools ────────────────────────────────────
