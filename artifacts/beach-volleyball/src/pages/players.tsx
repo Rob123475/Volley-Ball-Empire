@@ -59,6 +59,7 @@ import { format } from "date-fns";
 import { CONTRACT_LENGTHS, CONTRACT_LENGTH_LABELS, type ContractLength } from "@/lib/contract-lengths";
 import { cn } from "@/lib/utils";
 import { serverMessage } from "@/lib/api-error";
+import { Flag } from "@/components/flag";
 
 /** Update 1, item 4c: out this long or more, an injured free agent asks half her wage. */
 const INJURED_LONG_WEEKS = MONEY.salaryCap.injuredLongWeeks;
@@ -303,7 +304,7 @@ export function MarketPlayerCard({
           </div>
           <div className="w-4/5 h-px bg-white/20" />
           <div className="text-center" style={{ fontSize: "8px", lineHeight: 1.4 }}>
-            <div className="text-white/80 font-medium leading-tight">{player.nationality}</div>
+            <div className="text-white/80 font-medium leading-tight"><Flag nation={player.nationality} size={8} className="mr-0.5" />{player.nationality}</div>
             <div className="text-white/55 mt-0.5">{player.age}y</div>
             <div className="text-white/55">{player.height}cm</div>
           </div>
@@ -348,7 +349,7 @@ export function MarketPlayerCard({
             <Star className="h-3 w-3 text-yellow-500 fill-yellow-500" />
             Morale: {player.morale ?? 80}%
           </span>
-          <span className="text-muted-foreground">{player.nationality}</span>
+          <span className="flex items-center gap-1 text-muted-foreground"><Flag nation={player.nationality} size={11} />{player.nationality}</span>
         </div>
 
         {revealed && (
@@ -576,7 +577,7 @@ export function YouthPoolCard({
           </div>
           <div className="w-4/5 h-px bg-white/20" />
           <div className="text-center" style={{ fontSize: "8px", lineHeight: 1.4 }}>
-            <div className="text-white/80 font-medium leading-tight">{player.nationality}</div>
+            <div className="text-white/80 font-medium leading-tight"><Flag nation={player.nationality} size={8} className="mr-0.5" />{player.nationality}</div>
             <div className="text-white/55 mt-0.5">{player.age}y</div>
             <div className="text-white/55">{player.height}cm</div>
           </div>

@@ -15,48 +15,49 @@ import { ClubCrest, CREST_SHAPE_COUNT } from "@/components/club-crest";
 import { cn } from "@/lib/utils";
 import { Check, Sprout, Building2 } from "lucide-react";
 import { GAME_DIFFICULTIES, GAME_DIFFICULTY, type GameDifficulty } from "@shared/game-difficulty";
+import { Flag } from "@/components/flag";
 
 export const NATIONALITIES = [
-  { name: "Argentina",     flag: "🇦🇷" },
-  { name: "Australia",     flag: "🇦🇺" },
-  { name: "Austria",       flag: "🇦🇹" },
-  { name: "Belgium",       flag: "🇧🇪" },
-  { name: "Brazil",        flag: "🇧🇷" },
-  { name: "Bulgaria",      flag: "🇧🇬" },
-  { name: "Canada",        flag: "🇨🇦" },
-  { name: "China",         flag: "🇨🇳" },
-  { name: "Croatia",       flag: "🇭🇷" },
-  { name: "Cuba",          flag: "🇨🇺" },
-  { name: "Czech Republic",flag: "🇨🇿" },
-  { name: "Denmark",       flag: "🇩🇰" },
-  { name: "Finland",       flag: "🇫🇮" },
-  { name: "France",        flag: "🇫🇷" },
-  { name: "Germany",       flag: "🇩🇪" },
-  { name: "Great Britain", flag: "🇬🇧" },
-  { name: "Hungary",       flag: "🇭🇺" },
-  { name: "Italy",         flag: "🇮🇹" },
-  { name: "Japan",         flag: "🇯🇵" },
-  { name: "Kenya",         flag: "🇰🇪" },
-  { name: "Latvia",        flag: "🇱🇻" },
-  { name: "Mexico",        flag: "🇲🇽" },
-  { name: "Netherlands",   flag: "🇳🇱" },
-  { name: "New Zealand",   flag: "🇳🇿" },
-  { name: "Norway",        flag: "🇳🇴" },
-  { name: "Peru",          flag: "🇵🇪" },
-  { name: "Poland",        flag: "🇵🇱" },
-  { name: "Portugal",      flag: "🇵🇹" },
-  { name: "Russia",        flag: "🇷🇺" },
-  { name: "Slovakia",      flag: "🇸🇰" },
-  { name: "South Africa",  flag: "🇿🇦" },
-  { name: "South Korea",   flag: "🇰🇷" },
-  { name: "Spain",         flag: "🇪🇸" },
-  { name: "Sweden",        flag: "🇸🇪" },
-  { name: "Switzerland",   flag: "🇨🇭" },
-  { name: "Thailand",      flag: "🇹🇭" },
-  { name: "Turkey",        flag: "🇹🇷" },
-  { name: "Ukraine",       flag: "🇺🇦" },
-  { name: "United States", flag: "🇺🇸" },
-  { name: "Other",         flag: "🌍" },
+  { name: "Argentina" },
+  { name: "Australia" },
+  { name: "Austria" },
+  { name: "Belgium" },
+  { name: "Brazil" },
+  { name: "Bulgaria" },
+  { name: "Canada" },
+  { name: "China" },
+  { name: "Croatia" },
+  { name: "Cuba" },
+  { name: "Czech Republic" },
+  { name: "Denmark" },
+  { name: "Finland" },
+  { name: "France" },
+  { name: "Germany" },
+  { name: "Great Britain" },
+  { name: "Hungary" },
+  { name: "Italy" },
+  { name: "Japan" },
+  { name: "Kenya" },
+  { name: "Latvia" },
+  { name: "Mexico" },
+  { name: "Netherlands" },
+  { name: "New Zealand" },
+  { name: "Norway" },
+  { name: "Peru" },
+  { name: "Poland" },
+  { name: "Portugal" },
+  { name: "Russia" },
+  { name: "Slovakia" },
+  { name: "South Africa" },
+  { name: "South Korea" },
+  { name: "Spain" },
+  { name: "Sweden" },
+  { name: "Switzerland" },
+  { name: "Thailand" },
+  { name: "Turkey" },
+  { name: "Ukraine" },
+  { name: "United States" },
+  { name: "Other" },
 ];
 
 export const COLOR_PRESETS = [
@@ -219,7 +220,7 @@ export function NationalityPicker({
       >
         {selected ? (
           <span className="flex items-center gap-2">
-            <span className="text-lg leading-none">{selected.flag}</span>
+            <Flag nation={selected.name} size={15} />
             <span className="font-semibold">{selected.name}</span>
           </span>
         ) : (
@@ -249,7 +250,7 @@ export function NationalityPicker({
                   value === n.name && accentClassName,
                 )}
               >
-                <span className="text-lg leading-none">{n.flag}</span>
+                <Flag nation={n.name} size={15} />
                 <span className={value === n.name ? "font-bold" : "text-white"}>{n.name}</span>
                 {value === n.name && <Check className="ml-auto h-3.5 w-3.5" />}
               </button>

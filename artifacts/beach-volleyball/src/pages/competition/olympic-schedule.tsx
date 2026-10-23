@@ -12,21 +12,22 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { Trophy, Medal, Flame, CalendarDays } from "lucide-react";
+import { Flag } from "@/components/flag";
 
-type Side = { nation: string; flag: string; seed: number };
+type Side = { nation: string; seed: number };
 type SetScore = { home: number; away: number };
 type MatchView = {
   id: number; stage: string; label: string; groupName: string | null;
   home: Side; away: Side; homeSets: number; awaySets: number; sets: SetScore[]; winner: string;
 };
 type Player = { kind: "player" | "pool"; id: number; name: string; club: string; rating: number };
-type Entry = { seed: number; nation: string; flag: string; points: number; qualifyingRank: number; rating: number; pair: Player[] };
-type Standing = { nation: string; flag: string; seed: number; played: number; won: number; lost: number; setsFor: number; setsAgainst: number };
+type Entry = { seed: number; nation: string; points: number; qualifyingRank: number; rating: number; pair: Player[] };
+type Standing = { nation: string; seed: number; played: number; won: number; lost: number; setsFor: number; setsAgainst: number };
 type Tournament = {
   seasonYear: number;
   playedOn: string;
   field: Entry[];
-  passedOver: Array<{ nation: string; flag: string; qualifyingRank: number; eligible: number }>;
+  passedOver: Array<{ nation: string; qualifyingRank: number; eligible: number }>;
   groups: Array<{ name: string; standings: Standing[]; matches: MatchView[] }>;
   knockout: { quarterFinals: MatchView[]; semiFinals: MatchView[]; bronze: MatchView; gold: MatchView };
   medals: { gold: Entry; silver: Entry; bronze: Entry };
@@ -45,7 +46,7 @@ function MatchRow({ m }: { m: MatchView }) {
     <div className="flex items-center gap-3 py-2 px-3 rounded-lg bg-muted/30" data-testid="olympic-match">
       <div className={cn("flex items-center gap-1.5 flex-1 justify-end min-w-0", homeWon && "font-bold")}>
         <span className="text-sm truncate text-right">{m.home.nation}</span>
-        <span className="text-base leading-none shrink-0">{m.home.flag}</span>
+        <Flag nation={m.home.nation} size={14} />
       </div>
       <div className="shrink-0 text-center min-w-[6rem]">
         <div className="font-black text-sm tabular-nums">{m.homeSets}–{m.awaySets}</div>
@@ -54,7 +55,7 @@ function MatchRow({ m }: { m: MatchView }) {
         </div>
       </div>
       <div className={cn("flex items-center gap-1.5 flex-1 min-w-0", !homeWon && "font-bold")}>
-        <span className="text-base leading-none shrink-0">{m.away.flag}</span>
+        <Flag nation={m.away.nation} size={14} />
         <span className="text-sm truncate">{m.away.nation}</span>
       </div>
     </div>
@@ -72,7 +73,7 @@ function Podium({ t }: { t: Tournament }) {
       {place.map(({ key, label, entry, tone }) => (
         <div key={key} className={cn("rounded-xl border p-4", tone)}>
           <div className="text-[10px] font-black uppercase tracking-widest">{label}</div>
-          <div className="mt-1 text-lg font-bold">{entry.flag} {entry.nation}</div>
+          <div className="mt-1 flex items-center gap-2 text-lg font-bold"><Flag nation={entry.nation} size={18} />{entry.nation}</div>
           <div className="text-xs text-muted-foreground">{entry.pair.map((p) => `${p.name} (${p.club})`).join(" · ")}</div>
         </div>
       ))}
@@ -119,7 +120,7 @@ export default function OlympicSchedule() {
         {t.passedOver.length > 0 && (
           <p className="text-sm text-muted-foreground">
             Passed over — could not field two fit players at any club:{" "}
-            {t.passedOver.map((p) => `${p.flag} ${p.nation} (${p.eligible})`).join(", ")}.
+            {t.passedOver.map((p, i) => <span key={p.nation}>{i > 0 && ", "}<Flag nation={p.nation} size={11} className="mr-1" />{p.nation} ({p.eligible})</span>)}.
           </p>
         )}
       </div>
@@ -140,7 +141,7 @@ export default function OlympicSchedule() {
                 </div>
                 {g.standings.map((s, i) => (
                   <div key={s.nation} className={cn("grid grid-cols-[1fr_auto_auto_auto] gap-x-3 items-center px-1 py-1 text-sm", i < 2 ? "text-foreground" : "text-muted-foreground")}>
-                    <span className="truncate text-xs font-semibold">{s.flag} {s.nation}</span>
+                    <span className="flex items-center gap-1.5 truncate text-xs font-semibold"><Flag nation={s.nation} size={11} />{s.nation}</span>
                     <span className="text-xs tabular-nums">{s.won}</span>
                     <span className="text-xs tabular-nums">{s.lost}</span>
                     <span className="text-xs tabular-nums">{s.setsFor}-{s.setsAgainst}</span>

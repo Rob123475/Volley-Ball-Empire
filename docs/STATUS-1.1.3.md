@@ -63,8 +63,25 @@ Brief: `Downloads\FINAL-1.1.3-BRIEF.md` (23 Oct 2026). Worktree `C:/vbe-tm`, bra
 - `harness/junior-medics.mjs` 12/12 (now 26 Registrars and 22 Physio Assistants). `harness/wizard-career-economy.mjs`'s staff count moves from 160 to 209 from id 10001.
 - **The soak line** (no AI club short of a doctor or physio, across the seasons) is in Part C.
 
+
+### A2. Real flags on every screen
+
+**Done in code; the packaged-game screenshots are in Part C.**
+
+- **The flags:** the MIT `flag-icons` set, version 7.5.0 (May 2025), 4x3 SVGs. All 271 are copied into `artifacts/beach-volleyball/public/images/flags/` with the licence (`LICENSE.txt`), so they work offline. `scripts/install-flags.cjs` does the copy, and with `--unity` it renders the game's flags as 128 × 96 PNG textures into the Unity project's `Assets/Resources/Flags/` (128 of them, for A5).
+- **One lookup, one component:** `flagCode()` in `lib/db/src/schema/continents.ts` is built on `countryCode()` and gives `gb-eng`, `gb-sct` and `gb-wls` to England, Scotland and Wales. The frontend's one component is `components/flag.tsx`, `<Flag nation=… />`. It draws `images/flags/<code>.svg`, or a plain globe icon (never letters) for a nationality the game doesn't know. **`countryFlag()` and its emoji are deleted.** The Nations Cup API no longer sends an emoji `flag` field: the pages draw the flag from the nation's name.
+- **Replaced (every emoji flag):** the youth card's flag (player-portrait), the manager's nationality picker (both wizards), the Nations Cup qualifying list, national squads, the schedule (matches, groups, medals, passed-over nations) and the dashboard's Nations Cup widget.
+- **Added beside every nationality a card or list prints:** the youth card (FIFA-style card), senior player cards (Players, Team), staff cards (Staff Market, Medical Market, Staff, Medical), the Youth Academy, continental scouting, Day 1 draft, continental pools, the Hall of Fame. The clubs page's youth tiles use the youth card flag. The job market's flags come with A4c's national-coach offers, which show there.
+- **Every nationality resolves:** the new check found 25 nationalities with no flag: 6 manager-face nations (Estonia, Haiti, Romania, Bangladesh, Israel, Cape Verde), the player-nationality edit list (Kazakh, Uzbek, Romanian, Slovenian, Rwandan …), and Hungary, Slovakia and "Great Britain" from the manager picker. Each now has an `iso()` line.
+- **Proof: `harness/flags.mjs`, 18/18** (run-all 98zu). It walks every distinct nationality in the starter DB (players, staff, pool players, youths, retirements, managers), the new-senior picture nations, `data/nationNames.ts`, the manager faces, the world roster and every picker and generator list: **205 nationalities, every one with a flag file.** The source checks: no emoji flag in the frontend, server or continents.ts; `countryFlag` gone; 19 files draw `<Flag>`, all through `components/flag.tsx`. Unity: a PNG for every one of the 124 flag codes.
+
+**Decisions (A2):**
+- `flag-icons` is not added to a `package.json`. The worktree's `node_modules` are junctions into the main tree, and a `pnpm add` here would change the main tree's install. The package was fetched with `npm pack flag-icons@7.5.0`, and its SVGs and licence are copied in by `scripts/install-flags.cjs`, which says where they came from.
+- The Players page's continent filter keeps its globe emoji (🌍 🌏 🌎 🌊). They stand for continents, not nations, so they aren't flags.
+
 ## Item table
 
 | Item | What | Commit | Proof |
 |---|---|---|---|
-| A1 | Staff portraits: 49 installed, 82 refused (logos) | (this commit) | ai-staff 31/31, junior-medics 12/12, installer 15/15, live-save copy |
+| A1 | Staff portraits: 49 installed, 82 refused (logos) | 90a17739 | ai-staff 31/31, junior-medics 12/12, installer 15/15, live-save copy |
+| A2 | Real flags: flag-icons, <Flag>, every nationality resolves | (this commit) | flags 18/18; screenshots in Part C |

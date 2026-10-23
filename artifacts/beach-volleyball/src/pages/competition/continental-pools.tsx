@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { Users, TrendingUp, AlertCircle, Star } from "lucide-react";
+import { Flag } from "@/components/flag";
 
 /**
  * Driven by the canonical KEYS. Each of these screens used to declare its own
@@ -142,7 +143,7 @@ function PoolTeamCard({ team, isLeader }: { team: PoolTeam; isLeader: boolean })
               <div>
                 <span className="font-medium">{p.name}</span>
                 {p.nationality && (
-                  <span className="text-muted-foreground ml-1.5">· {p.nationality}</span>
+                  <span className="text-muted-foreground ml-1.5">· <Flag nation={p.nationality} size={11} className="mr-1" />{p.nationality}</span>
                 )}
               </div>
               <span className="text-muted-foreground">Age {p.age}</span>

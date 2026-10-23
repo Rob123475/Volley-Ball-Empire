@@ -30,7 +30,7 @@ import crypto from "node:crypto";
 import { createRequire } from "node:module";
 import { DatabaseSync } from "node:sqlite";
 import {
-  continentKeyFrom, continentKeyForNationality, nationName, countryFlag, CONTINENT_LABEL,
+  continentKeyFrom, continentKeyForNationality, nationName, flagCode, CONTINENT_LABEL,
 } from "../lib/db/src/schema/continents.ts";
 import { NATION_NAMES } from "../artifacts/api-server/src/data/nationNames.ts";
 

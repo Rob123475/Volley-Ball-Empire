@@ -668,6 +668,10 @@ runSuite("new seniors", path.join(REPO, "harness", "new-seniors.mjs"));
 console.log("\n########## 98zt/100  STORED OLYMPIC TEXT RENAMED (TRADEMARK CLEANUP, 19 OCT) ##########");
 runSuite("trademark renames", path.join(REPO, "harness", "trademark-renames.mjs"));
 
+// 1.1.3 (23 Oct, brief A2): real flags on every screen. No server.
+console.log("\n########## 98zu/100  REAL FLAGS ON EVERY SCREEN (1.1.3 A2) ##########");
+runSuite("flags", path.join(REPO, "harness", "flags.mjs"));
+
 // ── Smoke needs a server; boot one on a throwaway copy of the shipped DB ─────
 console.log("\n########## 99/100  GAMEPLAY SMOKE ##########");
 {

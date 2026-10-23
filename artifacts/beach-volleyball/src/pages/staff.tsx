@@ -66,6 +66,7 @@ import { cn } from "@/lib/utils";
 import { Link } from "wouter";
 import { serverMessage } from "@/lib/api-error";
 import { isRole, normaliseRole, isMedicalRole, MAX_STAFF, MAX_MEDICAL_STAFF } from "@shared/staff-roles";
+import { Flag } from "@/components/flag";
 
 // P-09: every map below is keyed by the NORMALISED role and looked up with
 // normaliseRole(member.role). The rows store "Head Coach"; looked up as stored,
@@ -450,7 +451,7 @@ function StaffCard({
         {/* Name & info */}
         <div className="absolute bottom-0 left-0 right-0 p-3 pr-16">
           <div className="font-bold text-base text-white drop-shadow leading-tight">{member.name}</div>
-          <div className="text-xs text-white/70">{member.nationality} · Age {member.baseAge}</div>
+          <div className="flex items-center gap-1 text-xs text-white/70"><Flag nation={member.nationality} size={11} />{member.nationality} · Age {member.baseAge}</div>
         </div>
       </div>
 

@@ -22,6 +22,7 @@ import { useToast } from "@/hooks/use-toast";
 import { CONTRACT_LENGTHS, CONTRACT_LENGTH_LABELS, type ContractLength } from "@/lib/contract-lengths";
 import { capRefusalText, WAGE_CAP_QUERY_KEY, type WageCap } from "@/lib/wage-cap";
 import { cn } from "@/lib/utils";
+import { Flag } from "@/components/flag";
 
 type Card_ = { id: number; name: string; nationality: string; age: number; rating: number; wage: number; club: string | null; imageUrl: string | null };
 type Pick = { id: number; name: string; nationality: string; age: number; rating: number; wage: number; squadRole: string; imageUrl: string | null };
@@ -145,7 +146,7 @@ export default function Day1Draft() {
                 <div key={p.id} className="flex items-center justify-between rounded-lg border p-2 text-sm" data-testid={`draft-pick-${p.id}`}>
                   <div>
                     <p className="font-semibold">{p.name} <Badge variant="outline" className="ml-1">{p.rating}</Badge></p>
-                    <p className="text-xs text-muted-foreground">{p.nationality} · {p.age} · {money(p.wage)}/mo · {p.squadRole === "starter" ? "plays" : "interchange"}</p>
+                    <p className="flex items-center gap-1 text-xs text-muted-foreground"><Flag nation={p.nationality} size={11} />{p.nationality} · {p.age} · {money(p.wage)}/mo · {p.squadRole === "starter" ? "plays" : "interchange"}</p>
                   </div>
                   <Button size="sm" variant="ghost" disabled={busy} onClick={() => unpick(p)}>Take back</Button>
                 </div>
@@ -175,7 +176,7 @@ export default function Day1Draft() {
                   <div className="flex items-start justify-between gap-2">
                     <div>
                       <p className="font-semibold leading-tight">{p.name}</p>
-                      <p className="text-xs text-muted-foreground">{p.nationality} · {p.age} · {p.club ?? "free agent"}</p>
+                      <p className="flex items-center gap-1 text-xs text-muted-foreground"><Flag nation={p.nationality} size={11} />{p.nationality} · {p.age} · {p.club ?? "free agent"}</p>
                     </div>
                     <Badge variant="outline">{p.rating}</Badge>
                   </div>

@@ -1,3 +1,5 @@
+import { Flag } from "@/components/flag";
+
 export interface YouthPlayerData {
   id: string;
   fullName: string;
@@ -157,7 +159,7 @@ export function YouthPlayerCard({ player, width = 340 }: Props) {
               lineHeight: 1,
             }}
           >
-            {value}
+            {label === "nationality" && <Flag nation={value} size="em" className="mr-[0.35em]" />}{value}
           </span>
         </div>
       ))}

@@ -13,9 +13,10 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { AlertCircle, CheckCircle2, Users } from "lucide-react";
+import { Flag } from "@/components/flag";
 
 type PairPlayer = { kind: "player" | "pool"; id: number; name: string; club: string; rating: number };
-type Nation = { nation: string; flag: string; eligible: number; pair: PairPlayer[] };
+type Nation = { nation: string; eligible: number; pair: PairPlayer[] };
 type PairsData = { nations: Nation[]; canField: number; cannotField: number };
 
 type Filter = "all" | "pair" | "short";
@@ -98,7 +99,7 @@ export default function NationalSquads() {
               n.pair.length >= 2 ? "border-emerald-500/20 bg-emerald-500/5" : "border-border bg-card",
             )}
           >
-            <span className="text-2xl leading-none w-8 text-center">{n.flag}</span>
+            <Flag nation={n.nation} size={22} />
             <div className="min-w-[8rem]">
               <div className="font-semibold text-sm">{n.nation}</div>
               <div className="text-[11px] text-muted-foreground">{n.eligible} eligible player{n.eligible !== 1 ? "s" : ""}</div>

@@ -220,9 +220,10 @@ export function continentKeyForNationality(
  * lookup so "Australia" and "Australian" both resolve. Staff rows still store a
  * mix of country names and demonyms, so both forms have to work.
  *
- * The flag itself is DERIVED from the code rather than typed out: an emoji flag
- * is just the two letters as regional-indicator symbols. That means no table of
- * 100 pasted emoji to get subtly wrong, and adding a country is one line.
+ * 1.1.3 (brief A2): the flag is a picture, flagCode() -> public/images/flags/<code>.svg
+ * (the MIT flag-icons set, copied in so it works offline; drawn by the frontend's
+ * <Flag nation=... />). Windows has no emoji flags: the old emoji showed as two
+ * letters. Adding a country is still one line.
  */
 const ISO2: Record<string, string> = {};
 
@@ -263,6 +264,8 @@ iso("FR", ["France", "French"]);
 iso("DE", ["Germany", "German"]);
 iso("GH", ["Ghana", "Ghanaian"]);
 iso("GR", ["Greece", "Greek"]);
+iso("HU", ["Hungary", "Hungarian"]);   // 1.1.3 (A2): the manager's nationality picker lists these two
+iso("SK", ["Slovakia", "Slovak", "Slovakian"]);
 iso("GN", ["Guinea", "Guinean"]);
 iso("GT", ["Guatemala", "Guatemalan"]);   // 1.1.2 (Rob, 21 Oct): nations his new senior pictures bring
 iso("GY", ["Guyana", "Guyanese"]);
@@ -336,20 +339,38 @@ iso("US", ["USA", "United States", "American", "Hawaiian"]);
 iso("VU", ["Vanuatu", "Ni-Vanuatu", "Vanuatuan"]);
 iso("VE", ["Venezuela", "Venezuelan"]);
 iso("VN", ["Vietnam", "Vietnamese"]);
-iso("GB", ["United Kingdom", "Britain", "British"]);
+iso("GB", ["United Kingdom", "Britain", "British", "Great Britain"]);
 iso("ZW", ["Zimbabwe", "Zimbabwean"]);
 // R-46: pool clubs in Dubai and Riyadh store these two demonyms.
 iso("AE", ["UAE", "United Arab Emirates", "Emirati"]);
-iso("SA", ["Saudi Arabia", "Saudi"]);
+iso("SA", ["Saudi Arabia", "Saudi", "Saudi Arabian"]);
+// 1.1.3 (A2): every nationality a manager face, a picker or a player's nationality
+// list offers has a flag (harness/flags.mjs walks them all).
+iso("DZ", ["Algeria", "Algerian"]);
+iso("BH", ["Bahrain", "Bahraini"]);
+iso("BD", ["Bangladesh", "Bangladeshi"]);
+iso("CV", ["Cape Verde", "Cape Verdean", "Cabo Verde"]);
+iso("EE", ["Estonia", "Estonian"]);
+iso("HT", ["Haiti", "Haitian"]);
+iso("IL", ["Israel", "Israeli"]);
+iso("KZ", ["Kazakhstan", "Kazakh"]);
+iso("KW", ["Kuwait", "Kuwaiti"]);
+iso("MH", ["Marshall Islands", "Marshallese"]);
+iso("MN", ["Mongolia", "Mongolian"]);
+iso("NR", ["Nauru", "Nauruan"]);
+iso("PW", ["Palau", "Palauan"]);
+iso("RO", ["Romania", "Romanian"]);
+iso("RW", ["Rwanda", "Rwandan"]);
+iso("SI", ["Slovenia", "Slovenian"]);
+iso("TV", ["Tuvalu", "Tuvaluan"]);
+iso("UG", ["Uganda", "Ugandan"]);
+iso("UZ", ["Uzbekistan", "Uzbek"]);
 
 /** England, Scotland and Wales are subdivisions — they have their own flags. */
 const SUBDIVISION_FLAG: Record<string, string> = {
-  england:  "\u{1F3F4}\u{E0067}\u{E0062}\u{E0065}\u{E006E}\u{E0067}\u{E007F}",
-  scotland: "\u{1F3F4}\u{E0067}\u{E0062}\u{E0073}\u{E0063}\u{E0074}\u{E007F}",
-  wales:    "\u{1F3F4}\u{E0067}\u{E0062}\u{E0077}\u{E006C}\u{E0073}\u{E007F}",
-  english:  "\u{1F3F4}\u{E0067}\u{E0062}\u{E0065}\u{E006E}\u{E0067}\u{E007F}",
-  scottish: "\u{1F3F4}\u{E0067}\u{E0062}\u{E0073}\u{E0063}\u{E0074}\u{E007F}",
-  welsh:    "\u{1F3F4}\u{E0067}\u{E0062}\u{E0077}\u{E006C}\u{E0073}\u{E007F}",
+  england: "gb-eng", english: "gb-eng",
+  scotland: "gb-sct", scottish: "gb-sct",
+  wales: "gb-wls", welsh: "gb-wls",
 };
 
 /** ISO 3166-1 alpha-2 for a nationality, or null when unknown. */
@@ -359,16 +380,15 @@ export function countryCode(nationality: string | null | undefined): string | nu
 }
 
 /**
- * Flag emoji for a nationality. Falls back to a globe rather than empty space,
- * so an unrecognised value is visible instead of silently blank.
+ * 1.1.3 (A2): the flag picture's code for a nationality ("au", "gb-sct"), the file
+ * name under public/images/flags/ (and Unity's Resources/Flags/). Null when the
+ * nationality is unknown: the frontend then draws a plain globe, never letters.
  */
-export function countryFlag(nationality: string | null | undefined): string {
-  if (!nationality) return "\u{1F30D}";
+export function flagCode(nationality: string | null | undefined): string | null {
+  if (!nationality) return null;
   const sub = SUBDIVISION_FLAG[fold(nationality)];
   if (sub) return sub;
-  const code = countryCode(nationality);
-  if (!code) return "\u{1F30D}";
-  return String.fromCodePoint(...[...code].map((c) => 0x1f1e6 + c.charCodeAt(0) - 65));
+  return countryCode(nationality)?.toLowerCase() ?? null;
 }
 
 /** England, Scotland and Wales compete as nations of their own. */

@@ -1075,7 +1075,6 @@ export type OlympicPlayerEntry = {
 export type OlympicFieldEntry = {
   seed: number;
   nation: string;
-  flag: string;
   points: number;
   qualifyingRank: number;
   rating: number;
@@ -1083,7 +1082,7 @@ export type OlympicFieldEntry = {
 };
 
 /** A qualified nation that could not field two real, fit players at any club. */
-export type OlympicPassedOver = { nation: string; flag: string; qualifyingRank: number; eligible: number };
+export type OlympicPassedOver = { nation: string; qualifyingRank: number; eligible: number };
 
 export const olympicTournamentsTable = sqliteTable("olympic_tournaments", {
   id:           integer("id").primaryKey({ autoIncrement: true }),

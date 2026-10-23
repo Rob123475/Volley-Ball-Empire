@@ -43,6 +43,7 @@ import {
   Play,
   Check,
 } from "lucide-react";
+import { Flag } from "@/components/flag";
 
 type ClubTemplate = import("@workspace/api-client-react").ClubTemplate;
 
@@ -498,7 +499,7 @@ export default function NewCareer() {
                 <div>
                   <h2 className="text-2xl font-black text-white">Choose Your Club</h2>
                   <p className="text-sm text-white/40 mt-0.5">
-                    {selectedNat?.flag} {managerName} · Select the club you'll manage.
+                    {selectedNat && <Flag nation={selectedNat.name} size={12} className="mr-1" />}{managerName} · Select the club you'll manage.
                   </p>
                 </div>
               </div>

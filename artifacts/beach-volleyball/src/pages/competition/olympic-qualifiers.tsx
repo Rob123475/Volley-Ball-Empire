@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { Medal, Globe } from "lucide-react";
+import { Flag } from "@/components/flag";
 
 type QualPlayer = {
   kind: "player" | "pool";
@@ -105,7 +106,7 @@ export default function OlympicQualifiers() {
               )}
               <div className={cn("flex items-center gap-3 px-4 py-2.5", c.qualified && "bg-emerald-950/10")}>
                 <div className="text-xs font-black text-muted-foreground/60 w-6 shrink-0 tabular-nums">{c.rank}</div>
-                <span className="text-base leading-none shrink-0">{c.flag}</span>
+                <Flag nation={c.country} size={14} />
                 <div className="flex-1 min-w-0">
                   <div className="font-semibold text-sm truncate">
                     {c.country}

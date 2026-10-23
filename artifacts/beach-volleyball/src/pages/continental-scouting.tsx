@@ -75,6 +75,7 @@ import {
   Users,
 } from "lucide-react";
 import { isRole, normaliseRole, SCOUTING_ROLE_KEYS } from "@shared/staff-roles";
+import { Flag } from "@/components/flag";
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
@@ -210,7 +211,7 @@ function ProspectCard({
         <div className="min-w-0">
           <p className="font-bold text-sm leading-tight truncate">{prospect.name}</p>
           {/* N-44: her country, as the scout's report names it (the region only if the find is older and names none). */}
-          <p className="text-xs text-muted-foreground">Age {prospect.age} · {prospect.nationality ?? prospect.continent}</p>
+          <p className="flex items-center gap-1 text-xs text-muted-foreground">{prospect.nationality && <Flag nation={prospect.nationality} size={11} />}Age {prospect.age} · {prospect.nationality ?? prospect.continent}</p>
         </div>
         <div className="text-right shrink-0">
           <div className="text-lg font-black text-primary leading-none">{prospect.currentRating}</div>
@@ -817,7 +818,7 @@ export default function ContinentalScouting() {
                 {scoutReport && scoutReport.finds.length > 0 && (
                   <ul className="space-y-1">
                     {scoutReport.finds.map((f) => (
-                      <li key={f.name} className="text-foreground">{f.name} · Age {f.age} · {f.nationality ?? f.continent}</li>
+                      <li key={f.name} className="text-foreground">{f.nationality && <Flag nation={f.nationality} size={11} className="mr-1" />}{f.name} · Age {f.age} · {f.nationality ?? f.continent}</li>
                     ))}
                   </ul>
                 )}

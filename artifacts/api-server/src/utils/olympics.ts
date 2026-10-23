@@ -47,7 +47,6 @@ import {
   trophiesTable,
   worldTourFixturesTable,
   nationName,
-  countryFlag,
   type OlympicFieldEntry,
   type OlympicPassedOver,
   type OlympicPlayerEntry,
@@ -99,7 +98,6 @@ export function syncOlympicSeasonFlags(): { updated: number } {
 
 export type NationalPair = {
   nation: string;
-  flag: string;
   /** Real contracted players of this nation, at any club, fit to play. */
   eligible: number;
   /** The two highest-rated of them (fewer when the nation has fewer). */
@@ -154,7 +152,7 @@ export function nationalPairsTx(tx: Tx, careerSaveId: number, playerTeamId: numb
   return [...nations]
     .map(([nation, players]) => {
       const sorted = [...players].sort(byRating);
-      return { nation, flag: countryFlag(nation), eligible: sorted.length, pair: sorted.slice(0, 2) };
+      return { nation, eligible: sorted.length, pair: sorted.slice(0, 2) };
     })
     .sort((a, b) => a.nation.localeCompare(b.nation));
 }
@@ -170,11 +168,11 @@ export function olympicFieldTx(
     if (field.length === OLYMPIC_SPOTS) break;
     const np = pairs.get(c.country);
     if (!np || np.pair.length < 2) {
-      passedOver.push({ nation: c.country, flag: c.flag, qualifyingRank: c.rank, eligible: np?.eligible ?? 0 });
+      passedOver.push({ nation: c.country, qualifyingRank: c.rank, eligible: np?.eligible ?? 0 });
       continue;
     }
     field.push({
-      seed: field.length + 1, nation: c.country, flag: c.flag, points: c.points, qualifyingRank: c.rank,
+      seed: field.length + 1, nation: c.country, points: c.points, qualifyingRank: c.rank,
       rating: (np.pair[0]!.rating + np.pair[1]!.rating) / 2,
       pair: np.pair,
     });
@@ -187,7 +185,7 @@ export function olympicFieldTx(
 type PlayedMatch = { homeNation: string; awayNation: string; homeSets: number; awaySets: number; sets: SetScore[]; winnerNation: string };
 
 export type GroupStanding = {
-  nation: string; flag: string; seed: number;
+  nation: string; seed: number;
   played: number; won: number; lost: number;
   setsFor: number; setsAgainst: number; pointsFor: number; pointsAgainst: number;
 };
@@ -195,7 +193,7 @@ export type GroupStanding = {
 /** A group's table: wins, then set difference, then point difference, then seed. */
 export function groupStandings(entries: OlympicFieldEntry[], matches: PlayedMatch[]): GroupStanding[] {
   const rows = new Map(entries.map((e) => [e.nation, {
-    nation: e.nation, flag: e.flag, seed: e.seed,
+    nation: e.nation, seed: e.seed,
     played: 0, won: 0, lost: 0, setsFor: 0, setsAgainst: 0, pointsFor: 0, pointsAgainst: 0,
   }]));
   for (const m of matches) {
@@ -342,7 +340,7 @@ export function playOlympicsTx(tx: Tx, careerSaveId: number, seasonYear: number,
 
 // ── Reading it back ──────────────────────────────────────────────────────────
 
-export type OlympicSide = { nation: string; flag: string; seed: number };
+export type OlympicSide = { nation: string; seed: number };
 export type OlympicMatchView = {
   id: number; stage: string; label: string; groupName: string | null;
   home: OlympicSide; away: OlympicSide;
@@ -367,7 +365,7 @@ export function olympicTournament(careerSaveId: number, seasonYear: number): Oly
     .where(eq(olympicMatchesTable.tournamentId, t.id)).orderBy(asc(olympicMatchesTable.id)).all();
   const field = t.field;
   const byNation = new Map(field.map((e) => [e.nation, e]));
-  const side = (nation: string): OlympicSide => ({ nation, flag: byNation.get(nation)?.flag ?? countryFlag(nation), seed: byNation.get(nation)?.seed ?? 0 });
+  const side = (nation: string): OlympicSide => ({ nation, seed: byNation.get(nation)?.seed ?? 0 });
   const view = (m: typeof rows[number]): OlympicMatchView => ({
     id: m.id, stage: m.stage, label: m.label, groupName: m.groupName,
     home: side(m.homeNation), away: side(m.awayNation),

@@ -34,7 +34,6 @@ import {
   competitorsTable,
   teamsTable,
   nationName,
-  countryFlag,
   continentKeyForNationality,
 } from "@workspace/db";
 import { and, eq } from "drizzle-orm";
@@ -56,7 +55,6 @@ export type QualifyingPlayer = {
 export type QualifyingCountry = {
   rank: number;
   country: string;
-  flag: string;
   continent: ReturnType<typeof continentKeyForNationality>;
   points: number;
   bestPlayerPoints: number;
@@ -133,7 +131,6 @@ export function olympicQualification(careerSaveId: number, seasonYear: number): 
 
   const countries = [...nations].map(([country, list]) => ({
     country,
-    flag: countryFlag(country),
     continent: continentKeyForNationality(country),
     points: list.reduce((s, p) => s + p.points, 0),
     bestPlayerPoints: Math.max(...list.map((p) => p.points)),

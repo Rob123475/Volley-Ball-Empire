@@ -85,6 +85,7 @@ import { StaffOffBadge, onDuty } from "@/components/staff-off-badge";
 // D-3: every facility's name comes from one table, shared with the server.
 import { FACILITY_NAMES } from "@shared/facility-names";
 import { useMyManager } from "@/lib/my-manager";
+import { Flag } from "@/components/flag";
 
 /* ── Constants ─────────────────────────────────────────────── */
 
@@ -339,7 +340,7 @@ function MedicalStaffCard({ member, onFire }: { member: any; onFire: (id: number
 
         <div className="absolute bottom-0 left-0 right-0 p-3 pr-16">
           <div className="font-bold text-base text-white drop-shadow leading-tight">{member.name}</div>
-          <div className="text-xs text-white/70">{member.nationality} · Age {member.baseAge}</div>
+          <div className="flex items-center gap-1 text-xs text-white/70"><Flag nation={member.nationality} size={11} />{member.nationality} · Age {member.baseAge}</div>
         </div>
       </div>
 

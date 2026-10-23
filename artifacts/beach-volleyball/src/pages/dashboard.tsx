@@ -83,6 +83,7 @@ import { FACILITY_NAMES } from "@shared/facility-names";
 // D-4: bonus texts live in one module, and never print a zero bonus.
 import { FACILITY_BENEFIT_SHORT } from "@/lib/facility-benefits";
 import { showMatchDayBox, useMatchDayBoxHidden } from "@/hooks/use-match-day-box";
+import { Flag } from "@/components/flag";
 
 const weatherIcons: Record<string, string> = {
   sunny: "☀️", windy: "💨", stormy: "⛈️", hot: "🔥", cloudy: "☁️", overcast: "⛅", perfect: "✨",
@@ -205,7 +206,7 @@ function CollapsiblePanel({
 
 // ── Olympic Dashboard Widget ───────────────────────────────────────────────────
 // R-46: national qualifying on this season's World Tour ranking points.
-type OlympicQualCountry = { rank: number; country: string; flag: string; points: number; qualified: boolean };
+type OlympicQualCountry = { rank: number; country: string; points: number; qualified: boolean };
 type OlympicQualData = { olympicsYear: number; seasonYear: number; totalSpots: number; countries: OlympicQualCountry[] };
 
 function OlympicDashboardWidget() {
@@ -264,7 +265,7 @@ function OlympicDashboardWidget() {
               >
                 <div className="text-[10px] font-black uppercase tracking-wider text-muted-foreground/70 mb-1">#{c.rank}</div>
                 <div className="flex items-center gap-1.5">
-                  <span className="text-base leading-none">{c.flag}</span>
+                  <Flag nation={c.country} size={13} />
                   <span className="text-xs font-semibold truncate">{c.country}</span>
                 </div>
                 <div className="text-[10px] text-muted-foreground mt-1 tabular-nums">{c.points} pts</div>

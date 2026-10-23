@@ -49,6 +49,7 @@ import {
   Search,
   CreditCard,
 } from "lucide-react";
+import { Flag } from "@/components/flag";
 
 // Unity brief item 18 (Rob, 29 Sep): the Youth Player Database read a file
 // shipped with the game (data/players_youth.json, 10 Aug: 60 entries, 24 of them
@@ -391,7 +392,7 @@ export default function YouthAcademy() {
                         <div className="min-w-0">
                           <p className="font-bold text-sm leading-tight truncate">{p.name}</p>
                           {/* N-44: her country, as the report names it. */}
-                          <p className="text-xs text-muted-foreground">Age {p.age} · {p.nationality ?? p.continent}</p>
+                          <p className="flex items-center gap-1 text-xs text-muted-foreground">{p.nationality && <Flag nation={p.nationality} size={11} />}Age {p.age} · {p.nationality ?? p.continent}</p>
                         </div>
                         <div className="text-right shrink-0">
                           <div className="text-lg font-black text-primary leading-none">{p.currentRating}</div>
@@ -505,8 +506,8 @@ export default function YouthAcademy() {
                     <p className="font-semibold text-sm leading-tight truncate group-hover:text-primary transition-colors">
                       {p.fullName}
                     </p>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      {p.nationality} · Age {p.age} · {p.primaryRole}
+                    <p className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
+                      <Flag nation={p.nationality} size={11} />{p.nationality} · Age {p.age} · {p.primaryRole}
                     </p>
                   </div>
                   <div className="shrink-0 text-right">

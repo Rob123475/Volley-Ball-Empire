@@ -62,6 +62,7 @@ import { Link } from "wouter";
 import { serverMessage } from "@/lib/api-error";
 import { SortMenu, sortList, scoutedFirst, sortKeysFor, midpoint, type SortKey, type SortReaders } from "@/components/sort-menu";
 import { normaliseRole, isMedicalRole, SCOUTING_ROLE_KEYS, MAX_STAFF } from "@shared/staff-roles";
+import { Flag } from "@/components/flag";
 
 const ROLE_LABELS: Record<string, string> = {
   all:                  "All Roles",
@@ -238,7 +239,7 @@ function StaffMarketCard({
         {/* Name */}
         <div className="absolute bottom-0 left-0 right-0 p-3 pr-16">
           <div className="font-bold text-base text-white drop-shadow leading-tight">{member.name}</div>
-          <div className="text-xs text-white/70">{member.nationality} · Age {member.baseAge}</div>
+          <div className="flex items-center gap-1 text-xs text-white/70"><Flag nation={member.nationality} size={11} />{member.nationality} · Age {member.baseAge}</div>
         </div>
       </div>
 

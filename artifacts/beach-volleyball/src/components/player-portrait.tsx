@@ -2,9 +2,9 @@ import {
   continentKeyFrom,
   continentKeyForNationality,
   continentLabel,
-  countryFlag,
   type ContinentKey,
 } from "@shared/continents";
+import { Flag } from "@/components/flag";
 /**
  * PlayerPortrait — player image with a graceful initials fallback.
  *
@@ -175,9 +175,7 @@ export function PlayerPortrait({
         style={{ backgroundColor: colors.bg }}
         aria-label={nationality ? `${name} — ${nationality}` : name}
       >
-        <div className="leading-none" style={{ fontSize: "3.5rem" }} aria-hidden="true">
-          {countryFlag(nationality)}
-        </div>
+        <Flag nation={nationality} size={42} />
         <div
           className="mt-3 text-[11px] font-black uppercase tracking-widest text-center px-2"
           style={{ color: colors.text }}

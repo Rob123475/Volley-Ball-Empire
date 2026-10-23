@@ -21,6 +21,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Crown, Medal, Trophy, CalendarClock, Star } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { Flag } from "@/components/flag";
 
 type Candidate = {
   playerId: number;
@@ -189,7 +190,7 @@ export function ClubHallOfFame() {
               <CardContent className="p-4 space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="font-bold leading-tight">{c.name}</span>
-                  {c.nationality && <span className="text-xs text-muted-foreground">{c.nationality}</span>}
+                  {c.nationality && <span className="flex items-center gap-1 text-xs text-muted-foreground"><Flag nation={c.nationality} size={11} />{c.nationality}</span>}
                 </div>
                 <Why c={c} />
               </CardContent>

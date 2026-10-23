@@ -54,6 +54,7 @@ import { Link } from "wouter";
 import { serverMessage } from "@/lib/api-error";
 import { SortMenu, sortList, scoutedFirst, sortKeysFor, midpoint, type SortKey, type SortReaders } from "@/components/sort-menu";
 import { normaliseRole, MAX_MEDICAL_STAFF } from "@shared/staff-roles";
+import { Flag } from "@/components/flag";
 
 
 // Overnight 30 Sep, item 4: every scout costs $1,500 and reports in 5 game days.
@@ -224,7 +225,7 @@ function MedicalMarketCard({
 
         <div className="absolute bottom-0 left-0 right-0 p-3 pr-16">
           <div className="font-bold text-base text-white drop-shadow leading-tight">{member.name}</div>
-          <div className="text-xs text-white/70">{member.nationality} · Age {member.baseAge}</div>
+          <div className="flex items-center gap-1 text-xs text-white/70"><Flag nation={member.nationality} size={11} />{member.nationality} · Age {member.baseAge}</div>
         </div>
       </div>
 

@@ -44,6 +44,7 @@ import {
   Pencil,
   Globe,
 } from "lucide-react";
+import { Flag } from "@/components/flag";
 
 const ELITE_EVENT_CONFIG: Record<string, {
   bannerClass: string;
@@ -567,7 +568,7 @@ export default function TeamRoster() {
             </div>
             <div className="w-4/5 h-px bg-white/20" />
             <div className="text-[8px] text-white/80 font-medium text-center leading-tight">
-              {player.nationality}
+              <Flag nation={player.nationality} size={8} className="mr-0.5" />{player.nationality}
             </div>
           </div>
         </div>
