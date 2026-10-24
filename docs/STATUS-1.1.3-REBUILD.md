@@ -124,3 +124,11 @@ Every surname is one of that nation's athletes' in the game. No new name matches
 - **The original is kept:** `C:\Users\rbonn\Documents\BVE-image-backup-24oct\youth\player_youth_card_01.webp` (byte-identical to the file it replaced, checked before writing).
 - **Mean difference against its own original** (0–255): **0.62** over the whole card (19 Oct's cards: 0.3–1.9); 0.20 outside the painted box (the re-encode), 41.9 inside it (where the words were).
 - **Before and after:** `docs/proof-1.1.3/rebuild-a3/youth-card-before-after.jpg` (whole card) and `youth-card-wall-zoom.jpg` (zoomed on the words). The packaged-game screenshot is in Part E.
+
+### A4. The World Tour decision, recorded: closed
+
+**Done.**
+
+- `docs/TRADEMARK-CLEANUP.md` item 4 now reads **DECIDED — keep "World Tour". No rename.**, with Rob's reasons (two dictionary words used across many sports; the FIVB Beach Volleyball World Tour ran its last edition in 2021 and has been the Volleyball World Beach Pro Tour since 2022, so the name is not in use; the marks that carried risk are gone) and both dates (decided 23 Oct, confirmed 24 Oct). It says the question is closed and not to ask again.
+- **No strings changed.** All 93 player-visible uses stay; the World Tour podium banner stays "BEACH VOLLEYBALL EMPIRE WORLD TOUR".
+- The same decision is in my own notes for future sessions, which also had it as open.
