@@ -143,11 +143,12 @@ try {
     `${firstDealt} doctors and physios of ${spareFirst} spare, ${medical.length - firstDealt} massage therapists and specialists`);
 
   // 1.1.3 (brief A1): Rob's 17 Oct portraits (the 49 that pass the logo check, ids from 10161) are in the
-  // pool the AI clubs hire from on Day 8, and with them every AI club gets a doctor or physio.
+  // pool the AI clubs hire from on Day 8, and with them every AI club gets a doctor or physio. The 1.1.3
+  // rebuild (A1, 24 Oct) adds the same set's 81 head coaches, assistant coaches and scouts, cleaned (ids 10210-10290).
   const A1_FROM = 10161;
   const newFaces = q(`SELECT COUNT(*) n FROM career_staff_state s WHERE s.career_save_id = ? AND s.staff_id >= ?`, cid, A1_FROM)[0].n;
   const newHired = dealt.filter((s) => s.id >= A1_FROM);
-  check("(1.1.3) the Day 8 pool includes the 49 new faces, and AI clubs hired some of them", newFaces === 49 && newHired.length > 0,
+  check("(1.1.3) the Day 8 pool includes the 130 new faces (49 medics, 81 coaches and scouts), and AI clubs hired some of them", newFaces === 130 && newHired.length > 0,
     `${newFaces} new faces in the career, ${newHired.length} at AI clubs on Day 8 (${[...new Set(newHired.map((s) => s.role))].join(", ")})`);
   const shortOfMedic = clubs.filter((c) => !(per.get(c) ?? []).some((s) => FIRST.includes(s.role)));
   check("(1.1.3) on Day 8 no AI club is short of a doctor or physio", shortOfMedic.length === 0, `${shortOfMedic.length} of ${clubs.length} without one`);

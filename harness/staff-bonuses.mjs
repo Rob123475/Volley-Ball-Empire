@@ -77,7 +77,7 @@ console.log("\n0. ONE NORMALISER");
     const names = d2.prepare("SELECT name FROM staff").all().map((r) => r.name.replace(/^Dr\.\s+/, "").trim().toLowerCase());
     d2.close();
     const dupes = [...new Set(names.filter((n, i) => names.indexOf(n) !== i))];
-    check("no two starter staff share a name, ignoring a leading \"Dr.\" (P-08)", names.length === 329 && dupes.length === 0,   // night 2: 120 seeded + Rob's 123 portrait staff; 1.1.1: + his 37 junior medics; 1.1.3 (A1): + 49 medics
+    check("no two starter staff share a name, ignoring a leading \"Dr.\" (P-08)", names.length === 410 && dupes.length === 0,   // night 2: 120 seeded + Rob's 123 portrait staff; 1.1.1: + his 37 junior medics; 1.1.3 (A1): + 49 medics; 1.1.3 rebuild (A1): + 81 coaches and scouts
       dupes.length ? `duplicates: ${dupes.join(", ")}` : `${names.length} staff, all distinct`);
   }
   const unmapped = stored.filter((r) => roles.normaliseRole(r) === null);

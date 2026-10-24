@@ -8,7 +8,9 @@ import numpy as np
 import cv2
 from PIL import Image
 
-NEW = r"C:\Users\rbonn\OneDrive\Desktop\staff portraits 1.1.2"
+# 1.1.3 rebuild (A1, 24 Oct): an optional second argument names the new set's folder
+# (the 81 cleaned head coaches, assistant coaches and scouts).
+NEW = sys.argv[2] if len(sys.argv) > 2 else r"C:\Users\rbonn\OneDrive\Desktop\staff portraits 1.1.2"
 OLD = r"C:\Users\rbonn\OneDrive\Desktop\staff portraits"
 GAME = r"C:\vbe-tm\artifacts\beach-volleyball\public\images\staff"
 OUT = sys.argv[1]

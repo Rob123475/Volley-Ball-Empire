@@ -46,6 +46,11 @@
  * out as above (Rob's folders copied under these names, only the pictures that pass
  * the logo check; docs/STATUS-1.1.3.md A1).
  *
+ * 1.1.3 rebuild (brief A1, 24 Oct): the 81 head coaches, assistant coaches and scouts
+ * of the same set, cleaned of the tour emblem the 19 Oct way, from
+ * Documents\BVE-staff-portraits-1.1.3-cleaned (folders "Head Coach", "Assistant
+ * Coach", "Scout"; docs/STATUS-1.1.3-REBUILD.md A1). Scouts are a role here now.
+ *
  * 1.1.1 (Rob, 17 Oct): --juniors installs the junior medics instead (Registrars,
  * Physio Assistants, Orthopaedic Surgeons): one folder each (JUNIOR_MEDICS
  * "folder" in lib/db/src/schema/staff-roles.ts, read from that file), names by
@@ -83,6 +88,8 @@ const ROLES = {
   "Fitness Trainer":    "fitness_trainer",
   "Strength Coach":     "strength_conditioner",
   "Sports Scientist":   "sports_scientist",
+  // 1.1.3 rebuild (24 Oct): Rob's 17 Oct scouts.
+  "Scout":              "scouts",
 };
 
 const arg = (flag) => { const i = process.argv.indexOf(flag); return i > 0 ? process.argv[i + 1] : undefined; };
