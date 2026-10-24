@@ -19,7 +19,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Slider } from "@/components/ui/slider";
-import { CONTRACT_LENGTHS, CONTRACT_LENGTH_LABELS, type ContractLength } from "@/lib/contract-lengths";
+import { PLAYER_CONTRACT_LENGTHS, CONTRACT_LENGTH_LABELS, type ContractLength } from "@/lib/contract-lengths";
 import { youthWageText } from "@/lib/youth-wage";
 import { cn } from "@/lib/utils";
 import { useWageCap, capRefusalText, WageCapLine } from "@/lib/wage-cap";
@@ -142,7 +142,7 @@ export function ContractModal({ player, onSign, isPending, triggerTestId, trigge
           <div className="space-y-2">
             <p className="text-sm font-medium">Contract Length</p>
             <div className="grid grid-cols-3 gap-1.5">
-              {CONTRACT_LENGTHS.map((l) => (
+              {PLAYER_CONTRACT_LENGTHS.map((l) => (
                 <button
                   key={l}
                   type="button"

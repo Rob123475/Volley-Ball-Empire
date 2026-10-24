@@ -1,6 +1,6 @@
 import { useState } from "react";
 import {
-  CONTRACT_LENGTHS, CONTRACT_LENGTH_LABELS, type ContractLength,
+  PLAYER_CONTRACT_LENGTHS, CONTRACT_LENGTH_LABELS, type ContractLength,
 } from "@/lib/contract-lengths";
 import {
   useListContracts,
@@ -204,7 +204,7 @@ export default function Contracts() {
                                 </DialogHeader>
                                 {renewal && <PerkPicker value={renewPerks} onChange={setRenewPerks} testIdPrefix={`renew-perk-${c.id}`} />}
                                 <div className="grid grid-cols-3 gap-1.5">
-                                  {CONTRACT_LENGTHS.map((l) => (
+                                  {PLAYER_CONTRACT_LENGTHS.map((l) => (
                                     <Button
                                       key={l}
                                       variant="outline"

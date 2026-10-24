@@ -97,13 +97,13 @@ router.post("/medical-staff", async (req, res) => {
 
   // L-02a: medical staff get a contract on the same three lengths, and it
   // expires on the calendar tick like any other.
-  const wantedTerm = readContractLength(req.body);
+  const wantedTerm = readContractLength(req.body, "staff");
   if ("error" in wantedTerm) { res.status(400).json({ error: wantedTerm.error }); return; }
   // 1.1.1, Part 11 (SB-1): the staff budget covers the medical department too.
   const overBudget = db.transaction((tx) => staffBudgetRefusal(staffBudgetTx(tx, cid, { teamId: team.id }), Number(member.salary), `Hiring ${member.name} ($${Math.round(Number(member.salary)).toLocaleString()} a month)`));
   if (overBudget) { res.status(422).json({ error: overBudget, staffBudget: true }); return; }
   const hireDate = await getGameDate(team.id);
-  const termPatch = await staffContractPatch(cid, wantedTerm.length, hireDate);
+  const termPatch = staffContractPatch(wantedTerm.length, hireDate);
   await updateStaffState(cid, Number(staffId), { teamId: team.id, isAvailable: false, ...termPatch });
   // Night 2 (O-7): an injured player's time out follows the club's medical staff at once.
   refreshClubInjuryClocks(cid, team.id);

@@ -44,7 +44,7 @@ import { generateDevelopment } from "./player-development.js";
 import { overallRating } from "./overallRating.js";
 import { sideRating } from "./matchEngine.js";
 import { monthlySalaryFor } from "./clubFinances.js";
-import { renewalEndDate, CONTRACT_LENGTHS, isContractLength } from "./contractTerms.js";
+import { renewalEndDate, DEFAULT_CONTRACT_LENGTH } from "./contractTerms.js";
 import { lengthForRating } from "./poolClubFinances.js";
 import { marketPrice } from "./marketScouting.js";
 import { trainingSessionXp } from "./trainingXp.js";
@@ -289,7 +289,7 @@ export function materializeAiSeniorsTx(w: CareerStateTx, careerSaveId: number): 
     // A pool player that never had a pool contract in this career gets a
     // "moved" row too, so nothing signs her to a pool contract again.
     w.tx.insert(poolPlayerContractsTable).values({
-      careerSaveId, poolPlayerId: m.id, poolTeamId: m.poolTeamId, length: CONTRACT_LENGTHS[0],
+      careerSaveId, poolPlayerId: m.id, poolTeamId: m.poolTeamId, length: DEFAULT_CONTRACT_LENGTH,
       startDate: m.contractEndDate ?? "", endDate: m.contractEndDate ?? "", salary: m.salary, status: "moved",
     }).onConflictDoNothing().run();
   }
@@ -505,7 +505,7 @@ export function keepAiSquadsTx(w: CareerStateTx, careerSaveId: number, today: st
         .where(and(eq(careerPlayerStateTable.careerSaveId, careerSaveId), eq(careerPlayerStateTable.playerId, m.id))).get()?.p ?? "");
       if (renewalCapRefusalTx(w.tx, careerSaveId, { poolTeamId }, m.contractEndDate, m.salary + perks, wage + perks) == null) {
         const length = lengthForRating(clubRating(w.tx, poolTeamId));
-        w.setPlayerState(careerSaveId, m.id, { salary: wage, contractEndDate: renewalEndDate(isContractLength(length) ? length : CONTRACT_LENGTHS[0], m.contractEndDate, seasonEnds) });
+        w.setPlayerState(careerSaveId, m.id, { salary: wage, contractEndDate: renewalEndDate(length, m.contractEndDate, seasonEnds) });
         renewed++;
       } else {
         releaseToMarket(w, careerSaveId, m.id, wage);

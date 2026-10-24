@@ -55,7 +55,7 @@ import {
 } from "./clubFinances.js";
 import { ESTABLISHED_STARTING_BUDGET } from "./careerDifficulty.js";
 import {
-  CONTRACT_LENGTHS, contractEndDate, renewalEndDate, isContractLength,
+  contractEndDate, renewalEndDate, isContractLength, seasonLength, DEFAULT_CONTRACT_LENGTH,
   type ContractLength,
 } from "./contractTerms.js";
 import { isLossMakingSeason, LOSS_MAKING_SEASONS_TO_SALE } from "./board-confidence.js";
@@ -184,14 +184,13 @@ export function signMissingPoolContractsTx(
 }
 
 /**
- * The term a club offers: the better the club, the longer it ties a player to
- * it. Only the three lengths exist, so this picks between them and invents
- * nothing.
+ * The term an AI club offers: the better the club, the longer it ties a player
+ * to it. An AI club has two lengths (Rob, 24 Oct: no 6 months away from the
+ * career's club, utils/contractTerms.ts AI_PLAYER_CONTRACT_LENGTHS), so this
+ * picks between them and invents nothing. Below 70 it was 6 months.
  */
 export function lengthForRating(clubRating: number): ContractLength {
-  if (clubRating >= 78) return "2s";
-  if (clubRating >= 70) return "1s";
-  return CONTRACT_LENGTHS[0];
+  return clubRating >= 78 ? "2s" : "1s";
 }
 
 /**
@@ -234,8 +233,10 @@ export function renewExpiredPoolContractsTx(
   for (const c of expired) {
     const wage = monthlySalaryFor(overallRating(c));
     if (renewalCapRefusalTx(tx, careerSaveId, { poolTeamId: c.poolTeamId }, c.endDate, Number(c.salary), wage) != null) continue;
-    const length = isContractLength(c.length) ? c.length : CONTRACT_LENGTHS[0];
+    // An older save's 6-month pool deal re-signs on a season (Rob, 24 Oct).
+    const length = seasonLength(isContractLength(c.length) ? c.length : DEFAULT_CONTRACT_LENGTH);
     tx.update(poolPlayerContractsTable).set({
+      length,
       startDate: c.endDate,
       endDate:   renewalEndDate(length, c.endDate, seasonEnds),
       salary:    wage,

@@ -8,20 +8,24 @@
  * she leaves and the place frees up; releasing early pays out the rest of the
  * contract; existing hires with no end date get one: the end of the season.
  *
+ * Rob, 24 Oct (1.1.3 rebuild, Part B): no 6 months for staff or medical; 1 or
+ * 2 seasons, and every one ends on 7 January.
+ *
  * Asserted on a starter-DB copy:
- *   - a staff hire on 6 months ends six months on; a medical hire on 2 seasons
- *     is a 2-season contract;
- *   - 28 game days before the end the warning is up; renewing at the same
- *     terms (6 months) moves the end on six months;
- *   - an unrenewed 6-month hire is gone the day after her end, her place is
+ *   - a staff hire on 6 months is refused; on 1 season it ends the 7 January
+ *     after this season; a medical hire on 2 seasons ends the 7 January after next;
+ *   - 28 game days before the end the warning is up; renewing for 1 season
+ *     moves the end on to the next 7 January (the warning, the renewal and the
+ *     release are tested on end dates planted 60 days out: a real one is a season away);
+ *   - an unrenewed hire is gone the day after her end, her place is
  *     free (the staff count drops) and the weekly wage run counts one fewer;
  *   - releasing early pays out the rest (the whole remainder, a part month as
  *     a month; the server's rule, and the pages' copy gives the same figure),
  *     for staff and medical alike, with a ledger line; a medic who is not the
  *     club's cannot be released by it;
- *   - a hire with no end date (an older save) is given the end of the season
- *     at the next boot;
- *   - both hire dialogs offer the three lengths and send the choice.
+ *   - a hire with no end date (an older save) is given the next 7 January at
+ *     the next boot;
+ *   - both hire dialogs offer the two lengths and send the choice.
  *
  * Usage: node harness/staff-contracts.mjs
  */
@@ -54,7 +58,7 @@ console.log("=".repeat(72));
 
 const esbuild = createRequire(path.join(REPO, "artifacts", "api-server", "package.json"))("esbuild");
 const build = (src, name) => { const o = path.join(WORK, name); esbuild.buildSync({ entryPoints: [path.join(REPO, src)], outfile: o, format: "esm", bundle: true, logLevel: "silent", platform: "node" }); return import(pathToFileURL(o).href); };
-const { terminationPayout, addSixMonths } = await build("artifacts/api-server/src/utils/contractTerms.ts", "terms.mjs");
+const { terminationPayout } = await build("artifacts/api-server/src/utils/contractTerms.ts", "terms.mjs");
 const { contractPayout } = await build("artifacts/beach-volleyball/src/lib/contract-payout.ts", "payout.mjs");
 
 const dbFile = path.join(WORK, "contracts.sqlite");
@@ -96,13 +100,19 @@ try {
   const market = ((await api("GET", "/staff/market")).data ?? []);
   const [A, B, C] = market;
   const day0 = await today();
-  const hireA = await api("POST", "/staff", { staffId: A.id, length: "6m" });
-  const hireB = await api("POST", "/staff", { staffId: B.id, length: "6m" });
+  const sixA = await api("POST", "/staff", { staffId: A.id, length: "6m" });
+  check("(Rob, 24 Oct) a staff hire on 6 months is refused", sixA.status === 400 && state(A.id).teamId == null, `HTTP ${sixA.status} ${sixA.data?.error ?? ""}`);
+  const hireA = await api("POST", "/staff", { staffId: A.id, length: "1s" });
+  const hireB = await api("POST", "/staff", { staffId: B.id, length: "1s" });
+  const nextJan7 = (d, n = 1) => `${Number(d.slice(0, 4)) + n}-01-07`;
+  check("a staff hire on 1 season ends on the 7 January after this season", hireA.status === 201 && hireB.status === 201 && state(A.id).term === "1s" && state(A.id).start === day0 && state(A.id).ends === nextJan7(day0), JSON.stringify(state(A.id)));
+  // The warning, the renewal and the release read the end date, whatever it is: planted 60 days out.
+  const addDays0 = (d, n) => { const x = new Date(`${d}T00:00:00Z`); x.setUTCDate(x.getUTCDate() + n); return x.toISOString().slice(0, 10); };
+  { const d = new DatabaseSync(dbFile); d.prepare(`UPDATE career_staff_state SET contract_end_date = ? WHERE career_save_id = ? AND staff_id IN (?, ?)`).run(addDays0(day0, 60), careerSaveId, A.id, B.id); d.close(); }
   const sA = state(A.id);
-  check("a staff hire on 6 months ends six months on", hireA.status === 201 && sA.term === "6m" && sA.start === day0 && sA.ends === addSixMonths(day0), JSON.stringify(sA));
   const med = ((await api("GET", "/medical-staff/market")).data ?? [])[0];
   const hireM = await api("POST", "/medical-staff", { staffId: med.id, length: "2s" });
-  check("a medical hire on 2 seasons is a 2-season contract", hireM.status < 300 && state(med.id)?.term === "2s", JSON.stringify(state(med.id)));
+  check("a medical hire on 2 seasons is a 2-season contract, to the 7 January after next", hireM.status < 300 && state(med.id)?.term === "2s" && state(med.id)?.ends === nextJan7(day0, 2), JSON.stringify(state(med.id)));
 
   // Release early: the rest of the contract, for staff and medical alike.
   await api("POST", "/staff", { staffId: C.id, length: "1s" });
@@ -125,7 +135,7 @@ try {
   const relNot = await api("DELETE", `/medical-staff/${notMine.id}`);
   check("a medic who is not the club's cannot be released by it", relNot.status === 403, `${relNot.status}`);
 
-  // To 28 days before the 6-month end: the warning; renew B at the same terms.
+  // To 28 days before the end: the warning; renew B for 1 season.
   const advanceTo = async (date) => {
     for (let i = 0; i < 400 && (await today()) < date; i++) {
       healAllSquads(dbFile);
@@ -141,8 +151,10 @@ try {
   const warnA = (Array.isArray(items) ? items : []).find((i) => i.id === `staff-contract-${A.id}`);
   check("28 game days before her end, the warning is up", !!warnA && /28 days remaining|renew/.test(warnA.description), `${await today()}: ${warnA?.title} — ${warnA?.description}`);
   const endB = state(B.id).ends;
-  const renewB = await api("POST", `/staff/${B.id}/renew`, { length: "6m" });
-  check("renewing at the same terms (6 months) moves her end on six months", renewB.status === 200 && state(B.id).ends === addSixMonths(endB) && state(B.id).term === "6m", `${endB} -> ${state(B.id).ends}`);
+  const renewSix = await api("POST", `/staff/${B.id}/renew`, { length: "6m" });
+  check("(Rob, 24 Oct) a staff renewal on 6 months is refused", renewSix.status === 400 && state(B.id).ends === endB, `HTTP ${renewSix.status}`);
+  const renewB = await api("POST", `/staff/${B.id}/renew`, { length: "1s" });
+  check("renewing for 1 season moves her end on to the 7 January after that season", renewB.status === 200 && state(B.id).ends === nextJan7(endB) && state(B.id).term === "1s", `${endB} -> ${state(B.id).ends}`);
 
   // Past A's end: she is gone, her place is free, the wage run counts one fewer.
   const countBefore = (await myStaff()).length;
@@ -153,7 +165,7 @@ try {
   check("the weekly wage run counts one fewer", !!lastWages && new RegExp(`\\(${countAfter + ((await api("GET", "/staff")).data ?? []).filter(isMed).length} staff\\)`).test(lastWages.description),
     `${lastWages?.date}: ${lastWages?.description}`);
 
-  // An older save: a hire with no end date gets the end of the season at boot.
+  // An older save: a hire with no end date gets the next 7 January at boot.
   const D = ((await api("GET", "/staff/market")).data ?? [])[0];
   await api("POST", "/staff", { staffId: D.id, length: "2s" });
   await stop();
@@ -162,11 +174,11 @@ try {
   cookie = "";
   await api("POST", `/profiles/${prof.data.id}/select`);
   await api("POST", `/careers/${careerSaveId}/load`);
-  const seasonEnd = (await api("GET", "/seasons/current")).data?.endDate?.slice(0, 10);
-  check("a hire with no end date (an older save) is given the end of the season at boot", state(D.id).ends === seasonEnd && state(D.id).term === "1s", `${JSON.stringify(state(D.id))}; season ends ${seasonEnd}`);
+  const bootDay = await today();
+  check("a hire with no end date (an older save) is given the 7 January after this season at boot", state(D.id).ends === nextJan7(bootDay) && state(D.id).term === "1s", `${JSON.stringify(state(D.id))}; today ${bootDay}`);
 
   const src = (f) => fs.readFileSync(path.join(REPO, "artifacts/beach-volleyball/src/pages", f), "utf8");
-  check("both hire dialogs offer the three lengths and send the choice",
+  check("both hire dialogs offer the two lengths and send the choice",
     ["staff-market.tsx", "medical-market.tsx"].every((f) => { const s = src(f); return /<ContractLengthPicker value=\{term\} onChange=\{setTerm\} \/>/.test(s) && /onHire\(member\.id, term\)/.test(s) && /data: \{ staffId, length \}/.test(s) && !/\{member\.contractLength\}mo/.test(s); }));
 } catch (err) {
   check("the run completed", false, String(err?.stack ?? err));

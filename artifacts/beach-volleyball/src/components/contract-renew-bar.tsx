@@ -1,6 +1,6 @@
 /**
- * A staff or medical contract's end date, and the three lengths it can be
- * renewed for (L-02a).
+ * A staff or medical contract's end date, and the lengths it can be renewed
+ * for (L-02a): 1 season or 2 seasons, to 7 January (Rob, 24 Oct).
  *
  * Staff contracts used to have no end date at all: a coach hired in season one
  * was still on the payroll in season thirty and the only way out was to
@@ -18,7 +18,7 @@ import { useRenewStaffContract, getListStaffQueryKey } from "@workspace/api-clie
 import { Button } from "@/components/ui/button";
 import { CalendarClock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { CONTRACT_LENGTHS, CONTRACT_LENGTH_LABELS, type ContractLength } from "@/lib/contract-lengths";
+import { STAFF_CONTRACT_LENGTHS, CONTRACT_LENGTH_LABELS, type ContractLength } from "@/lib/contract-lengths";
 
 export function ContractRenewBar({
   staffId,
@@ -77,8 +77,8 @@ export function ContractRenewBar({
       </div>
 
       {choosing && (
-        <div className="grid grid-cols-3 gap-1.5">
-          {CONTRACT_LENGTHS.map((l) => (
+        <div className="grid grid-cols-2 gap-1.5">
+          {STAFF_CONTRACT_LENGTHS.map((l) => (
             <button
               key={l}
               type="button"

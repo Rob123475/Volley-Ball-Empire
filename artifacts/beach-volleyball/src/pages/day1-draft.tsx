@@ -19,7 +19,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { CONTRACT_LENGTHS, CONTRACT_LENGTH_LABELS, type ContractLength } from "@/lib/contract-lengths";
+import { PLAYER_CONTRACT_LENGTHS, CONTRACT_LENGTH_LABELS, type ContractLength } from "@/lib/contract-lengths";
 import { capRefusalText, WAGE_CAP_QUERY_KEY, type WageCap } from "@/lib/wage-cap";
 import { cn } from "@/lib/utils";
 import { Flag } from "@/components/flag";
@@ -182,7 +182,7 @@ export default function Day1Draft() {
                   </div>
                   <p className="text-sm"><span className="font-bold">{money(p.wage)}</span> a month</p>
                   <div className="grid grid-cols-3 gap-1">
-                    {CONTRACT_LENGTHS.map((l) => (
+                    {PLAYER_CONTRACT_LENGTHS.map((l) => (
                       <button key={l} type="button" onClick={() => setLengths((m) => ({ ...m, [p.id]: l }))}
                         className={cn("rounded border px-1 py-1 text-[11px] font-semibold", len === l ? "border-primary bg-primary text-primary-foreground" : "border-border bg-muted/40")}>
                         {CONTRACT_LENGTH_LABELS[l]}

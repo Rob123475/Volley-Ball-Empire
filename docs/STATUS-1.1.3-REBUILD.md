@@ -132,3 +132,42 @@ Every surname is one of that nation's athletes' in the game. No new name matches
 - `docs/TRADEMARK-CLEANUP.md` item 4 now reads **DECIDED — keep "World Tour". No rename.**, with Rob's reasons (two dictionary words used across many sports; the FIVB Beach Volleyball World Tour ran its last edition in 2021 and has been the Volleyball World Beach Pro Tour since 2022, so the name is not in use; the marks that carried risk are gone) and both dates (decided 23 Oct, confirmed 24 Oct). It says the question is closed and not to ask again.
 - **No strings changed.** All 93 player-visible uses stay; the World Tour podium banner stays "BEACH VOLLEYBALL EMPIRE WORLD TOUR".
 - The same decision is in my own notes for future sessions, which also had it as open.
+
+## Part B: contracts (Rob's rule change, 24 Oct)
+
+**Done.** The rule as built (`utils/contractTerms.ts`, whose header now states the amended rule, why, and that it is deliberate):
+
+| Who | Lengths | Ends |
+|---|---|---|
+| Players at the club the career controls now | 6 months · 1 season · 2 seasons | 6 months on; or the end of this / next season (from the season rows) |
+| Players at every other club (the AI clubs, a club he has left) | 1 season · 2 seasons | the end of this / next season |
+| Staff and medical, every club | 1 season · 2 seasons | **7 January**: the one after this season, or the one after that |
+
+**What I found first:**
+- The AI clubs' staff deal picked 6m / 1s / 2s at random (`aiStaff.ts`), as the brief says.
+- **The AI clubs also signed players on 6 months:** `lengthForRating` (`poolClubFinances.ts`) gave every club rated under 70 a 6-month deal, and it is the one length an AI club uses for every senior it signs from the free agents, every renewal and every bid. Old 6-month pool deals renewed on 6 months again. An AI club's counter to the manager's 6-month bid copied the 6 months. That is a lot of AI squads turning over in mid-season, which matters for D1 below.
+
+**B1, staff and medical end on 7 January:**
+- `STAFF_CONTRACT_LENGTHS = ["1s", "2s"]` for everyone; `STAFF_CONTRACT_END = "01-07"`, the day before `AI_STAFF_DEAL_DAY` (8). `staffContractEndDate(length, from)`: 1 season runs to the 7 January after the season it is signed in, 2 seasons to the one after; a renewal counts on from the deal's own end.
+- Wired into: hiring (`routes/staff.ts`, `routes/medical-staff.ts` through `staffContractPatch`), renewing (`routes/staff.ts`, which medical shares), the AI clubs' 8 January deal (`aiStaff.ts`, 1 or 2 seasons at random), the rollover's and the boot's backfills for staff with no contract (`backfillContracts.ts`, `staffContractBackfill.ts`). A 6-month staff or medical request is refused: "Staff and medical contracts run 1 or 2 seasons and end on 7 January."
+- A contract ends on 7 January and the calendar's expiry (end date before the day) frees the person on 8 January, the same day the AI clubs hire.
+- **Existing saves:** a staff member on 6 months expires mid-season once more, then renews (or is hired) onto a season contract. No migration.
+
+**B2, AI clubs sign players on 1 or 2 seasons only:** `lengthForRating` returns 1 season below 78 and 2 seasons from 78 (no calendar arithmetic: a season is still the season row). An old 6-month pool deal renews on 1 season, and the row's length is updated. An AI counter to a 6-month bid offers 1 season. A deal that completes at any club but the career's current one is written on a season. The bookkeeping row of a pool player who becomes a career senior says 1 season, not 6 months. **Existing saves:** AI players on 6 months expire once, then re-sign on season deals. No migration.
+
+**B3, the 6-month option is the manager's club's and follows him:** every route that signs or renews a player (`contracts.ts` signing and renewal, `team.ts` promotion, `transfers.ts`, `youth-loans.ts`, `youth-scouting.ts`) reads its length through `playerContractPartyFor(career, team)`: 6 months only if the team is `career_saves.team_id` now. When he moves, the new club is that team and the old one isn't, so the option moves with no other code. Contracts stay where they were signed.
+- **The screens:** `lib/contract-lengths.ts` now holds three lists (players at his club, players elsewhere, staff); player screens offer his club's three, the staff and medical hire pickers and renew bar offer two; the markets read "1 season or 2 seasons, to 7 January". The Rules page has a "Contract lengths" section; the patch notes a "Contracts" section (and the 130 faces and the renamed players).
+- `harness/contract-terms.mjs` now checks **each of the three lists** (and the full code list) is identical on the server and the frontend.
+
+**Proof:**
+- **`harness/contract-rules.mjs`, 33/33** (new, run-all 98zz, port 4994): the rule from the module itself (the three lists; the gate; an AI club's request for 6 months refused, saying why; a staff 6 months refused, saying why; six staff end-date cases: a first-week hire, mid-season, December, 2 seasons, renewals); a 2-season player deal ends on the next season's end, not 730 days on. The source: all six player routes ask the gate, the three staff reads use staff lengths, the AI staff deal and `lengthForRating` can't pick 6 months, no AI path falls back on the first length. A career: his club signs a player on 6 months (182 days); a 2-season deal ends 2027-12-31; a staff or medical 6 months refused; 1 season ends 2027-01-07, 2 seasons 2028-01-07. **Past the AI clubs' 8 January deal: all 122 staff contracts in the career (120 at AI clubs) end on a 7 January; no AI staff on anything but 1s/2s; no pool contract on 6 months (74 × 1s, 46 × 2s); every one of 168 AI seniors' contracts ends on a season's end.**
+- **The club move, `harness/ai-job-market.mjs`, 36/36** (four new B3 checks in a real move at a season's start): a 6-month deal signed at his club before the move (to 2027-05-30) is still there after it, active, at the old club, same date; the old club is not the career's club and 6 months is refused for it; at the new club a 6-month signing is accepted (to 2027-07-01). The first run failed only because the new club's squad was over the salary cap for the signing; the helper now makes cap room first (`makeCapRoom`, the harness's tool for exactly that).
+- `contract-terms` 46/46 (the split list check; staff 6 months refused; 1 season to 7 January; 2 seasons to the 7 January after next; the warning and expiry tested on a planted end date), `staff-contracts` 14/14 (the same for hiring, renewing, the backfill at boot), `ai-staff` 31/31 (every AI hire on 1s/2s ending 7 January), `counter-offer` 10/10.
+- Suites that hired staff on 6 months only to have staff now hire on 1 season (`night2-world`, `player-market`, `staff-bonuses`, `staff-scouting`, `staff-slots`, `youth-market`, `ai-staff`); `ai-club-economy` and `counter-offer` now expect an AI club's two lengths. These run in Part E's full harness.
+- **The soak** prints, each season, the AI clubs' 6-month contracts (players off a season's end, pool deals, staff) and staff contracts not ending 7 January, and flags either above zero. Its numbers are in Part E.
+
+**Decisions (Part B):**
+- **"1 season (to the next 7 January)" for a staff hire made on 1 to 7 January:** read literally, a coach hired on 3 January would leave on the 7th, four days later, and the Rules page tells the player to hire in a new career's first week. I read "1 season" as the season it is signed in (the season rows run 1 January to 31 December), so it ends on the 7 January after that season: a first-week hire runs the year, a mid-season one is short (as the brief says), a December one shorter still.
+- **The gate is the career's current club for every player route,** although today every route only ever acts for that club: that is what makes the rule automatic, as the brief asks, and it is what the move test exercises.
+- **The B3 move test lives in `ai-job-market.mjs`,** the suite that already plays a real move at a season's start; a second suite would have to play a whole season to reach one.
+- The incidental "6m" staff hires in other suites became "1s"; none of those suites is about contract length.

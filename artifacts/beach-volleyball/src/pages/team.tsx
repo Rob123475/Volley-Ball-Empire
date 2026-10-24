@@ -75,7 +75,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { CONTRACT_LENGTHS, CONTRACT_LENGTH_LABELS, type ContractLength } from "@/lib/contract-lengths";
+import { PLAYER_CONTRACT_LENGTHS, CONTRACT_LENGTH_LABELS, type ContractLength } from "@/lib/contract-lengths";
 import {
   Select,
   SelectContent,
@@ -1370,7 +1370,7 @@ export default function TeamRoster() {
             </DialogDescription>
           </DialogHeader>
           <div className="grid grid-cols-3 gap-1.5">
-            {CONTRACT_LENGTHS.map((l) => (
+            {PLAYER_CONTRACT_LENGTHS.map((l) => (
               <button
                 key={l}
                 type="button"

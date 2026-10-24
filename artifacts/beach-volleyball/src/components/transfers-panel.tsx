@@ -16,7 +16,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { useToast } from "@/hooks/use-toast";
 import { PerkPicker } from "@/components/perk-picker";
 import { PERKS } from "@shared/transfers";
-import { CONTRACT_LENGTHS, CONTRACT_LENGTH_LABELS, type ContractLength } from "@/lib/contract-lengths";
+import { PLAYER_CONTRACT_LENGTHS, CONTRACT_LENGTH_LABELS, type ContractLength } from "@/lib/contract-lengths";
 
 type Deal = {
   id: number; playerId: number; player: { n: string; img: string | null } | null; from: string; to: string;
@@ -80,7 +80,7 @@ function CounterDialog({ deal, onClose }: { deal: Deal; onClose: () => void }) {
             <Slider min={Math.round(deal.wage * 0.5)} max={Math.round(deal.wage * 2)} step={100} value={wage} onValueChange={setWage} />
           </div>
           <div className="grid grid-cols-3 gap-1.5">
-            {CONTRACT_LENGTHS.map((l) => (
+            {PLAYER_CONTRACT_LENGTHS.map((l) => (
               <Button key={l} size="sm" variant={length === l ? "default" : "outline"} onClick={() => setLength(l)} data-testid={`counter-length-${l}`}>{CONTRACT_LENGTH_LABELS[l]}</Button>
             ))}
           </div>

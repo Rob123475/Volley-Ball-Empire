@@ -18,8 +18,8 @@ import {
   type StaffDTO, type StaffReferenceFields,
 } from "../lib/playerDto.js";
 import { checkSpendingAllowed } from "../utils/board-confidence.js";
-import { readContractLength, renewalEndDate, terminationPayout } from "../utils/contractTerms.js";
-import { staffContractPatch, seasonEndsFrom } from "../utils/seasonDates.js";
+import { readContractLength, staffContractEndDate, terminationPayout } from "../utils/contractTerms.js";
+import { staffContractPatch } from "../utils/seasonDates.js";
 
 const router = Router();
 
@@ -97,12 +97,12 @@ router.post("/staff", async (req, res) => {
   const overBudget = db.transaction((tx) => staffBudgetRefusal(staffBudgetTx(tx, cid, { teamId: team.id }), Number(member.salary), `Hiring ${member.name} ($${Math.round(Number(member.salary)).toLocaleString()} a month)`));
   if (overBudget) { res.status(422).json({ error: overBudget, staffBudget: true }); return; }
 
-  // L-02a: a staff hire is a CONTRACT, on one of Rob's three lengths, and it
-  // expires on the calendar like a player's. Nothing ever ended a staff deal
-  // before this: contract_length was months and no code path read it.
-  const wantedTerm = readContractLength(req.body);
+  // L-02a: a staff hire is a CONTRACT, and it expires on the calendar like a
+  // player's. Nothing ever ended a staff deal before this: contract_length was
+  // months and no code path read it. Rob, 24 Oct: 1 or 2 seasons, to 7 January.
+  const wantedTerm = readContractLength(req.body, "staff");
   if ("error" in wantedTerm) { res.status(400).json({ error: wantedTerm.error }); return; }
-  const termPatch = await staffContractPatch(cid, wantedTerm.length, signingDate);
+  const termPatch = staffContractPatch(wantedTerm.length, signingDate);
 
   // One transaction: the hire and the money move together or not at all.
   withCareerStateTx(({ tx, setStaffState }) => {
@@ -137,7 +137,7 @@ router.post("/staff", async (req, res) => {
  * keep him. Medical staff share this route — they are the same rows, told apart
  * by their role, and one route means the two cannot drift apart.
  *
- * The new term runs on from where the old one ends, on the same three lengths.
+ * The new term runs on from where the old one ends: 1 or 2 seasons, to a 7 January (Rob, 24 Oct).
  * Salary is unchanged, so no spending freeze applies (R-52): keeping the staff
  * you already pay for is not new spending.
  */
@@ -157,15 +157,13 @@ router.post("/staff/:id/renew", async (req, res) => {
     return;
   }
 
-  const wanted = readContractLength(req.body);
+  const wanted = readContractLength(req.body, "staff");
   if ("error" in wanted) { res.status(400).json({ error: wanted.error }); return; }
   // 1.1.1, Part 11 (SB-4): a club over its staff budget can't renew until it is back under.
   const overRenew = db.transaction((tx) => staffRenewalRefusal(staffBudgetTx(tx, cid, { teamId: team.id }), member.name));
   if (overRenew) { res.status(422).json({ error: overRenew, staffBudget: true }); return; }
 
-  const newEnd = renewalEndDate(
-    wanted.length, member.contractEndDate, await seasonEndsFrom(cid, member.contractEndDate),
-  );
+  const newEnd = staffContractEndDate(wanted.length, member.contractEndDate);
   await updateStaffState(cid, Number(req.params.id), {
     contractTerm: wanted.length,
     contractEndDate: newEnd,

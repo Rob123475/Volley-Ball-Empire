@@ -9,7 +9,8 @@
  * and one medical member, picked at random: a Doctor or Physiotherapist while
  * one is spare, a Massage Therapist or Medical Specialist only after (Rob,
  * 16 Oct: those two don't treat injuries alone). On a normal contract of a random
- * length (6m / 1s / 2s, utils/contractTerms.ts). The signing fee (one month's
+ * length, 1 or 2 seasons, ending on 7 January (Rob, 24 Oct: no 6 months for staff,
+ * utils/contractTerms.ts), so a deal ends the day before the next one. The signing fee (one month's
  * salary, routes/staff.ts) and the weekly wages come out of the AI club's
  * balance (utils/poolClubFinances.ts), never the salary cap. Someone at an AI
  * club is off the market (career_staff_state.pool_team_id) until the contract
@@ -31,8 +32,7 @@ import {
 } from "@workspace/db";
 import { and, eq, isNull } from "drizzle-orm";
 import { withCareerStateTx, type CareerStateTx, type CareerStaffFields } from "../lib/playerDto.js";
-import { CONTRACT_LENGTHS, contractEndDate } from "./contractTerms.js";
-import { seasonEndsForCareerTx } from "./seasonDates.js";
+import { STAFF_CONTRACT_LENGTHS, staffContractEndDate } from "./contractTerms.js";
 import { staffBudgetTx, staffBudgetRefusal } from "./staffBudget.js";
 
 /** Every tunable number of the AI staff deal, in one place. */
@@ -112,7 +112,7 @@ export function endAiStaffContractsTx(w: CareerStateTx, careerSaveId: number, to
  * the player's rule) waits for the next deal.
  */
 export function hireAiStaffTx(
-  w: CareerStateTx, careerSaveId: number, today: string, seasonEnds: readonly string[], random: () => number = Math.random,
+  w: CareerStateTx, careerSaveId: number, today: string, random: () => number = Math.random,
 ): number {
   const rows = staffRowsTx(w, careerSaveId);
   const clubs = w.tx.select({ poolTeamId: careerPoolTeamStateTable.poolTeamId, balance: careerPoolTeamStateTable.balance })
@@ -139,10 +139,10 @@ export function hireAiStaffTx(
       if (balance < pick.salary) continue;
       // 1.1.1, Part 11 (SB-1): the AI club's staff budget from its main sponsor (this deal's hires counted).
       if (staffBudgetRefusal(staffBudgetTx(w.tx, careerSaveId, { poolTeamId: club.poolTeamId }), pick.salary, "")) continue;
-      const length = CONTRACT_LENGTHS[Math.floor(random() * CONTRACT_LENGTHS.length)]!;
+      const length = STAFF_CONTRACT_LENGTHS[Math.floor(random() * STAFF_CONTRACT_LENGTHS.length)]!;
       w.setStaffState(careerSaveId, pick.staffId, {
         poolTeamId: club.poolTeamId, isAvailable: false,
-        contractTerm: length, contractStartDate: today, contractEndDate: contractEndDate(length, today, seasonEnds),
+        contractTerm: length, contractStartDate: today, contractEndDate: staffContractEndDate(length, today),
       });
       balance -= pick.salary;
       pick.poolTeamId = club.poolTeamId;
@@ -173,7 +173,7 @@ export function aiStaffDayTx(w: CareerStateTx, careerSaveId: number, today: stri
   if (save.at == null && save.on == null) return { hired: 0, ended };
   if (!isAiStaffDealDay(today) || (save.on != null && today < save.on)) return { hired: 0, ended };
   if (save.at == null) w.tx.update(careerSavesTable).set({ aiStaffDealtAt: today }).where(eq(careerSavesTable.id, careerSaveId)).run();
-  return { hired: hireAiStaffTx(w, careerSaveId, today, seasonEndsForCareerTx(w.tx, careerSaveId, today)), ended };
+  return { hired: hireAiStaffTx(w, careerSaveId, today), ended };
 }
 
 /**
@@ -190,7 +190,7 @@ export function dealAiStaffToOlderCareers(): number {
     withCareerStateTx((w) => {
       w.tx.update(careerSavesTable).set({ aiStaffDealOn: today, aiStaffDealtAt: today }).where(eq(careerSavesTable.id, id)).run();
       endAiStaffContractsTx(w, id, today);
-      hireAiStaffTx(w, id, today, seasonEndsForCareerTx(w.tx, id, today));
+      hireAiStaffTx(w, id, today);
     });
   }
   return careers.length;

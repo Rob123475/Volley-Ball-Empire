@@ -31,11 +31,11 @@ import { and, eq, inArray, lt, lte } from "drizzle-orm";
 import type { CareerStateTx } from "../lib/playerDto.js";
 import { seniorWageBillTx, committedWageBillTx, wageCapRefusal } from "./salaryCap.js";
 import { inTransferWindow, nextWindowOpening, contractEndFrom } from "./transferWindow.js";
-import { seasonEndsForCareerTx } from "./seasonDates.js";
+import { seasonEndsForCareerTx, playerContractPartyTx } from "./seasonDates.js";
 import { worldTourStandingsTx } from "./worldTour.js";
 import { coverOnRoster, clubInjuredListTx } from "./injuredList.js";
 import { balanceOf, addToBalance, aiTrimSquadsTx, aiCapOnArrivalTx, keepAiSquadsTx, AI_BUY_RESERVE } from "./aiSquads.js";
-import type { ContractLength } from "./contractTerms.js";
+import { seasonLength, type ContractLength } from "./contractTerms.js";
 import { MAX_STARTERS } from "./squadRules.js";
 import { monthlySalaryFor } from "./clubFinances.js";
 import { overallRating } from "./overallRating.js";
@@ -136,7 +136,8 @@ export function aiCounterFor(tx: Tx, careerSaveId: number, poolTeamId: number, c
   const extra = (wage + perksMonthly(bid.perks)) - (current.salary + perksMonthly(current.perks));
   if (extra > 0 && balanceOf(tx, careerSaveId, poolTeamId) - AI_BUY_RESERVE < extra * AI_TRANSFER_TERMS.counterMonths) return null;
   if (wageCapRefusal(committedWageBillTx(tx, careerSaveId, { poolTeamId }), extra)) return null;
-  return { wage, length: bid.length, perks: bid.perks };
+  // Rob, 24 Oct: an AI club can't hold her on 6 months; it counters a 6-month bid with a season.
+  return { wage, length: seasonLength(bid.length), perks: bid.perks };
 }
 
 /** An AI club's perks for an offer: cheapest first, while they cost at most perkShare of the wage and fit in `room`. */
@@ -255,7 +256,10 @@ export function completeTx(w: CareerStateTx, careerSaveId: number, dealId: numbe
     tx.update(transferDealsTable).set({ status: "fell_through" }).where(eq(transferDealsTable.id, dealId)).run();
     return "fell_through";
   }
-  const ends = contractEndFrom(deal.length as ContractLength, today, seasonEndsForCareerTx(tx, careerSaveId, today));
+  // Rob, 24 Oct (B3): her new deal runs 6 months only at the club the career controls now.
+  const length = "teamId" in to && playerContractPartyTx(tx, careerSaveId, to.teamId) === "career_player"
+    ? deal.length as ContractLength : seasonLength(deal.length as ContractLength);
+  const ends = contractEndFrom(length, today, seasonEndsForCareerTx(tx, careerSaveId, today));
   // Her contract with the club she leaves ends today.
   if ("teamId" in from) {
     tx.update(contractsTable).set({ status: "terminated" })

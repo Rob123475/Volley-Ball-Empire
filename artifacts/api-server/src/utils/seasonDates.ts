@@ -6,15 +6,17 @@
  * season it was meant to cover — and because it also capped every deal at one
  * year, no multi-season contract could exist at all.
  *
- * Shared by the three places that start or renew a contract: player signing and
- * renewal (routes/contracts.ts), staff hiring (routes/staff.ts) and medical
- * hiring (routes/medical-staff.ts). One lookup, so the three cannot disagree
- * about when a season ends.
+ * Shared by the places that start or renew a player contract (routes/contracts.ts
+ * and the rest). One lookup, so they cannot disagree about when a season ends.
+ * Staff and medical contracts end on 7 January instead (staffContractPatch).
+ *
+ * Also which lengths a club may offer a player (Rob, 24 Oct): the 6-month
+ * option is the career's current club's (playerContractPartyFor).
  */
-import { db, seasonsTable } from "@workspace/db";
+import { db, seasonsTable, careerSavesTable } from "@workspace/db";
 import { eq, asc } from "drizzle-orm";
 import {
-  contractEndDate, type ContractLength,
+  staffContractEndDate, playerContractParty, type ContractLength, type ContractParty,
 } from "./contractTerms.js";
 
 /** Every season end this career knows about, from `from` onwards, in order. */
@@ -51,17 +53,29 @@ export function seasonEndsForCareerTx(
  * `career_staff_state.contract_length` was a months integer that no code path
  * ever read, so a coach hired in season 1 was still on the payroll in season 30
  * and the only way out was a manual termination. These columns are what the
- * calendar tick expires.
+ * calendar tick expires. Rob, 24 Oct: the deal ends on 7 January.
  */
-export async function staffContractPatch(
-  careerSaveId: number,
+export function staffContractPatch(
   length: ContractLength,
   today: string,
-): Promise<{ contractTerm: string; contractStartDate: string; contractEndDate: string }> {
-  const ends = await seasonEndsFrom(careerSaveId, today);
+): { contractTerm: string; contractStartDate: string; contractEndDate: string } {
   return {
     contractTerm: length,
     contractStartDate: today,
-    contractEndDate: contractEndDate(length, today, ends),
+    contractEndDate: staffContractEndDate(length, today),
   };
+}
+
+/** Rob, 24 Oct (B3): whether `teamId` is the club this career controls now, as the party a player deal there is with. */
+export async function playerContractPartyFor(careerSaveId: number, teamId: number): Promise<ContractParty> {
+  const [save] = await db.select({ teamId: careerSavesTable.teamId }).from(careerSavesTable).where(eq(careerSavesTable.id, careerSaveId));
+  return playerContractParty(save?.teamId === teamId);
+}
+
+/** The same, inside a transaction. */
+export function playerContractPartyTx(
+  tx: Parameters<Parameters<typeof db.transaction>[0]>[0], careerSaveId: number, teamId: number,
+): ContractParty {
+  const save = tx.select({ teamId: careerSavesTable.teamId }).from(careerSavesTable).where(eq(careerSavesTable.id, careerSaveId)).get();
+  return playerContractParty(save?.teamId === teamId);
 }

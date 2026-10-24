@@ -6,7 +6,7 @@ import { db } from "@workspace/db";
 import { teamsTable, playersTable, staffTable, contractsTable, youthLoansTable } from "@workspace/db";
 import { eq, and } from "drizzle-orm";
 import { readContractLength, contractEndDate } from "../utils/contractTerms.js";
-import { seasonEndsFrom } from "../utils/seasonDates.js";
+import { seasonEndsFrom, playerContractPartyFor } from "../utils/seasonDates.js";
 import { getGameDate } from "../utils/gameDate.js";
 import { updateCareerStats, checkAchievements } from "../utils/check-achievements";
 import type { Team } from "@workspace/db";
@@ -150,10 +150,10 @@ router.patch("/team/roster/:id/role", async (req, res) => {
 
   // L-02a: a promotion may name its contract length; an unknown one is refused
   // here rather than silently becoming something else.
-  const wantedLength = readContractLength(req.body);
+  const careerSaveId = requireCareerSaveId(req.activeCareerSaveId);
+  const wantedLength = readContractLength(req.body, await playerContractPartyFor(careerSaveId, team.id));
   if ("error" in wantedLength) { res.status(400).json({ error: wantedLength.error }); return; }
   const promotionLength = wantedLength.length;
-  const careerSaveId = requireCareerSaveId(req.activeCareerSaveId);
 
   // Derive isActive from role for backward-compat with match simulation
   const isActive = role !== "reserve";

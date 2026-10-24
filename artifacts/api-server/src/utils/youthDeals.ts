@@ -51,7 +51,7 @@ import { balanceOf, AI_BUY_RESERVE } from "./aiSquads.js";
 import { canPayTx, moveFeeTx } from "./transfers.js";
 import { youthPrice, SCOUT_DAYS } from "./marketScouting.js";
 import { academyMonthlySalary } from "./academy.js";
-import { contractEndDate, type ContractLength } from "./contractTerms.js";
+import { contractEndDate, seasonLength, type ContractLength } from "./contractTerms.js";
 import { seasonEndsForCareerTx } from "./seasonDates.js";
 import { aiSeasonMovesTx, mayBid, recordAiMoveTx } from "./aiMarketLimits.js";
 
@@ -180,7 +180,7 @@ export function youthDealTx(
   const deal = tx.insert(transferDealsTable).values({
     careerSaveId, playerId, fromTeamId: null, fromPoolTeamId: her.poolTeamId,
     toTeamId: isTeam(buyer) ? buyer.teamId : null, toPoolTeamId: isTeam(buyer) ? null : buyer.poolTeamId,
-    fee: ask.price, wage: academyMonthlySalary(her.potential), length: opts.length ?? "1s", perks: "", squadRole: "academy",
+    fee: ask.price, wage: academyMonthlySalary(her.potential), length: isTeam(buyer) ? opts.length ?? "1s" : seasonLength(opts.length ?? "1s"), perks: "", squadRole: "academy",
     status: "moved", offeredOn: today, answerBy: today, agreedOn: today, arrivesOn: today, movedOn: today, createdAt: new Date(),
   }).returning().all()[0]! as TransferDeal;
   moveFeeTx(tx, careerSaveId, deal, today, her.name, 1);

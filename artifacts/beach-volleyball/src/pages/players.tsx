@@ -56,7 +56,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PlayerPortrait } from "@/components/player-portrait";
 import { format } from "date-fns";
-import { CONTRACT_LENGTHS, CONTRACT_LENGTH_LABELS, type ContractLength } from "@/lib/contract-lengths";
+import { CONTRACT_LENGTH_LABELS, type ContractLength } from "@/lib/contract-lengths";
 import { cn } from "@/lib/utils";
 import { serverMessage } from "@/lib/api-error";
 import { Flag } from "@/components/flag";

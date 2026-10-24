@@ -160,8 +160,9 @@ try {
 
   // ── 3. Contracts and money ─────────────────────────────────────────────────
   console.log("\n3. NORMAL CONTRACTS, THE SIGNING FEE FROM THE CLUB'S BALANCE, NOT THE CAP");
-  check("every AI hire is on 6m, 1s or 2s with an end date after today",
-    dealt.every((s) => ["6m", "1s", "2s"].includes(s.term) && s.ends > today()), `${new Set(dealt.map((s) => s.term)).size} lengths used`);
+  // Rob, 24 Oct: no 6 months for staff; 1 or 2 seasons, ending on 7 January (utils/contractTerms.ts).
+  check("every AI hire is on 1s or 2s, ending on 7 January after today",
+    dealt.every((s) => ["1s", "2s"].includes(s.term) && s.ends.slice(5) === "01-07" && s.ends > today()), `${new Set(dealt.map((s) => s.term)).size} lengths used; ends ${[...new Set(dealt.map((s) => s.ends))].join(", ")}`);
   check("(source) the weekly AI charge pays staff wages from the balance; the cap's senior wage bill reads players only",
     /staffWages = weeklyWageBill\(staff\.get\(st\.poolTeamId\)/.test(SRC("utils/poolClubFinances.ts")) && !/careerStaffStateTable/.test(SRC("utils/salaryCap.ts")));
 
@@ -197,7 +198,7 @@ try {
   // ── 6. The player's own expiry keeps the wage ──────────────────────────────
   console.log("\n6. THE PLAYER'S OWN STAFF CONTRACT ENDS: THE WAGE STAYS");
   const pick = staffMarket.find((s) => s.role === "Fitness Trainer") ?? staffMarket[0];
-  const hired = await api("POST", "/staff", { staffId: pick.id, length: "6m" });
+  const hired = await api("POST", "/staff", { staffId: pick.id, length: "1s" });
   const wage = q(`SELECT salary FROM career_staff_state WHERE career_save_id = ? AND staff_id = ?`, cid, pick.id)[0].salary;
   w(`UPDATE career_staff_state SET contract_end_date = ? WHERE career_save_id = ? AND staff_id = ?`, "2026-01-01", cid, pick.id);
   await day();

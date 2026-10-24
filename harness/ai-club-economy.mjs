@@ -156,8 +156,9 @@ try {
   const lengths = read(
     `SELECT length AS l, COUNT(*) AS n FROM pool_player_contracts
       WHERE career_save_id = ? GROUP BY length ORDER BY length`, careerSaveId);
-  const allowed = new Set(["6m", "1s", "2s"]);
-  check("on the three lengths this game has, and no others",
+  // Rob, 24 Oct: an AI club signs players on 1 or 2 seasons only (no 6 months).
+  const allowed = new Set(["1s", "2s"]);
+  check("on an AI club's two lengths (1 or 2 seasons), and no others",
     lengths.length > 0 && lengths.every((r) => allowed.has(r.l)),
     lengths.map((r) => `${r.l} x${r.n}`).join(", "));
 

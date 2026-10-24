@@ -98,7 +98,7 @@ try {
   // 2. Scouting her: a hired Scout, 5 game days.
   if (!((await api("GET", "/staff")).data ?? []).some((s) => /^scout$/i.test(s.role))) {
     const offer = ((await api("GET", "/staff/market?role=scout")).data ?? []).find((m) => /scout/i.test(m.role));
-    await api("POST", "/staff", { staffId: offer?.id, length: "6m" });
+    await api("POST", "/staff", { staffId: offer?.id, length: "1s" });
   }
   const Y = unscouted[0];
   const b0 = await budget();

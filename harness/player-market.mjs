@@ -149,7 +149,7 @@ try {
       refused.status === 400 && refused.data?.noScout === true && /Hire a Scout/.test(refused.data?.error ?? ""),
       `${refused.status}: ${refused.data?.error}; staff: ${staff.map((s) => s.role).join(", ")}`);
     const offer = ((await api("GET", "/staff/market?role=scout")).data ?? []).find((m) => /scout/i.test(m.role));
-    await api("POST", "/staff", { staffId: offer?.id, length: "6m" });
+    await api("POST", "/staff", { staffId: offer?.id, length: "1s" });
   }
   const myScout = ((await api("GET", "/staff")).data ?? []).find((s) => /^scout$/i.test(s.role));
   const Z = unscouted[5];

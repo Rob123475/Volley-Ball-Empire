@@ -206,7 +206,7 @@ try {
     const market = (await api("GET", `/staff/market?role=${key}`)).data ?? [];
     const skillOf = (() => { const d = new DatabaseSync(dbFile, { readOnly: true }); try { return new Map(d.prepare("SELECT id, skill_level FROM staff").all().map((r) => [r.id, r.skill_level])); } finally { d.close(); } })();
     const pick = market.filter((m) => m.role === roleName).sort((a, b) => (skillOf.get(b.id) ?? 0) - (skillOf.get(a.id) ?? 0))[0];
-    const h = pick ? await api("POST", "/staff", { staffId: pick.id, length: "6m" }) : { status: 0 };
+    const h = pick ? await api("POST", "/staff", { staffId: pick.id, length: "1s" }) : { status: 0 };
     hired[key] = ((await api("GET", "/staff")).data ?? []).find((s) => s.id === pick?.id);
     check(`hired a ${roleName} stored as "${pick?.role}" (the market's ${key} filter found it)`,
       h.status === 201 && pick?.role === roleName && typeof hired[key]?.skillLevel === "number",
@@ -277,8 +277,8 @@ try {
   const medMarket = (await api("GET", "/medical-staff/market")).data ?? [];
   const bestOf = (role) => medMarket.filter((m) => m.role === role).sort((a, b) => (medSkill.get(b.id) ?? 0) - (medSkill.get(a.id) ?? 0))[0];
   const doc = bestOf("Doctor"), sci = bestOf("Sports Scientist");
-  const dh = await api("POST", "/medical-staff", { staffId: doc?.id, length: "6m" });
-  const sh = await api("POST", "/medical-staff", { staffId: sci?.id, length: "6m" });
+  const dh = await api("POST", "/medical-staff", { staffId: doc?.id, length: "1s" });
+  const sh = await api("POST", "/medical-staff", { staffId: sci?.id, length: "1s" });
   const docSkill = medSkill.get(doc?.id), sciSkill = medSkill.get(sci?.id);
   const fx1 = (await api("GET", "/staff/effects")).data;
   const scale = (k) => Math.min(1, Math.max(0, (k - 50) / 45));

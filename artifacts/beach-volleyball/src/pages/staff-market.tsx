@@ -296,7 +296,7 @@ function StaffMarketCard({
         <div className="flex items-center justify-between text-xs text-muted-foreground pt-1 border-t border-border">
           <span className="flex items-center gap-1">
             <Calendar className="h-3 w-3" />
-            {isOwned && member.contractTerm ? CONTRACT_LENGTH_LABELS[member.contractTerm as ContractLength] : "6 months, 1 season or 2 seasons"}
+            {isOwned && member.contractTerm ? CONTRACT_LENGTH_LABELS[member.contractTerm as ContractLength] : "1 season or 2 seasons, to 7 January"}
           </span>
           <span className="flex items-center gap-1 font-bold text-foreground">
             <DollarSign className="h-3 w-3 text-green-600" />

@@ -6,6 +6,9 @@
  * member has a contract. Allowed lengths are 6 months, 1 season, 2 seasons.
  * Nothing else." Plus: a contract ended early is paid out from the club
  * balance, and staff contracts expire like players' with a 4-week warning.
+ * Rob narrowed it on 24 Oct (1.1.3 rebuild, Part B): 6 months for players at
+ * the career's club only; staff and medical 1 or 2 seasons, ending 7 January
+ * (harness/contract-rules.mjs has the rest of Part B).
  *
  * What this exists to catch, all of it real before L-02a:
  *   - the signing route took an arbitrary endDate and capped it at ONE YEAR, so
@@ -209,29 +212,35 @@ try {
 
   const market = (await api("GET", "/staff/market")).data ?? [];
   check("the staff market has people", market.length > 0, `${market.length}`);
-  const hire = await api("POST", "/staff", { staffId: market[0].id, length: "6m" });
-  check("a staff member can be hired on a 6m contract", hire.status === 201, `HTTP ${hire.status}`);
+  // Rob, 24 Oct: no 6 months for staff; 1 or 2 seasons, ending 7 January.
+  const sixStaff = await api("POST", "/staff", { staffId: market[0].id, length: "6m" });
+  check("a staff member can't be hired on 6 months, and the message says why",
+    sixStaff.status === 400 && /7 January/.test(sixStaff.data?.error ?? ""), `HTTP ${sixStaff.status} ${sixStaff.data?.error ?? ""}`);
+  const hire = await api("POST", "/staff", { staffId: market[0].id, length: "1s" });
+  check("a staff member can be hired on 1 season", hire.status === 201, `HTTP ${hire.status}`);
 
   const staffRow = read(
     `SELECT contract_term AS term, contract_start_date AS start, contract_end_date AS end
        FROM career_staff_state WHERE career_save_id = ? AND staff_id = ?`,
     careerSaveId, market[0].id)[0];
   check("the staff contract has a term and real dates (contract_length alone never ended anything)",
-    staffRow?.term === "6m" && !!staffRow?.start && !!staffRow?.end && staffRow.end > staffRow.start,
+    staffRow?.term === "1s" && !!staffRow?.start && !!staffRow?.end && staffRow.end > staffRow.start,
     `term ${staffRow?.term}, ${staffRow?.start} -> ${staffRow?.end}`);
+  check("(Rob, 24 Oct) 1 season ends on the 7 January after this season",
+    staffRow?.end === `${Number(staffRow?.start.slice(0, 4)) + 1}-01-07`, `${staffRow?.start} -> ${staffRow?.end}`);
 
   const badStaffLength = await api("POST", "/staff", { staffId: market[1].id, length: "3s" });
   check("a staff contract of any other length is refused", badStaffLength.status === 400,
     `HTTP ${badStaffLength.status}`);
 
   const medMarket = (await api("GET", "/medical-staff/market")).data ?? [];
-  const medHire = await api("POST", "/medical-staff", { staffId: medMarket[0]?.id, length: "1s" });
+  const medHire = await api("POST", "/medical-staff", { staffId: medMarket[0]?.id, length: "2s" });
   check("a medical staff member is hired on a contract too", medHire.status === 201, `HTTP ${medHire.status}`);
   const medRow = read(
     `SELECT contract_term AS term, contract_end_date AS end FROM career_staff_state
       WHERE career_save_id = ? AND staff_id = ?`, careerSaveId, medMarket[0]?.id)[0];
-  check("the medical contract carries its term and end date",
-    medRow?.term === "1s" && !!medRow?.end, `term ${medRow?.term}, ends ${medRow?.end}`);
+  check("the medical contract carries its term and end date: 2 seasons, the 7 January after next",
+    medRow?.term === "2s" && medRow?.end === `${Number(staffRow?.start.slice(0, 4)) + 2}-01-07`, `term ${medRow?.term}, ends ${medRow?.end}`);
 
   // Put a fieldable pair back on the books before running the clock.
   //
@@ -250,8 +259,11 @@ try {
     ((squadNow.activePlayers ?? []).length + (squadNow.benchPlayers ?? []).length) >= 2,
     `${(squadNow.activePlayers ?? []).length + (squadNow.benchPlayers ?? []).length} contracted`);
 
-  // Run the clock past the 6m staff deal: the coach must leave on his own.
-  const staffEnd = staffRow.end;
+  // Run the clock past the coach's deal: he must leave on his own. His real end
+  // is next 7 January, a season away, so the warning and the release are
+  // tested on an end date planted 40 days out: they read the date, whatever it is.
+  const staffEnd = read(`SELECT date(?, '+40 days') AS d`, (await api("GET", "/calendar")).data?.currentDate)[0].d;
+  write(`UPDATE career_staff_state SET contract_end_date = ? WHERE career_save_id = ? AND staff_id = ?`, staffEnd, careerSaveId, market[0].id);
   let advanced = 0, stopped = "reached the end date";
   // L-02a: Rob's rule is four weeks' notice on the GAME clock before a coach
   // walks. Captured as the clock passes through the window rather than after,
@@ -325,19 +337,22 @@ try {
   check("and the ledger says what it was for",
     /paid out/i.test(txt?.d ?? ""), `${txt?.d} $${Math.round(Number(txt?.a ?? 0))}`);
 
-  // ── 6. THE FRONTEND OFFERS EXACTLY THE SAME THREE ─────────────────────────
-  console.log("\n6. THE FRONTEND'S LIST CANNOT DRIFT FROM THE SERVER'S");
+  // ── 6. THE FRONTEND OFFERS EXACTLY THE SAME THREE LISTS ───────────────────
+  console.log("\n6. THE FRONTEND'S LISTS CANNOT DRIFT FROM THE SERVER'S");
 
   const serverSrc = fs.readFileSync(
     path.join(REPO, "artifacts/api-server/src/utils/contractTerms.ts"), "utf8");
   const uiSrc = fs.readFileSync(
     path.join(REPO, "artifacts/beach-volleyball/src/lib/contract-lengths.ts"), "utf8");
-  const keysOf = (s) => (s.match(/CONTRACT_LENGTHS = \[([^\]]+)\]/)?.[1] ?? "")
+  // Rob, 24 Oct: three lists now: players at the career's club, players elsewhere, staff.
+  const listOf = (s, name) => (s.match(new RegExp(`export const ${name}(?::[^=]+)? = \\[([^\\]]+)\\]`))?.[1] ?? "")
     .split(",").map((x) => x.trim().replace(/['"]/g, "")).filter(Boolean);
+  for (const [name, want] of [["PLAYER_CONTRACT_LENGTHS", "6m,1s,2s"], ["AI_PLAYER_CONTRACT_LENGTHS", "1s,2s"], ["STAFF_CONTRACT_LENGTHS", "1s,2s"], ["CONTRACT_LENGTHS", "6m,1s,2s"]]) {
+    check(`${name} is the same on both sides (${want})`,
+      listOf(serverSrc, name).join(",") === want && listOf(uiSrc, name).join(",") === want,
+      `server [${listOf(serverSrc, name)}] ui [${listOf(uiSrc, name)}]`);
+  }
   const labelsOf = (s) => [...(s.match(/"(6m|1s|2s)":\s*"([^"]+)"/g) ?? [])].join("|");
-  check("the two CONTRACT_LENGTHS lists are identical",
-    keysOf(serverSrc).join(",") === keysOf(uiSrc).join(",") && keysOf(uiSrc).length === 3,
-    `server [${keysOf(serverSrc)}] ui [${keysOf(uiSrc)}]`);
   check("and so are the labels the player reads",
     labelsOf(serverSrc) === labelsOf(uiSrc), labelsOf(uiSrc));
 

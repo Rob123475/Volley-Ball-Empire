@@ -38,7 +38,7 @@ import {
 } from "@workspace/db";
 import { and, eq, isNotNull, asc, or, ne } from "drizzle-orm";
 import { withCareerStateTx, type CareerStateTx } from "../lib/playerDto.js";
-import { DEFAULT_CONTRACT_LENGTH, contractEndDate } from "./contractTerms.js";
+import { DEFAULT_CONTRACT_LENGTH, contractEndDate, staffContractEndDate } from "./contractTerms.js";
 
 export type ContractBackfill = {
   players: number;
@@ -112,12 +112,13 @@ export function backfillCareerContracts(
     ))
     .all();
 
+  // Rob, 24 Oct: a staff or medical deal ends on 7 January (utils/contractTerms.ts).
   for (const m of staff) {
     if (m.contractEndDate) continue;
     w.setStaffState(careerSaveId, m.staffId, {
       contractTerm: DEFAULT_CONTRACT_LENGTH,
       contractStartDate: today,
-      contractEndDate: end,
+      contractEndDate: staffContractEndDate(DEFAULT_CONTRACT_LENGTH, today),
     });
     out.staff++;
   }

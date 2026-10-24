@@ -206,6 +206,14 @@ function seasonTable(season, year, counters) {
   };
   // 1.1.3 (A1): AI clubs with no doctor or physio (Registrars and Physio Assistants are Doctors and Physiotherapists).
   const aiNoMedic = clubs.filter((c) => !(staffBy.get(c.club) ?? []).some((x) => x === "Doctor" || x === "Physiotherapist")).length;
+  // 1.1.3 rebuild (Part B, Rob 24 Oct): no AI club on a 6-month contract of any kind (a player's ends on a season's
+  // end, Dec 31; a staff member's term is 1s or 2s), and every staff and medical contract ends on 7 January.
+  const sixAi = {
+    players: q(`SELECT COUNT(*) n FROM career_player_state WHERE career_save_id = ? AND pool_team_id IS NOT NULL AND team_id IS NULL AND is_retired = 0 AND contract_end_date IS NOT NULL AND substr(contract_end_date, 6) <> '12-31'`, cid)[0].n,
+    pool: q(`SELECT COUNT(*) n FROM pool_player_contracts WHERE career_save_id = ? AND status = 'active' AND length = '6m'`, cid)[0].n,
+    staff: q(`SELECT COUNT(*) n FROM career_staff_state WHERE career_save_id = ? AND pool_team_id IS NOT NULL AND contract_term = '6m'`, cid)[0].n,
+  };
+  const staffNot7Jan = q(`SELECT COUNT(*) n FROM career_staff_state WHERE career_save_id = ? AND (team_id IS NOT NULL OR pool_team_id IS NOT NULL) AND contract_end_date IS NOT NULL AND substr(contract_end_date, 6) <> '01-07'`, cid)[0].n;
   // 1.1.3 (A4): the national coach (the soak takes the first offer each time) and, in a Cup year, the Cup over its days.
   const ncOffers = q(`SELECT reason, nation, monthly FROM national_coach_offers WHERE career_save_id = ? AND offered_on >= ? AND offered_on <= ?`, cid, yearStart, `${year}-12-31`);
   const ncJob = q(`SELECT nation, years, monthly, paid, status, ends_on FROM national_coach_jobs WHERE career_save_id = ? ORDER BY id DESC LIMIT 1`, cid)[0] ?? null;
@@ -217,7 +225,7 @@ function seasonTable(season, year, counters) {
     cup: cupFx.length ? `${cupFx.length} matches over ${new Set(cupFx.map((f) => f.scheduled_on)).size} days, ${cupFx.filter((f) => f.status === "decided").length} decided, ${cupMedals} medals` : null,
   };
   return {
-    season, year, aiPaid, aiLimits, aiNoMedic, nationalCoach,
+    season, year, aiPaid, aiLimits, aiNoMedic, nationalCoach, sixAi, staffNot7Jan,
     aiStaffTotal: aiStaff.length, aiTopStaff: aiStaff.filter((r) => r.k >= 85).length, aiBudgetMedian: Math.round(median(aiBudgets)), aiBudgetTop: Math.max(...aiBudgets),
     aiCantAffordCoachOrMedic: cantAfford.length, aiWithSponsor: [...budgets.values()].filter((r) => r.m).length,
     myStaffBudget: myBudget.budget ?? null, myMainSponsor: myBudget.sponsor ?? null,
@@ -269,6 +277,7 @@ function printTable(t) {
   console.log(`  Youth deals: ${t.youthSales} sales (${t.youthSalesAiToAi} AI to AI), ${t.youthLoans} loans started`);
   console.log(`  1.1.3 AI limits: ${t.aiLimits.scouts} scouting reports, ${t.aiLimits.bids} bids; most by one AI club ${t.aiLimits.mostScoutsOneClub} reports (limit 10) and ${t.aiLimits.mostBidsByOneClub} bids (limit 10); most by one AI club on one club ${t.aiLimits.mostScoutsOnOneClub} reports and ${t.aiLimits.mostBidsOnOneClub} bids (limit 2)`);
   console.log(`  1.1.3 staff: AI clubs short of a doctor or physio: ${t.aiNoMedic} of ${t.clubs}`);
+  console.log(`  1.1.3 rebuild contracts: AI 6-month contracts ${t.sixAi.players + t.sixAi.pool + t.sixAi.staff} (players off a season's end ${t.sixAi.players}, pool ${t.sixAi.pool}, staff ${t.sixAi.staff}); staff and medical contracts not ending 7 January: ${t.staffNot7Jan}`);
   console.log(`  1.1.3 national coach: offers this season ${t.nationalCoach.offers.join("; ") || "none"}; job ${t.nationalCoach.job}${t.nationalCoach.cup ? `; Nations Cup ${t.nationalCoach.cup}` : ""}`);
 }
 
@@ -387,6 +396,9 @@ try {
   if (overLimit.length) flags.push(`an AI club past its season limits in season(s) ${overLimit.map((t) => t.season).join(", ")}`);
   // 1.1.3 (A1): every AI club keeps a doctor or physio.
   if (tables.some((t) => t.aiNoMedic > 0)) flags.push(`AI clubs short of a doctor or physio: ${tables.map((t) => t.aiNoMedic).join("/")} a season`);
+  // 1.1.3 rebuild (Part B): no AI club on 6 months; every staff and medical contract ends on 7 January.
+  if (tables.some((t) => t.sixAi.players + t.sixAi.pool + t.sixAi.staff > 0)) flags.push(`AI 6-month contracts: ${tables.map((t) => t.sixAi.players + t.sixAi.pool + t.sixAi.staff).join("/")} a season`);
+  if (tables.some((t) => t.staffNot7Jan > 0)) flags.push(`staff contracts not ending 7 January: ${tables.map((t) => t.staffNot7Jan).join("/")} a season`);
   // 1.1.1: a deal stuck past its arrival day; a player at two clubs; a move outside the window that wasn't on a contract's end.
   const endDay = q(`SELECT "current_date" AS d FROM calendar_state WHERE team_id = ?`, myTeam())[0]?.d ?? "";
   const stuck = q(`SELECT COUNT(*) n FROM transfer_deals WHERE career_save_id = ? AND status = 'agreed' AND arrives_on < ?`, cid, endDay)[0].n;

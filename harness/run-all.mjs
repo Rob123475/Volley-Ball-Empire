@@ -690,6 +690,12 @@ console.log("
 ########## 98zy/100  NO POOL PLAYER NAMED LIKE A WORLD-ROSTER PLAYER (1.1.3 REBUILD A2) ##########");
 runSuite("pool names", path.join(REPO, "harness", "pool-names.mjs"));
 
+// 1.1.3 rebuild (Part B, 24 Oct): 6 months for players at the career's club only; staff and medical
+// 1 or 2 seasons, ending 7 January; no AI club on 6 months. Own DB and server (4994).
+console.log("
+########## 98zz/100  CONTRACT LENGTHS BY WHO SIGNS, STAFF TO 7 JANUARY (1.1.3 REBUILD B) ##########");
+runSuite("contract rules", path.join(REPO, "harness", "contract-rules.mjs"));
+
 // ── Smoke needs a server; boot one on a throwaway copy of the shipped DB ─────
 console.log("\n########## 99/100  GAMEPLAY SMOKE ##########");
 {

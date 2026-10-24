@@ -18,6 +18,7 @@
  */
 import { Router } from "express";
 import { readContractLength } from "../utils/contractTerms.js";
+import { playerContractPartyFor } from "../utils/seasonDates.js";
 import { checkSpendingAllowed } from "../utils/board-confidence.js";
 import { specialityFactor } from "../utils/managerFaces.js";
 import { askYouthTx, youthDealTx } from "../utils/youthDeals.js";
@@ -172,7 +173,7 @@ router.post("/youth-deals", async (req, res) => {
     res.status(400).json({ error: kind === "buy" ? "Confirm the offer: if her club sells, you pay her youth price today." : "Confirm the loan: she plays for you until it ends, and you pay half her wage each week." });
     return;
   }
-  const wanted = readContractLength(req.body);
+  const wanted = readContractLength(req.body, await playerContractPartyFor(ctx.careerSaveId, ctx.team.id));
   if ("error" in wanted) { res.status(400).json({ error: wanted.error }); return; }
   if (kind === "buy") {
     const frozen = await checkSpendingAllowed(ctx.careerSaveId);

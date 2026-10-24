@@ -94,7 +94,7 @@ try {
   const medList = Array.isArray(medMarket) ? medMarket : (medMarket.staff ?? []);
   let medHired = 0, medRefused = null;
   for (const m of medList.slice(0, MED + 1)) {
-    const r = await api("POST", "/medical-staff", { staffId: m.id, length: "6m" });
+    const r = await api("POST", "/medical-staff", { staffId: m.id, length: "1s" });
     if (r.status < 300) medHired++; else { medRefused = r; break; }
   }
   check("the medical department takes 4, and refuses the 5th", medHired === MED && medRefused?.status === 400, `${medHired} hired; then ${medRefused?.status}: ${medRefused?.data?.error ?? ""}`);
@@ -106,7 +106,7 @@ try {
   for (const m of market) {
     const inDept = ((await api("GET", "/staff")).data ?? []).filter((s) => !isMed(s)).length;
     if (inDept > MAX) break;
-    const r = await api("POST", "/staff", { staffId: m.id, length: "6m" });
+    const r = await api("POST", "/staff", { staffId: m.id, length: "1s" });
     if (r.status >= 300) { refused = r; break; }
   }
   const mine = (await api("GET", "/staff")).data ?? [];
@@ -119,7 +119,7 @@ try {
   { const d = new DatabaseSync(dbFile); d.prepare(`UPDATE career_staff_state SET team_id = ? WHERE career_save_id = ? AND staff_id = ?`).run(teamId, careerSaveId, extra.id); d.close(); }
   const five = ((await api("GET", "/staff")).data ?? []).filter((s) => !isMed(s)).length;
   const another = market.find((m) => m.id !== extra.id && !mine.some((s) => s.id === m.id));
-  const refusedOver = await api("POST", "/staff", { staffId: another?.id, length: "6m" });
+  const refusedOver = await api("POST", "/staff", { staffId: another?.id, length: "1s" });
   check("a club over 4 from an older save keeps all 5 and cannot hire until under 4",
     five === MAX + 1 && refusedOver.status === 400 && /5 of 4/.test(refusedOver.data?.error ?? ""), `${five} staff; ${refusedOver.status}: ${refusedOver.data?.error ?? ""}`);
 

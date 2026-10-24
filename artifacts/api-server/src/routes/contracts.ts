@@ -16,7 +16,7 @@ import type { Contract } from "@workspace/db";
 import { checkSpendingAllowed } from "../utils/board-confidence.js";
 import { getGameDate, gameDateText } from "../utils/gameDate.js";
 import { getActiveSeason } from "../lib/getActiveSeason.js";
-import { seasonEndsFrom } from "../utils/seasonDates.js";
+import { seasonEndsFrom, playerContractPartyFor } from "../utils/seasonDates.js";
 import {
   renewalEndDate, terminationPayout, readContractLength,
 } from "../utils/contractTerms.js";
@@ -90,7 +90,8 @@ router.post("/contracts", async (req, res) => {
   if (spendingBlocked) { res.status(403).json({ error: spendingBlocked }); return; }
 
   const { playerId, salary, bonusPerWin, squadRole: rawSquadRole } = req.body;
-  const wanted = readContractLength(req.body);
+  // Rob, 24 Oct (B3): 6 months only at the club the career controls now.
+  const wanted = readContractLength(req.body, await playerContractPartyFor(requireCareerSaveId(req.activeCareerSaveId), team.id));
   if ("error" in wanted) { res.status(400).json({ error: wanted.error }); return; }
 
   const player = await loadPlayer(requireCareerSaveId(req.activeCareerSaveId), Number(playerId));
@@ -409,7 +410,7 @@ router.post("/contracts/:id/renew", async (req, res) => {
     return;
   }
 
-  const wantedRenewal = readContractLength(req.body);
+  const wantedRenewal = readContractLength(req.body, await playerContractPartyFor(cid, team.id));
   if ("error" in wantedRenewal) { res.status(400).json({ error: wantedRenewal.error }); return; }
 
   // The new term runs on from where the old one ends, not from today — and it

@@ -1,14 +1,44 @@
 /**
  * How long a contract can run, and when it ends.
  *
- * ── Rob's rule (22 Sep, final) ──────────────────────────────────────────────
- * EVERY player, staff member and medical staff member has a contract, and the
- * only allowed lengths are:
+ * ── Rob's rule (22 Sep), as Rob himself narrowed it on 24 Oct 2026 ───────────
+ * EVERY player, staff member and medical staff member has a contract. The
+ * lengths that exist are 6 months, 1 season and 2 seasons, and who may use
+ * which is (1.1.3 rebuild brief, Part B; the game's creator amending his own
+ * 22 Sep rule on purpose, so do NOT restore the old "all three, everywhere"):
  *
- *     6 months · 1 season · 2 seasons
+ *     players at the club the career controls   6 months · 1 season · 2 seasons
+ *     players at every other club (the AI)      1 season · 2 seasons
+ *     staff and medical, at every club          1 season · 2 seasons
+ *
+ * The 6-month option belongs to the manager's club and follows him: it is
+ * gated on "is this the career's current club" (playerContractParty), so when
+ * he moves the new club gains it and the club he left loses it. A contract
+ * stays with the club that signed it: a 6-month deal he signed at a former
+ * club runs on there.
  *
  * Nothing else, anywhere: signing, renewal, youth promotion, staff hire,
  * medical hire. There are no 5-season contracts in this game.
+ *
+ * ── Staff and medical contracts end on 7 January ────────────────────────────
+ * DELIBERATELY unlike players, whose contracts end on the season boundary from
+ * the season rows: every staff and medical contract ends on 7 January, the day
+ * before the AI clubs' staff deal day (AI_STAFF_DEAL_DAY = 8, lib/db
+ * staff-roles.ts; utils/aiStaff.ts). A contract ends, and the market opens the
+ * next day. "1 season" runs to the 7 January after the season it is signed in
+ * (a season is the year of the season rows, 1 January to 31 December), "2
+ * seasons" to the 7 January after that. A mid-season hire on "1 season" gets a
+ * short deal, as a late player signing does; one made in the first week of
+ * January runs the whole year (a new career's first week is when the player is
+ * told to hire); the AI clubs hire only on 8 January, so theirs always run a
+ * full year. This split from players is intended: it is not a bug to be
+ * tidied up later.
+ *   Why (Rob, 24 Oct): the AI clubs picked a staff length at random from all
+ * three, so one in three got 6 months, expired mid-season, and left a gap until
+ * the next 8 January: the soak's 10 to 31 of 60 clubs short of a doctor or physio.
+ *   Saves from before: a staff member on 6 months expires mid-season once more,
+ * then renews onto a season contract; an AI player on 6 months expires once and
+ * re-signs on a season deal. No migration.
  *
  * ── Why a season, not a year ────────────────────────────────────────────────
  * A season is the end of a year's World Tour, and it is NOT 365 days: the
@@ -18,25 +48,55 @@
  * to cover. A contract length is therefore resolved against the real season
  * rows, not against arithmetic on the signing date.
  *
- *     6m   six months from the signing date
- *     1s   the end of the season being played when it is signed
- *     2s   the end of the season after that one
+ *     6m   six months from the signing date (the career's club's players only)
+ *     1s   players: the end of the season being played when it is signed;
+ *          staff and medical: the next 7 January
+ *     2s   players: the end of the season after that one;
+ *          staff and medical: the 7 January after that
+ *
+ * "12 months" means 1s, never 365 days: no calendar arithmetic for players.
  *
  * Signing a "1 season" deal in the last week of a season gives a short deal.
  * That is deliberate and it is how the real thing behaves: you are buying the
  * rest of this season. The UI shows the end date before the deal is agreed.
  *
  * This module owns the rule for the server. The frontend keeps its own copy of
- * the three options for its dropdowns, because lib/db cannot be imported by a
+ * the three lists for its dropdowns, because lib/db cannot be imported by a
  * browser (its index opens a SQLite connection), and
- * `harness/contract-terms.mjs` asserts the two lists are identical so they
- * cannot drift apart.
+ * `harness/contract-terms.mjs` asserts each of the three is identical to this
+ * one so they cannot drift apart.
  */
 
-/** The only contract lengths that exist. */
+/** Every length a stored contract can carry (an older save's 6-month staff deal included). */
 export const CONTRACT_LENGTHS = ["6m", "1s", "2s"] as const;
 
 export type ContractLength = (typeof CONTRACT_LENGTHS)[number];
+
+/** Players at the club the career controls now: the only contracts that may run 6 months. */
+export const PLAYER_CONTRACT_LENGTHS: readonly ContractLength[] = ["6m", "1s", "2s"];
+/** Players at every other club (the AI clubs, a club the manager has left). */
+export const AI_PLAYER_CONTRACT_LENGTHS: readonly ContractLength[] = ["1s", "2s"];
+/** Staff and medical, at every club: to 7 January (STAFF_CONTRACT_END). */
+export const STAFF_CONTRACT_LENGTHS: readonly ContractLength[] = ["1s", "2s"];
+
+/** Who a contract is with. */
+export type ContractParty = "career_player" | "other_player" | "staff";
+
+export const CONTRACT_LENGTHS_FOR: Readonly<Record<ContractParty, readonly ContractLength[]>> = {
+  career_player: PLAYER_CONTRACT_LENGTHS,
+  other_player: AI_PLAYER_CONTRACT_LENGTHS,
+  staff: STAFF_CONTRACT_LENGTHS,
+};
+
+/** Rob, 24 Oct (B3): a player deal may run 6 months only at the career's current club, so the option follows him. */
+export function playerContractParty(isCareerClub: boolean): ContractParty {
+  return isCareerClub ? "career_player" : "other_player";
+}
+
+/** The length a club that may not use 6 months takes instead (an older deal renewed, a counter to a 6-month bid). */
+export function seasonLength(length: ContractLength): ContractLength {
+  return length === "6m" ? "1s" : length;
+}
 
 /** What the player is shown. The UI must not invent its own wording. */
 export const CONTRACT_LENGTH_LABELS: Record<ContractLength, string> = {
@@ -52,23 +112,44 @@ export function isContractLength(v: unknown): v is ContractLength {
   return typeof v === "string" && (CONTRACT_LENGTHS as readonly string[]).includes(v);
 }
 
+const NO_SIX_MONTHS: Readonly<Record<ContractParty, string>> = {
+  career_player: "",
+  other_player: " Only the club the career manages can offer 6 months.",
+  staff: " Staff and medical contracts run 1 or 2 seasons and end on 7 January.",
+};
+
 /**
- * The length a request asked for, or the reason it is not one of the three.
+ * The length a request asked for, or the reason it is not one its party may use.
  *
  * Every route that starts or renews a contract reads its body through this, so
  * a player deal, a staff deal and a medical deal cannot end up with different
  * ideas of what is allowed.
  */
-export function readContractLength(body: unknown): { length: ContractLength } | { error: string } {
+export function readContractLength(body: unknown, party: ContractParty): { length: ContractLength } | { error: string } {
   const raw = (body as { length?: unknown } | null)?.length;
   if (raw == null) return { length: DEFAULT_CONTRACT_LENGTH };
-  if (!isContractLength(raw)) {
+  const allowed = CONTRACT_LENGTHS_FOR[party];
+  if (!isContractLength(raw) || !allowed.includes(raw)) {
     return {
-      error: `Contract length must be one of ${CONTRACT_LENGTHS.join(", ")} ` +
-             `(${CONTRACT_LENGTHS.map((l) => CONTRACT_LENGTH_LABELS[l]).join(", ")}).`,
+      error: `Contract length must be one of ${allowed.join(", ")} ` +
+             `(${allowed.map((l) => CONTRACT_LENGTH_LABELS[l]).join(", ")}).` + (raw === "6m" ? NO_SIX_MONTHS[party] : ""),
     };
   }
   return { length: raw };
+}
+
+/** Rob, 24 Oct: the day ("MM-DD") every staff and medical contract ends, the day before AI_STAFF_DEAL_DAY (8 January). */
+export const STAFF_CONTRACT_END = "01-07";
+
+/**
+ * Where a staff or medical contract of `length` ends, counted on from `from`
+ * (the hiring day, or the end of the deal being renewed): the 7 January after
+ * the season `from` is in for 1 season, the one after that for 2 seasons. A
+ * deal renewed on its 7 January end runs to the next one.
+ */
+export function staffContractEndDate(length: ContractLength, from: string): string {
+  const seasons = seasonLength(length) === "2s" ? 2 : 1;
+  return `${Number(from.slice(0, 4)) + seasons}-${STAFF_CONTRACT_END}`;
 }
 
 /** Six months on, clamped to the end of the month (31 Aug + 6m = 28/29 Feb). */

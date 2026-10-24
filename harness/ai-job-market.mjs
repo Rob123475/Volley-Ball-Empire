@@ -35,7 +35,9 @@ import { DatabaseSync } from "node:sqlite";
 
 import { requireElectronBinary } from "./electron-binary.mjs";
 import { forkServer, stopServer } from "./server-harness.mjs";
-import { healAllSquads, renewExpiringContracts, keepSideFielded, startCareer } from "./harness-club.mjs";
+import { createRequire } from "node:module";
+import { pathToFileURL } from "node:url";
+import { healAllSquads, renewExpiringContracts, keepSideFielded, startCareer, freeSquadPlace, makeCapRoom } from "./harness-club.mjs";
 
 const REPO = path.join(import.meta.dirname, "..");
 const SHIPPED = path.join(REPO, "lib", "db", "volleyball-empire.sqlite");
@@ -43,6 +45,11 @@ const SERVER = path.join(REPO, "artifacts", "api-server", "dist", "index.mjs");
 const ELECTRON = requireElectronBinary(REPO);
 const WORK = fs.mkdtempSync(path.join(os.tmpdir(), "vbe-ai-job-market-"));
 const DB = path.join(WORK, "save.sqlite");
+// 1.1.3 rebuild (B3): the contract rule itself, built from source (as harness/staff-contracts.mjs does).
+const esbuild = createRequire(path.join(REPO, "artifacts", "api-server", "package.json"))("esbuild");
+const termsOut = path.join(WORK, "terms.mjs");
+esbuild.buildSync({ entryPoints: [path.join(REPO, "artifacts/api-server/src/utils/contractTerms.ts")], outfile: termsOut, format: "esm", bundle: true, logLevel: "silent", platform: "node" });
+const { playerContractParty, readContractLength } = await import(pathToFileURL(termsOut).href);
 const PORT = 4947;
 const BASE = `http://localhost:${PORT}/api`;
 const MID = "You can leave once your season is over (penalties apply if you break your contract).";
@@ -70,6 +77,24 @@ async function api(method, p, body) {
 }
 const q = (sql, ...a) => { const d = new DatabaseSync(DB, { readOnly: true }); try { return d.prepare(sql).all(...a); } finally { d.close(); } };
 const w = (sql, ...a) => { const d = new DatabaseSync(DB); try { return d.prepare(sql).run(...a); } finally { d.close(); } };
+
+/**
+ * 1.1.3 rebuild (B3): sign the cheapest free senior to the manager's club on 6 months, with a place
+ * freed for her first if the squad is full (in this throwaway database: no dumping outside the window),
+ * and room under the salary cap (makeCapRoom: the cap is harness/salary-cap.mjs's subject).
+ */
+async function signForSixMonths(teamId) {
+  w(`UPDATE teams SET budget = MAX(budget, 500000) WHERE id = ?`, teamId);
+  makeCapRoom(DB, teamId);
+  const roster = (await api("GET", "/team/roster")).data ?? {};
+  const bench = roster.benchPlayers ?? [], squad = [...(roster.activePlayers ?? []), ...bench];
+  if (squad.length >= 3) freeSquadPlace(DB, (bench[0] ?? squad[squad.length - 1]).id, teamId);
+  const fa = ((await api("GET", "/players/free-agents")).data ?? []).filter((x) => x.playerType !== "youth" && !x.teamId)
+    .sort((a, b) => Number(a.salary) - Number(b.salary))[0];
+  if (!fa) return { status: 0, why: "no free senior" };
+  const r = await api("POST", "/contracts", { confirm: true, playerId: fa.id, salary: fa.salary, bonusPerWin: 0, squadRole: "interchange", length: "6m" });
+  return { status: r.status, playerId: fa.id, contractId: r.data?.id ?? null, end: r.data?.endDate ?? null, error: r.data?.error };
+}
 
 async function day() {
   const r = await api("POST", "/calendar/advance", {});
@@ -210,6 +235,10 @@ try {
     w(`INSERT INTO staff_absences (career_save_id, team_id, staff_id, staff_name, role, cause, days, started_on, created_at) VALUES (?, ?, ?, ?, ?, 'broken_leg', 42, ?, ?)`,
       cid, oldTeamId, offId, nm.name, nm.role, today0, Math.floor(Date.now() / 1000));
   }
+  // 1.1.3 rebuild (B3, Rob 24 Oct): the 6-month option is the career's current club's and moves
+  // with him; a 6-month deal he signed at the club he leaves stays there.
+  const sixAtOld = await signForSixMonths(oldTeamId);
+  check("(B3, set-up) at his club he signs a player on 6 months before he moves", sixAtOld.status === 201, JSON.stringify(sixAtOld));
   const roll1 = await toRollover();
 
   console.log("\n4. THE MOVE TAKES EFFECT AT THE START OF THE NEXT SEASON");
@@ -237,6 +266,19 @@ try {
         away.every((c) => c.player?.academyContractYears != null), `${away.length} row(s): academyContractYears ${away.map((c) => c.player?.academyContractYears).join(", ")}`);
       w(`UPDATE career_player_state SET team_id = ?, pool_team_id = NULL WHERE career_save_id = ? AND player_id = ?`, team.id, cid, lent);
     }
+  }
+  {
+    const row = q(`SELECT team_id AS t, end_date AS e, status AS s FROM contracts WHERE id = ?`, sixAtOld.contractId ?? -1)[0];
+    const st = q(`SELECT team_id AS t, contract_end_date AS e FROM career_player_state WHERE career_save_id = ? AND player_id = ?`, cid, sixAtOld.playerId ?? -1)[0];
+    check("(B3) the 6-month deal he signed at the club he left runs on there, untouched",
+      row?.t === oldTeamId && row.e === sixAtOld.end && row.s === "active" && st?.t === oldTeamId && st.e === sixAtOld.end,
+      `contract ${JSON.stringify(row)}, her state ${JSON.stringify(st)}, signed to ${sixAtOld.end}`);
+    const party = (teamId) => playerContractParty(q(`SELECT team_id AS t FROM career_saves WHERE id = ?`, cid)[0].t === teamId);
+    const oldAsk = readContractLength({ length: "6m" }, party(oldTeamId));
+    check("(B3) the club he left has lost the option: it is not the career's club now, and 6 months is refused for it",
+      party(oldTeamId) === "other_player" && "error" in oldAsk && party(team.id) === "career_player", oldAsk.error ?? "");
+    const sixAtNew = await signForSixMonths(team.id);
+    check("(B3) the option moved with him: his new club signs a player on 6 months", sixAtNew.status === 201 && !!sixAtNew.end, JSON.stringify(sixAtNew));
   }
   const history = (await api("GET", "/careers/history")).data ?? [];
   check("the Manager History names both clubs", history.some((h) => h.clubName === oldName) && history.some((h) => h.clubName === first?.name && h.type === "joined_club"),

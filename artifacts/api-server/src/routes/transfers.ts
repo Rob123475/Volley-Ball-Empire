@@ -18,6 +18,7 @@ import { loadPlayer, requireCareerSaveId, withCareerStateTx } from "../lib/playe
 import { getGameDate } from "../utils/gameDate.js";
 import { myTransfersTx, answerWithCounterTx, agreeTx } from "../utils/transfers.js";
 import { readContractLength } from "../utils/contractTerms.js";
+import { playerContractPartyFor } from "../utils/seasonDates.js";
 import { committedWageBill, wageCapRefusal } from "../utils/salaryCap.js";
 import { checkSpendingAllowed } from "../utils/board-confidence.js";
 import { transferWindowFor } from "../utils/transferWindow.js";
@@ -51,7 +52,7 @@ router.post("/transfers/:id/counter", async (req, res) => {
   const found = myOffer(req.activeCareerSaveId, Number(req.params.id), team.id);
   if ("error" in found) { res.status(found.status).json({ error: found.error }); return; }
   const { deal, cid } = found;
-  const wanted = readContractLength(req.body);
+  const wanted = readContractLength(req.body, await playerContractPartyFor(cid, team.id));
   if ("error" in wanted) { res.status(400).json({ error: wanted.error }); return; }
   const wage = Number(req.body?.wage);
   if (!Number.isFinite(wage) || wage <= 0) { res.status(400).json({ error: "wage must be a positive number" }); return; }

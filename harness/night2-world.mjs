@@ -74,7 +74,7 @@ export function createWorld(name, port) {
       const row = world.q(`SELECT st.id, st.name, st.role, st.skill_level AS skill FROM career_staff_state s JOIN staff st ON st.id = s.staff_id
         WHERE s.career_save_id = ? AND s.team_id IS NULL AND s.pool_team_id IS NULL AND st.role = ? ORDER BY ABS(st.skill_level - ?), st.id LIMIT 1`, cid, role, skill)[0];
       if (!row) throw new Error(`no ${role} on the market`);
-      const r = await world.api("POST", medical ? "/medical-staff" : "/staff", { staffId: row.id, length: "6m" });
+      const r = await world.api("POST", medical ? "/medical-staff" : "/staff", { staffId: row.id, length: "1s" });
       if (r.status >= 300) throw new Error(`hiring ${role}: ${r.status} ${JSON.stringify(r.data)}`);
       return row;
     },

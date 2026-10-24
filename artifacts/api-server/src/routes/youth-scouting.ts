@@ -16,7 +16,7 @@ import { getGameDate } from "../utils/gameDate.js";
 import { loadPlayers, createCareerPlayer, requireCareerSaveId, withCareerStateTx } from "../lib/playerDto.js";
 import { academyCountTx, placeSignedYouthTx } from "../utils/youthLoans.js";
 import { readContractLength, contractEndDate } from "../utils/contractTerms.js";
-import { seasonEndsFrom } from "../utils/seasonDates.js";
+import { seasonEndsFrom, playerContractPartyFor } from "../utils/seasonDates.js";
 import { refusalReason } from "../utils/squadRules.js";
 import { academySize, academyMonthlySalary } from "../utils/academy.js";
 import type { Team, YouthProspect } from "@workspace/db";
@@ -214,7 +214,7 @@ router.post("/youth-scouting/prospects/:id/sign", async (req, res) => {
   // Overnight 1 Oct, N-44 (b): a find signs through the same contract box as a
   // market youth: 6 months / 1 season / 2 seasons, the youth team or the
   // reserves, and the confirm, which names her price.
-  const wanted = readContractLength(req.body ?? {});
+  const wanted = readContractLength(req.body ?? {}, await playerContractPartyFor(requireCareerSaveId(req.activeCareerSaveId), team.id));
   if ("error" in wanted) { res.status(400).json({ error: wanted.error }); return; }
   if (req.body?.confirm !== true) {
     res.status(400).json({ error: `Confirm the signing: ${prospect.name} costs $${prospect.signingCost.toLocaleString()}.` });

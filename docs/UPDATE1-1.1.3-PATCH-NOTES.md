@@ -23,6 +23,13 @@
 - **AI clubs now scout a player before they bid for her**, and each runs at most 10 scouting reports a season, no more than 2 on players at any one club.
 - **Each AI club makes at most 10 bids a season** (seniors and youths together), no more than 2 to any one club, yours included. A bid that is turned down still counts.
 
+## Contracts
+- **6-month contracts are your club's alone.** Your club signs and renews players for 6 months, 1 season or 2 seasons. The AI clubs sign and renew players for 1 season or 2 seasons.
+- **The 6-month option goes with you.** Move to another club and you take it with you; deals you signed at your old club stay with that club.
+- **Staff and medical contracts run 1 or 2 seasons, and every one ends on 7 January**, the day before the AI clubs hire. No more AI clubs losing their doctor or physio in mid-season with no way to replace them until the next January.
+- Saves in progress: a staff member or AI player on a 6-month deal sees it out once, then moves to season contracts.
+
 ## Also
 - **Real flags on every screen:** youth cards, player and staff cards, the Nations Cup pages, the job market and the Dashboard. No more letters in place of flags.
-- **49 new staff faces:** 13 doctors, 12 registrars, 12 physiotherapists and 12 physio assistants, in the Staff and Medical Market. Every AI club can now find a doctor or physio.
+- **130 new staff faces:** 13 doctors, 12 registrars, 12 physiotherapists and 12 physio assistants in the Medical Market, and 10 head coaches, 11 assistant coaches and 60 scouts in the Staff Market. Every AI club can now find a doctor or physio.
+- **No more two players with one name:** 28 AI club players who shared a name with another player have names of their own in new careers.

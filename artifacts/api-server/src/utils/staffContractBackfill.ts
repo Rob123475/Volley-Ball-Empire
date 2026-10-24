@@ -20,7 +20,7 @@ export async function giveOpenStaffContractsAnEnd(): Promise<Array<{ staffId: nu
   const done: Array<{ staffId: number; ends: string }> = [];
   for (const row of open) {
     const today = await getGameDate(row.teamId!);
-    const patch = await staffContractPatch(row.careerSaveId, "1s", today);
+    const patch = staffContractPatch("1s", today);
     await updateStaffState(row.careerSaveId, row.staffId, patch);
     done.push({ staffId: row.staffId, ends: patch.contractEndDate });
   }

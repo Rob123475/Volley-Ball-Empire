@@ -52,8 +52,8 @@ try {
   check("an AI club bids for him, with 14 game days to answer", !!bid && bid.to_pool_team_id != null && bid.answer_by === addDays(bid.offered_on, 14),
     bid ? `offered ${bid.offered_on}, answer by ${bid.answer_by}` : "no bid");
   const offer = (await W.api("GET", "/transfers")).data.offers.find((o) => o.playerId === star);
-  check("he sees the bidding club and its full offer: wage, length and perks",
-    !!offer && !!offer.to && offer.wage > 0 && ["6m", "1s", "2s"].includes(offer.length) && typeof offer.perks === "string" && offer.fee > 0,
+  check("he sees the bidding club and its full offer: wage, length (an AI club's: 1 or 2 seasons) and perks",
+    !!offer && !!offer.to && offer.wage > 0 && ["1s", "2s"].includes(offer.length) && typeof offer.perks === "string" && offer.fee > 0,
     offer ? `${offer.to}: ${offer.wage}/month, ${offer.length}, perks "${offer.perks}", fee ${offer.fee}` : "");
 
   // ── 2. One counter ─────────────────────────────────────────────────────────
