@@ -466,7 +466,7 @@ try {
     FROM players p LEFT JOIN career_player_state s ON s.player_id = p.id AND s.career_save_id = p.origin_career_save_id
     WHERE p.origin_career_save_id = ? AND p.id > ?`, other.careerSaveId, maxBefore).map((p) => ({
     ...p,
-    origin: dryIds.includes(p.id) ? "his intake" : p.newSenior ? "picture player (new seniors)" : p.pool != null ? "pool player made a career senior"
+    origin: dryIds.includes(p.id) ? "his intake" : p.newSenior ? "a new senior (a picture player, or an AI youth kept on at 19)" : p.pool != null ? "pool player made a career senior"
       : p.type === "youth" && p.club != null ? `AI academy refill (club ${p.club})` : "UNKNOWN",
     nameFrom: givenBackNow.has(p.name) ? "a retiree's, given back" : p.departedName ? "a departed AI graduate's (C15)" : p.pool != null ? "the pool player's own" : "NEW",
   }));

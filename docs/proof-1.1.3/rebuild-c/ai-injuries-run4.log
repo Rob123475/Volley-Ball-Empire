@@ -1,0 +1,38 @@
+========================================================================
+  UPDATE 1, ITEM 4c: AI CLUBS FIELD THREE, GET INJURED, AND INJURED PLAYERS COME CHEAP
+========================================================================
+
+1. AFTER A WEEK EVERY AI CLUB HOLDS 3 SENIORS, OR CANNOT AFFORD OR FIT ONE MORE
+  PASS  no AI club holds more than 3, and every one holds at least 2  43 with 3, 17 with 2
+  PASS  each club with only 2 has no fit free agent it can afford (3 months' wage) and fit under the cap  17 of 17 explained
+  INFO  17 of 60 AI clubs can't take a third senior (the cap or the bank); 146 fit free agents left
+
+2. AI PLAYERS ARE INJURED IN THEIR MATCHES, AT ABOUT THE SHARED ROLL'S RATE
+  PASS  AI players were injured in their matches  39 injuries in 996 player-matches (136 regional, 113 World Tour), 2026-01-02 to 2026-04-19
+  PASS  at about the shared roll's rate (between half and double its mean for their stamina)  3.92% a player-match against 3.97%
+
+3. INJURED AI PLAYERS HEAL ON THE WEEKLY CLOCK AND ARE NOT PICKED
+  PASS  each week every injured AI player was nearer fit (her base weeks still to heal fell, at her club's treatment factor)  107 of 107
+  PASS  a club with two of its three out 6 weeks forfeited its next matches (0 sets, a walkover), or played them with cover from its injured list  2-0 (42-0 points, away) 2-0 (42-0 points, away) 2-0 (42-0 points, away) 0-2 (0-42 points, home); at most 1 fit besides the two while they were out
+  PASS  and its two healed on the clock (6 weeks, about 42 days on)  0, 0
+
+4. AN AI FITNESS GURU'S CLUB RUNS THE ROLL AT x0.8
+  PASS  (source) the AI roll is the player's roll, with the club's manager's Fitness Guru, and Fitness Guru counts for AI clubs
+
+5. A LONG-INJURED AI SENIOR AT RENEWAL IS RELEASED, AND ON THE MARKET AT HALF HER WAGE
+  PASS  her club did not renew her: she is a free agent on the wage for her rating, or an AI club took the gamble at half of it  club 43 (was 43), wage 7492 (rating wage 14984)
+  PASS  the Player Market shows an injured free agent (6 weeks out) at 50% of her wage  asks 7850 of 15700, out 6 weeks
+  PASS  (a fit free agent still refuses less than her full asking wage)  422
+  PASS  she signs at that wage, and the contract keeps it  201: 7850 / contract 7850
+
+6. A SHORT INJURY (UNDER 4 WEEKS) SHOWS 75%
+  PASS  a free agent out 2 weeks asks 75% of her wage  12375 of 16500
+  PASS  (source) the one asking-wage path takes the share (MONEY.salaryCap.injuredLongWeeks = 4)
+
+7. A FULL AI CLUB MAY BUY, RELEASING ITS WEAKEST
+  PASS  (source) a full club's bar is its weakest senior + AI_BUY_GAP; she is released when the one it buys arrives; the cap counts her wage gone
+
+8. NO AI CLUB THAT SIGNED ANYONE IS OVER THE CAP
+  PASS  every AI club that signed a senior (not an academy promotion, C-5) is under the cap  0 over; 3 over through an academy promotion
+
+16/16 checks passed

@@ -86,9 +86,10 @@ const w = (sql, ...a) => { const d = new DatabaseSync(DB); try { return d.prepar
 async function signForSixMonths(teamId) {
   w(`UPDATE teams SET budget = MAX(budget, 500000) WHERE id = ?`, teamId);
   makeCapRoom(DB, teamId);
-  const roster = (await api("GET", "/team/roster")).data ?? {};
-  const bench = roster.benchPlayers ?? [], squad = [...(roster.activePlayers ?? []), ...bench];
-  if (squad.length >= 3) freeSquadPlace(DB, (bench[0] ?? squad[squad.length - 1]).id, teamId);
+  // Every senior holding a place (the roster page leaves out one on the injured list): keep the two starters.
+  const seniors = q(`SELECT s.player_id AS id FROM career_player_state s JOIN players p ON p.id = s.player_id
+    WHERE s.team_id = ? AND s.is_retired = 0 AND (p.player_type = 'senior' OR s.is_promoted = 1) ORDER BY s.squad_role = 'starter', s.salary`, teamId);
+  for (const s of seniors.slice(0, Math.max(0, seniors.length - 2))) freeSquadPlace(DB, s.id, teamId);
   const fa = ((await api("GET", "/players/free-agents")).data ?? []).filter((x) => x.playerType !== "youth" && !x.teamId)
     .sort((a, b) => Number(a.salary) - Number(b.salary))[0];
   if (!fa) return { status: 0, why: "no free senior" };

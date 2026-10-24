@@ -181,3 +181,34 @@ Every surname is one of that nation's athletes' in the game. No new name matches
 | **court-finish** | Last night: after a **Nations Cup** match (finished, or left part-way) the court went to the Cup schedule page; a club match to the Dashboard. | **No.** Rob's rule for the court (Unity brief, 29 Sep, item 5) is "a proper finish, then **straight back to the dashboard**". The 1.1.3 brief asked for Watch buttons on the Cup schedule and the Dashboard; it never asked for a different way back. The check had been changed to follow the game. **The game was wrong: fixed.** A Cup match now goes straight back to the Dashboard too, where the day's other Cup matches have their Watch buttons (`pages/court.tsx`, both places). | Leaving POSTs `/matches/:id/leave` (a club match) and goes to `/`; "unity-match-finished" refreshes every screen and goes to `/`; and `court.tsx` no longer names the Cup schedule at all. 11/11. |
 | **settings** | On the court's settings overlay, choosing Manual for a Nations Cup match of a nation he doesn't coach does nothing (`chooseMode` returns first); his own nation's match can be Manual. | **Yes.** The 1.1.3 brief, A4b: "Watched matches play in Auto. Manual is only allowed for the player's own nation"; A4c: "He can play his nation's matches in Manual or Auto. Every other match is Auto only." The court (`ManualControl.ForbidManual`) refuses it too. | `chooseMode` refuses Manual when Manual isn't allowed, then saves and sends the mode as before. Unchanged tonight. |
 | **staff-bonuses** | The starter DB had 329 staff after last night's 49 medics; it has **410** after tonight's A1 (81 coaches and scouts). | **Yes:** the count is the staff Rob's portraits added. | 410 starter staff, no two sharing a name (ignoring "Dr."). Updated for A1 tonight; 28/28. |
+
+### C2. Academy intake: where the extra player came from
+
+**Every path that makes a player** (I read each one; `w.createPlayer` / `createCareerPlayer` / an insert into `players` are the only ways):
+
+| Path | Code | In last night's count? |
+|---|---|---|
+| His club's intake | `youthIntake.ts` `youthIntakeTx` → `youthFactoryTx().make` | counted, and listed in `youth_intakes` |
+| **The AI clubs' academies, refilled every week** | `youthLoans.ts` `aiAcademiesWeekTx` → the **same** `youthFactoryTx().make` | **counted, never in his intake row** |
+| The season's picture players | `newSeniors.ts` → `career_new_seniors` | excluded |
+| Pool players made career seniors (a career's first week) | `aiSquads.ts` `materializeAiSeniorsTx` (`pool_player_id`) | excluded |
+| A youth signed off a scouting find | `routes/youth-scouting.ts` (the player's action) | not in this scenario |
+| `POST /players` | `routes/players.ts` (no screen calls it) | not in this scenario |
+| The Day 1 draft, youth promotion, graduates kept at 19 | move existing players; **make none** | n/a |
+
+**The name a new player can wear when "no name is left":** the suite gives every first name × surname combination to parked players first. Two kinds of real name still come back: a **retiree's** (the L-02c respawn rule, `player_retirements.name_reused_at`), which the old count allowed; and **an AI academy graduate's who left the game at 19**, which `intakeNamePoolTx` deliberately frees again (the C15 rule, so sixty AI academies don't use up a region's names). **The old count did not allow for the second.** An AI academy refill (or a picture player, whose name comes from the same pool) wearing a departed graduate's name would read as "1 created with a new name" while his intake made no one: exactly last night's line. That is the likeliest origin. It is a real, recycled name, by design, not a made-up one.
+
+**The check now** (`harness/youth-intake.mjs`): it lists every player the season makes in that career, each with her origin (his intake / an AI academy refill (which club) / a picture player / a pool player made a career senior) and the source of her name (a retiree's given back / a departed AI graduate's / the pool player's own). It **fails on any player of unknown origin or with a genuinely new name**, and names her.
+
+**Runs:** 5 runs tonight, **25/25 each**, plus last night's 2 clean re-runs: **7 clean runs of 8; not reproduced.** Each run's list (`docs/proof-1.1.3/rebuild-c/youth-intake-run1..5.log`): 2 to 6 players made, all accounted for: AI academy refills and new seniors, all wearing retirees' names given back. No departed-graduate name came up in these five, so the C15 path is the likeliest explanation, not a proven one. If last night's case happens again, the line will name her, her club and where her name came from.
+
+One thing the new lines showed, explained and not a fault: in three runs the same youth (Martha Kera, Solomon Islands), made by an AI academy refill that season, also has a `career_new_seniors` row (listed as a new senior). The intake factory makes youths of 16 to 18 (`INTAKE_AGE_MIN/MAX`); one made at 18 turns 19 at the season's turn and can be one of the AI youths kept on as a new senior (`newSeniors.ts`, kind "youth"). Accounted for either way.
+
+### C3. The two suite fixes hold
+
+| Suite | Last night's fault in the suite | Runs tonight | Result |
+|---|---|---|---|
+| **ai-job-market** | The planted failed AI season came after the boards had already judged (his two World Finals places are matches too, so "one regular match left" was 3 scheduled, and that count went to 0 in one day). The suite only passed when some AI club failed on its own, **2 runs in 5, through 1.1.1 too: it had been passing on luck.** | **10**: 2 while building Part B, 5 for C3, 3 after a helper fix | **The planted sacking held in all 10**: 1 to 4 AI managers sacked each run, each with its reason. 9 of 10 runs 36/36. The one failure was in my own new B3 helper, not the planted season (below). |
+| **ai-injuries** | It didn't allow for a walkover won by default: when the home side can't field two either, the walkover goes to the away side, so the short club "wins" 2-0 on 42-0 points without playing. | **5** | **16/16 all five.** The walkover case came up in all five (e.g. "2-0 (42-0 points, away)"), so the fix was exercised, not just passed. |
+
+**The one failure, mine:** in one of the five C3 runs of ai-job-market, the new B3 check "his new club signs a player on 6 months" got "Squad is full (3/3)". My helper freed a squad place from the Team page's roster, which leaves out a senior on the injured list. It now counts the seniors holding a place from the database and frees down to the two starters (the same fix went into `contract-rules.mjs`'s helper). Then: contract-rules 33/33, ai-job-market 36/36 three times running.

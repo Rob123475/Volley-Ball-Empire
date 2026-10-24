@@ -102,9 +102,10 @@ try {
   const today = async () => (await W.api("GET", "/calendar")).data?.currentDate;
   W.w(`UPDATE teams SET budget = 2000000 WHERE id = ?`, c.teamId);
   const sign = async (length) => {
-    const roster = (await W.api("GET", "/team/roster")).data ?? {};
-    const squad = [...(roster.activePlayers ?? []), ...(roster.benchPlayers ?? [])];
-    if (squad.length >= 3) freeSquadPlace(W.db, (roster.benchPlayers?.[0] ?? squad[squad.length - 1]).id, c.teamId);
+    // Every senior holding a place (the roster page leaves out one on the injured list): keep the two starters.
+    const seniors = W.q(`SELECT s.player_id AS id FROM career_player_state s JOIN players p ON p.id = s.player_id
+      WHERE s.career_save_id = ? AND s.team_id = ? AND s.is_retired = 0 AND (p.player_type = 'senior' OR s.is_promoted = 1) ORDER BY s.squad_role = 'starter', s.salary`, c.cid, c.teamId);
+    for (const s of seniors.slice(0, Math.max(0, seniors.length - 2))) freeSquadPlace(W.db, s.id, c.teamId);
     const fa = ((await W.api("GET", "/players/free-agents")).data ?? []).filter((x) => x.playerType !== "youth" && !x.teamId)
       .sort((a, b) => Number(a.salary) - Number(b.salary))[0];
     const r = await W.api("POST", "/contracts", { confirm: true, playerId: fa.id, salary: fa.salary, bonusPerWin: 0, squadRole: "interchange", length });
