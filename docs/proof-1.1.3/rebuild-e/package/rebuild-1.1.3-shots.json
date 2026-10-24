@@ -33,15 +33,21 @@
    "s": "D done",
    "Head Coach": {
     "pressed": true,
-    "newFaces": 0
+    "newOnPage": 10,
+    "of": 10,
+    "scrolledTo": true
    },
    "Assistant Coach": {
     "pressed": true,
-    "newFaces": 0
+    "newOnPage": 11,
+    "of": 11,
+    "scrolledTo": true
    },
    "Scout": {
     "pressed": true,
-    "newFaces": 0
+    "newOnPage": 60,
+    "of": 60,
+    "scrolledTo": true
    },
    "medicalFaces": 199,
    "signButton": true,
@@ -50,10 +56,9 @@
     "1 season",
     "2 seasons"
    ],
-   "youthTab": true,
-   "youthCardOpened": false,
-   "youthCardShown": false,
-   "rules": "Contract lengths\nYour club signs and renews a player for 6 months, 1 season or 2 seasons. The AI clubs sign and renew players for 1 season or 2 seasons only.\nThe 6-month option is your club's: if you move to another club it goes with you. Deals you signed at your old club stay with that club.\nStaff and medical contracts are 1 season or 2 seasons, and every one ends on 7 January, the day before the AI clubs hire (8 January). A staff hire on 1 season in mid-season runs only to the next 7 January.\nA season is the World Tour season, not a calendar year: a player's 1 season runs to the end of the s"
+   "youthCardOpened": "Eleni Stavrou",
+   "youthCardShown": true,
+   "rules": "Contract lengths\nYour club signs and renews a player for 6 months, 1 season or 2 seasons. The AI clubs sign and renew players for 1 season or 2 seasons only.\nThe 6-month option is your club's: if you move to another club it goes with you. Deals you signed at your old club stay with that club.\nStaff and medical contracts are 1 season or 2 seasons, and every one ends on 7 January, the day before the AI clubs hire (8 January). A staff hire on 1 season in mid-season runs only to the next 7 January.\nA player's 1 season runs to the end of the season it is signed in (31 December), not 12 months on; 2 seasons to the end of the next one.\nInjured players come cheap\nAn injured free agent asks less: out"
   },
   {
    "s": "E: started the packaged exe",
@@ -83,7 +88,7 @@
     "star": 86
    },
    "tab": true,
-   "offer": null,
+   "offer": "Kuala Lumpur Monsoon FC bids $600 for Lani Faumuina: $1,150 a month, 1 season, perks: none. |  | Answer by 5 Feb 2026. If she goes, she leaves on 7 Dec 2026. |  | Counter | Let her go",
    "counter": true,
    "counterLengths": [
     "6 months",
@@ -102,15 +107,21 @@
  "D": {
   "Head Coach": {
    "pressed": true,
-   "newFaces": 0
+   "newOnPage": 10,
+   "of": 10,
+   "scrolledTo": true
   },
   "Assistant Coach": {
    "pressed": true,
-   "newFaces": 0
+   "newOnPage": 11,
+   "of": 11,
+   "scrolledTo": true
   },
   "Scout": {
    "pressed": true,
-   "newFaces": 0
+   "newOnPage": 60,
+   "of": 60,
+   "scrolledTo": true
   },
   "medicalFaces": 199,
   "signButton": true,
@@ -119,10 +130,9 @@
    "1 season",
    "2 seasons"
   ],
-  "youthTab": true,
-  "youthCardOpened": false,
-  "youthCardShown": false,
-  "rules": "Contract lengths\nYour club signs and renews a player for 6 months, 1 season or 2 seasons. The AI clubs sign and renew players for 1 season or 2 seasons only.\nThe 6-month option is your club's: if you move to another club it goes with you. Deals you signed at your old club stay with that club.\nStaff and medical contracts are 1 season or 2 seasons, and every one ends on 7 January, the day before the AI clubs hire (8 January). A staff hire on 1 season in mid-season runs only to the next 7 January.\nA season is the World Tour season, not a calendar year: a player's 1 season runs to the end of the s"
+  "youthCardOpened": "Eleni Stavrou",
+  "youthCardShown": true,
+  "rules": "Contract lengths\nYour club signs and renews a player for 6 months, 1 season or 2 seasons. The AI clubs sign and renew players for 1 season or 2 seasons only.\nThe 6-month option is your club's: if you move to another club it goes with you. Deals you signed at your old club stay with that club.\nStaff and medical contracts are 1 season or 2 seasons, and every one ends on 7 January, the day before the AI clubs hire (8 January). A staff hire on 1 season in mid-season runs only to the next 7 January.\nA player's 1 season runs to the end of the season it is signed in (31 December), not 12 months on; 2 seasons to the end of the next one.\nInjured players come cheap\nAn injured free agent asks less: out"
  },
  "E": {
   "bid": {
@@ -134,7 +144,7 @@
    "star": 86
   },
   "tab": true,
-  "offer": null,
+  "offer": "Kuala Lumpur Monsoon FC bids $600 for Lani Faumuina: $1,150 a month, 1 season, perks: none. |  | Answer by 5 Feb 2026. If she goes, she leaves on 7 Dec 2026. |  | Counter | Let her go",
   "counter": true,
   "counterLengths": [
    "6 months",

@@ -1,10 +1,115 @@
 # 1.1.3 rebuild: status
 
-Brief: `Downloads\REBUILD-BRIEF-24OCT.md` (24 Oct 2026). Worktree `C:/vbe-tm`, branch **release-1.1.3**, continuing from eb2dc65b. Version stays **1.1.3** (a rebuild of an unpublished package). Commit and push after every item. Nothing uploaded to Steam; nothing merged into update-1. Rob's live save is only copied (its hash is at the end).
+Brief: `Downloads\REBUILD-BRIEF-24OCT.md` (24 Oct 2026). Worktree `C:/vbe-tm`, branch **release-1.1.3**, continuing from eb2dc65b. Version stays **1.1.3** (a rebuild of an unpublished package). Commit and push after every item. Nothing uploaded to Steam; nothing merged into update-1. Rob's live save is only copied (its hash is in the summary).
 
 ## Summary
 
-*(In progress: filled in as the items land.)*
+**1.1.3 is rebuilt, fully tested on one commit, and packaged. Not uploaded.**
+
+- **The commit: `a0cd6231`** (release-1.1.3, on GitHub). The full harness passed on it, **136 of 136, "ALL HARNESSES PASSED"**, and the package was built from it: `C:\build\vbe-1.1.3\win-unpacked\` (version 1.1.3). **Harness, build and GitHub share one commit**, as Rob asked on 23 Sep. Unity is unchanged (dd0a487).
+- **Steam:** nothing uploaded, nothing set live. `steam/app_build_5233750-1.1.3.vdf` now names a0cd6231 in its description. It still has `SetLive "default"`, as last night's did, so Rob should check that line before he runs it. BuildID 26098080 (1.1.2) stays live on `default`.
+- **Rob's live save:** only copied, never opened. Its SHA-256 is the same at the end as at the start (`5980b82c…910a4e`, last written 16 Oct).
+- **Part A:**
+  - **A1:** the 82 refused staff portraits were cleaned the 19 Oct way, and **81 are installed**: 10 head coaches, 11 assistant coaches, 60 scouts. Scout (16) was a pixel-for-pixel copy of (15).
+  - **A2:** the 28 duplicate pool players are renamed **in the starter DB only**. I also stopped the boot copying pool-player names into saves; without that, the rename would have reached every save in play.
+  - **A3:** the youth card's wall text is painted out.
+  - **A4:** the World Tour decision is written down as closed.
+- **Part B:**
+  - Staff and medical contracts run 1 or 2 seasons and **all end on 7 January**.
+  - **AI clubs sign players on 1 or 2 seasons only.** They had also been giving 6-month player deals at every club rated under 70, not just to staff.
+  - **The 6-month option is the career's current club's**, and it moves with the manager, proven in a real club move.
+  - In the 30-season soak, **AI clubs short of a doctor or physio fell from 9–24 every season to 0** in 24 seasons (1 in each of the other 6).
+- **Part C:**
+  - **C1:** court-finish was **the game being wrong**, and is fixed: a Nations Cup match went back to the Cup schedule, not the Dashboard. settings and staff-bonuses were the game as Rob asked.
+  - **C2:** every path that makes a player was checked, and the check now names each player and where her name came from. 5 clean runs; the likeliest source is a recycled graduate's name, which the old count missed.
+  - **C3:** both of last night's suite fixes held, over 10 and 5 runs.
+- **Part D (report only):**
+  - **D1:** every short-squad day is **the injured list at a club carrying only two seniors**, cleared the next day. It is not contracts, and Part B didn't fix it (32 club-days before, 22 after, same cause).
+  - **D2:** the Job Market needs a way in and a way back; about half a day's work.
+- **The full harness took three tries to land on one commit:**
+  - 37aebd04: two broken banner lines in `run-all.mjs` stopped it before its first suite.
+  - 2cc1dc16: 134/136, two suite faults (fixed).
+  - 5982bf8c: 133/136, three chance failures (each re-run alone).
+  - Then the package check found a false sentence I had written on the Rules page; fixing it changed game code, so the harness ran again on **a0cd6231: 136/136**.
+- **For Rob:**
+  - AI clubs almost never bid for seniors (no senior bid in 28 of 30 seasons before Part B, and 19 bids in 30 seasons after it), and `ai-buyable` has been passing on luck because of it.
+  - 24 AI pool players share a world-roster player's picture.
+  - Details under "What needs Rob".
+
+## What is now true
+
+| Item | Now | Evidence |
+|---|---|---|
+| A1 | 81 of the 82 cleaned and installed (ids 10210–10290); Head Coach 35→45, Assistant Coach 35→46, Scout 10→70 in the starter DB and in a copy of the live save after one boot | contact sheets and zooms `docs/proof-1.1.3/rebuild-a1/`; picture match: closest other picture 5.6 levels apart (a copy is under 2); packaged Staff Market shows all 81 (shots 01–03) |
+| A2 | No pool player shares a name with a world-roster player in new saves; saves in play keep theirs | `pool-names.mjs` 15/15: starter DB walk; live-save copy booted with every pool and player name hash unchanged |
+| A3 | No "BEACH VOLLEYBALL WORLD TOUR" on the youth card; same size and format | mean difference 0.62 against its original; before/after `rebuild-a3/`; packaged shot 06 |
+| A4 | "World Tour" decided and closed, in `docs/TRADEMARK-CLEANUP.md` item 4; no strings changed | the doc; my notes |
+| B1 | Every staff and medical contract ends on 7 January, 1 or 2 seasons | `contract-rules.mjs` 33/33 (122 of 122 contracts end on a 7 January past the AI deal); soak: 0 not ending 7 January in 30 seasons (76–100 before) |
+| B2 | No AI club holds a 6-month contract of any kind | `contract-rules.mjs`; soak: 0 every season (about 62 before); packaged shot 08: an AI club's offer on 1 season |
+| B3 | 6 months only at the career's current club; it follows him; old deals stay | `ai-job-market.mjs` 36/36 with the move checks; packaged shots 05 and 09 (his club: 6 months, 1 season, 2 seasons) |
+| B, the split check | `contract-terms.mjs` checks three lists (his club's players, other clubs' players, staff) server = frontend | 46/46 |
+| C1 | court-finish: game fixed (Dashboard after a Cup match); settings, staff-bonuses: game as asked | court-finish 11/11; the table under C1 |
+| C2 | The intake check names every player a season makes and where her name came from | youth-intake 25/25 ×5; logs `rebuild-c/` |
+| C3 | Both suite fixes hold | ai-job-market planted sacking 10/10; ai-injuries 16/16 ×5 |
+| D1 | Cause found: the injured list at two-senior clubs, one day each; Part B didn't move it materially | soaks before and after Part B, `rebuild-d/` and `rebuild-e/` |
+| D2 | What a mid-season Job Market needs, written down | D2 below |
+| E | One commit for harness, build and GitHub: a0cd6231, 136/136; packaged; nine packaged-game shots | `rebuild-e/full-build-a0cd6231.log`, `rebuild-e/package/` |
+
+## What I changed, file by file
+
+**Game: server** (`artifacts/api-server/src`)
+- `utils/contractTerms.ts`: the amended rule in the header (why, and that it is deliberate); the three lists (`PLAYER_`, `AI_PLAYER_`, `STAFF_CONTRACT_LENGTHS`); `playerContractParty`; `readContractLength(body, party)` refusing 6 months with the reason; `seasonLength`; `STAFF_CONTRACT_END` and `staffContractEndDate`. (B)
+- `utils/seasonDates.ts`: `staffContractPatch` ends on 7 January; `playerContractPartyFor` / `playerContractPartyTx`, the gate (the career's current club). (B)
+- `routes/contracts.ts`, `team.ts`, `transfers.ts`, `youth-loans.ts`, `youth-scouting.ts`: player lengths through the gate. (B3)
+- `routes/staff.ts`, `routes/medical-staff.ts`: staff lengths; renewal to the next 7 January. (B1)
+- `utils/aiStaff.ts`: the AI clubs' 8 January deal on 1 or 2 seasons, to 7 January (the 6m/1s/2s random pick gone). (B1)
+- `utils/backfillContracts.ts`, `utils/staffContractBackfill.ts`: staff with no contract get one to 7 January. (B1)
+- `utils/poolClubFinances.ts`: `lengthForRating` 1 or 2 seasons (it was 6 months under 70); old 6-month pool deals renew on a season. (B2)
+- `utils/aiSquads.ts`: no fallback on the first length (6 months). (B2)
+- `utils/transfers.ts`: an AI counter to a 6-month bid offers a season; a deal completed anywhere but his club is on a season. (B2/B3)
+- `utils/youthDeals.ts`: an AI club buying a youth is on a season. (B2)
+- `utils/ensureSchema.ts`: the boot no longer copies a pool player's name from the starter DB. (A2)
+- `utils/referenceRenames.ts`: 2 Oct's Salote Taufa, made by name. (A2)
+
+**Game: frontend** (`artifacts/beach-volleyball/src`)
+- `lib/contract-lengths.ts`: the three lists. `components/contract-length-picker.tsx`, `contract-renew-bar.tsx`: staff offer 1 or 2 seasons. `components/contract-offer-dialog.tsx`, `transfers-panel.tsx`, `pages/contracts.tsx`, `day1-draft.tsx`, `team.tsx`: his club's three. `pages/staff-market.tsx`, `medical-market.tsx`: "1 season or 2 seasons, to 7 January". `pages/players.tsx`: an unused import. `pages/rules.tsx`: "Contract lengths". (B)
+- `pages/court.tsx`: a Nations Cup match goes back to the Dashboard. (C1)
+
+**Game: data**
+- `lib/db/volleyball-empire.sqlite`: 81 new staff (ids 10210–10290; A1); 28 pool players renamed (A2).
+- `public/images/staff/head_coach/staff-36..45`, `assistant_coach/staff-36..46`, `scouts/staff-11..70` (A1); `public/images/youth/player_youth_card_01.webp` (A3).
+
+**Scripts**
+- `scripts/install-staff-portraits.cjs`: the Scout role. `scripts/portraits/staff-picture-match.py`: takes the new set's folder. `scripts/portraits/staff-logo-clean/`: the 19 Oct cleaning code and every region (A1). `scripts/rename-pool-duplicates.cjs` (A2). `scripts/webgl-proof/rebuild-1.1.3-save.mjs`, `rebuild-1.1.3-shots.mjs`: the packaged-game proof (E).
+
+**Harness**
+- New: `pool-names.mjs` (A2, 98zy), `contract-rules.mjs` (B, 98zz); both in `run-all.mjs`.
+- `ai-job-market.mjs`: the B3 club move. `contract-terms.mjs`: the three-list check, staff to 7 January. `staff-contracts.mjs`, `ai-staff.mjs`, `ai-club-economy.mjs`, `counter-offer.mjs`, `calendar-rules.mjs`: Part B. `night2-world.mjs`, `player-market.mjs`, `staff-bonuses.mjs`, `staff-scouting.mjs`, `staff-slots.mjs`, `youth-market.mjs`: staff hired on 1 season. `staff-bonuses.mjs`, `wizard-career-economy.mjs`, `ai-staff.mjs`: the 81 new staff. `reference-corrections.mjs`: the two renamed movers. `court-finish.mjs`: C1. `youth-intake.mjs`: C2. `new-seniors.mjs`: a new senior may be signed at the turn. `long-career-update1.mjs` (the soak): Part B's lines, the D1 breakdown, `SOAK_SERVER`.
+
+**Docs**
+- `docs/STATUS-1.1.3-REBUILD.md` (this report), `docs/TRADEMARK-CLEANUP.md` item 4 (A4), `docs/UPDATE1-1.1.3-PATCH-NOTES.md` (contracts, the 130 faces, the renamed players), `docs/staff-portrait-names-1.1.3.json` (A1), the proof folders `docs/proof-1.1.3/rebuild-a1`, `-a3`, `-c`, `-d`, `-e`.
+
+## What I found and did not fix
+
+- **AI clubs almost never bid for seniors.** Before Part B, 30 seasons gave **no AI senior bid in 28 seasons** (4 in one, 2 in another); the ~104 "bids" each season are youth buys. After Part B, 19 senior bids in 30 seasons. So AI-to-AI senior transfers are close to absent, and `ai-buyable`'s ten-week check of them passes on luck (3 of 5 runs before Part B, about 3 of 10 after; the diagnostic showed AI clubs scouting about 59 seniors in ten weeks and then making no senior bid). Since A3, an AI club must scout first, its squad is usually full (three) and near its cap, and its wage room is judged on her arrival date. This is older than tonight and bigger than a suite fix: it is a design question (below).
+- **24 AI pool players use the same card picture as a world-roster player** (e.g. EUR_09_P2 and Aoife O'Sullivan both `ireland_01`; NAM_10_P1 and Aaliyah Rolle both `bahamas_01`). Their names now differ; their faces don't, so a new career can show two players with one face. Fixing it needs 24 new AI-club pictures, or pointing them at unused cards.
+- **Pool player SAM_04_P1 Lucía Quispe has the same name as a staff member.** Older; not one of the 28.
+- **A new career started inside an existing save file** uses that save's pool names, duplicates included, because A2 doesn't reach into saves.
+- **The contract box says "A season ends when the World Tour does — the club sets the date."** The season rows end on 31 December, not at the World Finals. It isn't mine, and changing it meant another full harness run, so I left it. One sentence in `components/contract-offer-dialog.tsx`.
+- **D1's real fixes** (an interchange kept near the cap, or same-day cover from the injured list) and **D2's Job Market way in and out**: report only, as the brief says.
+- **A1, could not clean perfectly:** the four tweed jackets' pin patches (scouts (52), (54), (58), (60)) are slightly blotchy close up; the scouts' walls are smooth where the swirl was. Listed under A1.
+- **Not reproduced, C2:** last night's extra player. The check will name her if it happens again.
+
+## What needs Rob
+
+1. **The upload and going live:** his, as always. Check the Steam script's `SetLive "default"` line before running it; it would set the build live on `default`.
+2. **Then the merge of release-1.1.3 into update-1**, after his upload (not done; the brief says it waits).
+3. **AI clubs and seniors:** should AI clubs actively buy seniors (from each other and from him)? Today they almost never do. If yes, it needs a design (how often, from whom, with what room), and then `ai-buyable` can assert it instead of hoping for it.
+4. **24 AI players with a world-roster player's face:** new pictures, or reuse spare cards?
+5. **D1:** keep an interchange at AI clubs near the cap, or bring the injured list's cover up the same day? Either would remove the one-day short squads.
+6. **D2:** a way into and out of the Job Market mid-season (about half a day).
+7. **The contract box sentence** about the World Tour setting the season's end (one line).
+8. Optional: delete `C:\build\vbe-1.1.3-eb2dc65b\` (last night's package, superseded).
 
 ## Decisions I made
 
@@ -112,7 +217,7 @@ Every surname is one of that nation's athletes' in the game. No new name matches
 
 **Decisions (A2):**
 - **"Do not reach into existing saves" also covers a new career started inside an existing save file:** it reads that save's pool rows, so it gets that save's names, duplicates included. Only a new save (a fresh install, or a save made from the starter DB) gets the clean names. Reaching into the save's reference rows to change that would be the very thing Rob ruled out.
-- Two first choices gave a pool player the same surname as the world-roster player whose card she shares (see below): Grace Kumul beside Diana Kumul, Yasmine Trabelsi beside Ines Trabelsi. They became Grace Bainivalu and Yasmine Mzoughi, and the suite asserts it can't happen.
+- Two first choices gave a pool player the same surname as the world-roster player whose card she shares (see "What I found and did not fix"): Grace Kumul beside Diana Kumul, Yasmine Trabelsi beside Ines Trabelsi. They became Grace Bainivalu and Yasmine Mzoughi, and the suite asserts it can't happen.
 
 ### A3. "BEACH VOLLEYBALL WORLD TOUR" off the youth card
 
@@ -228,7 +333,17 @@ One thing the new lines showed, explained and not a fault: in three runs the sam
 - **Why two seniors:** an AI club refills to three only if it can fit the third under its salary cap (`keepAiSquadsTx`: "the interchange only when it can pay one and fit her under its cap"). At each season's end 48 to 59 of the 60 clubs held three seniors (median 56) in the baseline, so a handful of clubs sit at two at any time. With no interchange, one injury is enough.
 - The weekly squad step is also why contracts don't cause it: an AI contract that runs out is renewed or released only in that weekly step, which refills the club in the same step.
 
-**Does Part B fix it?** The after-Part-B soak is in Part E. On the cause above, I don't expect it to: Part B changes contract lengths, and no short episode began with a contract ending. (Part B did take the AI clubs' 6-month player deals out: about 62 AI players were on them at the end of every season in the baseline.)
+**Did Part B move it? A little, and not by its cause.** The 30-season soak after Part B (on 5982bf8c, whose server is the same as the packaged a0cd6231's; `docs/proof-1.1.3/rebuild-e/soak-30-seasons-5982bf8c.log`): **22 club-days** (32 before), **22 episodes, every one the injured list at a club carrying two seniors, every one a single day**, none starting with anybody leaving. The cause is unchanged; the drop from 32 to 22 is within what one 30-season run varies by (last night's pre-Part-B run gave 27). Part B is not the fix. What would be: an AI club keeping an interchange (three seniors) even near its cap, or the injured list's cover coming up the same day rather than the next. I changed neither (report only).
+
+**What Part B did change, from the same two soaks:**
+
+| Each season, at its end | Before Part B | After Part B |
+|---|---|---|
+| AI clubs short of a doctor or physio | 9 to 24, every season | **0 in 24 seasons, 1 in the other 6** |
+| AI players on 6-month deals | about 62 | **0** |
+| Staff and medical contracts not ending 7 January | 76 to 100 | **0** |
+| AI clubs holding three seniors | 48 to 59 (median 56) | 46 to 56 (median 54) |
+| AI senior bids, 30 seasons in all | 6 | 19 |
 
 ### D2. The Job Market mid-season (report only: nothing changed)
 
@@ -243,3 +358,33 @@ One thing the new lines showed, explained and not a fault: in three runs the sam
 2. **A way out:** when `employed` is true (the API already sends it), a "Back to the Dashboard" button at the top of the page; or render the page inside the shell when he has a club and outside it when he hasn't (two routes, one component), which gives him the side menu too. The second is cleaner but touches the router and the auth guard, so it needs the guard's redirects re-tested.
 3. **Mid-season wording:** Apply is already disabled outside the window and says why (`windowText`), so no server change is needed.
 4. **Proof:** a few lines in `harness/ai-job-market.mjs` (the route exists, the menu entry is there while employed, the back button only while employed) and a packaged-game screenshot.
+
+## Part E: the one full test
+
+1. **Typecheck, build, sync:** clean, in every run below (`pnpm run build`).
+2. **The full harness, end to end, on one commit.** It took four starts to get there, all on GitHub:
+
+| Commit | Result | What happened |
+|---|---|---|
+| 37aebd04 | stopped before the first suite | my two new banner lines in `run-all.mjs` had a line break inside their strings (typecheck and build had passed). Fixed: 2cc1dc16. |
+| 2cc1dc16 | 134 / 136 | two suite faults, both mine from Part B or older checks: `calendar-rules` looked for the coach's contract end in this year's calendar (it now ends on 7 January, next year's); `new-seniors` expected every new senior still on the market after the season's turn, but the turn's AI refill (`keepAiSquadsTx`, after the arrivals) may sign one the same day. Fixed in the suites (5982bf8c); both pass alone. No game code changed. |
+| 5982bf8c | 133 / 136 | three chance failures, same game code as 2cc1dc16, where all three had passed. **gameplay smoke** (the tracked player was gone from the roster after six matches): 6/6 alone. **ai-job-market** (the club he took had no academy youths to check): 5/5 alone, 10/10 earlier. **ai-buyable** (no AI-to-AI deal in ten weeks): 2/5 alone, and **3/5 on a build from before Part B**, so it was passing on luck before tonight too (see "What I found"). The 30-season soak ran on this build. |
+| **a0cd6231** | **136 / 136, ALL HARNESSES PASSED** | after the packaged-game check found a false sentence of mine on the Rules page ("a season is not a calendar year": the season rows run 1 January to 31 December). Fixed to say what is meant, which changes game code, so the whole harness ran again. **This is the commit the package is built from.** |
+
+3. **The 30-season soak** (on 5982bf8c, whose server is the same as a0cd6231's: only a Rules-page sentence differs): 30 of 30 seasons, 34 minutes. One flag: AI clubs short of a doctor or physio, `0/0/0/0/1/1/0/0/0/0/0/0/0/1/0/0/0/0/1/0/0/0/0/0/0/0/1/1/0/0` (last night `31/14/15/…`, every season). The A3 limit lines: no AI club past its limits in any season. The new Part B lines: 0 AI 6-month contracts and 0 staff contracts not ending 7 January in every season. The D1 line: 22 club-days, with its breakdown (D1 above). `docs/proof-1.1.3/rebuild-e/soak-30-seasons-5982bf8c.log` / `.json`.
+4. **The packaged-game proof** (the real exe, `--user-data-dir` on fresh temporary folders, two throwaway saves made by `scripts/webgl-proof/rebuild-1.1.3-save.mjs`; Rob's AppData saves fingerprinted before and after: unchanged). Screenshots in `docs/proof-1.1.3/rebuild-e/package/`:
+   - `01`, `02`, `03`: **the new head coaches, assistant coaches and scouts on the Staff Market** (all 10, 11 and 60 found on the page by name), `04` the Medical Market.
+   - `05`: **his club's contract box: 6 months, 1 season, 2 seasons** (a bid for a player at an AI club).
+   - `08`: **an AI club's offer for his star: "$1,150 a month, 1 season"**: an AI club offers 1 or 2 seasons, no 6 months. `09`: his counter (his club's contract) offers all three.
+   - `06`: **the youth card with no wall text.**
+   - `07`: the Rules page's "Contract lengths".
+5. **Repackaged** to `C:\build\vbe-1.1.3\win-unpacked\` from a0cd6231 (after-pack checks OK; the packaged starter DB is byte-identical to the commit's: 410 staff, AUS_09_P1 Grace Bainivalu; only Brotli Unity files). Last night's never-uploaded package is kept as `C:\build\vbe-1.1.3-eb2dc65b\` (delete it when you like).
+6. This report.
+
+**Rob's check saves** from last night (`C:\build\vbe-1.1.3-check\`, A, B, C) still open with the new package: their launchers run `C:\build\vbe-1.1.3\win-unpacked\` and never touch his own save. Tonight's two proof saves are in `C:\build\vbe-1.1.3-proof-saves\` (D: 2 January, new faces on the market; E: an AI club's bid waiting).
+
+## The commit
+
+**This report describes `a0cd6231`**: the full harness (136/136), the build and the package `C:\build\vbe-1.1.3\win-unpacked\` all come from it, and it is on GitHub (release-1.1.3). Later commits carry this report, its logs and screenshots, and the Steam script's description only.
+
+**The rule:** anything committed after a0cd6231 that touches `artifacts/`, `lib/` or `electron/` means `C:\build\vbe-1.1.3` is behind the code.

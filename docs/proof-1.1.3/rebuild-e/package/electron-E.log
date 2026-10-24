@@ -1,98 +1,97 @@
 
 
-DevTools listening on ws://127.0.0.1:9349/devtools/browser/a6c090ec-7d5d-4faa-a3b4-1011545d6353
+DevTools listening on ws://127.0.0.1:9349/devtools/browser/14866b63-480c-438a-bab4-6369328c4afc
 Setting breakpad minidump AppID = 5233750
 SteamInternal_SetMinidumpSteamID:  Caching Steam ID:  76561198275997331 [API loaded no]
 [steam] connected (app 5233750, rbonner006)
 [server] [static-debug] PUBLIC_DIR=C:\build\vbe-1.1.3\win-unpacked\resources\public staticDir=C:\build\vbe-1.1.3\win-unpacked\resources\public exists=true
 
-[server] {"level":30,"time":1792829592865,"pid":37092,"hostname":"Beast","tablesChecked":70,"columnsChecked":899,"msg":"schema check: save is up to date, 0 missing columns"}
+[server] {"level":30,"time":1792838389832,"pid":37064,"hostname":"Beast","tablesChecked":70,"columnsChecked":899,"msg":"schema check: save is up to date, 0 missing columns"}
 
 [server] [migrate] could not drop players.outfit_id: Failed to run the query 'ALTER TABLE players DROP COLUMN outfit_id'
 
 [server] [migrate] could not drop staff.team_id: Failed to run the query 'ALTER TABLE staff DROP COLUMN team_id'
 
-[server] {"level":30,"time":1792829592916,"pid":37092,"hostname":"Beast","starterDbPath":"C:\\Users\\rbonn\\AppData\\Local\\Temp\\vbe-rebuild-shots-E-3jhZJM\\Beach Volleyball Empire\\starter-reference.db","inserted":{},"updated":{"players":[31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191,192,193,194,195,196,197,198,199,200,201,202,203,204,205,206,207,208,209,210,211,212,213,214,215,216,217,218,219,220,221,222,223,224,225,226,227,228,229,230,231,232,233,234,235,236,237,238,239,240,241,242,243,244,245,246,247,248,249,250,251,252,253,254,255,256,257,258,259,260,261,262,263,264,265,266,267,268,269,270,271,272,273,274,275,276,277,278,279,280,281,282,283,284,285,286,287,288,289,290,291,292,293,294,295,296,297,298,299,300,301,302,303,304,305,306]},"seededIntoCareers":{},"renamedStaff":[],"renamedYouth":[],"msg":"reference data backfilled from starter DB"}
-{"level":30,"time":1792829592929,"pid":37092,"hostname":"Beast","careers":1,"given":3,"ranOut":0,"msg":"graduate pictures given at boot"}
-{"level":30,"time":1792829592929,"pid":37092,"hostname":"Beast","raised":1,"msg":"highest balances raised to the clubs' ledger highs"}
-{"level":30,"time":1792829592941,"pid":37092,"hostname":"Beast","profiled":276,"msg":"players given a development profile or peak shift"}
-{"level":30,"time":1792829592952,"pid":37092,"hostname":"Beast","port":4173,"msg":"Server listening"}
+[server] {"level":30,"time":1792838389885,"pid":37064,"hostname":"Beast","starterDbPath":"C:\\Users\\rbonn\\AppData\\Local\\Temp\\vbe-rebuild-shots-E-XDLno6\\Beach Volleyball Empire\\starter-reference.db","inserted":{},"updated":{"players":[31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191,192,193,194,195,196,197,198,199,200,201,202,203,204,205,206,207,208,209,210,211,212,213,214,215,216,217,218,219,220,221,222,223,224,225,226,227,228,229,230,231,232,233,234,235,236,237,238,239,240,241,242,243,244,245,246,247,248,249,250,251,252,253,254,255,256,257,258,259,260,261,262,263,264,265,266,267,268,269,270,271,272,273,274,275,276,277,278,279,280,281,282,283,284,285,286,287,288,289,290,291,292,293,294,295,296,297,298,299,300,301,302,303,304,305,306]},"seededIntoCareers":{},"renamedStaff":[],"renamedYouth":[],"msg":"reference data backfilled from starter DB"}
+{"level":30,"time":1792838389897,"pid":37064,"hostname":"Beast","careers":1,"given":1,"ranOut":0,"msg":"graduate pictures given at boot"}
+{"level":30,"time":1792838389897,"pid":37064,"hostname":"Beast","raised":1,"msg":"highest balances raised to the clubs' ledger highs"}
+{"level":30,"time":1792838389909,"pid":37064,"hostname":"Beast","profiled":276,"msg":"players given a development profile or peak shift"}
+{"level":30,"time":1792838389920,"pid":37064,"hostname":"Beast","port":4173,"msg":"Server listening"}
 
-[server] {"level":30,"time":1792829592971,"pid":37092,"hostname":"Beast","req":{"id":1,"method":"GET","url":"/api/healthz"},"res":{"statusCode":200},"responseTime":5,"msg":"request completed"}
+[server] {"level":30,"time":1792838389943,"pid":37064,"hostname":"Beast","req":{"id":1,"method":"GET","url":"/api/healthz"},"res":{"statusCode":200},"responseTime":4,"msg":"request completed"}
 
 [steam] catch-up: 0 unlocked in this save, 0 new to Steam
-[server] {"level":30,"time":1792829594055,"pid":37092,"hostname":"Beast","req":{"id":2,"method":"GET","url":"/"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+[server] {"level":30,"time":1792838391027,"pid":37064,"hostname":"Beast","req":{"id":2,"method":"GET","url":"/"},"res":{"statusCode":200},"responseTime":3,"msg":"request completed"}
 
-[server] {"level":30,"time":1792829594063,"pid":37092,"hostname":"Beast","req":{"id":4,"method":"GET","url":"/assets/index-Bz7ai6fp.css"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+[server] {"level":30,"time":1792838391035,"pid":37064,"hostname":"Beast","req":{"id":3,"method":"GET","url":"/assets/index-Bz7ai6fp.css"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
 
-[server] {"level":30,"time":1792829594068,"pid":37092,"hostname":"Beast","req":{"id":3,"method":"GET","url":"/assets/index-CmgynN1m.js"},"res":{"statusCode":200},"responseTime":7,"msg":"request completed"}
+[server] {"level":30,"time":1792838391041,"pid":37064,"hostname":"Beast","req":{"id":4,"method":"GET","url":"/assets/index-KwjSMgD9.js"},"res":{"statusCode":200},"responseTime":8,"msg":"request completed"}
 
-[server] {"level":30,"time":1792829594399,"pid":37092,"hostname":"Beast","req":{"id":5,"method":"GET","url":"/api/auth/user"},"res":{"statusCode":401},"responseTime":0,"msg":"request completed"}
+[server] {"level":30,"time":1792838391369,"pid":37064,"hostname":"Beast","req":{"id":5,"method":"GET","url":"/api/auth/user"},"res":{"statusCode":401},"responseTime":1,"msg":"request completed"}
 
-[server] {"level":30,"time":1792829594402,"pid":37092,"hostname":"Beast","req":{"id":6,"method":"GET","url":"/api/seasons/current"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+[server] {"level":30,"time":1792838391371,"pid":37064,"hostname":"Beast","req":{"id":6,"method":"GET","url":"/api/seasons/current"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
 
-[server] {"level":30,"time":1792829594406,"pid":37092,"hostname":"Beast","req":{"id":7,"method":"GET","url":"/images/brand/bve-title-large.png"},"res":{"statusCode":200},"responseTime":4,"msg":"request completed"}
+[server] {"level":30,"time":1792838391376,"pid":37064,"hostname":"Beast","req":{"id":7,"method":"GET","url":"/images/brand/bve-title-large.png"},"res":{"statusCode":200},"responseTime":5,"msg":"request completed"}
 
-[server] {"level":30,"time":1792829594420,"pid":37092,"hostname":"Beast","req":{"id":9,"method":"GET","url":"/api/profiles"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+[server] {"level":30,"time":1792838391389,"pid":37064,"hostname":"Beast","req":{"id":9,"method":"GET","url":"/api/profiles"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
 
-[server] {"level":30,"time":1792829594428,"pid":37092,"hostname":"Beast","req":{"id":8,"method":"GET","url":"/audio/music/beach-volleyball-empire.mp3"},"res":{"statusCode":206},"responseTime":17,"msg":"request completed"}
+[server] {"level":30,"time":1792838391398,"pid":37064,"hostname":"Beast","req":{"id":8,"method":"GET","url":"/audio/music/beach-volleyball-empire.mp3"},"res":{"statusCode":206},"responseTime":19,"msg":"request completed"}
 
-[server] {"level":30,"time":1792829596464,"pid":37092,"hostname":"Beast","req":{"id":10,"method":"POST","url":"/api/profiles/e403ee27-10af-484a-a11d-2913171c43d0/select"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+[server] {"level":30,"time":1792838393435,"pid":37064,"hostname":"Beast","req":{"id":10,"method":"POST","url":"/api/profiles/a29b0896-399f-463a-b05f-ad12353a4fd7/select"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
 
-[server] {"level":30,"time":1792829596468,"pid":37092,"hostname":"Beast","req":{"id":11,"method":"GET","url":"/"},"res":{"statusCode":304},"responseTime":1,"msg":"request completed"}
+[server] {"level":30,"time":1792838393439,"pid":37064,"hostname":"Beast","req":{"id":11,"method":"GET","url":"/"},"res":{"statusCode":304},"responseTime":1,"msg":"request completed"}
 
-[server] {"level":30,"time":1792829596473,"pid":37092,"hostname":"Beast","req":{"id":12,"method":"GET","url":"/assets/index-CmgynN1m.js"},"res":{"statusCode":304},"responseTime":0,"msg":"request completed"}
+[server] {"level":30,"time":1792838393445,"pid":37064,"hostname":"Beast","req":{"id":12,"method":"GET","url":"/assets/index-KwjSMgD9.js"},"res":{"statusCode":304},"responseTime":0,"msg":"request completed"}
+{"level":30,"time":1792838393446,"pid":37064,"hostname":"Beast","req":{"id":13,"method":"GET","url":"/assets/index-Bz7ai6fp.css"},"res":{"statusCode":304},"responseTime":0,"msg":"request completed"}
 
-[server] {"level":30,"time":1792829596474,"pid":37092,"hostname":"Beast","req":{"id":13,"method":"GET","url":"/assets/index-Bz7ai6fp.css"},"res":{"statusCode":304},"responseTime":1,"msg":"request completed"}
+[server] {"level":30,"time":1792838393463,"pid":37064,"hostname":"Beast","req":{"id":14,"method":"GET","url":"/images/brand/bve-title-large.png"},"res":{"statusCode":304},"responseTime":1,"msg":"request completed"}
 
-[server] {"level":30,"time":1792829596490,"pid":37092,"hostname":"Beast","req":{"id":14,"method":"GET","url":"/images/brand/bve-title-large.png"},"res":{"statusCode":304},"responseTime":1,"msg":"request completed"}
+[server] {"level":30,"time":1792838393466,"pid":37064,"hostname":"Beast","req":{"id":15,"method":"GET","url":"/api/auth/user"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
 
-[server] {"level":30,"time":1792829596492,"pid":37092,"hostname":"Beast","req":{"id":15,"method":"GET","url":"/api/auth/user"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+[server] {"level":30,"time":1792838393467,"pid":37064,"hostname":"Beast","req":{"id":16,"method":"GET","url":"/api/seasons/current"},"res":{"statusCode":304},"responseTime":1,"msg":"request completed"}
 
-[server] {"level":30,"time":1792829596493,"pid":37092,"hostname":"Beast","req":{"id":16,"method":"GET","url":"/api/seasons/current"},"res":{"statusCode":304},"responseTime":1,"msg":"request completed"}
+[server] {"level":30,"time":1792838393475,"pid":37064,"hostname":"Beast","req":{"id":17,"method":"GET","url":"/api/team"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
 
-[server] {"level":30,"time":1792829596502,"pid":37092,"hostname":"Beast","req":{"id":17,"method":"GET","url":"/api/team"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+[server] {"level":30,"time":1792838393976,"pid":37064,"hostname":"Beast","req":{"id":18,"method":"GET","url":"/api/achievements"},"res":{"statusCode":200},"responseTime":3,"msg":"request completed"}
 
-[server] {"level":30,"time":1792829597007,"pid":37092,"hostname":"Beast","req":{"id":18,"method":"GET","url":"/api/achievements"},"res":{"statusCode":200},"responseTime":3,"msg":"request completed"}
+[server] {"level":30,"time":1792838393981,"pid":37064,"hostname":"Beast","req":{"id":19,"method":"GET","url":"/api/calendar"},"res":{"statusCode":200},"responseTime":4,"msg":"request completed"}
+{"level":30,"time":1792838393983,"pid":37064,"hostname":"Beast","req":{"id":20,"method":"GET","url":"/api/calendar/round-names"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
 
-[server] {"level":30,"time":1792829597012,"pid":37092,"hostname":"Beast","req":{"id":19,"method":"GET","url":"/api/calendar"},"res":{"statusCode":200},"responseTime":5,"msg":"request completed"}
-{"level":30,"time":1792829597014,"pid":37092,"hostname":"Beast","req":{"id":20,"method":"GET","url":"/api/calendar/round-names"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+[server] {"level":30,"time":1792838393984,"pid":37064,"hostname":"Beast","req":{"id":21,"method":"GET","url":"/api/ceremonies/pending"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+{"level":30,"time":1792838393987,"pid":37064,"hostname":"Beast","req":{"id":22,"method":"GET","url":"/api/national-coach"},"res":{"statusCode":200},"responseTime":3,"msg":"request completed"}
+{"level":30,"time":1792838393991,"pid":37064,"hostname":"Beast","req":{"id":23,"method":"GET","url":"/api/attention-items"},"res":{"statusCode":200},"responseTime":4,"msg":"request completed"}
+{"level":30,"time":1792838393992,"pid":37064,"hostname":"Beast","req":{"id":24,"method":"GET","url":"/api/day1-draft"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+{"level":30,"time":1792838393993,"pid":37064,"hostname":"Beast","req":{"id":25,"method":"GET","url":"/api/preseason"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
 
-[server] {"level":30,"time":1792829597016,"pid":37092,"hostname":"Beast","req":{"id":21,"method":"GET","url":"/api/ceremonies/pending"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
-{"level":30,"time":1792829597018,"pid":37092,"hostname":"Beast","req":{"id":22,"method":"GET","url":"/api/national-coach"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
-{"level":30,"time":1792829597023,"pid":37092,"hostname":"Beast","req":{"id":23,"method":"GET","url":"/api/attention-items"},"res":{"statusCode":200},"responseTime":4,"msg":"request completed"}
-{"level":30,"time":1792829597024,"pid":37092,"hostname":"Beast","req":{"id":24,"method":"GET","url":"/api/day1-draft"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
-{"level":30,"time":1792829597025,"pid":37092,"hostname":"Beast","req":{"id":25,"method":"GET","url":"/api/preseason"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+[server] {"level":30,"time":1792838393996,"pid":37064,"hostname":"Beast","req":{"id":26,"method":"GET","url":"/api/transfers"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+{"level":30,"time":1792838394002,"pid":37064,"hostname":"Beast","req":{"id":27,"method":"GET","url":"/api/dashboard"},"res":{"statusCode":200},"responseTime":6,"msg":"request completed"}
+{"level":30,"time":1792838394003,"pid":37064,"hostname":"Beast","req":{"id":28,"method":"GET","url":"/api/seasons/1/ladder"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+{"level":30,"time":1792838394006,"pid":37064,"hostname":"Beast","req":{"id":29,"method":"GET","url":"/api/club-rating"},"res":{"statusCode":200},"responseTime":3,"msg":"request completed"}
+{"level":30,"time":1792838394008,"pid":37064,"hostname":"Beast","req":{"id":30,"method":"GET","url":"/api/facilities"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
 
-[server] {"level":30,"time":1792829597027,"pid":37092,"hostname":"Beast","req":{"id":26,"method":"GET","url":"/api/transfers"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
-{"level":30,"time":1792829597032,"pid":37092,"hostname":"Beast","req":{"id":27,"method":"GET","url":"/api/dashboard"},"res":{"statusCode":200},"responseTime":5,"msg":"request completed"}
-{"level":30,"time":1792829597034,"pid":37092,"hostname":"Beast","req":{"id":28,"method":"GET","url":"/api/seasons/1/ladder"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
-{"level":30,"time":1792829597037,"pid":37092,"hostname":"Beast","req":{"id":29,"method":"GET","url":"/api/club-rating"},"res":{"statusCode":200},"responseTime":3,"msg":"request completed"}
-{"level":30,"time":1792829597038,"pid":37092,"hostname":"Beast","req":{"id":30,"method":"GET","url":"/api/facilities"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+[server] {"level":30,"time":1792838394008,"pid":37064,"hostname":"Beast","req":{"id":31,"method":"GET","url":"/api/auth/user"},"res":{"statusCode":304},"responseTime":0,"msg":"request completed"}
+{"level":30,"time":1792838394019,"pid":37064,"hostname":"Beast","req":{"id":32,"method":"GET","url":"/api/news"},"res":{"statusCode":200},"responseTime":10,"msg":"request completed"}
+{"level":30,"time":1792838394023,"pid":37064,"hostname":"Beast","req":{"id":33,"method":"GET","url":"/api/events/upcoming"},"res":{"statusCode":200},"responseTime":4,"msg":"request completed"}
+{"level":30,"time":1792838394026,"pid":37064,"hostname":"Beast","req":{"id":34,"method":"GET","url":"/api/board-confidence"},"res":{"statusCode":200},"responseTime":3,"msg":"request completed"}
+{"level":30,"time":1792838394026,"pid":37064,"hostname":"Beast","req":{"id":35,"method":"GET","url":"/api/seasons/current"},"res":{"statusCode":304},"responseTime":0,"msg":"request completed"}
 
-[server] {"level":30,"time":1792829597048,"pid":37092,"hostname":"Beast","req":{"id":31,"method":"GET","url":"/api/news"},"res":{"statusCode":200},"responseTime":10,"msg":"request completed"}
-{"level":30,"time":1792829597051,"pid":37092,"hostname":"Beast","req":{"id":32,"method":"GET","url":"/api/events/upcoming"},"res":{"statusCode":200},"responseTime":3,"msg":"request completed"}
-{"level":30,"time":1792829597055,"pid":37092,"hostname":"Beast","req":{"id":33,"method":"GET","url":"/api/board-confidence"},"res":{"statusCode":200},"responseTime":4,"msg":"request completed"}
-{"level":30,"time":1792829597056,"pid":37092,"hostname":"Beast","req":{"id":34,"method":"GET","url":"/api/auth/user"},"res":{"statusCode":304},"responseTime":1,"msg":"request completed"}
-{"level":30,"time":1792829597056,"pid":37092,"hostname":"Beast","req":{"id":35,"method":"GET","url":"/api/seasons/current"},"res":{"statusCode":304},"responseTime":0,"msg":"request completed"}
+[server] {"level":30,"time":1792838394028,"pid":37064,"hostname":"Beast","req":{"id":36,"method":"GET","url":"/images/hero-women-volleyball.webp"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
 
-[server] {"level":30,"time":1792829597066,"pid":37092,"hostname":"Beast","req":{"id":36,"method":"GET","url":"/images/hero-women-volleyball.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+[server] {"level":30,"time":1792838397512,"pid":37064,"hostname":"Beast","req":{"id":37,"method":"GET","url":"/api/team/roster"},"res":{"statusCode":200},"responseTime":4,"msg":"request completed"}
 
-[server] {"level":30,"time":1792829600541,"pid":37092,"hostname":"Beast","req":{"id":37,"method":"GET","url":"/api/team/roster"},"res":{"statusCode":200},"responseTime":3,"msg":"request completed"}
+[server] {"level":30,"time":1792838397514,"pid":37064,"hostname":"Beast","req":{"id":38,"method":"GET","url":"/api/team/strength"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+{"level":30,"time":1792838397515,"pid":37064,"hostname":"Beast","req":{"id":39,"method":"GET","url":"/api/outfits"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
 
-[server] {"level":30,"time":1792829600543,"pid":37092,"hostname":"Beast","req":{"id":38,"method":"GET","url":"/api/team/strength"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
-{"level":30,"time":1792829600544,"pid":37092,"hostname":"Beast","req":{"id":39,"method":"GET","url":"/api/outfits"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+[server] {"level":30,"time":1792838397527,"pid":37064,"hostname":"Beast","req":{"id":40,"method":"GET","url":"/api/contracts/wage-cap"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
 
-[server] {"level":30,"time":1792829600556,"pid":37092,"hostname":"Beast","req":{"id":40,"method":"GET","url":"/api/contracts/wage-cap"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+[server] {"level":30,"time":1792838397530,"pid":37064,"hostname":"Beast","req":{"id":42,"method":"GET","url":"/images/flags/my.svg"},"res":{"statusCode":200},"responseTime":3,"msg":"request completed"}
 
-[server] {"level":30,"time":1792829600559,"pid":37092,"hostname":"Beast","req":{"id":43,"method":"GET","url":"/images/players/seniors/player_senior_puerto_rico_03.webp"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+[server] {"level":30,"time":1792838397531,"pid":37064,"hostname":"Beast","req":{"id":43,"method":"GET","url":"/images/players/seniors/player_senior_puerto_rico_03.webp"},"res":{"statusCode":200},"responseTime":4,"msg":"request completed"}
+{"level":30,"time":1792838397531,"pid":37064,"hostname":"Beast","req":{"id":44,"method":"GET","url":"/images/flags/pr.svg"},"res":{"statusCode":200},"responseTime":3,"msg":"request completed"}
+{"level":30,"time":1792838397531,"pid":37064,"hostname":"Beast","req":{"id":45,"method":"GET","url":"/images/players/seniors/player_senior_samoa_01.webp"},"res":{"statusCode":200},"responseTime":3,"msg":"request completed"}
+{"level":30,"time":1792838397531,"pid":37064,"hostname":"Beast","req":{"id":41,"method":"GET","url":"/images/players/seniors/player_senior_malaysia_02.webp"},"res":{"statusCode":200},"responseTime":4,"msg":"request completed"}
 
-[server] {"level":30,"time":1792829600560,"pid":37092,"hostname":"Beast","req":{"id":42,"method":"GET","url":"/images/flags/my.svg"},"res":{"statusCode":200},"responseTime":3,"msg":"request completed"}
-{"level":30,"time":1792829600560,"pid":37092,"hostname":"Beast","req":{"id":44,"method":"GET","url":"/images/flags/pr.svg"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
-{"level":30,"time":1792829600560,"pid":37092,"hostname":"Beast","req":{"id":45,"method":"GET","url":"/images/players/seniors/player_senior_samoa_01.webp"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
-{"level":30,"time":1792829600560,"pid":37092,"hostname":"Beast","req":{"id":41,"method":"GET","url":"/images/players/seniors/player_senior_malaysia_02.webp"},"res":{"statusCode":200},"responseTime":3,"msg":"request completed"}
+[server] {"level":30,"time":1792838397531,"pid":37064,"hostname":"Beast","req":{"id":46,"method":"GET","url":"/images/flags/ws.svg"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
 
-[server] {"level":30,"time":1792829600560,"pid":37092,"hostname":"Beast","req":{"id":46,"method":"GET","url":"/images/flags/ws.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
-
-[server] {"level":30,"time":1792829602053,"pid":37092,"hostname":"Beast","req":{"id":47,"method":"GET","url":"/api/transfers"},"res":{"statusCode":304},"responseTime":1,"msg":"request completed"}
+[server] {"level":30,"time":1792838399031,"pid":37064,"hostname":"Beast","req":{"id":47,"method":"GET","url":"/api/transfers"},"res":{"statusCode":304},"responseTime":1,"msg":"request completed"}
 
