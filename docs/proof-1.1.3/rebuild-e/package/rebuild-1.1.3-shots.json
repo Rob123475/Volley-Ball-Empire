@@ -1,0 +1,153 @@
+{
+ "exe": "C:\\build\\vbe-1.1.3\\win-unpacked\\Beach Volleyball Empire.exe",
+ "shots": [
+  "01-staff-market-head-coaches.png",
+  "02-staff-market-assistant-coaches.png",
+  "03-staff-market-scouts.png",
+  "04-medical-market.png",
+  "05-contract-box-his-club-6-months.png",
+  "06-youth-card-no-wall-text.png",
+  "07-rules-contract-lengths.png",
+  "08-ai-club-offer-1-or-2-seasons.png",
+  "09-his-counter-his-club-lengths.png"
+ ],
+ "steps": [
+  {
+   "s": "D: started the packaged exe",
+   "save": "2026-01-02"
+  },
+  {
+   "s": "D: profile selected",
+   "status": 200
+  },
+  {
+   "s": "D: CONTINUE",
+   "pressed": true
+  },
+  {
+   "s": "D: dashboard",
+   "date": "Jan 2, 2026",
+   "dialogs": []
+  },
+  {
+   "s": "D done",
+   "Head Coach": {
+    "pressed": true,
+    "newFaces": 0
+   },
+   "Assistant Coach": {
+    "pressed": true,
+    "newFaces": 0
+   },
+   "Scout": {
+    "pressed": true,
+    "newFaces": 0
+   },
+   "medicalFaces": 199,
+   "signButton": true,
+   "lengths": [
+    "6 months",
+    "1 season",
+    "2 seasons"
+   ],
+   "youthTab": true,
+   "youthCardOpened": false,
+   "youthCardShown": false,
+   "rules": "Contract lengths\nYour club signs and renews a player for 6 months, 1 season or 2 seasons. The AI clubs sign and renew players for 1 season or 2 seasons only.\nThe 6-month option is your club's: if you move to another club it goes with you. Deals you signed at your old club stay with that club.\nStaff and medical contracts are 1 season or 2 seasons, and every one ends on 7 January, the day before the AI clubs hire (8 January). A staff hire on 1 season in mid-season runs only to the next 7 January.\nA season is the World Tour season, not a calendar year: a player's 1 season runs to the end of the s"
+  },
+  {
+   "s": "E: started the packaged exe",
+   "save": "2026-01-22"
+  },
+  {
+   "s": "E: profile selected",
+   "status": 200
+  },
+  {
+   "s": "E: CONTINUE",
+   "pressed": true
+  },
+  {
+   "s": "E: dashboard",
+   "date": "Jan 22, 2026",
+   "dialogs": []
+  },
+  {
+   "s": "E done",
+   "bid": {
+    "id": 1,
+    "club": 16,
+    "wage": 1150,
+    "length": "1s",
+    "offered_on": "2026-01-22",
+    "star": 86
+   },
+   "tab": true,
+   "offer": null,
+   "counter": true,
+   "counterLengths": [
+    "6 months",
+    "1 season",
+    "2 seasons"
+   ]
+  }
+ ],
+ "robBefore": {
+  "C:\\Users\\rbonn\\AppData\\Roaming\\Beach Volleyball Empire\\volleyball-empire.sqlite": {
+   "size": 2592768,
+   "mtime": "2026-10-16T09:24:25.000Z",
+   "sha1": "98cc08de3efe30f1f4c8b8db86ff30c4a0e1a8b7"
+  }
+ },
+ "D": {
+  "Head Coach": {
+   "pressed": true,
+   "newFaces": 0
+  },
+  "Assistant Coach": {
+   "pressed": true,
+   "newFaces": 0
+  },
+  "Scout": {
+   "pressed": true,
+   "newFaces": 0
+  },
+  "medicalFaces": 199,
+  "signButton": true,
+  "lengths": [
+   "6 months",
+   "1 season",
+   "2 seasons"
+  ],
+  "youthTab": true,
+  "youthCardOpened": false,
+  "youthCardShown": false,
+  "rules": "Contract lengths\nYour club signs and renews a player for 6 months, 1 season or 2 seasons. The AI clubs sign and renew players for 1 season or 2 seasons only.\nThe 6-month option is your club's: if you move to another club it goes with you. Deals you signed at your old club stay with that club.\nStaff and medical contracts are 1 season or 2 seasons, and every one ends on 7 January, the day before the AI clubs hire (8 January). A staff hire on 1 season in mid-season runs only to the next 7 January.\nA season is the World Tour season, not a calendar year: a player's 1 season runs to the end of the s"
+ },
+ "E": {
+  "bid": {
+   "id": 1,
+   "club": 16,
+   "wage": 1150,
+   "length": "1s",
+   "offered_on": "2026-01-22",
+   "star": 86
+  },
+  "tab": true,
+  "offer": null,
+  "counter": true,
+  "counterLengths": [
+   "6 months",
+   "1 season",
+   "2 seasons"
+  ]
+ },
+ "robAfter": {
+  "C:\\Users\\rbonn\\AppData\\Roaming\\Beach Volleyball Empire\\volleyball-empire.sqlite": {
+   "size": 2592768,
+   "mtime": "2026-10-16T09:24:25.000Z",
+   "sha1": "98cc08de3efe30f1f4c8b8db86ff30c4a0e1a8b7"
+  }
+ },
+ "robSaveUntouched": true
+}

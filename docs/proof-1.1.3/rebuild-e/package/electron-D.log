@@ -1,0 +1,1680 @@
+
+
+DevTools listening on ws://127.0.0.1:9349/devtools/browser/42b113ec-554b-4f14-bc84-23eb7041ad58
+Setting breakpad minidump AppID = 5233750
+SteamInternal_SetMinidumpSteamID:  Caching Steam ID:  76561198275997331 [API loaded no]
+[steam] connected (app 5233750, rbonner006)
+[server] [static-debug] PUBLIC_DIR=C:\build\vbe-1.1.3\win-unpacked\resources\public staticDir=C:\build\vbe-1.1.3\win-unpacked\resources\public exists=true
+
+[server] {"level":30,"time":1792829537737,"pid":908,"hostname":"Beast","tablesChecked":70,"columnsChecked":899,"msg":"schema check: save is up to date, 0 missing columns"}
+
+[server] [migrate] could not drop players.outfit_id: Failed to run the query 'ALTER TABLE players DROP COLUMN outfit_id'
+
+[server] [migrate] could not drop staff.team_id: Failed to run the query 'ALTER TABLE staff DROP COLUMN team_id'
+
+[server] {"level":30,"time":1792829537790,"pid":908,"hostname":"Beast","starterDbPath":"C:\\Users\\rbonn\\AppData\\Local\\Temp\\vbe-rebuild-shots-D-5uPhc1\\Beach Volleyball Empire\\starter-reference.db","inserted":{},"updated":{"players":[31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191,192,193,194,195,196,197,198,199,200,201,202,203,204,205,206,207,208,209,210,211,212,213,214,215,216,217,218,219,220,221,222,223,224,225,226,227,228,229,230,231,232,233,234,235,236,237,238,239,240,241,242,243,244,245,246,247,248,249,250,251,252,253,254,255,256,257,258,259,260,261,262,263,264,265,266,267,268,269,270,271,272,273,274,275,276,277,278,279,280,281,282,283,284,285,286,287,288,289,290,291,292,293,294,295,296,297,298,299,300,301,302,303,304,305,306]},"seededIntoCareers":{},"renamedStaff":[],"renamedYouth":[],"msg":"reference data backfilled from starter DB"}
+{"level":30,"time":1792829537802,"pid":908,"hostname":"Beast","raised":1,"msg":"highest balances raised to the clubs' ledger highs"}
+{"level":30,"time":1792829537815,"pid":908,"hostname":"Beast","profiled":276,"msg":"players given a development profile or peak shift"}
+{"level":30,"time":1792829537826,"pid":908,"hostname":"Beast","port":4173,"msg":"Server listening"}
+
+[server] {"level":30,"time":1792829538110,"pid":908,"hostname":"Beast","req":{"id":1,"method":"GET","url":"/api/healthz"},"res":{"statusCode":200},"responseTime":4,"msg":"request completed"}
+
+[steam] catch-up: 0 unlocked in this save, 0 new to Steam
+[server] {"level":30,"time":1792829539180,"pid":908,"hostname":"Beast","req":{"id":2,"method":"GET","url":"/"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829539188,"pid":908,"hostname":"Beast","req":{"id":4,"method":"GET","url":"/assets/index-Bz7ai6fp.css"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829539193,"pid":908,"hostname":"Beast","req":{"id":3,"method":"GET","url":"/assets/index-CmgynN1m.js"},"res":{"statusCode":200},"responseTime":8,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829540204,"pid":908,"hostname":"Beast","req":{"id":5,"method":"GET","url":"/api/auth/user"},"res":{"statusCode":401},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829540206,"pid":908,"hostname":"Beast","req":{"id":6,"method":"GET","url":"/api/seasons/current"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829540211,"pid":908,"hostname":"Beast","req":{"id":7,"method":"GET","url":"/images/brand/bve-title-large.png"},"res":{"statusCode":200},"responseTime":4,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829540225,"pid":908,"hostname":"Beast","req":{"id":9,"method":"GET","url":"/api/profiles"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829540250,"pid":908,"hostname":"Beast","req":{"id":8,"method":"GET","url":"/audio/music/beach-volleyball-empire.mp3"},"res":{"statusCode":206},"responseTime":34,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829541243,"pid":908,"hostname":"Beast","req":{"id":10,"method":"POST","url":"/api/profiles/e403ee27-10af-484a-a11d-2913171c43d0/select"},"res":{"statusCode":200},"responseTime":3,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829541247,"pid":908,"hostname":"Beast","req":{"id":11,"method":"GET","url":"/"},"res":{"statusCode":304},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829541255,"pid":908,"hostname":"Beast","req":{"id":12,"method":"GET","url":"/assets/index-CmgynN1m.js"},"res":{"statusCode":304},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829541256,"pid":908,"hostname":"Beast","req":{"id":13,"method":"GET","url":"/assets/index-Bz7ai6fp.css"},"res":{"statusCode":304},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829541273,"pid":908,"hostname":"Beast","req":{"id":14,"method":"GET","url":"/images/brand/bve-title-large.png"},"res":{"statusCode":304},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829541275,"pid":908,"hostname":"Beast","req":{"id":15,"method":"GET","url":"/api/auth/user"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829541277,"pid":908,"hostname":"Beast","req":{"id":16,"method":"GET","url":"/api/seasons/current"},"res":{"statusCode":304},"responseTime":2,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829541285,"pid":908,"hostname":"Beast","req":{"id":17,"method":"GET","url":"/api/team"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829541783,"pid":908,"hostname":"Beast","req":{"id":18,"method":"GET","url":"/api/achievements"},"res":{"statusCode":200},"responseTime":3,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829541787,"pid":908,"hostname":"Beast","req":{"id":19,"method":"GET","url":"/api/calendar"},"res":{"statusCode":200},"responseTime":4,"msg":"request completed"}
+{"level":30,"time":1792829541789,"pid":908,"hostname":"Beast","req":{"id":20,"method":"GET","url":"/api/calendar/round-names"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+{"level":30,"time":1792829541790,"pid":908,"hostname":"Beast","req":{"id":21,"method":"GET","url":"/api/ceremonies/pending"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+{"level":30,"time":1792829541792,"pid":908,"hostname":"Beast","req":{"id":22,"method":"GET","url":"/api/national-coach"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+{"level":30,"time":1792829541793,"pid":908,"hostname":"Beast","req":{"id":23,"method":"GET","url":"/api/auth/user"},"res":{"statusCode":304},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829541797,"pid":908,"hostname":"Beast","req":{"id":24,"method":"GET","url":"/api/attention-items"},"res":{"statusCode":200},"responseTime":4,"msg":"request completed"}
+{"level":30,"time":1792829541798,"pid":908,"hostname":"Beast","req":{"id":25,"method":"GET","url":"/api/day1-draft"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+{"level":30,"time":1792829541800,"pid":908,"hostname":"Beast","req":{"id":26,"method":"GET","url":"/api/preseason"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+{"level":30,"time":1792829541802,"pid":908,"hostname":"Beast","req":{"id":27,"method":"GET","url":"/api/transfers"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+{"level":30,"time":1792829541807,"pid":908,"hostname":"Beast","req":{"id":28,"method":"GET","url":"/api/dashboard"},"res":{"statusCode":200},"responseTime":5,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829541808,"pid":908,"hostname":"Beast","req":{"id":29,"method":"GET","url":"/api/seasons/1/ladder"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+{"level":30,"time":1792829541811,"pid":908,"hostname":"Beast","req":{"id":30,"method":"GET","url":"/api/club-rating"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+{"level":30,"time":1792829541812,"pid":908,"hostname":"Beast","req":{"id":31,"method":"GET","url":"/api/facilities"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+{"level":30,"time":1792829541813,"pid":908,"hostname":"Beast","req":{"id":32,"method":"GET","url":"/api/seasons/current"},"res":{"statusCode":304},"responseTime":1,"msg":"request completed"}
+{"level":30,"time":1792829541823,"pid":908,"hostname":"Beast","req":{"id":33,"method":"GET","url":"/api/news"},"res":{"statusCode":200},"responseTime":10,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829541826,"pid":908,"hostname":"Beast","req":{"id":34,"method":"GET","url":"/api/events/upcoming"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+{"level":30,"time":1792829541831,"pid":908,"hostname":"Beast","req":{"id":35,"method":"GET","url":"/api/board-confidence"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829541879,"pid":908,"hostname":"Beast","req":{"id":36,"method":"GET","url":"/images/hero-women-volleyball.webp"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545320,"pid":908,"hostname":"Beast","req":{"id":37,"method":"GET","url":"/api/finances/main-sponsor"},"res":{"statusCode":200},"responseTime":6,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545329,"pid":908,"hostname":"Beast","req":{"id":38,"method":"GET","url":"/api/staff/market"},"res":{"statusCode":200},"responseTime":9,"msg":"request completed"}
+{"level":30,"time":1792829545330,"pid":908,"hostname":"Beast","req":{"id":39,"method":"GET","url":"/api/staff"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545526,"pid":908,"hostname":"Beast","req":{"id":40,"method":"GET","url":"/images/staff/head_coach/staff-20.webp"},"res":{"statusCode":200},"responseTime":4,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545526,"pid":908,"hostname":"Beast","req":{"id":41,"method":"GET","url":"/images/flags/eg.svg"},"res":{"statusCode":200},"responseTime":3,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545526,"pid":908,"hostname":"Beast","req":{"id":42,"method":"GET","url":"/images/staff/head_coach/staff-09.webp"},"res":{"statusCode":200},"responseTime":3,"msg":"request completed"}
+{"level":30,"time":1792829545527,"pid":908,"hostname":"Beast","req":{"id":45,"method":"GET","url":"/images/flags/de.svg"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545527,"pid":908,"hostname":"Beast","req":{"id":44,"method":"GET","url":"/images/staff/head_coach/staff-04.webp"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+{"level":30,"time":1792829545527,"pid":908,"hostname":"Beast","req":{"id":43,"method":"GET","url":"/images/flags/sn.svg"},"res":{"statusCode":200},"responseTime":3,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545530,"pid":908,"hostname":"Beast","req":{"id":46,"method":"GET","url":"/images/staff/head_coach/staff-30.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545531,"pid":908,"hostname":"Beast","req":{"id":47,"method":"GET","url":"/images/flags/in.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545534,"pid":908,"hostname":"Beast","req":{"id":48,"method":"GET","url":"/images/staff/head_coach/staff-21.webp"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545535,"pid":908,"hostname":"Beast","req":{"id":50,"method":"GET","url":"/images/staff/head_coach/staff-36.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545535,"pid":908,"hostname":"Beast","req":{"id":49,"method":"GET","url":"/images/flags/tr.svg"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545537,"pid":908,"hostname":"Beast","req":{"id":51,"method":"GET","url":"/images/flags/se.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545540,"pid":908,"hostname":"Beast","req":{"id":52,"method":"GET","url":"/images/staff/head_coach/staff-29.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545542,"pid":908,"hostname":"Beast","req":{"id":53,"method":"GET","url":"/images/flags/ng.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545543,"pid":908,"hostname":"Beast","req":{"id":54,"method":"GET","url":"/images/staff/head_coach/staff-45.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545545,"pid":908,"hostname":"Beast","req":{"id":55,"method":"GET","url":"/images/staff/head_coach/staff-37.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545547,"pid":908,"hostname":"Beast","req":{"id":56,"method":"GET","url":"/images/flags/ie.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545548,"pid":908,"hostname":"Beast","req":{"id":57,"method":"GET","url":"/images/staff/head_coach/staff-42.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545550,"pid":908,"hostname":"Beast","req":{"id":58,"method":"GET","url":"/images/flags/kr.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545552,"pid":908,"hostname":"Beast","req":{"id":59,"method":"GET","url":"/images/staff/head_coach/staff-06.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545553,"pid":908,"hostname":"Beast","req":{"id":60,"method":"GET","url":"/images/flags/ru.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545555,"pid":908,"hostname":"Beast","req":{"id":61,"method":"GET","url":"/images/staff/head_coach/staff-23.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545555,"pid":908,"hostname":"Beast","req":{"id":62,"method":"GET","url":"/images/staff/head_coach/staff-31.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545558,"pid":908,"hostname":"Beast","req":{"id":63,"method":"GET","url":"/images/flags/mx.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545560,"pid":908,"hostname":"Beast","req":{"id":64,"method":"GET","url":"/images/staff/head_coach/staff-14.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545562,"pid":908,"hostname":"Beast","req":{"id":66,"method":"GET","url":"/images/staff/head_coach/staff-17.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+{"level":30,"time":1792829545562,"pid":908,"hostname":"Beast","req":{"id":65,"method":"GET","url":"/images/flags/it.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545566,"pid":908,"hostname":"Beast","req":{"id":67,"method":"GET","url":"/images/flags/ke.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545568,"pid":908,"hostname":"Beast","req":{"id":68,"method":"GET","url":"/images/staff/head_coach/staff-13.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545570,"pid":908,"hostname":"Beast","req":{"id":69,"method":"GET","url":"/images/flags/ar.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545573,"pid":908,"hostname":"Beast","req":{"id":70,"method":"GET","url":"/images/staff/head_coach/staff-16.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+{"level":30,"time":1792829545575,"pid":908,"hostname":"Beast","req":{"id":71,"method":"GET","url":"/images/flags/jp.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545577,"pid":908,"hostname":"Beast","req":{"id":72,"method":"GET","url":"/images/staff/head_coach/staff-25.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545579,"pid":908,"hostname":"Beast","req":{"id":74,"method":"GET","url":"/images/staff/head_coach/staff-10.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545579,"pid":908,"hostname":"Beast","req":{"id":73,"method":"GET","url":"/images/flags/ua.svg"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545580,"pid":908,"hostname":"Beast","req":{"id":75,"method":"GET","url":"/images/flags/au.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545582,"pid":908,"hostname":"Beast","req":{"id":76,"method":"GET","url":"/images/staff/head_coach/staff-15.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545583,"pid":908,"hostname":"Beast","req":{"id":77,"method":"GET","url":"/images/flags/rs.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545585,"pid":908,"hostname":"Beast","req":{"id":78,"method":"GET","url":"/images/staff/head_coach/staff-34.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545585,"pid":908,"hostname":"Beast","req":{"id":79,"method":"GET","url":"/images/staff/head_coach/staff-44.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545587,"pid":908,"hostname":"Beast","req":{"id":80,"method":"GET","url":"/images/staff/head_coach/staff-33.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545588,"pid":908,"hostname":"Beast","req":{"id":81,"method":"GET","url":"/images/flags/th.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545589,"pid":908,"hostname":"Beast","req":{"id":82,"method":"GET","url":"/images/staff/head_coach/staff-39.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545592,"pid":908,"hostname":"Beast","req":{"id":83,"method":"GET","url":"/images/staff/head_coach/staff-11.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545594,"pid":908,"hostname":"Beast","req":{"id":84,"method":"GET","url":"/images/flags/pl.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545597,"pid":908,"hostname":"Beast","req":{"id":85,"method":"GET","url":"/images/staff/head_coach/staff-05.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545598,"pid":908,"hostname":"Beast","req":{"id":86,"method":"GET","url":"/images/flags/cn.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545600,"pid":908,"hostname":"Beast","req":{"id":87,"method":"GET","url":"/images/staff/head_coach/staff-26.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545602,"pid":908,"hostname":"Beast","req":{"id":88,"method":"GET","url":"/images/flags/ph.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545603,"pid":908,"hostname":"Beast","req":{"id":89,"method":"GET","url":"/images/staff/head_coach/staff-12.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545605,"pid":908,"hostname":"Beast","req":{"id":90,"method":"GET","url":"/images/flags/nl.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545607,"pid":908,"hostname":"Beast","req":{"id":91,"method":"GET","url":"/images/staff/head_coach/staff-38.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545609,"pid":908,"hostname":"Beast","req":{"id":92,"method":"GET","url":"/images/staff/head_coach/staff-32.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545609,"pid":908,"hostname":"Beast","req":{"id":93,"method":"GET","url":"/images/staff/head_coach/staff-22.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545610,"pid":908,"hostname":"Beast","req":{"id":94,"method":"GET","url":"/images/flags/ws.svg"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545612,"pid":908,"hostname":"Beast","req":{"id":95,"method":"GET","url":"/images/staff/head_coach/staff-41.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545614,"pid":908,"hostname":"Beast","req":{"id":96,"method":"GET","url":"/images/staff/head_coach/staff-07.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545617,"pid":908,"hostname":"Beast","req":{"id":97,"method":"GET","url":"/images/staff/head_coach/staff-02.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545618,"pid":908,"hostname":"Beast","req":{"id":98,"method":"GET","url":"/images/flags/br.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545619,"pid":908,"hostname":"Beast","req":{"id":99,"method":"GET","url":"/images/staff/head_coach/staff-27.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545621,"pid":908,"hostname":"Beast","req":{"id":100,"method":"GET","url":"/images/staff/head_coach/staff-19.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545623,"pid":908,"hostname":"Beast","req":{"id":101,"method":"GET","url":"/images/flags/ir.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545626,"pid":908,"hostname":"Beast","req":{"id":102,"method":"GET","url":"/images/staff/head_coach/staff-24.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545628,"pid":908,"hostname":"Beast","req":{"id":103,"method":"GET","url":"/images/staff/head_coach/staff-08.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545628,"pid":908,"hostname":"Beast","req":{"id":104,"method":"GET","url":"/images/flags/dk.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545629,"pid":908,"hostname":"Beast","req":{"id":105,"method":"GET","url":"/images/staff/head_coach/staff-03.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545631,"pid":908,"hostname":"Beast","req":{"id":106,"method":"GET","url":"/images/staff/head_coach/staff-43.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545633,"pid":908,"hostname":"Beast","req":{"id":107,"method":"GET","url":"/images/flags/nz.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545634,"pid":908,"hostname":"Beast","req":{"id":108,"method":"GET","url":"/images/staff/head_coach/staff-01.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545635,"pid":908,"hostname":"Beast","req":{"id":109,"method":"GET","url":"/images/staff/head_coach/staff-40.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545635,"pid":908,"hostname":"Beast","req":{"id":110,"method":"GET","url":"/images/staff/head_coach/staff-28.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545637,"pid":908,"hostname":"Beast","req":{"id":111,"method":"GET","url":"/images/staff/head_coach/staff-18.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545638,"pid":908,"hostname":"Beast","req":{"id":112,"method":"GET","url":"/images/flags/cu.svg"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545639,"pid":908,"hostname":"Beast","req":{"id":113,"method":"GET","url":"/images/staff/head_coach/staff-35.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545641,"pid":908,"hostname":"Beast","req":{"id":114,"method":"GET","url":"/images/flags/fr.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545643,"pid":908,"hostname":"Beast","req":{"id":115,"method":"GET","url":"/images/staff/assistant_coach/staff-35.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545644,"pid":908,"hostname":"Beast","req":{"id":116,"method":"GET","url":"/images/staff/assistant_coach/staff-30.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545645,"pid":908,"hostname":"Beast","req":{"id":117,"method":"GET","url":"/images/flags/gh.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545646,"pid":908,"hostname":"Beast","req":{"id":118,"method":"GET","url":"/images/staff/assistant_coach/staff-20.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545648,"pid":908,"hostname":"Beast","req":{"id":119,"method":"GET","url":"/images/staff/assistant_coach/staff-06.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545651,"pid":908,"hostname":"Beast","req":{"id":120,"method":"GET","url":"/images/staff/assistant_coach/staff-43.webp"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545652,"pid":908,"hostname":"Beast","req":{"id":121,"method":"GET","url":"/images/staff/assistant_coach/staff-17.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545653,"pid":908,"hostname":"Beast","req":{"id":122,"method":"GET","url":"/images/flags/id.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545653,"pid":908,"hostname":"Beast","req":{"id":123,"method":"GET","url":"/images/staff/assistant_coach/staff-45.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545655,"pid":908,"hostname":"Beast","req":{"id":124,"method":"GET","url":"/images/flags/gb-sct.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545657,"pid":908,"hostname":"Beast","req":{"id":125,"method":"GET","url":"/images/staff/assistant_coach/staff-03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545659,"pid":908,"hostname":"Beast","req":{"id":126,"method":"GET","url":"/images/flags/es.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545661,"pid":908,"hostname":"Beast","req":{"id":127,"method":"GET","url":"/images/staff/assistant_coach/staff-44.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545663,"pid":908,"hostname":"Beast","req":{"id":128,"method":"GET","url":"/images/flags/co.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545664,"pid":908,"hostname":"Beast","req":{"id":129,"method":"GET","url":"/images/staff/assistant_coach/staff-32.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545666,"pid":908,"hostname":"Beast","req":{"id":130,"method":"GET","url":"/images/staff/assistant_coach/staff-22.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545668,"pid":908,"hostname":"Beast","req":{"id":131,"method":"GET","url":"/images/flags/et.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545669,"pid":908,"hostname":"Beast","req":{"id":132,"method":"GET","url":"/images/staff/assistant_coach/staff-07.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545670,"pid":908,"hostname":"Beast","req":{"id":133,"method":"GET","url":"/images/staff/assistant_coach/staff-09.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545674,"pid":908,"hostname":"Beast","req":{"id":134,"method":"GET","url":"/images/flags/sg.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545676,"pid":908,"hostname":"Beast","req":{"id":135,"method":"GET","url":"/images/staff/assistant_coach/staff-42.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545678,"pid":908,"hostname":"Beast","req":{"id":136,"method":"GET","url":"/images/staff/assistant_coach/staff-04.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545679,"pid":908,"hostname":"Beast","req":{"id":137,"method":"GET","url":"/images/staff/assistant_coach/staff-24.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545681,"pid":908,"hostname":"Beast","req":{"id":138,"method":"GET","url":"/images/staff/assistant_coach/staff-34.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545684,"pid":908,"hostname":"Beast","req":{"id":140,"method":"GET","url":"/images/staff/assistant_coach/staff-05.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545684,"pid":908,"hostname":"Beast","req":{"id":139,"method":"GET","url":"/images/flags/pr.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545687,"pid":908,"hostname":"Beast","req":{"id":141,"method":"GET","url":"/images/staff/assistant_coach/staff-29.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545689,"pid":908,"hostname":"Beast","req":{"id":142,"method":"GET","url":"/images/staff/assistant_coach/staff-12.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545690,"pid":908,"hostname":"Beast","req":{"id":143,"method":"GET","url":"/images/flags/no.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545692,"pid":908,"hostname":"Beast","req":{"id":144,"method":"GET","url":"/images/staff/assistant_coach/staff-26.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545693,"pid":908,"hostname":"Beast","req":{"id":145,"method":"GET","url":"/images/staff/assistant_coach/staff-11.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545695,"pid":908,"hostname":"Beast","req":{"id":146,"method":"GET","url":"/images/staff/assistant_coach/staff-27.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545695,"pid":908,"hostname":"Beast","req":{"id":147,"method":"GET","url":"/images/flags/lv.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545697,"pid":908,"hostname":"Beast","req":{"id":148,"method":"GET","url":"/images/staff/assistant_coach/staff-08.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545698,"pid":908,"hostname":"Beast","req":{"id":149,"method":"GET","url":"/images/staff/assistant_coach/staff-21.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545701,"pid":908,"hostname":"Beast","req":{"id":150,"method":"GET","url":"/images/staff/assistant_coach/staff-25.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545701,"pid":908,"hostname":"Beast","req":{"id":151,"method":"GET","url":"/images/staff/assistant_coach/staff-10.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545703,"pid":908,"hostname":"Beast","req":{"id":152,"method":"GET","url":"/images/staff/assistant_coach/staff-01.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545705,"pid":908,"hostname":"Beast","req":{"id":153,"method":"GET","url":"/images/staff/assistant_coach/staff-31.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545707,"pid":908,"hostname":"Beast","req":{"id":154,"method":"GET","url":"/images/staff/assistant_coach/staff-02.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545710,"pid":908,"hostname":"Beast","req":{"id":155,"method":"GET","url":"/images/staff/assistant_coach/staff-46.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545711,"pid":908,"hostname":"Beast","req":{"id":156,"method":"GET","url":"/images/staff/assistant_coach/staff-33.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545711,"pid":908,"hostname":"Beast","req":{"id":157,"method":"GET","url":"/images/staff/assistant_coach/staff-14.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545713,"pid":908,"hostname":"Beast","req":{"id":158,"method":"GET","url":"/images/staff/assistant_coach/staff-16.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545715,"pid":908,"hostname":"Beast","req":{"id":159,"method":"GET","url":"/images/staff/assistant_coach/staff-19.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545718,"pid":908,"hostname":"Beast","req":{"id":160,"method":"GET","url":"/images/flags/gr.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545719,"pid":908,"hostname":"Beast","req":{"id":161,"method":"GET","url":"/images/staff/assistant_coach/staff-36.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545721,"pid":908,"hostname":"Beast","req":{"id":162,"method":"GET","url":"/images/staff/assistant_coach/staff-15.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545722,"pid":908,"hostname":"Beast","req":{"id":163,"method":"GET","url":"/images/staff/assistant_coach/staff-28.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545724,"pid":908,"hostname":"Beast","req":{"id":164,"method":"GET","url":"/images/flags/lb.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545727,"pid":908,"hostname":"Beast","req":{"id":165,"method":"GET","url":"/images/staff/assistant_coach/staff-41.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545728,"pid":908,"hostname":"Beast","req":{"id":166,"method":"GET","url":"/images/staff/assistant_coach/staff-18.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545730,"pid":908,"hostname":"Beast","req":{"id":167,"method":"GET","url":"/images/flags/ca.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545731,"pid":908,"hostname":"Beast","req":{"id":168,"method":"GET","url":"/images/staff/assistant_coach/staff-37.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545733,"pid":908,"hostname":"Beast","req":{"id":169,"method":"GET","url":"/images/flags/fi.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545735,"pid":908,"hostname":"Beast","req":{"id":170,"method":"GET","url":"/images/staff/assistant_coach/staff-13.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545735,"pid":908,"hostname":"Beast","req":{"id":171,"method":"GET","url":"/images/flags/jm.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545737,"pid":908,"hostname":"Beast","req":{"id":172,"method":"GET","url":"/images/staff/assistant_coach/staff-40.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545738,"pid":908,"hostname":"Beast","req":{"id":173,"method":"GET","url":"/images/staff/assistant_coach/staff-23.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545739,"pid":908,"hostname":"Beast","req":{"id":174,"method":"GET","url":"/images/flags/za.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545741,"pid":908,"hostname":"Beast","req":{"id":175,"method":"GET","url":"/images/staff/assistant_coach/staff-38.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545744,"pid":908,"hostname":"Beast","req":{"id":176,"method":"GET","url":"/images/staff/assistant_coach/staff-39.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545746,"pid":908,"hostname":"Beast","req":{"id":177,"method":"GET","url":"/images/flags/vn.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545747,"pid":908,"hostname":"Beast","req":{"id":178,"method":"GET","url":"/images/staff/fitness_trainer/staff-13.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545748,"pid":908,"hostname":"Beast","req":{"id":179,"method":"GET","url":"/images/staff/fitness_trainer/staff-15.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545749,"pid":908,"hostname":"Beast","req":{"id":180,"method":"GET","url":"/images/staff/fitness_trainer/staff-09.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545752,"pid":908,"hostname":"Beast","req":{"id":181,"method":"GET","url":"/images/staff/fitness_trainer/staff-03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545753,"pid":908,"hostname":"Beast","req":{"id":182,"method":"GET","url":"/images/staff/fitness_trainer/staff-18.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545755,"pid":908,"hostname":"Beast","req":{"id":183,"method":"GET","url":"/images/staff/fitness_trainer/staff-17.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545756,"pid":908,"hostname":"Beast","req":{"id":184,"method":"GET","url":"/images/staff/fitness_trainer/staff-08.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545759,"pid":908,"hostname":"Beast","req":{"id":185,"method":"GET","url":"/images/staff/fitness_trainer/staff-02.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545762,"pid":908,"hostname":"Beast","req":{"id":186,"method":"GET","url":"/images/flags/us.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545763,"pid":908,"hostname":"Beast","req":{"id":187,"method":"GET","url":"/images/staff/fitness_trainer/staff-01.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545765,"pid":908,"hostname":"Beast","req":{"id":188,"method":"GET","url":"/images/staff/fitness_trainer/staff-06.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545767,"pid":908,"hostname":"Beast","req":{"id":189,"method":"GET","url":"/images/staff/fitness_trainer/staff-19.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545769,"pid":908,"hostname":"Beast","req":{"id":190,"method":"GET","url":"/images/staff/fitness_trainer/staff-11.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545772,"pid":908,"hostname":"Beast","req":{"id":191,"method":"GET","url":"/images/staff/fitness_trainer/staff-05.webp"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545773,"pid":908,"hostname":"Beast","req":{"id":192,"method":"GET","url":"/images/staff/fitness_trainer/staff-20.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545774,"pid":908,"hostname":"Beast","req":{"id":193,"method":"GET","url":"/images/staff/fitness_trainer/staff-07.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545775,"pid":908,"hostname":"Beast","req":{"id":194,"method":"GET","url":"/images/staff/fitness_trainer/staff-04.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545776,"pid":908,"hostname":"Beast","req":{"id":195,"method":"GET","url":"/images/staff/fitness_trainer/staff-10.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545780,"pid":908,"hostname":"Beast","req":{"id":196,"method":"GET","url":"/images/staff/fitness_trainer/staff-16.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545781,"pid":908,"hostname":"Beast","req":{"id":197,"method":"GET","url":"/images/staff/fitness_trainer/staff-14.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545783,"pid":908,"hostname":"Beast","req":{"id":198,"method":"GET","url":"/images/staff/fitness_trainer/staff-12.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545785,"pid":908,"hostname":"Beast","req":{"id":199,"method":"GET","url":"/images/staff/strength_conditioner/staff-17.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545788,"pid":908,"hostname":"Beast","req":{"id":200,"method":"GET","url":"/images/staff/strength_conditioner/staff-07.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545791,"pid":908,"hostname":"Beast","req":{"id":201,"method":"GET","url":"/images/staff/strength_conditioner/staff-14.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545792,"pid":908,"hostname":"Beast","req":{"id":202,"method":"GET","url":"/images/staff/strength_conditioner/staff-11.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545794,"pid":908,"hostname":"Beast","req":{"id":203,"method":"GET","url":"/images/staff/strength_conditioner/staff-05.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545796,"pid":908,"hostname":"Beast","req":{"id":204,"method":"GET","url":"/images/staff/strength_conditioner/staff-16.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545798,"pid":908,"hostname":"Beast","req":{"id":205,"method":"GET","url":"/images/staff/strength_conditioner/staff-13.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545800,"pid":908,"hostname":"Beast","req":{"id":206,"method":"GET","url":"/images/staff/strength_conditioner/staff-01.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545801,"pid":908,"hostname":"Beast","req":{"id":207,"method":"GET","url":"/images/staff/strength_conditioner/staff-20.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545802,"pid":908,"hostname":"Beast","req":{"id":208,"method":"GET","url":"/images/staff/strength_conditioner/staff-06.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545803,"pid":908,"hostname":"Beast","req":{"id":209,"method":"GET","url":"/images/staff/strength_conditioner/staff-03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545804,"pid":908,"hostname":"Beast","req":{"id":210,"method":"GET","url":"/images/staff/strength_conditioner/staff-19.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545807,"pid":908,"hostname":"Beast","req":{"id":211,"method":"GET","url":"/images/staff/strength_conditioner/staff-18.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+{"level":30,"time":1792829545807,"pid":908,"hostname":"Beast","req":{"id":212,"method":"GET","url":"/images/staff/strength_conditioner/staff-08.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545809,"pid":908,"hostname":"Beast","req":{"id":213,"method":"GET","url":"/images/staff/strength_conditioner/staff-12.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545809,"pid":908,"hostname":"Beast","req":{"id":214,"method":"GET","url":"/images/staff/strength_conditioner/staff-04.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545811,"pid":908,"hostname":"Beast","req":{"id":215,"method":"GET","url":"/images/staff/strength_conditioner/staff-02.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545813,"pid":908,"hostname":"Beast","req":{"id":216,"method":"GET","url":"/images/staff/strength_conditioner/staff-09.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545814,"pid":908,"hostname":"Beast","req":{"id":217,"method":"GET","url":"/images/staff/strength_conditioner/staff-10.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545814,"pid":908,"hostname":"Beast","req":{"id":218,"method":"GET","url":"/images/flags/gb.svg"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545816,"pid":908,"hostname":"Beast","req":{"id":219,"method":"GET","url":"/images/staff/strength_conditioner/staff-15.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545818,"pid":908,"hostname":"Beast","req":{"id":220,"method":"GET","url":"/images/staff/promotional_manager/staff-05.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545821,"pid":908,"hostname":"Beast","req":{"id":222,"method":"GET","url":"/images/staff/promotional_manager/staff-08.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545821,"pid":908,"hostname":"Beast","req":{"id":223,"method":"GET","url":"/images/staff/promotional_manager/staff-10.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545821,"pid":908,"hostname":"Beast","req":{"id":221,"method":"GET","url":"/images/flags/ci.svg"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545822,"pid":908,"hostname":"Beast","req":{"id":224,"method":"GET","url":"/images/staff/promotional_manager/staff-09.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545823,"pid":908,"hostname":"Beast","req":{"id":225,"method":"GET","url":"/images/flags/be.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545826,"pid":908,"hostname":"Beast","req":{"id":226,"method":"GET","url":"/images/staff/promotional_manager/staff-03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545826,"pid":908,"hostname":"Beast","req":{"id":227,"method":"GET","url":"/images/staff/promotional_manager/staff-02.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545828,"pid":908,"hostname":"Beast","req":{"id":229,"method":"GET","url":"/images/staff/promotional_manager/staff-07.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545828,"pid":908,"hostname":"Beast","req":{"id":228,"method":"GET","url":"/images/staff/promotional_manager/staff-06.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545828,"pid":908,"hostname":"Beast","req":{"id":230,"method":"GET","url":"/images/staff/promotional_manager/staff-04.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545830,"pid":908,"hostname":"Beast","req":{"id":231,"method":"GET","url":"/images/staff/promotional_manager/staff-01.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545832,"pid":908,"hostname":"Beast","req":{"id":232,"method":"GET","url":"/images/staff/scouts/staff-69.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545832,"pid":908,"hostname":"Beast","req":{"id":233,"method":"GET","url":"/images/staff/scouts/staff-60.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545833,"pid":908,"hostname":"Beast","req":{"id":234,"method":"GET","url":"/images/staff/scouts/staff-20.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545834,"pid":908,"hostname":"Beast","req":{"id":235,"method":"GET","url":"/images/staff/scouts/staff-01.webp"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545834,"pid":908,"hostname":"Beast","req":{"id":236,"method":"GET","url":"/images/staff/scouts/staff-45.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545835,"pid":908,"hostname":"Beast","req":{"id":237,"method":"GET","url":"/images/staff/scouts/staff-29.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545836,"pid":908,"hostname":"Beast","req":{"id":238,"method":"GET","url":"/images/staff/scouts/staff-61.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545838,"pid":908,"hostname":"Beast","req":{"id":239,"method":"GET","url":"/images/staff/scouts/staff-32.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545841,"pid":908,"hostname":"Beast","req":{"id":240,"method":"GET","url":"/images/staff/scouts/staff-59.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545842,"pid":908,"hostname":"Beast","req":{"id":241,"method":"GET","url":"/images/staff/scouts/staff-35.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545843,"pid":908,"hostname":"Beast","req":{"id":242,"method":"GET","url":"/images/staff/scouts/staff-08.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545844,"pid":908,"hostname":"Beast","req":{"id":243,"method":"GET","url":"/images/staff/scouts/staff-31.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545846,"pid":908,"hostname":"Beast","req":{"id":244,"method":"GET","url":"/images/staff/scouts/staff-48.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545849,"pid":908,"hostname":"Beast","req":{"id":245,"method":"GET","url":"/images/staff/scouts/staff-58.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545850,"pid":908,"hostname":"Beast","req":{"id":246,"method":"GET","url":"/images/staff/scouts/staff-12.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545852,"pid":908,"hostname":"Beast","req":{"id":247,"method":"GET","url":"/images/staff/scouts/staff-33.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545853,"pid":908,"hostname":"Beast","req":{"id":248,"method":"GET","url":"/images/staff/scouts/staff-40.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545855,"pid":908,"hostname":"Beast","req":{"id":249,"method":"GET","url":"/images/staff/scouts/staff-68.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545858,"pid":908,"hostname":"Beast","req":{"id":250,"method":"GET","url":"/images/staff/scouts/staff-54.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545858,"pid":908,"hostname":"Beast","req":{"id":251,"method":"GET","url":"/images/staff/scouts/staff-16.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545860,"pid":908,"hostname":"Beast","req":{"id":252,"method":"GET","url":"/images/flags/gb-eng.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545861,"pid":908,"hostname":"Beast","req":{"id":253,"method":"GET","url":"/images/staff/scouts/staff-21.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545863,"pid":908,"hostname":"Beast","req":{"id":254,"method":"GET","url":"/images/staff/scouts/staff-02.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545865,"pid":908,"hostname":"Beast","req":{"id":255,"method":"GET","url":"/images/staff/scouts/staff-57.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545867,"pid":908,"hostname":"Beast","req":{"id":256,"method":"GET","url":"/images/staff/scouts/staff-18.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545869,"pid":908,"hostname":"Beast","req":{"id":257,"method":"GET","url":"/images/flags/pe.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545871,"pid":908,"hostname":"Beast","req":{"id":258,"method":"GET","url":"/images/staff/scouts/staff-19.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545873,"pid":908,"hostname":"Beast","req":{"id":259,"method":"GET","url":"/images/staff/scouts/staff-70.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545874,"pid":908,"hostname":"Beast","req":{"id":260,"method":"GET","url":"/images/staff/scouts/staff-46.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545875,"pid":908,"hostname":"Beast","req":{"id":261,"method":"GET","url":"/images/staff/scouts/staff-55.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545877,"pid":908,"hostname":"Beast","req":{"id":262,"method":"GET","url":"/images/staff/scouts/staff-04.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545879,"pid":908,"hostname":"Beast","req":{"id":263,"method":"GET","url":"/images/staff/scouts/staff-50.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545881,"pid":908,"hostname":"Beast","req":{"id":264,"method":"GET","url":"/images/staff/scouts/staff-56.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545883,"pid":908,"hostname":"Beast","req":{"id":265,"method":"GET","url":"/images/flags/ma.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545885,"pid":908,"hostname":"Beast","req":{"id":266,"method":"GET","url":"/images/staff/scouts/staff-23.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545887,"pid":908,"hostname":"Beast","req":{"id":267,"method":"GET","url":"/images/staff/scouts/staff-65.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545888,"pid":908,"hostname":"Beast","req":{"id":268,"method":"GET","url":"/images/staff/scouts/staff-47.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545890,"pid":908,"hostname":"Beast","req":{"id":269,"method":"GET","url":"/images/staff/scouts/staff-36.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545891,"pid":908,"hostname":"Beast","req":{"id":270,"method":"GET","url":"/images/staff/scouts/staff-05.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545892,"pid":908,"hostname":"Beast","req":{"id":271,"method":"GET","url":"/images/flags/at.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545894,"pid":908,"hostname":"Beast","req":{"id":272,"method":"GET","url":"/images/staff/scouts/staff-52.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545895,"pid":908,"hostname":"Beast","req":{"id":273,"method":"GET","url":"/images/staff/scouts/staff-13.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545896,"pid":908,"hostname":"Beast","req":{"id":274,"method":"GET","url":"/images/staff/scouts/staff-14.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545898,"pid":908,"hostname":"Beast","req":{"id":275,"method":"GET","url":"/images/staff/scouts/staff-09.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545900,"pid":908,"hostname":"Beast","req":{"id":276,"method":"GET","url":"/images/staff/scouts/staff-28.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545903,"pid":908,"hostname":"Beast","req":{"id":277,"method":"GET","url":"/images/staff/scouts/staff-34.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545905,"pid":908,"hostname":"Beast","req":{"id":278,"method":"GET","url":"/images/staff/scouts/staff-62.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545907,"pid":908,"hostname":"Beast","req":{"id":279,"method":"GET","url":"/images/staff/scouts/staff-22.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545910,"pid":908,"hostname":"Beast","req":{"id":280,"method":"GET","url":"/images/flags/cl.svg"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545910,"pid":908,"hostname":"Beast","req":{"id":281,"method":"GET","url":"/images/staff/scouts/staff-07.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545911,"pid":908,"hostname":"Beast","req":{"id":282,"method":"GET","url":"/images/staff/scouts/staff-11.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545913,"pid":908,"hostname":"Beast","req":{"id":283,"method":"GET","url":"/images/staff/scouts/staff-49.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545915,"pid":908,"hostname":"Beast","req":{"id":284,"method":"GET","url":"/images/staff/scouts/staff-10.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545916,"pid":908,"hostname":"Beast","req":{"id":285,"method":"GET","url":"/images/staff/scouts/staff-24.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545918,"pid":908,"hostname":"Beast","req":{"id":286,"method":"GET","url":"/images/staff/scouts/staff-64.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545918,"pid":908,"hostname":"Beast","req":{"id":287,"method":"GET","url":"/images/staff/scouts/staff-42.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545920,"pid":908,"hostname":"Beast","req":{"id":288,"method":"GET","url":"/images/staff/scouts/staff-17.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545922,"pid":908,"hostname":"Beast","req":{"id":289,"method":"GET","url":"/images/staff/scouts/staff-67.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545923,"pid":908,"hostname":"Beast","req":{"id":290,"method":"GET","url":"/images/staff/scouts/staff-38.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545924,"pid":908,"hostname":"Beast","req":{"id":291,"method":"GET","url":"/images/staff/scouts/staff-06.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545927,"pid":908,"hostname":"Beast","req":{"id":292,"method":"GET","url":"/images/staff/scouts/staff-37.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545929,"pid":908,"hostname":"Beast","req":{"id":293,"method":"GET","url":"/images/staff/scouts/staff-66.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545930,"pid":908,"hostname":"Beast","req":{"id":294,"method":"GET","url":"/images/staff/scouts/staff-30.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545934,"pid":908,"hostname":"Beast","req":{"id":295,"method":"GET","url":"/images/flags/ch.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545935,"pid":908,"hostname":"Beast","req":{"id":296,"method":"GET","url":"/images/staff/scouts/staff-15.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545937,"pid":908,"hostname":"Beast","req":{"id":297,"method":"GET","url":"/images/staff/scouts/staff-41.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545939,"pid":908,"hostname":"Beast","req":{"id":298,"method":"GET","url":"/images/staff/scouts/staff-43.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545940,"pid":908,"hostname":"Beast","req":{"id":299,"method":"GET","url":"/images/flags/pt.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545941,"pid":908,"hostname":"Beast","req":{"id":300,"method":"GET","url":"/images/staff/scouts/staff-51.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545944,"pid":908,"hostname":"Beast","req":{"id":301,"method":"GET","url":"/images/staff/scouts/staff-27.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545947,"pid":908,"hostname":"Beast","req":{"id":302,"method":"GET","url":"/images/staff/scouts/staff-53.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545949,"pid":908,"hostname":"Beast","req":{"id":303,"method":"GET","url":"/images/staff/scouts/staff-03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545951,"pid":908,"hostname":"Beast","req":{"id":304,"method":"GET","url":"/images/staff/scouts/staff-39.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545952,"pid":908,"hostname":"Beast","req":{"id":305,"method":"GET","url":"/images/staff/scouts/staff-63.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545954,"pid":908,"hostname":"Beast","req":{"id":306,"method":"GET","url":"/images/staff/scouts/staff-44.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545957,"pid":908,"hostname":"Beast","req":{"id":307,"method":"GET","url":"/images/flags/ve.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545959,"pid":908,"hostname":"Beast","req":{"id":308,"method":"GET","url":"/images/staff/scouts/staff-25.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545961,"pid":908,"hostname":"Beast","req":{"id":309,"method":"GET","url":"/images/staff/scouts/staff-26.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545963,"pid":908,"hostname":"Beast","req":{"id":310,"method":"GET","url":"/images/staff/physiotherapist/staff-53.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545966,"pid":908,"hostname":"Beast","req":{"id":311,"method":"GET","url":"/images/staff/physiotherapist/staff-43.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545968,"pid":908,"hostname":"Beast","req":{"id":312,"method":"GET","url":"/images/staff/physiotherapist/staff-13.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545969,"pid":908,"hostname":"Beast","req":{"id":313,"method":"GET","url":"/images/staff/physiotherapist/staff-51.webp"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545971,"pid":908,"hostname":"Beast","req":{"id":314,"method":"GET","url":"/images/staff/medical_doctor/staff-50.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545972,"pid":908,"hostname":"Beast","req":{"id":315,"method":"GET","url":"/images/staff/physiotherapist/staff-08.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545974,"pid":908,"hostname":"Beast","req":{"id":316,"method":"GET","url":"/images/staff/medical_specialist/staff-13.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545976,"pid":908,"hostname":"Beast","req":{"id":317,"method":"GET","url":"/images/staff/medical_doctor/staff-31.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545978,"pid":908,"hostname":"Beast","req":{"id":318,"method":"GET","url":"/images/staff/sports_scientist/staff-20.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545981,"pid":908,"hostname":"Beast","req":{"id":319,"method":"GET","url":"/images/staff/physiotherapist/staff-48.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545982,"pid":908,"hostname":"Beast","req":{"id":320,"method":"GET","url":"/images/staff/medical_specialist/staff-24.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545983,"pid":908,"hostname":"Beast","req":{"id":321,"method":"GET","url":"/images/staff/medical_doctor/staff-23.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545985,"pid":908,"hostname":"Beast","req":{"id":322,"method":"GET","url":"/images/staff/medical_doctor/staff-32.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545989,"pid":908,"hostname":"Beast","req":{"id":323,"method":"GET","url":"/images/flags/pk.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545991,"pid":908,"hostname":"Beast","req":{"id":324,"method":"GET","url":"/images/staff/medical_doctor/staff-55.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545992,"pid":908,"hostname":"Beast","req":{"id":325,"method":"GET","url":"/images/staff/physiotherapist/staff-16.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545994,"pid":908,"hostname":"Beast","req":{"id":326,"method":"GET","url":"/images/staff/physiotherapist/staff-19.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545996,"pid":908,"hostname":"Beast","req":{"id":327,"method":"GET","url":"/images/staff/medical_specialist/staff-14.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829545998,"pid":908,"hostname":"Beast","req":{"id":328,"method":"GET","url":"/images/staff/medical_specialist/staff-26.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546000,"pid":908,"hostname":"Beast","req":{"id":329,"method":"GET","url":"/images/staff/medical_doctor/staff-16.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546001,"pid":908,"hostname":"Beast","req":{"id":330,"method":"GET","url":"/images/staff/medical_doctor/staff-60.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546003,"pid":908,"hostname":"Beast","req":{"id":331,"method":"GET","url":"/images/staff/sports_scientist/staff-18.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546004,"pid":908,"hostname":"Beast","req":{"id":332,"method":"GET","url":"/images/staff/physiotherapist/staff-38.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546006,"pid":908,"hostname":"Beast","req":{"id":333,"method":"GET","url":"/images/staff/medical_doctor/staff-40.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546008,"pid":908,"hostname":"Beast","req":{"id":334,"method":"GET","url":"/images/staff/physiotherapist/staff-34.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546011,"pid":908,"hostname":"Beast","req":{"id":335,"method":"GET","url":"/images/staff/physiotherapist/staff-44.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546013,"pid":908,"hostname":"Beast","req":{"id":336,"method":"GET","url":"/images/staff/physiotherapist/staff-27.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546015,"pid":908,"hostname":"Beast","req":{"id":337,"method":"GET","url":"/images/staff/medical_doctor/staff-58.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546017,"pid":908,"hostname":"Beast","req":{"id":338,"method":"GET","url":"/images/flags/lk.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546020,"pid":908,"hostname":"Beast","req":{"id":339,"method":"GET","url":"/images/staff/medical_specialist/staff-15.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546023,"pid":908,"hostname":"Beast","req":{"id":340,"method":"GET","url":"/images/staff/physiotherapist/staff-18.webp"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546025,"pid":908,"hostname":"Beast","req":{"id":341,"method":"GET","url":"/images/staff/medical_doctor/staff-42.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546026,"pid":908,"hostname":"Beast","req":{"id":342,"method":"GET","url":"/images/staff/medical_specialist/staff-09.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546029,"pid":908,"hostname":"Beast","req":{"id":343,"method":"GET","url":"/images/staff/medical_doctor/staff-06.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546031,"pid":908,"hostname":"Beast","req":{"id":344,"method":"GET","url":"/images/staff/physiotherapist/staff-03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546032,"pid":908,"hostname":"Beast","req":{"id":345,"method":"GET","url":"/images/staff/medical_nutritionist/staff-04.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546033,"pid":908,"hostname":"Beast","req":{"id":346,"method":"GET","url":"/images/staff/sports_scientist/staff-10.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546036,"pid":908,"hostname":"Beast","req":{"id":347,"method":"GET","url":"/images/staff/medical_specialist/staff-05.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546039,"pid":908,"hostname":"Beast","req":{"id":348,"method":"GET","url":"/images/staff/physiotherapist/staff-05.webp"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546041,"pid":908,"hostname":"Beast","req":{"id":349,"method":"GET","url":"/images/staff/medical_doctor/staff-04.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546043,"pid":908,"hostname":"Beast","req":{"id":350,"method":"GET","url":"/images/staff/medical_specialist/staff-04.webp"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546044,"pid":908,"hostname":"Beast","req":{"id":351,"method":"GET","url":"/images/staff/sports_scientist/staff-06.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546045,"pid":908,"hostname":"Beast","req":{"id":352,"method":"GET","url":"/images/staff/medical_specialist/staff-08.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546047,"pid":908,"hostname":"Beast","req":{"id":353,"method":"GET","url":"/images/staff/medical_specialist/staff-03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546049,"pid":908,"hostname":"Beast","req":{"id":354,"method":"GET","url":"/images/staff/medical_nutritionist/staff-06.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546051,"pid":908,"hostname":"Beast","req":{"id":355,"method":"GET","url":"/images/staff/medical_doctor/staff-08.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546052,"pid":908,"hostname":"Beast","req":{"id":356,"method":"GET","url":"/images/staff/sports_scientist/staff-08.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546053,"pid":908,"hostname":"Beast","req":{"id":357,"method":"GET","url":"/images/staff/sports_scientist/staff-02.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546056,"pid":908,"hostname":"Beast","req":{"id":358,"method":"GET","url":"/images/staff/medical_doctor/staff-03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546059,"pid":908,"hostname":"Beast","req":{"id":359,"method":"GET","url":"/images/staff/medical_nutritionist/staff-03.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546060,"pid":908,"hostname":"Beast","req":{"id":360,"method":"GET","url":"/images/staff/physiotherapist/staff-01.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546062,"pid":908,"hostname":"Beast","req":{"id":361,"method":"GET","url":"/images/staff/medical_specialist/staff-01.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546063,"pid":908,"hostname":"Beast","req":{"id":362,"method":"GET","url":"/images/staff/medical_doctor/staff-07.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546065,"pid":908,"hostname":"Beast","req":{"id":363,"method":"GET","url":"/images/staff/medical_doctor/staff-01.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546068,"pid":908,"hostname":"Beast","req":{"id":364,"method":"GET","url":"/images/flags/mt.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546069,"pid":908,"hostname":"Beast","req":{"id":365,"method":"GET","url":"/images/staff/medical_doctor/staff-05.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546070,"pid":908,"hostname":"Beast","req":{"id":366,"method":"GET","url":"/images/staff/sports_scientist/staff-09.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546072,"pid":908,"hostname":"Beast","req":{"id":367,"method":"GET","url":"/images/staff/medical_nutritionist/staff-02.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546074,"pid":908,"hostname":"Beast","req":{"id":368,"method":"GET","url":"/images/staff/sports_scientist/staff-04.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546076,"pid":908,"hostname":"Beast","req":{"id":369,"method":"GET","url":"/images/staff/medical_nutritionist/staff-01.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546077,"pid":908,"hostname":"Beast","req":{"id":370,"method":"GET","url":"/images/staff/sports_scientist/staff-05.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546079,"pid":908,"hostname":"Beast","req":{"id":371,"method":"GET","url":"/images/staff/sports_scientist/staff-01.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546080,"pid":908,"hostname":"Beast","req":{"id":372,"method":"GET","url":"/images/staff/medical_specialist/staff-06.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546082,"pid":908,"hostname":"Beast","req":{"id":373,"method":"GET","url":"/images/staff/medical_doctor/staff-10.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546085,"pid":908,"hostname":"Beast","req":{"id":374,"method":"GET","url":"/images/staff/medical_specialist/staff-10.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546088,"pid":908,"hostname":"Beast","req":{"id":375,"method":"GET","url":"/images/staff/physiotherapist/staff-04.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546089,"pid":908,"hostname":"Beast","req":{"id":376,"method":"GET","url":"/images/staff/medical_doctor/staff-09.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546091,"pid":908,"hostname":"Beast","req":{"id":377,"method":"GET","url":"/images/staff/physiotherapist/staff-06.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546093,"pid":908,"hostname":"Beast","req":{"id":378,"method":"GET","url":"/images/staff/medical_specialist/staff-02.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546097,"pid":908,"hostname":"Beast","req":{"id":379,"method":"GET","url":"/images/staff/physiotherapist/staff-02.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546098,"pid":908,"hostname":"Beast","req":{"id":380,"method":"GET","url":"/images/staff/medical_nutritionist/staff-05.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546099,"pid":908,"hostname":"Beast","req":{"id":381,"method":"GET","url":"/images/staff/medical_specialist/staff-07.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546101,"pid":908,"hostname":"Beast","req":{"id":382,"method":"GET","url":"/images/staff/medical_doctor/staff-02.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546101,"pid":908,"hostname":"Beast","req":{"id":383,"method":"GET","url":"/images/flags/bg.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546103,"pid":908,"hostname":"Beast","req":{"id":384,"method":"GET","url":"/images/staff/sports_scientist/staff-07.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546105,"pid":908,"hostname":"Beast","req":{"id":385,"method":"GET","url":"/images/staff/sports_scientist/staff-03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546106,"pid":908,"hostname":"Beast","req":{"id":386,"method":"GET","url":"/images/staff/medical_doctor/staff-22.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546108,"pid":908,"hostname":"Beast","req":{"id":387,"method":"GET","url":"/images/staff/sports_scientist/staff-16.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546109,"pid":908,"hostname":"Beast","req":{"id":388,"method":"GET","url":"/images/staff/medical_doctor/staff-46.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546112,"pid":908,"hostname":"Beast","req":{"id":389,"method":"GET","url":"/images/staff/physiotherapist/staff-52.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546113,"pid":908,"hostname":"Beast","req":{"id":390,"method":"GET","url":"/images/staff/medical_specialist/staff-11.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546114,"pid":908,"hostname":"Beast","req":{"id":391,"method":"GET","url":"/images/staff/medical_nutritionist/staff-09.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546117,"pid":908,"hostname":"Beast","req":{"id":392,"method":"GET","url":"/images/staff/physiotherapist/staff-31.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546119,"pid":908,"hostname":"Beast","req":{"id":393,"method":"GET","url":"/images/staff/medical_specialist/staff-25.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546120,"pid":908,"hostname":"Beast","req":{"id":394,"method":"GET","url":"/images/staff/sports_scientist/staff-11.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546123,"pid":908,"hostname":"Beast","req":{"id":395,"method":"GET","url":"/images/staff/physiotherapist/staff-32.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546124,"pid":908,"hostname":"Beast","req":{"id":396,"method":"GET","url":"/images/staff/sports_scientist/staff-15.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546127,"pid":908,"hostname":"Beast","req":{"id":397,"method":"GET","url":"/images/staff/medical_specialist/staff-29.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546129,"pid":908,"hostname":"Beast","req":{"id":398,"method":"GET","url":"/images/staff/medical_specialist/staff-12.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546131,"pid":908,"hostname":"Beast","req":{"id":399,"method":"GET","url":"/images/staff/medical_doctor/staff-17.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546133,"pid":908,"hostname":"Beast","req":{"id":400,"method":"GET","url":"/images/staff/medical_doctor/staff-54.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546134,"pid":908,"hostname":"Beast","req":{"id":401,"method":"GET","url":"/images/staff/medical_doctor/staff-35.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546136,"pid":908,"hostname":"Beast","req":{"id":402,"method":"GET","url":"/images/staff/physiotherapist/staff-30.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546138,"pid":908,"hostname":"Beast","req":{"id":403,"method":"GET","url":"/images/staff/physiotherapist/staff-29.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546140,"pid":908,"hostname":"Beast","req":{"id":404,"method":"GET","url":"/images/staff/medical_specialist/staff-23.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546141,"pid":908,"hostname":"Beast","req":{"id":405,"method":"GET","url":"/images/staff/sports_scientist/staff-17.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546142,"pid":908,"hostname":"Beast","req":{"id":406,"method":"GET","url":"/images/staff/medical_doctor/staff-37.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546143,"pid":908,"hostname":"Beast","req":{"id":407,"method":"GET","url":"/images/staff/medical_doctor/staff-27.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546146,"pid":908,"hostname":"Beast","req":{"id":408,"method":"GET","url":"/images/staff/physiotherapist/staff-36.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546147,"pid":908,"hostname":"Beast","req":{"id":409,"method":"GET","url":"/images/staff/medical_doctor/staff-20.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546150,"pid":908,"hostname":"Beast","req":{"id":410,"method":"GET","url":"/images/staff/medical_doctor/staff-13.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546152,"pid":908,"hostname":"Beast","req":{"id":411,"method":"GET","url":"/images/staff/physiotherapist/staff-07.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546154,"pid":908,"hostname":"Beast","req":{"id":412,"method":"GET","url":"/images/staff/medical_nutritionist/staff-10.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546157,"pid":908,"hostname":"Beast","req":{"id":413,"method":"GET","url":"/images/staff/physiotherapist/staff-55.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546158,"pid":908,"hostname":"Beast","req":{"id":414,"method":"GET","url":"/images/staff/medical_doctor/staff-39.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546159,"pid":908,"hostname":"Beast","req":{"id":415,"method":"GET","url":"/images/staff/medical_specialist/staff-33.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546162,"pid":908,"hostname":"Beast","req":{"id":416,"method":"GET","url":"/images/staff/physiotherapist/staff-40.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546164,"pid":908,"hostname":"Beast","req":{"id":417,"method":"GET","url":"/images/staff/sports_scientist/staff-21.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546166,"pid":908,"hostname":"Beast","req":{"id":418,"method":"GET","url":"/images/staff/physiotherapist/staff-41.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546168,"pid":908,"hostname":"Beast","req":{"id":419,"method":"GET","url":"/images/staff/physiotherapist/staff-46.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546169,"pid":908,"hostname":"Beast","req":{"id":420,"method":"GET","url":"/images/staff/medical_doctor/staff-24.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546170,"pid":908,"hostname":"Beast","req":{"id":421,"method":"GET","url":"/images/staff/physiotherapist/staff-50.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546173,"pid":908,"hostname":"Beast","req":{"id":422,"method":"GET","url":"/images/staff/medical_doctor/staff-14.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546175,"pid":908,"hostname":"Beast","req":{"id":423,"method":"GET","url":"/images/staff/sports_scientist/staff-12.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546178,"pid":908,"hostname":"Beast","req":{"id":424,"method":"GET","url":"/images/staff/medical_doctor/staff-57.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546179,"pid":908,"hostname":"Beast","req":{"id":425,"method":"GET","url":"/images/staff/medical_doctor/staff-12.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546181,"pid":908,"hostname":"Beast","req":{"id":426,"method":"GET","url":"/images/staff/medical_specialist/staff-17.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546183,"pid":908,"hostname":"Beast","req":{"id":427,"method":"GET","url":"/images/staff/medical_nutritionist/staff-07.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546185,"pid":908,"hostname":"Beast","req":{"id":428,"method":"GET","url":"/images/staff/medical_doctor/staff-28.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546188,"pid":908,"hostname":"Beast","req":{"id":429,"method":"GET","url":"/images/staff/medical_specialist/staff-31.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546189,"pid":908,"hostname":"Beast","req":{"id":430,"method":"GET","url":"/images/staff/physiotherapist/staff-22.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546191,"pid":908,"hostname":"Beast","req":{"id":431,"method":"GET","url":"/images/staff/physiotherapist/staff-14.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546194,"pid":908,"hostname":"Beast","req":{"id":432,"method":"GET","url":"/images/staff/physiotherapist/staff-49.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546197,"pid":908,"hostname":"Beast","req":{"id":433,"method":"GET","url":"/images/staff/physiotherapist/staff-25.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546199,"pid":908,"hostname":"Beast","req":{"id":434,"method":"GET","url":"/images/staff/medical_doctor/staff-47.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546200,"pid":908,"hostname":"Beast","req":{"id":435,"method":"GET","url":"/images/staff/medical_doctor/staff-36.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546202,"pid":908,"hostname":"Beast","req":{"id":436,"method":"GET","url":"/images/staff/sports_scientist/staff-14.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546203,"pid":908,"hostname":"Beast","req":{"id":437,"method":"GET","url":"/images/staff/physiotherapist/staff-45.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546205,"pid":908,"hostname":"Beast","req":{"id":438,"method":"GET","url":"/images/staff/medical_specialist/staff-32.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546208,"pid":908,"hostname":"Beast","req":{"id":439,"method":"GET","url":"/images/staff/medical_doctor/staff-49.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546210,"pid":908,"hostname":"Beast","req":{"id":440,"method":"GET","url":"/images/staff/physiotherapist/staff-47.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546211,"pid":908,"hostname":"Beast","req":{"id":441,"method":"GET","url":"/images/staff/medical_specialist/staff-20.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546213,"pid":908,"hostname":"Beast","req":{"id":442,"method":"GET","url":"/images/staff/medical_doctor/staff-19.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546215,"pid":908,"hostname":"Beast","req":{"id":443,"method":"GET","url":"/images/staff/medical_specialist/staff-22.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546218,"pid":908,"hostname":"Beast","req":{"id":444,"method":"GET","url":"/images/staff/medical_doctor/staff-29.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546220,"pid":908,"hostname":"Beast","req":{"id":445,"method":"GET","url":"/images/staff/physiotherapist/staff-09.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546221,"pid":908,"hostname":"Beast","req":{"id":446,"method":"GET","url":"/images/staff/medical_doctor/staff-11.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546223,"pid":908,"hostname":"Beast","req":{"id":447,"method":"GET","url":"/images/staff/physiotherapist/staff-54.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546225,"pid":908,"hostname":"Beast","req":{"id":448,"method":"GET","url":"/images/staff/medical_doctor/staff-33.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546228,"pid":908,"hostname":"Beast","req":{"id":449,"method":"GET","url":"/images/staff/medical_doctor/staff-21.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546230,"pid":908,"hostname":"Beast","req":{"id":450,"method":"GET","url":"/images/staff/medical_doctor/staff-18.webp"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546230,"pid":908,"hostname":"Beast","req":{"id":451,"method":"GET","url":"/images/staff/physiotherapist/staff-15.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546231,"pid":908,"hostname":"Beast","req":{"id":452,"method":"GET","url":"/images/staff/medical_doctor/staff-38.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546233,"pid":908,"hostname":"Beast","req":{"id":453,"method":"GET","url":"/images/staff/physiotherapist/staff-42.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546235,"pid":908,"hostname":"Beast","req":{"id":454,"method":"GET","url":"/images/staff/medical_doctor/staff-56.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546237,"pid":908,"hostname":"Beast","req":{"id":455,"method":"GET","url":"/images/staff/physiotherapist/staff-10.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546238,"pid":908,"hostname":"Beast","req":{"id":456,"method":"GET","url":"/images/staff/medical_doctor/staff-41.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546239,"pid":908,"hostname":"Beast","req":{"id":457,"method":"GET","url":"/images/staff/physiotherapist/staff-28.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546241,"pid":908,"hostname":"Beast","req":{"id":458,"method":"GET","url":"/images/flags/jo.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546245,"pid":908,"hostname":"Beast","req":{"id":459,"method":"GET","url":"/images/staff/medical_specialist/staff-19.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546246,"pid":908,"hostname":"Beast","req":{"id":460,"method":"GET","url":"/images/staff/physiotherapist/staff-12.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546248,"pid":908,"hostname":"Beast","req":{"id":461,"method":"GET","url":"/images/staff/physiotherapist/staff-39.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546249,"pid":908,"hostname":"Beast","req":{"id":462,"method":"GET","url":"/images/staff/physiotherapist/staff-23.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546251,"pid":908,"hostname":"Beast","req":{"id":463,"method":"GET","url":"/images/staff/physiotherapist/staff-17.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546253,"pid":908,"hostname":"Beast","req":{"id":464,"method":"GET","url":"/images/staff/medical_doctor/staff-59.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546255,"pid":908,"hostname":"Beast","req":{"id":465,"method":"GET","url":"/images/staff/medical_specialist/staff-28.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546257,"pid":908,"hostname":"Beast","req":{"id":466,"method":"GET","url":"/images/staff/medical_doctor/staff-44.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546259,"pid":908,"hostname":"Beast","req":{"id":467,"method":"GET","url":"/images/staff/physiotherapist/staff-35.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546261,"pid":908,"hostname":"Beast","req":{"id":468,"method":"GET","url":"/images/staff/medical_specialist/staff-21.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546262,"pid":908,"hostname":"Beast","req":{"id":469,"method":"GET","url":"/images/staff/medical_doctor/staff-53.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546264,"pid":908,"hostname":"Beast","req":{"id":470,"method":"GET","url":"/images/staff/medical_specialist/staff-27.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546267,"pid":908,"hostname":"Beast","req":{"id":471,"method":"GET","url":"/images/staff/medical_doctor/staff-15.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546268,"pid":908,"hostname":"Beast","req":{"id":472,"method":"GET","url":"/images/staff/sports_scientist/staff-19.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546270,"pid":908,"hostname":"Beast","req":{"id":473,"method":"GET","url":"/images/staff/medical_doctor/staff-34.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546273,"pid":908,"hostname":"Beast","req":{"id":474,"method":"GET","url":"/images/staff/physiotherapist/staff-33.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546275,"pid":908,"hostname":"Beast","req":{"id":475,"method":"GET","url":"/images/staff/medical_specialist/staff-18.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546277,"pid":908,"hostname":"Beast","req":{"id":476,"method":"GET","url":"/images/staff/physiotherapist/staff-26.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546278,"pid":908,"hostname":"Beast","req":{"id":477,"method":"GET","url":"/images/staff/medical_doctor/staff-48.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546279,"pid":908,"hostname":"Beast","req":{"id":478,"method":"GET","url":"/images/staff/physiotherapist/staff-21.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546282,"pid":908,"hostname":"Beast","req":{"id":479,"method":"GET","url":"/images/staff/medical_doctor/staff-45.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546284,"pid":908,"hostname":"Beast","req":{"id":480,"method":"GET","url":"/images/staff/physiotherapist/staff-24.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546286,"pid":908,"hostname":"Beast","req":{"id":481,"method":"GET","url":"/images/staff/medical_specialist/staff-16.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546288,"pid":908,"hostname":"Beast","req":{"id":482,"method":"GET","url":"/images/staff/medical_doctor/staff-43.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546290,"pid":908,"hostname":"Beast","req":{"id":483,"method":"GET","url":"/images/staff/medical_nutritionist/staff-08.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546293,"pid":908,"hostname":"Beast","req":{"id":484,"method":"GET","url":"/images/staff/medical_doctor/staff-25.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546295,"pid":908,"hostname":"Beast","req":{"id":485,"method":"GET","url":"/images/staff/medical_doctor/staff-52.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546297,"pid":908,"hostname":"Beast","req":{"id":486,"method":"GET","url":"/images/staff/physiotherapist/staff-11.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546298,"pid":908,"hostname":"Beast","req":{"id":487,"method":"GET","url":"/images/staff/medical_doctor/staff-51.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546300,"pid":908,"hostname":"Beast","req":{"id":488,"method":"GET","url":"/images/staff/medical_doctor/staff-30.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546301,"pid":908,"hostname":"Beast","req":{"id":489,"method":"GET","url":"/images/staff/medical_doctor/staff-26.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546302,"pid":908,"hostname":"Beast","req":{"id":490,"method":"GET","url":"/images/staff/physiotherapist/staff-20.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546304,"pid":908,"hostname":"Beast","req":{"id":491,"method":"GET","url":"/images/staff/medical_specialist/staff-30.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546306,"pid":908,"hostname":"Beast","req":{"id":492,"method":"GET","url":"/images/staff/physiotherapist/staff-37.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829546307,"pid":908,"hostname":"Beast","req":{"id":493,"method":"GET","url":"/images/staff/sports_scientist/staff-13.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829547526,"pid":908,"hostname":"Beast","req":{"id":494,"method":"GET","url":"/api/staff/market"},"res":{"statusCode":200},"responseTime":7,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829551371,"pid":908,"hostname":"Beast","req":{"id":495,"method":"GET","url":"/api/staff/market"},"res":{"statusCode":200},"responseTime":5,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829555244,"pid":908,"hostname":"Beast","req":{"id":496,"method":"GET","url":"/api/staff/market"},"res":{"statusCode":200},"responseTime":4,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829559107,"pid":908,"hostname":"Beast","req":{"id":497,"method":"GET","url":"/api/medical-staff/market"},"res":{"statusCode":200},"responseTime":6,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829559109,"pid":908,"hostname":"Beast","req":{"id":498,"method":"GET","url":"/api/medical-staff"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+{"level":30,"time":1792829559111,"pid":908,"hostname":"Beast","req":{"id":499,"method":"GET","url":"/api/finances/main-sponsor"},"res":{"statusCode":304},"responseTime":2,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829559217,"pid":908,"hostname":"Beast","req":{"id":502,"method":"GET","url":"/images/flags/sd.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829559218,"pid":908,"hostname":"Beast","req":{"id":501,"method":"GET","url":"/images/staff/massage_therapist/staff-03.webp"},"res":{"statusCode":200},"responseTime":3,"msg":"request completed"}
+{"level":30,"time":1792829559218,"pid":908,"hostname":"Beast","req":{"id":500,"method":"GET","url":"/images/staff/massage_therapist/staff-15.webp"},"res":{"statusCode":200},"responseTime":3,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829559218,"pid":908,"hostname":"Beast","req":{"id":503,"method":"GET","url":"/images/staff/massage_therapist/staff-14.webp"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829559219,"pid":908,"hostname":"Beast","req":{"id":504,"method":"GET","url":"/images/staff/massage_therapist/staff-10.webp"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829559219,"pid":908,"hostname":"Beast","req":{"id":505,"method":"GET","url":"/images/staff/massage_therapist/staff-02.webp"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829559220,"pid":908,"hostname":"Beast","req":{"id":506,"method":"GET","url":"/images/staff/massage_therapist/staff-19.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829559221,"pid":908,"hostname":"Beast","req":{"id":507,"method":"GET","url":"/images/staff/massage_therapist/staff-12.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829559224,"pid":908,"hostname":"Beast","req":{"id":508,"method":"GET","url":"/images/staff/massage_therapist/staff-18.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829559226,"pid":908,"hostname":"Beast","req":{"id":509,"method":"GET","url":"/images/staff/massage_therapist/staff-07.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829559227,"pid":908,"hostname":"Beast","req":{"id":510,"method":"GET","url":"/images/staff/massage_therapist/staff-17.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829559228,"pid":908,"hostname":"Beast","req":{"id":511,"method":"GET","url":"/images/staff/massage_therapist/staff-01.webp"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829559229,"pid":908,"hostname":"Beast","req":{"id":512,"method":"GET","url":"/images/staff/massage_therapist/staff-06.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829559232,"pid":908,"hostname":"Beast","req":{"id":513,"method":"GET","url":"/images/staff/massage_therapist/staff-04.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829559234,"pid":908,"hostname":"Beast","req":{"id":514,"method":"GET","url":"/images/staff/massage_therapist/staff-11.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829559237,"pid":908,"hostname":"Beast","req":{"id":515,"method":"GET","url":"/images/staff/massage_therapist/staff-08.webp"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829559238,"pid":908,"hostname":"Beast","req":{"id":516,"method":"GET","url":"/images/staff/massage_therapist/staff-16.webp"},"res":{"statusCode":200},"responseTime":3,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829559238,"pid":908,"hostname":"Beast","req":{"id":517,"method":"GET","url":"/images/staff/massage_therapist/staff-09.webp"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+{"level":30,"time":1792829559239,"pid":908,"hostname":"Beast","req":{"id":518,"method":"GET","url":"/images/staff/massage_therapist/staff-20.webp"},"res":{"statusCode":200},"responseTime":3,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829559239,"pid":908,"hostname":"Beast","req":{"id":519,"method":"GET","url":"/images/staff/massage_therapist/staff-13.webp"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829559240,"pid":908,"hostname":"Beast","req":{"id":520,"method":"GET","url":"/images/staff/massage_therapist/staff-05.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562303,"pid":908,"hostname":"Beast","req":{"id":521,"method":"GET","url":"/api/players/market-all"},"res":{"statusCode":200},"responseTime":29,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562318,"pid":908,"hostname":"Beast","req":{"id":522,"method":"GET","url":"/api/players/youth-pool"},"res":{"statusCode":200},"responseTime":15,"msg":"request completed"}
+{"level":30,"time":1792829562320,"pid":908,"hostname":"Beast","req":{"id":523,"method":"GET","url":"/api/players/watched-youths"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+{"level":30,"time":1792829562321,"pid":908,"hostname":"Beast","req":{"id":524,"method":"GET","url":"/api/staff"},"res":{"statusCode":304},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562640,"pid":908,"hostname":"Beast","req":{"id":525,"method":"GET","url":"/api/contracts/wage-cap"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562649,"pid":908,"hostname":"Beast","req":{"id":527,"method":"GET","url":"/images/players/seniors/player_senior_bahamas_01.webp"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562649,"pid":908,"hostname":"Beast","req":{"id":526,"method":"GET","url":"/images/players/seniors/player_senior_argentina_01.webp"},"res":{"statusCode":200},"responseTime":3,"msg":"request completed"}
+{"level":30,"time":1792829562649,"pid":908,"hostname":"Beast","req":{"id":528,"method":"GET","url":"/images/flags/bs.svg"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562650,"pid":908,"hostname":"Beast","req":{"id":529,"method":"GET","url":"/images/players/seniors/player_senior_bahamas_02.webp"},"res":{"statusCode":200},"responseTime":3,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562651,"pid":908,"hostname":"Beast","req":{"id":530,"method":"GET","url":"/images/players/seniors/player_senior_bahamas_03.webp"},"res":{"statusCode":200},"responseTime":3,"msg":"request completed"}
+{"level":30,"time":1792829562651,"pid":908,"hostname":"Beast","req":{"id":531,"method":"GET","url":"/images/players/seniors/player_senior_bolivia_01.webp"},"res":{"statusCode":200},"responseTime":3,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562657,"pid":908,"hostname":"Beast","req":{"id":532,"method":"GET","url":"/images/flags/bo.svg"},"res":{"statusCode":200},"responseTime":4,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562657,"pid":908,"hostname":"Beast","req":{"id":533,"method":"GET","url":"/images/players/seniors/player_senior_canada_01.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+{"level":30,"time":1792829562658,"pid":908,"hostname":"Beast","req":{"id":534,"method":"GET","url":"/images/players/seniors/player_senior_chile_01.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562660,"pid":908,"hostname":"Beast","req":{"id":535,"method":"GET","url":"/images/players/seniors/player_senior_colombia_01.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562663,"pid":908,"hostname":"Beast","req":{"id":536,"method":"GET","url":"/images/players/seniors/player_senior_cook_islands_01.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562665,"pid":908,"hostname":"Beast","req":{"id":537,"method":"GET","url":"/images/flags/ck.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562669,"pid":908,"hostname":"Beast","req":{"id":538,"method":"GET","url":"/images/players/seniors/player_senior_cook_islands_02.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562671,"pid":908,"hostname":"Beast","req":{"id":539,"method":"GET","url":"/images/players/seniors/player_senior_cook_islands_03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562672,"pid":908,"hostname":"Beast","req":{"id":540,"method":"GET","url":"/images/players/seniors/player_senior_costa_rica_01.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562675,"pid":908,"hostname":"Beast","req":{"id":541,"method":"GET","url":"/images/flags/cr.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562677,"pid":908,"hostname":"Beast","req":{"id":542,"method":"GET","url":"/images/players/seniors/player_senior_cuba_01.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562677,"pid":908,"hostname":"Beast","req":{"id":543,"method":"GET","url":"/images/players/seniors/player_senior_ecuador_01.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562680,"pid":908,"hostname":"Beast","req":{"id":544,"method":"GET","url":"/images/flags/ec.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562681,"pid":908,"hostname":"Beast","req":{"id":545,"method":"GET","url":"/images/players/seniors/player_senior_ecuador_02.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+{"level":30,"time":1792829562682,"pid":908,"hostname":"Beast","req":{"id":546,"method":"GET","url":"/images/players/seniors/player_senior_ecuador_03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562685,"pid":908,"hostname":"Beast","req":{"id":547,"method":"GET","url":"/images/players/seniors/player_senior_egypt_01.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562688,"pid":908,"hostname":"Beast","req":{"id":548,"method":"GET","url":"/images/players/seniors/player_senior_fiji_01.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562689,"pid":908,"hostname":"Beast","req":{"id":549,"method":"GET","url":"/images/flags/fj.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562692,"pid":908,"hostname":"Beast","req":{"id":550,"method":"GET","url":"/images/players/seniors/player_senior_india_01.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562696,"pid":908,"hostname":"Beast","req":{"id":551,"method":"GET","url":"/images/players/seniors/player_senior_indonesia_01.webp"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562697,"pid":908,"hostname":"Beast","req":{"id":552,"method":"GET","url":"/images/players/seniors/player_senior_indonesia_02.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562699,"pid":908,"hostname":"Beast","req":{"id":553,"method":"GET","url":"/images/players/seniors/player_senior_indonesia_03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562700,"pid":908,"hostname":"Beast","req":{"id":554,"method":"GET","url":"/images/players/seniors/player_senior_ireland_01.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562704,"pid":908,"hostname":"Beast","req":{"id":555,"method":"GET","url":"/images/players/seniors/player_senior_ireland_02.webp"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562706,"pid":908,"hostname":"Beast","req":{"id":556,"method":"GET","url":"/images/players/seniors/player_senior_ireland_03.webp"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562707,"pid":908,"hostname":"Beast","req":{"id":557,"method":"GET","url":"/images/players/seniors/player_senior_japan_01.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562709,"pid":908,"hostname":"Beast","req":{"id":558,"method":"GET","url":"/images/players/seniors/player_senior_laos_01.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562711,"pid":908,"hostname":"Beast","req":{"id":559,"method":"GET","url":"/images/flags/la.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562713,"pid":908,"hostname":"Beast","req":{"id":560,"method":"GET","url":"/images/players/seniors/player_senior_laos_02.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562714,"pid":908,"hostname":"Beast","req":{"id":561,"method":"GET","url":"/images/players/seniors/player_senior_laos_03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562716,"pid":908,"hostname":"Beast","req":{"id":562,"method":"GET","url":"/images/players/seniors/player_senior_madagascar_01.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562719,"pid":908,"hostname":"Beast","req":{"id":563,"method":"GET","url":"/images/flags/mg.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+{"level":30,"time":1792829562719,"pid":908,"hostname":"Beast","req":{"id":564,"method":"GET","url":"/images/players/seniors/player_senior_madagascar_02.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562721,"pid":908,"hostname":"Beast","req":{"id":565,"method":"GET","url":"/images/players/seniors/player_senior_madagascar_03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562724,"pid":908,"hostname":"Beast","req":{"id":566,"method":"GET","url":"/images/players/seniors/player_senior_malaysia_01.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562725,"pid":908,"hostname":"Beast","req":{"id":567,"method":"GET","url":"/images/flags/my.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562726,"pid":908,"hostname":"Beast","req":{"id":568,"method":"GET","url":"/images/players/seniors/player_senior_maldives_01.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562727,"pid":908,"hostname":"Beast","req":{"id":569,"method":"GET","url":"/images/flags/mv.svg"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562729,"pid":908,"hostname":"Beast","req":{"id":570,"method":"GET","url":"/images/players/seniors/player_senior_malta_01.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562733,"pid":908,"hostname":"Beast","req":{"id":571,"method":"GET","url":"/images/players/seniors/player_senior_malta_02.webp"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+{"level":30,"time":1792829562733,"pid":908,"hostname":"Beast","req":{"id":572,"method":"GET","url":"/images/players/seniors/player_senior_malta_03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562733,"pid":908,"hostname":"Beast","req":{"id":573,"method":"GET","url":"/images/players/seniors/player_senior_mexico_01.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562734,"pid":908,"hostname":"Beast","req":{"id":574,"method":"GET","url":"/images/players/seniors/player_senior_morocco_01.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562737,"pid":908,"hostname":"Beast","req":{"id":575,"method":"GET","url":"/images/players/seniors/player_senior_mozambique_01.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562739,"pid":908,"hostname":"Beast","req":{"id":576,"method":"GET","url":"/images/flags/mz.svg"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562741,"pid":908,"hostname":"Beast","req":{"id":577,"method":"GET","url":"/images/players/seniors/player_senior_mozambique_02.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562743,"pid":908,"hostname":"Beast","req":{"id":578,"method":"GET","url":"/images/players/seniors/player_senior_mozambique_03.webp"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562744,"pid":908,"hostname":"Beast","req":{"id":579,"method":"GET","url":"/images/players/seniors/player_senior_netherlands_01.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562746,"pid":908,"hostname":"Beast","req":{"id":580,"method":"GET","url":"/images/players/seniors/player_senior_panama_01.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562748,"pid":908,"hostname":"Beast","req":{"id":581,"method":"GET","url":"/images/flags/pa.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562750,"pid":908,"hostname":"Beast","req":{"id":582,"method":"GET","url":"/images/players/seniors/player_senior_panama_02.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562751,"pid":908,"hostname":"Beast","req":{"id":583,"method":"GET","url":"/images/players/seniors/player_senior_panama_03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562753,"pid":908,"hostname":"Beast","req":{"id":584,"method":"GET","url":"/images/players/seniors/player_senior_peru_01.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562756,"pid":908,"hostname":"Beast","req":{"id":585,"method":"GET","url":"/images/players/seniors/player_senior_philippines_01.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562757,"pid":908,"hostname":"Beast","req":{"id":586,"method":"GET","url":"/images/players/seniors/player_senior_papua_new_guinea_01.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562759,"pid":908,"hostname":"Beast","req":{"id":587,"method":"GET","url":"/images/flags/pg.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562761,"pid":908,"hostname":"Beast","req":{"id":588,"method":"GET","url":"/images/players/seniors/player_senior_portugal_01.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562763,"pid":908,"hostname":"Beast","req":{"id":589,"method":"GET","url":"/images/players/seniors/player_senior_russia_01.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562765,"pid":908,"hostname":"Beast","req":{"id":590,"method":"GET","url":"/images/players/seniors/player_senior_russia_02.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562768,"pid":908,"hostname":"Beast","req":{"id":592,"method":"GET","url":"/images/players/seniors/player_senior_samoa_01.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+{"level":30,"time":1792829562768,"pid":908,"hostname":"Beast","req":{"id":591,"method":"GET","url":"/images/players/seniors/player_senior_russia_03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562770,"pid":908,"hostname":"Beast","req":{"id":593,"method":"GET","url":"/images/players/seniors/player_senior_solomon_islands_01.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562771,"pid":908,"hostname":"Beast","req":{"id":594,"method":"GET","url":"/images/flags/sb.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562773,"pid":908,"hostname":"Beast","req":{"id":595,"method":"GET","url":"/images/players/seniors/player_senior_solomon_islands_02.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562776,"pid":908,"hostname":"Beast","req":{"id":596,"method":"GET","url":"/images/players/seniors/player_senior_solomon_islands_03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562778,"pid":908,"hostname":"Beast","req":{"id":597,"method":"GET","url":"/images/players/seniors/player_senior_spain_01.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562779,"pid":908,"hostname":"Beast","req":{"id":598,"method":"GET","url":"/images/players/seniors/player_senior_switzerland_01.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562780,"pid":908,"hostname":"Beast","req":{"id":599,"method":"GET","url":"/images/players/seniors/player_senior_switzerland_02.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562781,"pid":908,"hostname":"Beast","req":{"id":600,"method":"GET","url":"/images/players/seniors/player_senior_switzerland_03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562784,"pid":908,"hostname":"Beast","req":{"id":601,"method":"GET","url":"/images/players/seniors/player_senior_tahiti_01.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562785,"pid":908,"hostname":"Beast","req":{"id":602,"method":"GET","url":"/images/flags/pf.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562787,"pid":908,"hostname":"Beast","req":{"id":603,"method":"GET","url":"/images/players/seniors/player_senior_taiwan_01.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562789,"pid":908,"hostname":"Beast","req":{"id":604,"method":"GET","url":"/images/flags/tw.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562791,"pid":908,"hostname":"Beast","req":{"id":605,"method":"GET","url":"/images/players/seniors/player_senior_taiwan_02.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562794,"pid":908,"hostname":"Beast","req":{"id":606,"method":"GET","url":"/images/players/seniors/player_senior_taiwan_03.webp"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562794,"pid":908,"hostname":"Beast","req":{"id":607,"method":"GET","url":"/images/players/seniors/player_senior_tanzania_01.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562795,"pid":908,"hostname":"Beast","req":{"id":608,"method":"GET","url":"/images/flags/tz.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562796,"pid":908,"hostname":"Beast","req":{"id":609,"method":"GET","url":"/images/players/seniors/player_senior_tanzania_02.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562798,"pid":908,"hostname":"Beast","req":{"id":610,"method":"GET","url":"/images/players/seniors/player_senior_tanzania_03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562800,"pid":908,"hostname":"Beast","req":{"id":611,"method":"GET","url":"/images/players/seniors/player_senior_thailand_01.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562801,"pid":908,"hostname":"Beast","req":{"id":612,"method":"GET","url":"/images/players/seniors/player_senior_tonga_01.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562803,"pid":908,"hostname":"Beast","req":{"id":613,"method":"GET","url":"/images/flags/to.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562805,"pid":908,"hostname":"Beast","req":{"id":614,"method":"GET","url":"/images/players/seniors/player_senior_tunisia_01.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562807,"pid":908,"hostname":"Beast","req":{"id":615,"method":"GET","url":"/images/flags/tn.svg"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562809,"pid":908,"hostname":"Beast","req":{"id":616,"method":"GET","url":"/images/players/seniors/player_senior_uruguay_01.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562811,"pid":908,"hostname":"Beast","req":{"id":617,"method":"GET","url":"/images/flags/uy.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562812,"pid":908,"hostname":"Beast","req":{"id":618,"method":"GET","url":"/images/players/seniors/player_senior_uruguay_02.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562814,"pid":908,"hostname":"Beast","req":{"id":619,"method":"GET","url":"/images/players/seniors/player_senior_uruguay_03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562816,"pid":908,"hostname":"Beast","req":{"id":620,"method":"GET","url":"/images/players/seniors/player_senior_venezuela_01.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562819,"pid":908,"hostname":"Beast","req":{"id":621,"method":"GET","url":"/images/players/seniors/player_senior_venezuela_02.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562821,"pid":908,"hostname":"Beast","req":{"id":622,"method":"GET","url":"/images/players/seniors/player_senior_venezuela_03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562822,"pid":908,"hostname":"Beast","req":{"id":623,"method":"GET","url":"/images/players/seniors/player_senior_vietnam_01.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562825,"pid":908,"hostname":"Beast","req":{"id":624,"method":"GET","url":"/images/players/seniors/player_senior_south_africa_01.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562827,"pid":908,"hostname":"Beast","req":{"id":625,"method":"GET","url":"/images/players/seniors/player_senior_south_africa_02.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562830,"pid":908,"hostname":"Beast","req":{"id":626,"method":"GET","url":"/images/players/seniors/player_senior_nigeria_01.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562832,"pid":908,"hostname":"Beast","req":{"id":627,"method":"GET","url":"/images/players/seniors/player_senior_nigeria_02.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562834,"pid":908,"hostname":"Beast","req":{"id":628,"method":"GET","url":"/images/players/seniors/player_senior_morocco_03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562835,"pid":908,"hostname":"Beast","req":{"id":629,"method":"GET","url":"/images/players/seniors/player_senior_morocco_04.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562837,"pid":908,"hostname":"Beast","req":{"id":630,"method":"GET","url":"/images/players/seniors/player_senior_egypt_02.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562839,"pid":908,"hostname":"Beast","req":{"id":631,"method":"GET","url":"/images/players/seniors/player_senior_egypt_03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562840,"pid":908,"hostname":"Beast","req":{"id":632,"method":"GET","url":"/images/players/seniors/player_senior_tunisia_02.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562842,"pid":908,"hostname":"Beast","req":{"id":633,"method":"GET","url":"/images/players/seniors/player_senior_tunisia_03.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562845,"pid":908,"hostname":"Beast","req":{"id":634,"method":"GET","url":"/images/players/seniors/player_senior_kenya_01.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562848,"pid":908,"hostname":"Beast","req":{"id":635,"method":"GET","url":"/images/players/seniors/player_senior_kenya_02.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562850,"pid":908,"hostname":"Beast","req":{"id":636,"method":"GET","url":"/images/players/seniors/player_senior_china_01.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562851,"pid":908,"hostname":"Beast","req":{"id":637,"method":"GET","url":"/images/players/seniors/player_senior_china_02.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562853,"pid":908,"hostname":"Beast","req":{"id":638,"method":"GET","url":"/images/players/seniors/player_senior_thailand_02.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562856,"pid":908,"hostname":"Beast","req":{"id":639,"method":"GET","url":"/images/players/seniors/player_senior_thailand_03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562857,"pid":908,"hostname":"Beast","req":{"id":640,"method":"GET","url":"/images/players/seniors/player_senior_vietnam_02.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562859,"pid":908,"hostname":"Beast","req":{"id":641,"method":"GET","url":"/images/players/seniors/player_senior_vietnam_03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562860,"pid":908,"hostname":"Beast","req":{"id":642,"method":"GET","url":"/images/players/seniors/player_senior_philippines_02.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562862,"pid":908,"hostname":"Beast","req":{"id":643,"method":"GET","url":"/images/players/seniors/player_senior_philippines_03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562865,"pid":908,"hostname":"Beast","req":{"id":644,"method":"GET","url":"/images/players/seniors/player_senior_india_02.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562867,"pid":908,"hostname":"Beast","req":{"id":645,"method":"GET","url":"/images/players/seniors/player_senior_india_03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562868,"pid":908,"hostname":"Beast","req":{"id":646,"method":"GET","url":"/images/players/seniors/player_senior_japan_02.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562870,"pid":908,"hostname":"Beast","req":{"id":647,"method":"GET","url":"/images/players/seniors/player_senior_japan_03.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562872,"pid":908,"hostname":"Beast","req":{"id":648,"method":"GET","url":"/images/players/seniors/player_senior_usa_01.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562875,"pid":908,"hostname":"Beast","req":{"id":649,"method":"GET","url":"/images/players/seniors/player_senior_usa_02.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562877,"pid":908,"hostname":"Beast","req":{"id":650,"method":"GET","url":"/images/players/seniors/player_senior_mexico_02.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562879,"pid":908,"hostname":"Beast","req":{"id":651,"method":"GET","url":"/images/players/seniors/player_senior_mexico_03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562880,"pid":908,"hostname":"Beast","req":{"id":652,"method":"GET","url":"/images/players/seniors/player_senior_canada_02.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562882,"pid":908,"hostname":"Beast","req":{"id":653,"method":"GET","url":"/images/players/seniors/player_senior_canada_03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562885,"pid":908,"hostname":"Beast","req":{"id":654,"method":"GET","url":"/images/players/seniors/player_senior_cuba_02.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562886,"pid":908,"hostname":"Beast","req":{"id":655,"method":"GET","url":"/images/players/seniors/player_senior_cuba_03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562887,"pid":908,"hostname":"Beast","req":{"id":656,"method":"GET","url":"/images/players/seniors/player_senior_costa_rica_02.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562889,"pid":908,"hostname":"Beast","req":{"id":657,"method":"GET","url":"/images/players/seniors/player_senior_costa_rica_03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562891,"pid":908,"hostname":"Beast","req":{"id":658,"method":"GET","url":"/images/players/seniors/player_senior_jamaica_01.webp"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562896,"pid":908,"hostname":"Beast","req":{"id":660,"method":"GET","url":"/images/players/seniors/player_senior_australia_01.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+{"level":30,"time":1792829562896,"pid":908,"hostname":"Beast","req":{"id":659,"method":"GET","url":"/images/players/seniors/player_senior_jamaica_02.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562896,"pid":908,"hostname":"Beast","req":{"id":661,"method":"GET","url":"/images/players/seniors/player_senior_australia_02.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562898,"pid":908,"hostname":"Beast","req":{"id":662,"method":"GET","url":"/images/players/seniors/player_senior_new_zealand_01.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562901,"pid":908,"hostname":"Beast","req":{"id":663,"method":"GET","url":"/images/players/seniors/player_senior_new_zealand_02.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562904,"pid":908,"hostname":"Beast","req":{"id":664,"method":"GET","url":"/images/players/seniors/player_senior_fiji_02.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562906,"pid":908,"hostname":"Beast","req":{"id":665,"method":"GET","url":"/images/players/seniors/player_senior_fiji_03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562908,"pid":908,"hostname":"Beast","req":{"id":666,"method":"GET","url":"/images/players/seniors/player_senior_samoa_02.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562909,"pid":908,"hostname":"Beast","req":{"id":667,"method":"GET","url":"/images/players/seniors/player_senior_samoa_03.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562911,"pid":908,"hostname":"Beast","req":{"id":668,"method":"GET","url":"/images/players/seniors/player_senior_papua_new_guinea_02.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562914,"pid":908,"hostname":"Beast","req":{"id":669,"method":"GET","url":"/images/players/seniors/player_senior_papua_new_guinea_03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562915,"pid":908,"hostname":"Beast","req":{"id":670,"method":"GET","url":"/images/players/seniors/player_senior_tahiti_02.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562918,"pid":908,"hostname":"Beast","req":{"id":671,"method":"GET","url":"/images/players/seniors/player_senior_tahiti_03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562920,"pid":908,"hostname":"Beast","req":{"id":672,"method":"GET","url":"/images/players/seniors/player_senior_brazil_01.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562921,"pid":908,"hostname":"Beast","req":{"id":673,"method":"GET","url":"/images/players/seniors/player_senior_brazil_02.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562924,"pid":908,"hostname":"Beast","req":{"id":674,"method":"GET","url":"/images/players/seniors/player_senior_argentina_02.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562927,"pid":908,"hostname":"Beast","req":{"id":675,"method":"GET","url":"/images/players/seniors/player_senior_argentina_03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562928,"pid":908,"hostname":"Beast","req":{"id":676,"method":"GET","url":"/images/players/seniors/player_senior_colombia_02.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562930,"pid":908,"hostname":"Beast","req":{"id":677,"method":"GET","url":"/images/players/seniors/player_senior_colombia_03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562931,"pid":908,"hostname":"Beast","req":{"id":678,"method":"GET","url":"/images/players/seniors/player_senior_chile_02.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562933,"pid":908,"hostname":"Beast","req":{"id":679,"method":"GET","url":"/images/players/seniors/player_senior_chile_03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562936,"pid":908,"hostname":"Beast","req":{"id":680,"method":"GET","url":"/images/players/seniors/player_senior_bolivia_02.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562937,"pid":908,"hostname":"Beast","req":{"id":681,"method":"GET","url":"/images/players/seniors/player_senior_bolivia_03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562938,"pid":908,"hostname":"Beast","req":{"id":682,"method":"GET","url":"/images/players/seniors/player_senior_peru_02.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562941,"pid":908,"hostname":"Beast","req":{"id":683,"method":"GET","url":"/images/players/seniors/player_senior_peru_03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562942,"pid":908,"hostname":"Beast","req":{"id":684,"method":"GET","url":"/images/players/seniors/player_senior_usa_03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562945,"pid":908,"hostname":"Beast","req":{"id":685,"method":"GET","url":"/images/players/seniors/player_senior_australia_03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562946,"pid":908,"hostname":"Beast","req":{"id":686,"method":"GET","url":"/images/players/seniors/player_senior_brazil_03.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562949,"pid":908,"hostname":"Beast","req":{"id":687,"method":"GET","url":"/images/players/seniors/player_senior_china_03.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562951,"pid":908,"hostname":"Beast","req":{"id":688,"method":"GET","url":"/images/players/seniors/player_senior_england_01.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562952,"pid":908,"hostname":"Beast","req":{"id":689,"method":"GET","url":"/images/players/seniors/player_senior_france_01.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562956,"pid":908,"hostname":"Beast","req":{"id":690,"method":"GET","url":"/images/players/seniors/player_senior_france_02.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562957,"pid":908,"hostname":"Beast","req":{"id":691,"method":"GET","url":"/images/players/seniors/player_senior_france_03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562958,"pid":908,"hostname":"Beast","req":{"id":692,"method":"GET","url":"/images/players/seniors/player_senior_germany_01.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562959,"pid":908,"hostname":"Beast","req":{"id":693,"method":"GET","url":"/images/players/seniors/player_senior_greece_01.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562961,"pid":908,"hostname":"Beast","req":{"id":694,"method":"GET","url":"/images/players/seniors/player_senior_greece_02.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562965,"pid":908,"hostname":"Beast","req":{"id":695,"method":"GET","url":"/images/players/seniors/player_senior_greece_03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562966,"pid":908,"hostname":"Beast","req":{"id":696,"method":"GET","url":"/images/players/seniors/player_senior_italy_01.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562967,"pid":908,"hostname":"Beast","req":{"id":697,"method":"GET","url":"/images/players/seniors/player_senior_italy_02.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562969,"pid":908,"hostname":"Beast","req":{"id":698,"method":"GET","url":"/images/players/seniors/player_senior_italy_03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562971,"pid":908,"hostname":"Beast","req":{"id":699,"method":"GET","url":"/images/players/seniors/player_senior_jamaica_03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562974,"pid":908,"hostname":"Beast","req":{"id":700,"method":"GET","url":"/images/players/seniors/player_senior_nigeria_03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562976,"pid":908,"hostname":"Beast","req":{"id":701,"method":"GET","url":"/images/players/seniors/player_senior_malaysia_02.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562977,"pid":908,"hostname":"Beast","req":{"id":702,"method":"GET","url":"/images/players/seniors/player_senior_malaysia_03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562980,"pid":908,"hostname":"Beast","req":{"id":703,"method":"GET","url":"/images/players/seniors/player_senior_maldives_02.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562982,"pid":908,"hostname":"Beast","req":{"id":704,"method":"GET","url":"/images/players/seniors/player_senior_maldives_03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562985,"pid":908,"hostname":"Beast","req":{"id":705,"method":"GET","url":"/images/players/seniors/player_senior_new_zealand_03.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562987,"pid":908,"hostname":"Beast","req":{"id":706,"method":"GET","url":"/images/players/seniors/player_senior_spain_02.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562988,"pid":908,"hostname":"Beast","req":{"id":707,"method":"GET","url":"/images/players/seniors/player_senior_portugal_02.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562990,"pid":908,"hostname":"Beast","req":{"id":708,"method":"GET","url":"/images/players/seniors/player_senior_south_africa_03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562992,"pid":908,"hostname":"Beast","req":{"id":709,"method":"GET","url":"/images/players/seniors/player_senior_sweden_01.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562995,"pid":908,"hostname":"Beast","req":{"id":710,"method":"GET","url":"/images/players/seniors/player_senior_sweden_02.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562996,"pid":908,"hostname":"Beast","req":{"id":711,"method":"GET","url":"/images/players/seniors/player_senior_sweden_03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562997,"pid":908,"hostname":"Beast","req":{"id":712,"method":"GET","url":"/images/players/seniors/player_senior_tonga_02.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829562999,"pid":908,"hostname":"Beast","req":{"id":713,"method":"GET","url":"/images/players/seniors/player_senior_tonga_03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563000,"pid":908,"hostname":"Beast","req":{"id":714,"method":"GET","url":"/images/players/seniors/player_senior_dominican_republic_01.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563003,"pid":908,"hostname":"Beast","req":{"id":715,"method":"GET","url":"/images/flags/do.svg"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563006,"pid":908,"hostname":"Beast","req":{"id":716,"method":"GET","url":"/images/players/seniors/player_senior_dominican_republic_02.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563008,"pid":908,"hostname":"Beast","req":{"id":717,"method":"GET","url":"/images/players/seniors/player_senior_dominican_republic_03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563009,"pid":908,"hostname":"Beast","req":{"id":718,"method":"GET","url":"/images/players/seniors/player_senior_guyana_01.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563011,"pid":908,"hostname":"Beast","req":{"id":719,"method":"GET","url":"/images/flags/gy.svg"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563014,"pid":908,"hostname":"Beast","req":{"id":720,"method":"GET","url":"/images/players/seniors/player_senior_guyana_02.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563017,"pid":908,"hostname":"Beast","req":{"id":721,"method":"GET","url":"/images/players/seniors/player_senior_guyana_03.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563019,"pid":908,"hostname":"Beast","req":{"id":722,"method":"GET","url":"/images/players/seniors/player_senior_kenya_03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563020,"pid":908,"hostname":"Beast","req":{"id":723,"method":"GET","url":"/images/players/seniors/player_senior_puerto_rico_01.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563023,"pid":908,"hostname":"Beast","req":{"id":725,"method":"GET","url":"/images/flags/pr.svg"},"res":{"statusCode":304},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563023,"pid":908,"hostname":"Beast","req":{"id":724,"method":"GET","url":"/images/players/seniors/player_senior_puerto_rico_02.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563026,"pid":908,"hostname":"Beast","req":{"id":726,"method":"GET","url":"/images/players/seniors/player_senior_puerto_rico_03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563028,"pid":908,"hostname":"Beast","req":{"id":727,"method":"GET","url":"/images/players/seniors/player_senior_vanuatu_01.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563029,"pid":908,"hostname":"Beast","req":{"id":728,"method":"GET","url":"/images/flags/vu.svg"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563031,"pid":908,"hostname":"Beast","req":{"id":729,"method":"GET","url":"/images/players/seniors/player_senior_vanuatu_02.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563032,"pid":908,"hostname":"Beast","req":{"id":730,"method":"GET","url":"/images/players/seniors/player_senior_vanuatu_03.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563035,"pid":908,"hostname":"Beast","req":{"id":731,"method":"GET","url":"/images/players/seniors/player_senior_zimbabwe_01.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563036,"pid":908,"hostname":"Beast","req":{"id":732,"method":"GET","url":"/images/flags/zw.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563038,"pid":908,"hostname":"Beast","req":{"id":733,"method":"GET","url":"/images/players/seniors/player_senior_zimbabwe_02.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563039,"pid":908,"hostname":"Beast","req":{"id":734,"method":"GET","url":"/images/players/seniors/player_senior_zimbabwe_03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563042,"pid":908,"hostname":"Beast","req":{"id":735,"method":"GET","url":"/images/players/seniors/player_senior_england_02.webp"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563044,"pid":908,"hostname":"Beast","req":{"id":736,"method":"GET","url":"/images/players/seniors/player_senior_england_03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+{"level":30,"time":1792829563044,"pid":908,"hostname":"Beast","req":{"id":737,"method":"GET","url":"/images/players/seniors/player_senior_spain_03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563045,"pid":908,"hostname":"Beast","req":{"id":738,"method":"GET","url":"/images/players/seniors/player_senior_portugal_03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563047,"pid":908,"hostname":"Beast","req":{"id":739,"method":"GET","url":"/images/players/seniors/player_senior_netherlands_02.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563051,"pid":908,"hostname":"Beast","req":{"id":740,"method":"GET","url":"/images/players/seniors/player_senior_netherlands_03.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563055,"pid":908,"hostname":"Beast","req":{"id":741,"method":"GET","url":"/images/players/seniors/player_senior_germany_02.webp"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563061,"pid":908,"hostname":"Beast","req":{"id":742,"method":"GET","url":"/images/players/seniors/player_senior_germany_03.webp"},"res":{"statusCode":200},"responseTime":4,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563063,"pid":908,"hostname":"Beast","req":{"id":743,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_eur_01_p1.webp"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563064,"pid":908,"hostname":"Beast","req":{"id":744,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_eur_01_p2.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563067,"pid":908,"hostname":"Beast","req":{"id":745,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_eur_02_p2.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563070,"pid":908,"hostname":"Beast","req":{"id":746,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_eur_02_p1.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563072,"pid":908,"hostname":"Beast","req":{"id":747,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_eur_03_p1.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563074,"pid":908,"hostname":"Beast","req":{"id":748,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_eur_03_p2.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563075,"pid":908,"hostname":"Beast","req":{"id":749,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_eur_04_p1.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563079,"pid":908,"hostname":"Beast","req":{"id":750,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_eur_04_p2.webp"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563080,"pid":908,"hostname":"Beast","req":{"id":751,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_eur_05_p1.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563082,"pid":908,"hostname":"Beast","req":{"id":752,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_eur_05_p2.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563084,"pid":908,"hostname":"Beast","req":{"id":753,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_eur_06_p1.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563086,"pid":908,"hostname":"Beast","req":{"id":754,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_eur_06_p2.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563087,"pid":908,"hostname":"Beast","req":{"id":755,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_eur_07_p1.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563090,"pid":908,"hostname":"Beast","req":{"id":756,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_eur_07_p2.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563092,"pid":908,"hostname":"Beast","req":{"id":757,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_eur_08_p1.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563093,"pid":908,"hostname":"Beast","req":{"id":758,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_eur_08_p2.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563095,"pid":908,"hostname":"Beast","req":{"id":759,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_asi_01_p1.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563097,"pid":908,"hostname":"Beast","req":{"id":760,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_asi_01_p2.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563101,"pid":908,"hostname":"Beast","req":{"id":761,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_asi_02_p1.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563102,"pid":908,"hostname":"Beast","req":{"id":762,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_asi_02_p2.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563104,"pid":908,"hostname":"Beast","req":{"id":763,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_asi_03_p1.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563106,"pid":908,"hostname":"Beast","req":{"id":764,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_asi_03_p2.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563107,"pid":908,"hostname":"Beast","req":{"id":765,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_asi_04_p1.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563110,"pid":908,"hostname":"Beast","req":{"id":766,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_asi_04_p2.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563113,"pid":908,"hostname":"Beast","req":{"id":767,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_asi_05_p1.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563115,"pid":908,"hostname":"Beast","req":{"id":768,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_asi_05_p2.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563116,"pid":908,"hostname":"Beast","req":{"id":769,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_asi_06_p1.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563117,"pid":908,"hostname":"Beast","req":{"id":770,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_asi_06_p2.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563121,"pid":908,"hostname":"Beast","req":{"id":771,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_asi_07_p1.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563123,"pid":908,"hostname":"Beast","req":{"id":772,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_asi_07_p2.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563125,"pid":908,"hostname":"Beast","req":{"id":773,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_asi_08_p1.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563126,"pid":908,"hostname":"Beast","req":{"id":774,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_asi_08_p2.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563128,"pid":908,"hostname":"Beast","req":{"id":775,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_nam_01_p1.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563131,"pid":908,"hostname":"Beast","req":{"id":776,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_nam_01_p2.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563132,"pid":908,"hostname":"Beast","req":{"id":777,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_nam_02_p1.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563134,"pid":908,"hostname":"Beast","req":{"id":778,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_nam_02_p2.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563135,"pid":908,"hostname":"Beast","req":{"id":779,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_nam_03_p1.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563138,"pid":908,"hostname":"Beast","req":{"id":780,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_nam_03_p2.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563140,"pid":908,"hostname":"Beast","req":{"id":781,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_nam_04_p1.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563142,"pid":908,"hostname":"Beast","req":{"id":782,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_nam_04_p2.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563144,"pid":908,"hostname":"Beast","req":{"id":783,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_nam_05_p1.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563146,"pid":908,"hostname":"Beast","req":{"id":784,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_nam_05_p2.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563148,"pid":908,"hostname":"Beast","req":{"id":785,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_nam_06_p1.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563150,"pid":908,"hostname":"Beast","req":{"id":786,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_nam_06_p2.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563152,"pid":908,"hostname":"Beast","req":{"id":787,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_nam_07_p1.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563154,"pid":908,"hostname":"Beast","req":{"id":788,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_nam_07_p2.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563155,"pid":908,"hostname":"Beast","req":{"id":789,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_nam_08_p1.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563157,"pid":908,"hostname":"Beast","req":{"id":790,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_nam_08_p2.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563160,"pid":908,"hostname":"Beast","req":{"id":791,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_sam_01_p1.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563161,"pid":908,"hostname":"Beast","req":{"id":792,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_sam_01_p2.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563164,"pid":908,"hostname":"Beast","req":{"id":793,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_sam_02_p1.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563165,"pid":908,"hostname":"Beast","req":{"id":794,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_sam_02_p2.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563169,"pid":908,"hostname":"Beast","req":{"id":795,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_sam_03_p1.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563172,"pid":908,"hostname":"Beast","req":{"id":796,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_sam_03_p2.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563174,"pid":908,"hostname":"Beast","req":{"id":797,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_sam_04_p1.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563176,"pid":908,"hostname":"Beast","req":{"id":798,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_sam_04_p2.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563178,"pid":908,"hostname":"Beast","req":{"id":799,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_sam_05_p1.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563181,"pid":908,"hostname":"Beast","req":{"id":800,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_sam_05_p2.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563184,"pid":908,"hostname":"Beast","req":{"id":801,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_sam_06_p1.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563186,"pid":908,"hostname":"Beast","req":{"id":802,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_sam_06_p2.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563188,"pid":908,"hostname":"Beast","req":{"id":803,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_sam_07_p1.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563191,"pid":908,"hostname":"Beast","req":{"id":804,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_sam_07_p2.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563192,"pid":908,"hostname":"Beast","req":{"id":805,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_sam_08_p1.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563194,"pid":908,"hostname":"Beast","req":{"id":806,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_sam_08_p2.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563197,"pid":908,"hostname":"Beast","req":{"id":807,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_afm_01_p1.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563199,"pid":908,"hostname":"Beast","req":{"id":808,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_afm_01_p2.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563201,"pid":908,"hostname":"Beast","req":{"id":809,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_afm_02_p1.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563202,"pid":908,"hostname":"Beast","req":{"id":810,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_afm_02_p2.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563204,"pid":908,"hostname":"Beast","req":{"id":811,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_afm_03_p1.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563208,"pid":908,"hostname":"Beast","req":{"id":812,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_afm_03_p2.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563209,"pid":908,"hostname":"Beast","req":{"id":813,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_afm_04_p1.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563211,"pid":908,"hostname":"Beast","req":{"id":814,"method":"GET","url":"/images/flags/ae.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563213,"pid":908,"hostname":"Beast","req":{"id":815,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_afm_04_p2.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563216,"pid":908,"hostname":"Beast","req":{"id":816,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_afm_05_p1.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563218,"pid":908,"hostname":"Beast","req":{"id":817,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_afm_05_p2.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563219,"pid":908,"hostname":"Beast","req":{"id":818,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_afm_06_p1.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563220,"pid":908,"hostname":"Beast","req":{"id":819,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_afm_06_p2.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563222,"pid":908,"hostname":"Beast","req":{"id":820,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_afm_07_p1.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563224,"pid":908,"hostname":"Beast","req":{"id":821,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_afm_07_p2.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563226,"pid":908,"hostname":"Beast","req":{"id":822,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_afm_08_p1.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563228,"pid":908,"hostname":"Beast","req":{"id":823,"method":"GET","url":"/images/flags/sa.svg"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563230,"pid":908,"hostname":"Beast","req":{"id":824,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_afm_08_p2.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563232,"pid":908,"hostname":"Beast","req":{"id":825,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_aus_01_p1.webp"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563233,"pid":908,"hostname":"Beast","req":{"id":826,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_aus_01_p2.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563236,"pid":908,"hostname":"Beast","req":{"id":827,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_aus_02_p1.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+{"level":30,"time":1792829563236,"pid":908,"hostname":"Beast","req":{"id":828,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_aus_02_p2.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563238,"pid":908,"hostname":"Beast","req":{"id":829,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_aus_03_p1.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563240,"pid":908,"hostname":"Beast","req":{"id":830,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_aus_03_p2.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563243,"pid":908,"hostname":"Beast","req":{"id":831,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_aus_04_p1.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563245,"pid":908,"hostname":"Beast","req":{"id":832,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_aus_04_p2.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563246,"pid":908,"hostname":"Beast","req":{"id":833,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_aus_05_p1.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563247,"pid":908,"hostname":"Beast","req":{"id":834,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_aus_05_p2.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563249,"pid":908,"hostname":"Beast","req":{"id":835,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_aus_06_p1.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563251,"pid":908,"hostname":"Beast","req":{"id":836,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_aus_06_p2.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563253,"pid":908,"hostname":"Beast","req":{"id":837,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_aus_07_p1.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563254,"pid":908,"hostname":"Beast","req":{"id":838,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_aus_07_p2.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563256,"pid":908,"hostname":"Beast","req":{"id":839,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_aus_08_p1.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563258,"pid":908,"hostname":"Beast","req":{"id":840,"method":"GET","url":"/images/players/seniors/ai/player_senior_ai_aus_08_p2.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563261,"pid":908,"hostname":"Beast","req":{"id":841,"method":"GET","url":"/images/players/seniors/player_senior_papua_new_guinea_04.webp"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829563262,"pid":908,"hostname":"Beast","req":{"id":842,"method":"GET","url":"/images/players/seniors/player_senior_bolivia_04.webp"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829566594,"pid":908,"hostname":"Beast","req":{"id":843,"method":"GET","url":"/api/team/roster"},"res":{"statusCode":200},"responseTime":3,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829566595,"pid":908,"hostname":"Beast","req":{"id":844,"method":"GET","url":"/api/team/strength"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+{"level":30,"time":1792829566596,"pid":908,"hostname":"Beast","req":{"id":845,"method":"GET","url":"/api/outfits"},"res":{"statusCode":200},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829568111,"pid":908,"hostname":"Beast","req":{"id":846,"method":"GET","url":"/api/continental-scouting/regions"},"res":{"statusCode":200},"responseTime":2,"msg":"request completed"}
+
+[server] {"level":30,"time":1792829568112,"pid":908,"hostname":"Beast","req":{"id":847,"method":"GET","url":"/api/continental-scouting/prospects"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+{"level":30,"time":1792829568113,"pid":908,"hostname":"Beast","req":{"id":848,"method":"GET","url":"/api/youth-scouting/prospects"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+

@@ -98,43 +98,44 @@ const clickText = (ev, sel, re) => ev(`(() => { const b = [...document.querySele
 // D: the new faces, his club's contract box, the youth card, the rules.
 if (RUN.includes("D")) await session("D", async ({ ev, shot, waitFor, nav, into, text }) => {
   out.D = {};
+  // Rob's new staff, found by name: the market sorts by name, so they sit among the old ones.
+  const NEW = JSON.parse(fs.readFileSync("C:/vbe-tm/docs/staff-portrait-names-1.1.3.json", "utf8"));
   await nav("/staff-market");
   await waitFor(`document.querySelectorAll('img[src*="/images/staff/"]').length > 0`, 20000); await sleep(1500);
-  for (const [label, file, folder] of [["Head Coach", "01-staff-market-head-coaches.png", "head_coach"], ["Assistant Coach", "02-staff-market-assistant-coaches.png", "assistant_coach"], ["Scout", "03-staff-market-scouts.png", "scouts"]]) {
+  for (const [label, file, first] of [["Head Coach", "01-staff-market-head-coaches.png", "Birgitta Lindström"], ["Assistant Coach", "02-staff-market-assistant-coaches.png", "Brett Mitchell"], ["Scout", "03-staff-market-scouts.png", "Agnieszka Wiśniewska"]]) {
     out.D[label] = { pressed: await clickText(ev, "button", `/^${label}$/`) };
-    await sleep(2500);
-    // Rob's new ones: pictures numbered past the old ones (head/assistant coaches from 36, scouts from 11).
-    out.D[label].newFaces = await ev(`[...document.querySelectorAll('img[src*="/images/staff/${folder}/"]')].filter((i) => Number((i.getAttribute("src").match(/staff-(\d+)\.webp/) ?? [])[1]) >= ${folder === "scouts" ? 11 : 36} && i.complete && i.naturalWidth > 0).length`);
-    await ev(`(() => { const i = [...document.querySelectorAll('img[src*="/images/staff/${folder}/"]')].find((i) => Number((i.getAttribute("src").match(/staff-(\d+)\.webp/) ?? [])[1]) >= ${folder === "scouts" ? 11 : 36}); i?.scrollIntoView({ block: "center" }); return !!i; })()`);
-    await sleep(1200);
+    await sleep(3000);
+    const names = Object.values(NEW[label]).map((p) => p.name);
+    out.D[label].newOnPage = await ev(`(() => { const t = document.body.innerText; return ${JSON.stringify(names)}.filter((n) => t.includes(n)).length; })()`);
+    out.D[label].of = names.length;
+    out.D[label].scrolledTo = await ev(`(() => { const e = [...document.querySelectorAll("*")].find((x) => x.childElementCount === 0 && x.textContent.trim() === ${JSON.stringify(first)}); e?.scrollIntoView({ block: "center" }); return !!e; })()`);
+    await sleep(1500);
     await shot(file);
   }
   await nav("/medical-market");
   await waitFor(`document.querySelectorAll('img[src*="/images/staff/"]').length > 0`, 20000); await sleep(2500);
   out.D.medicalFaces = await ev(`document.querySelectorAll('img[src*="/images/staff/"]').length`);
   await shot("04-medical-market.png");
-  // A free agent's contract box at his club.
+  // A free agent's contract box at his club: 6 months, 1 season, 2 seasons.
   await nav("/players");
   out.D.signButton = await waitFor(`(() => { const b = document.querySelector('[data-testid^="button-sign-"]'); if (b) { b.scrollIntoView({ block: "center" }); b.click(); } return !!b; })()`, 30000);
-  out.D.lengths = await waitFor(`[...document.querySelectorAll('[data-testid^="button-length-"]')].map((b) => b.textContent.trim())`, 15000);
+  out.D.lengths = await waitFor(`(() => { const l = [...document.querySelectorAll('[data-testid^="button-length-"]')].map((b) => b.textContent.trim()); return l.length ? l : null; })()`, 15000);
   await sleep(1200);
   await shot("05-contract-box-his-club-6-months.png");
   await ev(`document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }))`); await sleep(800);
-  // The youth card, with no wall text.
-  await nav("/team");
+  // The youth card (the Youth Academy page: a youth's row opens her card), with no wall text.
+  await nav("/youth-academy");
+  // A youth's row reads "<nation> · Age N · <position>" (with stars once scouted, "?" before).
+  await waitFor(`[...document.querySelectorAll("button")].some((b) => /· Age \\d+/.test(b.textContent))`, 20000); await sleep(1500);
+  out.D.youthCardOpened = await ev(`(() => { const b = [...document.querySelectorAll("button")].find((x) => /· Age \\d+/.test(x.textContent)); b?.click(); return b ? b.innerText.split("\\n")[0] : null; })()`);
+  out.D.youthCardShown = !!(await waitFor(`!!document.querySelector('[role="dialog"] img[src*="player_youth_card_01"]')`, 15000));
   await sleep(1500);
-  out.D.youthTab = await clickText(ev, "button", "/^Youth/");
-  await sleep(2500);
-  out.D.youthCardOpened = await ev(`(() => { const i = document.querySelector('img[src*="player_youth_card_01"]'); if (i) { i.scrollIntoView({ block: "center" }); return true; }
-    const r = [...document.querySelectorAll('[class*="cursor-pointer"]')].find((e) => /\bAge\b|Potential|★/.test(e.textContent)); r?.click(); return !!r; })()`);
-  await waitFor(`!!document.querySelector('img[src*="player_youth_card_01"]')`, 10000); await sleep(1500);
-  await ev(`document.querySelector('img[src*="player_youth_card_01"]')?.scrollIntoView({ block: "center" })`); await sleep(800);
-  out.D.youthCardShown = await ev(`!!document.querySelector('img[src*="player_youth_card_01"]')`);
   await shot("06-youth-card-no-wall-text.png");
+  await ev(`document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }))`); await sleep(800);
   await nav("/rules");
   await waitFor(`document.body.innerText.includes("Contract lengths")`, 20000); await sleep(1000);
-  await ev(`(() => { const e = [...document.querySelectorAll("h2,h3,h4,div,span,p")].find((x) => x.textContent.trim() === "Contract lengths"); e?.scrollIntoView({ block: "start" }); return !!e; })()`); await sleep(1000);
-  out.D.rules = await ev(`(() => { const t = document.body.innerText; const i = t.indexOf("Contract lengths"); return i < 0 ? null : t.slice(i, i + 600); })()`);
+  await ev(`(() => { const e = [...document.querySelectorAll("*")].find((x) => x.childElementCount === 0 && x.textContent.trim() === "Contract lengths"); e?.scrollIntoView({ block: "start" }); return !!e; })()`); await sleep(1000);
+  out.D.rules = await ev(`(() => { const t = document.body.innerText; const i = t.indexOf("Contract lengths"); return i < 0 ? null : t.slice(i, i + 700); })()`);
   await shot("07-rules-contract-lengths.png");
   step("D done", out.D);
 });
@@ -145,12 +146,12 @@ if (RUN.includes("E")) await session("E", async ({ ev, shot, waitFor, nav }) => 
   await nav("/team");
   await sleep(1500);
   out.E.tab = await clickText(ev, "button", "/^Transfers/");
-  out.E.offer = await waitFor(`(() => { const o = document.querySelector('[data-testid^="offer-"]'); if (o) o.scrollIntoView({ block: "center" }); return o ? o.innerText.split("\n").join(" | ") : null; })()`, 20000);
+  out.E.offer = await waitFor(`(() => { const o = [...document.querySelectorAll('[data-testid^="offer-"]')].find((e) => /^offer-\\d+$/.test(e.getAttribute("data-testid"))); if (o) o.scrollIntoView({ block: "center" }); return o ? o.innerText.split("\\n").join(" | ") : null; })()`, 30000);
   await sleep(1000);
   await shot("08-ai-club-offer-1-or-2-seasons.png");
   // His counter: his club's contract, so his three lengths.
   out.E.counter = await ev(`(() => { const b = document.querySelector('[data-testid^="offer-counter-"]'); if (b) b.click(); return !!b; })()`);
-  out.E.counterLengths = await waitFor(`[...document.querySelectorAll('[data-testid^="counter-length-"]')].map((b) => b.textContent.trim())`, 10000);
+  out.E.counterLengths = await waitFor(`(() => { const l = [...document.querySelectorAll('[data-testid^="counter-length-"]')].map((b) => b.textContent.trim()); return l.length ? l : null; })()`, 10000);
   await sleep(800);
   await shot("09-his-counter-his-club-lengths.png");
   step("E done", out.E);

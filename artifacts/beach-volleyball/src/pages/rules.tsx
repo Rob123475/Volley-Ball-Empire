@@ -161,7 +161,7 @@ export const UPDATE1_RULES: ReadonlyArray<{ title: string; points: string[] }> =
     "Your club signs and renews a player for 6 months, 1 season or 2 seasons. The AI clubs sign and renew players for 1 season or 2 seasons only.",
     "The 6-month option is your club's: if you move to another club it goes with you. Deals you signed at your old club stay with that club.",
     "Staff and medical contracts are 1 season or 2 seasons, and every one ends on 7 January, the day before the AI clubs hire (8 January). A staff hire on 1 season in mid-season runs only to the next 7 January.",
-    "A season is the World Tour season, not a calendar year: a player's 1 season runs to the end of the season it is signed in.",
+    "A player's 1 season runs to the end of the season it is signed in (31 December), not 12 months on; 2 seasons to the end of the next one.",
   ] },
   { title: "Injured players come cheap", points: [
     `An injured free agent asks less: out ${MONEY.salaryCap.injuredLongWeeks} weeks or more, half her wage; out less, three quarters. She signs at that wage for the whole contract.`,
