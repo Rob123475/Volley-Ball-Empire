@@ -113,3 +113,14 @@ Every surname is one of that nation's athletes' in the game. No new name matches
 **Decisions (A2):**
 - **"Do not reach into existing saves" also covers a new career started inside an existing save file:** it reads that save's pool rows, so it gets that save's names, duplicates included. Only a new save (a fresh install, or a save made from the starter DB) gets the clean names. Reaching into the save's reference rows to change that would be the very thing Rob ruled out.
 - Two first choices gave a pool player the same surname as the world-roster player whose card she shares (see below): Grace Kumul beside Diana Kumul, Yasmine Trabelsi beside Ines Trabelsi. They became Grace Bainivalu and Yasmine Mzoughi, and the suite asserts it can't happen.
+
+### A3. "BEACH VOLLEYBALL WORLD TOUR" off the youth card
+
+**Done.**
+
+- `images/youth/player_youth_card_01.webp` is a card template, and the words sat in the gold pill at the bottom left, above five stars. They are painted out the 19 Oct way (`clean.py`'s polygon fill with a smooth fit from the plain card around it, and grain; the region is `docs/proof-1.1.3/rebuild-a3/youth-card-region.json`). The stars, the pill's gold outline and the "BVE / Beach Volleyball Empire" ball (the game's own name) stay.
+- **Rob's senior cards were cleaned by Rob's own fixed set on 19 Oct** (`docs/TRADEMARK-CLEANUP.md`: "Rob's 205 cleaned senior cards ... copied over"). No fixed youth card exists anywhere on this machine, so "the same method" here is the 19 Oct painting method, as for the staff portraits.
+- **Same pixel size and format:** 1086 × 1448, WebP (quality 96, the nearest to the original's file size, as 19 Oct chose; 74,090 → 77,146 bytes). `check:image-formats` OK.
+- **The original is kept:** `C:\Users\rbonn\Documents\BVE-image-backup-24oct\youth\player_youth_card_01.webp` (byte-identical to the file it replaced, checked before writing).
+- **Mean difference against its own original** (0–255): **0.62** over the whole card (19 Oct's cards: 0.3–1.9); 0.20 outside the painted box (the re-encode), 41.9 inside it (where the words were).
+- **Before and after:** `docs/proof-1.1.3/rebuild-a3/youth-card-before-after.jpg` (whole card) and `youth-card-wall-zoom.jpg` (zoomed on the words). The packaged-game screenshot is in Part E.
