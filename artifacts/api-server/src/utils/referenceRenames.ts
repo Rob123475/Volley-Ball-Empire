@@ -10,11 +10,14 @@
  *     shown: fixtures and results already stored, ladders, ledger lines,
  *     history and medals keep showing the club under its new name.
  *
- * The reference rows themselves (a pool player's club and name, a pool club's
- * name) reach a save through ensureReferenceData (utils/ensureSchema.ts,
- * REFERENCE_UPDATE_ONLY). This pass moves what each career stored: the two
- * players' pool contracts, and the names written into its rows. Every step
- * only changes what still says the old thing, so a second boot changes nothing.
+ * The reference rows themselves (a pool player's club, a pool club's name)
+ * reach a save through ensureReferenceData (utils/ensureSchema.ts,
+ * REFERENCE_UPDATE_ONLY). A pool player's name does not (Rob, 24 Oct: a
+ * starter-DB rename reaches new saves only), so the one rename here that must
+ * reach saves in play is made by name below. This pass also moves what each
+ * career stored: the two players' pool contracts, and the names written into
+ * its rows. Every step only changes what still says the old thing, so a second
+ * boot changes nothing.
  */
 import { db } from "@workspace/db";
 import { sql } from "drizzle-orm";
@@ -61,7 +64,9 @@ export function applyReferenceRenames(): { contractsMoved: number; namesChanged:
   }
   for (const p of RENAMED_POOL_PLAYERS) {
     const player = idOf("continental_pool_players", p.player);
-    if (player == null || !hasColumn("olympic_medals", "player_name")) continue;
+    if (player == null) continue;
+    namesChanged += changes(db.run(sql`UPDATE continental_pool_players SET name = ${p.to} WHERE id = ${player} AND name = ${p.from}`));
+    if (!hasColumn("olympic_medals", "player_name")) continue;
     namesChanged += changes(db.run(sql`UPDATE olympic_medals SET player_name = ${p.to} WHERE pool_player_id = ${player} AND player_name = ${p.from}`));
   }
   return { contractsMoved, namesChanged };

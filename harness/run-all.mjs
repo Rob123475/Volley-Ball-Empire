@@ -684,6 +684,12 @@ runSuite("nations cup", path.join(REPO, "harness", "nations-cup.mjs"));
 console.log("\n########## 98zx/100  MEDAL CEREMONIES AND THE WORLD FINALS BRONZE (1.1.3 A5) ##########");
 runSuite("ceremonies", path.join(REPO, "harness", "ceremonies.mjs"));
 
+// 1.1.3 rebuild (A2, 24 Oct): no pool player named like a world-roster player; the renames are the
+// starter DB's alone, a save in play keeps its names. Own DB and server (4982).
+console.log("
+########## 98zy/100  NO POOL PLAYER NAMED LIKE A WORLD-ROSTER PLAYER (1.1.3 REBUILD A2) ##########");
+runSuite("pool names", path.join(REPO, "harness", "pool-names.mjs"));
+
 // ── Smoke needs a server; boot one on a throwaway copy of the shipped DB ─────
 console.log("\n########## 99/100  GAMEPLAY SMOKE ##########");
 {

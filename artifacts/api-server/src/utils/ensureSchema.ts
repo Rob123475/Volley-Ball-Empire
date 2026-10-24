@@ -399,13 +399,18 @@ const REFERENCE_UPDATE_ONLY: Record<string, readonly string[]> = {
   // Rob, 2 Oct: and its name (Honolulu -> Maui Hula Warriors). Nothing in the
   // game renames a pool club, so the starter DB's name is the only one.
   continental_pool_teams: ["primary_color", "secondary_color", "team_name"],
-  // Rob, 2 Oct: pool players' club and name (two players swapped, one renamed).
-  // Nothing in the game edits a pool player row (unlike `players`, whose name
-  // the Team page can edit), so these are safe to follow the starter DB.
+  // Rob, 2 Oct: pool players' club (two players swapped). Nothing in the game
+  // edits a pool player row (unlike `players`, whose name the Team page can
+  // edit), so it is safe to follow the starter DB.
   // Final brief 5 Oct, A4: and her card (Rob's pictures for the AI clubs'
   // players). Nothing in the game edits a pool player's card either.
   // Her skin tone is in REFERENCE_FILL_ONLY below.
-  continental_pool_players: ["pool_team_id", "name", "image_url"],
+  // Her NAME does not follow the starter DB (Rob, 24 Oct, 1.1.3 rebuild A2):
+  // every career in a save reads these rows live, so a starter-DB rename would
+  // change a player's name in the middle of someone's career, which reads as a
+  // bug. Renames reach new saves only; a correction that must reach saves in
+  // play goes in utils/referenceRenames.ts by name (as 2 Oct's Salote Taufa).
+  continental_pool_players: ["pool_team_id", "image_url"],
 };
 
 // Columns a save gets from the starter DB only when it has no value: R-75's

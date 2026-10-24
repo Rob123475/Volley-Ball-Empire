@@ -12,6 +12,10 @@
  * Asserted on the starter DB, and on a copy of Rob's 2 Oct save booted twice
  * (the second boot changes nothing).
  *
+ * 1.1.3 rebuild (A2, Rob 24 Oct): in the starter DB the two moved players carry new names
+ * (Niamh Kavanagh, Nicole Borg: they were named like world-roster players), which reach new
+ * saves only; a save in play keeps Aoife O'Sullivan and Yasmin Grech (harness/pool-names.mjs).
+ *
  * Usage: node harness/reference-corrections.mjs
  */
 import fs from "node:fs";
@@ -61,8 +65,8 @@ async function stop() { if (child) await stopServer(child); child = null; }
 try {
   console.log("\n1. THE STARTER DB");
   const s = ref(SHIPPED);
-  check("Aoife O'Sullivan plays for Dublin Emerald Spikers (EUR_10)", s.aoife?.name === "Aoife O'Sullivan" && s.aoife.club === "EUR_10");
-  check("Yasmin Grech plays for Lisbon Atlantic Blaze (EUR_09)", s.yasmin?.name === "Yasmin Grech" && s.yasmin.club === "EUR_09");
+  check("EUR_09_P2 (Aoife O'Sullivan in saves in play, Niamh Kavanagh in new ones) plays for Dublin Emerald Spikers (EUR_10)", s.aoife?.name === "Niamh Kavanagh" && s.aoife.club === "EUR_10");
+  check("EUR_10_P2 (Yasmin Grech in saves in play, Nicole Borg in new ones) plays for Lisbon Atlantic Blaze (EUR_09)", s.yasmin?.name === "Nicole Borg" && s.yasmin.club === "EUR_09");
   check("AUS_08_P2 is Salote Taufa", s.salote === "Salote Taufa", s.salote);
   check("AUS_04 is Maui Hula Warriors", s.maui === "Maui Hula Warriors", s.maui);
 
@@ -92,6 +96,8 @@ try {
     check("Yasmin Grech is at Lisbon Atlantic Blaze, her contract and wage with her", after.yasmin.club === "EUR_09" && yasminAfter?.club === "EUR_09" && yasminAfter.id === yasminBefore?.id && yasminAfter.ends === yasminBefore?.ends,
       `contract #${yasminAfter?.id} ${yasminBefore?.club} -> ${yasminAfter?.club}, to ${yasminAfter?.ends}, $${yasminBefore?.salary} -> $${yasminAfter?.salary} a month`);
     check("their stats are their own, unchanged", after.aoife.speed === before.aoife.speed && after.aoife.block === before.aoife.block && after.yasmin.block === before.yasmin.block);
+    check("(1.1.3 rebuild A2) and they keep the names this save has: the starter DB's new names reach new saves only",
+      after.aoife.name === before.aoife.name && after.yasmin.name === before.yasmin.name, `${after.aoife.name}, ${after.yasmin.name}`);
     check("Salote Taufa, and Maui Hula Warriors", after.salote === "Salote Taufa" && after.maui === "Maui Hula Warriors", `${after.salote}; ${after.maui}`);
     const stillOld = q(copy, `SELECT COUNT(*) AS n FROM matches WHERE home_team_name = 'Honolulu Hula Warriors' OR away_team_name = 'Honolulu Hula Warriors'`)[0].n
       + q(copy, `SELECT COUNT(*) AS n FROM finance_transactions WHERE description LIKE '%Honolulu Hula Warriors%'`)[0].n;

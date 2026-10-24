@@ -57,3 +57,59 @@ Brief: `Downloads\REBUILD-BRIEF-24OCT.md` (24 Oct 2026). Worktree `C:/vbe-tm`, b
 - After installing: all 81 files exist, 500×500 WebP, 81 distinct pictures; each is within 0.6 of its own cleaned copy; the closest other staff picture is the same 5.6 (head_coach staff-20, a different man).
 
 **Suites (alone, once):** `staff-portrait-install` 15/15; `ai-staff` 31/31 (the Day 8 pool now holds 130 new faces: the 49 medics and these 81; AI clubs hired some of them); `staff-bonuses` 28/28 (starter staff 410, all names distinct); `wizard-career-economy` 12/12 (290 staff from id 10001). Run with run-all's own switches (`VBE_STAFF_BUDGET=off`, `VBE_STAFF_ABSENCES=off`): a first standalone run of staff-bonuses without them was refused by the sponsor's staff budget, which run-all always lifts for that suite.
+
+### A2. The 28 duplicate pool players renamed: starter DB only
+
+**Done.**
+
+**What I found first:** the boot's reference sync copied a pool player's **name** from the starter DB into every save (`utils/ensureSchema.ts`, `REFERENCE_UPDATE_ONLY.continental_pool_players: ["pool_team_id", "name", "image_url"]`). Every career in a save reads the pool rows live (an AI club's pool seniors become career players on the career's first week, from these rows). So a plain rename in the starter DB would have reached every save on its next boot, which Rob ruled out.
+
+**The change:**
+- The sync no longer copies a pool player's name (club and card still follow). The header says why: a starter-DB rename reaches new saves only.
+- The one older rename that has to reach saves in play, 2 Oct's Siosaia → Salote Taufa, used to ride on that sync. It is now made by name in `utils/referenceRenames.ts`, from its existing list, and only while the save still has the old name.
+- `scripts/rename-pool-duplicates.cjs` renames the 28 in `lib/db/volleyball-empire.sqlite` (idempotent; each row only while it still has its old name). The **pool** player is renamed, never the world-roster player.
+
+| Pool player | Was (= a world-roster player) | Now |
+|---|---|---|
+| ASI_01_P1 (Japan) | Yuki Tanaka | Haruka Mori |
+| ASI_05_P1 (India) | Priya Sharma | Kavya Mehta |
+| AFM_05_P1 (Kenya) | Wanjiru Kamau | Akinyi Odhiambo |
+| AUS_03_P1 (New Zealand) | Aroha Tane | Kahurangi Ngata |
+| AFM_09_P1 (Tunisia) | Sarah Ben Ammar | Yasmine Mzoughi |
+| AFM_09_P2 (Tunisia) | Habiba Mzoughi | Amira Bouazizi |
+| AFM_10_P1 (Tanzania) | Zawadi Kimaro | Rehema Mollel |
+| AFM_10_P2 (Tanzania) | Asha Msuya | Upendo Mwakalinga |
+| ASI_09_P1 (Vietnam) | Nguyen Mai Anh | Tran Thu Trang |
+| ASI_09_P2 (Vietnam) | Le Minh Anh | Le Ngoc Han |
+| ASI_10_P1 (Taiwan) | Chen Yu-Hsin | Lin Pei-Shan |
+| ASI_10_P2 (Taiwan) | Huang Yi-Ting | Hsu Wan-Ting |
+| AUS_09_P1 (Papua New Guinea) | Alina Kora | Grace Bainivalu |
+| AUS_09_P2 (Papua New Guinea) | Kiriwina Tau | Lahui Kaupa |
+| AUS_10_P1 (New Zealand) | Zoe Walker | Ruby Mackenzie |
+| AUS_10_P2 (New Zealand) | Lily Mackenzie | Isla Walker |
+| EUR_09_P1 (Portugal) | Sofia Almeida | Carolina Moreira |
+| EUR_09_P2 (Ireland) | Aoife O'Sullivan | Niamh Kavanagh |
+| EUR_10_P1 (Malta) | Sara Borg | Maria Caruana |
+| EUR_10_P2 (Malta) | Yasmin Grech | Nicole Borg |
+| NAM_09_P1 (Jamaica) | Kayla Thompson | Tanisha Brown |
+| NAM_09_P2 (Jamaica) | Niah Myers | Keisha Beckford |
+| NAM_10_P1 (Bahamas) | Aaliyah Rolle | Shante Bethel |
+| NAM_10_P2 (Bahamas) | Jada Knowles | Tiara Ferguson |
+| SAM_09_P1 (Guyana) | Nia Campbell | Anjali Persaud |
+| SAM_09_P2 (Guyana) | Amara James | Keziah Campbell |
+| SAM_10_P1 (Bolivia) | Valeria Mamani | Ximena Zeballos |
+| SAM_10_P2 (Bolivia) | Camila Torrez | Daniela Mamani |
+
+Every surname is one of that nation's athletes' in the game. No new name matches a player, pool player, staff member, youth name or any name in the staff and youth name histories.
+
+**Proof: `harness/pool-names.mjs`, 15/15** (run-all 98zy, port 4982):
+- **The starter DB:** no pool player's name matches any world-roster player's name (120 pool players, 276 world-roster players); no two pool players share a name; no new name matches a staff member's; the 28 renames are in; each new surname is her nation's.
+- **The source:** the sync copies a pool player's club and card, not her name; Salote Taufa goes by name.
+- **A save in play, untouched:** a copy of Rob's live save, booted once by the new server: the hash of every pool player's name, and of every player's name, is the same before and after (`28cce0bd7a2de859` and `ec105a173660f067`); the 28 keep the save's names (AUS_09_P1 is still "Alina Kora"). The save keeps its 28 duplicates, as Rob decided.
+- **A new save:** the AI clubs' seniors made from the 28 carry the new names, none shares a name with a world-roster player, and the Papua New Guinea club's page shows Grace Bainivalu, not Alina Kora.
+- `harness/reference-corrections.mjs` 12/12: in the starter DB the two moved players (EUR_09_P2, EUR_10_P2) carry their new names; on Rob's 2 Oct save they move club, keep the names that save has, and Salote Taufa still arrives. `reference-data-update` 6/6.
+- To run this item's suite I rebuilt the api-server alone (its suites read `artifacts/api-server/dist`). The full build is in Part E.
+
+**Decisions (A2):**
+- **"Do not reach into existing saves" also covers a new career started inside an existing save file:** it reads that save's pool rows, so it gets that save's names, duplicates included. Only a new save (a fresh install, or a save made from the starter DB) gets the clean names. Reaching into the save's reference rows to change that would be the very thing Rob ruled out.
+- Two first choices gave a pool player the same surname as the world-roster player whose card she shares (see below): Grace Kumul beside Diana Kumul, Yasmine Trabelsi beside Ines Trabelsi. They became Grace Bainivalu and Yasmine Mzoughi, and the suite asserts it can't happen.
