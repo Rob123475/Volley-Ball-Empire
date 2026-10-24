@@ -48,7 +48,8 @@ const SEASONS = Number(process.env.SEASONS ?? 5);
 const DIFFICULTY = process.env.DIFFICULTY ?? "medium";
 const REPO = path.join(import.meta.dirname, "..");
 const SHIPPED = path.join(REPO, "lib", "db", "volleyball-empire.sqlite");
-const SERVER = path.join(REPO, "artifacts", "api-server", "dist", "index.mjs");
+// SOAK_SERVER: another build of the server to soak (1.1.3 rebuild D1: a baseline from before Part B).
+const SERVER = process.env.SOAK_SERVER ?? path.join(REPO, "artifacts", "api-server", "dist", "index.mjs");
 const ELECTRON = requireElectronBinary(REPO);
 const WORK = fs.mkdtempSync(path.join(os.tmpdir(), `vbe-soak-${DIFFICULTY}-`));
 const DB = path.join(WORK, "save.sqlite");
@@ -102,6 +103,8 @@ const injured = (s) => s.inj === 1 || (s.status ?? "Healthy") !== "Healthy";
 let myBudget = {};
 const overCapSeen = new Set(); const overCapDays = [];
 let shortClubDays = 0; let clubIds = [];
+// 1.1.3 rebuild (D1, report only): each run of days an AI club has fewer than two seniors to play, with why.
+const shortEpisodes = []; const shortOpen = new Map(); let lastDay = "";
 function seasonTable(season, year, counters) {
   const seniors = aiSeniors();
   const rated = seniors.map((s) => ({ ...s, r: overallRating(s) })).sort((a, b) => b.r - a.r);
@@ -337,6 +340,7 @@ try {
     if (id) { await api("POST", `/matches/${id}/simulate`); await api("POST", r.data?.blocked === "pending_match" ? "/calendar/skip-match" : "/calendar/dismiss-match"); }
     // AI injuries and long injuries released, from yesterday to today.
     const now = aiSeniors(); const nowMap = new Map(now.map((s) => [s.id, s]));
+    const yesterday = prev;
     for (const s of now) { const p = prev.get(s.id); if (p && injured(s) && (!injured(p) || s.weeks > p.weeks)) counters.injuries++; }
     for (const [id2, p] of prev) {
       if (nowMap.has(id2) || !injured(p) || p.weeks < MONEY.salaryCap.injuredLongWeeks) continue;
@@ -351,8 +355,27 @@ try {
       for (const s of now) if (s.ptype === "senior") by.set(s.club, [...(by.get(s.club) ?? []), s]);
       // And any AI club left with fewer than two seniors to play (not on the injured list), club-days.
       const placed = new Map(); for (const s of now) if (!s.listed) placed.set(s.club, (placed.get(s.club) ?? 0) + 1);
-      for (const c of clubIds) if ((placed.get(c) ?? 0) < 2) shortClubDays++;
       const day = q(`SELECT "current_date" AS d FROM calendar_state WHERE team_id = ?`, myTeam())[0]?.d ?? "";
+      for (const c of clubIds) {
+        if ((placed.get(c) ?? 0) >= 2) { shortOpen.delete(c); continue; }
+        shortClubDays++;
+        // D1: a new run of short days, or one going on from yesterday.
+        const open = shortOpen.get(c);
+        if (open && open.last === lastDay) { shortEpisodes[open.idx].days++; open.last = day; continue; }
+        const mine = now.filter((x) => x.club === c);
+        const left = [...yesterday.values()].filter((x) => x.club === c && nowMap.get(x.id)?.club !== c).map((x) => {
+          const r = q(`SELECT team_id t, pool_team_id p, is_retired x, contract_end_date e FROM career_player_state WHERE career_save_id = ? AND player_id = ?`, cid, x.id)[0];
+          const where = !r ? "gone from the game" : r.x ? "retired" : r.t != null ? "to his club" : r.p != null ? "to another AI club" : "to the free agents";
+          return { where, injured: injured(x), weeks: x.weeks ?? 0 };
+        });
+        const st = q(`SELECT balance b, taken_over_at t FROM career_pool_team_state WHERE career_save_id = ? AND pool_team_id = ?`, cid, c)[0];
+        const bill = mine.reduce((t, x) => t + x.salary, 0);
+        shortEpisodes.push({ club: c, start: day, days: 1, seniors: mine.length, listed: mine.filter((x) => x.listed).length,
+          cause: mine.length < 2 ? "fewer than two under contract" : "the injured list leaves fewer than two", left,
+          bill, overCap: bill > CAP, balance: Math.round(Number(st?.b ?? 0)), takenOver: st?.t != null });
+        shortOpen.set(c, { idx: shortEpisodes.length - 1, last: day });
+      }
+      lastDay = day;
       for (const [club, l] of by) {
         const bill = l.reduce((t, s) => t + s.salary, 0);
         if (bill <= CAP || !l.some((s) => s.joined != null && s.joined >= `${day.slice(0, 4)}-01-01`)) { overCapSeen.delete(club); continue; }
@@ -412,8 +435,21 @@ try {
   if (offWindow > 0) flags.push(`${offWindow} senior moves outside the window not on their arrival day`);
   console.log(`\nFLAGS: ${flags.length ? flags.join("; ") : "none"}`);
   console.log(`AI clubs with fewer than two seniors to play: ${shortClubDays} club-days`);
+  // 1.1.3 rebuild (D1): why. Each run of short days is one episode; its cause read on its first day.
+  {
+    const tally = (xs, key) => { const m = new Map(); for (const x of xs) { const k = key(x); m.set(k, (m.get(k) ?? 0) + 1); } return [...m].sort((a, b) => b[1] - a[1]).map(([k, n]) => `${k} ${n}`).join(", "); };
+    const daysOf = (xs) => xs.reduce((t, e) => t + e.days, 0);
+    const byCause = new Map(); for (const e of shortEpisodes) byCause.set(e.cause, [...(byCause.get(e.cause) ?? []), e]);
+    console.log(`D1 breakdown: ${shortEpisodes.length} episodes, ${daysOf(shortEpisodes)} club-days`);
+    for (const [cause, es] of byCause) console.log(`  ${cause}: ${es.length} episodes, ${daysOf(es)} club-days`);
+    console.log(`  episode length: ${tally(shortEpisodes, (e) => e.days === 1 ? "1 day" : e.days <= 7 ? "2-7 days" : "8+ days")}`);
+    console.log(`  month it began: ${tally(shortEpisodes, (e) => e.start.slice(5, 7))}`);
+    console.log(`  who left the day it began: ${tally(shortEpisodes.flatMap((e) => e.left), (l) => l.where + (l.injured ? " (injured)" : ""))}`);
+    console.log(`  at the start: over the cap ${shortEpisodes.filter((e) => e.overCap).length}, balance below zero ${shortEpisodes.filter((e) => e.balance < 0).length}, taken over ${shortEpisodes.filter((e) => e.takenOver).length}`);
+    console.log(`  episodes: ${shortEpisodes.slice(0, 40).map((e) => `${e.start} club ${e.club} ${e.days}d (${e.seniors} seniors, ${e.listed} listed; left: ${e.left.map((l) => l.where).join("/") || "none"}; $${e.balance.toLocaleString("en-US")})`).join("; ")}`);
+  }
   if (overCapDays.length) console.log(`AI clubs going over the cap with a senior signed this year (first day each time): ${overCapDays.length}\n  ${overCapDays.slice(0, 40).join("\n  ")}`);
-  if (process.env.SOAK_OUT) fs.writeFileSync(process.env.SOAK_OUT, JSON.stringify({ difficulty: DIFFICULTY, seasons: SEASONS, stopped, tables, flags }, null, 2));
+  if (process.env.SOAK_OUT) fs.writeFileSync(process.env.SOAK_OUT, JSON.stringify({ difficulty: DIFFICULTY, seasons: SEASONS, stopped, tables, flags, shortClubDays, shortEpisodes }, null, 2));
   console.log(`\nSOAK ${tables.length === SEASONS && !stopped ? "COMPLETE" : "INCOMPLETE"}: ${tables.length} of ${SEASONS} seasons`);
 } catch (err) {
   console.log(`SOAK THREW: ${err?.stack ?? err}`);

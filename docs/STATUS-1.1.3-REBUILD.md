@@ -212,3 +212,34 @@ One thing the new lines showed, explained and not a fault: in three runs the sam
 | **ai-injuries** | It didn't allow for a walkover won by default: when the home side can't field two either, the walkover goes to the away side, so the short club "wins" 2-0 on 42-0 points without playing. | **5** | **16/16 all five.** The walkover case came up in all five (e.g. "2-0 (42-0 points, away)"), so the fix was exercised, not just passed. |
 
 **The one failure, mine:** in one of the five C3 runs of ai-job-market, the new B3 check "his new club signs a player on 6 months" got "Squad is full (3/3)". My helper freed a squad place from the Team page's roster, which leaves out a senior on the injured list. It now counts the seniors holding a place from the database and frees down to the two starters (the same fix went into `contract-rules.mjs`'s helper). Then: contract-rules 33/33, ai-job-market 36/36 three times running.
+
+## Part D: report only (no game code changed)
+
+### D1. AI clubs with fewer than two seniors to play
+
+**How I looked:** the soak counted the club-days but never said why. It now records each run of short days ("episode") with its cause, read on the day it began: how many seniors the club had, how many were on the injured list, who had left the club since the day before and where to (retired, to the free agents, to another AI club, to his club), its wage bill against the cap and its balance (`harness/long-career-update1.mjs`, harness only). To see the cause **before** Part B, I built the server from the commit before Part B (825e830a) in a throwaway worktree, since deleted, and ran the 30-season soak on it with the same script (`SOAK_SERVER`). Logs: `docs/proof-1.1.3/rebuild-d/soak-30-seasons-before-part-b.log` and `.json`.
+
+**The cause, before Part B: the injured list at clubs carrying only two seniors.**
+- **32 club-days in 30 seasons** (last night 27; 1.1.1 14 in 5): **27 episodes, every one "the injured list leaves fewer than two".**
+- In every episode the club had **two seniors** (twice three, with two listed) and one had just gone on the injured list.
+- **Nobody had left any of these clubs the day it began**: no expired contract, no release, no sale. Contracts were not the cause.
+- **26 of the 27 lasted a single day.** The next day the club's cover comes up (an academy youth promoted, or a free agent signed, by the injured-list and weekly steps), so it is one forfeit-risk day. The one longer episode (6 days) was 2 January 2026, a club that began the career with two.
+- Over the cap at the start: 3 of 27; none below zero on balance. Spread across the year (most in October to November and March to June).
+- **Why two seniors:** an AI club refills to three only if it can fit the third under its salary cap (`keepAiSquadsTx`: "the interchange only when it can pay one and fit her under its cap"). At each season's end 48 to 59 of the 60 clubs held three seniors (median 56) in the baseline, so a handful of clubs sit at two at any time. With no interchange, one injury is enough.
+- The weekly squad step is also why contracts don't cause it: an AI contract that runs out is renewed or released only in that weekly step, which refills the club in the same step.
+
+**Does Part B fix it?** The after-Part-B soak is in Part E. On the cause above, I don't expect it to: Part B changes contract lengths, and no short episode began with a contract ending. (Part B did take the AI clubs' 6-month player deals out: about 62 AI players were on them at the end of every season in the baseline.)
+
+### D2. The Job Market mid-season (report only: nothing changed)
+
+**What it is now:**
+- `pages/job-market.tsx` is routed **outside the game's shell** (`App.tsx`: `/job-market` sits with `/career-end`, not with the shell's pages), on purpose: it is "the only screen that works while a career has no club" (every club route answers "no team" then).
+- **What leads to it:** only the cases where he has no club or is leaving one: the calendar when his club is sold (`hooks/use-calendar.ts`), the title screen when the career is seeking a club (`auth-guard.tsx`), and the Career page's Options tab after he resigns or breaks his contract (`manager-contract.tsx`). **No menu entry, no Dashboard link, nothing on the Career page leads there mid-season.**
+- **No way back:** the page has two buttons, Apply (disabled outside the off-season window) and Retire (shown only in the window). There is no Back or Dashboard button and, being outside the shell, no side menu. A manager who lands there with a club can only use the browser history (which the packaged game doesn't show).
+- **What it shows mid-season:** the window text ("moves wait for the season's end"), the vacancies (AI clubs whose boards sacked their manager) and, since 1.1.3, the national coach offers (`<NationalCoachOffers />`). AI clubs' poaching offers only appear in the off-season window. The national coach offers also show at the top of the Career page, with a Dashboard notice, so nothing is lost by not reaching the Job Market mid-season today.
+
+**What it would take** (about half a day with a suite, all frontend):
+1. **A way in:** a "Job Market" entry in the side menu's Career section (or a button on the Career page), shown while he has a club. While he has none, the redirects above already take him there.
+2. **A way out:** when `employed` is true (the API already sends it), a "Back to the Dashboard" button at the top of the page; or render the page inside the shell when he has a club and outside it when he hasn't (two routes, one component), which gives him the side menu too. The second is cleaner but touches the router and the auth guard, so it needs the guard's redirects re-tested.
+3. **Mid-season wording:** Apply is already disabled outside the window and says why (`windowText`), so no server change is needed.
+4. **Proof:** a few lines in `harness/ai-job-market.mjs` (the route exists, the menu entry is there while employed, the back button only while employed) and a packaged-game screenshot.
