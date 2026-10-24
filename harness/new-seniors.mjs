@@ -90,7 +90,7 @@ try {
 
   // ── 1. The new seniors ────────────────────────────────────────────────────
   console.log("\n1. THE NEW SENIORS");
-  const arrived = W.q(`SELECT n.*, p.name, p.nationality, s.age, s.team_id t, s.pool_team_id pt, s.salary, p.player_type type, s.is_promoted pr,
+  const arrived = W.q(`SELECT n.*, p.name, p.nationality, s.age, s.team_id t, s.pool_team_id pt, s.pool_joined_on joined, s.salary, p.player_type type, s.is_promoted pr,
     s.speed, s.power, s.defense, s.serve, s.block, s.stamina
     FROM career_new_seniors n JOIN players p ON p.id = n.player_id LEFT JOIN career_player_state s ON s.player_id = n.player_id AND s.career_save_id = n.career_save_id
     WHERE n.career_save_id = ? AND n.season_year = 2027`, cid);
@@ -99,7 +99,12 @@ try {
     AND NOT EXISTS (SELECT 1 FROM career_player_state s WHERE s.player_id = p.id AND s.career_save_id = ?)`, cid, cid)[0].n;
   check("15 AI academy youths stayed on and 5 picture players arrived, on the new season's first day", youths.length === 15 && picks.length === 5
     && arrived.every((a) => a.arrived_on === "2027-01-01"), `${youths.length} youths stayed (${left} other AI youths left the game at 19), ${picks.length} picture players`);
-  check("every one is a free agent on the market, at a wage", arrived.every((a) => a.t == null && a.pt == null && Number(a.salary) > 0), arrived.filter((a) => a.t != null || a.pt != null).map((a) => a.name).join(", "));
+  // 1.1.3 rebuild (Part E): they arrive on the market; later in the same turn an AI club short of players signs from the
+  // free agents (seasonRollover.ts keepAiSquadsTx), so one may already be at an AI club, joined that day. Anything else fails.
+  const signedAtTurn = arrived.filter((a) => a.t == null && a.pt != null && a.joined === "2027-01-01");
+  check("every one arrived a free agent on the market, at a wage (an AI club short of players may sign one at the turn)",
+    arrived.every((a) => Number(a.salary) > 0 && a.t == null && (a.pt == null || signedAtTurn.includes(a))),
+    `${arrived.filter((a) => a.pt == null && a.t == null).length} on the market; signed by an AI club at the turn: ${signedAtTurn.map((a) => `${a.name} (club ${a.pt})`).join(", ") || "none"}${arrived.some((a) => a.t != null || (a.pt != null && !signedAtTurn.includes(a))) ? `; ELSEWHERE: ${arrived.filter((a) => a.t != null || (a.pt != null && !signedAtTurn.includes(a))).map((a) => a.name).join(", ")}` : ""}`);
   check("every picture player's nation is her picture's folder nation", picks.every((a) => a.nationality === a.nation && nationOfUrl.get(a.image_url) === a.nation),
     picks.map((a) => `${a.name} ${a.nationality} <- ${nationOfUrl.get(a.image_url)}`).join("; "));
   check("each is a senior of 19 to 21 with youth-scale stats", picks.every((a) => a.type === "senior" && a.age >= 19 && a.age <= 21

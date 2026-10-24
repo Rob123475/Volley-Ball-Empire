@@ -94,8 +94,9 @@ try {
   }
   const coach = await W.hire("Head Coach", 75, cid);
   const end = W.q(`SELECT contract_end_date e FROM career_staff_state WHERE career_save_id = ? AND staff_id = ?`, cid, coach.id)[0].e;
-  ev = await annual();
-  check(`a staff contract end: ${coach.name} (6 months)`, !!on(ev, end, new RegExp(`Staff contract expires: ${coach.name}`), "contract"), end);
+  // 1.1.3 rebuild (Part B): a staff contract ends on 7 January, so it is on next year's calendar.
+  ev = (await W.api("GET", `/calendar/annual?year=${end.slice(0, 4)}`)).data.events;
+  check(`a staff contract end: ${coach.name} (1 season, to 7 January)`, end.slice(5) === "01-07" && !!on(ev, end, new RegExp(`Staff contract expires: ${coach.name}`), "contract"), end);
 
   // ── 6. The legend ─────────────────────────────────────────────────────────
   console.log("\n6. THE LEGEND");
