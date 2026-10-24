@@ -120,9 +120,10 @@ export default function ThreeDCourt() {
         setMode(m);
       }
       if (e.data === "unity-paused:1" || e.data === "unity-paused:0") setPaused(e.data === "unity-paused:1");
+      // A Nations Cup match too (1.1.3 rebuild C1: Rob's rule is the dashboard, where the day's other Cup matches have their Watch buttons).
       if (e.data === "unity-match-finished") {
         queryClient.invalidateQueries();
-        navigate(nationsMatchId ? "/competition/olympic-schedule" : "/");
+        navigate("/");
       }
     }
     window.addEventListener("message", handleMessage);
@@ -177,7 +178,7 @@ export default function ThreeDCourt() {
       }
       queryClient.invalidateQueries();
       // A Nations Cup match left part-way is finished by the engine at the end of its day, from its last score.
-      navigate(nationsMatchId ? "/competition/olympic-schedule" : "/");
+      navigate("/");
     } catch (err) {
       setLeaveError(err instanceof Error ? err.message : String(err));
       setLeaving(false);

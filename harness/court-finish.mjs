@@ -52,10 +52,10 @@ check("court.tsx: Leave match asks first: \"Leave the match?\" / \"Leaving forfe
   && /data-testid="button-confirm-leave" onClick=\{leaveMatch\}/.test(court) && />Stay</.test(court));
 check("court.tsx: no option to simulate the rest of the match", !/[Ss]im(ulate)?|finishes the match from the score/.test(court.replace(/\/\/.*$/gm, "").replace(/\{\/\*[\s\S]*?\*\/\}/g, "")));
 check("court.tsx: leaving POSTs /matches/:id/leave, then goes to the dashboard",
-  // 1.1.3 (A4b): a Nations Cup match (nationsMatchId, no matchId) goes back to the Cup's schedule instead.
-  /fetch\(`\/api\/matches\/\$\{matchId\}\/leave`, \{ method: "POST"/.test(court) && /navigate\(nationsMatchId \? "\/competition\/olympic-schedule" : "\/"\)/.test(court));
-check("court.tsx: on \"unity-match-finished\" it goes straight to the dashboard, every screen refreshed",
-  /e\.data === "unity-match-finished"\)\s*\{\s*queryClient\.invalidateQueries\(\);\s*navigate\(nationsMatchId \? "\/competition\/olympic-schedule" : "\/"\);/.test(court));
+  // 1.1.3 rebuild (C1): a Nations Cup match (nationsMatchId, no matchId) goes back to the dashboard too, as Rob's rule says.
+  /fetch\(`\/api\/matches\/\$\{matchId\}\/leave`, \{ method: "POST"/.test(court) && /navigate\("\/"\)/.test(court) && !/olympic-schedule/.test(court));
+check("court.tsx: on \"unity-match-finished\" it goes straight to the dashboard, every screen refreshed (a Nations Cup match too)",
+  /e\.data === "unity-match-finished"\)\s*\{\s*queryClient\.invalidateQueries\(\);\s*navigate\("\/"\);/.test(court));
 
 const unityFile = (...p) => path.join(UNITY, "Assets", ...p);
 if (!fs.existsSync(unityFile("Scripts", "MatchManager.cs"))) {

@@ -171,3 +171,13 @@ Every surname is one of that nation's athletes' in the game. No new name matches
 - **The gate is the career's current club for every player route,** although today every route only ever acts for that club: that is what makes the rule automatic, as the brief asks, and it is what the move test exercises.
 - **The B3 move test lives in `ai-job-market.mjs`,** the suite that already plays a real move at a season's start; a second suite would have to play a whole season to reach one.
 - The incidental "6m" staff hires in other suites became "1s"; none of those suites is about contract length.
+
+## Part C: last night's six suite failures, properly
+
+### C1. The three that were "the suite was out of date"
+
+| Suite | What the game does now | Is that what Rob asked for? | What the check asserts now |
+|---|---|---|---|
+| **court-finish** | Last night: after a **Nations Cup** match (finished, or left part-way) the court went to the Cup schedule page; a club match to the Dashboard. | **No.** Rob's rule for the court (Unity brief, 29 Sep, item 5) is "a proper finish, then **straight back to the dashboard**". The 1.1.3 brief asked for Watch buttons on the Cup schedule and the Dashboard; it never asked for a different way back. The check had been changed to follow the game. **The game was wrong: fixed.** A Cup match now goes straight back to the Dashboard too, where the day's other Cup matches have their Watch buttons (`pages/court.tsx`, both places). | Leaving POSTs `/matches/:id/leave` (a club match) and goes to `/`; "unity-match-finished" refreshes every screen and goes to `/`; and `court.tsx` no longer names the Cup schedule at all. 11/11. |
+| **settings** | On the court's settings overlay, choosing Manual for a Nations Cup match of a nation he doesn't coach does nothing (`chooseMode` returns first); his own nation's match can be Manual. | **Yes.** The 1.1.3 brief, A4b: "Watched matches play in Auto. Manual is only allowed for the player's own nation"; A4c: "He can play his nation's matches in Manual or Auto. Every other match is Auto only." The court (`ManualControl.ForbidManual`) refuses it too. | `chooseMode` refuses Manual when Manual isn't allowed, then saves and sends the mode as before. Unchanged tonight. |
+| **staff-bonuses** | The starter DB had 329 staff after last night's 49 medics; it has **410** after tonight's A1 (81 coaches and scouts). | **Yes:** the count is the staff Rob's portraits added. | 410 starter staff, no two sharing a name (ignoring "Dr."). Updated for A1 tonight; 28/28. |
