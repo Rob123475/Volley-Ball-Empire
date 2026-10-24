@@ -1,0 +1,45 @@
+========================================================================
+  R-62 ACADEMY INTAKE
+========================================================================
+
+0. THE CODE AND THE DATA
+  PASS  the intake's ratings are the 72 shipped youth's distribution, measured again from the starter DB  72 youth; positions {"blocker":27,"defender":23,"all_rounder":22}; potential {"High":47,"Elite":15,"Average":10}
+  PASS  the template card is the one every shipped youth wears, and it is on disk  /images/players/youth/player_youth_all_01_1783432743064.webp
+  PASS  the starter DB owns no players and holds no intakes
+  PASS  the rules page says what the intake does
+
+1. THE FIRST FOUR SEASON BOUNDARIES OF A CAREER
+  PASS  the career crossed 4 boundaries, every one of them opening a season (no career-complete result exists any more)  1->2, 2->3, 3->4, 4->5
+  PASS  the career is still going after them — season 5 is active, not the end  year 2030, Season 5, active
+
+2. THE INTAKES
+  REPORT  the first 4 boundaries each open a season (2027-2030) and bring an intake; the career carries on past them
+  PASS  four intakes, one for each season the career opened (2027-2030), none at career creation  [2027,2028,2029,2030]
+  PASS  each intake is for the player's club on the new season's first day, at least 3 strong (or every free place, when fewer are free) and never past the cap of 6  2027: 3 on 2027-01-01, academy 3/6 | 2028: 5 on 2028-01-01, academy 6/6 | 2029: 1 on 2029-01-01, academy 6/6 | 2030: 4 on 2030-01-01, academy 6/6
+  PASS  each rollover reports the intake it made
+  PASS  each intake joined the club's academy the day it arrived  3 reserves | 8 reserves | 9 reserves | 10 reserves
+
+3. THE NEW PLAYERS
+  PASS  every new player has a card, and the file exists on disk  13 players
+  PASS  every card is a real card, and no two of them share a face unless it is the blank template  player_senior_solomon_islands_02.webp x1, player_senior_fiji_01.webp x1, player_senior_kenya_03.webp x1, player_senior_ireland_03.webp x1, player_senior_madagascar_03.webp x1, player_senior_mozambique_03.webp x1, player_senior_peru_01.webp x1, player_senior_tahiti_01.webp x1, player_senior_madagascar_02.webp x1, player_senior_ai_afm_05_p1.webp x1, player_senior_ecuador_01.webp x1, player_senior_ecuador_03.webp x1, player_senior_japan_01.webp x1
+  PASS  every one a youth player aged 16-18 at intake, owned by this career  ages 16,18,18,18,16,17,16,17,18,17,17,18,18
+  PASS  every one is in the academy, a graduate the club holds, or a graduate it let go  4 promoted, 6 in the academy, 3 released over the cap
+  PASS  and every graduate still at the club has the senior contract promotion writes  no graduate without one
+  PASS  and every graduate it let go left no contract open behind her  3 released cleanly
+  PASS  every rating inside the range the shipped youth span (a super-gifted youth inside hers, 66-80)  means: speed 54.8, power 49.2, defense 49.5, serve 45.5, block 46.2, stamina 53.7, height 177.3; super-gifted: none
+  PASS  every nationality is a nation of the club's region (south_america)  6 of 13 from Brazil; others Guyana, Bolivia, Peru, Ecuador, Bolivia, Chile, Guyana
+  PASS  every name is new: no other athlete, shipped, pool or created, has it  Anjali James (Guyana), Amanda Fernandes (Brazil), Kamila Mamani (Bolivia), Camila Quispe (Peru), Daniela Paredes (Ecuador), Gabriela Fernandes (Brazil), Beatriz Ferreira (Brazil), Ximena Mamani (Bolivia), Amanda Silva (Brazil), Laís Lima (Brazil), Daniela Rojas (Chile), Anjali Campbell (Guyana), Carolina Costa (Brazil)
+  PASS  every first name and surname belongs to a real athlete of that nation
+
+4. CLUB NEWS
+  PASS  Club News reports each intake, with every name in it, on its date  2027: "3 youth players join the Academy1 FC academy" | 2028: "5 youth players join the Academy1 FC academy" | 2029: "1 youth player joins the Academy1 FC academy" | 2030: "4 youth players join the Academy1 FC academy"
+
+5. ANOTHER CAREER NEVER SEES THEM; A DRY ACADEMY SAYS SO
+  PASS  a new career is not seeded with another career's intake  0 state rows; 72 in the new career's youth pool
+  REPORT  the club's region (south_america) still holds 189 unused names after this career's 13: 63 more seasons of intakes of 3 (Chile 20, Argentina 21, Peru 17, Guyana 8, Brazil 36, Ecuador 10, Bolivia 11, Colombia 18, Venezuela 25, Uruguay 23). The card is a template, so cards never run out.
+  PASS  the academy never ran dry in four intakes (each filled its free places), and the region holds names for many more  189 names left
+  (took 94160 names: 273 first names x 302 surnames)
+  PASS  with no name left, nothing makes a new name: every player made wears a real name handed back, and each is accounted for  1 intake row(s), 0 in his intake; 4 made in the season: #95326 Martha Kera (Solomon Islands, youth): AI academy refill (club 32), name a retiree's, given back; #95327 Camila Santiago (Puerto Rico, senior): picture player (new seniors), name a retiree's, given back; #95328 Anjali Persaud (Guyana, senior): picture player (new seniors), name a retiree's, given back; #95329 Anna Köhler (Germany, senior): picture player (new seniors), name a retiree's, given back
+  PASS  Club News says what the academy found that year  "The Elsewhere FC academy found no one this year" 2027-01-01
+
+=== 25/25 passed ===

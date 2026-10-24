@@ -443,27 +443,38 @@ try {
     w.close();
     console.log(`  (took ${n} names: ${firsts.size} first names x ${lasts.size} surnames)`);
   }
-  // U-6: the AI clubs' pool players made into career seniors are not intake.
-  // 1.1.2: nor are the season's picture players (utils/newSeniors.ts, career_new_seniors), nor a player wearing a name a
-  // retiree of the career gave back (the L-02c name-respawn rule: a real name; players now retire at any age).
-  const made = `SELECT COUNT(*) AS n FROM players p WHERE p.origin_career_save_id = ? AND NOT EXISTS (SELECT 1 FROM career_player_state x WHERE x.player_id = p.id AND x.pool_player_id IS NOT NULL)
-    AND NOT EXISTS (SELECT 1 FROM career_new_seniors k WHERE k.player_id = p.id)
-    AND NOT EXISTS (SELECT 1 FROM player_retirements r WHERE r.career_save_id = p.origin_career_save_id AND r.name = p.name AND r.name_reused_at IS NOT NULL)`;
+  // 1.1.3 rebuild (C2): every player the season makes in this career, named with where she came from and where
+  // her name came from. The paths that make a player: his club's intake (youth_intakes), the season's picture
+  // players (utils/newSeniors.ts, career_new_seniors), the AI clubs' pool players made into career seniors
+  // (pool_player_id), and the AI academies, refilled every week by the intake's own factory
+  // (utils/youthLoans.ts aiAcademiesWeekTx, never in his intake row). A name may only be a real one handed
+  // back: by a retiree of this career (player_retirements.name_reused_at, the L-02c respawn rule) or by an AI
+  // academy graduate who left the game at 19 (C15: utils/youthIntake.ts intakeNamePoolTx gives those back).
+  // Last night (23 Oct) one player was counted "with a new name" while his intake made no one; nothing
+  // named her. The likeliest maker is an AI academy refill wearing a departed graduate's name, which the old
+  // count did not allow for; this names her either way, and a truly new combination still fails.
   const maxBefore = read(`SELECT MAX(id) AS m FROM players`)[0].m;
-  const before = read(made, other.careerSaveId)[0].n;
   const dry = await play(other, 1);
   const dryRow = read(`SELECT season_year, player_ids FROM youth_intakes WHERE career_save_id = ?`, other.careerSaveId);
-  const after = read(made, other.careerSaveId)[0].n;
   const dryNews = dry.rolls[0]?.news.find((n) => n.id === "academy-2027");
-  // 1.1.2: players retire at any age now, so the turn itself can give names back (the L-02c name-respawn
-  // rule) and the intake may still find a real name. What must hold: no new combination is made, and any
-  // youth it does take wears a name a retiree of this career gave back.
   const dryIds = dryRow[0] ? JSON.parse(dryRow[0].player_ids) : [];
   const givenBackNow = new Set(read(`SELECT name FROM player_retirements WHERE career_save_id = ? AND name_reused_at IS NOT NULL`, other.careerSaveId).map((r) => r.name));
+  const newPlayers = read(`SELECT p.id, p.name, p.player_type AS type, p.nationality AS nation, s.team_id AS team, s.pool_team_id AS club, s.pool_player_id AS pool,
+      EXISTS (SELECT 1 FROM career_new_seniors k WHERE k.player_id = p.id) AS newSenior,
+      EXISTS (SELECT 1 FROM players g WHERE g.name = p.name AND g.id < p.id AND g.origin_career_save_id = p.origin_career_save_id AND g.player_type = 'youth'
+        AND NOT EXISTS (SELECT 1 FROM career_player_state gs WHERE gs.player_id = g.id AND gs.career_save_id = g.origin_career_save_id)) AS departedName
+    FROM players p LEFT JOIN career_player_state s ON s.player_id = p.id AND s.career_save_id = p.origin_career_save_id
+    WHERE p.origin_career_save_id = ? AND p.id > ?`, other.careerSaveId, maxBefore).map((p) => ({
+    ...p,
+    origin: dryIds.includes(p.id) ? "his intake" : p.newSenior ? "picture player (new seniors)" : p.pool != null ? "pool player made a career senior"
+      : p.type === "youth" && p.club != null ? `AI academy refill (club ${p.club})` : "UNKNOWN",
+    nameFrom: givenBackNow.has(p.name) ? "a retiree's, given back" : p.departedName ? "a departed AI graduate's (C15)" : p.pool != null ? "the pool player's own" : "NEW",
+  }));
+  const unexplained = newPlayers.filter((p) => p.origin === "UNKNOWN" || p.nameFrom === "NEW");
   const dryNames = dryIds.map((pid) => read(`SELECT name FROM players WHERE id = ?`, pid)[0]?.name);
-  check("with no name left, the intake creates no new name: never a player without a real name",
-    !dry.sacked && dryRow.length === 1 && after === before && dryNames.every((n) => n && givenBackNow.has(n)),
-    `${dryRow.length} intake row(s), ${dryIds.length} players (${dryNames.join(", ") || "none"}; all names given back by retirees: ${dryNames.every((n) => givenBackNow.has(n))}); ${after - before} created with a new name${after === before ? "" : ": " + JSON.stringify(read(made.replace("COUNT(*) AS n", "p.id, p.name, p.player_type, p.nationality, p.image_url") + " AND p.id > ?", other.careerSaveId, maxBefore))}`);
+  check("with no name left, nothing makes a new name: every player made wears a real name handed back, and each is accounted for",
+    !dry.sacked && dryRow.length === 1 && unexplained.length === 0 && dryNames.every((n) => n && (givenBackNow.has(n) || newPlayers.find((p) => p.name === n)?.departedName)),
+    `${dryRow.length} intake row(s), ${dryIds.length} in his intake; ${newPlayers.length} made in the season: ${newPlayers.map((p) => `#${p.id} ${p.name} (${p.nation}, ${p.type}): ${p.origin}, name ${p.nameFrom}`).join("; ") || "none"}${unexplained.length ? `; UNEXPLAINED ${unexplained.length}` : ""}`);
   check("Club News says what the academy found that year",
     !!dryNews && dryNews.date === "2027-01-01" && (dryIds.length === 0 ? /academy found no one this year$/.test(dryNews.headline) : dryNews.headline.startsWith(`${dryIds.length} youth player`)),
     dryNews ? `"${dryNews.headline}" ${dryNews.date}` : "no academy-2027 item");
