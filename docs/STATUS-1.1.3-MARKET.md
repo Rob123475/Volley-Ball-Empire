@@ -20,6 +20,8 @@ Branch `release-1.1.3` in `C:/vbe-tm`, from `a0cd6231` (the rebuild's package co
 
 | 5 | The Job Market is a tab on the Career page, mid-season and any time, with the sidebar as the way back; its own page has a Back link while he has a club. | Frontend typecheck clean; no suite reads these pages (checked, including fake-content-removed's patterns). Packaged-game screenshots, way in and way back, mid-season: Part C |
 
+| 6 | The staff Doctor who shared pool player SAM_04_P1 Lucía Quispe's name is **Rosario Quispe**, in the starter DB only; the player keeps Lucía. **Rosa Quispe was taken** (staff 10078, a Peruvian Massage Therapist), so not Rosa: Rosario, of which Rosa is the short form. The four tweed scouts are untouched. | `pool-names.mjs` **26/26**: no pool player shares a staff member's name; "Rosario Quispe" belongs to no one else (players, pool, staff, AI managers checked); a copy of Rob's live save, which predates her card, gets her new under the new name, and nothing it had changes. `git diff a0cd6231 -- images/staff/`: no picture changed (scouts 52, 54, 58, 60 as they were) |
+
 ## What I changed, file by file
 
 ### Item 1: AI clubs trade on the market
@@ -103,6 +105,14 @@ Branch `release-1.1.3` in `C:/vbe-tm`, from `a0cd6231` (the rebuild's package co
 - `artifacts/beach-volleyball/src/pages/job-market.tsx`: an `embedded` mode for the tab, without the page's own padding and without the national-coach offers the Career page already shows. On its own page (Career Options' "leave at the season's end" buttons send him there), **a "← Back" link while he still has a club**, as Settings' Rules page has. With no club (the club sold, or sacked), the page is as it was: the one screen that works.
 - `artifacts/beach-volleyball/src/App.tsx`: the route renders the page as a child (it now takes a prop).
 
+### Item 6: the staff namesake
+
+- `lib/db/volleyball-empire.sqlite`: staff 10172 (Doctor, Peru) "Lucía Quispe" → "Rosario Quispe". Nothing else.
+- `scripts/rename-staff-quispe.cjs` (new): the rename. It refuses if the new name is taken, is idempotent, and doesn't add the old name to `PREVIOUS_STAFF_NAMES`, so a save that has her keeps its name for her.
+- `docs/staff-portrait-names-1.1.3.json`: her entry now reads Rosario Quispe (`nameBefore25Oct` keeps Lucía). The portrait installer matches by name and role, so a re-run won't recreate the old name.
+- `harness/pool-names.mjs`: the two item 6 checks.
+- The tweed scouts (52, 54, 58, 60): not touched, as the brief says.
+
 ### Item 3: the contract box sentence
 
 - `artifacts/beach-volleyball/src/components/contract-offer-dialog.tsx`: "A season ends when the World Tour does — the club sets the date." was wrong: every season row runs 1 January to 31 December, and the length decides the end (`contractTerms.ts contractEndDate`, `transferWindow.ts contractEndFrom`). It now says what each length means.
@@ -129,6 +139,10 @@ Branch `release-1.1.3` in `C:/vbe-tm`, from `a0cd6231` (the rebuild's package co
 - **Each player gets the first unused picture of her nation** in Rob's list order. Nothing in the brief chooses between them, and this is repeatable.
 - **The pool card stops following the starter DB in saves that have one** (above), so the change reaches new saves only.
 - **Skin tones are left as they are.** The brief doesn't ask, and see "What I found".
+
+**Item 6:**
+
+- **Rosario Quispe, not Rosa Quispe.** The check the brief asked for found Rosa Quispe already on staff (10078). Two staff with one name is the problem this item fixes, so I took the nearest name that is free.
 
 ## What I found and did not fix
 

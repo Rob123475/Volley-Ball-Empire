@@ -83,6 +83,15 @@ try {
   const oldStaffClash = pool.filter((p) => staff.includes(low(p.name)) && !RENAMES.some(([s]) => s === p.stable_id));
   check("and no new name matches a staff member's", staffClash.length === 0, staffClash.map(([, , to]) => to).join(", ")
     + (oldStaffClash.length ? `(older, not one of the 28, reported: ${oldStaffClash.map((p) => `${p.stable_id} ${p.name}`).join(", ")})` : ""));
+  // 1.1.3 (AI market brief item 6, Rob 25 Oct): the staff member named like SAM_04_P1 Lucía Quispe is renamed (Rosa
+  // Quispe was taken by staff 10078, so Rosario Quispe: scripts/rename-staff-quispe.cjs); the pool player keeps Lucía.
+  const staffRows = q(SHIPPED, "SELECT id, name FROM staff");
+  const byStableName = (sid) => pool.find((p) => p.stable_id === sid)?.name;
+  const rosario = [...world.map((r) => r.name), ...pool.map((p) => p.name), ...staffRows.map((s) => s.name)].filter((n) => low(n) === "rosario quispe");
+  check("item 6: no pool player shares a name with a staff member; staff 10172 is Rosario Quispe, a name no one else has, and SAM_04_P1 is still Lucía Quispe",
+    oldStaffClash.length === 0 && staffRows.find((s) => s.id === 10172)?.name === "Rosario Quispe" && rosario.length === 1
+      && byStableName("SAM_04_P1") === "Lucía Quispe" && staffRows.find((s) => s.id === 10078)?.name === "Rosa Quispe",
+    `staff 10172 ${staffRows.find((s) => s.id === 10172)?.name}; staff 10078 ${staffRows.find((s) => s.id === 10078)?.name}; "Rosario Quispe" ${rosario.length}x; SAM_04_P1 ${byStableName("SAM_04_P1")}`);
   const poolDupes = pool.filter((p, i) => pool.findIndex((o) => low(o.name) === low(p.name)) !== i);
   check("and no two pool players share a name", poolDupes.length === 0, poolDupes.map((p) => p.name).join(", "));
   const byStable = new Map(pool.map((p) => [p.stable_id, p]));
@@ -156,6 +165,7 @@ try {
       pool: q(copy, "SELECT stable_id, name FROM continental_pool_players ORDER BY stable_id"),
       cards: q(copy, "SELECT stable_id, image_url FROM continental_pool_players ORDER BY stable_id"),
       players: q(copy, "SELECT id, name FROM players ORDER BY id"),
+      staff10172: q(copy, "SELECT name FROM staff WHERE id = 10172")[0]?.name ?? null,
     });
     const hash = (v) => crypto.createHash("sha256").update(JSON.stringify(v)).digest("hex").slice(0, 16);
     const before = names();
@@ -176,6 +186,11 @@ try {
     check("the 28 the starter DB renamed keep this save's names", keptOld.length === RENAMES.length,
       `${keptOld.length}/28, e.g. AUS_09_P1 "${after.pool.find((p) => p.stable_id === "AUS_09_P1")?.name}"`);
     check("every player keeps her name", hash(before.players) === hash(after.players), `players ${hash(before.players)} -> ${hash(after.players)}`);
+    // A save that has her card keeps its name for her; one from before her card (Rob's live save is from 16 Oct) gets
+    // the card at boot like any new staff member, under her new name.
+    check("item 6: staff 10172 keeps this save's name, or arrives new as Rosario Quispe (the rename is the starter DB's alone)",
+      before.staff10172 == null ? after.staff10172 === "Rosario Quispe" : after.staff10172 === before.staff10172,
+      `${before.staff10172 ?? "(no such card in this save)"} -> ${after.staff10172}`);
     check("every pool player keeps her card (the 22 repointed in the starter DB too)", hash(before.cards) === hash(after.cards)
       && REPOINTED.every((c) => after.cards.find((x) => x.stable_id === c.stableId)?.image_url === before.cards.find((x) => x.stable_id === c.stableId)?.image_url),
       `pool cards ${hash(before.cards)} -> ${hash(after.cards)}; e.g. EUR_09_P2 ${after.cards.find((x) => x.stable_id === "EUR_09_P2")?.image_url?.split("/").pop()}`);
