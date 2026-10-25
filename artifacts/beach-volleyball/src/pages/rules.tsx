@@ -285,10 +285,12 @@ export const UPDATE1_RULES: ReadonlyArray<{ title: string; points: string[] }> =
     "Your manager's face comes with a speciality: Talent Recruiter, Negotiator, Contracts Expert, Sponsor Magnet, Leader, Coach, Youth Developer or Fitness Guru.",
     "The AI clubs' managers have them too; for an AI club, Coach, Youth Developer and Fitness Guru count.",
   ] },
-  // 1.1.3 (Rob, 23 Oct; docs/STATUS-1.1.3.md A3, A4).
-  { title: "The AI clubs' scouting and buying limits", points: [
-    `An AI club scouts a senior before it bids for her. Each AI club runs at most ${AI_SEASON_LIMITS.scoutingReports} scouting reports a season on players at other clubs, and never more than ${AI_SEASON_LIMITS.scoutingPerClub} on players at any one club (yours included).`,
-    `Each AI club makes at most ${AI_SEASON_LIMITS.bids} bids a season, seniors and youths together, and never more than ${AI_SEASON_LIMITS.bidsPerClub} to any one club. A bid that is refused or countered still counts.`,
+  // 1.1.3 (Rob, 23 Oct; docs/STATUS-1.1.3.md A3, A4). 25 Oct (docs/STATUS-1.1.3-MARKET.md item 1): the market.
+  { title: "The AI clubs' market, and its limits", points: [
+    "An AI club renews one player a season: its best, by overall rating. Every other player whose contract ends leaves for the free-agent market.",
+    "Through the year it scouts the market for the places it will have to fill, and in the transfer window (7 to 31 December) it signs a free agent for each, paying her price: the best it can afford, else a cheaper one, else its academy's best youth steps up. AI clubs don't buy from each other; Club News lists their signings.",
+    `An AI club scouts a senior before it bids for one of yours. Each AI club runs at most ${AI_SEASON_LIMITS.scoutingReports} scouting reports a season, and never more than ${AI_SEASON_LIMITS.scoutingPerClub} on players at any one club (yours included).`,
+    `Each AI club makes at most ${AI_SEASON_LIMITS.bids} bids and signings a season, seniors and youths together, and never more than ${AI_SEASON_LIMITS.bidsPerClub} bids to any one club. A bid that is refused or countered still counts.`,
   ] },
   { title: "The Empire Nations Cup, day by day", points: [
     `The Cup is drawn at the end of the last regular World Tour round's day and played over the next four days: ${NATIONS_CUP_DAYS.map((d) => d.label.toLowerCase()).join(", ")}. The medal day is the morning of the World Finals' semi-finals.`,

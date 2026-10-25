@@ -14,6 +14,8 @@ Branch `release-1.1.3` in `C:/vbe-tm`, from `a0cd6231` (the rebuild's package co
 
 | 2 | 22 of the 24 pool players who wore a world-roster player's card now have an unused new-senior picture of their own nation, in the starter DB only. Malta's two are reported: Rob made no Malta picture. | `pool-names.mjs` **24/24**: no two players in the starter DB share a picture, bar Malta's two (the academy youths' one generic youth card apart, by design); no two different files are the same picture (322 files, md5); the 22 are in, each from her nation's folder; a copy of Rob's live save, booted, keeps every pool card; a new save's AI seniors carry the new pictures; and with every other new-senior picture planted as given, the first turn hands none of the 22 to a new senior. `player-pictures.mjs` 36/36. The 22 old → new: `docs/proof-1.1.3/market/item2/repoint-old-to-new.txt`; contact sheet (old card, new card, each captioned): `contact-sheet-old-and-new-cards.jpg` |
 
+| 3 | The contract box says what's true: "1 season runs to 31 December (signed in the transfer window, to the next one); 2 seasons, a season more; 6 months, six months from today." The Rules page had no such claim; its AI section now describes Item 1's market. | `contract-offer-dialog.tsx`, `rules.tsx`; the rules page's "Contract lengths" already said 31 December (24 Oct). No suite reads these texts (checked); frontend typecheck clean; packaged-game check in Part C |
+
 ## What I changed, file by file
 
 ### Item 1: AI clubs trade on the market
@@ -78,6 +80,11 @@ Branch `release-1.1.3` in `C:/vbe-tm`, from `a0cd6231` (the rebuild's package co
   - `pool-names.mjs` checks the pictures too (sections 1b to 4b above).
   - `player-pictures.mjs` reads 96 new, 22 repointed, 2 kept, and checks each repointed card comes from her own nation's folder.
   - The run-all banner for 98zy.
+
+### Item 3: the contract box sentence
+
+- `artifacts/beach-volleyball/src/components/contract-offer-dialog.tsx`: "A season ends when the World Tour does — the club sets the date." was wrong: every season row runs 1 January to 31 December, and the length decides the end (`contractTerms.ts contractEndDate`, `transferWindow.ts contractEndFrom`). It now says what each length means.
+- `artifacts/beach-volleyball/src/pages/rules.tsx`: I checked it for the same claim: there is none, and "Contract lengths" says 31 December. The section "The AI clubs' scouting and buying limits" described the AI-to-AI bidding Item 1 removed. It is now "The AI clubs' market, and its limits": the one renewal, the market in the window, the fallbacks, and bids only for his players. The limits are the same, with signings counted with bids.
 
 ## Decisions I made
 

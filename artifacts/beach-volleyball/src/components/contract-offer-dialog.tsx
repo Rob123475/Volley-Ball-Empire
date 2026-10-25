@@ -160,7 +160,7 @@ export function ContractModal({ player, onSign, isPending, triggerTestId, trigge
               ))}
             </div>
             <p className="text-[10px] text-muted-foreground text-right">
-              A season ends when the World Tour does — the club sets the date.
+              1 season runs to 31 December (signed in the transfer window, to the next one); 2 seasons, a season more; 6 months, six months from today.
             </p>
           </div>
           <div className="space-y-2">
