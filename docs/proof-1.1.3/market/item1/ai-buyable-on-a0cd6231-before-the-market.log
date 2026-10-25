@@ -1,0 +1,47 @@
+========================================================================
+  DAYTIME 2 OCT, U-6: AI CLUBS' PLAYERS ARE BUYABLE
+========================================================================
+
+1. THE MARKET LISTS THEM, AND THE WORLD IS UNCHANGED
+  PASS  the Player Market lists the AI clubs' seniors, each with her club  163 at AI clubs (e.g. Valentina Sosa at Auckland Pacific Diamonds)
+  PASS  becoming career seniors changed nothing: the same players at the same clubs on the same wages  120 of 120; their pool contracts now read "moved": 120
+  PASS  the free agents are still free agents (no AI club's player among them)  146 free agents
+
+2. HER PRICE: "?" UNTIL SCOUTED, THEN EXACT
+  PASS  unscouted: a price range and no exact price  Nyasha Ncube: $31,000-$42,000 (her wage at Riyadh Dune Dominators $36,500 a month)
+  PASS  scouting her costs $1,500, by the hired Scout  HTTP 200, $1,500
+  PASS  five game days later her exact price is known, within one month of her wage ±15%  $35,600 against $36,500
+
+3. BOUGHT FROM HER AI CLUB
+  PASS  the confirm box first: her price to confirm  Confirm the price first: Nyasha Ncube costs $35,600.
+  PASS  she agrees to join this club, as Interchange, on the box's wage and length  HTTP 201  agreed, arrives 2026-12-07
+  PASS  the fee goes to the selling AI club  Riyadh Dune Dominators: $500,000 -> $535,600 (+$35,600)
+  PASS  this club pays it, on the ledger  "Transfer fee: Nyasha Ncube from Riyadh Dune Dominators" $35,600
+  PASS  the day she arrives her wage is on this club's books, and she is no longer at the AI club  team 1, wage $54,750, to 2026-12-31
+  PASS  the AI club still has two to play: it signed a free agent  Riyadh Dune Dominators: 3 players (signed Mariyam Zoya, Fatima Hassan, Salma Benali, Samira Ouadi, Laila El-Fassi)
+
+4. AN AI CLUB THAT CANNOT PLAY WITHOUT HER DOES NOT SELL
+  PASS  refused, in plain words  HTTP 409: Berlin Sand Queens won't sell: it would be left without two players to put on the sand, and there is no free agent it can sign in her place.
+  PASS  and she is still at her club
+
+5. THE AI CLUBS SCOUT THE MARKET, AND DON'T BUY FROM EACH OTHER
+  PASS  AI clubs scouted the market for next season's places over ten weeks  58 reports (0 on free agents, 58 on players leaving other AI clubs)
+  PASS  no AI club bid for another AI club's senior (they buy on the market)  0 AI-to-AI senior bids; 0 players now at a different AI club (released, and signed off the market), over 10 weeks
+  PASS  every AI club kept two or three players throughout  smallest 2, largest 3
+
+6. A WHOLE SEASON: NO AI CLUB LEFT SHORT
+  PASS  the season ran to the next one  341 steps, 2026 -> 2027
+  PASS  no AI club was ever short of two  smallest squad seen: 2
+  FAIL  in the window the AI clubs traded: every club with a contract ending replaced it from the market (or recorded the place open, with why)  37 clubs, 110 leaving; 0 signed from the free agents, 0 promoted, 0 places open; SHORT club 14: 3 leaving, 3 places, 0 filled, 0 open; club 55: 3 leaving, 3 places, 0 filled, 0 open; club 24: 3 leaving, 3 places, 0 filled, 0 open; club 22: 3 leaving, 3 places, 0 filled, 0 open; club 53: 3 leaving, 3 places, 0 filled, 0 open
+
+7. A CLUB RETIREMENT LEAVES WITH NOBODY
+  PASS  a regional fixture is still to play this season  fixture 361
+  PASS  set up: every player and youth of the club retired, and its bank at $0  Lagos Surf Queens
+  PASS  at the week's turn it has two to play again: it signed the cheapest free agents, on credit  Lagos Surf Queens: Amara Nwosu ($11,500 a month), Neema Kimaro ($11,500 a month); bank $15,825
+  PASS  with nobody in the world to sign, the game goes on (no error on any day)  every day advanced
+  PASS  its regional match is a forfeit, the other club winning 2-0  Lagos Surf Queens 0-2
+  REPORT  its World Tour matches in that time: 0 forfeit(s), 0 other(s)
+
+=== 24/25 passed ===
+
+Logs kept: C:\Users\rbonn\AppData\Local\Temp\vbe-ai-buyable-hMN65g

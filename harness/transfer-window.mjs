@@ -10,7 +10,8 @@
  *      contract ending before then doesn't count, a player bought ahead does
  *   4. no dumping: outside the window his seniors can't be released or
  *      terminated; a contract that simply runs out still ends
- *   5. AI clubs buy ahead too, from each other and from him (AC-9)
+ *   5. AI clubs buy ahead too, from him (AC-9); 1.1.3 (Rob, 25 Oct): not from
+ *      each other (they sign other AI clubs' players from the market)
  *   6. renewal blocked once sold: his player sold ahead can't be renewed
  *   7. in the window she arrives: at his club on the bid's wage and length (a
  *      season's deal from the next season), her wage starting that day; and a
@@ -125,11 +126,11 @@ try {
     && /until the transfer window opens on 7 December 2026/.test(rel.data?.error ?? ""), rel.data?.error);
   check("and she is still his", state(keep.id).t === teamId);
 
-  // ── 5 and 6. AI clubs buy ahead, from each other and from him ─────────────
-  console.log("\n5-6. AI CLUBS BUY AHEAD (FROM EACH OTHER AND FROM HIM); A PLAYER SOLD AHEAD CAN'T BE RENEWED");
+  // ── 5 and 6. AI clubs buy ahead from him (not from each other) ────────────
+  console.log("\n5-6. AI CLUBS BUY AHEAD FROM HIM (NOT FROM EACH OTHER); A PLAYER SOLD AHEAD CAN'T BE RENEWED");
   // His star: held a year (her contract started last season) and the best in the world.
   // (17 Oct: AI squads sit near the cap, so in some years no AI club has room to buy at all. Six get room here,
-  // in this suite's own database, as in ai-buyable: the check is that AI clubs do bid for each other's seniors.)
+  // in this suite's own database: the check is that AI clubs do bid for his seniors.)
   for (const { c } of W.q(`SELECT pool_team_id AS c FROM career_pool_team_state WHERE career_save_id = ? AND taken_over_at IS NULL ORDER BY pool_team_id LIMIT 6`, cid)) {
     W.w(`UPDATE career_player_state SET salary = 10000, perks = '' WHERE career_save_id = ? AND pool_team_id = ? AND team_id IS NULL`, cid, c);
   }
@@ -158,10 +159,11 @@ try {
     const r = await W.day();
     if (r.status >= 400) { info(`advance HTTP ${r.status} on ${await today()}: ${JSON.stringify(r.data).slice(0, 160)}`); break; }
   }
-  // (Counted over the year: an AI club counts a contract ending before the arrival as room only while two
-  // of its seniors run past it, the soak 17 Oct, so in the first weeks few fit.)
-  const aiToAi = W.q(`SELECT COUNT(*) n FROM transfer_deals WHERE career_save_id = ? AND from_pool_team_id IS NOT NULL AND to_pool_team_id IS NOT NULL`, cid)[0].n;
-  check("AI clubs bid for each other's seniors during the year", aiToAi > 0, `${aiToAi} AI-to-AI bids`);
+  // 1.1.3 (Rob, 25 Oct): AI clubs buy other AI clubs' players from the market when their contracts end
+  // (harness/ai-market.mjs), never by a bid to their club.
+  const aiToAi = W.q(`SELECT COUNT(*) n FROM transfer_deals WHERE career_save_id = ? AND from_pool_team_id IS NOT NULL AND to_pool_team_id IS NOT NULL
+    AND COALESCE(squad_role, '') <> 'academy'`, cid)[0].n;
+  check("no AI club bid for another AI club's senior during the year (they buy on the market)", aiToAi === 0, `${aiToAi} AI-to-AI senior bids`);
   const after = state(target.id);
   const moved = W.q(`SELECT status, moved_on FROM transfer_deals WHERE id = ?`, deal.id)[0];
   check("on 7 Dec she is his, on the bid's wage, from that day", (await today()) >= "2026-12-07" && after.t === teamId && after.p == null

@@ -21,13 +21,24 @@
  *
  * The rules an AI club follows with its squad live here too:
  *   - keepAiSquadsTx (weekly, and after the season rollover): a career
- *     senior's contract that ran out is renewed, re-priced to her rating (or
- *     she is released if that breaks the cap, or if she is out injured
- *     MONEY.salaryCap.injuredLongWeeks or more); a club with fewer than three
- *     signs the best free agent it can afford and fit (AI_MAX_SQUAD, item 4c).
+ *     senior's contract that ran out is renewed, re-priced to her rating, only
+ *     if she is the club's best and it has renewed nobody else that season
+ *     (1.1.3, 25 Oct); else, or if that breaks the cap, or if she is out
+ *     injured MONEY.salaryCap.injuredLongWeeks or more, she is released; a
+ *     club with fewer than three signs the best free agent it can afford and
+ *     fit (AI_MAX_SQUAD, item 4c).
  *   - aiMatchInjuriesTx (after each of its matches, item 4c): the injury roll.
- *   - aiTransfersWeekTx (weekly): a few AI-to-AI moves, by squad need
- *     (AI_TRANSFERS_PER_WEEK, like the youth loans' AI_BORROWS_PER_WEEK).
+ *   - aiTransfersWeekTx (weekly): the club's market (below), and a few bids
+ *     for the player's seniors (AI_TRANSFERS_PER_WEEK).
+ *   - 1.1.3 (Rob, 25 Oct; AI market brief item 1), the market: an AI club
+ *     renews ONE player a season, its best by overall rating; every other
+ *     contract runs out and the player leaves for the free-agent market. A
+ *     club with a contract ending this season scouts the market through the
+ *     year (aiMarketScoutingWeekTx) and, in the transfer window, signs a
+ *     replacement for each from the free agents at her price
+ *     (aiMarketWindowTx): the best it can afford, else a cheaper one, else its
+ *     academy's best youth, else the place stays open and the reason is
+ *     recorded. AI clubs no longer buy from each other.
  *   - canSellTx: an AI club only sells if it still has two to play, or can
  *     sign a free agent at once to make two.
  *   - aiSeniorsTrainWeekTx (weekly, Update 1 item 3): its seniors train.
@@ -51,7 +62,7 @@ import { trainingSessionXp } from "./trainingXp.js";
 import { aiProgrammeFor, aiTrainsThisWeek, careerWeekOf } from "./aiTraining.js";
 import { specialityFactor } from "./managerFaces.js";
 import { seniorWageBillTx, committedWageBillTx, fitsUnderCap, renewalCapRefusalTx, SALARY_CAP } from "./salaryCap.js";
-import { contractEndFrom, inTransferWindow } from "./transferWindow.js";
+import { contractEndFrom, inTransferWindow, transferWindowFor } from "./transferWindow.js";
 import { coverOnRoster } from "./injuredList.js";
 import { bidTx, aiOfferPerks, arrivalDateFor, openDealForTx, careerTeamIdTx, hasAgreedMoveTx, type Club } from "./transfers.js";
 import { isInjured, matchInjuryRoll } from "./condition.js";
@@ -67,7 +78,7 @@ import { PROMOTION_MIN_AGE } from "@workspace/db";
 import { seasonEndsForCareerTx } from "./seasonDates.js";
 import { pickScouterTx, addScoutingJobTx } from "./scoutingWork.js";
 import { SCOUT_DAYS } from "./marketScouting.js";
-import { aiSeasonMovesTx, mayBid, mayScout, recordAiMoveTx } from "./aiMarketLimits.js";
+import { aiSeasonMovesTx, mayBid, mayScout, recordAiMoveTx, aiRenewalsTx, leftClubTx, seasonYearOf, type AiSeasonMoves, type MoveTarget } from "./aiMarketLimits.js";
 
 /** Two on the sand: an AI club never goes below this (Rob, U-6), and needs this many fit to play. */
 export const AI_MIN_SQUAD = 2;
@@ -376,7 +387,7 @@ function academyBestTx(tx: Tx, careerSaveId: number, poolTeamId: number, minAge 
 /** The free agents an AI club can sign: seniors at no club, best first (item 4c: injured or not, and how long). */
 function freeAgentsTx(tx: Tx, careerSaveId: number) {
   return tx.select({
-    id: playersTable.id, name: playersTable.name,
+    id: playersTable.id, name: playersTable.name, askingPrice: playersTable.askingPrice, salary: careerPlayerStateTable.salary,
     isInjured: careerPlayerStateTable.isInjured, injuryStatus: careerPlayerStateTable.injuryStatus,
     weeks: careerPlayerStateTable.injuryWeeksRemaining,
     speed: careerPlayerStateTable.speed, power: careerPlayerStateTable.power, defense: careerPlayerStateTable.defense,
@@ -442,11 +453,13 @@ function cheapestFreeWagesTx(tx: Tx, careerSaveId: number): number[] {
   return freeAgentsTx(tx, careerSaveId).filter((f) => !f.injured).map((f) => askingWage(monthlySalaryFor(f.rating), 1, 0)).sort((a, b) => a - b);
 }
 
-function bestAffordableFreeAgent(tx: Tx, careerSaveId: number, poolTeamId: number, freeing = 0, allowInjured = false) {
+function bestAffordableFreeAgent(tx: Tx, careerSaveId: number, poolTeamId: number, freeing = 0, allowInjured = false, today?: string) {
   const balance = balanceOf(tx, careerSaveId, poolTeamId);
   const bill = committedWageBillTx(tx, careerSaveId, { poolTeamId }) - freeing;
+  // 1.1.3 (25 Oct): never one who left it at the end of her contract this season or last (utils/aiMarketLimits.ts).
+  const left = today ? leftClubTx(tx, careerSaveId, poolTeamId, today) : new Set<number>();
   return freeAgentsTx(tx, careerSaveId)
-    .filter((f) => allowInjured || !f.injured)
+    .filter((f) => (allowInjured || !f.injured) && !left.has(f.id))
     .find((f) => {
       const wage = askingWage(monthlySalaryFor(f.rating), 1, f.injuryWeeks);
       return balance >= 3 * wage && fitsUnderCap(bill, wage);
@@ -496,19 +509,18 @@ export function keepAiSquadsTx(w: CareerStateTx, careerSaveId: number, today: st
       // Item 4c (4): a senior out MONEY.salaryCap.injuredLongWeeks or more is
       // not renewed; she goes to the market, asking the injured wage there
       // (utils/wageCurve.ts askingWage). The player's own renewals are his call.
+      const endedOn = m.contractEndDate < today ? m.contractEndDate : today;
       if (m.injured && m.injuryWeeks >= MONEY.salaryCap.injuredLongWeeks) {
-        releaseToMarket(w, careerSaveId, m.id, wage);
+        releaseToMarket(w, careerSaveId, m.id, wage, poolTeamId, endedOn);
         released++; left--;
         continue;
       }
-      const perks = perksMonthly(w.tx.select({ p: careerPlayerStateTable.perks }).from(careerPlayerStateTable)
-        .where(and(eq(careerPlayerStateTable.careerSaveId, careerSaveId), eq(careerPlayerStateTable.playerId, m.id))).get()?.p ?? "");
-      if (renewalCapRefusalTx(w.tx, careerSaveId, { poolTeamId }, m.contractEndDate, m.salary + perks, wage + perks) == null) {
-        const length = lengthForRating(clubRating(w.tx, poolTeamId));
-        w.setPlayerState(careerSaveId, m.id, { salary: wage, contractEndDate: renewalEndDate(length, m.contractEndDate, seasonEnds) });
+      // 1.1.3 (Rob, 25 Oct): only its best, and only one a season (the season her contract ended in).
+      const mayRenew = squad[0]?.id === m.id && squad[0]?.kind === "player" && aiRenewalsTx(w.tx, careerSaveId, poolTeamId, seasonYearOf(m.contractEndDate)) === 0;
+      if (mayRenew && renewAiSeniorTx(w, careerSaveId, poolTeamId, m, seasonEnds, today)) {
         renewed++;
       } else {
-        releaseToMarket(w, careerSaveId, m.id, wage);
+        releaseToMarket(w, careerSaveId, m.id, wage, poolTeamId, endedOn);
         released++; left--;
         if (!m.injured) fit--;
       }
@@ -520,9 +532,10 @@ export function keepAiSquadsTx(w: CareerStateTx, careerSaveId: number, today: st
       // 1.1.1 (the soak, 17 Oct): short of two, it keeps room under its cap for the cheapest free agent who
       // would make two, so the first it signs can't take it all.
       const reserve = n + 1 < AI_MIN_SQUAD ? (cheapestFreeWagesTx(w.tx, careerSaveId)[1] ?? 0) : 0;
-      const fa = bestAffordableFreeAgent(w.tx, careerSaveId, poolTeamId, -reserve, fit >= AI_MIN_SQUAD);
+      const fa = bestAffordableFreeAgent(w.tx, careerSaveId, poolTeamId, -reserve, fit >= AI_MIN_SQUAD, today);
       if (fa) {
         signToAiClub(w, careerSaveId, poolTeamId, fa.id, fa.rating, today, seasonEnds, fa.injuryWeeks);
+        recordAiMoveTx(w.tx, careerSaveId, poolTeamId, "refill", fa.id, null, today);
         signed++; if (!fa.injured) fit++;
         continue;
       }
@@ -534,6 +547,7 @@ export function keepAiSquadsTx(w: CareerStateTx, careerSaveId: number, today: st
       if (youth) {
         w.setPlayerState(careerSaveId, youth.id, { isPromoted: true, academyRole: null });
         signToAiClub(w, careerSaveId, poolTeamId, youth.id, youth.rating, today, seasonEnds);
+        recordAiMoveTx(w.tx, careerSaveId, poolTeamId, "promote", youth.id, null, today);
         signed++; fit++;
         continue;
       }
@@ -543,9 +557,11 @@ export function keepAiSquadsTx(w: CareerStateTx, careerSaveId: number, today: st
       // is, on credit: her wage goes on its books like any other, five
       // loss-making seasons sell it, and the sale clears its debts.
       const bill = committedWageBillTx(w.tx, careerSaveId, { poolTeamId });
-      const cheapest = freeAgentsTx(w.tx, careerSaveId).filter((f) => !f.injured && fitsUnderCap(bill, monthlySalaryFor(f.rating))).at(-1);
+      const gone = leftClubTx(w.tx, careerSaveId, poolTeamId, today);
+      const cheapest = freeAgentsTx(w.tx, careerSaveId).filter((f) => !f.injured && !gone.has(f.id) && fitsUnderCap(bill, monthlySalaryFor(f.rating))).at(-1);
       if (!cheapest) { short++; break; }
       signToAiClub(w, careerSaveId, poolTeamId, cheapest.id, cheapest.rating, today, seasonEnds);
+      recordAiMoveTx(w.tx, careerSaveId, poolTeamId, "refill", cheapest.id, null, today);
       signed++; fit++;
     }
   }
@@ -574,10 +590,12 @@ export function aiInjuredListDayTx(w: CareerStateTx, careerSaveId: number, today
         if (youth) {
           w.setPlayerState(careerSaveId, youth.id, { isPromoted: true, academyRole: null });
           signToAiClub(w, careerSaveId, poolTeamId, youth.id, youth.rating, today, seasonEnds);
+          recordAiMoveTx(w.tx, careerSaveId, poolTeamId, "promote", youth.id, null, today);
         } else {
-          const fa = bestAffordableFreeAgent(w.tx, careerSaveId, poolTeamId);
+          const fa = bestAffordableFreeAgent(w.tx, careerSaveId, poolTeamId, 0, false, today);
           if (!fa) continue;
           signToAiClub(w, careerSaveId, poolTeamId, fa.id, fa.rating, today, seasonEnds, fa.injuryWeeks);
+          recordAiMoveTx(w.tx, careerSaveId, poolTeamId, "refill", fa.id, null, today);
         }
         covered++;
         others = (aiSquadsTx(w.tx, careerSaveId).get(poolTeamId) ?? []).filter((x) => !x.onList);
@@ -591,7 +609,7 @@ export function aiInjuredListDayTx(w: CareerStateTx, careerSaveId: number, today
         const cover = new Set(coverOnRoster({ injuredListSquad: squadThen }, others.map((x) => x.id)));
         const weakest = [...others].filter((x) => x.kind === "player" && (inTransferWindow(today) || cover.has(x.id))).sort((a, b) => a.rating - b.rating)[0];
         if (!weakest) continue;
-        releaseToMarket(w, careerSaveId, weakest.id, monthlySalaryFor(weakest.rating));
+        releaseToMarket(w, careerSaveId, weakest.id, monthlySalaryFor(weakest.rating), poolTeamId, today);
         others = others.filter((x) => x !== weakest);
         released++;
       }
@@ -602,11 +620,15 @@ export function aiInjuredListDayTx(w: CareerStateTx, careerSaveId: number, today
   return { covered, released };
 }
 
-/** Update 1, item 4a: an AI club lets her go; she is a free agent, asking `wage`. */
-function releaseToMarket(w: CareerStateTx, careerSaveId: number, playerId: number, wage: number): void {
+/**
+ * Update 1, item 4a: an AI club lets her go; she is a free agent, asking `wage`. 1.1.3 (25 Oct): recorded as her
+ * leaving the club on `onDate` ("leave", utils/aiMarketLimits.ts), so it does not sign her back that season or the next.
+ */
+function releaseToMarket(w: CareerStateTx, careerSaveId: number, playerId: number, wage: number, poolTeamId: number, onDate: string): void {
   w.setPlayerState(careerSaveId, playerId, {
     teamId: null, poolTeamId: null, salary: wage, perks: "", contractEndDate: null, isActive: false, poolJoinedOn: null,
   });
+  recordAiMoveTx(w.tx, careerSaveId, poolTeamId, "leave", playerId, null, onDate);
 }
 
 const daysBetween = (a: string, b: string) => Math.round((Date.parse(`${b}T00:00:00Z`) - Date.parse(`${a}T00:00:00Z`)) / 86_400_000);
@@ -619,18 +641,245 @@ function weekOrder<T>(items: T[], seed: string): T[] {
 }
 
 /**
- * The AI clubs' own transfers, a few a week (AI_TRANSFERS_PER_WEEK). A club
- * with money (her price plus AI_BUY_RESERVE) buys the best fit career senior at
- * another AI club who is at least AI_BUY_GAP better than its weaker starter
- * (with room) or its weakest senior (full, item 4c: it releases her to the
- * market), and fits under its cap, if that club can sell
- * (canSellTx). The fee goes to the seller, the seller refills from free agents
- * if it must, and she joins on the buyer's terms. Only career seniors move:
- * the Player Market has made the AI clubs' players into them. 1.1.3 (A3): a
- * club scouts her first and bids once its report is ready, within its season's
- * limits (utils/aiMarketLimits.ts).
+ * 1.1.3 (Rob, 25 Oct): an AI club renews `m`, re-priced to the wage for her
+ * rating and on its own length, if that fits under its cap (renewalCapRefusalTx);
+ * the renewal is recorded in the season her contract ends in, so the club's one
+ * renewal a season is counted there (a contract that ran out on 31 December is
+ * renewed at the turn, a day later). Returns whether she renewed.
+ */
+function renewAiSeniorTx(w: CareerStateTx, careerSaveId: number, poolTeamId: number, m: AiMember, seasonEnds: readonly string[], today: string): boolean {
+  if (!m.contractEndDate) return false;
+  const wage = monthlySalaryFor(m.rating);
+  const perks = perksMonthly(w.tx.select({ p: careerPlayerStateTable.perks }).from(careerPlayerStateTable)
+    .where(and(eq(careerPlayerStateTable.careerSaveId, careerSaveId), eq(careerPlayerStateTable.playerId, m.id))).get()?.p ?? "");
+  if (renewalCapRefusalTx(w.tx, careerSaveId, { poolTeamId }, m.contractEndDate, m.salary + perks, wage + perks) != null) return false;
+  const length = lengthForRating(clubRating(w.tx, poolTeamId));
+  w.setPlayerState(careerSaveId, m.id, { salary: wage, contractEndDate: renewalEndDate(length, m.contractEndDate, seasonEnds) });
+  recordAiMoveTx(w.tx, careerSaveId, poolTeamId, "renew", m.id, null, m.contractEndDate < today ? m.contractEndDate : today);
+  return true;
+}
+
+/** The last day of `today`'s season, and the first of the next (seasons run 1 January to 31 December). */
+const seasonEndOf = (today: string) => `${seasonYearOf(today)}-12-31`;
+const nextSeasonStartOf = (today: string) => `${seasonYearOf(today) + 1}-01-01`;
+/** Whether her contract runs into next season (a senior with no end date is the club's for good). */
+const runsPastSeason = (m: AiMember, today: string) => !m.contractEndDate || m.contractEndDate > seasonEndOf(today);
+
+/**
+ * 1.1.3 (25 Oct): who an AI club has for next season. Its seniors holding a
+ * place whose contracts run past this season, and its best if her contract ends
+ * this season and it has not used its renewal (it will renew her, cap allowing).
+ * `need` is the places it must fill for next season (AI_MAX_SQUAD less those).
+ */
+function nextSeasonOf(tx: Tx, careerSaveId: number, poolTeamId: number, squad: readonly AiMember[], today: string) {
+  const best = squad[0];
+  const bestRenews = !!best && best.kind === "player" && !runsPastSeason(best, today) && !best.onList
+    && aiRenewalsTx(tx, careerSaveId, poolTeamId, seasonYearOf(today)) === 0;
+  const staying = squad.filter((m) => !m.onList && (runsPastSeason(m, today) || (bestRenews && m === best)));
+  return { staying, bestRenews, best, need: Math.max(0, AI_MAX_SQUAD - staying.length) };
+}
+
+/** Her price on the market (marketPrice: a free agent, one month of her market wage, ±15%) and her asking wage. */
+function marketTerms(careerSaveId: number, f: ReturnType<typeof freeAgentsTx>[number]) {
+  const priced = { id: f.id, askingPrice: f.askingPrice == null ? null : Number(f.askingPrice), salary: Number(f.salary ?? 0),
+    speed: f.speed, power: f.power, defense: f.defense, serve: f.serve, block: f.block, stamina: f.stamina, poolTeamId: null, teamId: null };
+  return { price: marketPrice(careerSaveId, priced as Parameters<typeof marketPrice>[1]).price, wage: askingWage(monthlySalaryFor(f.rating), 1, 0) };
+}
+
+/**
+ * 1.1.3 (Rob, 25 Oct): through the year, an AI club with places to fill for
+ * next season (nextSeasonOf `need`: a contract ending this season it will not
+ * renew) scouts the market for them: one report a week, on the best player it
+ * could fit under its cap next season (her asking wage, room kept for its other
+ * places at the cheapest free agents' wages) that it has no report on yet, a
+ * free agent or a player whose contract with another AI club ends this season
+ * and who is not that club's best (she will be on the market at the turn). It
+ * keeps one report more than its places, and stays within its season's limits
+ * (utils/aiMarketLimits.ts: 10 reports, 2 on players at any one club). The
+ * report is a Scout's or coach's job (utils/scoutingWork.ts), SCOUT_DAYS long.
+ * Not in the window's last week: there is nothing left to scout for. Returns
+ * how many reports it started.
+ */
+export function aiMarketScoutingWeekTx(w: CareerStateTx, careerSaveId: number, today: string): number {
+  const year = seasonYearOf(today);
+  if (inTransferWindow(today) && addDaysTo(today, 7) > transferWindowFor(year).closes) return 0;
+  const active = w.tx.select({ id: careerPoolTeamStateTable.poolTeamId }).from(careerPoolTeamStateTable)
+    .where(and(eq(careerPoolTeamStateTable.careerSaveId, careerSaveId), isNull(careerPoolTeamStateTable.takenOverAt))).all().map((r) => r.id);
+  const squads = aiSquadsTx(w.tx, careerSaveId);
+  // The players each AI club will let go at the turn: a contract ending this season, not its best.
+  const leaving: Array<{ id: number; name: string; rating: number; at: MoveTarget }> = [];
+  for (const club of active) {
+    const squad = squads.get(club) ?? [];
+    for (const m of squad) if (m.kind === "player" && m !== squad[0] && !runsPastSeason(m, today)) leaving.push({ id: m.id, name: m.name, rating: m.rating, at: { poolTeamId: club } });
+  }
+  const free = freeAgentsTx(w.tx, careerSaveId).filter((f) => !f.injured).map((f) => ({ id: f.id, name: f.name, rating: f.rating, at: null as MoveTarget }));
+  const available = new Set([...free, ...leaving].map((c) => c.id));
+  const cheapest = cheapestFreeWagesTx(w.tx, careerSaveId);
+  let started = 0;
+  for (const club of weekOrder(active, `${careerSaveId}:${today}:ai-market-scouting`)) {
+    const squad = squads.get(club) ?? [];
+    const { need, bestRenews, best } = nextSeasonOf(w.tx, careerSaveId, club, squad, today);
+    if (need === 0) continue;
+    const moves = aiSeasonMovesTx(w.tx, careerSaveId, club, today);
+    const held = [...moves.reports.keys()].filter((id) => available.has(id)).length;
+    if (held > need) continue;
+    // Next season's bill: the contracts that run past this one (and the players bought ahead who arrive), its
+    // best re-priced if it renews her, and the cheapest free agents for its other places.
+    const bill = seniorWageBillTx(w.tx, careerSaveId, { poolTeamId: club }, nextSeasonStartOf(today), squads)
+      + (bestRenews && best ? monthlySalaryFor(best.rating) : 0) + cheapest.slice(0, need - 1).reduce((t, x) => t + x, 0);
+    const gone = leftClubTx(w.tx, careerSaveId, club, today);
+    const target = [...free, ...leaving]
+      .filter((c) => !(c.at && "poolTeamId" in c.at && c.at.poolTeamId === club) && !gone.has(c.id) && !moves.reports.has(c.id) && mayScout(moves, c.at)
+        && bill + monthlySalaryFor(c.rating) <= SALARY_CAP)
+      .sort((a, b) => b.rating - a.rating || a.id - b.id)[0];
+    if (!target) continue;
+    const pick = pickScouterTx(w.tx, careerSaveId, { poolTeamId: club }, [["scout"], ["head_coach", "assistant_coach"]], today);
+    if (!pick.scouter) continue;
+    const readyOn = addDaysTo(today, SCOUT_DAYS);
+    addScoutingJobTx(w.tx, careerSaveId, { poolTeamId: club }, pick.scouter.id, { kind: "player", targetId: target.id, targetName: target.name, startedOn: today, readyOn });
+    recordAiMoveTx(w.tx, careerSaveId, club, "scout", target.id, target.at, today, readyOn, moves);
+    started++;
+  }
+  return started;
+}
+
+export type AiMarketWeek = { renewed: number; signed: number; promoted: number; released: number; open: number };
+
+/**
+ * 1.1.3 (Rob, 25 Oct; AI market brief item 1): the AI clubs' market, each
+ * weekly block in the transfer window (7 to 31 December, the end of the season
+ * the contracts end in). Each AI club, in a fixed order for the week:
+ *
+ *   renews its best, if her contract ends this season and it has not renewed
+ *   anyone this season (one a season; cap allowing);
+ *   then fills each place it has for next season (nextSeasonOf `need`) from
+ *   the free-agent market, paying her price (marketTerms) and her asking wage
+ *   on its own length (a contract signed in the window runs from next season):
+ *   the best healthy free agent it can pay (her price and three months of her
+ *   wage in the bank) and fit under its cap both today and next season, with
+ *   room kept for its other places at the cheapest free agents' wages. Before
+ *   the window's last week it signs only a player it has a ready report on or
+ *   one as good as the player she replaces (within AI_BUY_GAP), and otherwise
+ *   waits a week for the market to fill; in the last week it takes the best it
+ *   can afford (a cheaper player), else promotes its academy's best youth
+ *   (PROMOTION_MIN_AGE and up) if she fits under its cap, else the place stays
+ *   open and the reason is recorded ("open:cap", "open:money", "open:none").
+ *
+ * A player whose contract ends this season and is not renewed leaves the day
+ * her place or her wage is needed for her replacement (weakest first): she is
+ * released to the free-agent market then, where the other clubs (and the
+ * player) can sign her, and never leaves the club with fewer than AI_MIN_SQUAD
+ * holding a place. One not needed by then leaves at the turn (keepAiSquadsTx).
+ */
+export function aiMarketWindowTx(w: CareerStateTx, careerSaveId: number, today: string, seasonEnds: readonly string[]): AiMarketWeek {
+  const out: AiMarketWeek = { renewed: 0, signed: 0, promoted: 0, released: 0, open: 0 };
+  if (!inTransferWindow(today)) return out;
+  const year = seasonYearOf(today);
+  const lastWeek = addDaysTo(today, 7) > transferWindowFor(year).closes;
+  const active = w.tx.select({ id: careerPoolTeamStateTable.poolTeamId }).from(careerPoolTeamStateTable)
+    .where(and(eq(careerPoolTeamStateTable.careerSaveId, careerSaveId), isNull(careerPoolTeamStateTable.takenOverAt))).all().map((r) => r.id);
+  for (const club of weekOrder(active, `${careerSaveId}:${today}:ai-market`)) {
+    // Rebuilt for each club: the clubs before it have signed and released.
+    let squad = aiSquadsTx(w.tx, careerSaveId).get(club) ?? [];
+    let next = nextSeasonOf(w.tx, careerSaveId, club, squad, today);
+    if (next.bestRenews && next.best && !hasAgreedMoveTx(w.tx, careerSaveId, next.best.id)
+      && !(next.best.injured && next.best.injuryWeeks >= MONEY.salaryCap.injuredLongWeeks)
+      && renewAiSeniorTx(w, careerSaveId, club, next.best, seasonEnds, today)) {
+      out.renewed++;
+      squad = aiSquadsTx(w.tx, careerSaveId).get(club) ?? [];
+    }
+    const moves = aiSeasonMovesTx(w.tx, careerSaveId, club, today);
+    for (let guard = 0; guard < AI_MAX_SQUAD; guard++) {
+      // Who stays for next season now counts its best only if it renewed her.
+      const placed = squad.filter((m) => !m.onList);
+      const staying = placed.filter((m) => runsPastSeason(m, today));
+      const coming = w.tx.select({ id: transferDealsTable.id }).from(transferDealsTable).where(and(eq(transferDealsTable.careerSaveId, careerSaveId),
+        eq(transferDealsTable.toPoolTeamId, club), eq(transferDealsTable.status, "agreed"))).all().length;
+      const need = AI_MAX_SQUAD - staying.length - coming;
+      if (need <= 0) break;
+      // Its players leaving at the turn, weakest first: one may go now, to make room for her replacement.
+      const leavers = placed.filter((m) => m.kind === "player" && !runsPastSeason(m, today) && !hasAgreedMoveTx(w.tx, careerSaveId, m.id))
+        .sort((a, b) => a.rating - b.rating || a.id - b.id);
+      const replacing = leavers.at(-1)?.rating ?? 0;
+      const costOf = new Map(leavers.map((l) => [l.id, l.salary + perksMonthly(w.tx.select({ p: careerPlayerStateTable.perks }).from(careerPlayerStateTable)
+        .where(and(eq(careerPlayerStateTable.careerSaveId, careerSaveId), eq(careerPlayerStateTable.playerId, l.id))).get()?.p ?? "")]));
+      const todayBill = committedWageBillTx(w.tx, careerSaveId, { poolTeamId: club });
+      const nextBill = seniorWageBillTx(w.tx, careerSaveId, { poolTeamId: club }, nextSeasonStartOf(today));
+      const keepRoom = cheapestFreeWagesTx(w.tx, careerSaveId).slice(0, need - 1).reduce((t, x) => t + x, 0);
+      // The leavers who would go for a newcomer on `wage`: as many as its places or today's cap need, weakest first.
+      const goingFor = (wage: number): AiMember[] | null => {
+        const going: AiMember[] = [];
+        let bill = todayBill, holding = placed.length + 1;
+        for (const l of leavers) {
+          if (holding <= AI_MAX_SQUAD && bill + wage <= SALARY_CAP) break;
+          if (holding - 1 < AI_MIN_SQUAD) break;
+          going.push(l); bill -= costOf.get(l.id)!; holding--;
+        }
+        return holding <= AI_MAX_SQUAD && bill + wage <= SALARY_CAP ? going : null;
+      };
+      const fitsNext = (wage: number) => nextBill + wage + keepRoom <= SALARY_CAP;
+      const leaveForMarket = (l: AiMember) => {
+        releaseToMarket(w, careerSaveId, l.id, monthlySalaryFor(l.rating), club, today);
+        out.released++;
+      };
+      const balance = balanceOf(w.tx, careerSaveId, club);
+      const gone = leftClubTx(w.tx, careerSaveId, club, today);
+      const free = freeAgentsTx(w.tx, careerSaveId).filter((f) => !f.injured && !gone.has(f.id)).map((f) => ({ f, ...marketTerms(careerSaveId, f) }));
+      const fitting = free.filter((c) => fitsNext(c.wage) && goingFor(c.wage) != null);
+      const affordable = fitting.filter((c) => balance >= c.price + 3 * c.wage);
+      const wanted = affordable.filter((c) => (moves.reports.get(c.f.id) ?? "9999") <= today || c.f.rating >= replacing - AI_BUY_GAP);
+      const pick = (wanted[0] ?? (lastWeek ? affordable[0] : undefined));
+      if (pick && mayBid(moves, null)) {
+        for (const l of goingFor(pick.wage)!) leaveForMarket(l);
+        signToAiClub(w, careerSaveId, club, pick.f.id, pick.f.rating, today, seasonEnds);
+        addToBalance(w.tx, careerSaveId, club, -pick.price);
+        recordAiMoveTx(w.tx, careerSaveId, club, "sign", pick.f.id, null, today, null, moves);
+        out.signed++;
+        squad = aiSquadsTx(w.tx, careerSaveId).get(club) ?? [];
+        continue;
+      }
+      if (!lastWeek) break;   // it waits a week for the market
+      // Nobody it can sign: its academy's best youth steps up, if she fits under its cap.
+      const youth = academyBestTx(w.tx, careerSaveId, club, PROMOTION_MIN_AGE);
+      const youthWage = youth ? askingWage(monthlySalaryFor(youth.rating), 1, 0) : 0;
+      const youthGoing = youth && fitsNext(youthWage) ? goingFor(youthWage) : null;
+      if (youth && youthGoing) {
+        for (const l of youthGoing) leaveForMarket(l);
+        w.setPlayerState(careerSaveId, youth.id, { isPromoted: true, academyRole: null });
+        signToAiClub(w, careerSaveId, club, youth.id, youth.rating, today, seasonEnds);
+        recordAiMoveTx(w.tx, careerSaveId, club, "promote", youth.id, null, today);
+        out.promoted++;
+        squad = aiSquadsTx(w.tx, careerSaveId).get(club) ?? [];
+        continue;
+      }
+      // The place stays open for now (the turn's refill tries again), and why.
+      const why = pick ? "limit" : fitting.length > 0 ? "money" : free.length === 0 && !youth ? "none" : "cap";
+      for (let n = 0; n < need; n++) recordAiMoveTx(w.tx, careerSaveId, club, `open:${why}`, -1, null, today);
+      out.open += need;
+      break;
+    }
+  }
+  return out;
+}
+
+/**
+ * The AI clubs' week on the market. 1.1.3 (Rob, 25 Oct): first the market,
+ * scouting for next season's places through the year and signing from the
+ * free agents in the window (aiMarketScoutingWeekTx, aiMarketWindowTx); AI
+ * clubs no longer bid for each other's players.
+ *
+ * Then their bids for the player's seniors, a few a week
+ * (AI_TRANSFERS_PER_WEEK). A club with money (her price plus AI_BUY_RESERVE)
+ * bids for the best fit senior of his who is at least AI_BUY_GAP better than
+ * its weaker starter (with room) or its weakest senior (full, item 4c: it
+ * releases her to the market), and fits under its cap. His club answers from
+ * its Team page (utils/transfers.ts). 1.1.3 (A3): a club scouts her first and
+ * bids once its report is ready, within its season's limits
+ * (utils/aiMarketLimits.ts).
  */
 export function aiTransfersWeekTx(w: CareerStateTx, careerSaveId: number, today: string, seasonEnds: readonly string[]): Array<{ player: string; from: string; to: number; fee: number; outcome: string }> {
+  aiMarketScoutingWeekTx(w, careerSaveId, today);
+  aiMarketWindowTx(w, careerSaveId, today, seasonEnds);
   const bids: Array<{ player: string; from: string; to: number; fee: number; outcome: string }> = [];
   const active = new Set(w.tx.select({ id: careerPoolTeamStateTable.poolTeamId }).from(careerPoolTeamStateTable)
     .where(and(eq(careerPoolTeamStateTable.careerSaveId, careerSaveId), isNull(careerPoolTeamStateTable.takenOverAt))).all().map((r) => r.id));
@@ -659,13 +908,10 @@ export function aiTransfersWeekTx(w: CareerStateTx, careerSaveId: number, today:
     if (weakest && weakest.kind !== "player") continue;
     const bar = (weakest ?? mine[AI_MIN_SQUAD - 1]!).rating + AI_BUY_GAP;
     const balance = balanceOf(w.tx, careerSaveId, buyer);
-    // 1.1.1 (AC-9 A): any senior under contract at another club, the player's
-    // included, held there at least AI_KEEP_DAYS, fit, with no deal already.
-    const theirs = [...squads.entries()].filter(([club]) => club !== buyer && active.has(club)).flatMap(([club, squad]) => squad.map((m) => ({ m, club })))
-      .filter(({ m }) => m.kind === "player" && !m.injured && !m.onList && (m.joinedOn == null || daysBetween(m.joinedOn, today) >= AI_KEEP_DAYS))
-      .map(({ m, club }) => ({ id: m.id, name: m.name, rating: m.rating, salary: m.salary, contractEndDate: m.contractEndDate, priced: { ...m, askingPrice: null },
-        at: { poolTeamId: club } as Club }));
+    // 1.1.1 (AC-9 A): his seniors held at his club at least AI_KEEP_DAYS, fit, with no deal already.
+    // 1.1.3 (Rob, 25 Oct): only his: an AI club buys other AI clubs' players from the market, when their contracts end.
     const robs = myTeam == null ? [] : (robsNow ??= robsSeniorsForBidsTx(w.tx, careerSaveId, myTeam, today)).map((m) => ({ ...m, at: { teamId: myTeam } as Club }));
+    if (robs.length === 0) break;
     listedNow ??= listedIdsTx(w.tx, careerSaveId);
     const listed = listedNow;
     const open = (id: number) => { let o = openOf.get(id); if (o == null) { o = !!openDealForTx(w.tx, careerSaveId, id); openOf.set(id, o); } return o; };
@@ -677,12 +923,7 @@ export function aiTransfersWeekTx(w: CareerStateTx, careerSaveId: number, today:
     // only once its report on her is ready; with none, it starts one (a Scout's or coach's job, SCOUT_DAYS)
     // and bids a later week. At most 10 reports and 10 bids a season, 2 of each at any one club.
     const moves = aiSeasonMovesTx(w.tx, careerSaveId, buyer, today);
-    const sellable = (m: { id: number; salary: number }) => {
-      const holding = w.tx.select({ p: careerPlayerStateTable.poolTeamId }).from(careerPlayerStateTable)
-        .where(and(eq(careerPlayerStateTable.careerSaveId, careerSaveId), eq(careerPlayerStateTable.playerId, m.id))).get()?.p ?? null;
-      return holding == null || canSellTx(w.tx, careerSaveId, holding, "", m.salary, squads).ok;
-    };
-    const candidates = [...theirs, ...robs]
+    const candidates = robs
       .filter((m) => m.rating >= (listed.has(m.id) ? bar - AI_BUY_GAP : bar) && !open(m.id) && mayBid(moves, m.at))
       .map((m) => ({ m, fee: priceOf(m) }))
       .filter(({ fee }) => balance >= fee + AI_BUY_RESERVE)
@@ -691,7 +932,7 @@ export function aiTransfersWeekTx(w: CareerStateTx, careerSaveId: number, today:
     for (const c of candidates) {
       const ready = moves.reports.get(c.m.id);
       if (ready == null) {
-        if (!mayScout(moves, c.m.at) || !sellable(c.m)) continue;
+        if (!mayScout(moves, c.m.at)) continue;
         const pick = pickScouterTx(w.tx, careerSaveId, { poolTeamId: buyer }, [["scout"], ["head_coach", "assistant_coach"]], today);
         if (!pick.scouter) break;   // nobody free (or no Scout or coach): it waits
         const readyOn = addDaysTo(today, SCOUT_DAYS);
@@ -700,7 +941,6 @@ export function aiTransfersWeekTx(w: CareerStateTx, careerSaveId: number, today:
         break;
       }
       if (ready > today) break;     // its report on her is not ready yet: it waits for it
-      if (!sellable(c.m)) continue;
       target = c;
       break;
     }
@@ -808,7 +1048,7 @@ function robsSeniorsForBidsTx(tx: Tx, careerSaveId: number, teamId: number, toda
  * squad changed since, it lets its weakest go (never the one who has just arrived, never below two seniors)
  * until it is under. Returns how many it let go.
  */
-export function aiCapOnArrivalTx(w: CareerStateTx, careerSaveId: number, buyers: ReadonlyMap<number, number>): number {
+export function aiCapOnArrivalTx(w: CareerStateTx, careerSaveId: number, buyers: ReadonlyMap<number, number>, today: string): number {
   let released = 0;
   for (const [poolTeamId, arrived] of buyers) {
     for (;;) {
@@ -817,7 +1057,7 @@ export function aiCapOnArrivalTx(w: CareerStateTx, careerSaveId: number, buyers:
       if (seniorWageBillTx(w.tx, careerSaveId, { poolTeamId }) <= SALARY_CAP || squad.length <= AI_MIN_SQUAD) break;
       const weakest = squad.filter((m) => m.kind === "player" && m.id !== arrived).sort((a, b) => a.rating - b.rating)[0];
       if (!weakest) break;
-      releaseToMarket(w, careerSaveId, weakest.id, monthlySalaryFor(weakest.rating));
+      releaseToMarket(w, careerSaveId, weakest.id, monthlySalaryFor(weakest.rating), poolTeamId, today);
       released++;
     }
   }
@@ -829,7 +1069,7 @@ export function aiCapOnArrivalTx(w: CareerStateTx, careerSaveId: number, buyers:
  * places (a bought-ahead player arrived, or a fit player came back) lets its
  * weakest go until it has AI_MAX_SQUAD. Outside the window it carries them.
  */
-export function aiTrimSquadsTx(w: CareerStateTx, careerSaveId: number, onlyClubs?: ReadonlySet<number>): number {
+export function aiTrimSquadsTx(w: CareerStateTx, careerSaveId: number, today: string, onlyClubs?: ReadonlySet<number>): number {
   let released = 0;
   for (const [poolTeamId, squad] of aiSquadsTx(w.tx, careerSaveId)) {
     // Outside the window only a club a bought player has just joined trims (its bid counted the weakest gone).
@@ -839,7 +1079,7 @@ export function aiTrimSquadsTx(w: CareerStateTx, careerSaveId: number, onlyClubs
     for (let n = placed.length; n > AI_MAX_SQUAD && spare.length > 0; n--) {
       const weakest = spare.shift()!;
       if (hasAgreedMoveTx(w.tx, careerSaveId, weakest.id)) continue;
-      releaseToMarket(w, careerSaveId, weakest.id, monthlySalaryFor(weakest.rating));
+      releaseToMarket(w, careerSaveId, weakest.id, monthlySalaryFor(weakest.rating), poolTeamId, today);
       released++;
     }
   }

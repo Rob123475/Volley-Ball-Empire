@@ -353,8 +353,9 @@ try {
       && /export const AI_CLUB_SPECIALITIES: readonly Speciality\[\] = \["Coach", "Youth Developer", "Fitness Guru"\];/.test(facesSrc)
       && /if \(club != null && typeof club === "object" && !AI_CLUB_SPECIALITIES\.includes\(speciality\)\) return 1;/.test(facesSrc));
   // 1.1.1: an AI club's buy is a bid (aiTransfersWeekTx), and its youth buys ask her club with no price factor.
+  // 1.1.3 (25 Oct): its signings from the free-agent market pay her price with no factor either (marketTerms).
   check("(source) an AI club's purchases take no speciality; an AI academy's week only its Youth Developer",
-    /priced: \{ \.\.\.m, askingPrice: null \}/.test(src("artifacts/api-server/src/utils/aiSquads.ts"))
+    /return \{ price: marketPrice\(careerSaveId, priced as Parameters<typeof marketPrice>\[1\]\)\.price,/.test(src("artifacts/api-server/src/utils/aiSquads.ts"))
       && /marketPrice\(careerSaveId, m\.priced as Parameters<typeof marketPrice>\[1\]\)\.price/.test(src("artifacts/api-server/src/utils/aiSquads.ts"))
       && /youthDealTx\(w, careerSaveId, club, best\.playerId, "buy", today\)/.test(src("artifacts/api-server/src/utils/youthDeals.ts"))
       && /academyWeek\(youthRating\(r\), r\.potential, Math\.floor\(Math\.random\(\) \* 5\), youthDeveloper\.get\(club\)\)/.test(src("artifacts/api-server/src/utils/youthLoans.ts"))

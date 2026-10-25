@@ -1460,6 +1460,8 @@ const NEWS_META: Record<string, { icon: string; label: string; pill: string; dot
   // 1.1.1 (18 Oct): retirements, and the season's new seniors on the market.
   retirement: { icon: "👋", label: "Retirement", pill: "bg-stone-400/15 text-stone-300 border-stone-400/25",   dot: "bg-stone-400"  },
   talent:   { icon: "🌍", label: "New talent",  pill: "bg-teal-400/15 text-teal-300 border-teal-400/25",       dot: "bg-teal-400"   },
+  // 1.1.3 (25 Oct): the AI clubs' signings from the free-agent market.
+  market:   { icon: "🔁", label: "Market",      pill: "bg-cyan-400/15 text-cyan-300 border-cyan-400/25",       dot: "bg-cyan-400"   },
 };
 
 function gameDateLabel(date: string) {

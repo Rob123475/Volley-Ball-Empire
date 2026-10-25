@@ -17,11 +17,16 @@
  *      her contract ends), and her club refills that day.
  *   4. An AI club that would be left without two and cannot sign anyone does
  *      not sell, and says why in plain words.
- *   5. The AI clubs buy from each other: a few moves a week at most, every
- *      club between two and three players, and no player moved on again
- *      within the season she joined (no back-and-forth). 1.1.1: they buy
- *      ahead (bids agreed now, the players moving in the window).
- *   6. A whole season played: no AI club is ever short of two.
+ *   5. 1.1.3 (Rob, 25 Oct): the AI clubs trade on the market, not with each
+ *      other. Over ten weeks they scout it for next season's places (a club
+ *      with a contract ending this season), no AI club bids for another's
+ *      player, and every club keeps two or three players.
+ *   6. A whole season played: no AI club is ever short of two; and in the
+ *      transfer window the AI clubs trade: every club with a contract ending
+ *      that season (seen on 6 December) signs a replacement for each place it
+ *      has to fill, or records the place open and why. This fails when AI
+ *      clubs don't trade (it used to hope for an AI-to-AI bid in ten weeks,
+ *      and passed on luck).
  *   7. A club retirement leaves with nobody, no youth and $0 signs the
  *      cheapest free agents on credit at the week's turn; with nobody in the
  *      world to sign, it forfeits and the game goes on (final brief 5 Oct).
@@ -185,14 +190,9 @@ try {
   check("and she is still at her club", q(`SELECT pool_team_id AS c FROM career_player_state WHERE career_save_id = ? AND player_id = ?`, cid, hers)[0].c === poorClub);
   w(`UPDATE career_pool_team_state SET balance = 500000 WHERE career_save_id = ? AND pool_team_id = ?`, cid, poorClub);
 
-  console.log("\n5. THE AI CLUBS BUY FROM EACH OTHER");
+  console.log("\n5. THE AI CLUBS SCOUT THE MARKET, AND DON'T BUY FROM EACH OTHER");
   const clubOf = () => new Map(q(`SELECT player_id AS id, pool_team_id AS c FROM career_player_state WHERE career_save_id = ? AND pool_team_id IS NOT NULL AND team_id IS NULL AND pool_player_id IS NOT NULL`, cid).map((r) => [r.id, r.c]));
-  // 1.1.1 (the soak, 17 Oct): AI squads sit near the cap, and a contract ending before the arrival is room only
-  // for a player the club can do without, so early in a career few clubs can buy. Six clubs get room here (their
-  // seniors on $10,000), in this suite's own database: the subject is that the buying works.
-  for (const { c } of q(`SELECT pool_team_id AS c FROM career_pool_team_state WHERE career_save_id = ? AND taken_over_at IS NULL ORDER BY pool_team_id LIMIT 6`, cid)) {
-    w(`UPDATE career_player_state SET salary = 10000, perks = '' WHERE career_save_id = ? AND pool_team_id = ? AND team_id IS NULL`, cid, c);
-  }
+  const scoutRows0 = q(`SELECT COUNT(*) AS n FROM ai_market_moves WHERE career_save_id = ? AND kind = 'scout'`, cid)[0].n;
   const start = clubOf();
   // Moves by week: counted against the weekly tick they came in (the club's
   // last salary date, which the tick moves on).
@@ -222,12 +222,13 @@ try {
     last = now;
   }
   const movedTotal = [...last].filter(([id, c]) => start.get(id) != null && start.get(id) !== c).length;
-  const worstWeek = Math.max(0, ...perWeek.values());
-  // 1.1.1: AI clubs buy ahead; the players move in the window (or the day after a contract ends).
-  const aiDeals = q(`SELECT COUNT(*) AS n FROM transfer_deals WHERE career_save_id = ? AND from_pool_team_id IS NOT NULL AND to_pool_team_id IS NOT NULL AND status IN ('agreed', 'moved')`, cid)[0].n;
-  check("AI clubs bought each other's players over ten weeks (bought ahead)", aiDeals > 0, `${aiDeals} deals agreed; ${movedTotal} players already at a different AI club, over ${perWeek.size} weeks (${[...perWeek.values()].join(" ")})`);
-  check("a few moves a week at most (two)", worstWeek <= 2, `most in one week: ${worstWeek}`);
-  check("no player moved on again within the season she joined", Math.max(0, ...timesMoved.values()) <= 1, `${timesMoved.size} moved, most moves for one player: ${Math.max(0, ...timesMoved.values())}`);
+  // 1.1.3 (Rob, 25 Oct): a club with a contract ending this season scouts the market for next season's places (a free
+  // agent, or a player whose contract with another AI club ends and who is not its best).
+  const marketScouts = q(`SELECT m.target_pool_team_id AS p, m.target_team_id AS t FROM ai_market_moves m WHERE m.career_save_id = ? AND m.kind = 'scout' ORDER BY m.id`, cid).slice(scoutRows0);
+  check("AI clubs scouted the market for next season's places over ten weeks", marketScouts.filter((r) => r.t == null).length > 0,
+    `${marketScouts.length} reports (${marketScouts.filter((r) => r.t == null && r.p == null).length} on free agents, ${marketScouts.filter((r) => r.p != null).length} on players leaving other AI clubs)`);
+  const aiDeals = q(`SELECT COUNT(*) AS n FROM transfer_deals WHERE career_save_id = ? AND from_pool_team_id IS NOT NULL AND to_pool_team_id IS NOT NULL AND COALESCE(squad_role, '') <> 'academy'`, cid)[0].n;
+  check("no AI club bid for another AI club's senior (they buy on the market)", aiDeals === 0, `${aiDeals} AI-to-AI senior bids; ${movedTotal} players now at a different AI club (released, and signed off the market), over ${perWeek.size} weeks`);
   check("every AI club kept two or three players throughout", minSize >= 2 && maxSize <= 3, `smallest ${minSize}, largest ${maxSize}`);
 
   console.log("\n6. A WHOLE SEASON: NO AI CLUB LEFT SHORT");
@@ -237,8 +238,12 @@ try {
   // the calendar is never held up by his squad.
   await keepSideFielded(api);
   await renewExpiringContracts(api);
+  let snap = null;   // 6 December: each AI club's seniors, before the window
+  const seniorsNow = () => q(`SELECT s.player_id AS id, s.pool_team_id AS c, s.contract_end_date AS e, s.on_injured_list AS listed FROM career_player_state s JOIN players p ON p.id = s.player_id
+    WHERE s.career_save_id = ? AND s.pool_team_id IS NOT NULL AND s.team_id IS NULL AND s.is_retired = 0 AND (p.player_type = 'senior' OR s.is_promoted = 1)`, cid);
   for (; steps < 900 && !rolled; steps++) {
     healAllSquads(DB);
+    if (q(`SELECT "current_date" AS d FROM calendar_state WHERE team_id = ?`, team.id)[0]?.d === `${year0}-12-06`) snap = seniorsNow();
     const r = await day();
     lastReply = r.data;
     for (const n of squadSizes(cid, true).values()) shortest = Math.min(shortest, n);   // night 2: listed seniors are still on the books
@@ -246,6 +251,27 @@ try {
   }
   check("the season ran to the next one", rolled, `${steps} steps, ${year0} -> ${q(`SELECT year FROM seasons WHERE career_save_id = ? AND status = 'active'`, cid)[0]?.year}${rolled ? "" : `; last reply ${JSON.stringify(lastReply).slice(0, 200)}`}`);
   check("no AI club was ever short of two", shortest >= 2, `smallest squad seen: ${shortest}`);
+  // 1.1.3 (Rob, 25 Oct): in the window the AI clubs trade. Each club's contracts ending this season, less the one it
+  // renewed, are its leavers; it fills its places for next season (three, less those staying) from the market.
+  const moves = q(`SELECT pool_team_id AS c, kind, player_id AS id, on_date AS d FROM ai_market_moves WHERE career_save_id = ? AND season_year = ?`, cid, year0);
+  const short = [];
+  let leaving = 0, clubsLeaving = 0;
+  const snapBy = new Map(); for (const r of snap ?? []) snapBy.set(r.c, [...(snapBy.get(r.c) ?? []), r]);
+  for (const [c, l] of snapBy) {
+    const renewed = new Set(moves.filter((x) => x.c === c && x.kind === "renew").map((x) => x.id));
+    const leavers = l.filter((m) => m.e != null && m.e <= `${year0}-12-31` && !renewed.has(m.id));
+    if (leavers.length === 0) continue;
+    clubsLeaving++; leaving += leavers.length;
+    const staying = l.filter((m) => !m.listed && (m.e == null || m.e > `${year0}-12-31` || renewed.has(m.id))).length;
+    const required = Math.min(leavers.length, Math.max(0, 3 - staying));
+    const filled = moves.filter((x) => x.c === c && x.d >= `${year0}-12-07` && ["sign", "promote", "refill"].includes(x.kind)).length;
+    const open = moves.filter((x) => x.c === c && x.kind.startsWith("open:")).length;
+    if (filled + open < required) short.push(`club ${c}: ${leavers.length} leaving, ${required} places, ${filled} filled, ${open} open`);
+  }
+  const inWindow = (kind) => moves.filter((x) => x.kind === kind && x.d >= `${year0}-12-07`).length;
+  check("in the window the AI clubs traded: every club with a contract ending replaced it from the market (or recorded the place open, with why)",
+    snap != null && clubsLeaving > 0 && inWindow("sign") > 0 && short.length === 0,
+    `${clubsLeaving} clubs, ${leaving} leaving; ${inWindow("sign")} signed from the free agents, ${inWindow("promote")} promoted, ${moves.filter((x) => x.kind.startsWith("open:")).length} places open${short.length ? `; SHORT ${short.slice(0, 5).join("; ")}` : ""}`);
 
   // Final brief 5 Oct, found by the full harness: in season 20 of a long
   // career retirement left a broke AI club with nobody and no youth, and the

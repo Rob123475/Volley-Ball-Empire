@@ -33,6 +33,16 @@
  * one, none), reconstructions, the injured list's use and the cover promoted
  * from academies. Rob's staff (ids from 10001) are in the starter DB now, so
  * STAND_INS is no longer needed.
+ *
+ * 1.1.3 (Rob, 25 Oct; AI market brief items 1 and 4): every season, the AI
+ * clubs' market: senior transfers completed (signings from the free agents,
+ * refills, promotions, moves by a bid), the free agents at the season's start
+ * and end, the continental pool's size (the AI clubs' seniors), players at the
+ * same club 3+ seasons (most at one club, and clubs with more than one), the
+ * places filled by a youth's promotion rather than a signing, renewals (one a
+ * club at most), the places left open and why, and every club with a contract
+ * ending (seen on 6 December) that did not fill its places. And the short-squad
+ * days each season (an AI club with fewer than two seniors to play).
  */
 import fs from "node:fs";
 import os from "node:os";
@@ -105,6 +115,44 @@ const overCapSeen = new Set(); const overCapDays = [];
 let shortClubDays = 0; let clubIds = [];
 // 1.1.3 rebuild (D1, report only): each run of days an AI club has fewer than two seniors to play, with why.
 const shortEpisodes = []; const shortOpen = new Map(); let lastDay = "";
+// 1.1.3 (25 Oct): each AI club's seniors on 6 December (before the window), and the free agents at the season's start.
+let decSnap = null, faAtStart = null, shortDaysSeason = 0;
+const freeAgentsNow = () => q(`SELECT COUNT(*) n FROM career_player_state s JOIN players p ON p.id = s.player_id WHERE s.career_save_id = ? AND s.team_id IS NULL AND s.pool_team_id IS NULL
+    AND s.is_retired = 0 AND (p.player_type = 'senior' OR s.is_promoted = 1)`, cid)[0].n;
+/** The season's market, read at the turn (the window's last week may fall on 31 December, after the table). */
+function marketOf(year) {
+  const rows = q(`SELECT pool_team_id c, kind, player_id id, on_date d FROM ai_market_moves WHERE career_save_id = ? AND season_year = ?`, cid, year);
+  const count = (k) => rows.filter((r) => r.kind === k).length;
+  const inWindow = (k) => rows.filter((r) => r.kind === k && r.d >= `${year}-12-07`).length;
+  const movedByBid = q(`SELECT COUNT(*) n FROM transfer_deals WHERE career_save_id = ? AND status = 'moved' AND COALESCE(squad_role, '') <> 'academy'
+    AND moved_on >= ? AND moved_on <= ?`, cid, `${year}-01-01`, `${year}-12-31`)[0].n;
+  const opens = rows.filter((r) => r.kind.startsWith("open:"));
+  const why = {}; for (const r of opens) why[r.kind.slice(5)] = (why[r.kind.slice(5)] ?? 0) + 1;
+  const renewBy = new Map(); for (const r of rows.filter((x) => x.kind === "renew")) renewBy.set(r.c, (renewBy.get(r.c) ?? 0) + 1);
+  // Every club with a contract ending this season (6 December) fills its places for next season (three, less those
+  // staying), by a signing, a promotion, a refill in the window or a player bought from his club, or records why not.
+  const unfilled = [];
+  let clubsLeaving = 0, leaving = 0;
+  for (const [c, l] of decSnap?.year === year ? decSnap.by : new Map()) {
+    const renewed = new Set(rows.filter((r) => r.c === c && r.kind === "renew").map((r) => r.id));
+    const leavers = l.filter((m) => m.ends != null && m.ends <= `${year}-12-31` && !renewed.has(m.id));
+    if (leavers.length === 0) continue;
+    clubsLeaving++; leaving += leavers.length;
+    const staying = l.filter((m) => !m.listed && (m.ends == null || m.ends > `${year}-12-31` || renewed.has(m.id))).length;
+    const required = Math.min(leavers.length, Math.max(0, 3 - staying));
+    const filled = rows.filter((r) => r.c === c && r.d >= `${year}-12-07` && ["sign", "promote", "refill"].includes(r.kind)).length
+      + q(`SELECT COUNT(*) n FROM transfer_deals WHERE career_save_id = ? AND to_pool_team_id = ? AND status IN ('moved', 'agreed') AND COALESCE(squad_role, '') <> 'academy'
+        AND COALESCE(moved_on, arrives_on) >= ?`, cid, c, `${year}-12-07`)[0].n;
+    const open = rows.filter((r) => r.c === c && r.kind.startsWith("open:")).length;
+    if (filled + open < required) unfilled.push(`club ${c} (${required} places, ${filled} filled)`);
+  }
+  return {
+    signed: count("sign"), signedInWindow: inWindow("sign"), refills: count("refill"), promoted: count("promote"), movedByBid,
+    transfers: count("sign") + count("refill") + movedByBid, renewals: count("renew"), clubsRenewingTwice: [...renewBy.values()].filter((n) => n > 1).length,
+    leftForMarket: count("leave"), open: opens.length, openWhy: why, clubsLeaving, leaving, unfilled,
+    scoutsOnMarket: q(`SELECT COUNT(*) n FROM ai_market_moves WHERE career_save_id = ? AND season_year = ? AND kind = 'scout' AND target_team_id IS NULL`, cid, year)[0].n,
+  };
+}
 function seasonTable(season, year, counters) {
   const seniors = aiSeniors();
   const rated = seniors.map((s) => ({ ...s, r: overallRating(s) })).sort((a, b) => b.r - a.r);
@@ -200,12 +248,14 @@ function seasonTable(season, year, counters) {
   // 1.1.3 (A3): the AI clubs' season limits (10 reports and 10 bids, 2 of each at one club), from ai_market_moves.
   const moves = q(`SELECT pool_team_id c, kind, target_team_id t, target_pool_team_id p FROM ai_market_moves WHERE career_save_id = ? AND season_year = ?`, cid, year);
   const most = (rows, key) => { const m = new Map(); for (const r of rows) m.set(key(r), (m.get(key(r)) ?? 0) + 1); return Math.max(0, ...m.values()); };
-  const scoutMoves = moves.filter((r) => r.kind === "scout"), bidMoves = moves.filter((r) => r.kind === "bid");
+  const scoutMoves = moves.filter((r) => r.kind === "scout"), bidMoves = moves.filter((r) => r.kind === "bid" || r.kind === "sign");
   const onClub = (r) => `${r.c}>${r.t != null ? `t${r.t}` : `p${r.p}`}`;
+  // 1.1.3 (25 Oct): a signing from the free-agent market counts with the bids; a free agent is at no club (no club's two).
+  const atClub = (rows) => rows.filter((r) => r.t != null || r.p != null);
   const aiLimits = {
     scouts: scoutMoves.length, bids: bidMoves.length,
-    mostScoutsOneClub: most(scoutMoves, (r) => r.c), mostScoutsOnOneClub: most(scoutMoves, onClub),
-    mostBidsByOneClub: most(bidMoves, (r) => r.c), mostBidsOnOneClub: most(bidMoves, onClub),
+    mostScoutsOneClub: most(scoutMoves, (r) => r.c), mostScoutsOnOneClub: most(atClub(scoutMoves), onClub),
+    mostBidsByOneClub: most(bidMoves, (r) => r.c), mostBidsOnOneClub: most(atClub(bidMoves), onClub),
   };
   // 1.1.3 (A1): AI clubs with no doctor or physio (Registrars and Physio Assistants are Doctors and Physiotherapists).
   const aiNoMedic = clubs.filter((c) => !(staffBy.get(c.club) ?? []).some((x) => x === "Doctor" || x === "Physiotherapist")).length;
@@ -227,8 +277,15 @@ function seasonTable(season, year, counters) {
     job: ncJob ? `${ncJob.nation}, ${ncJob.years} years to ${ncJob.ends_on}, $${ncJob.monthly}/mo, $${Math.round(ncJob.paid).toLocaleString("en-US")} paid (${ncJob.status})` : "none",
     cup: cupFx.length ? `${cupFx.length} matches over ${new Set(cupFx.map((f) => f.scheduled_on)).size} days, ${cupFx.filter((f) => f.status === "decided").length} decided, ${cupMedals} medals` : null,
   };
+  // 1.1.3 (25 Oct): the continental pool (the AI clubs' seniors), and players at the same club 3+ seasons (a player
+  // who joined in the window counts from the next season; one who was there when the career began, from its first).
+  const careerYear = Number((q(`SELECT MIN(year) y FROM seasons WHERE career_save_id = ?`, cid)[0]?.y) ?? year);
+  const seasonsAt = (x) => { const j = x.joined; const from = j == null ? careerYear : Number(j.slice(0, 4)) + (j.slice(5) >= "12-07" ? 1 : 0); return year - from + 1; };
+  const long3 = [...by.values()].map((l) => l.filter((x) => seasonsAt(x) >= 3).length);
+  const poolSize = seniors.length;
   return {
-    season, year, aiPaid, aiLimits, aiNoMedic, nationalCoach, sixAi, staffNot7Jan,
+    season, year, aiPaid, aiLimits, aiNoMedic, nationalCoach, sixAi, staffNot7Jan, poolSize,
+    longStayMost: Math.max(0, ...long3), longStayClubs2: long3.filter((n) => n >= 2).length, longStayAll: long3.reduce((t, n) => t + n, 0),
     aiStaffTotal: aiStaff.length, aiTopStaff: aiStaff.filter((r) => r.k >= 85).length, aiBudgetMedian: Math.round(median(aiBudgets)), aiBudgetTop: Math.max(...aiBudgets),
     aiCantAffordCoachOrMedic: cantAfford.length, aiWithSponsor: [...budgets.values()].filter((r) => r.m).length,
     myStaffBudget: myBudget.budget ?? null, myMainSponsor: myBudget.sponsor ?? null,
@@ -280,6 +337,12 @@ function printTable(t) {
   console.log(`  Youth deals: ${t.youthSales} sales (${t.youthSalesAiToAi} AI to AI), ${t.youthLoans} loans started`);
   console.log(`  1.1.3 AI limits: ${t.aiLimits.scouts} scouting reports, ${t.aiLimits.bids} bids; most by one AI club ${t.aiLimits.mostScoutsOneClub} reports (limit 10) and ${t.aiLimits.mostBidsByOneClub} bids (limit 10); most by one AI club on one club ${t.aiLimits.mostScoutsOnOneClub} reports and ${t.aiLimits.mostBidsOnOneClub} bids (limit 2)`);
   console.log(`  1.1.3 staff: AI clubs short of a doctor or physio: ${t.aiNoMedic} of ${t.clubs}`);
+  if (t.market) {
+    const m = t.market;
+    console.log(`  1.1.3 market: senior transfers completed ${m.transfers} (${m.signed} signed from the free agents, ${m.signedInWindow} of them in the window; ${m.refills} refills; ${m.movedByBid} moved by a bid); free agents ${t.faStart} at the season's start, ${t.freeAgents} at its end; continental pool ${t.poolSize} seniors`);
+    console.log(`  1.1.3 market: ${m.clubsLeaving} clubs with a contract ending (${m.leaving} players), ${m.leftForMarket} left for the market; renewals ${m.renewals} (clubs renewing two or more: ${m.clubsRenewingTwice}); places filled by a youth's promotion ${m.promoted}; places left open ${m.open}${m.open ? ` (${Object.entries(m.openWhy).map(([k, v]) => `${k} ${v}`).join(", ")})` : ""}; clubs that did not fill their places ${m.unfilled.length}${m.unfilled.length ? `: ${m.unfilled.slice(0, 6).join("; ")}` : ""}; market reports on free agents and leavers ${m.scoutsOnMarket}`);
+    console.log(`  1.1.3 market: players at the same club 3+ seasons ${t.longStayAll} (most at one club ${t.longStayMost}; clubs with two or more ${t.longStayClubs2}); short-squad club-days this season ${t.shortDays}`);
+  }
   console.log(`  1.1.3 rebuild contracts: AI 6-month contracts ${t.sixAi.players + t.sixAi.pool + t.sixAi.staff} (players off a season's end ${t.sixAi.players}, pool ${t.sixAi.pool}, staff ${t.sixAi.staff}); staff and medical contracts not ending 7 January: ${t.staffNot7Jan}`);
   console.log(`  1.1.3 national coach: offers this season ${t.nationalCoach.offers.join("; ") || "none"}; job ${t.nationalCoach.job}${t.nationalCoach.cup ? `; Nations Cup ${t.nationalCoach.cup}` : ""}`);
 }
@@ -333,6 +396,11 @@ try {
       chosen++;
     }
     const today = q(`SELECT "current_date" AS d FROM calendar_state WHERE team_id = ?`, myTeam())[0]?.d ?? "";
+    faAtStart ??= freeAgentsNow();
+    if (today.slice(5) === "12-06") {
+      const by = new Map(); for (const x of aiSeniors()) by.set(x.club, [...(by.get(x.club) ?? []), { id: x.id, listed: x.listed, ends: q(`SELECT contract_end_date e FROM career_player_state WHERE career_save_id = ? AND player_id = ?`, cid, x.id)[0]?.e }]);
+      decSnap = { year: Number(today.slice(0, 4)), by };
+    }
     if (today.slice(5) >= "12-30") lastTable = seasonTable(season, Number(today.slice(0, 4)), counters);
     const r = await api("POST", "/calendar/advance", {});
     if (r.status >= 400) { stopped = `advance HTTP ${r.status}: ${JSON.stringify(r.data).slice(0, 200)}`; break; }
@@ -358,7 +426,7 @@ try {
       const day = q(`SELECT "current_date" AS d FROM calendar_state WHERE team_id = ?`, myTeam())[0]?.d ?? "";
       for (const c of clubIds) {
         if ((placed.get(c) ?? 0) >= 2) { shortOpen.delete(c); continue; }
-        shortClubDays++;
+        shortClubDays++; shortDaysSeason++;
         // D1: a new run of short days, or one going on from yesterday.
         const open = shortOpen.get(c);
         if (open && open.last === lastDay) { shortEpisodes[open.idx].days++; open.last = day; continue; }
@@ -390,6 +458,9 @@ try {
       const t = lastTable ?? seasonTable(season, Number(today.slice(0, 4)), counters);
       // The season's final standings are written at the rollover, after the table was taken.
       t.champion = q(`SELECT competitor_name AS n FROM season_final_standings WHERE season_year = ? AND rank = 1 LIMIT 1`, t.year)[0]?.n ?? t.champion;
+      // 1.1.3 (25 Oct): the season's market, complete at the turn; its free agents at the start; its short days.
+      t.market = marketOf(t.year); t.faStart = faAtStart; t.shortDays = shortDaysSeason;
+      faAtStart = freeAgentsNow(); shortDaysSeason = 0;
       tables.push(t); printTable(t);
       w(`UPDATE board_seasons SET grade = 'met' WHERE career_save_id = ? AND grade = 'failed'`, cid);
       season++; counters = { injuries: 0, longReleased: 0, aiPerks: 0 }; lastTable = null;
@@ -417,6 +488,10 @@ try {
   // 1.1.3 (Rob, 23 Oct; A3): each AI club, each season, at most 10 scouting reports and 10 bids, 2 of each at one club.
   const overLimit = tables.filter((t) => t.aiLimits.mostScoutsOneClub > 10 || t.aiLimits.mostBidsByOneClub > 10 || t.aiLimits.mostScoutsOnOneClub > 2 || t.aiLimits.mostBidsOnOneClub > 2);
   if (overLimit.length) flags.push(`an AI club past its season limits in season(s) ${overLimit.map((t) => t.season).join(", ")}`);
+  // 1.1.3 (Rob, 25 Oct): every AI club with a contract ending fills its places that season; one renewal a club.
+  if (tables.some((t) => t.market?.unfilled.length)) flags.push(`AI clubs that did not fill their places for next season: ${tables.map((t) => t.market?.unfilled.length ?? 0).join("/")} a season`);
+  if (tables.some((t) => t.market?.clubsRenewingTwice)) flags.push(`AI clubs renewing more than one player in a season: ${tables.map((t) => t.market?.clubsRenewingTwice ?? 0).join("/")}`);
+  if (tables.some((t) => (t.market?.signed ?? 0) === 0)) flags.push(`a season with no AI signing from the market: ${tables.filter((t) => (t.market?.signed ?? 0) === 0).map((t) => t.season).join(", ")}`);
   // 1.1.3 (A1): every AI club keeps a doctor or physio.
   if (tables.some((t) => t.aiNoMedic > 0)) flags.push(`AI clubs short of a doctor or physio: ${tables.map((t) => t.aiNoMedic).join("/")} a season`);
   // 1.1.3 rebuild (Part B): no AI club on 6 months; every staff and medical contract ends on 7 January.

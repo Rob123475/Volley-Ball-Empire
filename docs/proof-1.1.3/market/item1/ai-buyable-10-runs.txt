@@ -1,0 +1,10 @@
+run 1 exit 0 33s === 25/25 passed ===
+run 2 exit 0 33s === 25/25 passed ===
+run 3 exit 0 33s === 25/25 passed ===
+run 4 exit 0 33s === 25/25 passed ===
+run 5 exit 0 33s === 25/25 passed ===
+run 6 exit 0 33s === 25/25 passed ===
+run 7 exit 0 33s === 25/25 passed ===
+run 8 exit 0 33s === 25/25 passed ===
+run 9 exit 0 33s === 25/25 passed ===
+run 10 exit 0 33s === 25/25 passed ===

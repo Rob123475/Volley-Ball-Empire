@@ -15,7 +15,10 @@
  *      has more than 10 reports or 10 bids in a season, nor more than 2 of
  *      either at one club; the table agrees with the game's own records
  *      (scouting_jobs, transfer_deals); every senior bid followed a ready
- *      report on her by the bidder; youth buy offers are counted
+ *      report on her by the bidder; youth buy offers are counted. 1.1.3 (Rob,
+ *      25 Oct): senior bids are for the player's seniors only, and the AI
+ *      clubs' signings from the free-agent market count with the bids (a free
+ *      agent is at no club: toward no club's two)
  *
  * Usage: node harness/ai-market-limits.mjs
  */
@@ -113,9 +116,12 @@ try {
   const seasonsSeen = [...new Set(moves.map((r) => r.season_year))].sort();
   for (const y of seasonsSeen) {
     const ofYear = moves.filter((r) => r.season_year === y);
-    const scouts = ofYear.filter((r) => r.kind === "scout"), bids = ofYear.filter((r) => r.kind === "bid");
+    // 1.1.3 (25 Oct): a signing from the free-agent market counts with the bids; a free agent is at no club, so a
+    // report on her or her signing counts toward no club's two.
+    const scouts = ofYear.filter((r) => r.kind === "scout"), bids = ofYear.filter((r) => r.kind === "bid" || r.kind === "sign");
+    const atClub = (rows) => rows.filter((r) => r.target_team_id != null || r.target_pool_team_id != null);
     const sBy = group(scouts, (r) => r.pool_team_id), bBy = group(bids, (r) => r.pool_team_id);
-    const sAt = group(scouts, (r) => `${r.pool_team_id}>${at(r)}`), bAt = group(bids, (r) => `${r.pool_team_id}>${at(r)}`);
+    const sAt = group(atClub(scouts), (r) => `${r.pool_team_id}>${at(r)}`), bAt = group(atClub(bids), (r) => `${r.pool_team_id}>${at(r)}`);
     const max = (m) => Math.max(0, ...m.values());
     check(`season ${y}: no AI club ran more than 10 scouting reports, nor more than 2 at one club`,
       max(sBy) <= LIMITS.scoutingReports && max(sAt) <= LIMITS.scoutingPerClub, `${scouts.length} reports; most by one club ${max(sBy)}, most by one club on one club ${max(sAt)}`);
@@ -132,14 +138,17 @@ try {
   const seniorDeals = deals.filter((d) => d.squad_role !== "academy");
   const bidRows = real.filter((r) => r.kind === "bid");
   const hasBid = (d) => bidRows.some((r) => r.pool_team_id === d.to_pool_team_id && r.player_id === d.player_id && r.on_date === d.offered_on);
-  check("every AI senior bid in transfer_deals is on record as a bid", seniorDeals.length > 0 && seniorDeals.every(hasBid),
-    `${seniorDeals.length} senior bids (${seniorDeals.filter((d) => d.status === "kept").length} kept by a counter, ${seniorDeals.filter((d) => d.from_team_id != null).length} for his players)`);
+  // 1.1.3 (Rob, 25 Oct): AI clubs bid only for his seniors (rare); they buy other AI clubs' players on the market.
+  check("every AI senior bid in transfer_deals is on record as a bid, and is for his player", seniorDeals.every(hasBid) && seniorDeals.every((d) => d.from_team_id != null),
+    `${seniorDeals.length} senior bids (${seniorDeals.filter((d) => d.status === "kept").length} kept by a counter)`);
+  const signings = real.filter((r) => r.kind === "sign");
+  check("the AI clubs bought on the market, each signing on record and counted with the bids", signings.length > 0, `${signings.length} signings from the free agents`);
   const scoutedFirst = (d) => scoutRows.some((r) => r.pool_team_id === d.to_pool_team_id && r.player_id === d.player_id && r.ready_on <= d.offered_on && r.season_year === Number(d.offered_on.slice(0, 4)));
   check("every AI senior bid came after the bidder's ready report on her", seniorDeals.every(scoutedFirst), `${seniorDeals.filter((d) => !scoutedFirst(d)).length} without`);
   const youthBuys = deals.filter((d) => d.squad_role === "academy");
   check("every AI youth buy is on record as a bid (and refused asks are counted too)", youthBuys.every(hasBid) && bidRows.length >= seniorDeals.length + youthBuys.length,
     `${youthBuys.length} youth buys; ${bidRows.length} bids recorded in all`);
-  info(`seasons ${seasonsSeen.join(", ")}: ${scoutRows.length} AI scouting reports, ${bidRows.length} AI bids (${seniorDeals.length} senior, ${bidRows.length - seniorDeals.length} youth buy offers)`);
+  info(`seasons ${seasonsSeen.join(", ")}: ${scoutRows.length} AI scouting reports, ${bidRows.length} AI bids (${seniorDeals.length} senior, ${bidRows.length - seniorDeals.length} youth buy offers), ${signings.length} signings from the market`);
 } catch (err) {
   W.fail(err);
 } finally {

@@ -694,6 +694,11 @@ runSuite("pool names", path.join(REPO, "harness", "pool-names.mjs"));
 console.log("\n########## 98zz/100  CONTRACT LENGTHS BY WHO SIGNS, STAFF TO 7 JANUARY (1.1.3 REBUILD B) ##########");
 runSuite("contract rules", path.join(REPO, "harness", "contract-rules.mjs"));
 
+// 1.1.3 (Rob, 25 Oct; AI market brief item 1): AI clubs renew one player a season (their best) and replace every
+// other ending contract from the free-agent market; five seasons. Own DB and server (4966).
+console.log("\n########## 98zza/100  AI CLUBS TRADE ON THE MARKET (1.1.3 MARKET ITEM 1) ##########");
+runSuite("ai market", path.join(REPO, "harness", "ai-market.mjs"));
+
 // ── Smoke needs a server; boot one on a throwaway copy of the shipped DB ─────
 console.log("\n########## 99/100  GAMEPLAY SMOKE ##########");
 {

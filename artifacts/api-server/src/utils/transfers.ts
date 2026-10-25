@@ -321,10 +321,10 @@ export function transfersDayTx(w: CareerStateTx, careerSaveId: number, today: st
   if (aiSellerLeft) keepAiSquadsTx(w, careerSaveId, today, seasonEndsForCareerTx(tx, careerSaveId));
   // A full AI club that bought lets its weakest go the day the new one arrives (its bid counted her wage
   // gone, bidTx `freeing`), even outside the window; in the window every club over its places trims.
-  if (inTransferWindow(today)) aiTrimSquadsTx(w, careerSaveId);
-  else if (aiBuyers.size > 0) aiTrimSquadsTx(w, careerSaveId, new Set(aiBuyers.keys()));
+  if (inTransferWindow(today)) aiTrimSquadsTx(w, careerSaveId, today);
+  else if (aiBuyers.size > 0) aiTrimSquadsTx(w, careerSaveId, today, new Set(aiBuyers.keys()));
   // And every AI club a bought player joined today is under its cap (its bid counted on it).
-  if (aiBuyers.size > 0) aiCapOnArrivalTx(w, careerSaveId, aiBuyers);
+  if (aiBuyers.size > 0) aiCapOnArrivalTx(w, careerSaveId, aiBuyers, today);
   return news;
 }
 

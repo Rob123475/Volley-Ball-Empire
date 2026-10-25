@@ -15,6 +15,7 @@ import { seasonPhase } from "../utils/seasonPhase.js";
  *   staff-back-<absence id>   ... and came back
  *   retirements-<date>        the players who retired that day, his club's first (1.1.1, 18 Oct: player_retirements)
  *   talent-<season year>      that season's new seniors on the free-agent market (1.1.1, 18 Oct: career_new_seniors)
+ *   market-<date>             the AI clubs' signings from the free-agent market that day (1.1.3, 25 Oct: ai_market_moves)
  * Each carries the game date it happened on.
  *
  * This replaced a day-seeded generator of invented players, nations,
@@ -25,7 +26,7 @@ import { seasonPhase } from "../utils/seasonPhase.js";
  */
 import { Router } from "express";
 import { db, matchesTable, contractsTable, trophiesTable, boardSeasonsTable, playersTable, youthIntakesTable, staffAbsencesTable, staffAbsenceCause, careerInjuriesTable, BODY_AREA_LABELS, type BodyArea,
-  playerRetirementsTable, careerNewSeniorsTable } from "@workspace/db";
+  playerRetirementsTable, careerNewSeniorsTable, aiMarketMovesTable, continentalPoolTeamsTable } from "@workspace/db";
 import { and, desc, eq, inArray, isNotNull, or } from "drizzle-orm";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { requireCareerSaveId } from "../lib/playerDto.js";
@@ -38,7 +39,7 @@ const router = Router();
 
 type NewsItem = {
   id: string;
-  type: "result" | "signing" | "board" | "trophy" | "champion" | "olympic" | "academy" | "staff" | "injury" | "retirement" | "talent";
+  type: "result" | "signing" | "board" | "trophy" | "champion" | "olympic" | "academy" | "staff" | "injury" | "retirement" | "talent" | "market";
   headline: string;
   detail: string;
   date: string;
@@ -50,7 +51,7 @@ const RECENT_SIGNINGS = 5;
 const MAX_ITEMS = 15;
 
 // On one date, the bigger story first.
-const KIND_ORDER: Record<NewsItem["type"], number> = { trophy: 0, olympic: 1, champion: 2, board: 3, academy: 4, retirement: 5, talent: 6, result: 7, signing: 8, staff: 9, injury: 10 };
+const KIND_ORDER: Record<NewsItem["type"], number> = { trophy: 0, olympic: 1, champion: 2, board: 3, academy: 4, retirement: 5, talent: 6, market: 7, result: 8, signing: 9, staff: 10, injury: 11 };
 const RETIREMENT_WORDS: Record<string, string> = {
   limit: "the season she turned 40", age: "her age", injury: "injuries", rating: "her form", unsigned: "a season without a club", asked: "asked by her club",
 };
@@ -213,6 +214,25 @@ router.get("/news", async (req, res) => {
       id: `talent-${year}`, type: "talent", isUserTeam: false, date: list[0]!.s.arrivedOn,
       headline: `${list.length} new senior${list.length === 1 ? "" : "s"} on the free-agent market`,
       detail: [...fromAbroad, ...list.filter((a) => a.s.kind !== "picture")].slice(0, 12).map((a) => `${a.name} (${a.s.nation})`).join(" · "),
+    });
+  }
+
+  // 1.1.3 (Rob, 25 Oct): the AI clubs' market. Each day they sign from the free agents (or promote a youth to fill a
+  // place), one item: who went where.
+  const signings = await db.select({ m: aiMarketMovesTable, name: playersTable.name, club: continentalPoolTeamsTable.teamName })
+    .from(aiMarketMovesTable)
+    .innerJoin(playersTable, eq(playersTable.id, aiMarketMovesTable.playerId))
+    .innerJoin(continentalPoolTeamsTable, eq(continentalPoolTeamsTable.id, aiMarketMovesTable.poolTeamId))
+    .where(and(eq(aiMarketMovesTable.careerSaveId, careerSaveId), inArray(aiMarketMovesTable.kind, ["sign", "promote"])));
+  const signedOn = new Map<string, typeof signings>();
+  for (const r of signings) signedOn.set(r.m.onDate, [...(signedOn.get(r.m.onDate) ?? []), r]);
+  for (const [date, list] of signedOn) {
+    const promoted = list.filter((r) => r.m.kind === "promote").length;
+    items.push({
+      id: `market-${date}`, type: "market", isUserTeam: false, date,
+      headline: `AI clubs sign ${list.length - promoted} free agent${list.length - promoted === 1 ? "" : "s"}${promoted ? `, and promote ${promoted} from their academies` : ""}`,
+      detail: list.slice(0, 12).map((r) => `${r.name} to ${r.club}${r.m.kind === "promote" ? " (from its academy)" : ""}`).join(" · ")
+        + (list.length > 12 ? ` · and ${list.length - 12} more` : ""),
     });
   }
 

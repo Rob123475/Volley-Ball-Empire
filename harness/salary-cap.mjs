@@ -189,16 +189,18 @@ try {
   const [x1, ...xRest] = aiSquad(X);
   for (const p of xRest) w(`UPDATE career_player_state SET pool_team_id = NULL, contract_end_date = NULL WHERE career_save_id = ? AND player_id = ?`, cid, p.id);
   w(`UPDATE career_player_state SET salary = 55000 WHERE career_save_id = ? AND player_id = ?`, cid, x1.id);
-  // Y: a senior out of contract who no longer fits once re-priced (her club's other wages fill the cap).
-  const [y1, y2] = aiSquad(Y);
+  // Y: its best, out of contract, who no longer fits once re-priced (her club's other wages fill the cap).
+  // (1.1.3, Rob 25 Oct: an AI club renews only its best, so the subjects here are each club's best.)
+  const best = (club) => [...aiSquad(club)].sort((a, b) => overallRating(b) - overallRating(a) || a.id - b.id);
+  const [y1, y2] = best(Y);
   const yAsk = monthlySalaryFor(overallRating(y1));
   w(`UPDATE career_player_state SET contract_end_date = '2026-01-02', salary = 1000 WHERE career_save_id = ? AND player_id = ?`, cid, y1.id);
   w(`UPDATE career_player_state SET salary = ? WHERE career_save_id = ? AND player_id = ?`, CAP - 1000, cid, y2.id);
-  // Z: a senior out of contract who still fits: renewed at the wage for her rating.
-  const [z1] = aiSquad(Z);
+  // Z: its best, out of contract, who still fits: renewed at the wage for her rating.
+  const [z1] = best(Z);
   const zAsk = monthlySalaryFor(overallRating(z1));
   w(`UPDATE career_player_state SET contract_end_date = '2026-01-02' WHERE career_save_id = ? AND player_id = ?`, cid, z1.id);
-  for (const p of aiSquad(Z).slice(1)) w(`UPDATE career_player_state SET salary = 10000 WHERE career_save_id = ? AND player_id = ?`, cid, p.id);
+  for (const p of aiSquad(Z).filter((m) => m.id !== z1.id)) w(`UPDATE career_player_state SET salary = 10000 WHERE career_save_id = ? AND player_id = ?`, cid, p.id);
   await toNextWeek();
   const joinedX = q(`SELECT s.player_id AS id, p.player_type AS type, s.is_promoted AS promoted FROM career_player_state s JOIN players p ON p.id = s.player_id
     WHERE s.career_save_id = ? AND s.pool_team_id = ? AND s.team_id IS NULL AND s.player_id <> ?`, cid, X, x1.id).filter((r) => r.type === "senior");
@@ -226,7 +228,10 @@ try {
       && /SALARY_CAP - \(seniorWageBillTx\(w\.tx, careerSaveId, \{ poolTeamId: buyer \}, arrivesOn, squads\) - freeing \+ Math\.min\(keepCost, fillCost\)\) - wage;\s*if \(room < 0\) continue;/.test(aiSrc)
       // Item 4c: the wage is her asking wage (an injured free agent's is less).
       && /const wage = askingWage\(monthlySalaryFor\(f\.rating\), 1, f\.injuryWeeks\);\s*return balance >= 3 \* wage && fitsUnderCap\(bill, wage\);/.test(aiSrc)
-      && (aiSrc.match(/function bestAffordableFreeAgent/g) ?? []).length === 1 && /canSellTx\(w\.tx, careerSaveId, holding, "", m\.salary, squads\)/.test(aiSrc));
+      && (aiSrc.match(/function bestAffordableFreeAgent/g) ?? []).length === 1
+      // (1.1.3, Rob 25 Oct: AI clubs no longer buy from each other; the player's buy from an AI club still counts her wage leaving.)
+      && /canSellTx\(tx, requireCareerSaveId\(req\.activeCareerSaveId\), aiSeller, aiSellerName!, Number\(player\.salary\)\)/
+        .test(fs.readFileSync(path.join(REPO, "artifacts", "api-server", "src", "routes", "contracts.ts"), "utf8")));
   const overAi = clubs.filter((c) => {
     const bill = aiSquad(c).reduce((s, p) => s + Number(p.salary), 0);
     return bill > CAP && !(c === Y);
