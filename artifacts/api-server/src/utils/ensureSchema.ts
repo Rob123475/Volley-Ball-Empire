@@ -410,7 +410,11 @@ const REFERENCE_UPDATE_ONLY: Record<string, readonly string[]> = {
   // change a player's name in the middle of someone's career, which reads as a
   // bug. Renames reach new saves only; a correction that must reach saves in
   // play goes in utils/referenceRenames.ts by name (as 2 Oct's Salote Taufa).
-  continental_pool_players: ["pool_team_id", "image_url"],
+  // 1.1.3 (Rob, 25 Oct; AI market brief item 2): nor does her card, for the
+  // same reason (22 pool players got pictures of their own, in the starter DB
+  // only): it is in REFERENCE_FILL_ONLY below, so a save with no card for her
+  // still gets the starter DB's (5 Oct's pictures), and a save with one keeps it.
+  continental_pool_players: ["pool_team_id"],
 };
 
 // Columns a save gets from the starter DB only when it has no value: R-75's
@@ -419,7 +423,7 @@ const REFERENCE_UPDATE_ONLY: Record<string, readonly string[]> = {
 // where a listed correction finds the old tone still there (pictures brief
 // 10 Oct: utils/aiSkinTones.ts), never by following the starter DB over it.
 const REFERENCE_FILL_ONLY: Record<string, readonly string[]> = {
-  continental_pool_players: ["skin_tone"],
+  continental_pool_players: ["skin_tone", "image_url"],
 };
 
 export type EnsureReferenceDataResult = {

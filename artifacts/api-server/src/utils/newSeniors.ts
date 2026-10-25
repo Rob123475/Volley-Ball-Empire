@@ -24,10 +24,10 @@
  * An existing save gets its first at its next season's turn; nothing is back-filled.
  */
 import {
-  careerPlayerStateTable, playersTable, careerGraduatePortraitsTable, careerNewSeniorsTable, playerRetirementsTable,
+  careerPlayerStateTable, playersTable, careerGraduatePortraitsTable, careerNewSeniorsTable, playerRetirementsTable, continentalPoolPlayersTable,
   continentKeyForNationality, nationName, type ContinentKey,
 } from "@workspace/db";
-import { and, eq, isNotNull } from "drizzle-orm";
+import { and, eq, isNotNull, isNull, or } from "drizzle-orm";
 import type { CareerStateTx } from "../lib/playerDto.js";
 import { NEW_SENIOR_PICTURES, type NewSeniorPicture } from "../data/newSeniorPictures.js";
 import { GRADUATE_PORTRAITS } from "../data/graduatePortraits.js";
@@ -85,10 +85,18 @@ export function youthsStayingOnTx(tx: Tx, careerSaveId: number, count = NEW_SENI
   return { playerIds, shift };
 }
 
-/** Every picture this career has given (graduate and new senior pictures alike). */
+/**
+ * Every picture this career has given (graduate and new senior pictures alike), and, 1.1.3 (Rob, 25 Oct; AI
+ * market brief item 2), every picture a player in it already carries: the AI clubs' pool players (22 of them
+ * have new-senior pictures in the starter DB), the world roster, and the players this career has made.
+ */
 function usedPicturesTx(tx: Tx, careerSaveId: number): Set<string> {
-  return new Set(tx.select({ u: careerGraduatePortraitsTable.imageUrl }).from(careerGraduatePortraitsTable)
+  const used = new Set(tx.select({ u: careerGraduatePortraitsTable.imageUrl }).from(careerGraduatePortraitsTable)
     .where(eq(careerGraduatePortraitsTable.careerSaveId, careerSaveId)).all().map((r) => r.u));
+  for (const r of tx.select({ u: continentalPoolPlayersTable.imageUrl }).from(continentalPoolPlayersTable).all()) if (r.u) used.add(r.u);
+  for (const r of tx.select({ u: playersTable.imageUrl }).from(playersTable)
+    .where(or(isNull(playersTable.originCareerSave), eq(playersTable.originCareerSave, careerSaveId))).all()) if (r.u) used.add(r.u);
+  return used;
 }
 
 /** The unused new pictures of one nation, in this career's fixed order. */

@@ -685,8 +685,9 @@ console.log("\n########## 98zx/100  MEDAL CEREMONIES AND THE WORLD FINALS BRONZE
 runSuite("ceremonies", path.join(REPO, "harness", "ceremonies.mjs"));
 
 // 1.1.3 rebuild (A2, 24 Oct): no pool player named like a world-roster player; the renames are the
-// starter DB's alone, a save in play keeps its names. Own DB and server (4982).
-console.log("\n########## 98zy/100  NO POOL PLAYER NAMED LIKE A WORLD-ROSTER PLAYER (1.1.3 REBUILD A2) ##########");
+// starter DB's alone, a save in play keeps its names. Own DB and server (4982). 1.1.3 market item 2 (25 Oct):
+// and no pool player pictured like one (22 repointed to new-senior pictures of their nation; Malta's two reported).
+console.log("\n########## 98zy/100  NO POOL PLAYER NAMED OR PICTURED LIKE A WORLD-ROSTER PLAYER (1.1.3 REBUILD A2, MARKET ITEM 2) ##########");
 runSuite("pool names", path.join(REPO, "harness", "pool-names.mjs"));
 
 // 1.1.3 rebuild (Part B, 24 Oct): 6 months for players at the career's club only; staff and medical

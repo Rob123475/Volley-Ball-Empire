@@ -1,0 +1,25 @@
+AFM_09_P1 Yasmine Mzoughi (Tunisia): /images/players/seniors/player_senior_tunisia_01.webp (shared with Ines Trabelsi) -> /images/players/new-seniors/africa-and-middle-east/tunisia/tunisia_01.webp
+AFM_09_P2 Amira Bouazizi (Tunisia): /images/players/seniors/player_senior_tunisia_02.webp (shared with Sarah Ben Ammar) -> /images/players/new-seniors/africa-and-middle-east/tunisia/tunisia_02.webp
+AFM_10_P1 Rehema Mollel (Tanzania): /images/players/seniors/player_senior_tanzania_03.webp (shared with Zawadi Kimaro) -> /images/players/new-seniors/africa-and-middle-east/tanzania/tanzania_01.webp
+AFM_10_P2 Upendo Mwakalinga (Tanzania): /images/players/seniors/player_senior_tanzania_01.webp (shared with Asha Msuya) -> /images/players/new-seniors/africa-and-middle-east/tanzania/tanzania_02.webp
+ASI_09_P1 Tran Thu Trang (Vietnam): /images/players/seniors/player_senior_vietnam_03.webp (shared with Le Minh Anh) -> /images/players/new-seniors/asia/vietnam/vietnam_01.webp
+ASI_09_P2 Le Ngoc Han (Vietnam): /images/players/seniors/player_senior_vietnam_02.webp (shared with Tran Thi Bich) -> /images/players/new-seniors/asia/vietnam/vietnam_02.webp
+ASI_10_P1 Lin Pei-Shan (Taiwan): /images/players/seniors/player_senior_taiwan_02.webp (shared with Chen Yu-Hsin) -> /images/players/new-seniors/asia/taiwan/taiwan_01.webp
+ASI_10_P2 Hsu Wan-Ting (Taiwan): /images/players/seniors/player_senior_taiwan_01.webp (shared with Huang Yi-Ting) -> /images/players/new-seniors/asia/taiwan/taiwan_02.webp
+AUS_09_P1 Grace Bainivalu (Papua New Guinea): /images/players/seniors/player_senior_papua_new_guinea_04.webp (shared with Diana Kumul) -> /images/players/new-seniors/oceania/papua-new-guinea/papua-new-guinea_01.webp
+AUS_09_P2 Lahui Kaupa (Papua New Guinea): /images/players/seniors/player_senior_papua_new_guinea_02.webp (shared with Kiriwina Tau) -> /images/players/new-seniors/oceania/papua-new-guinea/papua-new-guinea_02.webp
+AUS_10_P1 Ruby Mackenzie (New Zealand): /images/players/seniors/player_senior_new_zealand_01.webp (shared with Zoe Walker) -> /images/players/new-seniors/oceania/new-zealand/new-zealand_01.webp
+AUS_10_P2 Isla Walker (New Zealand): /images/players/seniors/player_senior_new_zealand_02.webp (shared with Lily Mackenzie) -> /images/players/new-seniors/oceania/new-zealand/new-zealand_02.webp
+EUR_09_P1 Carolina Moreira (Portugal): /images/players/seniors/player_senior_portugal_01.webp (shared with Sofia Almeida) -> /images/players/new-seniors/europe/portugal/portugal_01.webp
+EUR_09_P2 Niamh Kavanagh (Ireland): /images/players/seniors/player_senior_ireland_01.webp (shared with Aoife O'Sullivan) -> /images/players/new-seniors/europe/ireland/ireland_01.webp
+NAM_09_P1 Tanisha Brown (Jamaica): /images/players/seniors/player_senior_jamaica_01.webp (shared with Niah Myers) -> /images/players/new-seniors/north-america/jamaica/jamaica_01.webp
+NAM_09_P2 Keisha Beckford (Jamaica): /images/players/seniors/player_senior_jamaica_02.webp (shared with Jayda Brown) -> /images/players/new-seniors/north-america/jamaica/jamaica_02.webp
+NAM_10_P1 Shante Bethel (Bahamas): /images/players/seniors/player_senior_bahamas_01.webp (shared with Aaliyah Rolle) -> /images/players/new-seniors/north-america/bahamas/bahamas_01.webp
+NAM_10_P2 Tiara Ferguson (Bahamas): /images/players/seniors/player_senior_bahamas_02.webp (shared with Jada Knowles) -> /images/players/new-seniors/north-america/bahamas/bahamas_02.webp
+SAM_09_P1 Anjali Persaud (Guyana): /images/players/seniors/player_senior_guyana_03.webp (shared with Nia Campbell) -> /images/players/new-seniors/south-america/guyana/guyana_01.webp
+SAM_09_P2 Keziah Campbell (Guyana): /images/players/seniors/player_senior_guyana_01.webp (shared with Amara James) -> /images/players/new-seniors/south-america/guyana/guyana_02.webp
+SAM_10_P1 Ximena Zeballos (Bolivia): /images/players/seniors/player_senior_bolivia_04.webp (shared with Kamila Torrez) -> /images/players/new-seniors/south-america/bolivia/bolivia_01.webp
+SAM_10_P2 Daniela Mamani (Bolivia): /images/players/seniors/player_senior_bolivia_02.webp (shared with Camila Torrez) -> /images/players/new-seniors/south-america/bolivia/bolivia_02.webp
+REPORTED EUR_10_P1 Maria Caruana (Malta): no unused new-senior picture of her nation; keeps /images/players/seniors/player_senior_malta_02.webp (shared with Sara Borg)
+REPORTED EUR_10_P2 Nicole Borg (Malta): no unused new-senior picture of her nation; keeps /images/players/seniors/player_senior_malta_01.webp (shared with Yasmin Grech)
+24 shared a world-roster player's card; 22 to repoint (dry run: --write to apply); 2 reported

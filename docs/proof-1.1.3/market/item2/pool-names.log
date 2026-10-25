@@ -1,0 +1,63 @@
+========================================================================
+  1.1.3 REBUILD A2: NO POOL PLAYER NAMED LIKE A WORLD-ROSTER PLAYER
+========================================================================
+
+1. THE STARTER DB
+  PASS  no pool player's name matches any world-roster player's name  120 pool players, 276 world-roster players
+  PASS  and no new name matches a staff member's  (older, not one of the 28, reported: SAM_04_P1 Lucía Quispe)
+  PASS  and no two pool players share a name
+  PASS  the 28 renames are in (the pool player renamed, never the world-roster player)  28/28; every old name is still a world-roster player's
+  PASS  each new name carries a surname of her own nation's athletes  28 of 28
+  PASS  a pool player who shares a world-roster player's card never shares her surname too  2 share a card (Malta's two, below)
+
+1b. THE STARTER DB: NO TWO PLAYERS SHARE A PICTURE
+  PASS  no two players share a picture but Malta's two pool players, reported (no Malta new-senior picture)  322 cards; shared: player_senior_malta_01.webp (player 65 Yasmin Grech / pool EUR_10_P2 Nicole Borg); player_senior_malta_02.webp (player 66 Sara Borg / pool EUR_10_P1 Maria Caruana)
+  INFO  the academy youths' generic youth card is the one card many players show, by design: 72 youths
+  PASS  every card's file exists, and no two different files are the same picture  322 files
+  PASS  the 22 are repointed in the starter DB, each to a new-senior picture of her own nation, none another row's  22/22
+  INFO  AFM_09_P1 Yasmine Mzoughi (Tunisia): player_senior_tunisia_01.webp (Ines Trabelsi's) -> africa-and-middle-east/tunisia/tunisia_01.webp
+  INFO  AFM_09_P2 Amira Bouazizi (Tunisia): player_senior_tunisia_02.webp (Sarah Ben Ammar's) -> africa-and-middle-east/tunisia/tunisia_02.webp
+  INFO  AFM_10_P1 Rehema Mollel (Tanzania): player_senior_tanzania_03.webp (Zawadi Kimaro's) -> africa-and-middle-east/tanzania/tanzania_01.webp
+  INFO  AFM_10_P2 Upendo Mwakalinga (Tanzania): player_senior_tanzania_01.webp (Asha Msuya's) -> africa-and-middle-east/tanzania/tanzania_02.webp
+  INFO  ASI_09_P1 Tran Thu Trang (Vietnam): player_senior_vietnam_03.webp (Le Minh Anh's) -> asia/vietnam/vietnam_01.webp
+  INFO  ASI_09_P2 Le Ngoc Han (Vietnam): player_senior_vietnam_02.webp (Tran Thi Bich's) -> asia/vietnam/vietnam_02.webp
+  INFO  ASI_10_P1 Lin Pei-Shan (Taiwan): player_senior_taiwan_02.webp (Chen Yu-Hsin's) -> asia/taiwan/taiwan_01.webp
+  INFO  ASI_10_P2 Hsu Wan-Ting (Taiwan): player_senior_taiwan_01.webp (Huang Yi-Ting's) -> asia/taiwan/taiwan_02.webp
+  INFO  AUS_09_P1 Grace Bainivalu (Papua New Guinea): player_senior_papua_new_guinea_04.webp (Diana Kumul's) -> oceania/papua-new-guinea/papua-new-guinea_01.webp
+  INFO  AUS_09_P2 Lahui Kaupa (Papua New Guinea): player_senior_papua_new_guinea_02.webp (Kiriwina Tau's) -> oceania/papua-new-guinea/papua-new-guinea_02.webp
+  INFO  AUS_10_P1 Ruby Mackenzie (New Zealand): player_senior_new_zealand_01.webp (Zoe Walker's) -> oceania/new-zealand/new-zealand_01.webp
+  INFO  AUS_10_P2 Isla Walker (New Zealand): player_senior_new_zealand_02.webp (Lily Mackenzie's) -> oceania/new-zealand/new-zealand_02.webp
+  INFO  EUR_09_P1 Carolina Moreira (Portugal): player_senior_portugal_01.webp (Sofia Almeida's) -> europe/portugal/portugal_01.webp
+  INFO  EUR_09_P2 Niamh Kavanagh (Ireland): player_senior_ireland_01.webp (Aoife O'Sullivan's) -> europe/ireland/ireland_01.webp
+  INFO  NAM_09_P1 Tanisha Brown (Jamaica): player_senior_jamaica_01.webp (Niah Myers's) -> north-america/jamaica/jamaica_01.webp
+  INFO  NAM_09_P2 Keisha Beckford (Jamaica): player_senior_jamaica_02.webp (Jayda Brown's) -> north-america/jamaica/jamaica_02.webp
+  INFO  NAM_10_P1 Shante Bethel (Bahamas): player_senior_bahamas_01.webp (Aaliyah Rolle's) -> north-america/bahamas/bahamas_01.webp
+  INFO  NAM_10_P2 Tiara Ferguson (Bahamas): player_senior_bahamas_02.webp (Jada Knowles's) -> north-america/bahamas/bahamas_02.webp
+  INFO  SAM_09_P1 Anjali Persaud (Guyana): player_senior_guyana_03.webp (Nia Campbell's) -> south-america/guyana/guyana_01.webp
+  INFO  SAM_09_P2 Keziah Campbell (Guyana): player_senior_guyana_01.webp (Amara James's) -> south-america/guyana/guyana_02.webp
+  INFO  SAM_10_P1 Ximena Zeballos (Bolivia): player_senior_bolivia_04.webp (Kamila Torrez's) -> south-america/bolivia/bolivia_01.webp
+  INFO  SAM_10_P2 Daniela Mamani (Bolivia): player_senior_bolivia_02.webp (Camila Torrez's) -> south-america/bolivia/bolivia_02.webp
+  PASS  Malta's two are reported, not given another nation's face: no Malta picture among Rob's new-senior pictures  EUR_10_P1 Maria Caruana, EUR_10_P2 Nicole Borg
+
+2. THE SOURCE: A POOL PLAYER'S NAME DOES NOT FOLLOW THE STARTER DB
+  PASS  (source) the boot's reference sync updates a pool player's club, not her name, nor her card (25 Oct)  continental_pool_players: ["pool_team_id"],
+  PASS  (source) her card is filled from the starter DB only where a save has none (as her skin tone)
+  PASS  (source) a new senior is never given a picture a pool player, a world-roster player or this career's player carries
+  PASS  (source) 2 Oct's Salote Taufa reaches saves in play by name, from referenceRenames.ts's list
+
+3. A SAVE IN PLAY KEEPS ITS NAMES
+  PASS  booted once on a copy of Rob's live save
+  PASS  every pool player keeps her name (only a listed 2 Oct correction may change)  pool names 28cce0bd7a2de859 -> 28cce0bd7a2de859; changed: none
+  PASS  the 28 the starter DB renamed keep this save's names  28/28, e.g. AUS_09_P1 "Alina Kora"
+  PASS  every player keeps her name  players ec105a173660f067 -> ec105a173660f067
+  PASS  every pool player keeps her card (the 22 repointed in the starter DB too)  pool cards 75d49b23f8a4a3b9 -> 75d49b23f8a4a3b9; e.g. EUR_09_P2 player_senior_ireland_01.webp
+  INFO  this save still has its 28 duplicates (Rob: anyone already playing keeps them)
+
+4. A NEW SAVE GETS THE NEW NAMES
+  PASS  the AI clubs' seniors made from the 28 carry the new names  28 of 120 AI seniors made from pool players are among the 28
+  PASS  and none of them shares a name with a world-roster player  120 checked
+  PASS  the club page of the Papua New Guinea club shows Grace Bainivalu, not Alina Kora  Martha Kera, Grace Bainivalu, Lahui Kaupa
+  PASS  the AI club seniors made from the 22 carry their new pictures  22 of 22, e.g. AFM_09_P1 /images/players/new-seniors/africa-and-middle-east/tunisia/tunisia_01.webp
+  PASS  planted (every other new-senior picture given): at the first turn no new senior gets a pool or world-roster player's picture  305 pictures planted as given; 15 new seniors (0 picture players, 15 on graduate pictures, 0 on flag cards)
+
+24/24 checks passed

@@ -12,6 +12,8 @@ Branch `release-1.1.3` in `C:/vbe-tm`, from `a0cd6231` (the rebuild's package co
 |---|---|---|
 | 1 | AI clubs renew one player a season (their best) and replace every other ending contract in the window from the free-agent market, paying her price. A club too poor signs cheaper, then promotes a youth, then records the open place and why. No AI-to-AI bids. | `ai-market.mjs` **35/35** over 5 seasons: every club with a contract ending filled its places each season; at most one renewal a club, always its best on the day (83 renewals checked); every leaver gone by the turn; the A3 limits held; no AI-to-AI bid; no AI club over the cap on any day (C-5 apart: the 6 clubs the starter DB puts over it keep their own and add nobody); planted P1 signed cheaper (replacing a 79: a 73 and a 64), P2 promoted a youth, P3 recorded `open:cap`. `ai-buyable` **10/10 runs, 25/25 each**; the same suite on a0cd6231 (before the market) **fails**: "0 signed from the free agents". Logs: `docs/proof-1.1.3/market/item1/` |
 
+| 2 | 22 of the 24 pool players who wore a world-roster player's card now have an unused new-senior picture of their own nation, in the starter DB only. Malta's two are reported: Rob made no Malta picture. | `pool-names.mjs` **24/24**: no two players in the starter DB share a picture, bar Malta's two (the academy youths' one generic youth card apart, by design); no two different files are the same picture (322 files, md5); the 22 are in, each from her nation's folder; a copy of Rob's live save, booted, keeps every pool card; a new save's AI seniors carry the new pictures; and with every other new-senior picture planted as given, the first turn hands none of the 22 to a new senior. `player-pictures.mjs` 36/36. The 22 old → new: `docs/proof-1.1.3/market/item2/repoint-old-to-new.txt`; contact sheet (old card, new card, each captioned): `contact-sheet-old-and-new-cards.jpg` |
+
 ## What I changed, file by file
 
 ### Item 1: AI clubs trade on the market
@@ -37,6 +39,46 @@ Branch `release-1.1.3` in `C:/vbe-tm`, from `a0cd6231` (the rebuild's package co
   - `long-career-update1.mjs`: the market lines.
   - I found the suites to change with a script that tests every harness regex against the committed and the working copy of each changed file. Its only other hit is ai-market's deliberate "must not match".
 
+### Item 2: the 24 shared faces
+
+- `lib/db/volleyball-empire.sqlite` (the starter DB): 22 `continental_pool_players.image_url` repointed, nothing else. Each is the first unused picture of her nation in Rob's list (`tunisia_01`, `tunisia_02`, ...). Unused means on no row of any table that carries a player's picture (`players`, `continental_pool_players`, `career_graduate_portraits`, `career_new_seniors`, `player_retirements`), and not given to another of the 24. The file must exist on disk. The full list is in the proof file:
+
+  | Pool player | Old card (also worn by) | New card |
+  |---|---|---|
+  | AFM_09_P1 Yasmine Mzoughi | tunisia_01 (Ines Trabelsi) | tunisia/tunisia_01 |
+  | AFM_09_P2 Amira Bouazizi | tunisia_02 (Sarah Ben Ammar) | tunisia/tunisia_02 |
+  | AFM_10_P1 Rehema Mollel | tanzania_03 (Zawadi Kimaro) | tanzania/tanzania_01 |
+  | AFM_10_P2 Upendo Mwakalinga | tanzania_01 (Asha Msuya) | tanzania/tanzania_02 |
+  | ASI_09_P1 Tran Thu Trang | vietnam_03 (Le Minh Anh) | vietnam/vietnam_01 |
+  | ASI_09_P2 Le Ngoc Han | vietnam_02 (Tran Thi Bich) | vietnam/vietnam_02 |
+  | ASI_10_P1 Lin Pei-Shan | taiwan_02 (Chen Yu-Hsin) | taiwan/taiwan_01 |
+  | ASI_10_P2 Hsu Wan-Ting | taiwan_01 (Huang Yi-Ting) | taiwan/taiwan_02 |
+  | AUS_09_P1 Grace Bainivalu | papua_new_guinea_04 (Diana Kumul) | papua-new-guinea/…_01 |
+  | AUS_09_P2 Lahui Kaupa | papua_new_guinea_02 (Kiriwina Tau) | papua-new-guinea/…_02 |
+  | AUS_10_P1 Ruby Mackenzie | new_zealand_01 (Zoe Walker) | new-zealand/…_01 |
+  | AUS_10_P2 Isla Walker | new_zealand_02 (Lily Mackenzie) | new-zealand/…_02 |
+  | EUR_09_P1 Carolina Moreira | portugal_01 (Sofia Almeida) | portugal/portugal_01 |
+  | EUR_09_P2 Niamh Kavanagh | ireland_01 (Aoife O'Sullivan) | ireland/ireland_01 |
+  | NAM_09_P1 Tanisha Brown | jamaica_01 (Niah Myers) | jamaica/jamaica_01 |
+  | NAM_09_P2 Keisha Beckford | jamaica_02 (Jayda Brown) | jamaica/jamaica_02 |
+  | NAM_10_P1 Shante Bethel | bahamas_01 (Aaliyah Rolle) | bahamas/bahamas_01 |
+  | NAM_10_P2 Tiara Ferguson | bahamas_02 (Jada Knowles) | bahamas/bahamas_02 |
+  | SAM_09_P1 Anjali Persaud | guyana_03 (Nia Campbell) | guyana/guyana_01 |
+  | SAM_09_P2 Keziah Campbell | guyana_01 (Amara James) | guyana/guyana_02 |
+  | SAM_10_P1 Ximena Zeballos | bolivia_04 (Kamila Torrez) | bolivia/bolivia_01 |
+  | SAM_10_P2 Daniela Mamani | bolivia_02 (Camila Torrez) | bolivia/bolivia_02 |
+  | **EUR_10_P1 Maria Caruana** | malta_02 (Sara Borg) | **reported: no Malta picture** |
+  | **EUR_10_P2 Nicole Borg** | malta_01 (Yasmin Grech) | **reported: no Malta picture** |
+
+- `scripts/repoint-pool-shared-faces.cjs` (new): the repoint. It is a dry run by default, `--write` applies it, and it is idempotent.
+- `artifacts/api-server/src/utils/ensureSchema.ts`: **a pool player's card no longer follows the starter DB at boot when the save has one.** It moved from the update-only list to the fill-only list, as her skin tone is. Without this, the boot would have copied the 22 new pictures into every save in play, which the brief forbids (the 24 Oct names precedent). A save with no card for her still gets the starter DB's, so 5 Oct's pictures still reach a save that has none.
+- `artifacts/api-server/src/utils/newSeniors.ts`: **a new senior is never given a picture a pool player, a world-roster player or this career's player already carries** (`usedPicturesTx`). The game had only checked this career's own record. The 22 pictures the pool players now wear are from the same pool the season's turn hands out, so without this a new senior could later have arrived wearing one of them.
+- `scripts/portraits/ai-senior-cards.json`: the 22 are now kind `repointed`, with their new card, `cardBefore25Oct`, and the pool player's current name (`nameBefore24Oct` keeps the old one).
+- Harness:
+  - `pool-names.mjs` checks the pictures too (sections 1b to 4b above).
+  - `player-pictures.mjs` reads 96 new, 22 repointed, 2 kept, and checks each repointed card comes from her own nation's folder.
+  - The run-all banner for 98zy.
+
 ## Decisions I made
 
 **Item 1 (the market):**
@@ -53,7 +95,16 @@ Branch `release-1.1.3` in `C:/vbe-tm`, from `a0cd6231` (the rebuild's package co
 - **A club doesn't sign back a player who left it at the end of her contract, that season or the next.** Without this, a club could release a leaver into the market and pick her straight back up: a second renewal by the back door. The first suite run caught exactly that.
 - **Rob's C-5 rule stands for the emergency youth promotions** (the injured list's cover, two on the sand): "a youth promoted into the seniors is never blocked". The market itself never uses it: its promotions must fit under the cap.
 
+**Item 2 (the faces):**
+
+- **Each player gets the first unused picture of her nation** in Rob's list order. Nothing in the brief chooses between them, and this is repeatable.
+- **The pool card stops following the starter DB in saves that have one** (above), so the change reaches new saves only.
+- **Skin tones are left as they are.** The brief doesn't ask, and see "What I found".
+
 ## What I found and did not fix
+
+- **Item 2: these 24 pool players' skin tones never matched their old cards either.** For example, EUR_09_P2 Niamh Kavanagh is "Dark" on a light-skinned card, and AFM_10_P1 Rehema Mollel is "Light" on a dark-skinned one; the contact sheet shows the tone beside each pair. 10 Oct matched tones to pictures for the 96 new cards only, not these 24. The 3D court draws her with the tone, so it may not match her new picture. I didn't change any: a band has to be judged from the picture, and the brief didn't ask.
+- **Item 2: a new career started inside an existing save file uses that save's pool cards** (the old shared faces), as with the 24 Oct names: the brief says not to reach into saves.
 
 ## What needs Rob
 

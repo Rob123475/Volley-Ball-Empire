@@ -1,5 +1,5 @@
 {
- "about": "Final brief 5 Oct, A4: the 120 AI club players and their cards. 96 new (Rob's pictures, by continent and skin tone), 24 kept as Rob's CSV names them. Pictures brief 10 Oct: the 96 reshuffled within each continent so each player has the picture that best fits her country, the white kit recoloured in her country's colours (pictureFrom: the slot whose original picture it is; kit: the colours, null where it stayed white). Her skinTone is her picture's band (imageBand); skinToneBefore10Oct is what it was (49 changed; artifacts/api-server/src/utils/aiSkinTones.ts brings older saves forward).",
+ "about": "Final brief 5 Oct, A4: the 120 AI club players and their cards. 96 new (Rob's pictures, by continent and skin tone), 24 kept as Rob's CSV names them. Pictures brief 10 Oct: the 96 reshuffled within each continent so each player has the picture that best fits her country, the white kit recoloured in her country's colours (pictureFrom: the slot whose original picture it is; kit: the colours, null where it stayed white). Her skinTone is her picture's band (imageBand); skinToneBefore10Oct is what it was (49 changed; artifacts/api-server/src/utils/aiSkinTones.ts brings older saves forward). 1.1.3 (Rob, 25 Oct; AI market brief item 2): 22 of the 24 kept cards were a world-roster player's too; those players now have an unused new-senior picture of their own nation (kind \"repointed\", scripts/repoint-pool-shared-faces.cjs). Malta's two keep theirs (no Malta picture).",
  "players": [
   {
    "stableId": "AFM_01_P1",
@@ -307,43 +307,51 @@
   },
   {
    "stableId": "AFM_09_P1",
-   "name": "Sarah Ben Ammar",
+   "name": "Yasmine Mzoughi",
    "continent": "africa_middle_east",
    "country": "Tunisia",
    "skinTone": "Medium Light",
    "age": 24,
-   "card": "/images/players/seniors/player_senior_tunisia_01.webp",
-   "kind": "kept"
+   "card": "/images/players/new-seniors/africa-and-middle-east/tunisia/tunisia_01.webp",
+   "kind": "repointed",
+   "cardBefore25Oct": "/images/players/seniors/player_senior_tunisia_01.webp",
+   "nameBefore24Oct": "Sarah Ben Ammar"
   },
   {
    "stableId": "AFM_09_P2",
-   "name": "Habiba Mzoughi",
+   "name": "Amira Bouazizi",
    "continent": "africa_middle_east",
    "country": "Tunisia",
    "skinTone": "Dark",
    "age": 25,
-   "card": "/images/players/seniors/player_senior_tunisia_02.webp",
-   "kind": "kept"
+   "card": "/images/players/new-seniors/africa-and-middle-east/tunisia/tunisia_02.webp",
+   "kind": "repointed",
+   "cardBefore25Oct": "/images/players/seniors/player_senior_tunisia_02.webp",
+   "nameBefore24Oct": "Habiba Mzoughi"
   },
   {
    "stableId": "AFM_10_P1",
-   "name": "Zawadi Kimaro",
+   "name": "Rehema Mollel",
    "continent": "africa_middle_east",
    "country": "Tanzania",
    "skinTone": "Light",
    "age": 27,
-   "card": "/images/players/seniors/player_senior_tanzania_03.webp",
-   "kind": "kept"
+   "card": "/images/players/new-seniors/africa-and-middle-east/tanzania/tanzania_01.webp",
+   "kind": "repointed",
+   "cardBefore25Oct": "/images/players/seniors/player_senior_tanzania_03.webp",
+   "nameBefore24Oct": "Zawadi Kimaro"
   },
   {
    "stableId": "AFM_10_P2",
-   "name": "Asha Msuya",
+   "name": "Upendo Mwakalinga",
    "continent": "africa_middle_east",
    "country": "Tanzania",
    "skinTone": "Light",
    "age": 25,
-   "card": "/images/players/seniors/player_senior_tanzania_01.webp",
-   "kind": "kept"
+   "card": "/images/players/new-seniors/africa-and-middle-east/tanzania/tanzania_02.webp",
+   "kind": "repointed",
+   "cardBefore25Oct": "/images/players/seniors/player_senior_tanzania_01.webp",
+   "nameBefore24Oct": "Asha Msuya"
   },
   {
    "stableId": "ASI_01_P1",
@@ -648,43 +656,51 @@
   },
   {
    "stableId": "ASI_09_P1",
-   "name": "Nguyen Mai Anh",
+   "name": "Tran Thu Trang",
    "continent": "asia",
    "country": "Vietnam",
    "skinTone": "Medium Light",
    "age": 21,
-   "card": "/images/players/seniors/player_senior_vietnam_03.webp",
-   "kind": "kept"
+   "card": "/images/players/new-seniors/asia/vietnam/vietnam_01.webp",
+   "kind": "repointed",
+   "cardBefore25Oct": "/images/players/seniors/player_senior_vietnam_03.webp",
+   "nameBefore24Oct": "Nguyen Mai Anh"
   },
   {
    "stableId": "ASI_09_P2",
-   "name": "Le Minh Anh",
+   "name": "Le Ngoc Han",
    "continent": "asia",
    "country": "Vietnam",
    "skinTone": "Light",
    "age": 21,
-   "card": "/images/players/seniors/player_senior_vietnam_02.webp",
-   "kind": "kept"
+   "card": "/images/players/new-seniors/asia/vietnam/vietnam_02.webp",
+   "kind": "repointed",
+   "cardBefore25Oct": "/images/players/seniors/player_senior_vietnam_02.webp",
+   "nameBefore24Oct": "Le Minh Anh"
   },
   {
    "stableId": "ASI_10_P1",
-   "name": "Chen Yu-Hsin",
+   "name": "Lin Pei-Shan",
    "continent": "asia",
    "country": "Taiwan",
    "skinTone": "Medium Dark",
    "age": 23,
-   "card": "/images/players/seniors/player_senior_taiwan_02.webp",
-   "kind": "kept"
+   "card": "/images/players/new-seniors/asia/taiwan/taiwan_01.webp",
+   "kind": "repointed",
+   "cardBefore25Oct": "/images/players/seniors/player_senior_taiwan_02.webp",
+   "nameBefore24Oct": "Chen Yu-Hsin"
   },
   {
    "stableId": "ASI_10_P2",
-   "name": "Huang Yi-Ting",
+   "name": "Hsu Wan-Ting",
    "continent": "asia",
    "country": "Taiwan",
    "skinTone": "Medium Dark",
    "age": 22,
-   "card": "/images/players/seniors/player_senior_taiwan_01.webp",
-   "kind": "kept"
+   "card": "/images/players/new-seniors/asia/taiwan/taiwan_02.webp",
+   "kind": "repointed",
+   "cardBefore25Oct": "/images/players/seniors/player_senior_taiwan_01.webp",
+   "nameBefore24Oct": "Huang Yi-Ting"
   },
   {
    "stableId": "AUS_01_P1",
@@ -992,43 +1008,51 @@
   },
   {
    "stableId": "AUS_09_P1",
-   "name": "Alina Kora",
+   "name": "Grace Bainivalu",
    "continent": "oceania",
    "country": "Papua New Guinea",
    "skinTone": "Light",
    "age": 25,
-   "card": "/images/players/seniors/player_senior_papua_new_guinea_04.webp",
-   "kind": "kept"
+   "card": "/images/players/new-seniors/oceania/papua-new-guinea/papua-new-guinea_01.webp",
+   "kind": "repointed",
+   "cardBefore25Oct": "/images/players/seniors/player_senior_papua_new_guinea_04.webp",
+   "nameBefore24Oct": "Alina Kora"
   },
   {
    "stableId": "AUS_09_P2",
-   "name": "Kiriwina Tau",
+   "name": "Lahui Kaupa",
    "continent": "oceania",
    "country": "Papua New Guinea",
    "skinTone": "Light",
    "age": 21,
-   "card": "/images/players/seniors/player_senior_papua_new_guinea_02.webp",
-   "kind": "kept"
+   "card": "/images/players/new-seniors/oceania/papua-new-guinea/papua-new-guinea_02.webp",
+   "kind": "repointed",
+   "cardBefore25Oct": "/images/players/seniors/player_senior_papua_new_guinea_02.webp",
+   "nameBefore24Oct": "Kiriwina Tau"
   },
   {
    "stableId": "AUS_10_P1",
-   "name": "Zoe Walker",
+   "name": "Ruby Mackenzie",
    "continent": "oceania",
    "country": "New Zealand",
    "skinTone": "Medium Light",
    "age": 25,
-   "card": "/images/players/seniors/player_senior_new_zealand_01.webp",
-   "kind": "kept"
+   "card": "/images/players/new-seniors/oceania/new-zealand/new-zealand_01.webp",
+   "kind": "repointed",
+   "cardBefore25Oct": "/images/players/seniors/player_senior_new_zealand_01.webp",
+   "nameBefore24Oct": "Zoe Walker"
   },
   {
    "stableId": "AUS_10_P2",
-   "name": "Lily Mackenzie",
+   "name": "Isla Walker",
    "continent": "oceania",
    "country": "New Zealand",
    "skinTone": "Light",
    "age": 23,
-   "card": "/images/players/seniors/player_senior_new_zealand_02.webp",
-   "kind": "kept"
+   "card": "/images/players/new-seniors/oceania/new-zealand/new-zealand_02.webp",
+   "kind": "repointed",
+   "cardBefore25Oct": "/images/players/seniors/player_senior_new_zealand_02.webp",
+   "nameBefore24Oct": "Lily Mackenzie"
   },
   {
    "stableId": "EUR_01_P1",
@@ -1336,23 +1360,27 @@
   },
   {
    "stableId": "EUR_09_P1",
-   "name": "Sofia Almeida",
+   "name": "Carolina Moreira",
    "continent": "europe",
    "country": "Portugal",
    "skinTone": "Medium",
    "age": 28,
-   "card": "/images/players/seniors/player_senior_portugal_01.webp",
-   "kind": "kept"
+   "card": "/images/players/new-seniors/europe/portugal/portugal_01.webp",
+   "kind": "repointed",
+   "cardBefore25Oct": "/images/players/seniors/player_senior_portugal_01.webp",
+   "nameBefore24Oct": "Sofia Almeida"
   },
   {
    "stableId": "EUR_09_P2",
-   "name": "Aoife O'Sullivan",
+   "name": "Niamh Kavanagh",
    "continent": "europe",
    "country": "Ireland",
    "skinTone": "Dark",
    "age": 22,
-   "card": "/images/players/seniors/player_senior_ireland_01.webp",
-   "kind": "kept"
+   "card": "/images/players/new-seniors/europe/ireland/ireland_01.webp",
+   "kind": "repointed",
+   "cardBefore25Oct": "/images/players/seniors/player_senior_ireland_01.webp",
+   "nameBefore24Oct": "Aoife O'Sullivan"
   },
   {
    "stableId": "EUR_10_P1",
@@ -1680,43 +1708,51 @@
   },
   {
    "stableId": "NAM_09_P1",
-   "name": "Kayla Thompson",
+   "name": "Tanisha Brown",
    "continent": "north_america",
    "country": "Jamaica",
    "skinTone": "Medium",
    "age": 23,
-   "card": "/images/players/seniors/player_senior_jamaica_01.webp",
-   "kind": "kept"
+   "card": "/images/players/new-seniors/north-america/jamaica/jamaica_01.webp",
+   "kind": "repointed",
+   "cardBefore25Oct": "/images/players/seniors/player_senior_jamaica_01.webp",
+   "nameBefore24Oct": "Kayla Thompson"
   },
   {
    "stableId": "NAM_09_P2",
-   "name": "Niah Myers",
+   "name": "Keisha Beckford",
    "continent": "north_america",
    "country": "Jamaica",
    "skinTone": "Light",
    "age": 22,
-   "card": "/images/players/seniors/player_senior_jamaica_02.webp",
-   "kind": "kept"
+   "card": "/images/players/new-seniors/north-america/jamaica/jamaica_02.webp",
+   "kind": "repointed",
+   "cardBefore25Oct": "/images/players/seniors/player_senior_jamaica_02.webp",
+   "nameBefore24Oct": "Niah Myers"
   },
   {
    "stableId": "NAM_10_P1",
-   "name": "Aaliyah Rolle",
+   "name": "Shante Bethel",
    "continent": "north_america",
    "country": "Bahamas",
    "skinTone": "Medium",
    "age": 25,
-   "card": "/images/players/seniors/player_senior_bahamas_01.webp",
-   "kind": "kept"
+   "card": "/images/players/new-seniors/north-america/bahamas/bahamas_01.webp",
+   "kind": "repointed",
+   "cardBefore25Oct": "/images/players/seniors/player_senior_bahamas_01.webp",
+   "nameBefore24Oct": "Aaliyah Rolle"
   },
   {
    "stableId": "NAM_10_P2",
-   "name": "Jada Knowles",
+   "name": "Tiara Ferguson",
    "continent": "north_america",
    "country": "Bahamas",
    "skinTone": "Medium",
    "age": 22,
-   "card": "/images/players/seniors/player_senior_bahamas_02.webp",
-   "kind": "kept"
+   "card": "/images/players/new-seniors/north-america/bahamas/bahamas_02.webp",
+   "kind": "repointed",
+   "cardBefore25Oct": "/images/players/seniors/player_senior_bahamas_02.webp",
+   "nameBefore24Oct": "Jada Knowles"
   },
   {
    "stableId": "SAM_01_P1",
@@ -2024,43 +2060,51 @@
   },
   {
    "stableId": "SAM_09_P1",
-   "name": "Nia Campbell",
+   "name": "Anjali Persaud",
    "continent": "south_america",
    "country": "Guyana",
    "skinTone": "Medium Dark",
    "age": 28,
-   "card": "/images/players/seniors/player_senior_guyana_03.webp",
-   "kind": "kept"
+   "card": "/images/players/new-seniors/south-america/guyana/guyana_01.webp",
+   "kind": "repointed",
+   "cardBefore25Oct": "/images/players/seniors/player_senior_guyana_03.webp",
+   "nameBefore24Oct": "Nia Campbell"
   },
   {
    "stableId": "SAM_09_P2",
-   "name": "Amara James",
+   "name": "Keziah Campbell",
    "continent": "south_america",
    "country": "Guyana",
    "skinTone": "Medium Light",
    "age": 26,
-   "card": "/images/players/seniors/player_senior_guyana_01.webp",
-   "kind": "kept"
+   "card": "/images/players/new-seniors/south-america/guyana/guyana_02.webp",
+   "kind": "repointed",
+   "cardBefore25Oct": "/images/players/seniors/player_senior_guyana_01.webp",
+   "nameBefore24Oct": "Amara James"
   },
   {
    "stableId": "SAM_10_P1",
-   "name": "Valeria Mamani",
+   "name": "Ximena Zeballos",
    "continent": "south_america",
    "country": "Bolivia",
    "skinTone": "Medium",
    "age": 26,
-   "card": "/images/players/seniors/player_senior_bolivia_04.webp",
-   "kind": "kept"
+   "card": "/images/players/new-seniors/south-america/bolivia/bolivia_01.webp",
+   "kind": "repointed",
+   "cardBefore25Oct": "/images/players/seniors/player_senior_bolivia_04.webp",
+   "nameBefore24Oct": "Valeria Mamani"
   },
   {
    "stableId": "SAM_10_P2",
-   "name": "Camila Torrez",
+   "name": "Daniela Mamani",
    "continent": "south_america",
    "country": "Bolivia",
    "skinTone": "Medium",
    "age": 21,
-   "card": "/images/players/seniors/player_senior_bolivia_02.webp",
-   "kind": "kept"
+   "card": "/images/players/new-seniors/south-america/bolivia/bolivia_02.webp",
+   "kind": "repointed",
+   "cardBefore25Oct": "/images/players/seniors/player_senior_bolivia_02.webp",
+   "nameBefore24Oct": "Camila Torrez"
   }
  ]
 }
