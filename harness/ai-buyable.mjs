@@ -181,7 +181,7 @@ try {
   check("the AI club still has two to play: it signed a free agent", sz.get(seller) >= 2 && refill.length >= 1, `${seen.currentTeamName}: ${sz.get(seller)} players (signed ${refill.map((r) => r.name).join(", ")})`);
 
   console.log("\n4. AN AI CLUB THAT CANNOT PLAY WITHOUT HER DOES NOT SELL");
-  // A club with two seniors on its books (one on the injured list counts: she is still its, utils/aiSquads.ts canSellTx).
+  // A club with two seniors on its books (one on the injured list counts: she is still its, utils/aiSquadPolicy.ts canSellTx).
   // 1.1.3 (25 Oct, item 4): AI clubs hold three now, so one with two is rare; with none, one is made here (its third
   // released to the free agents).
   const seniorsAt = (c) => q(`SELECT s.player_id AS id, s.salary FROM career_player_state s JOIN players p ON p.id = s.player_id

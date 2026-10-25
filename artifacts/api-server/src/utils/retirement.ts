@@ -17,7 +17,7 @@
  *   asked to retire    her club may ask her (askToRetireRefusal): she retires at once and the club
  *                      pays out the rest of her contract, as ending it early does. Only in the
  *                      transfer window, as releasing is, unless she has had a reconstruction or is
- *                      on the injured list. The AI clubs ask and list by the same rules (aiDeadwoodTx)
+ *                      on the injured list. The AI clubs ask and list by the same rules (utils/aiSquadPolicy.ts deadwood)
  *
  * The chances were tuned so that, with about 20 new seniors a season (utils/newSeniors.ts), the
  * number of seniors holds roughly steady over 30 seasons and the free-agent market stays roughly

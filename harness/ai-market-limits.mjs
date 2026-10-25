@@ -45,7 +45,7 @@ try {
     /export const AI_TRANSFER_TERMS[\s\S]{0,900}export const AI_SEASON_LIMITS = \{ scoutingReports: 10, scoutingPerClub: 2, bids: 10, bidsPerClub: 2 \} as const;/.test(terms));
   const lim = SRC("artifacts/api-server/src/utils/aiMarketLimits.ts");
   check("the counts are read from the save's ai_market_moves table, by club and season", /tx\.select\(\)\.from\(aiMarketMovesTable\)/.test(lim) && /seasonYear, seasonYearOf\(today\)/.test(lim));
-  const squads = SRC("artifacts/api-server/src/utils/aiSquads.ts"), youth = SRC("artifacts/api-server/src/utils/youthDeals.ts");
+  const squads = SRC("artifacts/api-server/src/utils/aiSquadPolicy.ts"), youth = SRC("artifacts/api-server/src/utils/youthDeals.ts");
   check("a senior: scouted first (a scouting job and a 'scout' row), bid only once the report is ready, the bid recorded",
     /recordAiMoveTx\(w\.tx, careerSaveId, buyer, "scout"/.test(squads) && /if \(ready > today\) break;/.test(squads) && /recordAiMoveTx\(w\.tx, careerSaveId, buyer, "bid"/.test(squads));
   check("a youth buy offer is a bid too, limited and recorded", /mayBid\(moves, \{ poolTeamId: r\.poolTeamId \}\)/.test(youth) && /recordAiMoveTx\(tx, careerSaveId, poolTeamId, "bid"/.test(youth));

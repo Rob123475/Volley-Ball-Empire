@@ -5,7 +5,7 @@ import { refusalReason } from "../utils/squadRules.js";
 import { isYouthPlayer } from "../utils/playerClassification.js";
 import { loadPlayers, loadPlayer, updatePlayerState, requireCareerSaveId, withCareerStateTx } from "../lib/playerDto.js";
 import { academyCountTx, placeSignedYouthTx } from "../utils/youthLoans.js";
-import { canSellTx } from "../utils/aiSquads.js";
+import { canSellTx } from "../utils/aiSquadPolicy.js";
 import { bidTx, renewalRefusalTx, releaseRefusalTx } from "../utils/transfers.js";
 import { contractEndFrom } from "../utils/transferWindow.js";
 import { academyMonthlySalary } from "../utils/academy.js";

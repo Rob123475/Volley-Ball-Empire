@@ -13,7 +13,7 @@
  *             roster she can't play, even fit: "Fit, waiting for a place". The
  *             club must release, sell or loan out the spare first. With no cover
  *             taken on she is back in the squad as soon as she is fit.
- *   AI clubs  the same list (utils/aiSquads.ts aiInjuredListDayTx): a place
+ *   AI clubs  the same list (utils/aiSquadPolicy.ts, returns and places): a place
  *             filled from the academy (best 16+), else the best free agent it
  *             can afford and fit; when she is fit, its weakest is released.
  *   leaving   a player who leaves the club comes off the list.
@@ -23,7 +23,7 @@ import { and, eq } from "drizzle-orm";
 import { withCareerStateTx, type CareerStateTx } from "../lib/playerDto.js";
 import { seniorIdsTx } from "./injuries.js";
 import { MAX_STARTERS } from "./squadRules.js";
-import { aiInjuredListDayTx } from "./aiSquads.js";
+import { aiSquadPolicyTx } from "./aiSquadPolicy.js";
 
 const OFF_THE_LIST = { onInjuredList: false, injuredListSince: null, injuredListSquad: null } as const;
 
@@ -55,7 +55,8 @@ export function injuredListStatus(p: { onInjuredList: boolean; injuryStatus: str
  */
 export function injuredListDayTx(w: CareerStateTx, careerSaveId: number, teamId: number, today: string): string[] {
   const news = clubInjuredListTx(w, careerSaveId, teamId);
-  aiInjuredListDayTx(w, careerSaveId, today);
+  // 1.1.3 (Rob, 26 Oct): the AI clubs' day, by the squad policy (utils/aiSquadPolicy.ts): contracts, returns, places.
+  aiSquadPolicyTx(w, careerSaveId, { kind: "day", today });
   return news;
 }
 

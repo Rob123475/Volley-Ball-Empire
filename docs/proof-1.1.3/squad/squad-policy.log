@@ -1,0 +1,41 @@
+========================================================================
+  1.1.3 (26 OCT): ONE SQUAD POLICY
+========================================================================
+
+1. (SOURCE) THE POLICY IS THE ONE PLACE
+  PASS  the scattered versions are deleted: none of the old functions is named anywhere in the server  11 names, none found
+  PASS  the policy's moves (sign, refill, promote, leave, renew, open) are recorded only in the policy; the one other record is a youth bid  utils/youthDeals.ts "bid"
+  PASS  every write of a player's club or contract outside the policy is on the list with its reason; in the policy only joinTx, releaseTx and renewTx  20 writers
+  INFO    lib/playerDto.ts#promoteAgedYouth: an academy's graduate at 19 enters the senior market, a free agent (C15); a youth, never one of an AI club's seniors
+  INFO    routes/calendar.ts#advanceOneDay: a contract at the career's own club running out (teamId set)
+  INFO    routes/contracts.ts#/contracts: the gamer's own signing (a Day 1 draft pick from an AI club, U-6), his decision
+  INFO    routes/contracts.ts#/contracts/:id: the gamer's own contract edit, at his club
+  INFO    routes/contracts.ts#/contracts/:id/renew: the gamer's own renewal, at his club
+  INFO    routes/job-market.ts#takeOverClub: the manager takes the club over: it is no longer an AI club
+  INFO    routes/players.ts#/players/:id/release: the gamer releasing his own player
+  INFO    routes/team.ts#/team/roster/:id/role: the gamer moving his own youth into his side
+  INFO    utils/aiSquadPolicy.ts#joinTx: THE POLICY: a free agent signed or a youth promoted
+  INFO    utils/aiSquadPolicy.ts#releaseTx: THE POLICY: a senior let go
+  INFO    utils/aiSquadPolicy.ts#renewTx: THE POLICY: the one renewal
+  INFO    utils/backfillContracts.ts#backfillCareerContracts: a contract row for a player at the career's own club
+  INFO    utils/day1Draft.ts#undoDraftPickTx: the gamer undoing his own Day 1 pick puts her back where she was
+  INFO    utils/graduates.ts#releaseSurplusGraduatesTx: the career's own club's surplus graduates
+  INFO    utils/newSeniors.ts#newSeniorsArriveTx: a new senior arrives a free agent (Rob, 18 Oct): an AI academy's youth given a picture, or a new player; never one of an AI club's seniors
+  INFO    utils/transfers.ts#answerWithCounterTx: a counter-offer answered (Rob's 16 Oct feature, which he keeps); an AI club's counter is the policy's (aiCounterFor)
+  INFO    utils/transfers.ts#completeTx: a transfer completing; an arrival at an AI club is then settled by the policy (its arrival event)
+  INFO    utils/youthDeals.ts#youthDealTx: a youth bought or sold: academies, not seniors
+  INFO    utils/youthLoans.ts#borrowTx: a youth loan: academies, not seniors
+  INFO    utils/youthLoans.ts#returnDueLoansTx: a youth loan ending: academies, not seniors
+  PASS  an AI club's own seniors are created where the starter DB has them (materializeAiSeniorsTx), not moved
+  PASS  the policy is called from the weekly block, the injured list's day, an AI club's match injuries, arrivals, Day 1 and the turn, and nowhere else  routes/calendar.ts:week, utils/aiSquads.ts:injury, utils/day1Draft.ts:day1, utils/injuredList.ts:day, utils/seasonRollover.ts:turn, utils/transfers.ts:arrival, utils/transfers.ts:day
+  PASS  the bid bar is an explicit rule in the policy's header, with its number and its reason
+  PASS  the four fixes are kept: the podium's skin tones, the Club News market headline, the age-35 skip, the best floor-wage free agent on credit
+
+2. 2 SEASONS: EVERY CHANGE TO AN AI CLUB'S SENIORS IS THE POLICY'S
+  INFO  season 1 ended 2027-01-01
+  INFO  season 2 ended 2028-01-01
+  PASS  2 seasons played  reached season 3 on 2028-01-01
+  PASS  every change to an AI club's seniors, every day, was the policy's (or a transfer, a counter-offer, a retirement, the gamer's own signing)  none
+  PASS  the policy did act (joined, left and renewed seen)  joined: promote (the policy) 7; renewed (the policy) 35; joined: sign (the policy) 236; left: released (the policy) 239; joined: refill (the policy) 20; left: retired 8; joined: a transfer completed 1
+
+10/10 checks passed

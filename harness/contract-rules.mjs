@@ -89,11 +89,12 @@ try {
   const pool = SRC("artifacts/api-server/src/utils/poolClubFinances.ts");
   const lengthFor = /export function lengthForRating[\s\S]*?\n\}/.exec(pool)?.[0] ?? "";
   check("an AI club's player length (signings, renewals, bids) is 1 or 2 seasons", /return clubRating >= 78 \? "2s" : "1s";/.test(lengthFor) && !/6m|CONTRACT_LENGTHS/.test(lengthFor), lengthFor.split("\n").pop());
-  const aiSrc = ["utils/aiSquads.ts", "utils/poolClubFinances.ts", "utils/transfers.ts", "utils/youthDeals.ts", "utils/aiStaff.ts"].map((f) => SRC(`artifacts/api-server/src/${f}`)).join("\n");
+  const aiSrc = ["utils/aiSquads.ts", "utils/aiSquadPolicy.ts", "utils/poolClubFinances.ts", "utils/transfers.ts", "utils/youthDeals.ts", "utils/aiStaff.ts"].map((f) => SRC(`artifacts/api-server/src/${f}`)).join("\n");
   check("no AI path falls back on the first length (it was 6 months)", !/CONTRACT_LENGTHS\[0\]/.test(aiSrc) && !/"6m"/.test(aiSrc));
+  // 1.1.3 (26 Oct): an AI club's counter (aiCounterFor) is the squad policy's; the deal completes in transfers.ts.
   const tr = SRC("artifacts/api-server/src/utils/transfers.ts");
   check("an AI club counters a 6-month bid with a season, and a deal completed at any club but his is on a season",
-    /length: seasonLength\(bid\.length\)/.test(tr) && /playerContractPartyTx\(tx, careerSaveId, to\.teamId\) === "career_player"/.test(tr));
+    /length: seasonLength\(bid\.length\)/.test(SRC("artifacts/api-server/src/utils/aiSquadPolicy.ts")) && /playerContractPartyTx\(tx, careerSaveId, to\.teamId\) === "career_player"/.test(tr));
 
   // ── 3. A career ───────────────────────────────────────────────────────────
   console.log("\n3. A CAREER: HIS CLUB, AND STAFF");

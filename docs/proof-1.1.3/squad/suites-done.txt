@@ -1,0 +1,7 @@
+contract-rules exit 0
+day1-draft exit 0
+injured-list exit 0
+manager-faces exit 0
+new-seniors exit 0
+scouting-history exit 0
+ALLDONE

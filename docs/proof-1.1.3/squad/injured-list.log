@@ -1,0 +1,35 @@
+========================================================================
+  UPDATE 1, NIGHT 2 PART 6: THE INJURED LIST, COVER, AND PROMOTION AT 16
+========================================================================
+  INFO  the club's seniors after the draft: 3
+
+1. MORE THAN 6 WEEKS OUT PUTS HER ON THE LIST AT ONCE
+  PASS  6 weeks out (a sprained ankle, no medical staff) is not more than 6: she stays in her place  6 wk, role starter
+  PASS  a broken leg (40 weeks): on the injured list at once, her match place freed  role injured, active 0
+  PASS  the Team page lists her under the injured list
+
+2. HER PLACE IS FREE FOR COVER; HER WAGE STILL COUNTS TOWARD THE CAP
+  PASS  with three seniors on the books, one of them on the list, a fourth (cover) can be signed  201; seniors 3 -> 4
+  PASS  (source) the cap's senior wage bill counts every senior, the injured list included
+
+3. THE COVER RULE
+  PASS  fit again while the cover is still on the roster: still on the list, not active ("Fit, waiting for a place")
+  PASS  the Dashboard says so plainly  {"id":86,"name":"Lani Faumuina","injuryStatus":"Healthy","weeksOut":0,"onInjuredList":true,"waiting":true}
+  PASS  her role can't be changed while she waits  Lani Faumuina is on the injured list. She comes back into the squad when she is fit and the cover you took on has gone.
+  PASS  release the cover: she is back in the squad at once (a match place, active)  release 200; role interchange, active 1
+
+4. WITH NO COVER TAKEN ON, SHE IS BACK AS SOON AS SHE IS FIT
+  PASS  a torn shoulder (20 weeks with no staff) puts her on the list
+  PASS  fit, with nobody taken on in her absence: back in the squad the next game day  role starter
+
+5. PROMOTION AT 16
+  PASS  a 15-year-old can't be promoted into a match place  Youth players under 16 cannot occupy Match Player or Interchange slots.
+  PASS  a 16-year-old can (it was 18)  200 
+  PASS  (source) the Rules page and the Team page read the promotion age from the one constant (16)
+
+6. AN AI CLUB: THE SAME LIST, COVER, AND ITS WEAKEST RELEASED
+  PASS  an AI club's senior out more than 6 weeks goes on its injured list
+  PASS  the next game day it has covered her place from its academy (three seniors not on the list, the 17-year-old promoted)  3 not on the list
+  PASS  fit again: she comes off the list and the club released its weakest to make room (three seniors)  3 seniors, listed 0
+
+17/17 checks passed

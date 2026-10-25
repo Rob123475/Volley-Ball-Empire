@@ -12,7 +12,7 @@
  *
  * Asserted, on a copy of the starter DB with a new career, over SEASONS (5)
  * seasons played headless:
- *   1. (source) the rule where the game keeps it (utils/aiSquads.ts)
+ *   1. (source) the rule where the game keeps it (utils/aiSquadPolicy.ts, the squad policy)
  *   2. planted before the first window: club P1 with room under its cap only
  *      for players weaker than the one it loses signs cheaper free agents;
  *      club P2 with no money promotes its academy's best youth; club P3 with no
@@ -56,16 +56,19 @@ console.log("=".repeat(72));
 try {
   // ── 1. Source ──────────────────────────────────────────────────────────────
   console.log("\n1. (SOURCE) THE RULE, WHERE THE GAME KEEPS IT");
-  const ai = SRC("artifacts/api-server/src/utils/aiSquads.ts");
+  // 1.1.3 (Rob, 26 Oct): the squad policy (utils/aiSquadPolicy.ts) is the one place these rules live.
+  const ai = SRC("artifacts/api-server/src/utils/aiSquadPolicy.ts");
   check("a contract that ran out is renewed only for the club's best, and only once a season",
-    /const mayRenew = squad\[0\]\?\.id === m\.id && squad\[0\]\?\.kind === "player" && aiRenewalsTx\(w\.tx, careerSaveId, poolTeamId, seasonYearOf\(m\.contractEndDate\)\) === 0;/.test(ai));
+    /const isBest = squad\[0\]\?\.id === m\.id && squad\[0\]\?\.kind === "player";/.test(ai)
+      && /const mayRenew = isBest && !longInjured && \(expired \|\| !m\.onList\) && aiRenewalsTx\(w\.tx, careerSaveId, club, seasonYearOf\(m\.contractEndDate\)\) === 0;/.test(ai));
   check("the weekly block runs the market (scouting through the year, signing in the window) before any bid",
-    /aiMarketScoutingWeekTx\(w, careerSaveId, today\);\s*aiMarketWindowTx\(w, careerSaveId, today, seasonEnds\);/.test(ai));
+    /marketScoutingTx\(ctx, clubs\);\s*marketWindowTx\(ctx, clubs\);\s*bidsForHisSeniorsTx\(ctx, clubs\);/.test(ai));
   check("AI clubs bid only for the player's seniors (no AI club's player is a bid candidate)",
     /const candidates = robs\b/.test(ai) && !/const theirs = /.test(ai));
   check("a market signing pays her price and is recorded; the fallbacks are the academy, then an open place with its reason",
-    /addToBalance\(w\.tx, careerSaveId, club, -pick\.price\);\s*recordAiMoveTx\(w\.tx, careerSaveId, club, "sign"/.test(ai)
-      && /recordAiMoveTx\(w\.tx, careerSaveId, club, "promote"/.test(ai) && /recordAiMoveTx\(w\.tx, careerSaveId, club, `open:\$\{why\}`/.test(ai));
+    /signTx\(ctx, club, pick\.f, "sign", pick\.price, moves\);/.test(ai)
+      && /if \(price > 0\) addToBalance\(w\.tx, careerSaveId, club, -price\);\s*recordAiMoveTx\(w\.tx, careerSaveId, club, kind,/.test(ai)
+      && /recordAiMoveTx\(ctx\.w\.tx, ctx\.careerSaveId, club, "promote"/.test(ai) && /recordAiMoveTx\(w\.tx, careerSaveId, club, `open:\$\{why\}`/.test(ai));
 
   await W.boot();
   const { teamId, cid } = await W.newCareer("AI Market");
@@ -236,13 +239,16 @@ try {
         // 2. The planted clubs, in this first window.
         planted.done = true;
         const signedBy = (c) => inWindow.filter((x) => x.pool_team_id === c && x.kind === "sign").map((x) => {
-          const p = W.q(`SELECT p.name, s.speed, s.power, s.defense, s.serve, s.block, s.stamina FROM career_player_state s JOIN players p ON p.id = s.player_id WHERE s.career_save_id = ? AND s.player_id = ?`, cid, x.player_id)[0];
-          return { name: p.name, rating: overallRating(p) };
+          const p = W.q(`SELECT p.name, s.salary, s.speed, s.power, s.defense, s.serve, s.block, s.stamina FROM career_player_state s JOIN players p ON p.id = s.player_id WHERE s.career_save_id = ? AND s.player_id = ?`, cid, x.player_id)[0];
+          return { name: p.name, rating: overallRating(p), salary: Number(p.salary) };
         });
         const p1 = signedBy(planted.P1.club);
+        // 1.1.3 (26 Oct): "cheaper" is her wage, signed in the window, below the wage of a player within AI_BUY_GAP of the
+        // one she replaces (what its room was planted on). Her rating at the turn is a month of training and a birthday
+        // later than the planting, and could cross the line on its own (a 72 against 77 - 5 on 26 Oct).
         check("P1, too poor under its cap for like for like, signed cheaper free agents for both places (no place left open)",
-          p1.length === 2 && p1.every((s) => s.rating < planted.P1.replacing - 5) && opens.filter((x) => x.pool_team_id === planted.P1.club).length === 0,
-          `replacing ${planted.P1.replacing}: signed ${p1.map((s) => `${s.name} ${s.rating}`).join(", ") || "none"}`);
+          p1.length === 2 && p1.every((s) => s.salary < wage(planted.P1.replacing - 5)) && opens.filter((x) => x.pool_team_id === planted.P1.club).length === 0,
+          `replacing ${planted.P1.replacing} (like for like from $${wage(planted.P1.replacing - 5)}): signed ${p1.map((s) => `${s.name} ${s.rating} on $${s.salary}`).join(", ") || "none"}`);
         const p2 = inWindow.filter((x) => x.pool_team_id === planted.P2.club);
         check("P2, with no money, promoted its academy's best youth (no place left open)",
           p2.some((x) => x.kind === "promote") && opens.filter((x) => x.pool_team_id === planted.P2.club).length === 0, p2.map((x) => `${x.kind} ${x.on_date}`).join(", ") || "nothing");

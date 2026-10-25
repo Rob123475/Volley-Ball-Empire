@@ -71,7 +71,7 @@ try {
   check("and off it again", off.status === 200 && W.q(`SELECT transfer_listed t FROM career_player_state WHERE career_save_id = ? AND player_id = ?`, cid, listed.id)[0].t === 0);
 
   // ── 3 (set up): a free agent plays on through the season she turns 40 ──
-  // (A free agent: an AI club would ask a 39-year-old to retire in the window, aiDeadwoodTx.)
+  // (A free agent: an AI club would ask a 39-year-old to retire in the window, the squad policy's deadwood.)
   const old = W.q(`SELECT s.player_id id, p.name FROM career_player_state s JOIN players p ON p.id = s.player_id WHERE s.career_save_id = ? AND s.team_id IS NULL
     AND s.pool_team_id IS NULL AND s.is_retired = 0 AND p.player_type = 'senior' ORDER BY s.player_id LIMIT 1`, cid)[0];
   // Too weak for any club to sign in the meantime.
@@ -100,7 +100,7 @@ try {
   check("15 AI academy youths stayed on and 5 picture players arrived, on the new season's first day", youths.length === 15 && picks.length === 5
     && arrived.every((a) => a.arrived_on === "2027-01-01"), `${youths.length} youths stayed (${left} other AI youths left the game at 19), ${picks.length} picture players`);
   // 1.1.3 rebuild (Part E): they arrive on the market; later in the same turn an AI club short of players signs from the
-  // free agents (seasonRollover.ts keepAiSquadsTx), so one may already be at an AI club, joined that day. Anything else fails.
+  // free agents (seasonRollover.ts, the squad policy's turn), so one may already be at an AI club, joined that day. Anything else fails.
   const signedAtTurn = arrived.filter((a) => a.t == null && a.pt != null && a.joined === "2027-01-01");
   check("every one arrived a free agent on the market, at a wage (an AI club short of players may sign one at the turn)",
     arrived.every((a) => Number(a.salary) > 0 && a.t == null && (a.pt == null || signedAtTurn.includes(a))),
@@ -177,9 +177,11 @@ try {
 
   // ── 5. Source ─────────────────────────────────────────────────────────────
   console.log("\n5. (SOURCE) THE AI CLUBS, THE RULES AND THE NOTES");
-  const ai = SRC("artifacts/api-server/src/utils/aiSquads.ts"), cal = SRC("artifacts/api-server/src/routes/calendar.ts");
+  // 1.1.3 (Rob, 26 Oct): the deadwood is the squad policy's, first in its week (utils/aiSquadPolicy.ts).
+  const ai = SRC("artifacts/api-server/src/utils/aiSquadPolicy.ts"), cal = SRC("artifacts/api-server/src/routes/calendar.ts");
   check("(source) the AI clubs ask their broken-down and oldest to retire, and list their older weakest, every week before buying",
-    /export function aiDeadwoodTx/.test(ai) && /aiDeadwoodTx\(w, careerSaveId, nextDate\);\s*return aiTransfersWeekTx/.test(cal));
+    /function deadwoodTx\(ctx: Ctx, clubs: readonly number\[\]\): void/.test(ai) && /case "week":\s*deadwoodTx\(ctx, clubs\);/.test(ai)
+      && /return aiSquadPolicyTx\(w, careerSaveId, \{ kind: "week", today: nextDate \}\);/.test(cal));
   check("(source) a listed player is wanted without the gap and for 75% of her price", /listed\.has\(m\.id\) \? bar - AI_BUY_GAP : bar/.test(ai) && /feeShare: 0\.75/.test(ai));
   check("(source) a new nation picture is never recycled onto a youth", /!r\.imageUrl\.startsWith\(NEW_SENIOR_PICTURE_PREFIX\)/.test(SRC("artifacts/api-server/src/utils/youthIntake.ts")));
   const rules = SRC("artifacts/beach-volleyball/src/pages/rules.tsx"), notes = SRC("docs/UPDATE1-1.1.2-PATCH-NOTES.md");

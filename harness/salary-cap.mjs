@@ -215,8 +215,8 @@ try {
   const zNow = q(`SELECT pool_team_id AS club, salary, contract_end_date AS ends FROM career_player_state WHERE career_save_id = ? AND player_id = ?`, cid, z1.id)[0];
   check("one that fits renews, re-priced to the wage for her rating (not her old wage for ever)",
     zNow.club === Z && Number(zNow.salary) === zAsk && zNow.ends > "2026-01-02", `${$(z1.salary)} -> ${$(zNow.salary)}, to ${zNow.ends}`);
-  const aiSrc = fs.readFileSync(path.join(REPO, "artifacts", "api-server", "src", "utils", "aiSquads.ts"), "utf8");
-  // 1.1.1: an AI club's buy is a bid (utils/aiSquads.ts aiTransfersWeekTx): it must have the fee above its reserve
+  const aiSrc = fs.readFileSync(path.join(REPO, "artifacts", "api-server", "src", "utils", "aiSquadPolicy.ts"), "utf8");
+  // 1.1.1: an AI club's buy is a bid (1.1.3: utils/aiSquadPolicy.ts, the squad policy's bids): it must have the fee above its reserve
   // and room under its cap on her arrival date, its weakest's wage gone if it lets her go.
   check("(source) an AI club only bids for a player who fits on her arrival date; refilling picks the best affordable who fits (one picker); selling counts the departing wage",
     /\.filter\(\(\{ fee \}\) => balance >= fee \+ AI_BUY_RESERVE\)/.test(aiSrc)

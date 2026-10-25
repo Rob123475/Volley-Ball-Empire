@@ -204,7 +204,7 @@ export function lengthForRating(clubRating: number): ContractLength {
  * Update 1, item 4a (C-4): she is re-priced to the wage for her rating, and
  * renews only if that fits under the club's salary cap. If it does not, her
  * deal stays run out: the weekly block makes her a career senior
- * (materializeAiSeniorsTx), whose renewal (utils/aiSquads.ts keepAiSquadsTx)
+ * (materializeAiSeniorsTx), whose renewal (utils/aiSquadPolicy.ts)
  * then lets her go to the market. (Every pool player is a career senior after
  * a career's first week, so a pool deal runs out only before that.)
  */

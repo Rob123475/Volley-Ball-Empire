@@ -8,7 +8,7 @@
  *             wage, length and perks. The cap is checked now, against the
  *             buyer's bill ON HER ARRIVAL DATE (seniorWageBillTx `on`).
  *   counter   the holding club has one chance to keep her (COUNTER_OFFER): an
- *             AI club answers at once (aiCounterFor), the player has
+ *             AI club answers at once (aiCounterFor, utils/aiSquadPolicy.ts), the player has
  *             answerDays to answer from his Team page. She weighs both offers
  *             (schema/transfers.ts offerValue, staysForCounter, her mood).
  *             No answer by then: she goes.
@@ -29,15 +29,15 @@ import {
 } from "@workspace/db";
 import { and, eq, inArray, lt, lte } from "drizzle-orm";
 import type { CareerStateTx } from "../lib/playerDto.js";
-import { seniorWageBillTx, committedWageBillTx, wageCapRefusal } from "./salaryCap.js";
+import { seniorWageBillTx, wageCapRefusal } from "./salaryCap.js";
 import { inTransferWindow, nextWindowOpening, contractEndFrom } from "./transferWindow.js";
 import { seasonEndsForCareerTx, playerContractPartyTx } from "./seasonDates.js";
 import { worldTourStandingsTx } from "./worldTour.js";
 import { coverOnRoster, clubInjuredListTx } from "./injuredList.js";
-import { balanceOf, addToBalance, aiTrimSquadsTx, aiCapOnArrivalTx, keepAiSquadsTx, AI_BUY_RESERVE } from "./aiSquads.js";
+import { balanceOf, addToBalance } from "./aiSquads.js";
+import { aiSquadPolicyTx, aiCounterFor, AI_BUY_RESERVE } from "./aiSquadPolicy.js";
 import { seasonLength, type ContractLength } from "./contractTerms.js";
 import { MAX_STARTERS } from "./squadRules.js";
-import { monthlySalaryFor } from "./clubFinances.js";
 import { overallRating } from "./overallRating.js";
 
 type Tx = CareerStateTx["tx"];
@@ -123,21 +123,6 @@ export function moveFeeTx(tx: Tx, careerSaveId: number, deal: TransferDeal, toda
 export function canPayTx(tx: Tx, careerSaveId: number, club: Club, amount: number): boolean {
   if ("teamId" in club) return Number(tx.select({ b: teamsTable.budget }).from(teamsTable).where(eq(teamsTable.id, club.teamId)).get()?.b ?? 0) >= amount;
   return balanceOf(tx, careerSaveId, club.poolTeamId) >= amount + AI_BUY_RESERVE;
-}
-
-/**
- * An AI holding club's one chance (AC-10, "AI clubs counter too, by their money
- * and cap"): it matches the bid's terms if it can pay AI_TRANSFER_TERMS
- * .counterMonths of the extra cost from its balance above its reserve and the
- * match fits under its cap. Else no counter: she goes.
- */
-export function aiCounterFor(tx: Tx, careerSaveId: number, poolTeamId: number, current: { salary: number; perks: string; rating: number }, bid: TransferTerms): TransferTerms | null {
-  const wage = Math.min(bid.wage, Math.round(monthlySalaryFor(current.rating) * AI_TRANSFER_TERMS.counterCeiling));
-  const extra = (wage + perksMonthly(bid.perks)) - (current.salary + perksMonthly(current.perks));
-  if (extra > 0 && balanceOf(tx, careerSaveId, poolTeamId) - AI_BUY_RESERVE < extra * AI_TRANSFER_TERMS.counterMonths) return null;
-  if (wageCapRefusal(committedWageBillTx(tx, careerSaveId, { poolTeamId }), extra)) return null;
-  // Rob, 24 Oct: an AI club can't hold her on 6 months; it counters a 6-month bid with a season.
-  return { wage, length: seasonLength(bid.length), perks: bid.perks };
 }
 
 /** An AI club's perks for an offer: cheapest first, while they cost at most perkShare of the wage and fit in `room`. */
@@ -289,10 +274,7 @@ export function completeTx(w: CareerStateTx, careerSaveId: number, dealId: numbe
   // 1.1.3 (25 Oct, found by harness/ai-market.mjs): whatever path brings her (a bid agreed in the window moves her at
   // once, not in transfersDayTx's arrivals), the AI club she joins lets its weakest go if it is over its places, and
   // is under its cap that day (its bid counted that weakest's wage gone).
-  if ("poolTeamId" in to) {
-    aiTrimSquadsTx(w, careerSaveId, today, new Set([to.poolTeamId]));
-    aiCapOnArrivalTx(w, careerSaveId, new Map([[to.poolTeamId, deal.playerId]]), today);
-  }
+  if ("poolTeamId" in to) aiSquadPolicyTx(w, careerSaveId, { kind: "arrival", today, poolTeamId: to.poolTeamId, arrived: deal.playerId });
   return "moved";
 }
 
@@ -308,7 +290,6 @@ export function transfersDayTx(w: CareerStateTx, careerSaveId: number, today: st
   const myTeam = careerTeamIdTx(tx, careerSaveId);
   const nameOf = (id: number) => tx.select({ n: playersTable.name }).from(playersTable).where(eq(playersTable.id, id)).get()?.n ?? "A player";
   let aiSellerLeft = false;
-  const aiBuyers = new Map<number, number>();   // AI club -> the player who joined it today
   for (const d of tx.select().from(transferDealsTable).where(and(eq(transferDealsTable.careerSaveId, careerSaveId),
     eq(transferDealsTable.status, "offered"), lt(transferDealsTable.answerBy, today))).all()) {
     const outcome = agreeTx(w, careerSaveId, d.id, today);
@@ -318,20 +299,14 @@ export function transfersDayTx(w: CareerStateTx, careerSaveId: number, today: st
     eq(transferDealsTable.status, "agreed"), lte(transferDealsTable.arrivesOn, today))).all()) {
     const outcome = completeTx(w, careerSaveId, d.id, today);
     if (outcome === "moved" && d.fromPoolTeamId != null) aiSellerLeft = true;
-    if (outcome === "moved" && d.toPoolTeamId != null) aiBuyers.set(d.toPoolTeamId, d.playerId);
     if (outcome === "moved" && (d.toTeamId === myTeam || d.fromTeamId === myTeam)) {
       news.push(d.toTeamId === myTeam ? `${nameOf(d.playerId)} arrives from ${clubNameTx(tx, fromOf(d))}.` : `${nameOf(d.playerId)} leaves for ${clubNameTx(tx, toOf(d))}.`);
     }
   }
-  // A player who leaves an AI club mid-season (her contract ended before the window) can leave it short:
-  // it refills that day, by the weekly rule (keepAiSquadsTx), so it never has a match day with one.
-  if (aiSellerLeft) keepAiSquadsTx(w, careerSaveId, today, seasonEndsForCareerTx(tx, careerSaveId));
-  // A full AI club that bought lets its weakest go the day the new one arrives (its bid counted her wage
-  // gone, bidTx `freeing`), even outside the window; in the window every club over its places trims.
-  if (inTransferWindow(today)) aiTrimSquadsTx(w, careerSaveId, today);
-  else if (aiBuyers.size > 0) aiTrimSquadsTx(w, careerSaveId, today, new Set(aiBuyers.keys()));
-  // And every AI club a bought player joined today is under its cap (its bid counted on it).
-  if (aiBuyers.size > 0) aiCapOnArrivalTx(w, careerSaveId, aiBuyers, today);
+  // A player who leaves an AI club mid-season (her contract ended before the window) can leave it short: the squad
+  // policy settles the clubs that day, so none has a match day with one (utils/aiSquadPolicy.ts; it also trims in the
+  // window, and every arrival at an AI club is settled in completeTx).
+  if (aiSellerLeft) aiSquadPolicyTx(w, careerSaveId, { kind: "day", today });
   return news;
 }
 

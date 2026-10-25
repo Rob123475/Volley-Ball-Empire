@@ -1,0 +1,46 @@
+========================================================================
+  1.1.3 REBUILD PART B: CONTRACT LENGTHS BY WHO SIGNS, STAFF TO 7 JANUARY
+========================================================================
+
+1. THE RULE (utils/contractTerms.ts)
+  PASS  players at the career's club: 6 months, 1 season, 2 seasons
+  PASS  players at every other club: 1 season, 2 seasons
+  PASS  staff and medical: 1 season, 2 seasons
+  PASS  the gate: the career's current club is the only party that may use 6 months
+  PASS  an AI club's request for 6 months is refused, and says why  Contract length must be one of 1s, 2s (1 season, 2 seasons). Only the club the career manages can offer 6 months.
+  PASS  a staff or medical 6 months is refused, and says why  Contract length must be one of 1s, 2s (1 season, 2 seasons). Staff and medical contracts run 1 or 2 seasons and end on 7 January.
+  PASS  the career's club may
+  PASS  1 or 2 seasons are fine for everyone
+  PASS  staff contracts end on 7 January, the day before the AI clubs' deal day  AI_STAFF_DEAL_DAY 8, STAFF_CONTRACT_END 01-07
+  PASS  staff 1s from 2026-01-03 ends 2027-01-07: a first-week hire runs the whole year  2027-01-07
+  PASS  staff 1s from 2026-07-15 ends 2027-01-07: a mid-season hire runs to the next 7 January (a short deal, intended)  2027-01-07
+  PASS  staff 1s from 2026-12-20 ends 2027-01-07: a December hire too  2027-01-07
+  PASS  staff 2s from 2026-07-15 ends 2028-01-07: 2 seasons: the 7 January after that  2028-01-07
+  PASS  staff 1s from 2027-01-07 ends 2028-01-07: renewed on its 7 January end: to the next one  2028-01-07
+  PASS  staff 2s from 2027-01-07 ends 2029-01-07: renewed for 2 seasons  2029-01-07
+  PASS  a 2-season player deal ends on the end of the season after this one, not 730 days on  2027-12-31 (670 days)
+  PASS  an older deal on 6 months renews on a season at a club that may not use 6 months
+
+2. THE SOURCE: EVERY PATH ASKS THE RULE
+  PASS  every route that signs or renews a player reads its length through the gate (the career's current club)  routes/contracts.ts: req.body, await playerContractPartyFor(requireCareerSaveId(r | routes/contracts.ts: req.body, await playerContractPartyFor(cid, team.id) | routes/team.ts: req.body, await playerContractPartyFor(careerSaveId, team.id | routes/transfers.ts: req.body, await playerContractPartyFor(cid, team.id) | routes/youth-loans.ts: req.body, await playerContractPartyFor(ctx.careerSaveId, ctx | routes/youth-scouting.ts: req.body ?? {}, await playerContractPartyFor(requireCareerSa
+  PASS  the staff and medical routes read staff lengths, and end a deal on a 7 January  req.body, "staff" | req.body, "staff" | req.body, "staff"
+  PASS  the AI clubs' staff deal picks 1 or 2 seasons, to 7 January
+  PASS  an AI club's player length (signings, renewals, bids) is 1 or 2 seasons  }
+  PASS  no AI path falls back on the first length (it was 6 months)
+  PASS  an AI club counters a 6-month bid with a season, and a deal completed at any club but his is on a season
+
+3. A CAREER: HIS CLUB, AND STAFF
+  PASS  his club signs a player on 6 months  HTTP 201: 2026-01-01 -> 2026-07-01 
+  PASS  a 2-season deal spans two seasons, to the end of the next season, not 730 days  2026-01-01 -> 2027-12-31 (729 days; this season ends 2026-12-31)
+  PASS  a staff hire on 6 months is refused, and so is a medical one  400 Contract length must be one of 1s, 2s (1 season, 2 seasons). Staff and medical contracts run 1 or 2 seasons and end on 7 January.; 400
+  PASS  on 1 season the coach's deal ends on the 7 January after this season  {"t":"1s","e":"2027-01-07"}
+  PASS  on 2 seasons the medic's ends on the 7 January after that  {"t":"2s","e":"2028-01-07"}
+
+4. PAST THE AI CLUBS' 8 JANUARY DEAL, AND A MONTH ON
+  PASS  no staff or medical contract anywhere ends on any other date than 7 January (his club and every AI club)  122 contracts (120 at AI clubs), ends: 2027-01-07, 2028-01-07
+  PASS  no AI club's staff member is on 6 months (or anything but 1 or 2 seasons)  120 AI staff; terms 1s, 2s
+  PASS  no AI club's pool contract is on 6 months  1s/moved x74, 2s/moved x46
+  PASS  no deal that takes a player to an AI club is on 6 months  none yet
+  PASS  every AI club's senior is on a season deal: her contract ends on a season's end (a 6-month one would not)  163 AI seniors, ends: 2027-12-31, 2026-12-31
+
+33/33 checks passed

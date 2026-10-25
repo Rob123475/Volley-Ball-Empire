@@ -6,7 +6,7 @@ import {
 } from "@workspace/db";
 import { and, eq, sql } from "drizzle-orm";
 import { withCareerStateTx } from "../lib/playerDto.js";
-import { keepAiSquadsTx } from "./aiSquads.js";
+import { aiSquadPolicyTx } from "./aiSquadPolicy.js";
 import { fadeAgedPlayersTx } from "./seasonFade.js";
 import { aiManagersSeasonEndTx } from "./aiManagers.js";
 import { ensureSeasonFixtureRows } from "./seasonFixture.js";
@@ -329,7 +329,7 @@ export function rolloverSeason(careerSaveId: number, teamId: number): RolloverRe
     // Daytime 2 Oct, U-6: every AI club opens the season able to play: its
     // seniors' contracts renewed, and a club that retirement left short signs
     // from the free agents (utils/aiSquads.ts).
-    keepAiSquadsTx(w, careerSaveId, `${nextYear}-01-01`, seasonEndsForCareerTx(tx, careerSaveId));
+    aiSquadPolicyTx(w, careerSaveId, { kind: "turn", today: `${nextYear}-01-01` });
 
     // R-62: the new season's academy intake, in the transaction that opened the
     // season, dated its first day — so no season opens without its intake.

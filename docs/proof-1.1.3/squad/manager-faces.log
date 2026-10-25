@@ -1,0 +1,79 @@
+========================================================================
+  UPDATE 1, ITEM 2: MANAGER FACES AND SPECIALITIES
+========================================================================
+
+1. THE FACES ARE INSTALLED
+  PASS  the manifest has one row per face, 69 (Rob's 61 and his 8 spares), with ids 1-69  69 rows, 69 names
+  PASS  the folder holds exactly the manifest's 69 files  69 files
+  PASS  every face is a 600 x 800 WebP, and small (not the 5 MB source)  webp 600x800; largest 83 KB
+  PASS  the Jamaican "(1)" duplicate is not installed: one 39-year-old Jamaican woman, and no two faces the same picture
+  PASS  35 women and 34 men
+  PASS  each face carries the name the names file gives it
+  PASS  eight specialities, dealt round-robin in the brief's order, each used 8-9 times with men and women in every one  Talent Recruiter 9, Negotiator 9, Contracts Expert 9, Sponsor Magnet 9, Leader 9, Coach 8, Youth Developer 8, Fitness Guru 8
+
+2. A NEW CAREER: THE PLAYER'S FACE, AND THE AI CLUBS' DEAL
+  PASS  a career without a face is refused (the wizard always sends one)  HTTP 400 Pick your manager's face: managerFaceId must be one of the manager faces.
+  PASS  GET /manager-faces gives all 69 faces, each with its speciality and effect, to a profile only  69; e.g. Talent Recruiter: Scouting missions cost 25% less; no profile: HTTP 401
+  PASS  the player's chosen face is stored on the career, and the name stays the one typed  {"f":8,"n":"Faces A"}
+  PASS  all 60 AI clubs have a face, and each manager's name is the face's  60 clubs; e.g. Ji-yeon Park
+  PASS  no face is used twice (the player's and the 60 AI managers': 61 different faces)
+  PASS  the 8 faces left over are out of work from the career's first day  10@2026-01-01, 11@2026-01-01, 13@2026-01-01, 14@2026-01-01, 20@2026-01-01, 30@2026-01-01, 41@2026-01-01, 69@2026-01-01
+  PASS  the save slot card gets the manager's face and speciality  {"faceId":8,"name":"Faces A","image":"/images/managers/manager_08_ukrainian_woman.webp","gender":"female","speciality":"Fitness Guru","effect":"Match injury risk is 20% lower","isPlayer":true}
+  PASS  GET /manager (the Profile page) gives the player's face, typed name and speciality  Faces A, Fitness Guru
+
+3. EVERY CAREER A DIFFERENT DEAL, KEPT ACROSS A RESTART
+  PASS  two new careers get different AI deals (random)  0 of 60 clubs have the same face in both
+  PASS  each career's deal survives a restart, the player's face too
+  PASS  a career made before the faces is dealt them at boot: the player one, every AI manager one, named by it  player face 56; e.g. Fernanda Oliveira
+  PASS  and its faces left over are out of work from its season's start
+  PASS  and it is never dealt again: the next boot leaves it as it is
+
+4. EACH SPECIALITY MOVES ITS NUMBER, FOR THE PLAYER'S CLUB ONLY
+  PASS  Talent Recruiter: scouting missions cost 25% less (the page's figures are the server's)  {"1":20000,"3":45000,"6":75000} -> {"1":15000,"3":33750,"6":56250}
+  PASS  and the mission sent is charged the figure shown  HTTP 201 : $4,992,333 -> $4,977,333
+  PASS  Negotiator: every senior's price on the market is 10% lower  e.g. Jada Knowles: $13,000-$18,500 -> $11,700-$16,650
+  PASS  and so is every youth's  e.g. $1,100-$1,500 -> $990-$1,350
+  PASS  and the signing's confirm step names the same, lower range (shown = charged)  HTTP 400 {"low":11700,"high":16650}
+  PASS  Contracts Expert: every senior asks 10% less in wages on the market  e.g. Jada Knowles: $15,700 -> $14,130
+  PASS  an offer below her asking wage is refused, and says what she asks  HTTP 422 Jada Knowles asks $14,130 a month and turns down $14,030. Offer at least her asking wage.
+  PASS  without the Contracts Expert that same offer is below her ask too  HTTP 422, she asks $15,700
+  PASS  with the Contracts Expert she signs at the lower ask, on that wage  HTTP 201, contract $14,130
+  PASS  Sponsor Magnet: every offer is the sponsor's figure (whole hundreds) x 1.1; without it, whole hundreds  e.g. $17,900/month -> $9,790/month ($8,900 x 1.1)
+  PASS  Leader: a Leader's board starts at 70; anyone else's at 60  Leader career 70, Fitness Guru career 60
+  PASS  Coach: a senior's session records the Coach's x1.1 (x1 without)  1 -> 1.1
+  PASS  and her XP per point of base XP rises by 10%  25/27 -> 32/31
+  (the academy week: academyXpFor's bands, the potential multiplier and court time, as utils/academyDevelopment.ts has them)
+  PASS  (source) academyXpFor still gives 21 / 19 / 16 by rating band
+  (set-up) the academy was empty: a market youth signed, HTTP 201 
+  (set-up) 1 academy player(s)
+  PASS  Youth Developer: without one, each academy player's week is academyXpFor x her potential x court time  16/16
+  PASS  with one, it is academyXpFor x 1.15 x her potential x court time  18/18
+  PASS  Fitness Guru: match injury risk x0.8 (x1 for anyone else), through the one injury roll  factor 0.8 / 1
+  PASS  and the Medical page's injury risk takes the same factor
+  PASS  (source) the one multiplier reads the player's manager by the club's teams row, and for an AI club only Coach, Youth Developer and Fitness Guru count
+  PASS  (source) an AI club's purchases take no speciality; an AI academy's week only its Youth Developer
+  PASS  (run) every AI manager a Negotiator changes no price the player's club is shown
+
+5. A CLUB THAT SACKED ITS MANAGER APPOINTS THE FACE OUT OF WORK LONGEST, NEVER THE SACKED ONE
+  (set-up) Ji-yeon Park (face 64) sacked by club 1, out of work since 2025-05-01; face 14 (Tomáš Novák) out of work since 2025-06-01, the rest since 2026-01-01
+  PASS  the Job Market shows the vacancy with the manager being replaced: the sacked one's face and name  {"faceId":64,"name":"Ji-yeon Park","image":"/images/managers/manager_64_korean_woman.webp","gender":"female","speciality":"Fitness Guru","effect":"Match injury risk is 20% lower","isPlayer":false}
+  PASS  (set-up) the off-season window opens
+  PASS  the club appoints the free face out of work longest  {"face":14,"name":"Tomáš Novák","vac":null}
+  PASS  not the manager it sacked, though she has been out of work longer still
+  PASS  the appointed face is in post (no longer out of work)
+  PASS  every manager the boards sacked at this window is out of work from the sacking, and on her club's sacked-by list  0 sacked at this window
+  PASS  still no face used twice  61 in post
+  PASS  Qualified Teams: each club shows its manager's face, name and speciality  18 clubs; e.g. Cairo Desert Eagles: Ahmed Mansour, Contracts Expert
+
+6. A JOB OFFER SAYS HIM OR HER, FROM THE FACE
+  PASS  an offer over a man's face: "a failed season behind him"  Rio Copacabana Queens's board wants a better manager than Min-jun Kim (a failed season behind him) and offers you the job.
+  PASS  an offer over a woman's face: "a failed season behind her"  LA Beach Legends's board wants a better manager than Dewi Kusumawati (a failed season behind her) and offers you the job.
+  PASS  and each offer shows the manager being replaced
+
+7. THE SCREENS
+  PASS  both new-career wizards show the face picker and send the face
+  PASS  Profile shows the face; the purple UserCog icon is gone
+  PASS  Qualified Teams and the Job Market show the managers
+  PASS  the old mixed FIRST/LAST name lists and aiManagerName are gone
+
+=== 56/56 passed ===

@@ -700,6 +700,11 @@ runSuite("contract rules", path.join(REPO, "harness", "contract-rules.mjs"));
 console.log("\n########## 98zza/100  AI CLUBS TRADE ON THE MARKET (1.1.3 MARKET ITEM 1) ##########");
 runSuite("ai market", path.join(REPO, "harness", "ai-market.mjs"));
 
+// 1.1.3 (Rob, 26 Oct; squad policy brief item A): one squad policy (utils/aiSquadPolicy.ts) is the only place that
+// sets an AI club's squad size, renews, releases or signs cover; two seasons. Own DB and server (4965).
+console.log("\n########## 98zzb/100  ONE SQUAD POLICY FOR THE AI CLUBS (1.1.3 SQUAD ITEM A) ##########");
+runSuite("squad policy", path.join(REPO, "harness", "squad-policy.mjs"));
+
 // ── Smoke needs a server; boot one on a throwaway copy of the shipped DB ─────
 console.log("\n########## 99/100  GAMEPLAY SMOKE ##########");
 {

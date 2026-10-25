@@ -426,7 +426,7 @@ async function advanceToBoundary(api, maxDays = 500) {
     known.length > 0 && correct.length === known.length && intakeCorrect.length === fromIntake.length,
     `${correct.length}/${known.length} with a baseline, ${intakeCorrect.length}/${fromIntake.length} from an academy intake, after ${boundaries} boundaries`);
   // Anyone without a baseline or an intake is an AI academy's youth an AI club promoted (a broke club steps
-  // one up, utils/aiSquads.ts): a graduate of an AI academy.
+  // one up, utils/aiSquadPolicy.ts): a graduate of an AI academy.
   const aiGraduates = list.filter((p) => !ages0.has(p.id) && !intakeAge.has(p.id) && p.playerType === "youth");
   // 1.1.1 (Rob, 18 Oct): and the picture players, each recorded where she was made (career_new_seniors).
   const madeHere = new Set(DB_FILE ? (() => { const d = new DatabaseSync(DB_FILE, { readOnly: true });
@@ -1105,13 +1105,13 @@ async function advanceToBoundary(api, maxDays = 500) {
       + (outOfPictures ? `fewer than 5 first at the turn after season ${outOfPictures.season} (the pictures ran out)` : "the pictures lasted every turn"));
     check(`${longRun.label}: the free-agent market never ran dry`, worlds.every((w) => w.freeAgents > 0), `lowest ${Math.min(...worlds.map((w) => w.freeAgents))}`);
     const mids = worlds.map((w) => w.mid).filter(Boolean);
-    // 1.1.2 (21 Oct): an AI club signs its interchange only when it can pay her under its cap (keepAiSquadsTx),
+    // 1.1.2 (21 Oct): an AI club signs its interchange only when it can pay her under its cap (the squad policy),
     // so many play the season with two. The 1.1.1 game, measured the same way on 1 July of seasons 1 and 2:
     // 45 and 48 of 60 hold 3 (1.1.2: 46 and 48). What the new seniors must keep: two on the sand everywhere,
     // most clubs with an interchange, and the AI clubs' seniors not dwindling (17 Oct: 107 by season 24).
     const aiHeld = worlds.map((x) => x.atAiClubs).filter((n) => typeof n === "number");
     // Fewer than two FIT on the day is injuries: the club covers from its injured list or forfeits, by design
-    // (aiInjuredListDayTx; harness/ai-injuries.mjs). Fewer than two SIGNED would be the dwindling this guards.
+    // (the squad policy's injury and day events; harness/ai-injuries.mjs). Fewer than two SIGNED would be the dwindling this guards.
     check(`${longRun.label}: every mid-season every AI club has two seniors signed, at least 36 of 60 hold 3 fit, and the AI clubs' seniors never fall below 90% of season 1's`,
       mids.length === worlds.length && mids.every((m) => m.with3 >= 36 && (m.shortBooked ?? 0) === 0) && aiHeld.length > 0 && Math.min(...aiHeld) >= 0.9 * aiHeld[0],
       `fewest with 3 fit: ${Math.min(...mids.map((m) => m.with3))}; most with fewer than two signed: ${Math.max(...mids.map((m) => m.shortBooked ?? 0))}; AI clubs' seniors ${aiHeld[0]} at season 1, lowest ${Math.min(...aiHeld)}`);

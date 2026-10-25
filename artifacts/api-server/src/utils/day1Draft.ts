@@ -16,7 +16,7 @@
  * same without playing a day).
  *
  * Then (Day 2) each AI club keeps the seniors he did not take, and every club
- * with a gap fills it from what is left by item 4a's rule (keepAiSquadsTx:
+ * with a gap fills it from what is left by item 4a's rule (the squad policy, utils/aiSquadPolicy.ts:
  * the best free agent who fits under its cap and that it can afford), clubs in
  * random order. The AI managers' faces are dealt then, as before.
  *
@@ -27,11 +27,10 @@ import {
 } from "@workspace/db";
 import { and, asc, eq, isNull, or } from "drizzle-orm";
 import type { CareerStateTx } from "../lib/playerDto.js";
-import { materializeAiSeniorsTx, keepAiSquadsTx } from "./aiSquads.js";
-import { fillAiAcademiesTx } from "./youthLoans.js";
+import { materializeAiSeniorsTx } from "./aiSquads.js";
+import { aiSquadPolicyTx } from "./aiSquadPolicy.js";
 import { ensureAiManagersTx } from "./aiManagers.js";
 import { recordFreeFacesTx, specialityFactor } from "./managerFaces.js";
-import { seasonEndsForCareerTx } from "./seasonDates.js";
 import { overallRating } from "./overallRating.js";
 import { askingWage } from "./wageCurve.js";
 import { MAX_STARTERS, MAX_INTERCHANGE } from "./squadRules.js";
@@ -119,8 +118,7 @@ export function finishDay1DraftTx(w: CareerStateTx, careerSaveId: number, teamId
   if (!season) return "The career has no season yet.";
   // 1.1.3 (25 Oct; AI market brief item 4): the AI academies are filled now, not a week in, so a club can hold a
   // third senior from its academy and cover a senior hurt in the first week.
-  fillAiAcademiesTx(w, careerSaveId);
-  keepAiSquadsTx(w, careerSaveId, season.start, seasonEndsForCareerTx(w.tx, careerSaveId), Math.random);
+  aiSquadPolicyTx(w, careerSaveId, { kind: "day1", today: season.start, random: Math.random });
   // Update 1, item 2: the AI managers' faces, dealt after the draft; the faces
   // left over are out of work from the career's first day.
   ensureAiManagersTx(w.tx, careerSaveId, season.year);

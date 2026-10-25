@@ -1,0 +1,34 @@
+========================================================================
+  UPDATE 1, ITEM 4a: THE SALARY CAP
+========================================================================
+
+1. "SENIOR WAGES $X OF $60,000" IS THE SUM OF THE SENIORS' WAGES
+  PASS  the Team and Finances figure is the seniors' wages, against a $60,000 cap, with the room left  $44,800 of $60,000 ($15,200 room); database sum $44,800
+  PASS  (source) Team, Finances and Contracts show it; the signing box shows the room and won't offer a deal over the cap
+
+2. A SIGNING THAT FITS GOES THROUGH; ONE THAT DOESN'T IS REFUSED
+  PASS  a signing that fits under the cap goes through  Lani Faumuina at $10,500: HTTP 201 , wages $40,500
+  PASS  one that doesn't is refused, in Rob's words, and nothing changes  Camila Santiago at $21,800: "That takes your wages to $62,300. The cap is $60,000. Free up $2,300 first."
+
+3. A CONTRACTS EXPERT'S CLUB GETS 10% MORE ROOM
+  PASS  without one: her ask is over the room, refused  room $14,250, she asks $15,000
+  PASS  with one: she asks 10% less, it fits, she signs on that wage  $15,000 -> $13,500: HTTP 201
+
+4. A RENEWAL ASKS THE WAGE FOR HER RATING NOW; OVER THE CAP IT IS REFUSED
+  PASS  the Contracts page shows what she asks to renew and that it breaks the cap, before it is tried  asks $13,213 (rating 67); That takes your wages to $62,000. The cap is $60,000. Free up $2,000 first.
+  PASS  renewing her is refused with the same words (the wages would be over the cap)  HTTP 422 "That takes your wages to $62,000. The cap is $60,000. Free up $2,000 first."
+  PASS  an offer below her ask is refused too (rule B)
+
+5. AN AI CLUB OBEYS THE CAP
+  PASS  an AI club below two, with no room, signs no free agent (it may only promote its own youth)  0 free agents joined club 1
+  PASS  an AI club that can't fit a renewal (re-priced to her rating) lets her go: a free agent asking that wage (or signed straight away by another AI club on it)  club null, $29,243 (rating asks $29,243), market: free_agent
+  PASS  one that fits renews, re-priced to the wage for her rating (not her old wage for ever)  $23,502 -> $23,502, to 2027-12-31
+  PASS  (source) an AI club only bids for a player who fits on her arrival date; refilling picks the best affordable who fits (one picker); selling counts the departing wage
+  INFO  AI clubs over the cap after the week: 6 (C-5: a club that started over keeps its players)
+
+6. A CAREER OVER THE CAP KEEPS EVERYONE, BUT CAN'T SIGN OR RAISE
+  PASS  (set-up) the club is over the cap, and the figure says so  $93,000
+  PASS  nobody is forced out: every senior is still there a week later  3 seniors
+  PASS  it can't sign anyone, not even the cheapest free agent, while over  wages $62,000; HTTP 422 "That takes your wages to $72,500. The cap is $60,000. Free up $12,500 first."
+
+=== 16/16 passed ===

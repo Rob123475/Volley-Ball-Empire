@@ -326,7 +326,7 @@ const FOCUS: Array<"power" | "defense" | "serve" | "block" | "speed"> = ["power"
 /**
  * Fill every AI club's academy to AI_ACADEMY_SIZE by the intake's rule: every graduate replaced. One factory
  * per region (the name pool is the region's), made only when a club needs one. Weekly (aiAcademiesWeekTx), and
- * 1.1.3 (25 Oct; AI market brief item 4) when the Day 1 draft closes (utils/day1Draft.ts), so an AI club has
+ * 1.1.3 (25 Oct; AI market brief item 4) when the Day 1 draft closes (the squad policy's day1, utils/aiSquadPolicy.ts), so an AI club has
  * youths to cover a senior hurt in the career's first week (they were empty until its first weekly block).
  * Returns how many youths it made.
  */

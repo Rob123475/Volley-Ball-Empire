@@ -137,7 +137,7 @@ try {
   c = await card(fa.id);
   check("she is at an AI club now, still revealed, her report still there", c?.status === "ai_club" && c?.revealed === true && c?.scoutHistory?.length === 1,
     `${c?.status}, revealed ${c?.revealed}, ${c?.scoutHistory?.length} report(s)`);
-  check("(source) an AI club's signing no longer clears her scouting", !/scoutStartedOn: null, scoutReportBy: null/.test(SRC("utils/aiSquads.ts")));
+  check("(source) an AI club's signing no longer clears her scouting", !/scoutStartedOn: null, scoutReportBy: null/.test(SRC("utils/aiSquads.ts")) && !/scoutStartedOn: null, scoutReportBy: null/.test(SRC("utils/aiSquadPolicy.ts")));
 
   // ── 6. No lapse ────────────────────────────────────────────────────────────
   console.log("\n6. REPORTS NO LONGER LAPSE");

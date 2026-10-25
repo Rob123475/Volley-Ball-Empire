@@ -1,0 +1,27 @@
+========================================================================
+  UPDATE 1, OVERNIGHT PART 4 (B-3): THE WATCH LIST AND SCOUTING HISTORY
+========================================================================
+  PASS  (set-up) a Scout is hired  201
+
+1. A STAR PUTS HER ON THE WATCH LIST
+  PASS  an AI club's player and a free agent are on the Watch list, and their cards say so  2 watched
+  PASS  the star again takes her off
+
+2. AN AI CLUB'S PLAYER CAN BE SCOUTED
+  PASS  the scout is sent  200 
+  PASS  5 days on she is revealed, with one dated report (her rating, the scout's potential reading)  [{"on":"2026-01-08","rating":69,"potential":"High"}]
+
+3. SCOUT HER AGAIN, SAME PRICE AND 5 DAYS; EVERY REPORT KEPT
+  PASS  a re-scout is allowed once a report is in, for the same price ($1,500)  200, charged 1500
+  PASS  4. a second scout while one is out is refused  409
+  PASS  while it is out her card keeps the old report (still revealed) and says the new one is coming  rescouting {"readyOn":"2026-01-13","daysLeft":4}
+  PASS  5 days on there are two reports, oldest first, and the newest is her report  [{"on":"2026-01-08","rating":69,"potential":"High"},{"on":"2026-01-13","rating":69,"potential":"Average"}]
+
+5. A SCOUTED PLAYER WHO MOVES CLUB KEEPS HER REPORT
+  PASS  she is at an AI club now, still revealed, her report still there  ai_club, revealed true, 1 report(s)
+  PASS  (source) an AI club's signing no longer clears her scouting
+
+6. REPORTS NO LONGER LAPSE
+  PASS  (source) lapseMarketScouting is deleted, and the rollover no longer calls it
+
+12/12 checks passed

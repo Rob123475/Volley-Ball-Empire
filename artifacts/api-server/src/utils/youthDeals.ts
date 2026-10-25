@@ -47,7 +47,8 @@ import {
   academyAtTx, academyCountTx, allowedMonths, borrowTx, ensureYouthTeamTx, loansTx, placeSignedYouthTx, youthRating, AI_BORROW_GAP,
   type Club,
 } from "./youthLoans.js";
-import { balanceOf, AI_BUY_RESERVE } from "./aiSquads.js";
+import { balanceOf } from "./aiSquads.js";
+import { AI_BUY_RESERVE } from "./aiSquadPolicy.js";
 import { canPayTx, moveFeeTx } from "./transfers.js";
 import { youthPrice, SCOUT_DAYS } from "./marketScouting.js";
 import { academyMonthlySalary } from "./academy.js";

@@ -12,7 +12,7 @@
  *             `scoutingReports` a season, `scoutingPerClub` on players at any
  *             one club. Before 1.1.3 an AI club bid with no report at all; now
  *             it bids for a senior only once its report on her is ready
- *             (utils/aiSquads.ts aiTransfersWeekTx).
+ *             (utils/aiSquadPolicy.ts, the bids).
  *   bids      a senior bid (utils/transfers.ts bidTx) and a youth buy offer
  *             (utils/youthDeals.ts aiYouthBuysWeekTx) are each a row here,
  *             refused or countered too; at most `bids` a season, `bidsPerClub`
@@ -23,14 +23,14 @@
  * missions are not covered (AI clubs send none).
  *
  * 1.1.3 (Rob, 25 Oct; AI market brief item 1): AI clubs buy from the
- * free-agent market, not from each other (utils/aiSquads.ts aiMarketWindowTx).
+ * free-agent market, not from each other (utils/aiSquadPolicy.ts, the market).
  * A free agent is at no club: a report on her counts toward `scoutingReports`
  * but no club's two, and signing her ("sign", her price paid) counts toward
  * `bids` but no club's two. The table also keeps the club's other squad
  * moves, which no limit counts: "renew" (the one renewal a season its rule
  * allows), "leave" (a player whose contract ended, or ends this season, gone to
- * the market: the club does not sign her back that season or the next), "refill" (a free agent signed to keep its places, utils/aiSquads.ts
- * keepAiSquadsTx and the injured list's cover), "promote" (an academy youth
+ * the market: the club does not sign her back that season or the next), "refill" (a free agent signed to
+ * keep its places, injured-list cover included: utils/aiSquadPolicy.ts), "promote" (an academy youth
  * stepping up) and "open:<why>" (a place for next season it could not fill:
  * cap, money or none).
  */
@@ -106,7 +106,7 @@ export function leftClubTx(tx: Tx, careerSaveId: number, poolTeamId: number, tod
   )).all().map((r) => r.id));
 }
 
-/** How many players the club renewed in season `seasonYear` (its rule allows one: utils/aiSquads.ts). */
+/** How many players the club renewed in season `seasonYear` (its rule allows one: utils/aiSquadPolicy.ts). */
 export function aiRenewalsTx(tx: Tx, careerSaveId: number, poolTeamId: number, seasonYear: number): number {
   return tx.select({ id: aiMarketMovesTable.id }).from(aiMarketMovesTable).where(and(
     eq(aiMarketMovesTable.careerSaveId, careerSaveId), eq(aiMarketMovesTable.poolTeamId, poolTeamId),

@@ -1,0 +1,49 @@
+========================================================================
+  1.1.1: NEW SENIORS, THE PICTURE DECIDES THE NATION, RETIREMENT REBUILT
+========================================================================
+
+4. ASK HER TO RETIRE, AND THE TRANSFER LIST
+  PASS  asking her to retire outside the window is refused, saying when it opens  You can ask Lani Faumuina to retire only in the transfer window (it opens on 7 Dec 2026), unless she has had a reconstruction or is on the injured list.
+  PASS  on the injured list she can be asked any time: she retires now, reason "asked", dated today  HTTP 200 {"reason":"asked","o":"2026-01-01"}
+  PASS  and the rest of her contract is paid out, as ending it early is  paid 126000 for 12 months
+  PASS  Club News announces the retirement  Lani Faumuina retires
+  PASS  on the transfer list: her card says so  {"playerId":193,"transferListed":true}
+  PASS  and off it again
+
+   (playing to the season's turn)
+  PASS  the season turned  1 -> 2
+
+1. THE NEW SENIORS
+  PASS  15 AI academy youths stayed on and 5 picture players arrived, on the new season's first day  15 youths stayed (67 other AI youths left the game at 19), 5 picture players
+  PASS  every one arrived a free agent on the market, at a wage (an AI club short of players may sign one at the turn)  20 on the market; signed by an AI club at the turn: none
+  PASS  every picture player's nation is her picture's folder nation  Tea Novak Croatia <- Croatia; Adi Nasevui Fiji <- Fiji; Aisha Kimani Kenya <- Kenya; Amanda Costa Brazil <- Brazil; Johanna Schneider Germany <- Germany
+  PASS  each is a senior of 19 to 21 with youth-scale stats  19,19,21,20,21
+  PASS  each has a real name of her nation (its athletes' names, or data/nationNames.ts)  Tea Novak, Adi Nasevui, Aisha Kimani, Amanda Costa, Johanna Schneider
+  PASS  nations no AI academy youth holds come first: Croatia arrives  Croatia, Fiji, Kenya, Brazil, Germany
+  PASS  no picture is used twice in the career  25 given
+  PASS  each kept-on youth's card: her own nation's new picture, else a graduate picture of her continent, else her flag  nation 0, graduate 15, none 0
+  PASS  a new picture is never on a player of another nation
+  PASS  Club News lists the new talent  20 new seniors on the free-agent market
+
+2. SIGNING A NEW SENIOR
+  PASS  a new senior signs at her wage, outside the window too, like any free agent under the cap  HTTP 201  (wages before $35816.666666666664)
+  PASS  and the salary cap refuses one that would take him over  HTTP 422 That takes your wages to $94,300. The cap is $60,000. Free up $34,300 first.
+
+3. RETIREMENT
+  PASS  a player who turned 40 in the season retired at its end (reason "limit")  {"reason":"limit","age":40,"o":"2027-01-01"}
+  INFO  retired at the turn of season 1: age 3, asked 1, injury 1, limit 1
+  PASS  every retirement at the turn has a reason and a date
+  PASS  the turn recorded each living senior's rating and whether she was a free agent
+  PASS  small in her twenties, growing through her thirties  25: 0.004, 36: 0.21
+  PASS  two reconstructions can end a career at 28  {"age":28,"reconstructions":2,"seriousInjuries":2,"rating":78,"lastRating":79,"unsigned":false,"chance":0.32800000000000007,"reason":"injury"}
+  PASS  a falling rating and a season unsigned raise it  fading 0.21, unsigned 0.316
+  PASS  the season she turns 40 is her last
+
+5. (SOURCE) THE AI CLUBS, THE RULES AND THE NOTES
+  PASS  (source) the AI clubs ask their broken-down and oldest to retire, and list their older weakest, every week before buying
+  PASS  (source) a listed player is wanted without the gap and for 75% of her price
+  PASS  (source) a new nation picture is never recycled onto a youth
+  PASS  (source) the Rules page: the new-talent line and the Retirement topic with both options
+  PASS  (source) and the patch notes
+
+31/31 checks passed

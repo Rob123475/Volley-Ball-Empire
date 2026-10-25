@@ -1,0 +1,46 @@
+========================================================================
+  UPDATE 1, ITEM 4b: THE DAY 1 DRAFT
+========================================================================
+
+1. A NEW CAREER HAS NO AUTOMATIC SQUAD
+  PASS  a new career opens with no seniors at the club, and the draft open  0 seniors
+  PASS  no day is played until he has drafted  HTTP 409 Pick 2 or 3 seniors in the Day 1 draft first.
+  PASS  (source) the automatic picks are gone
+
+2. THE LIST HOLDS EVERY SENIOR IN THE WORLD
+  PASS  every senior in the world is on it: the free agents and every AI club's seniors  312 on the list: 192 free agents, 120 at AI clubs
+  PASS  each card has her rating, nationality, age, wage and club (or free agent)
+  PASS  the wage is her asking wage
+  PASS  with a running "Senior wages $X of $60,000"
+
+3. A PICK OVER THE CAP IS REFUSED; TWO OR THREE ONLY
+  PASS  (set-up) two dear free agents signed, no fee  Yaritza Mendez $33,800, Camila Santiago $21,800
+  PASS  a pick that would break the cap is refused, in Rob's words  Lani Faumuina $10,500: "That takes your wages to $66,100. The cap is $60,000. Free up $6,100 first."
+  PASS  no transfer fee on Day 1: the budget is untouched by the picks
+  PASS  a pick taken back while the draft is open is an undo: free, and she is back on the list
+  PASS  a pick taken back from an AI club goes back to that club, on her wage there, free (Terminate on the Contracts page too)  Siti Rahimah: club 16 -> 16, $11,500
+  PASS  closing with fewer than two is refused  Pick 2 or 3 seniors to start: 2 to play and an optional interchange (you have 1).
+  PASS  and the calendar won't move on from Day 1 with fewer than two  Pick 2 or 3 seniors in the Day 1 draft first.
+  PASS  (source) the draft screen is not forced; the Dashboard warns, with a button to it
+
+4. HE CAN TAKE AN AI CLUB'S STAR; HER CLUB FILLS ITS GAP FROM THE FREE AGENTS
+  PASS  he signs an AI club's best senior he can fit, for her wage and no fee  Sofía Herrera (79) from Cancún Coral Storm, $24,937
+  PASS  the draft closes with two  HTTP 200 
+  PASS  her club filled its gap from the free agents (she is not there)  club now 3 seniors, the new one 141
+  PASS  and the calendar runs now
+  PASS  after the draft, a pick can't be released until the transfer window (no dumping)  HTTP 409 You can't release Yaritza Mendez until the transfer window opens on 7 December 2026: a club carries its seniors until then. Her contract runs to 31 December 2026.
+  PASS  the AI managers' faces were dealt after the draft
+
+5-6. NO PLAYER AT TWO CLUBS; EVERY AI CLUB AT LEAST TWO, UNDER THE CAP
+  PASS  no player ends up at two clubs (nobody at the player's club and an AI club; no pool contract still live beside a career senior)  0 at two clubs, 0 live pool contracts
+  PASS  every AI club has at least 2 seniors, and none is over the cap except one that started over it with its own (C-5)  60 clubs; 6 over the cap with their own seniors only; problems: none
+  PASS  a Contracts Expert's draft shows every wage 10% lower
+  PASS  he chooses each pick's length (6m / 1s / 2s), and a fourth senior is refused  fourth: HTTP 422 Squad is full (3/3 senior players). A squad is 2 starters and 1 interchange — release someone first.
+
+6b. PLAYING ON FROM DAY 1 CLOSES THE DRAFT
+  PASS  with two drafted, the calendar moves on to Day 2 and that closes the draft: the AI clubs fill, the faces are dealt  HTTP 200 
+
+7. A CAREER MADE BEFORE THE DRAFT NEVER SEES IT
+  PASS  its draft is closed to it, and its calendar runs
+
+=== 27/27 passed ===

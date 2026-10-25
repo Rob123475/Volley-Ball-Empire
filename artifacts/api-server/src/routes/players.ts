@@ -630,7 +630,7 @@ router.post("/players/:id/retire", async (req, res) => {
 /**
  * 1.1.1 (Rob, 18 Oct): "Put her on the transfer list" ({ listed: false } takes her off). She is marked
  * as available; the AI clubs see her and may bid, under the transfer rules (utils/aiSquads.ts
- * aiTransfersWeekTx: a listed player is wanted at a lower bar and a lower fee, LISTED_TERMS).
+ * aiSquadPolicy.ts bids: a listed player is wanted at a lower bar and a lower fee, LISTED_TERMS).
  */
 router.post("/players/:id/transfer-list", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }

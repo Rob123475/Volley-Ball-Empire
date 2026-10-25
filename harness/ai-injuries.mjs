@@ -266,15 +266,17 @@ try {
 
   // ── 7. A full club buys ────────────────────────────────────────────────────
   console.log("\n7. A FULL AI CLUB MAY BUY, RELEASING ITS WEAKEST");
-  check("(source) a full club's bar is its weakest senior + AI_BUY_GAP; she is released when the one it buys arrives; the cap counts her wage gone",
-    /const weakest = mine\.length >= AI_MAX_SQUAD \? mine\[mine\.length - 1\]! : null;/.test(aiSrc)
-      && /const bar = \(weakest \?\? mine\[AI_MIN_SQUAD - 1\]!\)\.rating \+ AI_BUY_GAP;/.test(aiSrc)
-      // 1.1.1: she goes the day the bought player arrives (utils/transfers.ts transfersDayTx -> aiTrimSquadsTx).
-      && /const weakest = spare\.shift\(\)!;[\s\S]{0,120}releaseToMarket\(w, careerSaveId, weakest\.id/.test(aiSrc)
-      && /else if \(aiBuyers\.size > 0\) aiTrimSquadsTx\(w, careerSaveId, today, new Set\(aiBuyers\.keys\(\)\)\);/.test(fs.readFileSync(path.join(REPO, "artifacts", "api-server", "src", "utils", "transfers.ts"), "utf8"))
-      && /seniorWageBillTx\(w\.tx, careerSaveId, \{ poolTeamId: buyer \}, arrivesOn, squads\) - freeing \+ Math\.min\(keepCost, fillCost\)\) - wage;/.test(aiSrc)
-      // 1.1.1 (the soak): and on the day she arrives the club is under its cap (aiCapOnArrivalTx).
-      && /if \(aiBuyers\.size > 0\) aiCapOnArrivalTx\(w, careerSaveId, aiBuyers, today\);/.test(fs.readFileSync(path.join(REPO, "artifacts", "api-server", "src", "utils", "transfers.ts"), "utf8")));
+  // 1.1.3 (Rob, 26 Oct): the squad policy (utils/aiSquadPolicy.ts) holds these rules now, and the bid bar is its
+  // weaker starter (its second best holding a place) + AI_BUY_GAP, whatever its third.
+  const policySrc = SRC("utils/aiSquadPolicy.ts");
+  check("(source) a full club may buy (bar: its weaker starter + AI_BUY_GAP); its weakest is released when the one it buys arrives; the cap counts her wage gone",
+    /const weakest = mine\.length >= AI_MAX_SQUAD \? mine\[mine\.length - 1\]! : null;/.test(policySrc)
+      && /const weakerStarter = mine\[AI_MIN_SQUAD - 1\]!;\s*const bar = weakerStarter\.rating \+ AI_BUY_GAP;/.test(policySrc)
+      // she goes the day the bought player arrives: completeTx settles the club (the policy's arrival: trim, then the cap).
+      && /if \("poolTeamId" in to\) aiSquadPolicyTx\(w, careerSaveId, \{ kind: "arrival", today, poolTeamId: to\.poolTeamId, arrived: deal\.playerId \}\);/
+        .test(fs.readFileSync(path.join(REPO, "artifacts", "api-server", "src", "utils", "transfers.ts"), "utf8"))
+      && /if \(arrived != null \|\| inTransferWindow\(ctx\.today\)\) trimRuleTx\(ctx, club, arrived\);\s*if \(arrived != null\) capOnArrivalRuleTx\(ctx, club, arrived\);/.test(policySrc)
+      && /seniorWageBillTx\(w\.tx, careerSaveId, \{ poolTeamId: buyer \}, arrivesOn, squads\) - freeing \+ Math\.min\(keepCost, fillCost\)\) - wage;/.test(policySrc));
 
   // ── 8. The cap ─────────────────────────────────────────────────────────────
   console.log("\n8. NO AI CLUB THAT SIGNED ANYONE IS OVER THE CAP");

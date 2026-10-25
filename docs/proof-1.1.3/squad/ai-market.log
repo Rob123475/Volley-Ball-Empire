@@ -1,0 +1,59 @@
+========================================================================
+  1.1.3 (25 OCT): AI CLUBS TRADE ON THE MARKET
+========================================================================
+
+1. (SOURCE) THE RULE, WHERE THE GAME KEEPS IT
+  PASS  a contract that ran out is renewed only for the club's best, and only once a season
+  PASS  the weekly block runs the market (scouting through the year, signing in the window) before any bid
+  PASS  AI clubs bid only for the player's seniors (no AI club's player is a bid candidate)
+  PASS  a market signing pays her price and is recorded; the fallbacks are the academy, then an open place with its reason
+
+3-4. 5 SEASONS
+  INFO  planted on 2026-11-30: P1 club 58 (best Aaliyah Rolle on $33516 to 2027-12-31; leaving Shante Bethel 75, Tiara Ferguson 73; room for $14984 after the cheapest $11500), P2 club 21 (broke, 3 youths), P3 club 8 ($10,000 of room next season; the least a senior asks is $11500)
+  PASS  season 2026: every AI club with a contract ending replaced it in the window (or recorded the place open, with why)  38 clubs, 86 leaving; 85 signed, 1 promoted, 0 refills; open 17 (open:cap)
+  PASS  season 2026: no club renewed more than one player  22 renewals
+  PASS  season 2026: every expiring player not renewed has left her club  86 left
+  PASS  season 2026: the A3 limits held (10 reports, 2 on one club; 10 bids and signings, 2 to one club)  115 reports (most by one club 4, on one club 1); 187 bids and signings (most 7, to one club 2)
+  PASS  season 2026: no AI club bid for another AI club's senior  0 AI-to-AI senior bids
+  INFO  season 2026: clubs starting 2027 with fewer than three seniors holding a place: 17 (club 43 2 ($59617); club 8 2 ($50000); club 1 2 ($62000, shipped over the cap); club 2 2 ($57051); club 9 2 ($55616); club 10 2 ($55616); club 11 2 ($49875); club 17 2 ($66000, shipped over the cap))
+  INFO  season 2026: free agents 146 at the start, 161 at the turn; players 3+ seasons at their club: most at one club 2, clubs with 2+ 23; 1.0 min
+  PASS  P1, too poor under its cap for like for like, signed cheaper free agents for both places (no place left open)  replacing 75 (like for like from $15819): signed Neema Mollel 69 on $14984, Dalal Al-Saud 64 on $11500
+  PASS  P2, with no money, promoted its academy's best youth (no place left open)  promote 2026-12-31
+  PASS  P3, with no room under its cap for anyone (a free agent or a youth), left the place open and recorded why (open:cap)  open:cap 2026-12-31
+  PASS  season 2027: every AI club with a contract ending replaced it in the window (or recorded the place open, with why)  60 clubs, 150 leaving; 151 signed, 8 promoted, 1 refills; open 2 (open:cap)
+  PASS  season 2027: no club renewed more than one player  14 renewals
+  PASS  season 2027: every expiring player not renewed has left her club  150 left
+  PASS  season 2027: the A3 limits held (10 reports, 2 on one club; 10 bids and signings, 2 to one club)  251 reports (most by one club 7, on one club 2); 256 bids and signings (most 8, to one club 2)
+  PASS  season 2027: no AI club bid for another AI club's senior  0 AI-to-AI senior bids
+  INFO  season 2027: clubs starting 2028 with fewer than three seniors holding a place: 2 (club 9 2 ($51880); club 10 2 ($44947))
+  INFO  season 2027: free agents 161 at the start, 175 at the turn; players 3+ seasons at their club: most at one club 1, clubs with 2+ 0; 1.9 min
+  PASS  season 2028: every AI club with a contract ending replaced it in the window (or recorded the place open, with why)  40 clubs, 111 leaving; 109 signed, 2 promoted, 0 refills; open 1 (open:cap)
+  PASS  season 2028: no club renewed more than one player  3 renewals
+  PASS  season 2028: every expiring player not renewed has left her club  111 left
+  PASS  season 2028: the A3 limits held (10 reports, 2 on one club; 10 bids and signings, 2 to one club)  140 reports (most by one club 6, on one club 2); 215 bids and signings (most 8, to one club 2)
+  PASS  season 2028: no AI club bid for another AI club's senior  0 AI-to-AI senior bids
+  INFO  season 2028: clubs starting 2029 with fewer than three seniors holding a place: 0
+  INFO  season 2028: free agents 175 at the start, 192 at the turn; players 3+ seasons at their club: most at one club 1, clubs with 2+ 0; 2.5 min
+  PASS  season 2029: every AI club with a contract ending replaced it in the window (or recorded the place open, with why)  60 clubs, 162 leaving; 162 signed, 0 promoted, 0 refills; open 0 (none)
+  PASS  season 2029: no club renewed more than one player  10 renewals
+  PASS  season 2029: every expiring player not renewed has left her club  162 left
+  PASS  season 2029: the A3 limits held (10 reports, 2 on one club; 10 bids and signings, 2 to one club)  187 reports (most by one club 5, on one club 2); 266 bids and signings (most 8, to one club 2)
+  PASS  season 2029: no AI club bid for another AI club's senior  0 AI-to-AI senior bids
+  INFO  season 2029: clubs starting 2030 with fewer than three seniors holding a place: 0
+  INFO  season 2029: free agents 192 at the start, 207 at the turn; players 3+ seasons at their club: most at one club 1, clubs with 2+ 0; 3.2 min
+  PASS  season 2030: every AI club with a contract ending replaced it in the window (or recorded the place open, with why)  43 clubs, 108 leaving; 98 signed, 9 promoted, 0 refills; open 1 (open:cap)
+  PASS  season 2030: no club renewed more than one player  10 renewals
+  PASS  season 2030: every expiring player not renewed has left her club  108 left
+  PASS  season 2030: the A3 limits held (10 reports, 2 on one club; 10 bids and signings, 2 to one club)  138 reports (most by one club 6, on one club 2); 202 bids and signings (most 8, to one club 2)
+  PASS  season 2030: no AI club bid for another AI club's senior  0 AI-to-AI senior bids
+  INFO  season 2030: clubs starting 2031 with fewer than three seniors holding a place: 1 (club 30 2 ($49088))
+  INFO  season 2030: free agents 207 at the start, 215 at the turn; players 3+ seasons at their club: most at one club 1, clubs with 2+ 0; 3.8 min
+  PASS  5 seasons played  reached season 6 on 2031-01-01
+  PASS  every renewal was of the club's best on the day  59 renewals
+  PASS  no AI club went over the salary cap on any day (a club the starter DB puts over it keeps its own and adds nobody, C-5)  none
+  PASS  item 4: no AI club was ever without two seniors holding a place, on any day  none
+  INFO  club-seasons over the cap only through a youth promoted to cover (C-5, allowed): 5
+  INFO  clubs the starter DB puts over the cap with its own seniors on the first day: 6 (1, 17, 18, 25, 26, 41)
+  INFO  seasons: 2026 renewed 22, signed 85, promoted 2, open 17, free agents 146->161; 2027 renewed 14, signed 151, promoted 12, open 2, free agents 161->175; 2028 renewed 3, signed 109, promoted 4, open 1, free agents 175->192; 2029 renewed 10, signed 162, promoted 1, open 0, free agents 192->207; 2030 renewed 10, signed 98, promoted 11, open 1, free agents 207->215
+
+36/36 checks passed
