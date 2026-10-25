@@ -1,0 +1,7 @@
+Light         n=13  ITA -10.4..52.1 (median 36.8)  L 46.1..74.9 (median 68.7)
+Medium Light  n=23  ITA -16.9..46.2 (median 25.4)  L 41.5..77.3 (median 63.4)
+Medium        n=19  ITA -0.4..37.4 (median 22.3)  L 49.8..73.5 (median 62.1)
+Medium Dark   n=23  ITA -15.3..72.8 (median 7.9)  L 42.2..93.8 (median 54.1)
+Dark          n=18  ITA -70.1..51.2 (median -29.6)  L 23.6..82.7 (median 37.1)
+ita: cuts 33.9 / 25.3 / 19.0 / -15.5: 61/96 exact, 80/96 within one band
+L: cuts 68.1 / 62.2 / 57.8 / 46.3: 58/96 exact, 79/96 within one band

@@ -279,6 +279,12 @@ try {
   const tone = fresh.filter((p) => p.imageBand !== p.skinTone || pool.get(p.stableId)?.tone !== p.skinTone);
   check("each new picture matches her continent's folder and her skin tone", tone.length === 0 && fresh.every((p) => p.card.startsWith("/images/players/seniors/ai/")),
     tone.slice(0, 3).map((p) => `${p.name} ${p.skinTone} / picture ${p.imageBand}`).join(" · ") || "96 of 96");
+  // 1.1.3 (Rob, 26 Oct; squad policy brief item C): the 24 repointed are banded to their new pictures too, in the
+  // starter DB (so the court draws each as her card shows her); what each was before is kept in the list.
+  const toneR = repointed.filter((p) => !p.imageBand || p.imageBand !== p.skinTone || pool.get(p.stableId)?.tone !== p.skinTone || !p.skinToneBefore26Oct);
+  check("each of the 24 repointed has her new picture's band as her skin tone, in the starter DB", toneR.length === 0 && repointed.length === 24,
+    toneR.slice(0, 3).map((p) => `${p.name} ${pool.get(p.stableId)?.tone} / picture ${p.imageBand}`).join(" · ")
+      || `24 of 24; ${repointed.filter((p) => p.skinToneBefore26Oct !== p.skinTone).length} changed on 26 Oct`);
   const md5 = (u) => crypto.createHash("md5").update(fs.readFileSync(path.join(PUBLIC, u))).digest("hex");
   const everyPicture = [...all, ...fresh.map((p) => p.card)];
   check("and none of Rob's 217 new pictures is the same picture as another (graduates and seniors)",

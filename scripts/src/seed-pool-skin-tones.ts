@@ -21,6 +21,10 @@
  * her. A save that still has her old tone gets the new one at boot
  * (artifacts/api-server/src/utils/aiSkinTones.ts).
  *
+ * 1.1.3 (Rob, 26 Oct; squad policy brief item C): and the 24 repointed to
+ * new-senior pictures (kind "repointed"), whose imageBand is their new picture's
+ * band. Starter DB only: no boot correction carries these to a save in play.
+ *
  * Usage (from scripts/):  npx tsx src/seed-pool-skin-tones.ts <sqlite file> [--apply]
  * Without --apply it only reports.
  */
@@ -83,7 +87,7 @@ const pool = d.prepare(
 
 const cards = JSON.parse(fs.readFileSync(new URL("../portraits/ai-senior-cards.json", import.meta.url), "utf8")).players as
   { stableId: string; kind: string; imageBand: string | null }[];
-const pictureBand = new Map(cards.filter((c) => c.kind === "new" && c.imageBand).map((c) => [c.stableId, c.imageBand!]));
+const pictureBand = new Map(cards.filter((c) => (c.kind === "new" || c.kind === "repointed") && c.imageBand).map((c) => [c.stableId, c.imageBand!]));
 const badBand = [...pictureBand.values()].filter((b) => !(BANDS as readonly string[]).includes(b));
 if (badBand.length > 0) throw new Error(`picture bands the court does not know: ${badBand.join(", ")}`);
 

@@ -26,7 +26,7 @@ Brief: `Downloads/SQUAD-POLICY-BRIEF-26OCT.md`. Worktree `C:/vbe-tm`, branch `re
 
   **Every benchmark is met** in a 10-season soak. The bid bar is now "5 better than its weaker starter": 6 bids on Rob's seniors in 10 seasons (25 Oct: 8).
 - **Item B (Malta): done.** Rob's four Malta pictures are installed (malta_01 to malta_04). Maria Caruana and Nicole Borg are on malta_01 and malta_02 (starter DB only). **No two players share a picture, with no exceptions** (324 cards). The installer had a leftover call to a function deleted by the flags work; that line is fixed.
-- Item C (skin tones): *pending*
+- **Item C (skin tones): done.** All 24 repointed players (the 22 plus Malta's two) now have their new picture's band as their skin tone, in the starter DB only; 22 changed. Their pictures' file names carry no prompt words, so the 10 Oct name rule couldn't be applied directly. I judged each against the 96's own 10 Oct bands, with a face measurement as tie-break. The contact sheet is in the proof folder; the court render of two of them comes in Part C.
 - Part C: *pending*
 
 ## Item A: one squad policy
@@ -223,3 +223,72 @@ It is in the policy's header beside the cap on arrival.
 - `harness/pool-names.mjs`: no exceptions; Malta's two on Malta pictures; the 22 become 24 throughout.
 - `harness/player-pictures.mjs`: 24 repointed, none kept.
 - `harness/run-all.mjs`: the banner comment.
+
+## Item C: skin tones
+
+### What is now true
+
+- **All 24 repointed players' skin tone is their new picture's band**: the 22 from 25 Oct plus Malta's two, in the starter DB only. 22 changed; Carolina Moreira and Nicole Borg were already Medium. The 3D court draws a pool player, and the career player made from her, with this tone (`continental_pool_players.skin_tone`, 10 Oct).
+- **All 120 AI club players' tones are now their pictures' bands.** The 10 Oct tone script (`scripts/src/seed-pool-skin-tones.ts`) takes the band for kind "repointed" as well as "new":
+  - its dry run on the starter DB changed exactly these 22;
+  - after `--apply`, 22 `skin_tone` cells differ and nothing else in the database;
+  - run again, it changes nothing.
+- **Saves in play keep their tones.** No boot correction was added (`utils/aiSkinTones.ts` is untouched), and the starter DB only fills a tone a save has none of (R-75).
+
+### The band of each picture, and how I judged it
+
+The 10 Oct method gave each of the 96 its picture's band (`imageBand`) from the skin words of Rob's prompt in the file name (`prepare-player-cards.py` `band_of`, plus one band set by hand). Rob's new-senior files have no such words, and none is embedded in the PNGs (only "Made with Google AI"):
+- the name stops at "…not an illustration_ not anime_ not a (1).png";
+- Malta's are `player_senior_malta_01.png`.
+
+So I banded the 24 against the 96 themselves:
+1. **Reference faces.** The faces of the 96 at each 10 Oct band (`reference-faces-by-10oct-band.jpg`).
+2. **By eye.** Each of the 24's faces compared with them (`faces-24-measured.jpg`, with close-ups of the five full-body shots in `faces-close-ups.jpg`).
+3. **A measurement as tie-break.** The face's median skin colour as ITA, the standard skin-tone angle (`measure.py`), used only where my eye fell between two neighbouring bands. On its own it is too rough to decide a band: on the 96 it gets 61 of 96 exactly and 80 within one band (`calibration-on-the-96.txt`). On the 24 it agrees on 11 of the 19 where it found a face, and is within one band on 18.
+
+Each card records this as `imageBandBy`, and its old tone as `skinToneBefore26Oct`.
+
+| Player | Nation | Old tone | New band |
+|---|---|---|---|
+| AFM_09_P1 Yasmine Mzoughi | Tunisia | Medium Light | Medium Dark |
+| AFM_09_P2 Amira Bouazizi | Tunisia | Dark | Medium Dark |
+| AFM_10_P1 Rehema Mollel | Tanzania | Light | Dark |
+| AFM_10_P2 Upendo Mwakalinga | Tanzania | Light | Medium Dark |
+| ASI_09_P1 Tran Thu Trang | Vietnam | Medium Light | Medium |
+| ASI_09_P2 Le Ngoc Han | Vietnam | Light | Medium |
+| ASI_10_P1 Lin Pei-Shan | Taiwan | Medium Dark | Light |
+| ASI_10_P2 Hsu Wan-Ting | Taiwan | Medium Dark | Medium Light |
+| AUS_09_P1 Grace Bainivalu | Papua New Guinea | Light | Dark |
+| AUS_09_P2 Lahui Kaupa | Papua New Guinea | Light | Dark |
+| AUS_10_P1 Ruby Mackenzie | New Zealand | Medium Light | Medium Dark |
+| AUS_10_P2 Isla Walker | New Zealand | Light | Medium Dark |
+| EUR_09_P1 Carolina Moreira | Portugal | Medium | Medium (unchanged) |
+| EUR_09_P2 Niamh Kavanagh | Ireland | Dark | Light |
+| EUR_10_P1 Maria Caruana | Malta | Dark | Medium Light |
+| EUR_10_P2 Nicole Borg | Malta | Medium | Medium (unchanged) |
+| NAM_09_P1 Tanisha Brown | Jamaica | Medium | Medium Dark |
+| NAM_09_P2 Keisha Beckford | Jamaica | Light | Dark |
+| NAM_10_P1 Shante Bethel | Bahamas | Medium | Medium Dark |
+| NAM_10_P2 Tiara Ferguson | Bahamas | Medium | Medium Dark |
+| SAM_09_P1 Anjali Persaud | Guyana | Medium Dark | Dark |
+| SAM_09_P2 Keziah Campbell | Guyana | Medium Light | Medium Dark |
+| SAM_10_P1 Ximena Zeballos | Bolivia | Medium | Medium Dark |
+| SAM_10_P2 Daniela Mamani | Bolivia | Medium | Medium Dark |
+
+### Proof
+
+- **The contact sheet:** `docs/proof-1.1.3/squad/itemC/contact-sheet-24.jpg`. One row per player: her old card, her new card, her old tone, her new tone, and her name and nation. Each swatch is the median skin colour of the 10 Oct pictures in that band.
+- **The court render of two of them** is in Part C's packaged proof, which asks for retoned players on the court. The court page needs the frontend built, and building it here would be a build between items.
+
+  `scripts/webgl-proof/ai-court-proof.mjs` has a `--retoned` option for it. It picks a match against a club whose pair are both among the 24 with a changed tone; every Oceania and other _09 and _10 club qualifies. It then buys one, so one plays on each side. It checks that the court's match-state and its own loader log draw each with her new band.
+- **Suites:** `pool-skin-tones` (re-running the script changes nothing; all 120 from pictures; every away pool pair's tone on the court is her stored tone) and `player-pictures` (each of the 24's tone is her new picture's band, in the starter DB). pool-skin-tones 5/5 ("120 of 120 set, 0 changed; 120 from Rob's pictures"; on the court, 108 of 108 away pool players across 54 matches have their stored tone). player-pictures 37/37 ("each of the 24 repointed has her new picture's band as her skin tone, in the starter DB: 24 of 24; 22 changed on 26 Oct").
+
+### What changed, file by file
+
+- `lib/db/volleyball-empire.sqlite` (starter DB): 22 `continental_pool_players.skin_tone` values.
+- `scripts/portraits/ai-senior-cards.json`: for the 24, `imageBand`, `skinTone`, `skinToneBefore26Oct` and `imageBandBy`.
+- `scripts/src/seed-pool-skin-tones.ts`: a picture's band for kind "repointed" too.
+- `harness/pool-skin-tones.mjs`: 120 picture bands (was 96).
+- `harness/player-pictures.mjs`: a check that the 24's tones are their new pictures' bands.
+- `scripts/webgl-proof/ai-court-proof.mjs`: `--retoned`.
+- `docs/proof-1.1.3/squad/itemC/`: the contact sheet, the reference and face sheets, the measurements and the scripts that made them.

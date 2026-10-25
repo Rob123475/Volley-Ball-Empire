@@ -1,5 +1,5 @@
 {
- "about": "Final brief 5 Oct, A4: the 120 AI club players and their cards. 96 new (Rob's pictures, by continent and skin tone), 24 kept as Rob's CSV names them. Pictures brief 10 Oct: the 96 reshuffled within each continent so each player has the picture that best fits her country, the white kit recoloured in her country's colours (pictureFrom: the slot whose original picture it is; kit: the colours, null where it stayed white). Her skinTone is her picture's band (imageBand); skinToneBefore10Oct is what it was (49 changed; artifacts/api-server/src/utils/aiSkinTones.ts brings older saves forward). 1.1.3 (Rob, 25 Oct; AI market brief item 2): 22 of the 24 kept cards were a world-roster player's too; those players now have an unused new-senior picture of their own nation (kind \"repointed\", scripts/repoint-pool-shared-faces.cjs). 1.1.3 (Rob, 26 Oct; squad policy brief item B): Malta's two too, from Rob's four Malta pictures (installed as malta_01 to malta_04): no two players share a picture, with no exceptions.",
+ "about": "Final brief 5 Oct, A4: the 120 AI club players and their cards. 96 new (Rob's pictures, by continent and skin tone), 24 kept as Rob's CSV names them. Pictures brief 10 Oct: the 96 reshuffled within each continent so each player has the picture that best fits her country, the white kit recoloured in her country's colours (pictureFrom: the slot whose original picture it is; kit: the colours, null where it stayed white). Her skinTone is her picture's band (imageBand); skinToneBefore10Oct is what it was (49 changed; artifacts/api-server/src/utils/aiSkinTones.ts brings older saves forward). 1.1.3 (Rob, 25 Oct; AI market brief item 2): 22 of the 24 kept cards were a world-roster player's too; those players now have an unused new-senior picture of their own nation (kind \"repointed\", scripts/repoint-pool-shared-faces.cjs). 1.1.3 (Rob, 26 Oct; squad policy brief item B): Malta's two too, from Rob's four Malta pictures (installed as malta_01 to malta_04): no two players share a picture, with no exceptions. 1.1.3 (Rob, 26 Oct; squad policy brief item C): the 24 repointed players' skinTone is now their new picture's band too (imageBand, judged from the picture against the 96's bands: those pictures' file names carry no prompt words; skinToneBefore26Oct is what it was). Starter DB only.",
  "players": [
   {
    "stableId": "AFM_01_P1",
@@ -310,48 +310,60 @@
    "name": "Yasmine Mzoughi",
    "continent": "africa_middle_east",
    "country": "Tunisia",
-   "skinTone": "Medium Light",
+   "skinTone": "Medium Dark",
    "age": 24,
    "card": "/images/players/new-seniors/africa-and-middle-east/tunisia/tunisia_01.webp",
    "kind": "repointed",
    "cardBefore25Oct": "/images/players/seniors/player_senior_tunisia_01.webp",
-   "nameBefore24Oct": "Sarah Ben Ammar"
+   "nameBefore24Oct": "Sarah Ben Ammar",
+   "skinToneBefore26Oct": "Medium Light",
+   "imageBand": "Medium Dark",
+   "imageBandBy": "judged from the picture against the 96's 10 Oct bands (her file name has no prompt words); its measured face ITA the tie-break between two neighbouring bands"
   },
   {
    "stableId": "AFM_09_P2",
    "name": "Amira Bouazizi",
    "continent": "africa_middle_east",
    "country": "Tunisia",
-   "skinTone": "Dark",
+   "skinTone": "Medium Dark",
    "age": 25,
    "card": "/images/players/new-seniors/africa-and-middle-east/tunisia/tunisia_02.webp",
    "kind": "repointed",
    "cardBefore25Oct": "/images/players/seniors/player_senior_tunisia_02.webp",
-   "nameBefore24Oct": "Habiba Mzoughi"
+   "nameBefore24Oct": "Habiba Mzoughi",
+   "skinToneBefore26Oct": "Dark",
+   "imageBand": "Medium Dark",
+   "imageBandBy": "judged from the picture against the 96's 10 Oct bands (her file name has no prompt words); its measured face ITA the tie-break between two neighbouring bands"
   },
   {
    "stableId": "AFM_10_P1",
    "name": "Rehema Mollel",
    "continent": "africa_middle_east",
    "country": "Tanzania",
-   "skinTone": "Light",
+   "skinTone": "Dark",
    "age": 27,
    "card": "/images/players/new-seniors/africa-and-middle-east/tanzania/tanzania_01.webp",
    "kind": "repointed",
    "cardBefore25Oct": "/images/players/seniors/player_senior_tanzania_03.webp",
-   "nameBefore24Oct": "Zawadi Kimaro"
+   "nameBefore24Oct": "Zawadi Kimaro",
+   "skinToneBefore26Oct": "Light",
+   "imageBand": "Dark",
+   "imageBandBy": "judged from the picture against the 96's 10 Oct bands (her file name has no prompt words); its measured face ITA the tie-break between two neighbouring bands"
   },
   {
    "stableId": "AFM_10_P2",
    "name": "Upendo Mwakalinga",
    "continent": "africa_middle_east",
    "country": "Tanzania",
-   "skinTone": "Light",
+   "skinTone": "Medium Dark",
    "age": 25,
    "card": "/images/players/new-seniors/africa-and-middle-east/tanzania/tanzania_02.webp",
    "kind": "repointed",
    "cardBefore25Oct": "/images/players/seniors/player_senior_tanzania_01.webp",
-   "nameBefore24Oct": "Asha Msuya"
+   "nameBefore24Oct": "Asha Msuya",
+   "skinToneBefore26Oct": "Light",
+   "imageBand": "Medium Dark",
+   "imageBandBy": "judged from the picture against the 96's 10 Oct bands (her file name has no prompt words); its measured face ITA the tie-break between two neighbouring bands"
   },
   {
    "stableId": "ASI_01_P1",
@@ -659,48 +671,60 @@
    "name": "Tran Thu Trang",
    "continent": "asia",
    "country": "Vietnam",
-   "skinTone": "Medium Light",
+   "skinTone": "Medium",
    "age": 21,
    "card": "/images/players/new-seniors/asia/vietnam/vietnam_01.webp",
    "kind": "repointed",
    "cardBefore25Oct": "/images/players/seniors/player_senior_vietnam_03.webp",
-   "nameBefore24Oct": "Nguyen Mai Anh"
+   "nameBefore24Oct": "Nguyen Mai Anh",
+   "skinToneBefore26Oct": "Medium Light",
+   "imageBand": "Medium",
+   "imageBandBy": "judged from the picture against the 96's 10 Oct bands (her file name has no prompt words); its measured face ITA the tie-break between two neighbouring bands"
   },
   {
    "stableId": "ASI_09_P2",
    "name": "Le Ngoc Han",
    "continent": "asia",
    "country": "Vietnam",
-   "skinTone": "Light",
+   "skinTone": "Medium",
    "age": 21,
    "card": "/images/players/new-seniors/asia/vietnam/vietnam_02.webp",
    "kind": "repointed",
    "cardBefore25Oct": "/images/players/seniors/player_senior_vietnam_02.webp",
-   "nameBefore24Oct": "Le Minh Anh"
+   "nameBefore24Oct": "Le Minh Anh",
+   "skinToneBefore26Oct": "Light",
+   "imageBand": "Medium",
+   "imageBandBy": "judged from the picture against the 96's 10 Oct bands (her file name has no prompt words); its measured face ITA the tie-break between two neighbouring bands"
   },
   {
    "stableId": "ASI_10_P1",
    "name": "Lin Pei-Shan",
    "continent": "asia",
    "country": "Taiwan",
-   "skinTone": "Medium Dark",
+   "skinTone": "Light",
    "age": 23,
    "card": "/images/players/new-seniors/asia/taiwan/taiwan_01.webp",
    "kind": "repointed",
    "cardBefore25Oct": "/images/players/seniors/player_senior_taiwan_02.webp",
-   "nameBefore24Oct": "Chen Yu-Hsin"
+   "nameBefore24Oct": "Chen Yu-Hsin",
+   "skinToneBefore26Oct": "Medium Dark",
+   "imageBand": "Light",
+   "imageBandBy": "judged from the picture against the 96's 10 Oct bands (her file name has no prompt words); its measured face ITA the tie-break between two neighbouring bands"
   },
   {
    "stableId": "ASI_10_P2",
    "name": "Hsu Wan-Ting",
    "continent": "asia",
    "country": "Taiwan",
-   "skinTone": "Medium Dark",
+   "skinTone": "Medium Light",
    "age": 22,
    "card": "/images/players/new-seniors/asia/taiwan/taiwan_02.webp",
    "kind": "repointed",
    "cardBefore25Oct": "/images/players/seniors/player_senior_taiwan_01.webp",
-   "nameBefore24Oct": "Huang Yi-Ting"
+   "nameBefore24Oct": "Huang Yi-Ting",
+   "skinToneBefore26Oct": "Medium Dark",
+   "imageBand": "Medium Light",
+   "imageBandBy": "judged from the picture against the 96's 10 Oct bands (her file name has no prompt words); its measured face ITA the tie-break between two neighbouring bands"
   },
   {
    "stableId": "AUS_01_P1",
@@ -1011,48 +1035,60 @@
    "name": "Grace Bainivalu",
    "continent": "oceania",
    "country": "Papua New Guinea",
-   "skinTone": "Light",
+   "skinTone": "Dark",
    "age": 25,
    "card": "/images/players/new-seniors/oceania/papua-new-guinea/papua-new-guinea_01.webp",
    "kind": "repointed",
    "cardBefore25Oct": "/images/players/seniors/player_senior_papua_new_guinea_04.webp",
-   "nameBefore24Oct": "Alina Kora"
+   "nameBefore24Oct": "Alina Kora",
+   "skinToneBefore26Oct": "Light",
+   "imageBand": "Dark",
+   "imageBandBy": "judged from the picture against the 96's 10 Oct bands (her file name has no prompt words); its measured face ITA the tie-break between two neighbouring bands"
   },
   {
    "stableId": "AUS_09_P2",
    "name": "Lahui Kaupa",
    "continent": "oceania",
    "country": "Papua New Guinea",
-   "skinTone": "Light",
+   "skinTone": "Dark",
    "age": 21,
    "card": "/images/players/new-seniors/oceania/papua-new-guinea/papua-new-guinea_02.webp",
    "kind": "repointed",
    "cardBefore25Oct": "/images/players/seniors/player_senior_papua_new_guinea_02.webp",
-   "nameBefore24Oct": "Kiriwina Tau"
+   "nameBefore24Oct": "Kiriwina Tau",
+   "skinToneBefore26Oct": "Light",
+   "imageBand": "Dark",
+   "imageBandBy": "judged from the picture against the 96's 10 Oct bands (her file name has no prompt words); its measured face ITA the tie-break between two neighbouring bands"
   },
   {
    "stableId": "AUS_10_P1",
    "name": "Ruby Mackenzie",
    "continent": "oceania",
    "country": "New Zealand",
-   "skinTone": "Medium Light",
+   "skinTone": "Medium Dark",
    "age": 25,
    "card": "/images/players/new-seniors/oceania/new-zealand/new-zealand_01.webp",
    "kind": "repointed",
    "cardBefore25Oct": "/images/players/seniors/player_senior_new_zealand_01.webp",
-   "nameBefore24Oct": "Zoe Walker"
+   "nameBefore24Oct": "Zoe Walker",
+   "skinToneBefore26Oct": "Medium Light",
+   "imageBand": "Medium Dark",
+   "imageBandBy": "judged from the picture against the 96's 10 Oct bands (her file name has no prompt words); its measured face ITA the tie-break between two neighbouring bands"
   },
   {
    "stableId": "AUS_10_P2",
    "name": "Isla Walker",
    "continent": "oceania",
    "country": "New Zealand",
-   "skinTone": "Light",
+   "skinTone": "Medium Dark",
    "age": 23,
    "card": "/images/players/new-seniors/oceania/new-zealand/new-zealand_02.webp",
    "kind": "repointed",
    "cardBefore25Oct": "/images/players/seniors/player_senior_new_zealand_02.webp",
-   "nameBefore24Oct": "Lily Mackenzie"
+   "nameBefore24Oct": "Lily Mackenzie",
+   "skinToneBefore26Oct": "Light",
+   "imageBand": "Medium Dark",
+   "imageBandBy": "judged from the picture against the 96's 10 Oct bands (her file name has no prompt words); its measured face ITA the tie-break between two neighbouring bands"
   },
   {
    "stableId": "EUR_01_P1",
@@ -1368,31 +1404,40 @@
    "card": "/images/players/new-seniors/europe/portugal/portugal_01.webp",
    "kind": "repointed",
    "cardBefore25Oct": "/images/players/seniors/player_senior_portugal_01.webp",
-   "nameBefore24Oct": "Sofia Almeida"
+   "nameBefore24Oct": "Sofia Almeida",
+   "skinToneBefore26Oct": "Medium",
+   "imageBand": "Medium",
+   "imageBandBy": "judged from the picture against the 96's 10 Oct bands (her file name has no prompt words); its measured face ITA the tie-break between two neighbouring bands"
   },
   {
    "stableId": "EUR_09_P2",
    "name": "Niamh Kavanagh",
    "continent": "europe",
    "country": "Ireland",
-   "skinTone": "Dark",
+   "skinTone": "Light",
    "age": 22,
    "card": "/images/players/new-seniors/europe/ireland/ireland_01.webp",
    "kind": "repointed",
    "cardBefore25Oct": "/images/players/seniors/player_senior_ireland_01.webp",
-   "nameBefore24Oct": "Aoife O'Sullivan"
+   "nameBefore24Oct": "Aoife O'Sullivan",
+   "skinToneBefore26Oct": "Dark",
+   "imageBand": "Light",
+   "imageBandBy": "judged from the picture against the 96's 10 Oct bands (her file name has no prompt words); its measured face ITA the tie-break between two neighbouring bands"
   },
   {
    "stableId": "EUR_10_P1",
    "name": "Maria Caruana",
    "continent": "europe",
    "country": "Malta",
-   "skinTone": "Dark",
+   "skinTone": "Medium Light",
    "age": 22,
    "card": "/images/players/new-seniors/europe/malta/malta_01.webp",
    "kind": "repointed",
    "cardBefore26Oct": "/images/players/seniors/player_senior_malta_02.webp",
-   "nameBefore24Oct": "Sara Borg"
+   "nameBefore24Oct": "Sara Borg",
+   "skinToneBefore26Oct": "Dark",
+   "imageBand": "Medium Light",
+   "imageBandBy": "judged from the picture against the 96's 10 Oct bands (her file name has no prompt words); its measured face ITA the tie-break between two neighbouring bands"
   },
   {
    "stableId": "EUR_10_P2",
@@ -1404,7 +1449,10 @@
    "card": "/images/players/new-seniors/europe/malta/malta_02.webp",
    "kind": "repointed",
    "cardBefore26Oct": "/images/players/seniors/player_senior_malta_01.webp",
-   "nameBefore24Oct": "Yasmin Grech"
+   "nameBefore24Oct": "Yasmin Grech",
+   "skinToneBefore26Oct": "Medium",
+   "imageBand": "Medium",
+   "imageBandBy": "judged from the picture against the 96's 10 Oct bands (her file name has no prompt words); its measured face ITA the tie-break between two neighbouring bands"
   },
   {
    "stableId": "NAM_01_P1",
@@ -1715,48 +1763,60 @@
    "name": "Tanisha Brown",
    "continent": "north_america",
    "country": "Jamaica",
-   "skinTone": "Medium",
+   "skinTone": "Medium Dark",
    "age": 23,
    "card": "/images/players/new-seniors/north-america/jamaica/jamaica_01.webp",
    "kind": "repointed",
    "cardBefore25Oct": "/images/players/seniors/player_senior_jamaica_01.webp",
-   "nameBefore24Oct": "Kayla Thompson"
+   "nameBefore24Oct": "Kayla Thompson",
+   "skinToneBefore26Oct": "Medium",
+   "imageBand": "Medium Dark",
+   "imageBandBy": "judged from the picture against the 96's 10 Oct bands (her file name has no prompt words); its measured face ITA the tie-break between two neighbouring bands"
   },
   {
    "stableId": "NAM_09_P2",
    "name": "Keisha Beckford",
    "continent": "north_america",
    "country": "Jamaica",
-   "skinTone": "Light",
+   "skinTone": "Dark",
    "age": 22,
    "card": "/images/players/new-seniors/north-america/jamaica/jamaica_02.webp",
    "kind": "repointed",
    "cardBefore25Oct": "/images/players/seniors/player_senior_jamaica_02.webp",
-   "nameBefore24Oct": "Niah Myers"
+   "nameBefore24Oct": "Niah Myers",
+   "skinToneBefore26Oct": "Light",
+   "imageBand": "Dark",
+   "imageBandBy": "judged from the picture against the 96's 10 Oct bands (her file name has no prompt words); its measured face ITA the tie-break between two neighbouring bands"
   },
   {
    "stableId": "NAM_10_P1",
    "name": "Shante Bethel",
    "continent": "north_america",
    "country": "Bahamas",
-   "skinTone": "Medium",
+   "skinTone": "Medium Dark",
    "age": 25,
    "card": "/images/players/new-seniors/north-america/bahamas/bahamas_01.webp",
    "kind": "repointed",
    "cardBefore25Oct": "/images/players/seniors/player_senior_bahamas_01.webp",
-   "nameBefore24Oct": "Aaliyah Rolle"
+   "nameBefore24Oct": "Aaliyah Rolle",
+   "skinToneBefore26Oct": "Medium",
+   "imageBand": "Medium Dark",
+   "imageBandBy": "judged from the picture against the 96's 10 Oct bands (her file name has no prompt words); its measured face ITA the tie-break between two neighbouring bands"
   },
   {
    "stableId": "NAM_10_P2",
    "name": "Tiara Ferguson",
    "continent": "north_america",
    "country": "Bahamas",
-   "skinTone": "Medium",
+   "skinTone": "Medium Dark",
    "age": 22,
    "card": "/images/players/new-seniors/north-america/bahamas/bahamas_02.webp",
    "kind": "repointed",
    "cardBefore25Oct": "/images/players/seniors/player_senior_bahamas_02.webp",
-   "nameBefore24Oct": "Jada Knowles"
+   "nameBefore24Oct": "Jada Knowles",
+   "skinToneBefore26Oct": "Medium",
+   "imageBand": "Medium Dark",
+   "imageBandBy": "judged from the picture against the 96's 10 Oct bands (her file name has no prompt words); its measured face ITA the tie-break between two neighbouring bands"
   },
   {
    "stableId": "SAM_01_P1",
@@ -2067,48 +2127,60 @@
    "name": "Anjali Persaud",
    "continent": "south_america",
    "country": "Guyana",
-   "skinTone": "Medium Dark",
+   "skinTone": "Dark",
    "age": 28,
    "card": "/images/players/new-seniors/south-america/guyana/guyana_01.webp",
    "kind": "repointed",
    "cardBefore25Oct": "/images/players/seniors/player_senior_guyana_03.webp",
-   "nameBefore24Oct": "Nia Campbell"
+   "nameBefore24Oct": "Nia Campbell",
+   "skinToneBefore26Oct": "Medium Dark",
+   "imageBand": "Dark",
+   "imageBandBy": "judged from the picture against the 96's 10 Oct bands (her file name has no prompt words); its measured face ITA the tie-break between two neighbouring bands"
   },
   {
    "stableId": "SAM_09_P2",
    "name": "Keziah Campbell",
    "continent": "south_america",
    "country": "Guyana",
-   "skinTone": "Medium Light",
+   "skinTone": "Medium Dark",
    "age": 26,
    "card": "/images/players/new-seniors/south-america/guyana/guyana_02.webp",
    "kind": "repointed",
    "cardBefore25Oct": "/images/players/seniors/player_senior_guyana_01.webp",
-   "nameBefore24Oct": "Amara James"
+   "nameBefore24Oct": "Amara James",
+   "skinToneBefore26Oct": "Medium Light",
+   "imageBand": "Medium Dark",
+   "imageBandBy": "judged from the picture against the 96's 10 Oct bands (her file name has no prompt words); its measured face ITA the tie-break between two neighbouring bands"
   },
   {
    "stableId": "SAM_10_P1",
    "name": "Ximena Zeballos",
    "continent": "south_america",
    "country": "Bolivia",
-   "skinTone": "Medium",
+   "skinTone": "Medium Dark",
    "age": 26,
    "card": "/images/players/new-seniors/south-america/bolivia/bolivia_01.webp",
    "kind": "repointed",
    "cardBefore25Oct": "/images/players/seniors/player_senior_bolivia_04.webp",
-   "nameBefore24Oct": "Valeria Mamani"
+   "nameBefore24Oct": "Valeria Mamani",
+   "skinToneBefore26Oct": "Medium",
+   "imageBand": "Medium Dark",
+   "imageBandBy": "judged from the picture against the 96's 10 Oct bands (her file name has no prompt words); its measured face ITA the tie-break between two neighbouring bands"
   },
   {
    "stableId": "SAM_10_P2",
    "name": "Daniela Mamani",
    "continent": "south_america",
    "country": "Bolivia",
-   "skinTone": "Medium",
+   "skinTone": "Medium Dark",
    "age": 21,
    "card": "/images/players/new-seniors/south-america/bolivia/bolivia_02.webp",
    "kind": "repointed",
    "cardBefore25Oct": "/images/players/seniors/player_senior_bolivia_02.webp",
-   "nameBefore24Oct": "Camila Torrez"
+   "nameBefore24Oct": "Camila Torrez",
+   "skinToneBefore26Oct": "Medium",
+   "imageBand": "Medium Dark",
+   "imageBandBy": "judged from the picture against the 96's 10 Oct bands (her file name has no prompt words); its measured face ITA the tie-break between two neighbouring bands"
   }
  ]
 }

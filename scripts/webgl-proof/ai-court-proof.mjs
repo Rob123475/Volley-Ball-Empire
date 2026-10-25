@@ -91,7 +91,11 @@ try {
 
   // Pictures brief 10 Oct: a player whose tone changed with her new picture.
   const cardOfPool = (id) => CARDS.get(q(`SELECT image_url AS u FROM continental_pool_players WHERE id = ?`, id)[0]?.u ?? "") ?? null;
-  const changedTone = (p) => { const c = p.poolPlayerId != null ? cardOfPool(p.poolPlayerId) : null; return !!c && c.kind === "new" && c.skinToneBefore10Oct !== c.skinTone; };
+  // 1.1.3 (Rob, 26 Oct; squad policy brief item C): with --retoned, one of the 24 repointed players whose tone changed
+  // with her new picture, and the match is against a club whose pair both did.
+  const RETONED = args.includes("--retoned");
+  const toneBefore = (c) => (RETONED ? c.skinToneBefore26Oct : c.skinToneBefore10Oct);
+  const changedTone = (p) => { const c = p.poolPlayerId != null ? cardOfPool(p.poolPlayerId) : null; return !!c && c.kind === (RETONED ? "repointed" : "new") && toneBefore(c) !== c.skinTone; };
 
   // The first match against an AI club (the court is opened from "Next match")
   // whose pair has a player whose tone changed on 10 Oct.
@@ -101,13 +105,13 @@ try {
     matchId = nm.data?.matchDay?.matchId ?? null;
     if (matchId == null) break;
     ms = await state(matchId);
-    if (away(ms).length === 2 && away(ms).every((p) => p.source === "pool") && away(ms).some(changedTone)) break;
+    if (away(ms).length === 2 && away(ms).every((p) => p.source === "pool") && (RETONED ? away(ms).every(changedTone) : away(ms).some(changedTone))) break;
     await api("POST", `/matches/${matchId}/simulate`, {});
     await api("POST", "/calendar/dismiss-match", {});
     matchId = null;
   }
   check("(set-up) a match against an AI club, one of whose pair's tone changed with her new picture", matchId != null,
-    `match ${matchId}: ${ms?.players?.[0]?.team} v ${away(ms)[0]?.team}: ${away(ms).map((p) => `${p.name}${changedTone(p) ? ` (${cardOfPool(p.poolPlayerId).skinToneBefore10Oct} -> ${p.skinTone})` : ""}`).join(" & ")}`);
+    `match ${matchId}: ${ms?.players?.[0]?.team} v ${away(ms)[0]?.team}: ${away(ms).map((p) => `${p.name}${changedTone(p) ? ` (${toneBefore(cardOfPool(p.poolPlayerId))} -> ${p.skinTone})` : ""}`).join(" & ")}`);
   const awayClub = away(ms)[0]?.team;
   // The one bought is the one whose tone changed (the first, if both did).
   const pairBefore = [...away(ms)].sort((a, b) => Number(changedTone(b)) - Number(changedTone(a))).map((p) => p.name);
@@ -157,12 +161,12 @@ try {
     const her = (ms?.players ?? []).slice(0, 2).find((p) => p.name === target.name);
     const card = CARDS.get(target.imageUrl) ?? null;
     mine = { name: target.name, card: target.imageUrl, served: (await fetch(BASE + target.imageUrl)).status, skinTone: her?.skinTone ?? null,
-      pictureBand: card?.imageBand ?? null, before10Oct: card?.skinToneBefore10Oct ?? null };
+      pictureBand: card?.imageBand ?? null, before10Oct: card ? toneBefore(card) ?? null : null };
     summary.boughtOnHomeSide = mine;
   }
   check(`${pairBefore[0]}, bought, plays on Rob's side with her new picture's skin tone`,
     !!mine?.skinTone && mine.skinTone === mine.pictureBand && mine.served === 200,
-    mine ? `court '${mine.skinTone}', picture '${mine.pictureBand}' (before 10 Oct '${mine.before10Oct}'); ${mine.card} (${mine.served})` : "");
+    mine ? `court '${mine.skinTone}', picture '${mine.pictureBand}' (before ${args.includes("--retoned") ? "26" : "10"} Oct '${mine.before10Oct}'); ${mine.card} (${mine.served})` : "");
 
   // The court, opened as Rob opens it: the remembered choice, Next match, Watch Match.
   const profile = fs.mkdtempSync(path.join(os.tmpdir(), "ai-court-chrome-"));

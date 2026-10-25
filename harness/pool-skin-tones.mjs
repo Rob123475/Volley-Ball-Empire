@@ -13,7 +13,8 @@
  *   data     every pool player has one of the five bands the court knows
  *   derived  re-running the seed script against the shipped DB changes
  *            nothing: the stored tones are exactly the counted distribution's
- *            draw (and, for Rob's 96 pictures, the picture's band), not
+ *            draw (and, for Rob's 96 pictures and the 24 repointed on 26 Oct, the
+ *            picture's band: all 120 now), not
  *            hand-edited
  *   court    after the World Tour draw, every away pool pair's skinTone in
  *            /unity/match-state is her stored tone, never null
@@ -80,7 +81,7 @@ console.log("\n1. THE STORED TONES ARE THE COUNTED DISTRIBUTION'S OWN DRAW");
   const m = /R-75 tones: (\d+) of (\d+) pool players; (\d+) changed/.exec(out);
   const cont = /continent's distribution \(nation had no seeded player\): (\d+)/.exec(out);
   const pic = /her picture's band \(one of Rob's AI pictures\): (\d+)/.exec(out);
-  check("re-running the draw against the shipped DB changes nothing", r.status === 0 && !!m && m[1] === "120" && m[3] === "0" && pic?.[1] === "96",
+  check("re-running the draw against the shipped DB changes nothing", r.status === 0 && !!m && m[1] === "120" && m[3] === "0" && pic?.[1] === "120",
     m ? `${m[1]} of ${m[2]} set, ${m[3]} changed; ${pic?.[1] ?? "?"} from Rob's pictures; ${cont?.[1] ?? "?"} from the continent's distribution` : out.slice(-400));
 }
 
