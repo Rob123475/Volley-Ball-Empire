@@ -161,7 +161,9 @@ try {
       // sand); she counts and the club can then add nobody. Counted apart, as the soak counts it.
       const signedBill = l.filter((m) => m.ptype === "senior").reduce((t, m) => t + Number(m.salary) + perkBill(m.perks), 0);
       if (signedBill <= CAP) { overByPromotion.add(`${c} ${d.slice(0, 4)}`); continue; }
-      if (guard === 1 && l.every((m) => m.joined == null)) shippedOver.add(c);
+      // Shipped over it: its own seniors alone (none joined in this career) are over the cap on the first day. (A youth
+      // promoted as cover on the career's first day, C-5, may already be beside them.)
+      if (guard === 1 && l.filter((m) => m.joined == null).reduce((t, m) => t + Number(m.salary) + perkBill(m.perks), 0) > CAP) shippedOver.add(c);
       const renewed = new Set(moves(`AND kind = 'renew' AND pool_team_id = ?`, c).map((x) => x.player_id));
       const line = `${d} club ${c} $${bill}: ${l.map((m) => `${m.name} $${m.salary}${m.perks ? `+${m.perks}` : ""} joined ${m.joined}${renewed.has(m.id) ? " renewed" : ""}`).join("; ")}`;
       // A shipped club over it may renew one of its own at a lower wage (C-5: no new spending); it may add nobody.

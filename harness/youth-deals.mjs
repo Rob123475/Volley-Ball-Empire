@@ -149,7 +149,9 @@ try {
     WHERE s.career_save_id = ? AND s.team_id IS NULL AND s.pool_team_id IS NULL AND st.role = 'Scout' LIMIT 1`, cid)[0].id;
   W.w(`UPDATE career_staff_state SET pool_team_id = ?, is_available = 0 WHERE career_save_id = ? AND staff_id = ?`, buyer, cid, aiScout);
   W.w(`UPDATE staff SET scouting_rating = 90 WHERE id = ?`, aiScout);
-  for (let i = 0; i < 70 && !aiSale(); i++) await W.day();
+  // (20 weeks: since 1.1.3 item 1 an AI club's Scouts also scout the free-agent market for its next season, so a youth
+  // deal can wait for one of them: on 25 Oct it came in 2 to 8 weeks, and once not within the old limit of 10.)
+  for (let i = 0; i < 140 && !aiSale(); i++) await W.day();
   const s = aiSale();
   if (s) {
     // Hers now: at the buyer, or out on loan from it (its reserves are listed every week), unless sold on since.
@@ -159,7 +161,7 @@ try {
     check("an AI club bought another's youth: she is the buyer's (in its academy, or lent out by it), her price paid",
       s.status === "moved" && s.fee >= 500 && (at?.p === s.to_pool_team_id || lent?.o === s.to_pool_team_id || later > 0 || at == null),
       `deal ${s.id}: ${s.from_pool_team_id} -> ${s.to_pool_team_id}, $${s.fee}, on ${s.moved_on}; now ${JSON.stringify(at)}, loan owner ${lent?.o ?? "-"}`);
-  } else check("an AI club with a Scout bought another's youth within 10 weeks", false);
+  } else check("an AI club with a Scout bought another's youth within 20 weeks", false);
 } catch (err) {
   W.fail(err);
 } finally {

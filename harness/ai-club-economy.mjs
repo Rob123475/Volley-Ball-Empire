@@ -43,7 +43,7 @@ import os from "node:os";
 import { DatabaseSync } from "node:sqlite";
 import { requireElectronBinary } from "./electron-binary.mjs";
 import { forkServer, stopServer } from "./server-harness.mjs";
-import { healAllSquads, keepSideFielded, renewExpiringContracts, keepClubSolvent, startCareer, addStandInStaff } from "./harness-club.mjs";
+import { healAllSquads, keepSideFielded, renewExpiringContracts, keepClubSolvent, startCareer, addStandInStaff, turnDownBids } from "./harness-club.mjs";
 // Overnight 1 Oct, N-41: Rob's money numbers, read from the one config file (Node strips the types).
 import { MONEY, managerSalaryFor } from "../lib/db/src/schema/money.ts";
 
@@ -304,6 +304,9 @@ try {
 
   for (let i = 0; i < 20000 && seasons < SEASONS; i++) {
     healAllSquads(dbFile);
+    // 1.1.3 (25 Oct): the manager keeps his squad. An unanswered AI bid takes a player, and since item 4 (AI clubs hold a
+    // cheap third) they bid for his seniors about once a season; three gone left him unable to field a side, sacked.
+    turnDownBids(dbFile);
     keepClubSolvent(dbFile, myTeam());
     {
       const now = budgetOf();

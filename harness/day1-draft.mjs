@@ -82,7 +82,7 @@ async function newCareer(api, name, faceId = 8) {
 const seniorsAt = (cid, teamId) => q(`SELECT s.player_id AS id, s.salary FROM career_player_state s JOIN players p ON p.id = s.player_id
   WHERE s.career_save_id = ? AND s.team_id = ? AND s.is_retired = 0 AND (p.player_type = 'senior' OR s.is_promoted = 1)`, cid, teamId);
 const aiSquads = (cid) => {
-  const rows = q(`SELECT s.pool_team_id AS club, s.player_id AS id, s.salary, s.pool_joined_on AS joined FROM career_player_state s JOIN players p ON p.id = s.player_id
+  const rows = q(`SELECT s.pool_team_id AS club, s.player_id AS id, s.salary, s.pool_joined_on AS joined, p.player_type AS ptype FROM career_player_state s JOIN players p ON p.id = s.player_id
     WHERE s.career_save_id = ? AND s.pool_team_id IS NOT NULL AND s.team_id IS NULL AND s.is_retired = 0 AND (p.player_type = 'senior' OR s.is_promoted = 1)`, cid);
   const m = new Map();
   for (const r of rows) m.set(r.club, [...(m.get(r.club) ?? []), r]);
@@ -189,10 +189,13 @@ try {
   const livePool = q(`SELECT COUNT(*) AS n FROM pool_player_contracts WHERE career_save_id = ? AND status = 'active'`, a.cid)[0].n;
   check("no player ends up at two clubs (nobody at the player's club and an AI club; no pool contract still live beside a career senior)", both === 0 && livePool === 0, `${both} at two clubs, ${livePool} live pool contracts`);
   const squads = aiSquads(a.cid);
-  // A club over the cap must be one that has added nobody (C-5: it keeps its own).
+  // A club over the cap must be one that has added nobody (C-5: it keeps its own). 1.1.3 (25 Oct): a youth promoted
+  // as cover by a club left with fewer than two is never blocked (C-5) and is not an addition; the AI academies are
+  // filled on Day 1 now, so one may be there by the first game day.
   const bad = [...squads.entries()].filter(([, l]) => {
-    const bill = l.reduce((t, p) => t + Number(p.salary), 0);
-    return l.length < 2 || (bill > CAP && l.some((p) => p.joined != null));
+    const signed = l.filter((p) => p.ptype === "senior");
+    const bill = signed.reduce((t, p) => t + Number(p.salary), 0);
+    return l.length < 2 || (bill > CAP && signed.some((p) => p.joined != null));
   });
   const overStart = [...squads.entries()].filter(([, l]) => l.reduce((t, p) => t + Number(p.salary), 0) > CAP).length;
   check("every AI club has at least 2 seniors, and none is over the cap except one that started over it with its own (C-5)", squads.size === 60 && bad.length === 0,

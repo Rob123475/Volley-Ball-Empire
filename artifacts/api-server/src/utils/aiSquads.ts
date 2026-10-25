@@ -405,7 +405,7 @@ function academyBestTx(tx: Tx, careerSaveId: number, poolTeamId: number, minAge 
 /** The free agents an AI club can sign: seniors at no club, best first (item 4c: injured or not, and how long). */
 function freeAgentsTx(tx: Tx, careerSaveId: number) {
   return tx.select({
-    id: playersTable.id, name: playersTable.name, askingPrice: playersTable.askingPrice, salary: careerPlayerStateTable.salary,
+    id: playersTable.id, name: playersTable.name, askingPrice: playersTable.askingPrice, salary: careerPlayerStateTable.salary, age: careerPlayerStateTable.age,
     isInjured: careerPlayerStateTable.isInjured, injuryStatus: careerPlayerStateTable.injuryStatus,
     weeks: careerPlayerStateTable.injuryWeeksRemaining,
     speed: careerPlayerStateTable.speed, power: careerPlayerStateTable.power, defense: careerPlayerStateTable.defense,
@@ -471,13 +471,13 @@ function cheapestFreeWagesTx(tx: Tx, careerSaveId: number): number[] {
   return freeAgentsTx(tx, careerSaveId).filter((f) => !f.injured).map((f) => askingWage(monthlySalaryFor(f.rating), 1, 0)).sort((a, b) => a - b);
 }
 
-function bestAffordableFreeAgent(tx: Tx, careerSaveId: number, poolTeamId: number, freeing = 0, allowInjured = false, today?: string) {
+function bestAffordableFreeAgent(tx: Tx, careerSaveId: number, poolTeamId: number, freeing = 0, allowInjured = false, today?: string, ageBelow = Infinity) {
   const balance = balanceOf(tx, careerSaveId, poolTeamId);
   const bill = committedWageBillTx(tx, careerSaveId, { poolTeamId }) - freeing;
   // 1.1.3 (25 Oct): never one who left it at the end of her contract this season or last (utils/aiMarketLimits.ts).
   const left = today ? leftClubTx(tx, careerSaveId, poolTeamId, today) : new Set<number>();
   return freeAgentsTx(tx, careerSaveId)
-    .filter((f) => (allowInjured || !f.injured) && !left.has(f.id))
+    .filter((f) => (allowInjured || !f.injured) && !left.has(f.id) && f.age < ageBelow)
     .find((f) => {
       const wage = askingWage(monthlySalaryFor(f.rating), 1, f.injuryWeeks);
       return balance >= 3 * wage && fitsUnderCap(bill, wage);
@@ -553,8 +553,11 @@ export function keepAiSquadsTx(w: CareerStateTx, careerSaveId: number, today: st
       const cheapestWages = cheapestFreeWagesTx(w.tx, careerSaveId);
       const forTwo = n + 1 < AI_MIN_SQUAD ? (cheapestWages[1] ?? 0) : 0;
       const forThree = cheapestWages.slice(1, AI_MAX_SQUAD - n).reduce((t, x) => t + x, 0);
-      const fa = bestAffordableFreeAgent(w.tx, careerSaveId, poolTeamId, -forThree, fit >= AI_MIN_SQUAD, today)
-        ?? (forThree > forTwo ? bestAffordableFreeAgent(w.tx, careerSaveId, poolTeamId, -forTwo, fit >= AI_MIN_SQUAD, today) : null);
+      // 1.1.3 (25 Oct, found by the full harness): the third place is never one its deadwood rule would ask to retire
+      // the next week (AI_DEADWOOD.askAge, in the window); making two, anyone.
+      const ageBelow = n >= AI_MIN_SQUAD ? AI_DEADWOOD.askAge : Infinity;
+      const fa = bestAffordableFreeAgent(w.tx, careerSaveId, poolTeamId, -forThree, fit >= AI_MIN_SQUAD, today, ageBelow)
+        ?? (forThree > forTwo ? bestAffordableFreeAgent(w.tx, careerSaveId, poolTeamId, -forTwo, fit >= AI_MIN_SQUAD, today, ageBelow) : null);
       if (fa) {
         signToAiClub(w, careerSaveId, poolTeamId, fa.id, fa.rating, today, seasonEnds, fa.injuryWeeks);
         recordAiMoveTx(w.tx, careerSaveId, poolTeamId, "refill", fa.id, null, today);
@@ -588,7 +591,11 @@ export function keepAiSquadsTx(w: CareerStateTx, careerSaveId: number, today: st
       // loss-making seasons sell it, and the sale clears its debts.
       const bill = committedWageBillTx(w.tx, careerSaveId, { poolTeamId });
       const gone = leftClubTx(w.tx, careerSaveId, poolTeamId, today);
-      const cheapest = freeAgentsTx(w.tx, careerSaveId).filter((f) => !f.injured && !gone.has(f.id) && fitsUnderCap(bill, monthlySalaryFor(f.rating))).at(-1);
+      // 1.1.3 (25 Oct, found by the full harness): the cheapest wage, and of those (every free agent rated about 62 or
+      // less asks the floor wage) the best, not the weakest player in the world.
+      const fitting = freeAgentsTx(w.tx, careerSaveId).filter((f) => !f.injured && !gone.has(f.id) && fitsUnderCap(bill, monthlySalaryFor(f.rating)));
+      const floor = Math.min(...fitting.map((f) => monthlySalaryFor(f.rating)));
+      const cheapest = fitting.find((f) => monthlySalaryFor(f.rating) === floor);
       if (!cheapest) { short++; break; }
       signToAiClub(w, careerSaveId, poolTeamId, cheapest.id, cheapest.rating, today, seasonEnds);
       recordAiMoveTx(w.tx, careerSaveId, poolTeamId, "refill", cheapest.id, null, today);
@@ -628,7 +635,7 @@ export function aiInjuredListDayTx(w: CareerStateTx, careerSaveId: number, today
           signToAiClub(w, careerSaveId, poolTeamId, youth.id, youth.rating, today, seasonEnds);
           recordAiMoveTx(w.tx, careerSaveId, poolTeamId, "promote", youth.id, null, today);
         } else {
-          const fa = bestAffordableFreeAgent(w.tx, careerSaveId, poolTeamId, 0, false, today);
+          const fa = bestAffordableFreeAgent(w.tx, careerSaveId, poolTeamId, 0, false, today, others.length >= AI_MIN_SQUAD ? AI_DEADWOOD.askAge : Infinity);
           if (!fa) continue;
           signToAiClub(w, careerSaveId, poolTeamId, fa.id, fa.rating, today, seasonEnds, fa.injuryWeeks);
           recordAiMoveTx(w.tx, careerSaveId, poolTeamId, "refill", fa.id, null, today);
@@ -758,9 +765,9 @@ export function aiMarketScoutingWeekTx(w: CareerStateTx, careerSaveId: number, t
   const leaving: Array<{ id: number; name: string; rating: number; at: MoveTarget }> = [];
   for (const club of active) {
     const squad = squads.get(club) ?? [];
-    for (const m of squad) if (m.kind === "player" && m !== squad[0] && !runsPastSeason(m, today)) leaving.push({ id: m.id, name: m.name, rating: m.rating, at: { poolTeamId: club } });
+    for (const m of squad) if (m.kind === "player" && m !== squad[0] && !runsPastSeason(m, today) && m.age < AI_DEADWOOD.askAge) leaving.push({ id: m.id, name: m.name, rating: m.rating, at: { poolTeamId: club } });
   }
-  const free = freeAgentsTx(w.tx, careerSaveId).filter((f) => !f.injured).map((f) => ({ id: f.id, name: f.name, rating: f.rating, at: null as MoveTarget }));
+  const free = freeAgentsTx(w.tx, careerSaveId).filter((f) => !f.injured && f.age < AI_DEADWOOD.askAge).map((f) => ({ id: f.id, name: f.name, rating: f.rating, at: null as MoveTarget }));
   const available = new Set([...free, ...leaving].map((c) => c.id));
   const cheapest = cheapestFreeWagesTx(w.tx, careerSaveId);
   let started = 0;
@@ -812,6 +819,9 @@ export type AiMarketWeek = { renewed: number; signed: number; promoted: number; 
  *   can afford (a cheaper player), else promotes its academy's best youth
  *   (PROMOTION_MIN_AGE and up) if she fits under its cap, else the place stays
  *   open and the reason is recorded ("open:cap", "open:money", "open:none").
+ *
+ * It never signs (nor scouts) a free agent of AI_DEADWOOD.askAge or more: its deadwood rule would ask her to
+ * retire the next week in the window (found by the full harness: a 39-year-old signed and paid off a week later).
  *
  * A player whose contract ends this season and is not renewed leaves the day
  * her place or her wage is needed for her replacement (weakest first): she is
@@ -872,7 +882,9 @@ export function aiMarketWindowTx(w: CareerStateTx, careerSaveId: number, today: 
       };
       const balance = balanceOf(w.tx, careerSaveId, club);
       const gone = leftClubTx(w.tx, careerSaveId, club, today);
-      const free = freeAgentsTx(w.tx, careerSaveId).filter((f) => !f.injured && !gone.has(f.id)).map((f) => ({ f, ...marketTerms(careerSaveId, f) }));
+      // Not one its own deadwood rule would ask to retire the next week (AI_DEADWOOD.askAge, in the window).
+      const free = freeAgentsTx(w.tx, careerSaveId).filter((f) => !f.injured && !gone.has(f.id) && f.age < AI_DEADWOOD.askAge)
+        .map((f) => ({ f, ...marketTerms(careerSaveId, f) }));
       const fitting = free.filter((c) => fitsNext(c.wage) && goingFor(c.wage) != null);
       const affordable = fitting.filter((c) => balance >= c.price + 3 * c.wage);
       const wanted = affordable.filter((c) => (moves.reports.get(c.f.id) ?? "9999") <= today || c.f.rating >= replacing - AI_BUY_GAP);

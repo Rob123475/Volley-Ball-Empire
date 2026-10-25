@@ -181,11 +181,21 @@ try {
   check("the AI club still has two to play: it signed a free agent", sz.get(seller) >= 2 && refill.length >= 1, `${seen.currentTeamName}: ${sz.get(seller)} players (signed ${refill.map((r) => r.name).join(", ")})`);
 
   console.log("\n4. AN AI CLUB THAT CANNOT PLAY WITHOUT HER DOES NOT SELL");
-  const poorClub = [...squadSizes(cid)].find(([id, n]) => n === 2 && id !== seller)[0];
+  // A club with two seniors on its books (one on the injured list counts: she is still its, utils/aiSquads.ts canSellTx).
+  // 1.1.3 (25 Oct, item 4): AI clubs hold three now, so one with two is rare; with none, one is made here (its third
+  // released to the free agents).
+  const seniorsAt = (c) => q(`SELECT s.player_id AS id, s.salary FROM career_player_state s JOIN players p ON p.id = s.player_id
+    WHERE s.career_save_id = ? AND s.pool_team_id = ? AND s.team_id IS NULL AND s.is_retired = 0 AND (p.player_type = 'senior' OR s.is_promoted = 1) ORDER BY s.salary`, cid, c);
+  let poorClub = [...squadSizes(cid, true)].find(([id, n]) => n === 2 && id !== seller)?.[0];
+  if (poorClub == null) {
+    poorClub = [...squadSizes(cid, true)].find(([id, n]) => n === 3 && id !== seller)[0];
+    w(`UPDATE career_player_state SET pool_team_id = NULL, contract_end_date = NULL WHERE career_save_id = ? AND player_id = ?`, cid, seniorsAt(poorClub)[0].id);
+  }
   w(`UPDATE career_pool_team_state SET balance = 0 WHERE career_save_id = ? AND pool_team_id = ?`, cid, poorClub);
-  const hers = q(`SELECT player_id AS id FROM career_player_state WHERE career_save_id = ? AND pool_team_id = ? AND team_id IS NULL LIMIT 1`, cid, poorClub)[0].id;
+  const her = seniorsAt(poorClub)[0];
+  const hers = her.id;
   for (const p of (await api("GET", "/players")).data.filter((p) => p.squadRole === "interchange")) freeSquadPlace(DB, p.id, team.id);
-  const refused = await api("POST", "/contracts", { playerId: hers, salary: 10000, bonusPerWin: 0, squadRole: "interchange", length: "1s", confirm: true });
+  const refused = await api("POST", "/contracts", { playerId: hers, salary: Math.round(Number(her.salary) * 1.5), bonusPerWin: 0, squadRole: "interchange", length: "1s", confirm: true });
   check("refused, in plain words", refused.status === 409 && /won't sell.*two players/i.test(refused.data?.error ?? ""), `HTTP ${refused.status}: ${refused.data?.error}`);
   check("and she is still at her club", q(`SELECT pool_team_id AS c FROM career_player_state WHERE career_save_id = ? AND player_id = ?`, cid, hers)[0].c === poorClub);
   w(`UPDATE career_pool_team_state SET balance = 500000 WHERE career_save_id = ? AND pool_team_id = ?`, cid, poorClub);
