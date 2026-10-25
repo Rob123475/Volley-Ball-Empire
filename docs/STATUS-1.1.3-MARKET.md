@@ -4,7 +4,30 @@ Branch `release-1.1.3` in `C:/vbe-tm`, from `a0cd6231` (the rebuild's package co
 
 ## Summary
 
-*(Written last, when Part C is done.)*
+**Items 1–6 are built, each with its own proof, committed and pushed. Part C stopped at Rob's instruction after the third full run failed on one check. Nothing is packaged. Not uploaded.**
+
+- **Item 1, AI clubs trade:**
+  - An AI club renews one player a season (its best), and every other contract runs out into the free-agent market.
+  - Clubs scout the market through the year and, in the window, sign a replacement for each place at her price, else a cheaper one, else an academy youth, else the place is recorded open with why.
+  - There are no AI-to-AI bids. The player sees the signings in Club News.
+  - 104–172 senior moves a season, against 0–4 AI senior bids before.
+  - `ai-market.mjs` 36/36 over 5 seasons with planted poor clubs. `ai-buyable` rewritten to assert the market: **10/10** on the final code, and it fails on a0cd6231.
+- **Item 2, the faces:** 22 of the 24 pool players who wore a world-roster player's card now have an unused new-senior picture of their nation, in the starter DB only. **Malta's two are reported** (Rob made no Malta picture). No two players in the starter DB share a picture otherwise. There is a contact sheet.
+- **Item 3, the contract box:** it says what a length means (31 December), and the Rules page's AI section describes the market.
+- **Item 4, an interchange:**
+  - AI clubs hold a third senior inside the cap.
+  - A 10-season soak had **0 short-squad club-days** (22 in 30 seasons on 24 Oct) and **0 AI clubs over the cap** that signed anyone.
+- **Item 5, the Job Market:** a tab on the Career page, mid-season too, with the sidebar as the way back. Its own page has a Back link.
+- **Item 6, the namesake:** the staff Doctor named like pool player Lucía Quispe is **Rosario Quispe**, because **Rosa Quispe was already a staff member** (10078). The tweed scouts are untouched.
+- **Part C:**
+  - Full runs: 852be3f6 129/136 → 18e106a8 130/136 → **183dedcd 135/136**.
+  - The last failure is a suite counting fault (a renewed senior back from the injured list).
+  - Under Rob's instruction there was no fourth run, and the 30-season soak, repackage and packaged-game screenshots weren't done.
+  - **The analysis:** 11 of the 14 failures across the three runs trace to item 4 making three seniors the norm.
+  - **The recommendation:** rebuild item 4 as one squad policy, or patch the one-line suite fault and run once more. See "Part C stopped".
+- **Steam:** nothing uploaded or set live; BuildID 26098080 (1.1.2) stays live.
+- **`C:\build\vbe-1.1.3`:** still the 24 Oct package from a0cd6231.
+- **Rob's live save:** never opened, and its hash is unchanged (`5980b82c…910a4e`).
 
 ## What is now true
 
@@ -152,11 +175,12 @@ Branch `release-1.1.3` in `C:/vbe-tm`, from `a0cd6231` (the rebuild's package co
 ## What needs Rob
 
 1. **After you upload and set 1.1.3 live: merge `release-1.1.3` into `update-1`** in `C:\Users\rbonn\Documents\Volley-Ball-Empire` and push (brief item 7; not done, it waits for the upload). Optional: `C:\build\vbe-1.1.3-eb2dc65b\` can be deleted.
-2. **The upload and going live**, yours as always (not on a Monday). The Steam script `steam/app_build_5233750-1.1.3.vdf` still has `SetLive "default"`: check that line before you run it.
-3. **AI clubs still bid for your seniors, and now a little more often.** Your rule took away club-to-club buying between AI clubs. I kept their bids for *your* players, since that's your 16 Oct counter-offer feature, which your Team page answers. Because AI clubs now hold a cheap third (item 4), more of your seniors clear their "5 better than our weakest" bar: in the soak, about one bid on your seniors a season (8 in 10 seasons; it was nearly none). The soak never answers, so each one took a player; you'd counter or let her go. If you meant no club-to-club deals at all, it is one loop in `aiTransfersWeekTx` and the suites that test it.
-4. **Malta's two pool players** (EUR_10_P1 Maria Caruana, EUR_10_P2 Nicole Borg) still wear world-roster players' cards (Sara Borg's, Yasmin Grech's). There is no Malta picture among your new-senior cards. Two Malta pictures in `Desktop\new senior cards\europe\malta\` and a re-run of the installer and `scripts/repoint-pool-shared-faces.cjs --write` would finish it.
-5. **Rosario, not Rosa:** Rosa Quispe is already your Massage Therapist (staff 10078), so the Doctor is Rosario Quispe. Say if you'd rather another name.
-6. **The 24 repointed players' skin tones** didn't match their old cards either (see "What I found"). Say if you want them banded to the new pictures, as 10 Oct did for the 96.
+2. **Item 4: patch or rebuild** (see "Part C stopped"). Then a full run on one commit, the 30-season soak, the repackage and the packaged-game proof (`scripts/webgl-proof/market-1.1.3-save.mjs` then `-shots.mjs`, both ready). Until then `C:\build\vbe-1.1.3` is the 24 Oct a0cd6231 package, and the Steam script's Desc still names a0cd6231.
+3. **The upload and going live**, yours as always (not on a Monday). The Steam script `steam/app_build_5233750-1.1.3.vdf` still has `SetLive "default"`: check that line before you run it.
+4. **AI clubs still bid for your seniors, and now a little more often.** Your rule took away club-to-club buying between AI clubs. I kept their bids for *your* players, since that's your 16 Oct counter-offer feature, which your Team page answers. Because AI clubs now hold a cheap third (item 4), more of your seniors clear their "5 better than our weakest" bar: in the soak, about one bid on your seniors a season (8 in 10 seasons; it was nearly none). The soak never answers, so each one took a player; you'd counter or let her go. If you meant no club-to-club deals at all, it is one loop in `aiTransfersWeekTx` and the suites that test it.
+5. **Malta's two pool players** (EUR_10_P1 Maria Caruana, EUR_10_P2 Nicole Borg) still wear world-roster players' cards (Sara Borg's, Yasmin Grech's). There is no Malta picture among your new-senior cards. Two Malta pictures in `Desktop\new senior cards\europe\malta\` and a re-run of the installer and `scripts/repoint-pool-shared-faces.cjs --write` would finish it.
+6. **Rosario, not Rosa:** Rosa Quispe is already your Massage Therapist (staff 10078), so the Doctor is Rosario Quispe. Say if you'd rather another name.
+7. **The 24 repointed players' skin tones** didn't match their old cards either (see "What I found"). Say if you want them banded to the new pictures, as 10 Oct did for the 96.
 
 ## Part C: the one full test
 
@@ -167,6 +191,100 @@ Branch `release-1.1.3` in `C:/vbe-tm`, from `a0cd6231` (the rebuild's package co
 | 852be3f6 (items 1–6) | 129 / 136 | Seven suites, all from this brief's changes. **Game fixes:** (1) the Nations Cup podium had a medallist with no skin tone, a player the game made (a new senior or graduate an AI club signed); the podium now takes the 3D court's rule, one of her nation's pool tones (`nationTones`, shared). (2) The Club News market item said "AI clubs sign 0 free agents…" on days with only a promotion; the wording is fixed, and refills now count as signings. **Suite fixes** (each assumed something this brief changed): `fake-content-removed` didn't know the new `market-<date>` item, nor `retirements-<date>`, which now shows in the first week; both are traced to their rows. `hall-of-fame` lost three seniors to unanswered AI bids: AI clubs with a cheap third clear his players more often, so it turns bids down, as `economy` does. `player-pictures` counted the AI academies' Day 1 youths as shipped ones. `injured-list` planted cover at a club with no room under the cap (cover must fit now). `youth-deals` asked with a Scout already on two jobs. `nations-cup` picked a pair a fortnight before the draw and one had left her club; it re-picks on the eve. Each passed alone after its fix. |
 | 18e106a8 | 130 / 136 | The seven above all passed; six others failed, again knock-on effects of AI clubs holding three. **Game fixes:** (1) a poor AI club could sign a 39-year-old as its third and its deadwood rule asked her to retire a week later (paying her off). Now the market and the third-place and cover signings skip free agents of the deadwood age (35); signing to make two takes anyone. (2) The broke club's on-credit signing took the *weakest* free agent of those on the floor wage; it now takes the best of them. **Suite fixes:** `ai-club-economy` lost its manager to abandonment after AI bids took three of his seniors, so it turns bids down; AI clubs now bid for his seniors about once a season (they used to almost never; see "What needs Rob"). `ai-buyable` section 4 picked a club with two seniors holding a place but a third on the injured list (who still counts). `day1-draft` and `ai-market` counted a day-one C-5 cover youth at a club the starter DB puts over the cap as a breach. `youth-deals` gave an AI youth purchase 10 weeks; the buyer's Scout now also works the market, so 20. `new-seniors` passed 5 of 5 after the age fix. |
 
+| 183dedcd | 135 / 136 | One check in `ai-market`: club 36 in 2030, "3 leaving (3 places), 2 signed". On 6 December it had four seniors, all with contracts ending. The best, Naomi Talo (76), was on the injured list that day. She came off it, was renewed on 12 December, and two signings filled the other places: three seniors, as the rule wants. The suite works out the places from the 6 December snapshot, where a senior on the injured list holds none, so it expected three signings. **A suite counting fault, not the game.** Per Rob's instruction (25 Oct) **not fixed, and no fourth run.** |
+
+## Part C stopped: the failures of three full runs, and their root cause
+
+Rob's instruction mid-Part C: let the third run finish; if it failed, stop, commit, and analyse all three runs together. It failed on one check, so Part C stops here. **Not done: the 30-season soak, the repackage, the packaged-game screenshots** (the scripts for them are committed: `scripts/webgl-proof/market-1.1.3-save.mjs`, `-shots.mjs`). **`C:\build\vbe-1.1.3` is still the 24 Oct package from a0cd6231**; nothing in this brief is in it.
+
+### Every failure, by the change behind it
+
+Three runs: 7 failing suites, then 6, then 1, for 14 failures in all. Each run's fixes held: no suite that was fixed failed again.
+
+| Run | Suite | What failed | The change behind it | Game or suite |
+|---|---|---|---|---|
+| 1 | ceremonies | a Nations Cup medallist with no skin tone | Item 1: the market signs new seniors and graduates to AI clubs, so game-made players (no picture band, no pool row) reach national teams | **game gap** (fixed) |
+| 1 | fake-content-removed | `market-<date>` news unknown; a "sign 0 free agents" headline | Item 1's Club News item | suite + **game wording** (fixed) |
+| 1 | hall-of-fame | three seniors lost to AI bids | **third senior**: a cheap third lowers an AI club's "5 better than our weakest" bid bar | suite |
+| 1 | player-pictures | 312 youth, expected 72 | **third senior**: academies filled on Day 1, so a youth can be the third or the cover | suite |
+| 1 | injured-list | no cover promoted | **third senior / cap**: cover must fit under the cap while the club has two | suite |
+| 1 | youth-deals | a sale needed within two asks; the Scout was busy | **third senior** (Day 1 academies change youths' roles and timing) | suite |
+| 1 | nations-cup | a picked player gone two weeks later | **third senior** (more churn of weak thirds and covers: released when the listed senior returns). Likely, not proven: I didn't trace that player | suite |
+| 2 | ai-club-economy | sacked for abandonment after AI bids took three seniors | **third senior** (the bid bar, as hall-of-fame) | suite |
+| 2 | ai-buyable | the "can't sell" club had a third, on the injured list | **third senior** + injured list | suite |
+| 2 | day1-draft | a C-5 cover youth at a club shipped over the cap counted as a breach | **third senior**: Day 1 academies + cover | suite |
+| 2 | ai-market | the same day-one cover youth | **third senior** | suite |
+| 2 | youth-deals | no AI youth purchase in 10 weeks | Item 1 (AI Scouts also scout the market) + Day 1 academies | suite |
+| 2 | new-seniors | a 39-year-old signed, then asked to retire a week later | **third senior**: a club with three can spare one, so its deadwood rule fires; and the third-place and market signings took her | **game loop** (fixed) + suite |
+| 3 | ai-market | the place count missed a renewed senior back from the injured list | **third senior** + injured list (the suite's own count) | suite |
+
+### Do they share a root cause?
+
+**Yes, mostly, and Rob's suspicion is right.** 11 of the 14 trace to item 4: AI clubs now always hold a third senior, plus the changes that came with it (academies filled on Day 1, same-day cover, cover that must fit the cap). The other 3 trace to item 1's new records and scouting (the news item, the podium's game-made players, AI Scouts' time).
+
+The mechanism is the same each time. Before 25 Oct an AI club usually had two seniors. A lot of code and a lot of suites quietly relied on that:
+- the bid bar (its weakest is a starter);
+- `canSellTx` (two means it can't sell);
+- the deadwood rule (two means it can't spare one);
+- C-5 cover (it only came when the club was short);
+- "academies fill on 8 January".
+
+Making three the norm moved every one of those at once, in five different functions:
+- `keepAiSquadsTx` (the third place);
+- `renewAiSeniorTx` (room for three);
+- `aiInjuredListDayTx` (same-day, cap-fitting cover);
+- `aiDeadwoodTx` (now fires more);
+- `aiMarketWindowTx` and `transfers.completeTx` (the arrival trim).
+
+None of the 14 is a fault in item 1's core rule. Across every run, `ai-market` held these: one renewal (its best), every leaver gone, the A3 limits, no AI-to-AI bid, and no signing over the cap. The four game defects found were all edges where item 4 met an older rule:
+- the podium tone;
+- the news wording;
+- the 39-year-old loop;
+- the weakest on-credit signing.
+
+### Recommendation
+
+**Rebuild item 4 fresh as one piece. Keep items 1, 2, 3, 5 and 6 as committed.**
+
+- Item 4 is now a series of patches: the cap-fitting cover, the age line in three places, the same-day cover, the Day 1 academies, the arrival trim. Each was right on its own, but together they decide "who an AI club holds and when" in five places. Each full run found the next place two of them disagreed. Run 3's last failure is one more instance: the injured list against the renewal count.
+- A fresh item 4 would put the squad policy in one function: renew, the third place, cover, deadwood, the age and cap rules, called from the weekly block, the injured-list day and arrivals. The suites that assume two seniors would then be updated once, against that one policy, rather than one by one as runs fail.
+- What to keep from today's item 4, as evidence for the rebuild:
+  - in a 10-season soak, **0 short-squad club-days**, against 22 in 30 seasons on 24 Oct;
+  - **0 AI clubs over the cap** that signed anyone;
+  - promoted-youth (C-5) over-cap club-seasons down from 34–39 to 4;
+  - clubs starting a season on fewer than three: 13 in season 2, then 0.
+- **The cheaper alternative, patch:**
+  - run 3's failure is a one-line suite fix: count a renewed senior as staying even if she is on the injured list on 6 December;
+  - the code has converged: 7 failing suites, then 6, then 1, and none came back;
+  - one more full run would very likely pass;
+  - the risk is that the next interaction shows up in the 30-season soak or in play rather than in the harness.
+
+  If Rob wants 1.1.3 out soonest, patch; if he wants item 4 to be solid, rebuild it.
+
 ## The market numbers
 
+These come from a **10-season soak** on the item 4 build (1ea5c480's game code), not the 30-season soak Part C asked for, which didn't run (see above). Log: `docs/proof-1.1.3/market/item4/soak-10-seasons.log`.
+
+| Season | Senior transfers completed (signed from the free agents / refills / by a bid) | Free agents, start → end | Continental pool (AI seniors) | 3+ seasons at one club (most at one club) | Short-squad club-days |
+|---|---|---|---|---|---|
+| 1 | 124 (80 / 44 / 0) | 146 → 145 | 167 | 0 (0) | 0 |
+| 2 | 159 (152 / 7 / 0) | 163 → 162 | 179 | 0 (0) | 0 |
+| 3 | 120 (110 / 10 / 0) | 175 → 175 | 180 | 5 (1) | 0 |
+| 4 | 172 (167 / 4 / 1) | 192 → 192 | 180 | 1 (1) | 0 |
+| 5 | 104 (94 / 8 / 2) | 196 → 204 | 181 | 1 (1) | 0 |
+| 6 | 148 (141 / 5 / 2) | 210 → 219 | 180 | 1 (1) | 0 |
+| 7 | 110 (95 / 14 / 1) | 212 → 216 | 176 | 5 (1) | 0 |
+| 8 | 139 (128 / 10 / 1) | 205 → 213 | 180 | 8 (1) | 0 |
+| 9 | 111 (94 / 16 / 1) | 197 → 195 | 180 | 10 (1) | 0 |
+| 10 | 140 (118 / 22 / 0) | 184 → 186 | 180 | 6 (1) | 0 |
+
+- **Transfers:** 104–172 senior moves a season, nearly all AI clubs signing from the free agents in the window. On 24 Oct it was 0–4 AI senior bids a season, none in 28 of 30 seasons.
+- **The pool doesn't drain.** The free agents grew from 146 to the low 200s by season 6 and then settled around 185–215. The continental pool holds at 176–181 seniors: 60 clubs × 3, less the odd open place. The yearly new seniors (20), the leavers and the retirements balance out. Whether it holds over 30 seasons is still to measure.
+- **Long stays:** never more than one player per club at the same club for 3+ seasons. That is the renewed best, as Rob's rule intends.
+- **Youth promotions** fill 8–32 places a season, and places left open run 0–12 a season (reasons: cap, once money), from the soak's market lines.
+
 ## The commit
+
+**No commit from this brief has had a clean full harness run.** The last code commit is **183dedcd**: 135 of 136, with the one failure a suite counting fault (above). Under the brief's own rule ("not acceptable: a package whose commit never had a clean full harness run of its own") **nothing is packaged**. `C:\build\vbe-1.1.3\win-unpacked\` is the 24 Oct package from **a0cd6231** (136/136), and it has none of this brief in it.
+
+**The rule:** anything committed after a0cd6231 that touches `artifacts/`, `lib/` or `electron/` means `C:\build\vbe-1.1.3` is behind the code. Every item of this brief does, so it is behind.
