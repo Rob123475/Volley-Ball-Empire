@@ -286,6 +286,13 @@ export function completeTx(w: CareerStateTx, careerSaveId: number, dealId: numbe
   tx.update(transferDealsTable).set({ status: "moved", movedOn: today }).where(eq(transferDealsTable.id, dealId)).run();
   // The player's club she left: its injured list follows (a fit player may come back now).
   if ("teamId" in from) clubInjuredListTx(w, careerSaveId, from.teamId);
+  // 1.1.3 (25 Oct, found by harness/ai-market.mjs): whatever path brings her (a bid agreed in the window moves her at
+  // once, not in transfersDayTx's arrivals), the AI club she joins lets its weakest go if it is over its places, and
+  // is under its cap that day (its bid counted that weakest's wage gone).
+  if ("poolTeamId" in to) {
+    aiTrimSquadsTx(w, careerSaveId, today, new Set([to.poolTeamId]));
+    aiCapOnArrivalTx(w, careerSaveId, new Map([[to.poolTeamId, deal.playerId]]), today);
+  }
   return "moved";
 }
 

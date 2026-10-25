@@ -69,8 +69,9 @@ try {
 
   await W.boot();
   const { teamId, cid } = await W.newCareer("AI Market");
-  const today = () => W.q(`SELECT "current_date" AS d FROM calendar_state WHERE team_id = ?`, teamId)[0]?.d ?? "";
+  // The career's own club: a sacked manager is moved to an AI club at the turn (routes/job-market.ts), a new teams row.
   const myTeam = () => W.q(`SELECT team_id t FROM career_saves WHERE id = ?`, cid)[0]?.t ?? teamId;
+  const today = () => W.q(`SELECT "current_date" AS d FROM calendar_state WHERE team_id = ?`, myTeam())[0]?.d ?? "";
   const careerStart = today();
   const seniors = () => W.q(`SELECT s.player_id id, p.name, p.player_type ptype, s.pool_team_id club, s.salary, s.perks, s.contract_end_date ends, s.pool_joined_on joined,
       s.on_injured_list listed, s.speed, s.power, s.defense, s.serve, s.block, s.stamina
@@ -128,6 +129,7 @@ try {
   let snap = null;            // 6 December: each club's seniors, before the window
   const renewChecks = [];     // each renewal: was she the club's best that day?
   const overCap = [];         // any day any AI club over the cap (bar C-5, below)
+  const shortDays = [];       // item 4: any day any AI club with fewer than two seniors holding a place
   const overByPromotion = new Set();   // club-seasons over it only through a promoted youth (C-5)
   const shippedOver = new Set();   // clubs over it on the first day with the starter DB's own seniors (C-5)
   const seasonRows = [];
@@ -144,6 +146,11 @@ try {
     const d = today();
     const rolled = r.data?.seasonRollover && r.data.seasonRollover.kind !== "none";
     const all = seniors(), sq = byClub(all);
+    // Item 4: any AI club with fewer than two seniors holding a place (one on the injured list holds none).
+    for (const c of clubs()) {
+      const placed = (sq.get(c) ?? []).filter((m) => !m.listed).length;
+      if (placed < 2) shortDays.push(`${d} club ${c}: ${placed} placed of ${(sq.get(c) ?? []).length}`);
+    }
     // 4. The cap, every day, every AI club. A club the starter DB puts over it (two shipped seniors on more than
     // $60,000 between them) keeps them (C-5) and is counted apart; any club over it with a senior it signed,
     // promoted or renewed in this career has breached it.
@@ -216,7 +223,11 @@ try {
         AND COALESCE(squad_role, '') <> 'academy' AND substr(offered_on, 1, 4) = ?`, cid, String(year))[0].n;
       check(`season ${year}: no AI club bid for another AI club's senior`, aiToAi === 0, `${aiToAi} AI-to-AI senior bids`);
       const long = [...byClub(seniors())].map(([c, l]) => l.filter((m) => year - Number((m.joined ?? careerStart).slice(0, 4)) + (m.joined && m.joined.slice(5) >= "12-07" ? 0 : 1) >= 3).length);
-      seasonRows.push({ year, faStart, faEnd: freeAgents(), signed: inWindow.filter((x) => x.kind === "sign").length, promoted: ofYear.filter((x) => x.kind === "promote").length, open: opens.length, renewals: renews.length });
+      // Item 4: the clubs starting the new season on two seniors, and their bills (are they near the cap?).
+      const onTwo = [...byClub(seniors())].filter(([, l]) => l.filter((m) => !m.listed).length < 3)
+        .map(([c, l]) => `club ${c} ${l.filter((m) => !m.listed).length} ($${l.reduce((t, m) => t + Number(m.salary) + perkBill(m.perks), 0)}${shippedOver.has(c) ? ", shipped over the cap" : ""})`);
+      info(`season ${year}: clubs starting ${year + 1} with fewer than three seniors holding a place: ${onTwo.length}${onTwo.length ? ` (${onTwo.slice(0, 8).join("; ")})` : ""}`);
+      seasonRows.push({ year, onTwo: onTwo.length, faStart, faEnd: freeAgents(), signed: inWindow.filter((x) => x.kind === "sign").length, promoted: ofYear.filter((x) => x.kind === "promote").length, open: opens.length, renewals: renews.length });
       info(`season ${year}: free agents ${faStart} at the start, ${seasonRows.at(-1).faEnd} at the turn; players 3+ seasons at their club: most at one club ${Math.max(0, ...long)}, clubs with 2+ ${long.filter((n) => n >= 2).length}; ${((Date.now() - started) / 60000).toFixed(1)} min`);
       faStart = freeAgents();
       if (season === 1) {
@@ -244,6 +255,8 @@ try {
   const badRenewals = renewChecks.filter((x) => !x.ok);
   check("every renewal was of the club's best on the day", renewChecks.length > 0 && badRenewals.length === 0, `${renewChecks.length} renewals${badRenewals.length ? `; NOT THE BEST: ${badRenewals.slice(0, 5).map((x) => x.detail).join("; ")}` : ""}`);
   check("no AI club went over the salary cap on any day (a club the starter DB puts over it keeps its own and adds nobody, C-5)", overCap.length === 0, overCap.slice(0, 5).join("\n        ") || "none");
+  // 1.1.3 (Rob, 25 Oct; item 4): holding a third senior, and the injured list's cover the same day.
+  check("item 4: no AI club was ever without two seniors holding a place, on any day", shortDays.length === 0, shortDays.slice(0, 8).join("; ") || "none");
   info(`club-seasons over the cap only through a youth promoted to cover (C-5, allowed): ${overByPromotion.size}`);
   info(`clubs the starter DB puts over the cap with its own seniors on the first day: ${shippedOver.size} (${[...shippedOver].join(", ")})`);
   info(`seasons: ${seasonRows.map((s) => `${s.year} renewed ${s.renewals}, signed ${s.signed}, promoted ${s.promoted}, open ${s.open}, free agents ${s.faStart}->${s.faEnd}`).join("; ")}`);

@@ -16,6 +16,8 @@ Branch `release-1.1.3` in `C:/vbe-tm`, from `a0cd6231` (the rebuild's package co
 
 | 3 | The contract box says what's true: "1 season runs to 31 December (signed in the transfer window, to the next one); 2 seasons, a season more; 6 months, six months from today." The Rules page had no such claim; its AI section now describes Item 1's market. | `contract-offer-dialog.tsx`, `rules.tsx`; the rules page's "Contract lengths" already said 31 December (24 Oct). No suite reads these texts (checked); frontend typecheck clean; packaged-game check in Part C |
 
+| 4 | An AI club near the cap holds a third senior, inside the cap: its one renewal and its refills keep room for three; the third place takes a free agent or a youth that fits; the injured list's cover comes the same day; the academies are filled from Day 1. | A 10-season soak on this build: **0 short-squad club-days** (22 over 30 seasons on 24 Oct; 12 in 10 seasons before the academy fill), **0** AI clubs over the cap that signed anyone, over it only through a promoted youth 3 (season 1) and 1 (season 7). `ai-market.mjs` 36/36 with the new check (no AI club below two on any day, 5 seasons; clubs starting a season on fewer than three: 13 → 0 → 0 → 0 → 0). The 30-season proof is Part C's soak. Logs: `docs/proof-1.1.3/market/item4/` |
+
 ## What I changed, file by file
 
 ### Item 1: AI clubs trade on the market
@@ -80,6 +82,18 @@ Branch `release-1.1.3` in `C:/vbe-tm`, from `a0cd6231` (the rebuild's package co
   - `pool-names.mjs` checks the pictures too (sections 1b to 4b above).
   - `player-pictures.mjs` reads 96 new, 22 repointed, 2 kept, and checks each repointed card comes from her own nation's folder.
   - The run-all banner for 98zy.
+
+### Item 4: keep an interchange
+
+**Where it sits against the cap and Item 1.** Every senior asks at least $11,500 a month (the floor wage plus the 1 Oct rise), so on the $60,000 cap a third senior needs the other two to cost at most $48,500. In season 1 that fails for the clubs the starter DB puts at two stars (6 of them are over the cap with two: $62,000 to $72,000), and for clubs near it. Item 1's market made it worse when it left places open for the cap (10–15 a season). The fix keeps the third inside the cap rather than through Rob's C-5 exception:
+
+- `artifacts/api-server/src/utils/aiSquads.ts`
+  - **The one renewal leaves room for three** (`renewAiSeniorTx`). Re-priced to her rating, the best renews only if the club's bill on the day her new deal starts still fits its other places at the cheapest free agents' wages. Otherwise she goes and the club fills all three for less ("three rather than two"). This is where Item 4 and Item 1 meet: a club near the cap gives up the renewal.
+  - **A refill keeps room for three** (`keepAiSquadsTx`): when it signs to make two, it keeps room for the cheapest free agent who would make three, where it can; two on the sand still comes first. **The third place** goes to the best free agent that fits, else its academy's best youth (16+) **if her wage fits** under the cap; before, it stayed empty.
+  - **The injured list's cover comes the same day** a senior goes on the list after a match (`aiMatchInjuriesTx` → `aiInjuredListDayTx` for that club). Before, it came the next morning. And **cover fits under the cap unless the club would have fewer than two**: C-5 (a promoted youth is never blocked) now applies only then. It had made 34–39 club-seasons go over the cap through a promoted youth in five seasons; now 4.
+- `artifacts/api-server/src/utils/youthLoans.ts` (`fillAiAcademiesTx`, factored out of the weekly step) and `utils/day1Draft.ts`: **the AI academies are filled when the Day 1 draft closes**, not on the first weekly block (8 January). The only short days left in the soak were two clubs hurt on 1 January with no youth to cover them for a week.
+- `artifacts/api-server/src/utils/transfers.ts` (`completeTx`), **found by ai-market**: a bid for Rob's senior agreed in the window moves her at once, by a path that skipped the arriving club's trim and its under-the-cap step. Club 35 was $62,278 for a day. Both steps now run on every arrival at an AI club.
+- `harness/ai-market.mjs`: Item 4's checks: no AI club below two seniors holding a place on any day, and how many clubs start each season on fewer than three. It also follows the career's club now (a sacked manager is moved to an AI club at the turn, a new teams row; my first version read the old club's calendar).
 
 ### Item 3: the contract box sentence
 

@@ -28,6 +28,7 @@ import {
 import { and, asc, eq, isNull, or } from "drizzle-orm";
 import type { CareerStateTx } from "../lib/playerDto.js";
 import { materializeAiSeniorsTx, keepAiSquadsTx } from "./aiSquads.js";
+import { fillAiAcademiesTx } from "./youthLoans.js";
 import { ensureAiManagersTx } from "./aiManagers.js";
 import { recordFreeFacesTx, specialityFactor } from "./managerFaces.js";
 import { seasonEndsForCareerTx } from "./seasonDates.js";
@@ -116,6 +117,9 @@ export function finishDay1DraftTx(w: CareerStateTx, careerSaveId: number, teamId
   const season = w.tx.select({ year: seasonsTable.year, start: seasonsTable.startDate }).from(seasonsTable)
     .where(eq(seasonsTable.careerSaveId, careerSaveId)).orderBy(asc(seasonsTable.year)).limit(1).get();
   if (!season) return "The career has no season yet.";
+  // 1.1.3 (25 Oct; AI market brief item 4): the AI academies are filled now, not a week in, so a club can hold a
+  // third senior from its academy and cover a senior hurt in the first week.
+  fillAiAcademiesTx(w, careerSaveId);
   keepAiSquadsTx(w, careerSaveId, season.start, seasonEndsForCareerTx(w.tx, careerSaveId), Math.random);
   // Update 1, item 2: the AI managers' faces, dealt after the draft; the faces
   // left over are out of work from the career's first day.

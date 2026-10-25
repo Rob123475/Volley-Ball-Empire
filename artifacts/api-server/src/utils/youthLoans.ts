@@ -324,20 +324,15 @@ function aiClubsTx(tx: Tx, careerSaveId: number): Array<{ poolTeamId: number; co
 const FOCUS: Array<"power" | "defense" | "serve" | "block" | "speed"> = ["power", "defense", "serve", "block", "speed"];
 
 /**
- * The AI clubs' academies for a week, in the weekly block that charges the
- * player's club: fill each to AI_ACADEMY_SIZE by the intake's rule, develop them
- * (youth team full, reserves at RESERVE_COURT_SHARE; an AI youth works on her
- * weakest skill), bill them (the academy wage; half of it for a loan, either
- * side), list the reserves, and borrow where a club's youth team needs it.
+ * Fill every AI club's academy to AI_ACADEMY_SIZE by the intake's rule: every graduate replaced. One factory
+ * per region (the name pool is the region's), made only when a club needs one. Weekly (aiAcademiesWeekTx), and
+ * 1.1.3 (25 Oct; AI market brief item 4) when the Day 1 draft closes (utils/day1Draft.ts), so an AI club has
+ * youths to cover a senior hurt in the career's first week (they were empty until its first weekly block).
+ * Returns how many youths it made.
  */
-export function aiAcademiesWeekTx(w: CareerStateTx, careerSaveId: number, today: string):
-  { made: number; listed: number; borrowed: Array<{ loanId: number; playerId: number; poolTeamId: number }>; charged: number } {
+export function fillAiAcademiesTx(w: CareerStateTx, careerSaveId: number, clubs = aiClubsTx(w.tx, careerSaveId)): number {
   const { tx } = w;
-  const clubs = aiClubsTx(tx, careerSaveId);
-  let made = 0, listed = 0, charged = 0;
-
-  // 1. Fill: every graduate replaced, up to the academy's size. One factory per
-  //    region (the name pool is the region's), made only when a club needs one.
+  let made = 0;
   const factories = new Map<string, ReturnType<typeof youthFactoryTx>>();
   for (const c of clubs) {
     // Its own youths: those at the club less any on loan to it, plus its own away
@@ -356,6 +351,24 @@ export function aiAcademiesWeekTx(w: CareerStateTx, careerSaveId: number, today:
     ensureYouthTeamTx(w, careerSaveId, { poolTeamId: c.poolTeamId });
   }
   for (const f of factories.values()) f.stamp();
+  return made;
+}
+
+/**
+ * The AI clubs' academies for a week, in the weekly block that charges the
+ * player's club: fill each to AI_ACADEMY_SIZE by the intake's rule, develop them
+ * (youth team full, reserves at RESERVE_COURT_SHARE; an AI youth works on her
+ * weakest skill), bill them (the academy wage; half of it for a loan, either
+ * side), list the reserves, and borrow where a club's youth team needs it.
+ */
+export function aiAcademiesWeekTx(w: CareerStateTx, careerSaveId: number, today: string):
+  { made: number; listed: number; borrowed: Array<{ loanId: number; playerId: number; poolTeamId: number }>; charged: number } {
+  const { tx } = w;
+  const clubs = aiClubsTx(tx, careerSaveId);
+  let listed = 0, charged = 0;
+
+  // 1. Fill: every graduate replaced, up to the academy's size.
+  const made = fillAiAcademiesTx(w, careerSaveId, clubs);
 
   // 2. Develop: the same week the player's academy has, by court time. Update 1,
   //    item 3: a Youth Developer manager's academy gains 15% more XP, as the
