@@ -18,6 +18,8 @@ Branch `release-1.1.3` in `C:/vbe-tm`, from `a0cd6231` (the rebuild's package co
 
 | 4 | An AI club near the cap holds a third senior, inside the cap: its one renewal and its refills keep room for three; the third place takes a free agent or a youth that fits; the injured list's cover comes the same day; the academies are filled from Day 1. | A 10-season soak on this build: **0 short-squad club-days** (22 over 30 seasons on 24 Oct; 12 in 10 seasons before the academy fill), **0** AI clubs over the cap that signed anyone, over it only through a promoted youth 3 (season 1) and 1 (season 7). `ai-market.mjs` 36/36 with the new check (no AI club below two on any day, 5 seasons; clubs starting a season on fewer than three: 13 → 0 → 0 → 0 → 0). The 30-season proof is Part C's soak. Logs: `docs/proof-1.1.3/market/item4/` |
 
+| 5 | The Job Market is a tab on the Career page, mid-season and any time, with the sidebar as the way back; its own page has a Back link while he has a club. | Frontend typecheck clean; no suite reads these pages (checked, including fake-content-removed's patterns). Packaged-game screenshots, way in and way back, mid-season: Part C |
+
 ## What I changed, file by file
 
 ### Item 1: AI clubs trade on the market
@@ -94,6 +96,12 @@ Branch `release-1.1.3` in `C:/vbe-tm`, from `a0cd6231` (the rebuild's package co
 - `artifacts/api-server/src/utils/youthLoans.ts` (`fillAiAcademiesTx`, factored out of the weekly step) and `utils/day1Draft.ts`: **the AI academies are filled when the Day 1 draft closes**, not on the first weekly block (8 January). The only short days left in the soak were two clubs hurt on 1 January with no youth to cover them for a week.
 - `artifacts/api-server/src/utils/transfers.ts` (`completeTx`), **found by ai-market**: a bid for Rob's senior agreed in the window moves her at once, by a path that skipped the arriving club's trim and its under-the-cap step. Club 35 was $62,278 for a day. Both steps now run on every arrival at an AI club.
 - `harness/ai-market.mjs`: Item 4's checks: no AI club below two seniors holding a place on any day, and how many clubs start each season on fewer than three. It also follows the career's club now (a sacked manager is moved to an AI club at the turn, a new teams row; my first version read the old club's calendar).
+
+### Item 5: the Job Market mid-season
+
+- `artifacts/beach-volleyball/src/pages/career-hub.tsx`: **the way in**. A "Job Market" tab on the Career page (the sidebar's Career), beside Career Options, where his contract and his leaving options already are. It shows the Job Market inside the game's screens, so the sidebar takes him back like every other screen. Mid-season he sees the vacancies, with each club's answer to him, and the window's line: moves wait for his season's end.
+- `artifacts/beach-volleyball/src/pages/job-market.tsx`: an `embedded` mode for the tab, without the page's own padding and without the national-coach offers the Career page already shows. On its own page (Career Options' "leave at the season's end" buttons send him there), **a "← Back" link while he still has a club**, as Settings' Rules page has. With no club (the club sold, or sacked), the page is as it was: the one screen that works.
+- `artifacts/beach-volleyball/src/App.tsx`: the route renders the page as a child (it now takes a prop).
 
 ### Item 3: the contract box sentence
 

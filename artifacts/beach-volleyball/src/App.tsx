@@ -154,7 +154,7 @@ function Router() {
           hard-redirect to "/" the instant it notices no active career. */}
       <Route path="/career-end" component={CareerEnd} />
       {/* L-02e: the club was sold. The career is not over — this is where it carries on. */}
-      <Route path="/job-market" component={JobMarket} />
+      <Route path="/job-market"><JobMarket /></Route>
       {/* Update 1, overnight part 8: Settings, from the sidebar and the title
           screen, so outside the guard (no career needed); its Rules link too. */}
       <Route path="/settings" component={SettingsPage} />

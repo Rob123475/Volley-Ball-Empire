@@ -1,14 +1,15 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { UserCog, Star, Flame, Activity, Briefcase } from "lucide-react";
+import { UserCog, Star, Flame, Activity, Briefcase, Building2 } from "lucide-react";
 import ManagerProfile   from "@/pages/profile";
 import Achievements     from "@/pages/achievements";
 import ManagerRecords   from "@/pages/manager-records";
 import CareerHistory    from "@/pages/career-history";
 import ManagerContract  from "@/pages/manager-contract";
+import JobMarketPage    from "@/pages/job-market";
 import { NationalCoachOffers } from "@/components/national-coach";
 
-type Tab = "overview" | "achievements" | "records" | "history" | "options";
+type Tab = "overview" | "achievements" | "records" | "history" | "options" | "jobs";
 
 const TABS: Array<{ id: Tab; label: string; icon: any }> = [
   { id: "overview",      label: "Overview",        icon: UserCog   },
@@ -16,6 +17,8 @@ const TABS: Array<{ id: Tab; label: string; icon: any }> = [
   { id: "records",       label: "Records",         icon: Flame     },
   { id: "history",       label: "Manager History", icon: Activity  },
   { id: "options",       label: "Career Options",  icon: Briefcase },
+  // 1.1.3 (Rob, 25 Oct; AI market brief item 5): the Job Market, mid-season too.
+  { id: "jobs",          label: "Job Market",      icon: Building2 },
 ];
 
 export default function CareerHub() {
@@ -29,6 +32,7 @@ export default function CareerHub() {
           <button
             key={id}
             onClick={() => setTab(id)}
+            data-testid={`career-tab-${id}`}
             className={cn(
               "inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-semibold transition-colors",
               tab === id
@@ -48,8 +52,10 @@ export default function CareerHub() {
       {tab === "records"      && <ManagerRecords />}
       {tab === "history"      && <CareerHistory />}
       {/* R-43: the Job Market's listings were hardcoded clubs, and applying
-          created a club with no squad and no fixtures. Removed. */}
+          created a club with no squad and no fixtures. Removed. The real one (routes/job-market.ts,
+          clubs of this world) is the Job Market tab below, 1.1.3 item 5. */}
       {tab === "options"      && <ManagerContract />}
+      {tab === "jobs"         && <JobMarketPage embedded />}
     </div>
   );
 }

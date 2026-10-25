@@ -9,6 +9,13 @@
  * route answers "no team" until one is taken, which is why the calendar sends
  * the player straight here (hooks/use-calendar.ts) rather than to the
  * career-end screen. The career is not over.
+ *
+ * 1.1.3 (Rob, 25 Oct; AI market brief item 5): reachable mid-season too. A
+ * manager with a club finds it as a tab on his Career page, inside the game's
+ * screens (pages/career-hub.tsx, `embedded`), where the sidebar takes him back;
+ * the page on its own (the Career Options buttons send him here) has a Back
+ * link while he has a club, as Settings' Rules page does. Mid-season he sees
+ * the vacancies; moves wait for his season's end, as the window says.
  */
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
@@ -90,7 +97,7 @@ async function post<T>(url: string, body: unknown): Promise<T> {
   return res.json() as Promise<T>;
 }
 
-export default function JobMarketPage() {
+export default function JobMarketPage({ embedded = false }: { embedded?: boolean }) {
   const { toast } = useToast();
   const [picked, setPicked] = useState<number | null>(null);
   const { data, isLoading, refetch } = useQuery<JobMarket>({
@@ -123,7 +130,12 @@ export default function JobMarketPage() {
   const pick = data.vacancies.find((v) => v.poolTeamId === picked) ?? null;
 
   return (
-    <div className="mx-auto max-w-4xl p-6 md:p-8 space-y-8">
+    <div className={cn("space-y-8", !embedded && "mx-auto max-w-4xl p-6 md:p-8")}>
+      {!embedded && data.employed && (
+        <button type="button" className="text-sm text-muted-foreground hover:text-foreground" onClick={() => { if (window.history.length > 1) window.history.back(); else window.location.href = "/career"; }} data-testid="job-market-back">
+          ← Back
+        </button>
+      )}
       <div className="space-y-2">
         <h1 className="text-3xl font-black tracking-tight">Job Market</h1>
         <p className="text-muted-foreground" data-testid="job-market-window">{data.windowText}</p>
@@ -134,7 +146,7 @@ export default function JobMarketPage() {
       </div>
 
       {/* 1.1.3 (A4c): a national job, on top of a club job, when one is offered (or the one he has). */}
-      <NationalCoachOffers />
+      {!embedded && <NationalCoachOffers />}
 
       {data.window && data.offers.length > 0 && (
         <div className="space-y-3">
