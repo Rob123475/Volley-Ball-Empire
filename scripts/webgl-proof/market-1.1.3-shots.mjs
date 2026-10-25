@@ -9,11 +9,16 @@
  *   N  (2 January, season 2)  item 1: the AI clubs' market in Club News (the days they signed from the free
  *                             agents in the window, who went where)
  *
+ * 1.1.3 squad policy brief (26 Oct), Part C.4, two more:
+ *   M                         item B: a Malta player's card (one of Rob's Malta pictures) on her club's page
+ *   C  (a match day)          item C: two retoned players on the court (planted as his pair in the save):
+ *                             Next match, Watch Match, and the court's own loader log draws them with their new bands
+ *
  * The real packaged exe runs with --user-data-dir on a fresh temporary folder, its save folder seeded with
  * each prepared save in turn; Rob's AppData saves are hashed before and after and must be unchanged.
  * (The session code is rebuild-1.1.3-shots.mjs's.)
  *
- * Usage: node scripts/webgl-proof/market-1.1.3-shots.mjs "<win-unpacked>/Beach Volleyball Empire.exe" <savesDir> <outDir> [M,N]
+ * Usage: node scripts/webgl-proof/market-1.1.3-shots.mjs "<win-unpacked>/Beach Volleyball Empire.exe" <savesDir> <outDir> [C,M,N]
  */
 import { spawn } from "node:child_process";
 import crypto from "node:crypto";
@@ -23,7 +28,7 @@ import path from "node:path";
 
 const [exeArg, savesArg, outArg, only] = process.argv.slice(2);
 const EXE = path.resolve(exeArg), SAVES = path.resolve(savesArg), outDir = path.resolve(outArg);
-const RUN = (only ?? "M,N").split(",");
+const RUN = (only ?? "C,M,N").split(",");
 fs.mkdirSync(outDir, { recursive: true });
 const CDP = 9349, BASE = "http://localhost:4173";
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -60,8 +65,10 @@ async function session(name, body) {
     if (!target) throw new Error("the game window never loaded the game page");
     ws = new WebSocket(target.webSocketDebuggerUrl);
     await new Promise((r, j) => { ws.onopen = r; ws.onerror = j; });
-    let id = 1; const pend = new Map();
-    ws.onmessage = (e) => { const m = JSON.parse(e.data); if (m.id && pend.has(m.id)) { pend.get(m.id)(m); pend.delete(m.id); } };
+    let id = 1; const pend = new Map(); const lines = [];
+    // (26 Oct) the page's console too: the court (a same-origin iframe) logs who it loads, with her skin tone.
+    ws.onmessage = (e) => { const m = JSON.parse(e.data); if (m.id && pend.has(m.id)) { pend.get(m.id)(m); pend.delete(m.id); return; }
+      if (m.method === "Runtime.consoleAPICalled") lines.push((m.params.args ?? []).map((a) => a.value ?? a.description ?? "").join(" ")); };
     const send = (method, params = {}, ms = 20000) => { const i = id++; ws.send(JSON.stringify({ id: i, method, params }));
       return new Promise((r) => { const t = setTimeout(() => { pend.delete(i); r({}); }, ms); pend.set(i, (m) => { clearTimeout(t); r(m); }); }); };
     const ev = async (x) => { const r = await send("Runtime.evaluate", { expression: x, returnByValue: true, awaitPromise: true }); if (r.result?.exceptionDetails) throw new Error(r.result.exceptionDetails.exception?.description ?? "eval failed"); return r.result?.result?.value; };
@@ -82,7 +89,7 @@ async function session(name, body) {
     await waitFor(`location.pathname === "/" && !!document.querySelector('[data-testid="calendar-date"]')`, 30000);
     await sleep(3000);
     step(`${name}: dashboard`, { date: await text('[data-testid="calendar-date"]', 1), dialogs: await ev(`[...document.querySelectorAll('[role="dialog"]')].map((d) => d.getAttribute("data-testid") ?? d.innerText.slice(0, 60))`) });
-    await body({ ev, shot, waitFor, nav, into, text, flagsShown });
+    await body({ ev, shot, waitFor, nav, into, text, flagsShown, lines });
   } catch (err) {
     out[`error${name}`] = String(err?.stack ?? err);
     step(`${name}: error`, { err: String(err?.message ?? err) });
@@ -96,6 +103,31 @@ async function session(name, body) {
 }
 
 const clickText = (ev, sel, re) => ev(`(() => { const b = [...document.querySelectorAll(${JSON.stringify(sel)})].find((x) => ${re}.test(x.textContent.trim())); if (b) b.click(); return !!b; })()`);
+
+// C (26 Oct, item C): two of the 24 retoned, planted as his pair in the save (market-1.1.3-save.mjs says why). Next
+// match, Watch Match: the court's own loader log must draw them on his side, each with her new picture's band.
+if (RUN.includes("C") && info.saves?.C) await session("C", async ({ ev, shot, waitFor, lines }) => {
+  out.C = { expected: info.court };
+  await ev(`localStorage.setItem("vbe-court-control-mode", "auto")`);
+  out.C.nextMatch = await waitFor(`(() => { const b = [...document.querySelectorAll("button")].find((x) => /Next match/.test(x.textContent)); if (b) b.click(); return !!b; })()`, 20000);
+  out.C.watch = await waitFor(`(() => { const b = [...document.querySelectorAll('[data-testid="match-day-box"] button')].find((x) => /Watch/i.test(x.textContent)); if (b && !b.disabled) { b.click(); return true; } return false; })()`, 40000);
+  out.C.court = await waitFor(`document.querySelector("iframe")?.getAttribute("src") ?? null`, 30000);
+  const until = async (re, ms) => { const t = Date.now(); while (Date.now() - t < ms) { if (lines.some((l) => re.test(l))) return true; await sleep(500); } return false; };
+  out.C.loaded = await until(/\[UnityMatchDataLoader\] \S+ <- .*\(away\)/, 240000);
+  out.C.started = await until(/match starts/, 60000);
+  out.C.loader = lines.filter((l) => /\[UnityMatchDataLoader\] \S+ <- /.test(l)).map((l) => {
+    const m = /<- (.+?) \| team (.+?) \((home|away)\) \| skinTone (.+?) \|/.exec(l);
+    return m ? { name: m[1], team: m[2], side: m[3], skinTone: m[4].replace(/^'|'$/g, "") } : { raw: l.slice(0, 200) };
+  });
+  // (his club may be home or away in the match)
+  out.C.pairDrawnWithNewBands = (info.court?.planted ?? []).length === 2 && info.court.planted.every((p) =>
+    out.C.loader.some((x) => x.team === info.court.myClub && x.name === p.name && x.skinTone === p.band) && p.band !== p.before);
+  await sleep(4000);
+  await shot("20-court-two-retoned-players-start.png");
+  await sleep(15000);
+  await shot("21-court-two-retoned-players-play.png");
+  step("C done", { ...out.C, loader: out.C.loader });
+});
 
 // M: mid-season. The Job Market's way in and way back; a repointed pool player's card; the contract box.
 if (RUN.includes("M")) await session("M", async ({ ev, shot, waitFor, nav, into, text }) => {
@@ -137,6 +169,17 @@ if (RUN.includes("M")) await session("M", async ({ ev, shot, waitFor, nav, into,
     out.M.nameOnPage = await ev(`document.body.innerText.includes(${JSON.stringify(r.name)})`);
     await sleep(1500);
     await shot("15-repointed-pool-player-card.png");
+  }
+  // 26 Oct (item B): a Malta player's card (one of Rob's Malta pictures), on her club's page.
+  const mt = (info.malta ?? []).find((x) => x.club != null && x.myClub == null);
+  out.M.malta = mt ?? null;
+  if (mt) {
+    await nav(`/clubs/${mt.club}`);
+    await waitFor(`!!document.querySelector('[data-testid="club-detail"]')`, 20000); await sleep(2500);
+    out.M.maltaCard = await ev(`(() => { const img = [...document.querySelectorAll("img")].find((i) => (i.getAttribute("src") ?? "").includes(${JSON.stringify(mt.img)})); if (img) img.scrollIntoView({ block: "center" }); return img ? { src: img.getAttribute("src"), loaded: img.complete && img.naturalWidth > 0 } : null; })()`);
+    out.M.maltaNameOnPage = await ev(`document.body.innerText.includes(${JSON.stringify(mt.name)})`);
+    await sleep(1500);
+    await shot("15b-malta-player-card.png");
   }
   // Item 3: the contract box sentence (a free agent's box at his club).
   await nav("/players");
