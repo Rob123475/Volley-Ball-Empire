@@ -114,11 +114,16 @@ try {
   if (club == null) check("an AI club with three seniors", false);
   else {
     const victim = aiSeniors(club)[0].id;
-    // Its academy (empty on Day 1, filled by the intake) gets a 17-year-old: the cover comes from there
-    // first, and a promoted youth is never blocked by the cap (C-5), where a free agent may be (her wage still counts).
+    // Its academy gets a 17-year-old, the best in it: the cover comes from there first. 1.1.3 (Rob, 25 Oct; market
+    // brief item 4): the academies are filled from Day 1 now, so she is made the best; and a club that still has two
+    // to play takes cover only if her wage fits under its cap (C-5 is kept for a club left with fewer than two), so
+    // this club's seniors are put on $10,000 here, room under the cap not being this check's subject.
     const academyYouth = W.q(`SELECT s.player_id id FROM career_player_state s JOIN players p ON p.id = s.player_id WHERE s.career_save_id = ? AND s.team_id IS NULL AND s.pool_team_id IS NULL
       AND p.player_type = 'youth' AND s.is_promoted = 0 AND s.is_retired = 0 ORDER BY s.player_id DESC LIMIT 1`, cid)[0].id;
-    W.w(`UPDATE career_player_state SET pool_team_id = ?, age = 17 WHERE career_save_id = ? AND player_id = ?`, club, cid, academyYouth);
+    W.w(`UPDATE career_player_state SET pool_team_id = ?, age = 17, speed = 80, power = 80, defense = 80, serve = 80, block = 80, stamina = 80
+      WHERE career_save_id = ? AND player_id = ?`, club, cid, academyYouth);
+    W.w(`UPDATE career_player_state SET salary = 10000, perks = '' WHERE career_save_id = ? AND pool_team_id = ? AND team_id IS NULL
+      AND player_id IN (SELECT id FROM players WHERE player_type = 'senior')`, cid, club);
     await W.api("POST", "/dev/injuries/start", { playerId: victim, injury: "Broken leg" });
     check("an AI club's senior out more than 6 weeks goes on its injured list", W.q(`SELECT on_injured_list l FROM career_player_state WHERE career_save_id = ? AND player_id = ?`, cid, victim)[0].l === 1);
     await W.day();

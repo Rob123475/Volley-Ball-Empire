@@ -24,7 +24,7 @@ import os from "node:os";
 import { DatabaseSync } from "node:sqlite";
 import { requireElectronBinary } from "./electron-binary.mjs";
 import { forkServer, stopServer } from "./server-harness.mjs";
-import { healAllSquads, renewExpiringContracts, keepSideFielded, startCareer } from "./harness-club.mjs";
+import { healAllSquads, renewExpiringContracts, keepSideFielded, startCareer, turnDownBids } from "./harness-club.mjs";
 
 const REPO = path.join(import.meta.dirname, "..");
 const SHIPPED = path.join(REPO, "lib", "db", "volleyball-empire.sqlite");
@@ -98,6 +98,9 @@ async function toBoundary() {
   await renewExpiringContracts(api);
   for (let i = 0; i < 600; i++) {
     healAllSquads(dbFile);
+    // 1.1.1: the manager keeps his squad (an unanswered AI bid takes a player; transfers are not this suite's subject,
+    // and since 1.1.3 item 4 more AI clubs carry a cheap third, so more of his seniors clear their bar for a bid).
+    turnDownBids(dbFile);
     const r = await api("POST", "/calendar/advance", {});
     if (r.status >= 400) return { stopped: `advance HTTP ${r.status} ${JSON.stringify(r.data).slice(0, 80)}` };
     if (r.data?.blocked === "pending_match") {

@@ -261,6 +261,25 @@ try {
   const today = read("SELECT current_date AS d FROM calendar_state WHERE team_id = ?", career.teamId)[0]?.d ?? "";
   const bad = [];
   for (const it of items) {
+    // 1.1.3 (25 Oct): the AI clubs' signings from the free agents and promotions that day, from the save's ai_market_moves.
+    const mk = /^market-(\d{4}-\d{2}-\d{2})$/.exec(it.id ?? "");
+    if (mk) {
+      const rows = read("SELECT kind FROM ai_market_moves WHERE career_save_id = ? AND on_date = ? AND kind IN ('sign', 'refill', 'promote')", career.careerSaveId, mk[1]);
+      const promoted = rows.filter((r) => r.kind === "promote").length, signed = rows.length - promoted;
+      if (it.type !== "market" || it.date !== mk[1] || it.date > today.slice(0, 10) || rows.length === 0
+        || (signed > 0 && !it.headline.includes(`sign ${signed} free agent`)) || (promoted > 0 && !it.headline.includes(`promote ${promoted} from`))) {
+        bad.push(`${it.id}: ${rows.length} rows (${signed} signed, ${promoted} promoted) vs "${it.headline}" ${it.date}`);
+      }
+      continue;
+    }
+    // 1.1.1 (18 Oct): the players who retired that day (player_retirements). Seen here since 1.1.3 item 4: an AI club
+    // holding three seniors can now spare a broken one in the first week, and asks her to retire.
+    const rt = /^retirements-(\d{4}-\d{2}-\d{2})$/.exec(it.id ?? "");
+    if (rt) {
+      const n = read("SELECT COUNT(*) AS n FROM player_retirements WHERE career_save_id = ? AND retired_on = ?", career.careerSaveId, rt[1])[0].n;
+      if (it.type !== "retirement" || it.date !== rt[1] || it.date > today.slice(0, 10) || n === 0) bad.push(`${it.id}: ${n} retirements that day vs ${it.date}`);
+      continue;
+    }
     const m = /^(result|signing|trophy|board|champion|olympic|academy|injury)-(\d+)$/.exec(it.id ?? "");
     if (!m || m[1] !== it.type) { bad.push(`${it.id}: unknown kind`); continue; }
     const id = Number(m[2]);

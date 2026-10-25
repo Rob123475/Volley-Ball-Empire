@@ -23,7 +23,7 @@ import {
 } from "@workspace/db";
 import { and, asc, eq, isNull } from "drizzle-orm";
 import type { CareerStateTx } from "../lib/playerDto.js";
-import { aiPairTx } from "./aiSquads.js";
+import { aiPairTx, nationTones } from "./aiSquads.js";
 import { worldFinalsBronzeTx, FINAL_TIER } from "./worldTour.js";
 import { FINALS_END } from "./calendarSlots.js";
 import { sideRating } from "./matchEngine.js";
@@ -76,14 +76,20 @@ export type PodiumPlayer = {
 export type PodiumPlace = { place: 1 | 2 | 3; medal: "gold" | "silver" | "bronze"; label: string; players: PodiumPlayer[] };
 export type CeremonyState = { event: CeremonyEvent; seasonYear: number; banner: string; places: PodiumPlace[] };
 
-/** A career player's skin tone: her own picture's band, else her pool player's. */
+/**
+ * A career player's skin tone: her own picture's band, else her pool player's, else (1.1.3, 25 Oct: a new senior or
+ * a graduate an AI club signed from the market can stand on a Nations Cup podium) one of her nation's, by the 3D
+ * court's rule (utils/aiSquads.ts nationTones).
+ */
 function skinOf(tx: Tx, careerSaveId: number, playerId: number): string | null {
-  const r = tx.select({ v4: playersTable.playerV4, pool: careerPlayerStateTable.poolPlayerId }).from(playersTable)
+  const r = tx.select({ v4: playersTable.playerV4, pool: careerPlayerStateTable.poolPlayerId, nationality: playersTable.nationality }).from(playersTable)
     .leftJoin(careerPlayerStateTable, and(eq(careerPlayerStateTable.playerId, playersTable.id), eq(careerPlayerStateTable.careerSaveId, careerSaveId)))
     .where(eq(playersTable.id, playerId)).get();
   const own = (r?.v4 as { visual_identity?: { skin_tone?: string } } | null)?.visual_identity?.skin_tone ?? null;
   if (own) return own;
-  return r?.pool != null ? tx.select({ s: continentalPoolPlayersTable.skinTone }).from(continentalPoolPlayersTable).where(eq(continentalPoolPlayersTable.id, r.pool)).get()?.s ?? null : null;
+  const pooled = r?.pool != null ? tx.select({ s: continentalPoolPlayersTable.skinTone }).from(continentalPoolPlayersTable).where(eq(continentalPoolPlayersTable.id, r.pool)).get()?.s ?? null : null;
+  if (pooled || !r) return pooled;
+  return nationTones(tx.select({ nationality: continentalPoolPlayersTable.nationality, skinTone: continentalPoolPlayersTable.skinTone }).from(continentalPoolPlayersTable).all())(r.nationality, playerId);
 }
 
 /** A World Finals club's pair (as it plays: its best two fit) and its kit. */

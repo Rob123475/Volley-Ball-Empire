@@ -29,7 +29,7 @@ try {
     WHERE s.career_save_id = ? AND s.pool_team_id = ? AND p.player_type = 'youth' AND s.is_promoted = 0 ORDER BY s.player_id`, cid, pool);
   const budget = () => Number(W.q(`SELECT budget b FROM teams WHERE id = ?`, teamId)[0].b);
   const balance = (pool) => Number(W.q(`SELECT balance b FROM career_pool_team_state WHERE career_save_id = ? AND pool_team_id = ?`, cid, pool)[0].b);
-  // The AI academies fill in the first salary week.
+  // The AI academies are filled when the Day 1 draft closes (1.1.3, 25 Oct; before, in the first salary week).
   for (let i = 0; i < 8 && W.q(`SELECT COUNT(*) n FROM career_player_state WHERE career_save_id = ? AND pool_team_id IS NOT NULL AND academy_role IS NOT NULL`, cid)[0].n === 0; i++) await W.day();
   const clubs = W.q(`SELECT pool_team_id id FROM career_pool_team_state WHERE career_save_id = ? AND taken_over_at IS NULL ORDER BY pool_team_id`, cid).map((r) => r.id)
     .filter((id) => youthsAt(id).length >= 4
@@ -89,7 +89,12 @@ try {
   console.log("\n3. A BUY: HIS ACADEMY, HER PRICE TO HER CLUB; A REFUSAL OFFERS A LOAN");
   W.w(`UPDATE staff SET scouting_rating = 95 WHERE id = ?`, scout.id);
   let sold = null, refused = null;
-  for (const y of youthsAt(B)) {
+  // Each ask is a negotiation on his Scout's list, two at a time (utils/scoutingWork.ts; its own suites test that):
+  // his list is cleared before each ask here, and her club's reserves (no plans for them) are asked for first.
+  // (1.1.3, 25 Oct: the AI academies fill on Day 1 now, so this starts a week sooner, with other youths in other roles.)
+  const freeScout = () => W.w(`DELETE FROM scouting_jobs WHERE career_save_id = ? AND staff_id = ?`, cid, scout.id);
+  for (const y of [...youthsAt(B)].sort((a, b) => (a.role === "reserve" ? 0 : 1) - (b.role === "reserve" ? 0 : 1))) {
+    freeScout();
     const ask = (await W.api("GET", `/youth-deals/${y.id}`)).data;
     const b0 = budget(), s0 = balance(B);
     const r = await W.api("POST", "/youth-deals", { playerId: y.id, kind: "buy", confirm: true });
@@ -107,6 +112,7 @@ try {
     check("the deal is on record: from her club to his, an academy move", deal?.status === "moved" && deal.squad_role === "academy" && deal.from_pool_team_id === B && deal.to_team_id === teamId);
   } else check("her club sells one of its youths to a scout of 95 (80% each)", false, "no sale in the club's youths");
   W.w(`UPDATE staff SET scouting_rating = 45 WHERE id = ?`, scout.id);
+  freeScout();
   const low = youthsAt(A)[0].id;
   const first = await W.api("POST", "/youth-deals", { playerId: low, kind: "buy", confirm: true });
   const second = await W.api("POST", "/youth-deals", { playerId: low, kind: "buy", confirm: true });

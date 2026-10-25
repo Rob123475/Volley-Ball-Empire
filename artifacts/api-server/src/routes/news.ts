@@ -217,20 +217,21 @@ router.get("/news", async (req, res) => {
     });
   }
 
-  // 1.1.3 (Rob, 25 Oct): the AI clubs' market. Each day they sign from the free agents (or promote a youth to fill a
-  // place), one item: who went where.
+  // 1.1.3 (Rob, 25 Oct): the AI clubs' market. Each day they sign from the free agents (the market in the window, or
+  // a refill at any time) or promote a youth to fill a place, one item: who went where.
   const signings = await db.select({ m: aiMarketMovesTable, name: playersTable.name, club: continentalPoolTeamsTable.teamName })
     .from(aiMarketMovesTable)
     .innerJoin(playersTable, eq(playersTable.id, aiMarketMovesTable.playerId))
     .innerJoin(continentalPoolTeamsTable, eq(continentalPoolTeamsTable.id, aiMarketMovesTable.poolTeamId))
-    .where(and(eq(aiMarketMovesTable.careerSaveId, careerSaveId), inArray(aiMarketMovesTable.kind, ["sign", "promote"])));
+    .where(and(eq(aiMarketMovesTable.careerSaveId, careerSaveId), inArray(aiMarketMovesTable.kind, ["sign", "refill", "promote"])));
   const signedOn = new Map<string, typeof signings>();
   for (const r of signings) signedOn.set(r.m.onDate, [...(signedOn.get(r.m.onDate) ?? []), r]);
   for (const [date, list] of signedOn) {
-    const promoted = list.filter((r) => r.m.kind === "promote").length;
+    const promoted = list.filter((r) => r.m.kind === "promote").length, signed = list.length - promoted;
+    const signedText = `sign ${signed} free agent${signed === 1 ? "" : "s"}`, promotedText = `promote ${promoted} from their academies`;
     items.push({
       id: `market-${date}`, type: "market", isUserTeam: false, date,
-      headline: `AI clubs sign ${list.length - promoted} free agent${list.length - promoted === 1 ? "" : "s"}${promoted ? `, and promote ${promoted} from their academies` : ""}`,
+      headline: `AI clubs ${signed && promoted ? `${signedText} and ${promotedText}` : signed ? signedText : promotedText}`,
       detail: list.slice(0, 12).map((r) => `${r.name} to ${r.club}${r.m.kind === "promote" ? " (from its academy)" : ""}`).join(" · ")
         + (list.length > 12 ? ` · and ${list.length - 12} more` : ""),
     });

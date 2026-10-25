@@ -152,6 +152,19 @@ Branch `release-1.1.3` in `C:/vbe-tm`, from `a0cd6231` (the rebuild's package co
 ## What needs Rob
 
 1. **After you upload and set 1.1.3 live: merge `release-1.1.3` into `update-1`** in `C:\Users\rbonn\Documents\Volley-Ball-Empire` and push (brief item 7; not done, it waits for the upload). Optional: `C:\build\vbe-1.1.3-eb2dc65b\` can be deleted.
+2. **The upload and going live**, yours as always (not on a Monday). The Steam script `steam/app_build_5233750-1.1.3.vdf` still has `SetLive "default"`: check that line before you run it.
+3. **AI clubs still bid for your seniors.** Your rule took away club-to-club buying between AI clubs. I kept their bids for *your* players, since that's your 16 Oct counter-offer feature, which your Team page answers. If you meant no club-to-club deals at all, it is one line (`aiTransfersWeekTx`'s bid loop) and the suites that test it.
+4. **Malta's two pool players** (EUR_10_P1 Maria Caruana, EUR_10_P2 Nicole Borg) still wear world-roster players' cards (Sara Borg's, Yasmin Grech's). There is no Malta picture among your new-senior cards. Two Malta pictures in `Desktop\new senior cards\europe\malta\` and a re-run of the installer and `scripts/repoint-pool-shared-faces.cjs --write` would finish it.
+5. **Rosario, not Rosa:** Rosa Quispe is already your Massage Therapist (staff 10078), so the Doctor is Rosario Quispe. Say if you'd rather another name.
+6. **The 24 repointed players' skin tones** didn't match their old cards either (see "What I found"). Say if you want them banded to the new pictures, as 10 Oct did for the 96.
+
+## Part C: the one full test
+
+**Full harness runs** (`pnpm run build`: typecheck, build, sync, every suite; logs in `docs/proof-1.1.3/market/part-c/`):
+
+| Commit | Result | What failed, and what I did |
+|---|---|---|
+| 852be3f6 (items 1–6) | 129 / 136 | Seven suites, all from this brief's changes. **Game fixes:** (1) the Nations Cup podium had a medallist with no skin tone, a player the game made (a new senior or graduate an AI club signed); the podium now takes the 3D court's rule, one of her nation's pool tones (`nationTones`, shared). (2) The Club News market item said "AI clubs sign 0 free agents…" on days with only a promotion; the wording is fixed, and refills now count as signings. **Suite fixes** (each assumed something this brief changed): `fake-content-removed` didn't know the new `market-<date>` item, nor `retirements-<date>`, which now shows in the first week; both are traced to their rows. `hall-of-fame` lost three seniors to unanswered AI bids: AI clubs with a cheap third clear his players more often, so it turns bids down, as `economy` does. `player-pictures` counted the AI academies' Day 1 youths as shipped ones. `injured-list` planted cover at a club with no room under the cap (cover must fit now). `youth-deals` asked with a Scout already on two jobs. `nations-cup` picked a pair a fortnight before the draw and one had left her club; it re-picks on the eve. Each passed alone after its fix. |
 
 ## The market numbers
 

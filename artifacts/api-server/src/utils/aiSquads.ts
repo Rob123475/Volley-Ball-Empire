@@ -142,6 +142,18 @@ export type AiMember = {
 
 const byRating = (a: AiMember, b: AiMember) => b.rating - a.rating || a.kind.localeCompare(b.kind) || a.id - b.id;
 
+/**
+ * A skin tone for a player with no pool player's look of her own (a free agent an AI club signed, a new senior, a
+ * graduate): one of her nation's pool players' tones, the way R-75 seeded them, fixed by her id; any pool player's
+ * if her nation has none. One rule for the 3D court (aiSquadsTx) and the podium (utils/ceremonies.ts).
+ */
+export function nationTones(poolRows: ReadonlyArray<{ nationality: string; skinTone: string | null }>): (nationality: string, id: number) => string | null {
+  const tonesByNation = new Map<string, string[]>();
+  for (const p of poolRows) if (p.skinTone) tonesByNation.set(p.nationality, [...(tonesByNation.get(p.nationality) ?? []), p.skinTone]);
+  const allTones = poolRows.map((p) => p.skinTone).filter((t): t is string => !!t);
+  return (nationality, id) => { const l = tonesByNation.get(nationality) ?? allTones; return l.length ? l[id % l.length]! : null; };
+}
+
 /** Every AI club's squad in this career, best first. */
 export function aiSquadsTx(tx: Tx, careerSaveId: number): Map<number, AiMember[]> {
   const contracts = tx.select({
@@ -154,11 +166,8 @@ export function aiSquadsTx(tx: Tx, careerSaveId: number): Map<number, AiMember[]
   const squads = new Map<number, AiMember[]>();
   // A free agent an AI club signed has no pool player's look: she gets a skin
   // tone of her nation's, drawn from its pool players the way R-75 seeded them.
-  const tonesByNation = new Map<string, string[]>();
   const poolRows = tx.select().from(continentalPoolPlayersTable).all();
-  for (const p of poolRows) if (p.skinTone) tonesByNation.set(p.nationality, [...(tonesByNation.get(p.nationality) ?? []), p.skinTone]);
-  const allTones = poolRows.map((p) => p.skinTone).filter((t): t is string => !!t);
-  const toneFor = (nationality: string, id: number) => { const l = tonesByNation.get(nationality) ?? allTones; return l.length ? l[id % l.length]! : null; };
+  const toneFor = nationTones(poolRows);
   const add = (m: AiMember) => { const l = squads.get(m.poolTeamId) ?? []; l.push(m); squads.set(m.poolTeamId, l); };
 
   for (const p of poolRows) {

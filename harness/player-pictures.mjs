@@ -121,10 +121,12 @@ try {
   const team = (await api("GET", "/team")).data;
   const cid = q(`SELECT id FROM career_saves WHERE team_id = ?`, team.id)[0].id;
   const ledger = () => q(`SELECT player_id AS p, image_url AS u, continent AS c FROM career_graduate_portraits WHERE career_save_id = ?`, cid);
-  const youthRows = () => q(`SELECT s.player_id AS id, p.name, p.continent, p.nationality, s.age, s.team_id AS t, s.is_promoted AS promoted, p.image_url AS img
+  const youthRows = () => q(`SELECT s.player_id AS id, p.name, p.continent, p.nationality, s.age, s.team_id AS t, s.is_promoted AS promoted, p.image_url AS img, p.origin_career_save_id AS origin
     FROM career_player_state s JOIN players p ON p.id = s.player_id WHERE s.career_save_id = ? AND p.player_type = 'youth' AND s.is_retired = 0`, cid);
 
-  const market = youthRows().filter((y) => !y.promoted);
+  // The shipped youth (1.1.3, 25 Oct: the AI academies are filled when the Day 1 draft closes, so the career's own
+  // academy youths are there from the start too; they are this career's, origin_career_save_id set).
+  const market = youthRows().filter((y) => !y.promoted && y.origin == null);
   check("the 72 youth on the market keep their flag cards (no picture given)",
     market.length === 72 && market.every((y) => y.img === TEMPLATE) && ledger().length === 0,
     `${market.length} youth, ${market.filter((y) => y.img === TEMPLATE).length} on the flag card, ${ledger().length} pictures given`);

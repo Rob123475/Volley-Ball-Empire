@@ -131,7 +131,7 @@ try {
   const fitNow = page.players.filter((p) => !p.injured);
   const refuse = hurt ? await W.api("POST", "/national-team/pair", { pair: [{ kind: hurt.kind, id: hurt.id }, { kind: fitNow[0].kind, id: fitNow[0].id }] }) : { status: 400, data: { error: "injured" } };
   check("an injured player can't be picked", refuse.status === 400 && /injured/i.test(refuse.data?.error ?? ""), refuse.data?.error);
-  const picked = [fitNow[1], fitNow[2]];
+  let picked = [fitNow[1], fitNow[2]];
   const pick = await W.api("POST", "/national-team/pair", { pair: picked.map((p) => ({ kind: p.kind, id: p.id })) });
   const camp = await W.api("POST", "/national-team/camp", { camp: "training" });
   page = (await W.api("GET", "/national-team")).data;
@@ -144,6 +144,15 @@ try {
   // The camp's fatigue is measured on the draw's own day: her fatigue set to 50 that morning, the day's rest
   // takes 5 off (utils/condition.ts REST_RECOVERY), the camp adds its 10 at the draw: 55.
   await playTo(`${CUP}-11-23`);
+  // 1.1.3 (25 Oct): a player picked a fortnight ahead may have left her club or been hurt by the eve of the draw (an AI
+  // club's weakest goes when its listed senior comes back fit); the page drops her, and he picks again from who is there.
+  const eve = (await W.api("GET", "/national-team")).data;
+  if (!picked.every((p) => (eve?.players ?? []).some((x) => x.kind === p.kind && x.id === p.id && !x.injured))) {
+    const fitEve = (eve?.players ?? []).filter((x) => !x.injured);
+    W.info(`on the eve of the draw ${picked.filter((p) => !fitEve.some((x) => x.kind === p.kind && x.id === p.id)).map((p) => p.name).join(" & ")} no longer there: he picks again`);
+    picked = [fitEve[1], fitEve[2]];
+    await W.api("POST", "/national-team/pair", { pair: picked.map((p) => ({ kind: p.kind, id: p.id })) });
+  }
   const careerInPair = picked.filter((p) => p.kind === "player");
   for (const p of careerInPair) W.w(`UPDATE career_player_state SET fatigue = 50 WHERE career_save_id = ? AND player_id = ?`, cid, p.id);
   await playTo(`${CUP}-11-24`);
