@@ -25,7 +25,7 @@ Brief: `Downloads/SQUAD-POLICY-BRIEF-26OCT.md`. Worktree `C:/vbe-tm`, branch `re
   - a bid still waiting for an answer now counts against the club's cap.
 
   **Every benchmark is met** in a 10-season soak. The bid bar is now "5 better than its weaker starter": 6 bids on Rob's seniors in 10 seasons (25 Oct: 8).
-- Item B (Malta): *in progress*
+- **Item B (Malta): done.** Rob's four Malta pictures are installed (malta_01 to malta_04). Maria Caruana and Nicole Borg are on malta_01 and malta_02 (starter DB only). **No two players share a picture, with no exceptions** (324 cards). The installer had a leftover call to a function deleted by the flags work; that line is fixed.
 - Item C (skin tones): *pending*
 - Part C: *pending*
 
@@ -178,3 +178,48 @@ It is in the policy's header beside the cap on arrival.
   - `new-seniors` (the policy's deadwood and the calendar's call);
   - `scouting-history` (the policy also never clears a report);
   - comments in `ai-buyable` and `rollover`.
+
+## Item B: Malta
+
+### What is now true
+
+- **Rob's four Malta pictures are installed** as `public/images/players/new-seniors/europe/malta/malta_01.webp` to `malta_04.webp` (600 × 800 WebP, the installer's own output) and listed in `artifacts/api-server/src/data/new-senior-pictures.json`. The list is now 331 pictures across 74 nations.
+- **Malta's two pool players are repointed** (starter DB only) by `scripts/repoint-pool-shared-faces.cjs --write`:
+  - EUR_10_P1 Maria Caruana: `player_senior_malta_02.webp` (world-roster Sara Borg's card) → `malta_01.webp`;
+  - EUR_10_P2 Nicole Borg: `player_senior_malta_01.webp` (world-roster Yasmin Grech's card) → `malta_02.webp`.
+
+  A second run finds nothing to repoint. `malta_03` and `malta_04` are free for new seniors.
+- **No two players share a picture, with no exceptions:** 324 cards, each on one player (the world roster, its spares and the pool; the academy youths' one generic youth card apart, by design).
+- **Saves already in play keep their cards.** A pool player's card is filled from the starter DB only where a save has none (25 Oct). A new senior is never given a picture a pool or world-roster player holds (`utils/newSeniors.ts` `usedPicturesTx`).
+
+### How I ran the installer
+
+- **The installer would not run.** `scripts/install-new-senior-cards.mjs` still called `countryFlag()`, which 1.1.3 A2 deleted (bf8104ac changed its import to `flagCode` but not the call). I fixed the one line: a nation folder must now resolve to a flag code.
+- **A re-run rebuilds the whole set.** I ran it on Rob's whole "New Senior Cards" folder, writing into a copy of `public/images`.
+  - Its picture list is the installed 327 unchanged, plus the four Malta pictures as `malta_01` to `malta_04`. The rest of the list is the same, in the same order.
+  - But all 327 existing files come out with different bytes: the same pictures, re-encoded (mean pixel difference 2.5 of 255, at most 5.6).
+  - So I took the installer's output for the four Malta files and its list only, and left the 327 shipped pictures, and the tones banded from them, untouched.
+- **The brief's names are the starter DB's.** Maria Caruana and Nicole Borg were renamed on 24 Oct. `scripts/portraits/ai-senior-cards.json` still had them as "kept" under their old names. They are now `repointed`, with `cardBefore26Oct` and `nameBefore24Oct`.
+
+### Proof
+
+- `pool-names` 26/26 (`docs/proof-1.1.3/squad/itemB/pool-names.log`):
+  - "no two players share a picture, with no exceptions: 324 cards, each on one player";
+  - the 24 repointed, each to a new-senior picture of her own nation;
+  - Malta's two on Malta pictures of their own;
+  - a new save's AI seniors made from the 24 carry them;
+  - at the first turn, with every other new-senior picture planted as given (307), no new senior gets a pool or world-roster player's picture.
+- `player-pictures` 36/36: the list is 120 players (96 new, 24 repointed, none keeping an old card), each card the starter DB's, every file there.
+- `new-seniors` 31/31: the new seniors work with the bigger list.
+
+### What changed, file by file
+
+- `artifacts/beach-volleyball/public/images/players/new-seniors/europe/malta/` (**new**): `malta_01.webp` to `malta_04.webp`.
+- `artifacts/api-server/src/data/new-senior-pictures.json`: the four Malta entries.
+- `lib/db/volleyball-empire.sqlite` (starter DB): EUR_10_P1 and EUR_10_P2's `image_url`.
+- `scripts/install-new-senior-cards.mjs`: `countryFlag(nation) === "🌍"` → `!flagCode(nation)`.
+- `scripts/portraits/ai-senior-cards.json`: Malta's two are `repointed`, with their current names.
+- `scripts/repoint-pool-shared-faces.cjs`: header count (331 pictures, 74 nations).
+- `harness/pool-names.mjs`: no exceptions; Malta's two on Malta pictures; the 22 become 24 throughout.
+- `harness/player-pictures.mjs`: 24 repointed, none kept.
+- `harness/run-all.mjs`: the banner comment.

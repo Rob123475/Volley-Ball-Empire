@@ -74,7 +74,7 @@ for (const cDir of fs.readdirSync(root, { withFileTypes: true }).filter((d) => d
     const files = fs.readdirSync(path.join(root, cDir.name, nDir.name)).filter((f) => IMAGE.test(f));
     const where = `${cDir.name}\\${nDir.name}`;
     // A flag the game can draw: an ISO country, or England/Scotland/Wales (subdivision flags, no ISO code).
-    if (!nation || countryFlag(nation) === "\u{1F30D}") { problems.push(`${where}: "${nDir.name}" is not a nation the game knows (no name or flag); ${files.length} skipped`); continue; }
+    if (!nation || !flagCode(nation)) { problems.push(`${where}: "${nDir.name}" is not a nation the game knows (no name or flag); ${files.length} skipped`); continue; }
     const home = continentKeyForNationality(nation);
     if (home !== continent) { problems.push(`${where}: ${nation} is in ${home ? CONTINENT_LABEL[home] : "no continent"} in the game, not ${CONTINENT_LABEL[continent]}; ${files.length} skipped`); continue; }
     if (!named.has(nation)) { problems.push(`${where}: the game has no names for ${nation} (add a list to data/nationNames.ts); ${files.length} skipped`); continue; }

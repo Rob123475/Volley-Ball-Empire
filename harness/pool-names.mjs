@@ -19,16 +19,16 @@
  *
  * 1.1.3 (Rob, 25 Oct; AI market brief item 2), their pictures too. 24 pool players carried a
  * world-roster player's card; 22 now have an unused new-senior picture of their own nation
- * (scripts/repoint-pool-shared-faces.cjs), STARTER DB ONLY, and Malta's two are reported (Rob made
- * no Malta picture):
- *   1b. The starter DB: no two players share a picture (the world roster, its spares and the pool;
- *      the academy youths' one generic youth card apart), and no two different files are the same
- *      picture; the 22 old -> new are in, each from her own nation's folder; Malta's two reported.
+ * (scripts/repoint-pool-shared-faces.cjs), STARTER DB ONLY. 1.1.3 (Rob, 26 Oct; squad policy brief
+ * item B): and Malta's two, from Rob's four Malta pictures (installed as malta_01 to malta_04), so 24:
+ *   1b. The starter DB: no two players share a picture, with no exceptions (the world roster, its spares
+ *      and the pool; the academy youths' one generic youth card apart), and no two different files are
+ *      the same picture; the 24 old -> new are in, each from her own nation's folder.
  *   2b. The source: a pool player's card is filled from the starter DB only where a save has none;
  *      a new senior is never given a picture a pool or world-roster player carries.
  *   3b. The save in play keeps every pool player's card.
- *   4b. The new save: the AI seniors made from the 22 carry the new pictures; and at its first turn,
- *      with every other new-senior picture planted as given, no new senior gets one of the 22.
+ *   4b. The new save: the AI seniors made from the 24 carry the new pictures; and at its first turn,
+ *      with every other new-senior picture planted as given, no new senior gets one of the 24.
  *
  * Usage: node harness/pool-names.mjs
  */
@@ -107,7 +107,7 @@ try {
   const twins = pool.map((p) => ({ p, w: world.find((x) => x.image_url === p.image_url) })).filter((x) => x.w);
   const sameSurnameTwins = twins.filter(({ p, w }) => surname(p.name, p.nationality) === surname(w.name, w.nationality));
   check("a pool player who shares a world-roster player's card never shares her surname too", sameSurnameTwins.length === 0,
-    `${twins.length} share a card (Malta's two, below)${sameSurnameTwins.length ? `; ${sameSurnameTwins.map(({ p, w }) => `${p.name} / ${w.name}`).join(", ")}` : ""}`);
+    `${twins.length} share a card${sameSurnameTwins.length ? `; ${sameSurnameTwins.map(({ p, w }) => `${p.name} / ${w.name}`).join(", ")}` : ""}`);
 
   // ── 1b. The starter DB's pictures (25 Oct) ────────────────────────────────
   console.log("\n1b. THE STARTER DB: NO TWO PLAYERS SHARE A PICTURE");
@@ -116,9 +116,8 @@ try {
   const youthCard = cards.filter((c) => YOUTH_CARD.test(c.url));
   const byUrl = new Map(); for (const c of cards.filter((x) => !YOUTH_CARD.test(x.url))) byUrl.set(c.url, [...(byUrl.get(c.url) ?? []), c.who]);
   const sharedNow = [...byUrl].filter(([, l]) => l.length > 1);
-  const malta = sharedNow.filter(([u]) => /malta/.test(u));
-  check("no two players share a picture but Malta's two pool players, reported (no Malta new-senior picture)",
-    sharedNow.length === 2 && malta.length === 2, `${byUrl.size} cards; shared: ${sharedNow.map(([u, l]) => `${u.split("/").pop()} (${l.join(" / ")})`).join("; ")}`);
+  check("no two players share a picture, with no exceptions",
+    sharedNow.length === 0 && twins.length === 0, `${byUrl.size} cards${sharedNow.length ? `; shared: ${sharedNow.map(([u, l]) => `${u.split("/").pop()} (${l.join(" / ")})`).join("; ")}` : ", each on one player"}`);
   W.info(`the academy youths' generic youth card is the one card many players show, by design: ${youthCard.length} youths`);
   const md5 = (u) => crypto.createHash("md5").update(fs.readFileSync(path.join(PUBLIC, u))).digest("hex");
   const missing = [...byUrl.keys()].filter((u) => !fs.existsSync(path.join(PUBLIC, u)));
@@ -128,14 +127,18 @@ try {
     `${byUrl.size} files${missing.length ? `; missing ${missing.slice(0, 3).join(", ")}` : ""}${sameFile.length ? `; same picture: ${sameFile.slice(0, 3).map((l) => l.join(" = ")).join("; ")}` : ""}`);
   const repointedIn = REPOINTED.filter((c) => byStable.get(c.stableId)?.image_url === c.card);
   const folder = (n) => `/${n.toLowerCase().replace(/ /g, "-")}/`;
-  check("the 22 are repointed in the starter DB, each to a new-senior picture of her own nation, none another row's",
-    REPOINTED.length === 22 && repointedIn.length === 22 && REPOINTED.every((c) => NEW_SENIOR.some((p) => p.url === c.card && p.nation === byStable.get(c.stableId).nationality) && c.card.includes(folder(c.country)))
+  check("the 24 are repointed in the starter DB, each to a new-senior picture of her own nation, none another row's",
+    REPOINTED.length === 24 && repointedIn.length === 24 && REPOINTED.every((c) => NEW_SENIOR.some((p) => p.url === c.card && p.nation === byStable.get(c.stableId).nationality) && c.card.includes(folder(c.country)))
       && REPOINTED.every((c) => byUrl.get(c.card)?.length === 1),
-    `${repointedIn.length}/22`);
-  for (const c of REPOINTED) W.info(`${c.stableId} ${c.name} (${c.country}): ${c.cardBefore25Oct.split("/").pop()} (${world.find((w) => w.image_url === c.cardBefore25Oct)?.name ?? "?"}'s) -> ${c.card.replace("/images/players/new-seniors/", "")}`);
-  const maltaPool = pool.filter((p) => p.nationality === "Malta" && world.some((w) => w.image_url === p.image_url));
-  check("Malta's two are reported, not given another nation's face: no Malta picture among Rob's new-senior pictures",
-    maltaPool.length === 2 && !NEW_SENIOR.some((p) => p.nation === "Malta"), maltaPool.map((p) => `${p.stable_id} ${p.name}`).join(", "));
+    `${repointedIn.length}/24`);
+  const before = (c) => c.cardBefore25Oct ?? c.cardBefore26Oct;
+  for (const c of REPOINTED) W.info(`${c.stableId} ${c.name} (${c.country}): ${before(c).split("/").pop()} (${world.find((w) => w.image_url === before(c))?.name ?? "?"}'s) -> ${c.card.replace("/images/players/new-seniors/", "")}`);
+  // 1.1.3 (Rob, 26 Oct; squad policy brief item B): Malta's two, on two of Rob's four Malta pictures.
+  const maltaPool = pool.filter((p) => p.nationality === "Malta");
+  check("Malta's two pool players are on Malta pictures of their own (malta_01 to malta_04 installed, a world-roster player's card no more)",
+    maltaPool.length === 2 && NEW_SENIOR.filter((p) => p.nation === "Malta").length === 4
+      && maltaPool.every((p) => /\/new-seniors\/europe\/malta\/malta_0[1-4]\.webp$/.test(p.image_url) && !world.some((w) => w.image_url === p.image_url)),
+    maltaPool.map((p) => `${p.stable_id} ${p.name} ${p.image_url.split("/").pop()}`).join(", "));
 
   // ── 2. The source ─────────────────────────────────────────────────────────
   console.log("\n2. THE SOURCE: A POOL PLAYER'S NAME DOES NOT FOLLOW THE STARTER DB");
@@ -191,7 +194,7 @@ try {
     check("item 6: staff 10172 keeps this save's name, or arrives new as Rosario Quispe (the rename is the starter DB's alone)",
       before.staff10172 == null ? after.staff10172 === "Rosario Quispe" : after.staff10172 === before.staff10172,
       `${before.staff10172 ?? "(no such card in this save)"} -> ${after.staff10172}`);
-    check("every pool player keeps her card (the 22 repointed in the starter DB too)", hash(before.cards) === hash(after.cards)
+    check("every pool player keeps her card (the 24 repointed in the starter DB too)", hash(before.cards) === hash(after.cards)
       && REPOINTED.every((c) => after.cards.find((x) => x.stable_id === c.stableId)?.image_url === before.cards.find((x) => x.stable_id === c.stableId)?.image_url),
       `pool cards ${hash(before.cards)} -> ${hash(after.cards)}; e.g. EUR_09_P2 ${after.cards.find((x) => x.stable_id === "EUR_09_P2")?.image_url?.split("/").pop()}`);
     W.info(`this save still has its ${keptOld.filter(([, from]) => after.pool.find((p) => p.name === from)).length} duplicates (Rob: anyone already playing keeps them)`);
@@ -218,15 +221,15 @@ try {
   const shown = (page?.seniors ?? []).map((p) => p.name);
   check("the club page of the Papua New Guinea club shows Grace Bainivalu, not Alina Kora", shown.includes("Grace Bainivalu") && !shown.includes("Alina Kora"), shown.join(", "));
 
-  // 4b. Their pictures: the AI seniors made from the 22 carry them.
+  // 4b. Their pictures: the AI seniors made from the 24 carry them.
   const madeCards = W.q(`SELECT p.image_url u, cp.stable_id s FROM career_player_state st JOIN players p ON p.id = st.player_id
     JOIN continental_pool_players cp ON cp.id = st.pool_player_id WHERE st.career_save_id = ?`, c.cid);
   const fromRepointed = madeCards.filter((m) => REPOINTED.some((r) => r.stableId === m.s));
-  check("the AI club seniors made from the 22 carry their new pictures",
-    fromRepointed.length === 22 && fromRepointed.every((m) => REPOINTED.find((r) => r.stableId === m.s).card === m.u),
-    `${fromRepointed.length} of 22, e.g. ${fromRepointed[0]?.s} ${fromRepointed[0]?.u}`);
+  check("the AI club seniors made from the 24 carry their new pictures",
+    fromRepointed.length === 24 && fromRepointed.every((m) => REPOINTED.find((r) => r.stableId === m.s).card === m.u),
+    `${fromRepointed.length} of 24, e.g. ${fromRepointed[0]?.s} ${fromRepointed[0]?.u}`);
   // Planted: every other new-senior picture given already in this career, so the only ones a turn could hand out are
-  // the 22 the pool players carry. At the turn, no new senior gets one of them.
+  // the 24 the pool players carry. At the turn, no new senior gets one of them.
   const held = new Set(REPOINTED.map((r) => r.card));
   let k = 0;
   for (const p of NEW_SENIOR.filter((x) => !held.has(x.url))) {

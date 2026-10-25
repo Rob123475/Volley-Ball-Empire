@@ -259,15 +259,16 @@ try {
   S.close();
   const fresh = list.filter((p) => p.kind === "new"), kept = list.filter((p) => p.kind === "kept");
   // 1.1.3 (Rob, 25 Oct; AI market brief item 2): 22 of the 24 kept cards were a world-roster player's too, and now
-  // are an unused new-senior picture of her own nation; Malta's two keep theirs (no Malta picture).
+  // are an unused new-senior picture of her own nation. 1.1.3 (Rob, 26 Oct; squad policy brief item B): Malta's two
+  // too, from Rob's four Malta pictures, so none keeps a card.
   const repointed = list.filter((p) => p.kind === "repointed");
-  check("the list: 120 AI club players, 96 with Rob's new pictures, 22 repointed to new-senior pictures, 2 keeping their cards",
-    list.length === 120 && fresh.length === 96 && repointed.length === 22 && kept.length === 2 && pool.size === 120,
+  check("the list: 120 AI club players, 96 with Rob's new pictures, 24 repointed to new-senior pictures, none keeping an old card",
+    list.length === 120 && fresh.length === 96 && repointed.length === 24 && kept.length === 0 && pool.size === 120,
     `${list.length} / ${fresh.length} / ${repointed.length} / ${kept.length}; ${pool.size} in the starter DB`);
   const offNation = repointed.filter((p) => !p.card.startsWith("/images/players/new-seniors/")
     || !p.card.includes(`/${p.country.toLowerCase().replace(/ /g, "-")}/`));
   check("each repointed card is a new-senior picture from her own nation's folder", offNation.length === 0,
-    offNation.map((p) => `${p.name}: ${p.card}`).join(" · ") || "22 of 22");
+    offNation.map((p) => `${p.name}: ${p.card}`).join(" · ") || "24 of 24");
   const wrong = list.filter((p) => pool.get(p.stableId)?.img !== p.card);
   check("every one of the 120 has the card the list says, in the starter DB", wrong.length === 0,
     wrong.slice(0, 3).map((p) => `${p.name}: ${pool.get(p.stableId)?.img}`).join(" · ") || "all 120");

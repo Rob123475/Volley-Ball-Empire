@@ -686,7 +686,7 @@ runSuite("ceremonies", path.join(REPO, "harness", "ceremonies.mjs"));
 
 // 1.1.3 rebuild (A2, 24 Oct): no pool player named like a world-roster player; the renames are the
 // starter DB's alone, a save in play keeps its names. Own DB and server (4982). 1.1.3 market item 2 (25 Oct):
-// and no pool player pictured like one (22 repointed to new-senior pictures of their nation; Malta's two reported).
+// and no pool player pictured like one (22 repointed to new-senior pictures of their nation; 26 Oct, squad item B: Malta's two from Rob's Malta pictures, so no exceptions).
 console.log("\n########## 98zy/100  NO POOL PLAYER NAMED OR PICTURED LIKE A WORLD-ROSTER PLAYER (1.1.3 REBUILD A2, MARKET ITEM 2) ##########");
 runSuite("pool names", path.join(REPO, "harness", "pool-names.mjs"));
 

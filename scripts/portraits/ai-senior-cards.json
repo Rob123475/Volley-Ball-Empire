@@ -1,5 +1,5 @@
 {
- "about": "Final brief 5 Oct, A4: the 120 AI club players and their cards. 96 new (Rob's pictures, by continent and skin tone), 24 kept as Rob's CSV names them. Pictures brief 10 Oct: the 96 reshuffled within each continent so each player has the picture that best fits her country, the white kit recoloured in her country's colours (pictureFrom: the slot whose original picture it is; kit: the colours, null where it stayed white). Her skinTone is her picture's band (imageBand); skinToneBefore10Oct is what it was (49 changed; artifacts/api-server/src/utils/aiSkinTones.ts brings older saves forward). 1.1.3 (Rob, 25 Oct; AI market brief item 2): 22 of the 24 kept cards were a world-roster player's too; those players now have an unused new-senior picture of their own nation (kind \"repointed\", scripts/repoint-pool-shared-faces.cjs). Malta's two keep theirs (no Malta picture).",
+ "about": "Final brief 5 Oct, A4: the 120 AI club players and their cards. 96 new (Rob's pictures, by continent and skin tone), 24 kept as Rob's CSV names them. Pictures brief 10 Oct: the 96 reshuffled within each continent so each player has the picture that best fits her country, the white kit recoloured in her country's colours (pictureFrom: the slot whose original picture it is; kit: the colours, null where it stayed white). Her skinTone is her picture's band (imageBand); skinToneBefore10Oct is what it was (49 changed; artifacts/api-server/src/utils/aiSkinTones.ts brings older saves forward). 1.1.3 (Rob, 25 Oct; AI market brief item 2): 22 of the 24 kept cards were a world-roster player's too; those players now have an unused new-senior picture of their own nation (kind \"repointed\", scripts/repoint-pool-shared-faces.cjs). 1.1.3 (Rob, 26 Oct; squad policy brief item B): Malta's two too, from Rob's four Malta pictures (installed as malta_01 to malta_04): no two players share a picture, with no exceptions.",
  "players": [
   {
    "stableId": "AFM_01_P1",
@@ -1384,23 +1384,27 @@
   },
   {
    "stableId": "EUR_10_P1",
-   "name": "Sara Borg",
+   "name": "Maria Caruana",
    "continent": "europe",
    "country": "Malta",
    "skinTone": "Dark",
    "age": 22,
-   "card": "/images/players/seniors/player_senior_malta_02.webp",
-   "kind": "kept"
+   "card": "/images/players/new-seniors/europe/malta/malta_01.webp",
+   "kind": "repointed",
+   "cardBefore26Oct": "/images/players/seniors/player_senior_malta_02.webp",
+   "nameBefore24Oct": "Sara Borg"
   },
   {
    "stableId": "EUR_10_P2",
-   "name": "Yasmin Grech",
+   "name": "Nicole Borg",
    "continent": "europe",
    "country": "Malta",
    "skinTone": "Medium",
    "age": 24,
-   "card": "/images/players/seniors/player_senior_malta_01.webp",
-   "kind": "kept"
+   "card": "/images/players/new-seniors/europe/malta/malta_02.webp",
+   "kind": "repointed",
+   "cardBefore26Oct": "/images/players/seniors/player_senior_malta_01.webp",
+   "nameBefore24Oct": "Yasmin Grech"
   },
   {
    "stableId": "NAM_01_P1",

@@ -4,7 +4,7 @@
  * a world-roster player's (EUR_09_P2 and Aoife O'Sullivan both ireland_01, and so on) get a picture
  * of their own: an unused picture of HER OWN nation from Rob's new-senior pictures
  * (images/players/new-seniors/<continent>/<nation>/, artifacts/api-server/src/data/
- * new-senior-pictures.json: 327 pictures, 73 nations). The pool player's picture changes, never
+ * new-senior-pictures.json: 331 pictures, 74 nations, Malta added 26 Oct). The pool player's picture changes, never
  * the world-roster player's.
  *
  * Unused means on no row of the starter DB: walked table by table (every table with a picture
