@@ -1,0 +1,43 @@
+career_new_seniors: id,career_save_id,player_id,season_year,kind,nation,picture,image_url,arrived_on,created_at
+player_retirements: id,career_save_id,player_id,name,nationality,continent,image_url,age,season_year,last_team_id,in_hall_of_fame,name_reused_at,portrait_reused_at,created_at,reason,retired_on
+free agents now 99
+year | new seniors (by kind) | retirements
+2026 |  | 5
+2027 | picture 5, youth 15 | 28
+2028 | picture 5, youth 15 | 21
+2029 | picture 5, youth 15 | 27
+2030 | picture 5, youth 15 | 36
+2031 | picture 5, youth 15 | 39
+2032 | picture 5, youth 15 | 47
+2033 | picture 5, youth 15 | 38
+2034 | picture 5, youth 15 | 38
+2035 | picture 5, youth 15 | 35
+2036 | picture 5, youth 15 | 42
+2037 | picture 5, youth 15 | 27
+2038 | picture 5, youth 15 | 29
+2039 | picture 5, youth 15 | 45
+2040 | picture 5, youth 15 | 42
+2041 | picture 5, youth 15 | 32
+2042 | picture 5, youth 15 | 28
+2043 | picture 5, youth 15 | 32
+2044 | picture 5, youth 15 | 40
+2045 | picture 5, youth 15 | 42
+2046 | picture 5, youth 15 | 37
+2047 | picture 3, youth 15 | 40
+2048 | youth 15 | 29
+2049 | youth 15 | 24
+2050 | youth 15 | 34
+2051 | youth 15 | 25
+2052 | youth 15 | 31
+2053 | youth 15 | 25
+2054 | youth 15 | 34
+2055 | youth 15 | 33
+2056 | youth 15 | 0
+[
+  [Object: null prototype] { reason: 'age', n: 245 },
+  [Object: null prototype] { reason: 'asked', n: 120 },
+  [Object: null prototype] { reason: 'injury', n: 58 },
+  [Object: null prototype] { reason: 'limit', n: 20 },
+  [Object: null prototype] { reason: 'unsigned', n: 542 }
+]
+free agents by age band: [{"band":15,"n":16},{"band":20,"n":47},{"band":25,"n":21},{"band":30,"n":14},{"band":35,"n":1}]

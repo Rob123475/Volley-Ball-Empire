@@ -1,0 +1,88 @@
+{
+ "exe": "C:\\build\\vbe-1.1.3\\win-unpacked\\Beach Volleyball Empire.exe",
+ "shots": [
+  "17-club-news-ai-clubs-market.png",
+  "18-club-news-ai-signings-opened.png"
+ ],
+ "steps": [
+  {
+   "s": "N: started the packaged exe",
+   "save": "2027-01-02"
+  },
+  {
+   "s": "N: profile selected",
+   "status": 200
+  },
+  {
+   "s": "N: CONTINUE",
+   "pressed": true
+  },
+  {
+   "s": "N: dashboard",
+   "date": "Jan 2, 2027",
+   "dialogs": []
+  },
+  {
+   "s": "N done",
+   "marketDays": [
+    {
+     "d": "2026-01-01",
+     "n": 1
+    },
+    {
+     "d": "2026-07-13",
+     "n": 1
+    },
+    {
+     "d": "2026-12-10",
+     "n": 83
+    }
+   ],
+   "panelOpened": true,
+   "items": [
+    "🔁 Market | AI clubs sign 1 free agent | Jan 1, 2027",
+    "🔁 Market | AI clubs sign 83 free agents | Dec 10, 2026"
+   ],
+   "opened": true,
+   "detail": "AI clubs sign 1 free agent\nSalote Fifita to Auckland Pacific Diamonds\nJan 1, 2027\n🏆 Honour\nWorld Tour Silver tier 2026\nDec 31, 2026\n👑 World Final\nBangkok Palm Beach Stars are World Champions 2026\nDec 31, 2026\n📋 Board\nBoard review 2026: finished 10th, met expectations\nDec 31, 2026\n🔁 Market\nAI clubs sign 83 free agents\nDec 10, 2026\n🏐 Result\nMaldives Coral Kings lose to Amsterdam Dune Riders 1–2\nNov 23, 2026\n🤕 Injury\nNurul Ain: broken wrist (hand/foot)\nNov 23, 2026\n🏐 Result\nMaldives Coral Kings beat Barcelona Playa Elites 2–0\nNov 18, 2026\n🏐 Result\nMaldives Coral Kings lose to Shanghai Yan"
+  }
+ ],
+ "robBefore": {
+  "C:\\Users\\rbonn\\AppData\\Roaming\\Beach Volleyball Empire\\volleyball-empire.sqlite": {
+   "size": 2592768,
+   "mtime": "2026-10-16T09:24:25.000Z",
+   "sha1": "98cc08de3efe30f1f4c8b8db86ff30c4a0e1a8b7"
+  }
+ },
+ "N": {
+  "marketDays": [
+   {
+    "d": "2026-01-01",
+    "n": 1
+   },
+   {
+    "d": "2026-07-13",
+    "n": 1
+   },
+   {
+    "d": "2026-12-10",
+    "n": 83
+   }
+  ],
+  "panelOpened": true,
+  "items": [
+   "🔁 Market | AI clubs sign 1 free agent | Jan 1, 2027",
+   "🔁 Market | AI clubs sign 83 free agents | Dec 10, 2026"
+  ],
+  "opened": true,
+  "detail": "AI clubs sign 1 free agent\nSalote Fifita to Auckland Pacific Diamonds\nJan 1, 2027\n🏆 Honour\nWorld Tour Silver tier 2026\nDec 31, 2026\n👑 World Final\nBangkok Palm Beach Stars are World Champions 2026\nDec 31, 2026\n📋 Board\nBoard review 2026: finished 10th, met expectations\nDec 31, 2026\n🔁 Market\nAI clubs sign 83 free agents\nDec 10, 2026\n🏐 Result\nMaldives Coral Kings lose to Amsterdam Dune Riders 1–2\nNov 23, 2026\n🤕 Injury\nNurul Ain: broken wrist (hand/foot)\nNov 23, 2026\n🏐 Result\nMaldives Coral Kings beat Barcelona Playa Elites 2–0\nNov 18, 2026\n🏐 Result\nMaldives Coral Kings lose to Shanghai Yan"
+ },
+ "robAfter": {
+  "C:\\Users\\rbonn\\AppData\\Roaming\\Beach Volleyball Empire\\volleyball-empire.sqlite": {
+   "size": 2592768,
+   "mtime": "2026-10-16T09:24:25.000Z",
+   "sha1": "98cc08de3efe30f1f4c8b8db86ff30c4a0e1a8b7"
+  }
+ },
+ "robSaveUntouched": true
+}

@@ -1,0 +1,259 @@
+{"kept":"M","date":"2026-06-15"}
+{"kept":"N","date":"2027-01-02"}
+{"kept":"C","date":"2027-02-17"}
+{
+ "saves": {
+  "M": {
+   "date": "2026-06-15",
+   "dir": "C:\\build\\vbe-1.1.3-squad-proof-saves\\M"
+  },
+  "N": {
+   "date": "2027-01-02",
+   "dir": "C:\\build\\vbe-1.1.3-squad-proof-saves\\N"
+  },
+  "C": {
+   "date": "2027-02-17",
+   "dir": "C:\\build\\vbe-1.1.3-squad-proof-saves\\C"
+  }
+ },
+ "profileId": "fd1d7553-238f-41b0-8a8a-4e46c2937925",
+ "teamId": 1,
+ "careerSaveId": 1,
+ "repointed": [
+  {
+   "name": "Yasmine Mzoughi",
+   "img": "/images/players/new-seniors/africa-and-middle-east/tunisia/tunisia_01.webp",
+   "sid": "AFM_09_P1",
+   "club": 49,
+   "clubName": "Tunis Mediterranean Aces"
+  },
+  {
+   "name": "Amira Bouazizi",
+   "img": "/images/players/new-seniors/africa-and-middle-east/tunisia/tunisia_02.webp",
+   "sid": "AFM_09_P2",
+   "club": 49,
+   "clubName": "Tunis Mediterranean Aces"
+  },
+  {
+   "name": "Rehema Mollel",
+   "img": "/images/players/new-seniors/africa-and-middle-east/tanzania/tanzania_01.webp",
+   "sid": "AFM_10_P1",
+   "club": 50,
+   "clubName": "Dar es Salaam Swahili Stars"
+  },
+  {
+   "name": "Upendo Mwakalinga",
+   "img": "/images/players/new-seniors/africa-and-middle-east/tanzania/tanzania_02.webp",
+   "sid": "AFM_10_P2",
+   "club": 50,
+   "clubName": "Dar es Salaam Swahili Stars"
+  },
+  {
+   "name": "Tran Thu Trang",
+   "img": "/images/players/new-seniors/asia/vietnam/vietnam_01.webp",
+   "sid": "ASI_09_P1",
+   "club": 51,
+   "clubName": "Ho Chi Minh City Delta Stars"
+  },
+  {
+   "name": "Le Ngoc Han",
+   "img": "/images/players/new-seniors/asia/vietnam/vietnam_02.webp",
+   "sid": "ASI_09_P2",
+   "club": 51,
+   "clubName": "Ho Chi Minh City Delta Stars"
+  },
+  {
+   "name": "Lin Pei-Shan",
+   "img": "/images/players/new-seniors/asia/taiwan/taiwan_01.webp",
+   "sid": "ASI_10_P1",
+   "club": 52,
+   "clubName": "Taipei Formosa Spikers"
+  },
+  {
+   "name": "Hsu Wan-Ting",
+   "img": "/images/players/new-seniors/asia/taiwan/taiwan_02.webp",
+   "sid": "ASI_10_P2",
+   "club": 52,
+   "clubName": "Taipei Formosa Spikers"
+  },
+  {
+   "name": "Grace Bainivalu",
+   "img": "/images/players/new-seniors/oceania/papua-new-guinea/papua-new-guinea_01.webp",
+   "sid": "AUS_09_P1",
+   "club": 53,
+   "clubName": "Port Moresby Coral Aces"
+  },
+  {
+   "name": "Lahui Kaupa",
+   "img": "/images/players/new-seniors/oceania/papua-new-guinea/papua-new-guinea_02.webp",
+   "sid": "AUS_09_P2",
+   "club": 53,
+   "clubName": "Port Moresby Coral Aces"
+  },
+  {
+   "name": "Ruby Mackenzie",
+   "img": "/images/players/new-seniors/oceania/new-zealand/new-zealand_01.webp",
+   "sid": "AUS_10_P1",
+   "club": 54,
+   "clubName": "Wellington Southern Cross"
+  },
+  {
+   "name": "Isla Walker",
+   "img": "/images/players/new-seniors/oceania/new-zealand/new-zealand_02.webp",
+   "sid": "AUS_10_P2",
+   "club": 54,
+   "clubName": "Wellington Southern Cross"
+  },
+  {
+   "name": "Carolina Moreira",
+   "img": "/images/players/new-seniors/europe/portugal/portugal_01.webp",
+   "sid": "EUR_09_P1",
+   "club": 55,
+   "clubName": "Lisbon Atlantic Blaze"
+  },
+  {
+   "name": "Niamh Kavanagh",
+   "img": "/images/players/new-seniors/europe/ireland/ireland_01.webp",
+   "sid": "EUR_09_P2",
+   "club": 56,
+   "clubName": "Dublin Emerald Spikers"
+  },
+  {
+   "name": "Maria Caruana",
+   "img": "/images/players/new-seniors/europe/malta/malta_01.webp",
+   "sid": "EUR_10_P1",
+   "club": 56,
+   "clubName": "Dublin Emerald Spikers"
+  },
+  {
+   "name": "Nicole Borg",
+   "img": "/images/players/new-seniors/europe/malta/malta_02.webp",
+   "sid": "EUR_10_P2",
+   "club": 55,
+   "clubName": "Lisbon Atlantic Blaze"
+  },
+  {
+   "name": "Tanisha Brown",
+   "img": "/images/players/new-seniors/north-america/jamaica/jamaica_01.webp",
+   "sid": "NAM_09_P1",
+   "club": 57,
+   "clubName": "Kingston Reggae Spikers"
+  },
+  {
+   "name": "Keisha Beckford",
+   "img": "/images/players/new-seniors/north-america/jamaica/jamaica_02.webp",
+   "sid": "NAM_09_P2",
+   "club": 57,
+   "clubName": "Kingston Reggae Spikers"
+  },
+  {
+   "name": "Shante Bethel",
+   "img": "/images/players/new-seniors/north-america/bahamas/bahamas_01.webp",
+   "sid": "NAM_10_P1",
+   "club": 58,
+   "clubName": "Nassau Island Blazers"
+  },
+  {
+   "name": "Tiara Ferguson",
+   "img": "/images/players/new-seniors/north-america/bahamas/bahamas_02.webp",
+   "sid": "NAM_10_P2",
+   "club": 58,
+   "clubName": "Nassau Island Blazers"
+  },
+  {
+   "name": "Anjali Persaud",
+   "img": "/images/players/new-seniors/south-america/guyana/guyana_01.webp",
+   "sid": "SAM_09_P1",
+   "club": 59,
+   "clubName": "Georgetown Guyana Waves"
+  },
+  {
+   "name": "Keziah Campbell",
+   "img": "/images/players/new-seniors/south-america/guyana/guyana_02.webp",
+   "sid": "SAM_09_P2",
+   "club": 59,
+   "clubName": "Georgetown Guyana Waves"
+  },
+  {
+   "name": "Ximena Zeballos",
+   "img": "/images/players/new-seniors/south-america/bolivia/bolivia_01.webp",
+   "sid": "SAM_10_P1",
+   "club": 60,
+   "clubName": "La Paz Andean Queens"
+  },
+  {
+   "name": "Daniela Mamani",
+   "img": "/images/players/new-seniors/south-america/bolivia/bolivia_02.webp",
+   "sid": "SAM_10_P2",
+   "club": 60,
+   "clubName": "La Paz Andean Queens"
+  }
+ ],
+ "malta": [
+  {
+   "name": "Maria Caruana",
+   "img": "/images/players/new-seniors/europe/malta/malta_01.webp",
+   "sid": "EUR_10_P1",
+   "club": 56,
+   "myClub": null
+  },
+  {
+   "name": "Nicole Borg",
+   "img": "/images/players/new-seniors/europe/malta/malta_02.webp",
+   "sid": "EUR_10_P2",
+   "club": 55,
+   "myClub": null
+  }
+ ],
+ "marketDays": [
+  {
+   "d": "2026-01-01",
+   "n": 1
+  },
+  {
+   "d": "2026-07-13",
+   "n": 1
+  },
+  {
+   "d": "2026-12-10",
+   "n": 83
+  }
+ ],
+ "court": {
+  "planted": [
+   {
+    "id": 411,
+    "club": 45,
+    "name": "Grace Bainivalu",
+    "sid": "AUS_09_P1",
+    "card": "/images/players/new-seniors/oceania/papua-new-guinea/papua-new-guinea_01.webp",
+    "band": "Dark",
+    "before": "Light"
+   },
+   {
+    "id": 412,
+    "club": 44,
+    "name": "Lahui Kaupa",
+    "sid": "AUS_09_P2",
+    "card": "/images/players/new-seniors/oceania/papua-new-guinea/papua-new-guinea_02.webp",
+    "band": "Dark",
+    "before": "Light"
+   }
+  ],
+  "date": "2027-02-17",
+  "matchId": 60,
+  "myClub": "Maldives Coral Kings",
+  "hisSide": [
+   {
+    "name": "Grace Bainivalu",
+    "skinTone": "Dark"
+   },
+   {
+    "name": "Lahui Kaupa",
+    "skinTone": "Dark"
+   }
+  ]
+ }
+}
+
+0/0 checks passed

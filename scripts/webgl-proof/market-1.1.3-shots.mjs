@@ -194,6 +194,8 @@ if (RUN.includes("M")) await session("M", async ({ ev, shot, waitFor, nav, into,
 // N: 2 January of season 2. The AI clubs' market in Club News.
 if (RUN.includes("N")) await session("N", async ({ ev, shot, waitFor, into }) => {
   out.N = { marketDays: info.marketDays };
+  // (26 Oct) Club News is a collapsible panel on the Dashboard, closed until its title is clicked.
+  out.N.panelOpened = await waitFor(`(() => { const b = [...document.querySelectorAll("button")].find((x) => /^Club News/.test(x.innerText.trim())); if (b && !document.querySelector('[data-testid="club-news"]')) b.click(); return !!b; })()`, 20000);
   await waitFor(`!!document.querySelector('[data-testid="club-news"]')`, 20000);
   await into('[data-testid="club-news"]'); await sleep(1500);
   out.N.items = await ev(`[...document.querySelectorAll('[data-testid="club-news"] button')].map((b) => b.innerText.split("\\n").filter(Boolean).slice(0, 3).join(" | ")).filter((t) => /AI clubs sign/.test(t))`);

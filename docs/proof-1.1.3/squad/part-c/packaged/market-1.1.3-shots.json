@@ -1,0 +1,344 @@
+{
+ "exe": "C:\\build\\vbe-1.1.3\\win-unpacked\\Beach Volleyball Empire.exe",
+ "shots": [
+  "20-court-two-retoned-players-start.png",
+  "21-court-two-retoned-players-play.png",
+  "10-career-page-job-market-tab.png",
+  "11-job-market-mid-season-in-the-career-page.png",
+  "12-back-on-the-dashboard.png",
+  "13-job-market-page-on-its-own-with-back.png",
+  "14-back-from-the-job-market-page.png",
+  "15-repointed-pool-player-card.png",
+  "15b-malta-player-card.png",
+  "16-contract-box-season-sentence.png",
+  "17-club-news-ai-clubs-market.png",
+  "18-club-news-ai-signings-opened.png"
+ ],
+ "steps": [
+  {
+   "s": "C: started the packaged exe",
+   "save": "2027-02-17"
+  },
+  {
+   "s": "C: profile selected",
+   "status": 200
+  },
+  {
+   "s": "C: CONTINUE",
+   "pressed": true
+  },
+  {
+   "s": "C: dashboard",
+   "date": "Feb 17, 2027",
+   "dialogs": [
+    "match-day-box"
+   ]
+  },
+  {
+   "s": "C done",
+   "expected": {
+    "planted": [
+     {
+      "id": 411,
+      "club": 45,
+      "name": "Grace Bainivalu",
+      "sid": "AUS_09_P1",
+      "card": "/images/players/new-seniors/oceania/papua-new-guinea/papua-new-guinea_01.webp",
+      "band": "Dark",
+      "before": "Light"
+     },
+     {
+      "id": 412,
+      "club": 44,
+      "name": "Lahui Kaupa",
+      "sid": "AUS_09_P2",
+      "card": "/images/players/new-seniors/oceania/papua-new-guinea/papua-new-guinea_02.webp",
+      "band": "Dark",
+      "before": "Light"
+     }
+    ],
+    "date": "2027-02-17",
+    "matchId": 60,
+    "myClub": "Maldives Coral Kings",
+    "hisSide": [
+     {
+      "name": "Grace Bainivalu",
+      "skinTone": "Dark"
+     },
+     {
+      "name": "Lahui Kaupa",
+      "skinTone": "Dark"
+     }
+    ]
+   },
+   "nextMatch": true,
+   "watch": true,
+   "court": "/unity-build/index.html?careerSaveId=1&matchId=60",
+   "loaded": true,
+   "started": true,
+   "loader": [
+    {
+     "name": "Grace Bainivalu",
+     "team": "Maldives Coral Kings",
+     "side": "home",
+     "skinTone": "Dark"
+    },
+    {
+     "name": "Lahui Kaupa",
+     "team": "Maldives Coral Kings",
+     "side": "home",
+     "skinTone": "Dark"
+    },
+    {
+     "name": "Élise Fontaine",
+     "team": "Paris Sables Royales",
+     "side": "away",
+     "skinTone": "Medium Dark"
+    },
+    {
+     "name": "Céline Moreau",
+     "team": "Paris Sables Royales",
+     "side": "away",
+     "skinTone": "Medium Light"
+    }
+   ],
+   "pairDrawnWithNewBands": true
+  },
+  {
+   "s": "M: started the packaged exe",
+   "save": "2026-06-15"
+  },
+  {
+   "s": "M: profile selected",
+   "status": 200
+  },
+  {
+   "s": "M: CONTINUE",
+   "pressed": true
+  },
+  {
+   "s": "M: dashboard",
+   "date": "Jun 15, 2026",
+   "dialogs": []
+  },
+  {
+   "s": "M done",
+   "sidebarCareer": true,
+   "tab": true,
+   "window": "You can leave once your season is over (penalties apply if you break your contract).",
+   "vacancies": 0,
+   "applyDisabled": true,
+   "sidebarBack": true,
+   "backOnDashboard": true,
+   "standaloneBack": "← Back",
+   "standaloneSidebar": false,
+   "backClicked": true,
+   "backTo": "/career",
+   "repointed": {
+    "name": "Yasmine Mzoughi",
+    "img": "/images/players/new-seniors/africa-and-middle-east/tunisia/tunisia_01.webp",
+    "sid": "AFM_09_P1",
+    "club": 49,
+    "clubName": "Tunis Mediterranean Aces"
+   },
+   "card": {
+    "src": "/images/players/new-seniors/africa-and-middle-east/tunisia/tunisia_01.webp",
+    "loaded": true
+   },
+   "nameOnPage": false,
+   "malta": {
+    "name": "Maria Caruana",
+    "img": "/images/players/new-seniors/europe/malta/malta_01.webp",
+    "sid": "EUR_10_P1",
+    "club": 56,
+    "myClub": null
+   },
+   "maltaCard": {
+    "src": "/images/players/new-seniors/europe/malta/malta_01.webp",
+    "loaded": true
+   },
+   "maltaNameOnPage": false,
+   "signButton": true,
+   "sentence": "1 season runs to 31 December (signed in the transfer window, to the next one); 2 seasons, a season more; 6 months, six months from today."
+  },
+  {
+   "s": "N: started the packaged exe",
+   "save": "2027-01-02"
+  },
+  {
+   "s": "N: profile selected",
+   "status": 200
+  },
+  {
+   "s": "N: CONTINUE",
+   "pressed": true
+  },
+  {
+   "s": "N: dashboard",
+   "date": "Jan 2, 2027",
+   "dialogs": []
+  },
+  {
+   "s": "N done",
+   "marketDays": [
+    {
+     "d": "2026-01-01",
+     "n": 1
+    },
+    {
+     "d": "2026-07-13",
+     "n": 1
+    },
+    {
+     "d": "2026-12-10",
+     "n": 83
+    }
+   ],
+   "items": [],
+   "opened": false,
+   "detail": null
+  }
+ ],
+ "robBefore": {
+  "C:\\Users\\rbonn\\AppData\\Roaming\\Beach Volleyball Empire\\volleyball-empire.sqlite": {
+   "size": 2592768,
+   "mtime": "2026-10-16T09:24:25.000Z",
+   "sha1": "98cc08de3efe30f1f4c8b8db86ff30c4a0e1a8b7"
+  }
+ },
+ "C": {
+  "expected": {
+   "planted": [
+    {
+     "id": 411,
+     "club": 45,
+     "name": "Grace Bainivalu",
+     "sid": "AUS_09_P1",
+     "card": "/images/players/new-seniors/oceania/papua-new-guinea/papua-new-guinea_01.webp",
+     "band": "Dark",
+     "before": "Light"
+    },
+    {
+     "id": 412,
+     "club": 44,
+     "name": "Lahui Kaupa",
+     "sid": "AUS_09_P2",
+     "card": "/images/players/new-seniors/oceania/papua-new-guinea/papua-new-guinea_02.webp",
+     "band": "Dark",
+     "before": "Light"
+    }
+   ],
+   "date": "2027-02-17",
+   "matchId": 60,
+   "myClub": "Maldives Coral Kings",
+   "hisSide": [
+    {
+     "name": "Grace Bainivalu",
+     "skinTone": "Dark"
+    },
+    {
+     "name": "Lahui Kaupa",
+     "skinTone": "Dark"
+    }
+   ]
+  },
+  "nextMatch": true,
+  "watch": true,
+  "court": "/unity-build/index.html?careerSaveId=1&matchId=60",
+  "loaded": true,
+  "started": true,
+  "loader": [
+   {
+    "name": "Grace Bainivalu",
+    "team": "Maldives Coral Kings",
+    "side": "home",
+    "skinTone": "Dark"
+   },
+   {
+    "name": "Lahui Kaupa",
+    "team": "Maldives Coral Kings",
+    "side": "home",
+    "skinTone": "Dark"
+   },
+   {
+    "name": "Élise Fontaine",
+    "team": "Paris Sables Royales",
+    "side": "away",
+    "skinTone": "Medium Dark"
+   },
+   {
+    "name": "Céline Moreau",
+    "team": "Paris Sables Royales",
+    "side": "away",
+    "skinTone": "Medium Light"
+   }
+  ],
+  "pairDrawnWithNewBands": true
+ },
+ "M": {
+  "sidebarCareer": true,
+  "tab": true,
+  "window": "You can leave once your season is over (penalties apply if you break your contract).",
+  "vacancies": 0,
+  "applyDisabled": true,
+  "sidebarBack": true,
+  "backOnDashboard": true,
+  "standaloneBack": "← Back",
+  "standaloneSidebar": false,
+  "backClicked": true,
+  "backTo": "/career",
+  "repointed": {
+   "name": "Yasmine Mzoughi",
+   "img": "/images/players/new-seniors/africa-and-middle-east/tunisia/tunisia_01.webp",
+   "sid": "AFM_09_P1",
+   "club": 49,
+   "clubName": "Tunis Mediterranean Aces"
+  },
+  "card": {
+   "src": "/images/players/new-seniors/africa-and-middle-east/tunisia/tunisia_01.webp",
+   "loaded": true
+  },
+  "nameOnPage": false,
+  "malta": {
+   "name": "Maria Caruana",
+   "img": "/images/players/new-seniors/europe/malta/malta_01.webp",
+   "sid": "EUR_10_P1",
+   "club": 56,
+   "myClub": null
+  },
+  "maltaCard": {
+   "src": "/images/players/new-seniors/europe/malta/malta_01.webp",
+   "loaded": true
+  },
+  "maltaNameOnPage": false,
+  "signButton": true,
+  "sentence": "1 season runs to 31 December (signed in the transfer window, to the next one); 2 seasons, a season more; 6 months, six months from today."
+ },
+ "N": {
+  "marketDays": [
+   {
+    "d": "2026-01-01",
+    "n": 1
+   },
+   {
+    "d": "2026-07-13",
+    "n": 1
+   },
+   {
+    "d": "2026-12-10",
+    "n": 83
+   }
+  ],
+  "items": [],
+  "opened": false,
+  "detail": null
+ },
+ "robAfter": {
+  "C:\\Users\\rbonn\\AppData\\Roaming\\Beach Volleyball Empire\\volleyball-empire.sqlite": {
+   "size": 2592768,
+   "mtime": "2026-10-16T09:24:25.000Z",
+   "sha1": "98cc08de3efe30f1f4c8b8db86ff30c4a0e1a8b7"
+  }
+ },
+ "robSaveUntouched": true
+}

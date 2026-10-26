@@ -1,7 +1,7 @@
 "AppBuild"
 {
 	"AppID" "5233750"
-	"Desc" "v1.1.3 staff portraits, real flags, AI scouting and buying limits, the Nations Cup over days and the national coach, medal ceremonies, contract lengths, 130 staff faces (release-1.1.3 a0cd6231 rebuild, Unity dd0a487)"
+	"Desc" "v1.1.3 staff portraits, real flags, AI scouting and buying limits, the Nations Cup over days and the national coach, medal ceremonies, contract lengths, 130 staff faces, the AI market and one squad policy, Malta and the 24 repointed cards banded (release-1.1.3 333192f9, Unity dd0a487)"
 	"SetLive" "default"
 	"ContentRoot" "C:\build\vbe-1.1.3\win-unpacked\"
 	"BuildOutput" "..\output\"
