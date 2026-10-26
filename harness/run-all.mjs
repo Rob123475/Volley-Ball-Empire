@@ -660,6 +660,8 @@ console.log("\n########## 98za/100  JUNIOR MEDICS (1.1.1, 17 OCT) ##########");
 runSuite("junior medics", path.join(REPO, "harness", "junior-medics.mjs"));
 console.log("\n########## 98zb/100  THE STRONGER AI CLUBS START SEASON 1 AT SILVER (1.1.1, 18 OCT) ##########");
 runSuite("season one tiers", path.join(REPO, "harness", "season-one-tiers.mjs"));
+console.log("\n########## 98zc/100  NEW SENIORS, THE PICTURE DECIDES THE NATION, RETIREMENT REBUILT (1.1.1, 18 OCT) ##########");
+runSuite("new seniors", path.join(REPO, "harness", "new-seniors.mjs"));
 
 // ── Smoke needs a server; boot one on a throwaway copy of the shipped DB ─────
 console.log("\n########## 99/100  GAMEPLAY SMOKE ##########");

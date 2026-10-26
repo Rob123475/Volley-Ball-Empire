@@ -58,6 +58,8 @@ import { isInjured, matchInjuryRoll } from "./condition.js";
 import { startInjuryTx } from "./injuries.js";
 import { careerGameDateTx } from "./gameDate.js";
 import { askingWage } from "./wageCurve.js";
+import { reconstructionsTx } from "./retirement.js";
+import { terminationPayout } from "./contractTerms.js";
 
 type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
@@ -76,6 +78,18 @@ export const AI_BUY_GAP = 5;
 export const AI_BUY_RESERVE = 150_000;
 /** An AI club keeps a player it signed this long before selling her on to another AI club. */
 export const AI_KEEP_DAYS = 365;
+/**
+ * 1.1.1 (Rob, 18 Oct): a senior on the transfer list (career_player_state.transfer_listed, by the
+ * player's club or an AI club) is wanted without AI_BUY_GAP and for feeShare of her market price.
+ */
+export const LISTED_TERMS = { feeShare: 0.75 } as const;
+/**
+ * 1.1.1 (Rob, 18 Oct): an AI club's deadwood (aiDeadwoodTx). It asks a senior to retire when she is
+ * broken down (a reconstruction, or on the injured list) and at least brokenAge, at any time; in the
+ * transfer window, also its weakest senior at askAge or more. In the window it lists its weakest at
+ * listAge or more. One a club a week, and only a club that keeps two to play.
+ */
+export const AI_DEADWOOD = { brokenAge: 30, askAge: 35, listAge: 31 } as const;
 
 export type AiMember = {
   kind: "pool" | "player";
@@ -621,6 +635,7 @@ export function aiTransfersWeekTx(w: CareerStateTx, careerSaveId: number, today:
   // again only after a bid (each buyer had rebuilt them: half a second a game week once few clubs had a deal).
   let squadsNow: Map<number, AiMember[]> | null = null;
   let robsNow: ReturnType<typeof robsSeniorsForBidsTx> | null = null;
+  let listedNow: Set<number> | null = null;
   const feeOf = new Map<number, number>(), openOf = new Map<number, boolean>();
   for (const buyer of weekOrder([...active], `${careerSaveId}:${today}:ai-transfers`)) {
     if (bids.length >= AI_TRANSFERS_PER_WEEK) break;
@@ -644,10 +659,15 @@ export function aiTransfersWeekTx(w: CareerStateTx, careerSaveId: number, today:
       .filter((m) => m.kind === "player" && !m.injured && !m.onList && (m.joinedOn == null || daysBetween(m.joinedOn, today) >= AI_KEEP_DAYS))
       .map((m) => ({ id: m.id, name: m.name, rating: m.rating, salary: m.salary, contractEndDate: m.contractEndDate, priced: { ...m, askingPrice: null } }));
     const robs = myTeam == null ? [] : (robsNow ??= robsSeniorsForBidsTx(w.tx, careerSaveId, myTeam, today));
+    listedNow ??= listedIdsTx(w.tx, careerSaveId);
+    const listed = listedNow;
     const open = (id: number) => { let o = openOf.get(id); if (o == null) { o = !!openDealForTx(w.tx, careerSaveId, id); openOf.set(id, o); } return o; };
-    const priceOf = (m: { id: number; priced: unknown }) => { let f = feeOf.get(m.id); if (f == null) { f = marketPrice(careerSaveId, m.priced as Parameters<typeof marketPrice>[1]).price; feeOf.set(m.id, f); } return f; };
+    const priceOf = (m: { id: number; priced: unknown }) => { let f = feeOf.get(m.id); if (f == null) {
+      f = marketPrice(careerSaveId, m.priced as Parameters<typeof marketPrice>[1]).price;
+      if (listed.has(m.id)) f = Math.round(f * LISTED_TERMS.feeShare);
+      feeOf.set(m.id, f); } return f; };
     const target = [...theirs, ...robs]
-      .filter((m) => m.rating >= bar && !open(m.id))
+      .filter((m) => m.rating >= (listed.has(m.id) ? bar - AI_BUY_GAP : bar) && !open(m.id))
       .map((m) => ({ m, fee: priceOf(m) }))
       .filter(({ fee }) => balance >= fee + AI_BUY_RESERVE)
       .sort((a, b) => b.m.rating - a.m.rating || a.m.id - b.m.id)
@@ -679,11 +699,58 @@ export function aiTransfersWeekTx(w: CareerStateTx, careerSaveId: number, today:
     const terms ={ wage, length: lengthForRating(clubRating(w.tx, buyer)), perks: aiOfferPerks(wage, room) };
     const r = bidTx(w, careerSaveId, { poolTeamId: buyer }, target.m.id, terms, target.fee, today, freeing);
     if (!r.ok) continue;
-    squadsNow = null; robsNow = null; feeOf.clear(); openOf.clear();
+    squadsNow = null; robsNow = null; listedNow = null; feeOf.clear(); openOf.clear();
     bids.push({ player: target.m.name, from: r.deal.fromTeamId != null ? "player" : String(r.deal.fromPoolTeamId), to: buyer, fee: target.fee, outcome: r.outcome });
   }
   keepAiSquadsTx(w, careerSaveId, today, seasonEnds);
   return bids;
+}
+
+/** 1.1.1: the seniors on the transfer list in this career. */
+function listedIdsTx(tx: Tx, careerSaveId: number): Set<number> {
+  return new Set(tx.select({ id: careerPlayerStateTable.playerId }).from(careerPlayerStateTable)
+    .where(and(eq(careerPlayerStateTable.careerSaveId, careerSaveId), eq(careerPlayerStateTable.transferListed, true),
+      eq(careerPlayerStateTable.isRetired, false))).all().map((r) => r.id));
+}
+
+/**
+ * 1.1.1 (Rob, 18 Oct): the AI clubs use "Ask her to retire" and the transfer list by the player's
+ * rules (AI_DEADWOOD). Asking pays out the rest of her contract from the club's balance; she retires
+ * at once (playerDto retirePlayers). Runs in the weekly block, before the AI clubs' buying.
+ * Off under VBE_RETIREMENT=limit, as the chance at the turn is.
+ */
+export function aiDeadwoodTx(w: CareerStateTx, careerSaveId: number, today: string): { asked: number; listed: number } {
+  let asked = 0, listed = 0;
+  // A suite's switch (utils/retirement.ts): VBE_RETIREMENT=limit keeps only the age limit, so squads hold still.
+  if (process.env.VBE_RETIREMENT === "limit") return { asked, listed };
+  const window = inTransferWindow(today);
+  const recon = reconstructionsTx(w.tx, careerSaveId);
+  const already = listedIdsTx(w.tx, careerSaveId);
+  const s = careerPlayerStateTable;
+  for (const [poolTeamId, squad] of aiSquadsTx(w.tx, careerSaveId)) {
+    const players = squad.filter((m) => m.kind === "player");
+    if (players.length === 0) continue;
+    const ages = new Map(w.tx.select({ id: s.playerId, age: s.age }).from(s)
+      .where(and(eq(s.careerSaveId, careerSaveId), inArray(s.playerId, players.map((m) => m.id)))).all().map((r) => [r.id, r.age]));
+    const ageOf = (m: AiMember) => ages.get(m.id) ?? 0;
+    const weakest = [...players].sort((a, b) => a.rating - b.rating || b.id - a.id)[0]!;
+    const canLose = squad.length - 1 >= AI_MIN_SQUAD;
+    const broken = players.filter((m) => (m.onList || (recon.get(m.id) ?? 0) > 0) && ageOf(m) >= AI_DEADWOOD.brokenAge)
+      .sort((a, b) => a.rating - b.rating)[0];
+    const ask = canLose ? (broken ?? (window && ageOf(weakest) >= AI_DEADWOOD.askAge ? weakest : null)) : null;
+    if (ask) {
+      const payout = ask.contractEndDate ? terminationPayout(ask.salary, today, ask.contractEndDate) : 0;
+      if (payout > 0) addToBalance(w.tx, careerSaveId, poolTeamId, -payout);
+      w.retirePlayers(careerSaveId, [{ playerId: ask.id, reason: "asked" }], Number(today.slice(0, 4)), today);
+      asked++;
+      continue;
+    }
+    if (window && ageOf(weakest) >= AI_DEADWOOD.listAge && !already.has(weakest.id) && !hasAgreedMoveTx(w.tx, careerSaveId, weakest.id)) {
+      w.setPlayerState(careerSaveId, weakest.id, { transferListed: true });
+      listed++;
+    }
+  }
+  return { asked, listed };
 }
 
 /** The player's fit seniors an AI club may bid for: held at his club at least AI_KEEP_DAYS (her contract's start). */

@@ -181,7 +181,7 @@ export function deleteProfileCascade(userId: string): void {
       // and its pre-season choices, preseasonChoicesTable, and night 2's injury
       // history of every club, careerInjuriesTable, and 1.1.1's transfer deals,
       // transferDealsTable, and Part 10's scouting work, scoutingJobsTable, and
-      // the first season's strength tiers, poolClubStartTiersTable.
+      // the first season's strength tiers, poolClubStartTiersTable, and the new seniors, careerNewSeniorsTable.
       // The athletes an intake created stay: players is reference data, and a
       // new career is seeded only with athletes no career owns.
     }

@@ -49,7 +49,7 @@ export const AI_BORROW_GAP = 5;
 /** At most this many AI loans start in a week, so the market moves rather than empties at once. */
 export const AI_BORROWS_PER_WEEK = 3;
 /** The age an academy player leaves the academy at the season boundary. */
-const GRADUATION_AGE = 19;
+export const GRADUATION_AGE = 19;
 
 export type Club = { teamId: number } | { poolTeamId: number };
 const isTeam = (c: Club): c is { teamId: number } => "teamId" in c;
@@ -435,12 +435,12 @@ export function aiAcademiesWeekTx(w: CareerStateTx, careerSaveId: number, today:
 
 /**
  * At the season boundary, after the ages move on: an AI academy player who has
- * reached 19 leaves the game. This career's record of her goes, as a retiree's
+ * reached 19 leaves the game, except the few kept on as new seniors (1.1.1, 18 Oct). This career's record of her goes, as a retiree's
  * does (the athlete row is reference data and stays, owned by this career, so
  * no other career is seeded with her); the AI club's academy refills in the
  * next weekly block.
  */
-export function releaseAiAcademyGraduatesTx(tx: Tx, careerSaveId: number): number {
+export function releaseAiAcademyGraduatesTx(tx: Tx, careerSaveId: number, keep: ReadonlySet<number> = new Set()): number {
   const going = tx.select({ playerId: careerPlayerStateTable.playerId }).from(careerPlayerStateTable)
     .innerJoin(playersTable, eq(playersTable.id, careerPlayerStateTable.playerId))
     .where(and(
@@ -455,7 +455,8 @@ export function releaseAiAcademyGraduatesTx(tx: Tx, careerSaveId: number): numbe
   const aged = going.length === 0 ? [] : tx.select({ playerId: careerPlayerStateTable.playerId, age: careerPlayerStateTable.age })
     .from(careerPlayerStateTable)
     .where(and(eq(careerPlayerStateTable.careerSaveId, careerSaveId), inArray(careerPlayerStateTable.playerId, going)))
-    .all().filter((r) => r.age >= GRADUATION_AGE && !theirs.has(r.playerId)).map((r) => r.playerId);
+    // 1.1.1 (Rob, 18 Oct): `keep` stay on as senior free agents (utils/newSeniors.ts youthsStayingOnTx).
+    .all().filter((r) => r.age >= GRADUATION_AGE && !theirs.has(r.playerId) && !keep.has(r.playerId)).map((r) => r.playerId);
   for (const id of aged) {
     tx.delete(careerPlayerStateTable)
       .where(and(eq(careerPlayerStateTable.careerSaveId, careerSaveId), eq(careerPlayerStateTable.playerId, id))).run();

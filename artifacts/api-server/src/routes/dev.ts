@@ -48,6 +48,7 @@ import { pairSideRating } from "../utils/condition.js";
 import { pointProbability, simulateMatch, type RatedPlayer } from "../utils/matchEngine.js";
 import { accessTierByPoolIdTx, creditPoolClubResultTx, purseForRound } from "../utils/poolClubFinances.js";
 import { prizeFor } from "../utils/prizeDistribution.js";
+import { retirementChance, type RetirementInput } from "../utils/retirement.js";
 
 const router = Router();
 
@@ -159,6 +160,16 @@ router.post("/dev/pool-clubs/credit", (req, res) => {
     const access = accessTierByPoolIdTx(tx, cid, args.seasonYear).get(args.poolTeamId) ?? "Bronze";
     return { access, prize: creditPoolClubResultTx(tx, args), fullPrize: prizeFor(purseForRound(args.round), args.won, 1) };
   }));
+});
+
+/**
+ * 1.1.1 (Rob, 18 Oct): the retirement chance (utils/retirement.ts retirementChance) for given
+ * players, as a season's turn rolls it. harness/new-seniors.mjs reads the rule's table. Reads and
+ * writes nothing.
+ */
+router.post("/dev/retirement/chance", (req, res) => {
+  const players = (req.body?.players ?? []) as RetirementInput[];
+  res.json({ results: players.map((p) => ({ ...p, ...retirementChance(p) })) });
 });
 
 export default router;

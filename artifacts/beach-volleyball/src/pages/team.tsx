@@ -37,6 +37,7 @@ import {
   ChevronUp,
   ChevronDown,
   Award,
+  Tag,
   Lock,
   Sparkles,
   Trophy,
@@ -297,12 +298,31 @@ export default function TeamRoster() {
   };
 
   const handleRetire = (playerId: number, playerName: string) => {
+    // 1.1.1 (Rob, 18 Oct): "Ask her to retire": she retires now and the club pays out her contract;
+    // outside the transfer window only a player with a reconstruction or on the injured list.
     retireMutation.mutate({ id: playerId }, {
-      onSuccess: () => {
+      onSuccess: (data) => {
         invalidate();
-        toast({ title: `${playerName} has retired`, description: "They have been inducted into the Hall of Fame." });
+        const payout = Number((data as { payout?: number }).payout ?? 0);
+        toast({ title: `${playerName} has retired`, description: payout > 0 ? `Contract paid out: $${payout.toLocaleString()}.` : "Her contract has ended." });
       },
+      onError: (err) => toast({ title: "She can't retire yet", description: serverMessage(err, "Could not ask her to retire."), variant: "destructive" }),
     });
+  };
+
+  // 1.1.1 (Rob, 18 Oct): the transfer list. The AI clubs see a listed senior and may bid.
+  const handleTransferList = async (playerId: number, playerName: string, listed: boolean) => {
+    const res = await fetch(`/api/players/${playerId}/transfer-list`, {
+      method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ listed }),
+    });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      toast({ title: "Transfer list", description: (body as { error?: string }).error ?? "Could not change the transfer list.", variant: "destructive" });
+      return;
+    }
+    invalidate();
+    toast({ title: listed ? `${playerName} is on the transfer list` : `${playerName} is off the transfer list`,
+      description: listed ? "The AI clubs can see she is available and may make a bid." : undefined });
   };
 
 
@@ -1006,16 +1026,16 @@ export default function TeamRoster() {
                   size="sm"
                   className="text-amber-600 hover:text-amber-700 hover:bg-amber-50 gap-1 text-xs"
                   data-testid={`button-retire-${player.id}`}
-                  title="Retire player"
+                  title="Ask her to retire"
                 >
                   <Award className="h-3 w-3" />
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Retire {player.name}?</AlertDialogTitle>
+                  <AlertDialogTitle>Ask {player.name} to retire?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    {player.name} will be inducted into the Hall of Fame. This cannot be undone — they will no longer appear on the roster, market, or draft.
+                    She retires now and the rest of her contract is paid out from your balance, as ending it early is. Like releasing, you can ask only in the transfer window, unless she has had a reconstruction or is on the injured list. This can't be undone.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
@@ -1024,11 +1044,25 @@ export default function TeamRoster() {
                     onClick={() => handleRetire(player.id, player.name)}
                     className="bg-amber-600 text-white hover:bg-amber-700"
                   >
-                    Retire & Induct
+                    Ask her to retire
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
+
+            {role !== "reserve" || (player as { isPromoted?: boolean; playerType?: string }).playerType !== "youth" ? (
+              <Button
+                variant="ghost"
+                size="sm"
+                className={cn("gap-1 text-xs", (player as { transferListed?: boolean }).transferListed ? "text-sky-400 bg-sky-500/10" : "text-sky-600 hover:text-sky-700 hover:bg-sky-50")}
+                data-testid={`button-transfer-list-${player.id}`}
+                title={(player as { transferListed?: boolean }).transferListed ? "On the transfer list: click to take her off" : "Put her on the transfer list"}
+                onClick={() => handleTransferList(player.id, player.name, !(player as { transferListed?: boolean }).transferListed)}
+              >
+                <Tag className="h-3 w-3" />
+                {(player as { transferListed?: boolean }).transferListed ? "Listed" : null}
+              </Button>
+            ) : null}
 
             <AlertDialog>
               <AlertDialogTrigger asChild>

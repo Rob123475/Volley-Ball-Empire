@@ -33,7 +33,7 @@ import { aiAcademiesWeekTx, loansTx, recordTeamLoanWeekTx, returnDueLoansTx, tea
 import { aiYouthBuysWeekTx } from "../utils/youthDeals.js";
 import { datedRulesTx } from "../utils/calendarDatedRules.js";
 import { juniorPromotionsDayTx } from "../utils/juniorMedics.js";
-import { materializeAiSeniorsTx, aiSeniorsTrainWeekTx, aiTransfersWeekTx } from "../utils/aiSquads.js";
+import { materializeAiSeniorsTx, aiSeniorsTrainWeekTx, aiTransfersWeekTx, aiDeadwoodTx } from "../utils/aiSquads.js";
 import { day1DraftOpen, finishDay1DraftTx } from "../utils/day1Draft.js";
 import { aiStaffDayTx, STAFF_BACK_ON_MARKET } from "../utils/aiStaff.js";
 import { transfersDayTx } from "../utils/transfers.js";
@@ -716,6 +716,8 @@ async function advanceOneDay(req: Request): Promise<DayResult> {
     withCareerStateTx((w) => {
       materializeAiSeniorsTx(w, careerSaveId);
       aiSeniorsTrainWeekTx(w, careerSaveId, nextDate);
+      // 1.1.1 (Rob, 18 Oct): their deadwood asked to retire or put on the transfer list, then their buying.
+      aiDeadwoodTx(w, careerSaveId, nextDate);
       return aiTransfersWeekTx(w, careerSaveId, nextDate, seasonEndsForCareerTx(w.tx, careerSaveId));
     });
     for (const b of aiWeek.borrowed) {

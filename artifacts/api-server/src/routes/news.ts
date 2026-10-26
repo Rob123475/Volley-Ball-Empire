@@ -13,6 +13,8 @@ import { seasonPhase } from "../utils/seasonPhase.js";
  *   staff-off-<absence id>    a member of staff went off ill or hurt (final brief 5 Oct, Part B)
  *   injury-<injury id>        one of the club's players was hurt: the injury, its area, time out (night 2, O-7)
  *   staff-back-<absence id>   ... and came back
+ *   retirements-<date>        the players who retired that day, his club's first (1.1.1, 18 Oct: player_retirements)
+ *   talent-<season year>      that season's new seniors on the free-agent market (1.1.1, 18 Oct: career_new_seniors)
  * Each carries the game date it happened on.
  *
  * This replaced a day-seeded generator of invented players, nations,
@@ -22,7 +24,8 @@ import { seasonPhase } from "../utils/seasonPhase.js";
  * contract in place and records no date.
  */
 import { Router } from "express";
-import { db, matchesTable, contractsTable, trophiesTable, boardSeasonsTable, playersTable, youthIntakesTable, staffAbsencesTable, staffAbsenceCause, careerInjuriesTable, BODY_AREA_LABELS, type BodyArea } from "@workspace/db";
+import { db, matchesTable, contractsTable, trophiesTable, boardSeasonsTable, playersTable, youthIntakesTable, staffAbsencesTable, staffAbsenceCause, careerInjuriesTable, BODY_AREA_LABELS, type BodyArea,
+  playerRetirementsTable, careerNewSeniorsTable } from "@workspace/db";
 import { and, desc, eq, inArray, isNotNull, or } from "drizzle-orm";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { requireCareerSaveId } from "../lib/playerDto.js";
@@ -35,7 +38,7 @@ const router = Router();
 
 type NewsItem = {
   id: string;
-  type: "result" | "signing" | "board" | "trophy" | "champion" | "olympic" | "academy" | "staff" | "injury";
+  type: "result" | "signing" | "board" | "trophy" | "champion" | "olympic" | "academy" | "staff" | "injury" | "retirement" | "talent";
   headline: string;
   detail: string;
   date: string;
@@ -47,7 +50,10 @@ const RECENT_SIGNINGS = 5;
 const MAX_ITEMS = 15;
 
 // On one date, the bigger story first.
-const KIND_ORDER: Record<NewsItem["type"], number> = { trophy: 0, olympic: 1, champion: 2, board: 3, academy: 4, result: 5, signing: 6, staff: 7, injury: 8 };
+const KIND_ORDER: Record<NewsItem["type"], number> = { trophy: 0, olympic: 1, champion: 2, board: 3, academy: 4, retirement: 5, talent: 6, result: 7, signing: 8, staff: 9, injury: 10 };
+const RETIREMENT_WORDS: Record<string, string> = {
+  limit: "the season she turned 40", age: "her age", injury: "injuries", rating: "her form", unsigned: "a season without a club", asked: "asked by her club",
+};
 const OLYMPIC_TROPHY_TYPES = new Set(["olympic_gold", "olympic_silver", "olympic_bronze", "olympic_appearance"]);
 
 const GRADE_WORDS: Record<string, string> = {
@@ -175,6 +181,38 @@ router.get("/news", async (req, res) => {
         ...joined.map((p) => `${p.name} (${p.nationality}, ${p.baseAge})`),
         ...(nowFull ? [`The academy is now full (${intake.academySize}/${ACADEMY_CAP})`] : []),
       ].join(" · "),
+    });
+  }
+
+  // 1.1.1 (Rob, 18 Oct): retirements, announced on the day (a season's turn, or a club's request),
+  // his club's players first; and the season's new seniors on the free-agent market.
+  const retirements = await db.select().from(playerRetirementsTable).where(and(
+    eq(playerRetirementsTable.careerSaveId, careerSaveId), isNotNull(playerRetirementsTable.retiredOn)));
+  const byDay = new Map<string, typeof retirements>();
+  for (const r of retirements) byDay.set(r.retiredOn!, [...(byDay.get(r.retiredOn!) ?? []), r]);
+  for (const [date, list] of byDay) {
+    const ours = list.filter((r) => r.lastTeamId === team.id);
+    const ordered = [...ours, ...list.filter((r) => r.lastTeamId !== team.id).sort((a, b) => b.age - a.age)];
+    items.push({
+      id: `retirements-${date}`, type: "retirement", isUserTeam: ours.length > 0, date,
+      headline: ours.length > 0
+        ? `${ours.map((r) => r.name).join(" and ")} retire${ours.length === 1 ? "s" : ""}${list.length > ours.length ? `, with ${list.length - ours.length} more around the world` : ""}`
+        : `${list.length} player${list.length === 1 ? " retires" : "s retire"} around the world`,
+      detail: ordered.slice(0, 12).map((r) => `${r.name} (${r.nationality ?? "?"}, ${r.age}: ${RETIREMENT_WORDS[r.reason ?? "age"] ?? "retired"})`).join(" · ")
+        + (ordered.length > 12 ? ` · and ${ordered.length - 12} more` : ""),
+    });
+  }
+  const arrivals = await db.select({ s: careerNewSeniorsTable, name: playersTable.name }).from(careerNewSeniorsTable)
+    .innerJoin(playersTable, eq(playersTable.id, careerNewSeniorsTable.playerId))
+    .where(eq(careerNewSeniorsTable.careerSaveId, careerSaveId));
+  const bySeason = new Map<number, typeof arrivals>();
+  for (const a of arrivals) bySeason.set(a.s.seasonYear, [...(bySeason.get(a.s.seasonYear) ?? []), a]);
+  for (const [year, list] of bySeason) {
+    const fromAbroad = list.filter((a) => a.s.kind === "picture");
+    items.push({
+      id: `talent-${year}`, type: "talent", isUserTeam: false, date: list[0]!.s.arrivedOn,
+      headline: `${list.length} new senior${list.length === 1 ? "" : "s"} on the free-agent market`,
+      detail: [...fromAbroad, ...list.filter((a) => a.s.kind !== "picture")].slice(0, 12).map((a) => `${a.name} (${a.s.nation})`).join(" · "),
     });
   }
 

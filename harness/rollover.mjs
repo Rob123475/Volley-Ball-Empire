@@ -16,6 +16,8 @@
  *
  * Usage: node harness/rollover.mjs [baseUrl]
  */
+import fs from "node:fs";
+import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { healAllSquads, keepClubSolvent, startCareer, turnDownBids } from "./harness-club.mjs";
 const BASE = (process.argv[2] ?? "http://localhost:4199") + "/api";
@@ -45,6 +47,71 @@ function check(label, cond, detail = "") {
  * - the squad screen lists them like anyone else.
  */
 /** A club's running win and loss totals, read from the throwaway database. */
+/**
+ * 1.1.1 (Rob, 18 Oct; NEW-SENIORS-BRIEF-18OCT.md): the whole world after a season's turn: who
+ * retired (by age band and by reason), the new seniors who arrived (kept-on youths and picture
+ * players), seniors in the game, free agents, the AI clubs' squads, and that year's Olympic field.
+ */
+function worldAfterTurn(dbPath, teamId, endedYear) {
+  const db = new DatabaseSync(dbPath, { readOnly: true });
+  try {
+    const q = (sql, ...a) => db.prepare(sql).all(...a);
+    const cid = q(`SELECT id FROM career_saves WHERE team_id = ?`, teamId)[0]?.id;
+    if (cid == null) return null;
+    const ret = q(`SELECT age, reason FROM player_retirements WHERE career_save_id = ? AND season_year = ?`, cid, endedYear);
+    const band = (lo, hi) => ret.filter((r) => r.age >= lo && r.age <= hi).length;
+    const arrived = q(`SELECT kind, COUNT(*) n FROM career_new_seniors WHERE career_save_id = ? AND season_year = ? GROUP BY kind`, cid, endedYear + 1);
+    const seniors = q(`SELECT s.team_id t, s.pool_team_id pt, s.on_injured_list l FROM career_player_state s JOIN players p ON p.id = s.player_id
+      WHERE s.career_save_id = ? AND s.is_retired = 0 AND (p.player_type = 'senior' OR s.is_promoted = 1)`, cid);
+    const byClub = new Map();
+    for (const r of seniors) if (r.pt != null && !r.l) byClub.set(r.pt, (byClub.get(r.pt) ?? 0) + 1);
+    const clubs = q(`SELECT pool_team_id id FROM career_pool_team_state WHERE career_save_id = ? AND taken_over_at IS NULL`, cid).map((r) => r.id);
+    const olympic = q(`SELECT field FROM olympic_tournaments WHERE career_save_id = ? AND season_year = ?`, cid, endedYear)[0];
+    return {
+      cid,
+      retired: ret.length,
+      bands: { under30: band(0, 29), "30-34": band(30, 34), "35-39": band(35, 39), "40": band(40, 99) },
+      reasons: Object.fromEntries(["age", "injury", "rating", "unsigned", "asked", "limit"].map((k) => [k, ret.filter((r) => r.reason === k).length])),
+      avgAge: ret.length ? Math.round(ret.reduce((a, r) => a + r.age, 0) / ret.length * 10) / 10 : null,
+      youths: arrived.find((r) => r.kind === "youth")?.n ?? 0,
+      pictures: arrived.find((r) => r.kind === "picture")?.n ?? 0,
+      seniors: seniors.length,
+      freeAgents: seniors.filter((r) => r.t == null && r.pt == null).length,
+      atAiClubs: seniors.filter((r) => r.pt != null).length,
+      clubsWith3: clubs.filter((c) => (byClub.get(c) ?? 0) >= 3).length,
+      clubsShort: clubs.filter((c) => (byClub.get(c) ?? 0) < 2).length,
+      clubs: clubs.length,
+      olympians: olympic ? JSON.parse(olympic.field).map((f) => f.nation) : null,
+    };
+  } finally { db.close(); }
+}
+
+/** The newest career's AI clubs, mid-season: how many hold 3 seniors (off the injured list), and how many fewer than 2. */
+function aiSquadsMidSeason(dbPath) {
+  const db = new DatabaseSync(dbPath, { readOnly: true });
+  try {
+    const cid = db.prepare(`SELECT MAX(id) id FROM career_saves`).get().id;
+    const rows = db.prepare(`SELECT s.pool_team_id c, COUNT(*) n FROM career_player_state s JOIN players p ON p.id = s.player_id WHERE s.career_save_id = ?
+      AND s.pool_team_id IS NOT NULL AND s.is_retired = 0 AND s.on_injured_list = 0 AND (p.player_type = 'senior' OR s.is_promoted = 1) GROUP BY 1`).all(cid);
+    const clubs = db.prepare(`SELECT pool_team_id id FROM career_pool_team_state WHERE career_save_id = ? AND taken_over_at IS NULL`).all(cid).map((r) => r.id);
+    const n = new Map(rows.map((r) => [r.c, r.n]));
+    return { with3: clubs.filter((c) => (n.get(c) ?? 0) >= 3).length, short: clubs.filter((c) => (n.get(c) ?? 0) < 2).length, clubs: clubs.length };
+  } finally { db.close(); }
+}
+
+/** Every new senior of a career whose card is a nation picture, with her nation and the picture's. */
+function nationPictureCheck(dbPath, cid) {
+  const manifestFile = process.env.VBE_NEW_SENIOR_PICTURES
+    ?? path.join(import.meta.dirname, "..", "artifacts", "api-server", "src", "data", "new-senior-pictures.json");
+  const nationOf = new Map(JSON.parse(fs.readFileSync(manifestFile, "utf8")).pictures.map((p) => [p.url, p.nation]));
+  const db = new DatabaseSync(dbPath, { readOnly: true });
+  try {
+    const rows = db.prepare(`SELECT g.player_id id, g.image_url u, p.nationality n FROM career_graduate_portraits g JOIN players p ON p.id = g.player_id
+      WHERE g.career_save_id = ?`).all(cid).filter((r) => nationOf.has(r.u));
+    return { checked: rows.length, wrong: rows.filter((r) => r.n !== nationOf.get(r.u)) };
+  } finally { db.close(); }
+}
+
 function teamTotals(dbPath, teamId) {
   const db = new DatabaseSync(dbPath, { readOnly: true });
   try { return db.prepare(`SELECT wins, losses FROM teams WHERE id = ?`).get(teamId) ?? null; } finally { db.close(); }
@@ -220,7 +287,10 @@ async function keepSideFielded(api) {
 async function advanceToBoundaryPlaying(api, maxDays = 500) {
   const renewal = await renewExpiringContracts(api);
   let wins = 0, losses = 0;
+  let mid = null;
   for (let i = 0; i < maxDays; i++) {
+    // 1.1.1 (18 Oct): the AI clubs' squads mid-season (half a year in), when every club has had its refills.
+    if (DB_FILE && i === 182) mid = aiSquadsMidSeason(DB_FILE);
     const r = await api("POST", "/calendar/advance", {});
     if (r.status >= 400) throw new Error(`advance failed: ${JSON.stringify(r.data)}`);
     // 1.1.1 (17 Oct): AI clubs bid for his seniors and an unanswered bid takes her after 14 days. The walk keeps
@@ -239,7 +309,7 @@ async function advanceToBoundaryPlaying(api, maxDays = 500) {
     if (roll?.kind === "sacked") {
       return { sacked: { club: r.data.dismissalClubName ?? null, record: `${wins}W ${losses}L`, why: "review", review: roll.review }, days: i + 1, renewal };
     }
-    if (roll && roll.kind !== "none") return { roll, days: i + 1, body: r.data, renewal };
+    if (roll && roll.kind !== "none") return { roll, days: i + 1, body: r.data, renewal, mid };
   }
   return null;
 }
@@ -354,9 +424,13 @@ async function advanceToBoundary(api, maxDays = 500) {
   // Anyone without a baseline or an intake is an AI academy's youth an AI club promoted (a broke club steps
   // one up, utils/aiSquads.ts): a graduate of an AI academy.
   const aiGraduates = list.filter((p) => !ages0.has(p.id) && !intakeAge.has(p.id) && p.playerType === "youth");
-  check("every senior has a baseline or came from an academy intake (nobody appeared from nowhere)",
-    known.length + fromIntake.length + aiGraduates.length === list.length,
-    `${known.length} + ${fromIntake.length} intake + ${aiGraduates.length} AI academy graduates of ${list.length}; untraced: ${list.filter((p) => !ages0.has(p.id) && !intakeAge.has(p.id) && p.playerType !== "youth").slice(0, 3).map((p) => `${p.name} (${p.status})`).join(", ")}`);
+  // 1.1.1 (Rob, 18 Oct): and the picture players, each recorded where she was made (career_new_seniors).
+  const madeHere = new Set(DB_FILE ? (() => { const d = new DatabaseSync(DB_FILE, { readOnly: true });
+    try { return d.prepare(`SELECT player_id id FROM career_new_seniors WHERE kind = 'picture'`).all().map((r) => r.id); } finally { d.close(); } })() : []);
+  const pictured = list.filter((p) => !ages0.has(p.id) && !intakeAge.has(p.id) && p.playerType !== "youth" && madeHere.has(p.id));
+  check("every senior has a baseline, came from an academy intake or arrived as a picture player (nobody appeared from nowhere)",
+    known.length + fromIntake.length + aiGraduates.length + pictured.length === list.length,
+    `${known.length} + ${fromIntake.length} intake + ${aiGraduates.length} AI academy graduates + ${pictured.length} picture players of ${list.length}; untraced: ${list.filter((p) => !ages0.has(p.id) && !intakeAge.has(p.id) && p.playerType !== "youth" && !madeHere.has(p.id)).slice(0, 3).map((p) => `${p.name} (${p.status})`).join(", ")}`);
 
   check(`rolled through ${WALK_BOUNDARIES} boundaries`, seen.length === WALK_BOUNDARIES,
     seen.map((r) => `${r.fromSeason}->${r.toSeason}`).join(", "));
@@ -690,6 +764,9 @@ async function advanceToBoundary(api, maxDays = 500) {
         fielded: fielded.moved,
         fieldedRefused: fielded.refused,
       };
+      // 1.1.1 (18 Oct): the whole world after the turn.
+      row.world = DB_FILE ? worldAfterTurn(DB_FILE, team.id, endedYear) : null;
+      if (row.world) row.world.mid = hit.mid ?? null;
       seasons.push(row);
       console.log(
         `    season ${row.season} (${row.year}): ${row.record}  ·  ${row.played}/${fixtureSize} played  ·  ` +
@@ -1002,6 +1079,34 @@ async function advanceToBoundary(api, maxDays = 500) {
     );
   }
   if (longRun.sacked) console.log(`  ${String(longRun.sacked.season).padStart(6)}  ${longRun.sacked.year}  SACKED (${longRun.sacked.why}) after ${longRun.sacked.record} — ${longRun.sacked.review?.text ?? ""}`);
+
+  // 1.1.1 (Rob, 18 Oct; NEW-SENIORS-BRIEF-18OCT.md proofs 1 and 2): the world, season by season.
+  if (DB_FILE && longRun.seasons.some((r) => r.world)) {
+    const lastNight = { 24: 107 };   // 17-18 Oct build: seniors across the 60 AI clubs by season 24, before this change
+    console.log(`\n  ── ${longRun.label}: the world after each turn (1.1.1, 18 Oct: new seniors and retirement rebuilt) ──`);
+    console.log("  After the season's turn: who retired, who arrived, seniors and free agents. AI clubs with 3 / short of 2: mid-season (1 July).");
+    console.log("  Season  Retired  <30  30-34  35-39  40   age  injury  rating  unsigned  asked   New: youths  pictures   Seniors  Free agents  At AI clubs (17 Oct)  AI clubs with 3  short of 2");
+    for (const r of longRun.seasons) {
+      const w = r.world; if (!w) continue;
+      console.log(`  ${String(r.season).padStart(6)}  ${String(w.retired).padStart(7)}  ${String(w.bands.under30).padStart(3)}  ${String(w.bands["30-34"]).padStart(5)}  ${String(w.bands["35-39"]).padStart(5)}  ${String(w.bands["40"]).padStart(2)}  ${String(w.avgAge ?? "-").padStart(4)}`
+        + `  ${String(w.reasons.injury).padStart(6)}  ${String(w.reasons.rating).padStart(6)}  ${String(w.reasons.unsigned).padStart(8)}  ${String(w.reasons.asked).padStart(5)}  ${String(w.youths).padStart(12)}  ${String(w.pictures).padStart(8)}`
+        + `  ${String(w.seniors).padStart(8)}  ${String(w.freeAgents).padStart(11)}  ${String(w.atAiClubs).padStart(11)} ${String(lastNight[r.season] ?? "").padStart(8)}  ${String(w.mid?.with3 ?? "?").padStart(13)}/${w.mid?.clubs ?? w.clubs}  ${String(w.mid?.short ?? "?").padStart(9)}`);
+    }
+    for (const r of longRun.seasons.filter((x) => x.world?.olympians)) {
+      console.log(`  Olympics ${r.year} (season ${r.season}): ${r.world.olympians.join(", ")}`);
+    }
+    const worlds = longRun.seasons.map((r) => r.world).filter(Boolean);
+    const outOfPictures = longRun.seasons.find((r) => r.world && r.world.pictures < 5);
+    console.log(`  INFO  picture players: ${worlds.reduce((a, w) => a + w.pictures, 0)} in ${worlds.length} turns; `
+      + (outOfPictures ? `fewer than 5 first at the turn after season ${outOfPictures.season} (the pictures ran out)` : "the pictures lasted every turn"));
+    check(`${longRun.label}: the free-agent market never ran dry`, worlds.every((w) => w.freeAgents > 0), `lowest ${Math.min(...worlds.map((w) => w.freeAgents))}`);
+    const mids = worlds.map((w) => w.mid).filter(Boolean);
+    check(`${longRun.label}: every mid-season, at least 50 of the 60 AI clubs hold 3 seniors and none is short of two`,
+      mids.length === worlds.length && mids.every((m) => m.with3 >= 50 && m.short === 0), `fewest with 3: ${Math.min(...mids.map((m) => m.with3))}; most short of two: ${Math.max(...mids.map((m) => m.short))}`);
+    const pics = nationPictureCheck(DB_FILE, worlds[worlds.length - 1].cid);
+    check(`${longRun.label}: every player on a new nation picture is of the picture's nation`, pics.wrong.length === 0,
+      pics.wrong.length === 0 ? `${pics.checked} checked` : pics.wrong.slice(0, 5).map((r) => `player ${r.id} ${r.n} on ${r.u}`).join("; "));
+  }
 
   // What goes wrong over thirty years — said plainly, from the numbers above.
   // These are observations for Rob, not pass/fail checks: the brief says the

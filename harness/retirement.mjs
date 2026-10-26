@@ -2,6 +2,8 @@
  * L-02b — retirement at forty, and what a retired athlete leaves behind.
  *
  * Rob's rule (22 Sep): a player retires at the end of the season she turns 40.
+ * 1.1.1 (18 Oct): still the hard limit; she may now retire sooner by a chance at
+ * every turn (utils/retirement.ts, harness/new-seniors.mjs), switched off here.
  * Her contract closes, she leaves the squad, and no renewal path can see her.
  * If no club has put her in its Hall of Fame her career record is deleted and
  * her name and portrait go back into circulation; if a club has, everything
@@ -54,6 +56,9 @@ const child = forkServer({
   env: {
     ...process.env, ELECTRON_RUN_AS_NODE: "1", DB_PATH: dbFile, PORT: String(PORT),
     NODE_ENV: "development", SESSION_SECRET: "retirement-secret",
+    // 1.1.1 (18 Oct): this suite is the limit (the season she turns 40) and what retiring leaves behind;
+    // the chance at every turn (utils/retirement.ts) is harness/new-seniors.mjs's, so it is off here.
+    VBE_RETIREMENT: "limit",
   },
 });
 

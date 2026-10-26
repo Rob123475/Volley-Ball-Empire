@@ -398,6 +398,13 @@ export const careerPlayerStateTable = sqliteTable("career_player_state", {
   ratingAtJoin:     integer("rating_at_join"),
   joinedTeamId:     integer("joined_team_id"),
 
+  // 1.1.1 (Rob, 18 Oct: retirement rebuilt; utils/retirement.ts). At each season's turn: her rating
+  // then, and whether she was a free agent then, so the next turn can see a falling rating or a season
+  // unsigned. transferListed: her club has put her on the transfer list (AI clubs see her and may bid).
+  lastRolloverRating:    real("last_rollover_rating"),
+  lastRolloverFreeAgent: integer("last_rollover_free_agent", { mode: "boolean" }).notNull().default(false),
+  transferListed:        integer("transfer_listed", { mode: "boolean" }).notNull().default(false),
+
   // career-long record. What a player ACHIEVES is per career: honours are
   // counted from this career's trophies table and derived from this career's
   // stats, so leaving them on the shared reference row meant one career's
@@ -1915,12 +1922,43 @@ export const playerRetirementsTable = sqliteTable("player_retirements", {
   nameReusedAt:    integer("name_reused_at", { mode: "timestamp" }),
   /** Stamped when a new youth player is given this portrait. Null = still free. */
   portraitReusedAt: integer("portrait_reused_at", { mode: "timestamp" }),
+  /**
+   * 1.1.1 (Rob, 18 Oct): why she retired (utils/retirement.ts RetirementReason: limit, age, injury,
+   * rating, unsigned, asked) and the game day it happened. Null on a row from before.
+   */
+  reason:          text("reason"),
+  retiredOn:       text("retired_on"),
   createdAt:       integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 }, (t) => [
   index("player_retirements_career_season").on(t.careerSaveId, t.seasonYear),
 ]);
 
 export type PlayerRetirement = typeof playerRetirementsTable.$inferSelect;
+
+/**
+ * 1.1.1 (Rob, 18 Oct; Downloads/NEW-SENIORS-BRIEF-18OCT.md): the new seniors who entered this
+ * career's free-agent market at a season's turn (utils/newSeniors.ts): an AI academy youth kept on
+ * at 19 ("youth") or a player made from one of Rob's nation pictures ("picture"). `picture` says
+ * which card she got: her nation's new picture, a graduate picture of her continent, or none (her
+ * flag card). The picture itself is in career_graduate_portraits, never used twice in a career.
+ */
+export const careerNewSeniorsTable = sqliteTable("career_new_seniors", {
+  id:           integer("id").primaryKey({ autoIncrement: true }),
+  careerSaveId: integer("career_save_id").notNull().references(() => careerSavesTable.id),
+  playerId:     integer("player_id").notNull(),
+  seasonYear:   integer("season_year").notNull(),
+  kind:         text("kind").notNull(),
+  nation:       text("nation").notNull(),
+  picture:      text("picture").notNull(),
+  imageUrl:     text("image_url"),
+  arrivedOn:    text("arrived_on").notNull(),
+  createdAt:    integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
+}, (t) => [
+  uniqueIndex("career_new_seniors_player").on(t.careerSaveId, t.playerId),
+  index("career_new_seniors_season").on(t.careerSaveId, t.seasonYear),
+]);
+
+export type CareerNewSenior = typeof careerNewSeniorsTable.$inferSelect;
 
 /**
  * A club's Hall of Fame: the players it has honoured.
