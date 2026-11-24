@@ -1,0 +1,85 @@
+Item 0 baseline, 25 Nov 2026. Unity 6000.3.16f1, volleyball-unity update-1.2 @ dd0a4875be63f35d7ec83b3e89aef2b17a6650df.
+Lines below are copied unchanged from the full logs in this folder.
+
+== compile.log (Unity -batchmode -quit) ==
+Built from '6000.3/staging' branch; Version is '6000.3.16f1 (a56f230f6470) revision 10841891'; Using compiler version '194234433'; Build Type 'Release'
+*** Tundra build success (0.60 seconds), 1 items updated, 1515 evaluated
+Exiting batchmode successfully now!
+error CS lines: 0
+
+== RallyPlanProof.log (-executeMethod RallyPlanProof.Run, no api-server) ==
+[RallyPlanProof] === RALLY PLAN PROOF (no api-server: prefab ratings, chance 0.5) ===
+[RallyPlanProof]   match over: BLUE SHARKS 2-1 RED GIANTS; sets 11-7, 4-11, 13-11
+[RallyPlanProof]   points played 57; decided at the serve 57; awarded as decided 57
+[RallyPlanProof]   CHECK the match ended on the score (best of 3, to 11): PASS
+[RallyPlanProof]   CHECK every set legal (11 vs 9 or less, or by exactly 2 past 10-10): PASS
+[RallyPlanProof]   CHECK every point awarded to the team decided at its serve: PASS
+[RallyPlanProof]   first digs after a serve (Auto): 53; landing from the setter: 0.15-0.30 m, mean 0.23, median 0.23, over 1.0 m 0; aided 0
+[RallyPlanProof]   CHECK in Auto the first dig after a serve is not aided (its own spread, as before): PASS
+[RallyPlanProof]   zoom buttons: Camera_Gameplay_Close: field of view 1x 60.00, 2x 32.20 (x2.000), 4x 16.43 (x4.000), back to 1x 60.00
+[RallyPlanProof]   CHECK the 1x, 2x and 4x buttons magnify the court camera 1, 2 and 4 times: PASS
+[ServePositions] Auto: 57 serves; non-servers furthest from home 0.00 m; server behind her baseline 0.75-0.75 m; servers Player_A1,Player_B1,Player_A2,Player_B2; players placed by the 3 s rule 0
+[ServePositions]   CHECK Auto (10+ serves): non-servers within 0.3 m of home 57/57; server 0.5-1.5 m behind her baseline 57/57; between the sidelines 57/57; server = the rally sequence's server 57/57: PASS
+[RallyPlanProof]   result box: "BLUE SHARKS WIN / BLUE SHARKS 2 - 1 RED GIANTS / Set 1: 11-7     Set 2: 4-11     Set 3: 13-11 / The result could not be sent; the game will finish this match from the last score. / [Continue]"; up 12.0s; sent back before Continue: False; after Continue: True; serve text ""; audio sources playing: 0
+[RallyPlanProof]   CHECK the result box stayed up 12 s by itself, and Continue sent the player back: PASS
+[RallyPlanProof]   CHECK the crowd stopped and the serve text is gone: PASS
+[RallyPlanProof]   ace ability, Auto: rating 95: 101 ability aces in 1200 serves (expected about 100), 160 aces in all; rating 94: 0 ability aces, 53 aces in all (the plan's own aces, as for everyone)
+[RallyPlanProof]   CHECK a server rated 95 aces about 1 in 12 of her serves by the ability: PASS
+[RallyPlanProof]   CHECK a server rated 94 gets no ability aces: PASS
+[RallyPlanProof]   RESULT: PASS
+[RallyPlanProof] === DONE (exit 0) ===
+
+== ManualControlsProof.log (-executeMethod ManualControlsProof.Run, no api-server) ==
+[ManualProof] === MANUAL CONTROLS PROOF (no api-server: prefab ratings, chance 0.5) ===
+[ManualProof]   devices: keyboard 1, gamepad 2
+[ManualProof]   match started; mode Auto; switching to Manual (the page's ?mode=manual does this in the build)
+[ManualProof]   CHECK Tab (keyboard) switches to Auto: PASS  toggles keyboard 1
+[ManualProof]   CHECK View / Share (gamepad) switches back to Manual: PASS
+[ManualProof]   CHECK Q (keyboard) switches the controlled player: PASS  Player_A1 -> Player_A2
+[ManualProof]   CHECK LB / L1 (gamepad) switches back: PASS  -> Player_A1
+[ManualProof]   CHECK H (keyboard) hides the controls help (shown at the start): PASS
+[ManualProof]   CHECK D-pad down (gamepad) shows it again: PASS
+[ManualProof]   CHECK the panel's × hides it and the Controls button appears; Controls brings it back: PASS  shown, no Controls button: True; × clicked: hidden, Controls showing: True; Controls clicked: shown: True
+[ManualProof]   CHECK Esc (keyboard) pauses: time stops: PASS  time scale 0
+[ManualProof]   CHECK Menu / Options (gamepad) resumes: PASS  time scale 2
+[ManualProof]   CHECK Space (keyboard) and B / Circle (gamepad) dive: PASS
+[ManualProof]   CHECK WASD (keyboard) and the left stick (gamepad) move the controlled player: PASS  moved 3.6 m; move frames keyboard 509, gamepad 1
+[ManualProof]   serve test fault: rating 50, meter swept 0.00-0.00 (0 turns), tapped at 0%, speed x0.851, point planned ServeError to TeamB
+[ManualProof]   serve test max94: rating 94, meter swept 0.00-1.00 (2 turns), tapped at 94% (MAX), speed x1.150, point planned AttackError to TeamA
+[ManualProof]   serve test max95: rating 95, meter swept 0.00-1.00 (2 turns), tapped at 94% (MAX), speed x1.150, point planned Ace to TeamA, by the ace ability
+[ManualProof]   serve test fault: rating 50, meter swept 0.00-0.00 (0 turns), tapped at 0%, speed x0.850, point planned ServeError to TeamB
+[ManualProof]   serve test max94: rating 94, meter swept 0.00-1.00 (2 turns), tapped at 94% (MAX), speed x1.150, point planned BlockStuff to TeamB
+[ManualProof]   serve test max95: rating 95, meter swept 0.00-1.00 (2 turns), tapped at 94% (MAX), speed x1.150, point planned Ace to TeamA, by the ace ability
+[ManualProof]   serve test mid: rating 50, meter swept 0.00-0.45 (0 turns), tapped at 45%, speed x0.985, point planned Kill to TeamB
+[ManualProof]   serve test mid: rating 50, meter swept 0.00-0.45 (0 turns), tapped at 45%, speed x0.985, point planned Kill to TeamA
+[ManualProof]   serve test mid: rating 50, meter swept 0.00-0.45 (0 turns), tapped at 45%, speed x0.985, point planned Kill to TeamB
+[ManualProof]   serve test mid: rating 50, meter swept 0.00-0.45 (0 turns), tapped at 45%, speed x0.985, point planned Kill to TeamB
+[ManualProof]   serve test mid: rating 50, meter swept 0.00-0.45 (0 turns), tapped at 45%, speed x0.985, point planned Kill to TeamB
+[ManualProof]   serve test mid: rating 50, meter swept 0.00-0.45 (0 turns), tapped at 45%, speed x0.985, point planned Kill to TeamA
+[ManualProof]   CHECK the serve meter sweeps WEAK to MAX and back without stopping: PASS  0.00-1.00, 2 turns; 0.00-1.00, 2 turns; 0.00-1.00, 2 turns; 0.00-1.00, 2 turns
+[ManualProof]   CHECK a tap under 12% is a fault into the net (the point to the other side): PASS  0% -> ServeError to TeamB; 0% -> ServeError to TeamB
+[ManualProof]   CHECK a tap in the MAX zone serves at full speed: PASS  94% -> x1.150; 94% -> x1.150; 94% -> x1.150; 94% -> x1.150
+[ManualProof]   CHECK a server rated 95+ tapping in the MAX zone aces: PASS  rating 95: Ace to TeamA (ability); rating 95: Ace to TeamA (ability)
+[ManualProof]   CHECK a server rated 94 tapping in the MAX zone does not get the ability's ace: PASS  rating 94: AttackError to TeamA; rating 94: BlockStuff to TeamB
+[ManualProof]   first digs after a serve, your team (weak diggers: defence 5, in light rain): 17 (7 set by you); without the aid they would have landed 0.65-1.24 m from the setter (8 over 1.0 m); the setter's distance from the spot as it came down 0.00-0.35 m; ring up at the strike for your sets 7 of 7
+[ManualProof]   first digs after a serve, your team: 17 (7 set by you); landing from the setter: 0.65-1.00 m, mean 0.92, over 1.0 m 0; next touch made 17, missed 0
+[ManualProof]   CHECK over 20+ points in Manual, every first dig after a serve by your team (10+) landed within 1.0 m of the teammate who sets it: PASS  41 points in Manual, 17 first digs by your team; 0.65-1.00 m, mean 0.92, over 1.0 m 0
+[ManualProof]   CHECK the aid had work to do: some of those digs would have landed over 1.0 m away without it: PASS  8 of 17
+[ManualProof]   CHECK your landing ring was up the moment the dig was struck, every time you were the setter: PASS  7 of 7
+[ManualProof]   CHECK and the next touch was never missed for distance (the setter in reach, 2.4 m, every time): PASS  made 17 of 17 (7 of 7 by you)
+[ManualProof]   serves in Manual: 41; your player serving 12, receiving 19, her partner serving 10
+[ServePositions] Manual: 41 serves; non-servers furthest from home 0.00 m; server behind her baseline 0.75-0.75 m; servers Player_B2,Player_A1,Player_A2,Player_B1; players placed by the 3 s rule 0
+[ServePositions]   CHECK Manual (10+ serves): non-servers within 0.3 m of home 41/41; server 0.5-1.5 m behind her baseline 41/41; between the sidelines 41/41; server = the rally sequence's server 41/41: PASS
+[ManualProof]   CHECK serve positions in Manual (your player serving and receiving): PASS
+[ManualProof]   CHECK Dig fires from the keyboard and the gamepad: PASS  keyboard 21, gamepad 22
+[ManualProof]   CHECK Set fires from the keyboard and the gamepad: PASS  keyboard 38, gamepad 25
+[ManualProof]   CHECK Spike fires from the keyboard and the gamepad: PASS  keyboard 91, gamepad 121
+[ManualProof]   CHECK Serve fires from the keyboard and the gamepad: PASS  keyboard 4, gamepad 8
+[ManualProof]   CHECK Block fires from the keyboard and the gamepad: PASS  keyboard 3, gamepad 3
+[ManualProof]   CHECK Cheer fires from the keyboard and the gamepad: PASS  keyboard 12, gamepad 11
+[ManualProof]   touches made in time 186; points the player changed 24; points played 42; awarded as planned 42; score sets 2-0 (12-10, 11-9)
+[ManualProof]   CHECK the player's touches keep rallies going (touches made in time): PASS  186
+[ManualProof]   CHECK every point so far was awarded to the team its plan (or the player's change to it) said: PASS  42 of 42
+[ManualProof]   CHECK every finished set is legal: PASS
+[ManualProof]   RESULT: PASS
+[ManualProof] === DONE (exit 0) ===
