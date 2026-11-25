@@ -1,0 +1,59 @@
+players' controller Assets/Motion Cast#14 - Vol.1/VolleyballController.controller, default state 'Locomotion'
+  removed Lost_SitSorrow (rejected)
+  Won_Cheers [won] = 'KA_Idle25_Cheers' 18.33 s (KAWAII_ANIMATIOMS_100/Animations/Idle/@KA_Idle25_Cheers.FBX)
+  Won_Cheer [won] = 'KA_Idle74_Cheer' 5.67 s (KAWAII_ANIMATIOMS_100/Animations/Idle/@KA_Idle74_Cheer.FBX)
+  Won_Yay [won] = 'KA_Idle36_Yay' 5.67 s (KAWAII_ANIMATIOMS_100/Animations/Idle/@KA_Idle36_Yay.FBX)
+  Won_JumpForJoy [won] = 'KA_Idle66_JumpForJoy' 4.33 s (KAWAII_ANIMATIOMS_100/Animations/Idle/@KA_Idle66_JumpForJoy.FBX)
+  Won_Shout [won] = 'KA_Idle26_Shout' 8.33 s (KAWAII_ANIMATIOMS_100/Animations/Idle/@KA_Idle26_Shout.FBX)
+  Won_ThumbsUp [won] = 'KA_Idle65_ThumbsUp' 6.33 s (KAWAII_ANIMATIOMS_100/Animations/Idle/@KA_Idle65_ThumbsUp.FBX)
+  Won_ThumbsUp2 [won] = 'KA_Idle91_ThumbsUp' 7.33 s (KAWAII_ANIMATIOMS_100/Animations/Idle/@KA_Idle91_ThumbsUp.FBX)
+  Won_Motivated [won] = 'KA_Idle76_MotivatedPose' 5.67 s (KAWAII_ANIMATIOMS_100/Animations/Idle/@KA_Idle76_MotivatedPose.FBX)
+  Won_DoublePeace [won] = 'KA_Idle88_DoublePeacePose' 7.33 s (KAWAII_ANIMATIOMS_100/Animations/Idle/@KA_Idle88_DoublePeacePose.FBX)
+  Won_Taunt [won] = 'KA_Idle42_Taunt' 7.00 s (KAWAII_ANIMATIOMS_100/Animations/Idle/@KA_Idle42_Taunt.FBX)
+  Won_Backflip [won] = 'KA_Idle55_Backflip' 4.00 s (KAWAII_ANIMATIOMS_100/Animations/Idle/@KA_Idle55_Backflip.FBX)
+  Won_Cartwheel [won] = 'KA_Idle54_CartwheelAndBackHandspring' 5.00 s (KAWAII_ANIMATIOMS_100/Animations/Idle/@KA_Idle54_CartwheelAndBackHandspring.FBX)
+  Won_MC1 [won] = '12-Reaction after point obtained-Take1' 3.65 s (Motion Cast#14 - Vol.1/Volley-ball animations/12-Reaction after point obtained-Take1.fbx)
+  Won_MC2 [won] = '12-Reaction after point obtained-Take2' 4.02 s (Motion Cast#14 - Vol.1/Volley-ball animations/12-Reaction after point obtained-Take2.fbx)
+  Won_MC3 [won] = '12-Reaction after point obtained-Take3' 5.02 s (Motion Cast#14 - Vol.1/Volley-ball animations/12-Reaction after point obtained-Take3.fbx)
+  Won_Clap [won] = 'a_person_clapping_enthusiastically_while' 7.97 s (PromptMotion/Generated/j_178269624861c750a8.fbx)
+  Won_ArmsUp [won] = 'a_person_cheering_with_both_arms_raised' 7.97 s (PromptMotion/Generated/j_1782697907bad4e922.fbx)
+  Lost_FeelDown [lost] = 'KA_Idle67_FeelDown' 7.67 s (KAWAII_ANIMATIOMS_100/Animations/Idle/@KA_Idle67_FeelDown.FBX)
+  Lost_Cry [lost] = 'KA_Idle38_Cry' 9.33 s (KAWAII_ANIMATIOMS_100/Animations/Idle/@KA_Idle38_Cry.FBX)
+  Lost_Angry [lost] = 'KA_Idle27_Angry' 7.33 s (KAWAII_ANIMATIOMS_100/Animations/Idle/@KA_Idle27_Angry.FBX)
+  Lost_MC1 [lost] = '12-Reaction after lose point-Take1' 5.80 s (Motion Cast#14 - Vol.1/Volley-ball animations/11-Reaction after lose point-Take1.fbx)
+  Lost_MC2 [lost] = '12-Reaction after lose point-Take2' 6.35 s (Motion Cast#14 - Vol.1/Volley-ball animations/11-Reaction after lose point-Take2.fbx)
+  Lost_MC3 [lost] = '12-Reaction after lose point-Take3' 6.77 s (Motion Cast#14 - Vol.1/Volley-ball animations/11-Reaction after lose point-Take3.fbx)
+  Pair_HighFive_1 [pair] = 'KA_Idle21_HighFive1_1' 4.00 s (KAWAII_ANIMATIOMS_100/Animations/Idle/Idle_Pair/@KA_Idle21_HighFive1_1.FBX)
+  Pair_HighFive_2 [pair] = 'KA_Idle22_HighFive1_2' 4.00 s (KAWAII_ANIMATIOMS_100/Animations/Idle/Idle_Pair/@KA_Idle22_HighFive1_2.FBX)
+  Pair_Hug_1 [pair] = 'KA_Idle33_Hug1_1' 6.00 s (KAWAII_ANIMATIOMS_100/Animations/Idle/Idle_Pair/@KA_Idle33_Hug1_1.FBX)
+  Pair_Hug_2 [pair] = 'KA_Idle34_Hug1_2' 6.00 s (KAWAII_ANIMATIOMS_100/Animations/Idle/Idle_Pair/@KA_Idle34_Hug1_2.FBX)
+  WalkOn [walkon] = 'KA_Walk01' 1.33 s, loops (KAWAII_ANIMATIOMS_100/Animations/Locomotion/Walk/@KA_Walk01.FBX)
+  Wave [walkon] = 'KA_Idle16_WaveHands' 8.00 s (KAWAII_ANIMATIOMS_100/Animations/Idle/@KA_Idle16_WaveHands.FBX)
+  Bow [walkon] = 'KA_Idle44_GreetingBow' 7.00 s (KAWAII_ANIMATIOMS_100/Animations/Idle/@KA_Idle44_GreetingBow.FBX)
+  Applaud_1 [celebrate] = '9-Passes under the net while applauding the public-Take1' 4.80 s (Motion Cast#14 - Vol.1/Volley-ball animations/9-Passes under the net while applauding the public-Take1.fbx)
+  Applaud_2 [celebrate] = '9-Passes under the net while applauding the public-Take2' 5.38 s (Motion Cast#14 - Vol.1/Volley-ball animations/9-Passes under the net while applauding the public-Take2.fbx)
+  Applaud_3 [celebrate] = '9-Passes under the net while applauding the public-Take3' 6.97 s (Motion Cast#14 - Vol.1/Volley-ball animations/9-Passes under the net while applauding the public-Take3.fbx)
+  Wait [timeout] = 'KA_Idle09_Waiting' 6.00 s, loops (KAWAII_ANIMATIOMS_100/Animations/Idle/@KA_Idle09_Waiting.FBX)
+  Stretch [timeout] = 'KA_Idle05_Stretch' 6.33 s (KAWAII_ANIMATIOMS_100/Animations/Idle/@KA_Idle05_Stretch.FBX)
+  HandsOnHips [timeout] = 'KA_Idle90_HandsOnHipsConfident' 7.33 s (KAWAII_ANIMATIOMS_100/Animations/Idle/@KA_Idle90_HandsOnHipsConfident.FBX)
+  Rest [timeout] = '004_AA_Volleyball_Resting_Position_Loop' 4.13 s, loops (Animo/AA_Volleyball/Animations/InPlace/AA_Volleyball_InPlace.fbx)
+  Stand [timeout] = '001_AA_Volleyball_Stand_Idle_Type01_Loop' 4.40 s, loops (Animo/AA_Volleyball/Animations/InPlace/AA_Volleyball_InPlace.fbx)
+  SignalStance [signal] = '003_AA_Volleyball_Ready_Position_Loop' 1.63 s, loops (Animo/AA_Volleyball/Animations/InPlace/AA_Volleyball_InPlace.fbx)
+  Medal_Bow [medal] = 'KA_Idle44_GreetingBow' 7.00 s (KAWAII_ANIMATIOMS_100/Animations/Idle/@KA_Idle44_GreetingBow.FBX)
+  Medal_Look [medal] = 'KA_Idle03_LookAtHands' 9.33 s (KAWAII_ANIMATIOMS_100/Animations/Idle/@KA_Idle03_LookAtHands.FBX)
+  Medal_Raise [medal] = 'KA_Idle25_Cheers' 18.33 s (KAWAII_ANIMATIOMS_100/Animations/Idle/@KA_Idle25_Cheers.FBX)
+  umpire Ump_AuthServe_L = '129_AA_Volleyball_Referee_Authorization_to_Serve_L' 3.97 s
+  umpire Ump_AuthServe_R = '128_AA_Volleyball_Referee_Authorization_to_Serve_R' 3.97 s
+  umpire Ump_TeamServe_L = '130_AA_Volleyball_Referee_Team_to_Serve_L' 2.87 s
+  umpire Ump_TeamServe_R = '131_AA_Volleyball_Referee_Team_to_Serve_R' 2.87 s
+  umpire Ump_BallIn_L = '149_AA_Volleyball_Referee_Ball_In_L' 4.00 s
+  umpire Ump_BallIn_R = '148_AA_Volleyball_Referee_Ball_In_R' 4.00 s
+  umpire Ump_BallOut_L = '151_AA_Volleyball_Referee_Ball_Out_L' 3.80 s
+  umpire Ump_BallOut_R = '150_AA_Volleyball_Referee_Ball_Out_R' 3.80 s
+  umpire Ump_BallTouched = '168_AA_Volleyball_Referee_Ball_Touched_L' 3.33 s
+  umpire Ump_EndOfSet = '139_AA_Volleyball_Referee_End_of_Set' 2.77 s
+  umpire Ump_TimeOut = '133_AA_Volleyball_Referee_TimeOut_R' 3.07 s
+BeachPlayer: PresentationPoses on 'BeachPlayer', bottle Assets/BeachyPropsPack_V1/Prefabs/Water_Bottle.prefab
+BeachPlayer avatar 'SK_BeachGirl_05Avatar': human True; finger bones mapped: Left Index Proximal yes, Left Middle Proximal yes, Right Index Proximal yes, Right Middle Proximal yes, Right Ring Proximal yes, Right Little Proximal yes, Right Thumb Proximal yes
+players' controller: 53 states, IK pass True; umpire controller: layers Base Layer, Signals (mask UmpireUpperBody)
+RESULT: PASS

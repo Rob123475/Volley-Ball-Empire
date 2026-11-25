@@ -1,0 +1,29 @@
+signal Fist/Fist: hands behind her hips by 16 cm (left) and 16 cm (right); right fingertips from the wrist: index 7.2 cm, middle 6.3 cm, ring 6.3 cm; behind her back
+signal One/One: hands behind her hips by 16 cm (left) and 16 cm (right); right fingertips from the wrist: index 14.7 cm, middle 6.3 cm, ring 6.3 cm; behind her back
+signal Two/Two: hands behind her hips by 16 cm (left) and 16 cm (right); right fingertips from the wrist: index 14.7 cm, middle 14.6 cm, ring 6.3 cm; behind her back
+signal Open/Open: hands behind her hips by 16 cm (left) and 16 cm (right); right fingertips from the wrist: index 14.7 cm, middle 14.6 cm, ring 13.5 cm; behind her back
+signal fingers: the index fingertip is 7.2 cm from the wrist in a fist, 14.7 cm pointing, 14.7 cm open: the signs read
+  -> pose-strip-HandSignals.png
+drink at 0.3 s: the bottle's middle 6 cm from her right hand (in her hand), hand 16 cm from her head
+drink at 0.8 s: the bottle's middle 6 cm from her right hand (in her hand), hand 12 cm from her head
+drink at 1.6 s: the bottle's middle 6 cm from her right hand (in her hand), hand 12 cm from her head
+  the sip: at her mouth
+drink at 2.2 s: the bottle's middle 6 cm from her right hand (in her hand), hand 32 cm from her head
+drink at 2.9 s: the bottle's middle 6 cm from her right hand (in her hand), hand 63 cm from her head
+drink at 4.0 s: the bottle's middle 6 cm from her right hand (in her hand), hand 63 cm from her head
+  after: lowered to her side
+  -> pose-strip-Drink.png
+umpire: seated, hips at (53.07, 2.95, 19.99); Team A plays on her L, Team B on her R
+umpire Ump_AuthServe_L = AA_Volleyball_Referee_Authorization_to_Serve_L: hips moved 0.0 cm (stays seated), a hand moved up to 0.53 m from her lap (the arm signals)
+umpire Ump_AuthServe_R = AA_Volleyball_Referee_Authorization_to_Serve_R: hips moved 0.0 cm (stays seated), a hand moved up to 0.64 m from her lap (the arm signals)
+umpire Ump_TeamServe_L = AA_Volleyball_Referee_Team_to_Serve_L: hips moved 0.0 cm (stays seated), a hand moved up to 0.53 m from her lap (the arm signals); points towards Team A's half: yes
+umpire Ump_TeamServe_R = AA_Volleyball_Referee_Team_to_Serve_R: hips moved 0.0 cm (stays seated), a hand moved up to 0.64 m from her lap (the arm signals); points towards Team B's half: yes
+umpire Ump_BallIn_L = AA_Volleyball_Referee_Ball_In_L: hips moved 0.0 cm (stays seated), a hand moved up to 0.51 m from her lap (the arm signals)
+umpire Ump_BallIn_R = AA_Volleyball_Referee_Ball_In_R: hips moved 0.0 cm (stays seated), a hand moved up to 0.56 m from her lap (the arm signals)
+umpire Ump_BallOut_L = AA_Volleyball_Referee_Ball_Out_L: hips moved 0.0 cm (stays seated), a hand moved up to 0.76 m from her lap (the arm signals)
+umpire Ump_BallOut_R = AA_Volleyball_Referee_Ball_Out_R: hips moved 0.0 cm (stays seated), a hand moved up to 0.76 m from her lap (the arm signals)
+umpire Ump_BallTouched = AA_Volleyball_Referee_Ball_Touched_L: hips moved 0.0 cm (stays seated), a hand moved up to 0.52 m from her lap (the arm signals)
+umpire Ump_EndOfSet = AA_Volleyball_Referee_End_of_Set: hips moved 0.0 cm (stays seated), a hand moved up to 0.64 m from her lap (the arm signals)
+umpire Ump_TimeOut = AA_Volleyball_Referee_TimeOut_R: hips moved 0.0 cm (stays seated), a hand moved up to 0.64 m from her lap (the arm signals)
+  -> pose-strip-Umpire.png
+RESULT: PASS

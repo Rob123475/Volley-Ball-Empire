@@ -103,6 +103,10 @@ Brief: `docs/update-1.2/UNITY-REBUILD-BRIEF.md`. Plan: `docs/update-1.2/PLAYABLE
     - **What it does:** on Hard, an AI player's rating tightens or loosens her timing spread that much more either side of an average player (62). A strong AI misses Hard's narrow windows far less than before, and a weak AI more often. An average AI (62) times exactly as before.
     - **What it fixes:** with expert thumbs, the player's weak pair (45) beat a strong AI pair (80) 47% of the time on Hard. It is now 18% (target 15–25%).
     - The section "Hard only: the strong AI's timing" has the tables, the cost and every number.
+24. **Rob, 26 Nov: no more win-rate tuning.** Rob will do the final pass himself after playing with a pad. Work goes on in the brief's order: the Animations section, then Part B (B1 to B5). Part D is not started.
+25. **The presentation's clips are plain states played by name.** They are in the players' controller (`VolleyballController`) as 42 states with no triggers. The presentation crossfades to one by name, and each one-shot state goes back to Locomotion when it ends. Nothing in a rally uses them, so the rally's triggers are unchanged.
+26. **The umpire signals from her chair.** AA_Volleyball's referee clips are made standing. On her they play on a new upper-body layer (head, arms, fingers) above her seated pose, so she signals without leaving the chair. Her seated pose is now frozen by its own state (speed 0) instead of by stopping her whole Animator, which would have stopped the signals too.
+27. **There are no line judges in the scene,** so AA_Volleyball's five line-judge clips are not used. Adding line judges would be new venue content, which is Part D's.
 
 ## Items
 
@@ -113,6 +117,7 @@ Brief: `docs/update-1.2/UNITY-REBUILD-BRIEF.md`. Plan: `docs/update-1.2/PLAYABLE
 | A1 Real ball flight | Done, PASS | `docs/update-1.2/proof/A1/`: `a1-ball-flight.txt` (Unity batch, 23/23), `a1-dotnet.txt` (dotnet, 18/18), `a1-unity.log`, 3 pictures | Unity `a656a3f`; game repo `23ba802e` |
 | A2 Every touch graded | Done, PASS | `docs/update-1.2/proof/A2/`: `a2-touch-grading.txt` (Unity batch, 27/27), `a2-dotnet.txt` (dotnet, 27/27), `a2-unity.log`, `a2-digs.png`, `a2-spikes.png` | Unity `2b964d0`; game repo `3be1fe35` |
 | Animations, first job | Done, PASS | `docs/update-1.2/proof/animation/`: `aa-volleyball-humanoid.txt`, `play-strips.txt` and five Play-mode strips | Unity `ed0e902` |
+| Animations, the rest | Done, PASS | `docs/update-1.2/proof/animation/`: `presentation-states.txt`, `presentation-strips.txt` (42/42) and a `play-strip-*.png` for each state, `pair-placement.txt` with `pair-strip-HighFive.png` and `pair-strip-Hug.png`, `pose-proof.txt` with `pose-strip-HandSignals.png`, `pose-strip-Drink.png` and `pose-strip-Umpire.png`, `rejected/` | Unity `287718e` |
 | A3 Controls, played on the court | Done, PASS | `docs/update-1.2/proof/A3/`: `a3-played-match.txt` (Unity batch, 28/28), `a3-unity.log`, three pictures | Unity `ed0e902`; game repo `833aaeac` |
 | A4 AI plays the same game | Done, PASS (the check that failed under the second ruling passes again since the ruling was withdrawn) | `docs/update-1.2/proof/A4/`: `a4-ai-same-game.txt` (Unity batch, 9/9), `a4-dotnet.txt` (dotnet, 8/8), `a4-unity.log` | Unity `ea77855`; game repo `74f3a669` |
 | A5 Difficulty from the career | Done, PASS | `docs/update-1.2/proof/A5/`: `a5-harness.txt` (9/9; the final run, on the tuned code, is in `proof/A6/a6-harness.txt`), `a5-easy.txt`, `a5-medium.txt`, `a5-hard.txt` (each court 14/14) | Unity `95c47c5`; game repo: the A5 commit |
@@ -707,3 +712,66 @@ Whenever even pairs came back to about 56%, the expert figure stayed at 33% or m
 The 30-season harness was not run, as instructed. Unity was closed for every batch run.
 
 **Rob, 26 Nov:** stop tuning win rates here. Rob will do the final pass himself after playing with a pad.
+
+### Animations, the rest of the section (26 Nov 2026)
+Both packs were confirmed in `Assets` before this started: AA_Volleyball's first job was done on 25 Nov, and KAWAII ANIMATIONS 100 is in `Assets/KAWAII_ANIMATIOMS_100`. Unity was closed for every batch run.
+
+**What went into the players' controller** (`Editor/PresentationAnimationSetup.Run`; the list is in `presentation-states.txt`). Every clip was checked as Humanoid.
+
+| Moment | States (clip) |
+|---|---|
+| Point won (17) | KAWAII: Cheers, Cheer, Yay, JumpForJoy, Shout, ThumbsUp (65 and 91), MotivatedPose, DoublePeacePose, Taunt, Backflip, CartwheelAndBackHandspring. Motion Cast: the three "Reaction after point obtained". PromptMotion: clapping, cheering with both arms raised. |
+| Point lost (6) | KAWAII: FeelDown, Cry, Angry. Motion Cast: the three "Reaction after lose point". |
+| Pairs (4) | KAWAII: HighFive1 _1 and _2, Hug1 _1 and _2. |
+| Walk-on (3) | KAWAII: Walk01 (set to loop), WaveHands, GreetingBow. |
+| Winners' celebration (3) | Motion Cast: the three "Passes under the net while applauding the public". |
+| Between points and time-outs (5) | KAWAII: Waiting (set to loop), Stretch, HandsOnHipsConfident. AA_Volleyball: Resting_Position_Loop, Stand_Idle_Type01_Loop. |
+| Hand signals (1) | AA_Volleyball: Ready_Position_Loop, the stance under the IK (below). |
+| Medal moment (3, chained) | KAWAII: GreetingBow, then LookAtHands, then Cheers. |
+
+Two of the import settings changed: Loop Time is now on for KAWAII's Walk01 and Waiting. No asset was deleted.
+
+**The proof: every state on the real BeachPlayer in Play mode** (`presentation-strips.txt`, 42/42, with one `play-strip-<state>.png` each).
+- Each state was frozen at 24 moments and drawn at 6 of them.
+- Her head bone was within 0.08 m of her skin in every pose, so the body follows the skeleton.
+- No pose looks like the bind T-pose.
+- The three idle loops (Rest, Stand, SignalStance) hardly move, as an idle should. They are reported as still idles.
+- **The measuring was fixed on the way.** Nothing draws the players between pictures in batch mode, so Unity stopped animating them. The numbers measured between pictures (not the pictures themselves) could therefore be stale. The tools now make the Animators always animate. The 25 Nov strips (SoftShot and the four Motion Cast clips) were measured the old way; their pictures were right.
+
+**Looked at and turned down:**
+- **KAWAII `Sit_Sorrow`.** It is made for a chair, so on the sand she sits on nothing (`rejected/play-strip-Lost_SitSorrow.png`). It is not in the controller.
+- **PromptMotion's other three clips** (a relaxed spectator standing, one casual, one taking a photo). They are spectator idles, not player moves, and the crowd already uses them. The two player-like ones (clapping, cheering with both arms) are in.
+- **Motion Cast's "Rises from the chair and greets the audience"** starts seated, so the walk-on uses KAWAII's WaveHands and GreetingBow instead. The ceremonies keep using it, as they are.
+
+**The pairs** (`Editor/PresentationPairProof`, `pair-placement.txt`, `pair-strip-HighFive.png`, `pair-strip-Hug.png`). The game plays clips with root motion off, so the spacing the pair was recorded at is not in the clips as played. It was worked out:
+- Each half was played on a BeachPlayer and read at 48 moments.
+- Every placement of the second player was tried: 5° steps of facing and 4 cm steps across and along. They must stand in front of each other and face each other.
+- **High five:** the second stands 0.75 m away (0.20 m across, 0.72 m ahead), turned 145°. At the slap their hands are 6 cm apart, and 4 cm on the drawn poses. Their bodies are never closer than 0.76 m.
+- **Hug:** the second stands 0.22 m away, face to face (turned 180°). In the hold their chests are 23 cm apart (19 cm drawn), and their hips are never closer than 0.24 m.
+- **Two first tries were wrong, and the pictures showed it:**
+  - The high five matched hands hanging at rest, before the slap.
+  - The hug placed one player inside the other.
+  - The rules now use the slap's moment (her raised hand at its highest) and the middle of the hug, and both players must face each other.
+- The placements are in `Scripts/PresentationPairs.cs`, for Part B to use.
+- There is still only one high five, so B2 will mix it with the hug, the 17 single reactions and Motion Cast's three, as the brief says.
+
+**Not covered by any pack, blended from owned clips** (`Editor/PresentationPoseProof`, `pose-proof.txt`):
+- **Hand signals behind the back** (`pose-strip-HandSignals.png`, drawn from behind). She takes the ready stance, IK puts both hands on the small of her back (16 cm behind her hips), and the humanoid finger muscles set the sign: a fist, one finger, two fingers or an open hand. The index fingertip is 7.2 cm from her wrist in a fist and 14.7 cm when pointing.
+- **The drinks idle** (`pose-strip-Drink.png`). She stands with the Beachy Props water bottle in her fist; IK raises it to her mouth (12 cm from her head at the sip) and lowers it to her side (63 cm). The bottle is never more than 6 cm from her hand.
+  - The pack's bottle material is made for HDRP and drew magenta here. A URP Lit material from the pack's own textures, `Assets/Materials/WaterBottle_URP.mat`, is used instead.
+  - The first picture had the bottle's cap pointing away from her mouth. It now sits on her little-finger side.
+- **The medal moment.** It is the chain of three states above: she bows to take the medal, looks at it in her hands, then raises it. There is no medal prop on the players, and the podium ceremonies are unchanged (B3).
+
+**The umpire** (`pose-strip-Umpire.png`: V19 with the match switched off, three moments of each signal, drawn from the court side).
+- She makes 11 signals from AA_Volleyball's referee set:
+  - authorisation to serve, L and R
+  - team to serve, L and R
+  - ball in, L and R
+  - ball out, L and R
+  - ball touched
+  - end of set
+  - time-out
+- She stays in her chair: her hips moved 0.0 cm in every signal, and a hand moves 0.51 to 0.76 m from her lap.
+- **Sides:** from where she sits, Team A plays on her left and Team B on her right. "Team to serve" points to the right team's half on both sides.
+- **Shown plainly:** the chair's umbrella shades her head from the court side, so her arms read well but her face does not.
+- `UmpireController` has methods for each signal; B2 calls them. Its old placeholders, which only wrote log lines, are gone.

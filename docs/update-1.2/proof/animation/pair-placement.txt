@@ -1,0 +1,7 @@
+  HighFive: _1's hands (height, m) over the clip: 0.98 0.98 1.32 1.58 1.71 1.75 1.81 1.38 0.98 0.98 0.98 0.98; the moment used: 51%
+HighFive: Pair_HighFive_2 stands 0.75 m from Pair_HighFive_1 (across 0.20 m, along 0.72 m in _1's own frame), turned 145° from her; closest hands 6 cm at 47% of the clip, bodies never closer than 0.76 m; played together at that placement and drawn, the closest hands measured 4 cm: PASS -> pair-strip-HighFive.png
+  PairPlacement.HighFive = new Vector3(0.20f, 0f, 0.72f), yaw 145
+  Hug: _1's hands (height, m) over the clip: 0.99 1.25 1.34 1.31 1.31 1.31 1.31 1.31 1.35 1.11 0.98 0.98; the moment used: 51%
+Hug: Pair_Hug_2 stands 0.22 m from Pair_Hug_1 (across -0.08 m, along 0.20 m in _1's own frame), turned 180° from her; chests 23 cm apart at 51% of the clip, hips never closer than 0.24 m; played together at that placement and drawn, the closest chests measured 19 cm: PASS -> pair-strip-Hug.png
+  PairPlacement.Hug = new Vector3(-0.08f, 0f, 0.20f), yaw 180
+RESULT: PASS
