@@ -32,6 +32,6 @@ A2 EVERY TOUCH IS GRADED (Assets/Scripts/PlayedMatch/TouchGrade.cs, TouchShapes.
   CHECK a serve tapped in the MAX zone lands in most of the time: PASS  MAX: in 100%, net 0%, out 0%; half power: in 98%, net 0%, out 2%
   CHECK the ace ability (rated 95+, MAX zone): faster and truer than a 94 in the MAX zone: PASS  95: 20.2 m/s, error up to 0.28 m; 94: 18.6 m/s, 0.57 m
   CHECK the same seed gives the same 400 graded touches, bit for bit: PASS  hash 961D09F1F92ED0E7
-PICTURES: C:/Users/rbonn/Documents/Volley-Ball-Empire/docs/update-1.2/proof\A2/a2-digs.png (yellow ring: the setter's spot, 2 m across; green: 300 perfect digs; red: 300 late digs; blue: the digger)
-          C:/Users/rbonn/Documents/Volley-Ball-Empire/docs/update-1.2/proof\A2/a2-spikes.png (blue: the hitter; green: perfect spikes that land in; orange: late spikes that land in; red: late or perfect spikes in the net or out)
+PICTURES: C:/Users/rbonn/AppData/Local/Temp/claude/8abf43482208b43a/e4495fc7-4b0c-4358-b3dd-36548dcf22d3/scratchpad/proof\A2/a2-digs.png (yellow ring: the setter's spot, 2 m across; green: 300 perfect digs; red: 300 late digs; blue: the digger)
+          C:/Users/rbonn/AppData/Local/Temp/claude/8abf43482208b43a/e4495fc7-4b0c-4358-b3dd-36548dcf22d3/scratchpad/proof\A2/a2-spikes.png (blue: the hitter; green: perfect spikes that land in; orange: late spikes that land in; red: late or perfect spikes in the net or out)
 RESULT: PASS (28 passed, 0 failed)

@@ -3,8 +3,7 @@
 ========================================================================
 
 1. THE ENGINE'S OWN CHECKS (the Unity repo's files, run by dotnet)
-    CHECK the same AI level, different ratings: players rated 85 time their touches more tightly than players rated 45: FAIL  timing spread (sd) rated 85: 96 ms over 2886 touches; rated 45: 97 ms over 2956
-  FAIL  the played-match engine's checks pass (A1, A2, A4)  RESULT: FAIL (53 passed, 1 failed)
+  PASS  the played-match engine's checks pass (A1, A2, A4)  RESULT: PASS (54 passed, 0 failed)
 
 2. A5: /unity/match-state SENDS THE CAREER'S DIFFICULTY
   PASS  Easy: /unity/match-state says gameDifficulty "easy"  career 1, match 1: HTTP 200, gameDifficulty "easy", players 4
@@ -15,12 +14,12 @@
 
 4. A6: A WHOLE PLAYED MATCH ON THE COURT, REPORTED THROUGH MatchReporter, RECORDED AND PAID
   PASS  the match is being watched (in progress), as the court page does before it plays  HTTP 200
-  PASS  the court played the whole match (PlayedMatchPlayProof)  exit 0; RESULT: PASS (28 passed, 0 failed); match: 2-0 (11-9, 11-8)
-  PASS  MatchReporter sent the result, and the game took it (POST /api/unity/match-result ok)  [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":2,"matchId":60,"sets":[{"home":11,"away":9}],"current":{"home":10,"away":8}} | [MatchReporter] POST /api/unity/match-result ok: {"careerSaveId":2,"matchId":60,"sets":[{"home":11,"away":9},{"home":11,"away":8}]}
-  PASS  the game recorded exactly the court's score  court 2-0 (11-9, 11-8); game completed 2-0 (11-9, 11-8)
-  PASS  through the Sim Result path (completeMatch): the win counted and the winner's prize is on the ledger  wins 0 -> 1, losses 0 -> 0; prize lines Prize money: World Tour R1 vs Amsterdam Dune Riders $4333; balance 530462 -> 534795
-  PASS  and the match's cost to the players (fitness, fatigue) was charged, as for a simmed match  player 193: fitness 100->93, fatigue 0->23; player 292: fitness 100->93, fatigue 0->21
+  PASS  the court played the whole match (PlayedMatchPlayProof)  exit 0; RESULT: PASS (28 passed, 0 failed); match: 2-0 (11-9, 11-6)
+  PASS  MatchReporter sent the result, and the game took it (POST /api/unity/match-result ok)  [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":2,"matchId":60,"sets":[{"home":11,"away":9}],"current":{"home":10,"away":6}} | [MatchReporter] POST /api/unity/match-result ok: {"careerSaveId":2,"matchId":60,"sets":[{"home":11,"away":9},{"home":11,"away":6}]}
+  PASS  the game recorded exactly the court's score  court 2-0 (11-9, 11-6); game completed 2-0 (11-9, 11-6)
+  PASS  through the Sim Result path (completeMatch): the win counted and the winner's prize is on the ledger  wins 0 -> 1, losses 0 -> 0; prize lines Prize money: World Tour R1 vs Berlin Sand Queens $4333; balance 530462 -> 534795
+  PASS  and the match's cost to the players (fitness, fatigue) was charged, as for a simmed match  player 193: fitness 100->94, fatigue 0->18; player 292: fitness 100->93, fatigue 0->24
 
 ========================================================================
-  FAIL: 11/12 checks
+  PASS: 12/12 checks
 ========================================================================

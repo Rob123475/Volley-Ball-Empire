@@ -1,0 +1,32 @@
+A6 FAIR TO THE CAREER: AN AVERAGE PLAYER WITH A PAD (PlayedMatchSims.AveragePlayer), WHOLE MATCHES, HEADLESS
+  the average player: timing spread 75 ms and reaction 280 ms whoever she controls; reads the ring within 0.30 m (0.65 m on Hard, no ring);
+  aims where she fancies, soft shots 15%, tries a block 35% of the time; control follows the ball; her partner is the Medium AI; the opponents are the AI at the difficulty
+  pairs: weak = every rating 45, even = 62, strong = 80; fitness 100, fatigue 0; 200 matches per cell, seeds 1..200
+
+  | Difficulty | Weak (45) v strong (80) | Same, expert thumbs | Slightly weaker (57) v (67) | Even (62) v even (62) | Strong (80) v weak (45) |
+  |---|---|---|---|---|---|
+  | Easy | 50% (±7%; points 50%) | 82% (±5%; points 55%) | 81% (±5%; points 55%) | 86% (±5%; points 57%) | 98% (±2%; points 61%) |
+  | Medium | 24% (±6%; points 47%) | 72% (±6%; points 53%) | 57% (±7%; points 51%) | 73% (±6%; points 53%) | 95% (±3%; points 58%) |
+  | Hard | 20% (±5%; points 46%) | 80% (±6%; points 55%) | 52% (±7%; points 50%) | 56% (±7%; points 51%) | 89% (±4%; points 56%) |
+
+  | Sim Result (the game's engine) | 14% | (same as left) | 37% | 51% | 85% |
+
+  (each cell: the person's pair's match win rate, its 95% margin, and the share of points it won;
+   expert thumbs: timing spread 40 ms, reaction 200 ms, reads the ball within 0.15 m, blocks more)
+
+  A PLAYED MATCH'S LENGTH AT NORMAL SPEED (1x), even pairs (62 v 62), the average player, 200 matches; per point: the rally, the serve wait, the pause after a point, the walk back to positions
+  | Difficulty | Match (mean) | Points | A point | Rally | Serve wait | Point over | Positions |
+  |---|---|---|---|---|---|---|---|
+  | Easy | 11.6 min (longest 19.5) | 45 | 15.5 s | 9.7 s (8.5 touches) | 2.6 s | 1.9 s | 1.3 s |
+  | Medium | 12.5 min (longest 19.5) | 49 | 15.2 s | 9.5 s (8.5 touches) | 2.5 s | 1.9 s | 1.3 s |
+  | Hard | 11.2 min (longest 18.4) | 49 | 13.6 s | 7.9 s (7.2 touches) | 2.5 s | 1.9 s | 1.3 s |
+
+  CHECK Easy: an equal AI team beats the player 14% of the time, within 3 points: PASS  the AI team won 14%
+  CHECK Easy: a far weaker AI team (45) beats the player's strong pair (80) 2% of the time (within the cell's 95% margin): PASS  the AI team won 2%
+  CHECK Medium: an equal AI team beats the player 27% of the time, within 3 points: PASS  the AI team won 27%
+  CHECK Medium: a far weaker AI team (45) beats the player's strong pair (80) 4% of the time (within the cell's 95% margin): PASS  the AI team won 5%
+  CHECK Hard: an equal AI team beats the player 44% of the time, within 3 points: PASS  the AI team won 44%
+  CHECK Hard: a far weaker AI team (45) beats the player's strong pair (80) 10% of the time (within the cell's 95% margin): PASS  the AI team won 11%
+  CHECK Hard is harder than Medium, Medium harder than Easy (even pairs): PASS  the AI team won Easy 14%, Medium 27%, Hard 44%
+  reported, not a target: the player's weak pair (45) beats a far stronger AI pair (80): the average player Easy 50%, Medium 24%, Hard 20%; with expert thumbs Easy 82%, Medium 72%, Hard 80%
+RESULT: PASS (7 passed, 0 failed)

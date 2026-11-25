@@ -5,11 +5,11 @@ A4 THE AI PLAYS THE SAME GAME (Assets/Scripts/PlayedMatch/PlayedAi.cs: AiSeat)
   Hard: partner AI timing sd 105 ms, reaction 268 ms, placing ±0.33 m, soft 16%; opponents AI timing sd 88 ms, reaction 242 ms, placing ±0.28 m, soft 18%
   CHECK in 30 AI-only matches every point went where the ball says (re-worked from the ball's own events, apart from the engine): PASS  1353/1353 points; Kill 945, Dropped 260, Ace 63, Out 53, NetFault 25, BlockStuff 7
   CHECK nothing decided the winner beforehand: even pairs at the same rating split the matches: PASS  home pair won 13 of 30
-  CHECK the same AI level, different ratings: players rated 85 time their touches more tightly than players rated 45: FAIL  timing spread (sd) rated 85: 96 ms over 2886 touches; rated 45: 97 ms over 2956
-  CHECK and the pair rated 85 beats the pair rated 45, through the same ball and grading: PASS  won 19 of 20
+  CHECK the same AI level, different ratings: players rated 85 time their touches more tightly than players rated 45: PASS  timing spread (sd) rated 85: 92 ms over 2176 touches; rated 45: 99 ms over 2373
+  CHECK and the pair rated 85 beats the pair rated 45, through the same ball and grading: PASS  won 20 of 20
   (timing spreads measured over Hard's late window, ±190 ms, on every difficulty; over each difficulty's own window: opponents Easy 118, Medium 95, Hard 79 ms; partner Easy 99, Medium 98, Hard 87 ms)
   CHECK the opponents' timing tightens with the difficulty (Easy > Medium > Hard): PASS  opponents' spread Easy 94 ms, Medium 86 ms, Hard 79 ms
   CHECK the player's partner stays the same on every difficulty (within noise): PASS  partner's spread Easy 87 ms, Medium 88 ms, Hard 87 ms; her level on every difficulty: timing sd 105 ms, reaction 268 ms, placing ±0.33 m, soft 16%
   CHECK an AI match's touches are graded perfect, good and late, and some are missed: PASS  perfect 209, good 164, late 68, missed (whiffs) 55
   CHECK the same seed plays the same match point for point; another seed plays a different one: PASS  seed 9: 39 points twice, identical True; seed 10: 34 points
-RESULT: FAIL (7 passed, 1 failed)
+RESULT: PASS (8 passed, 0 failed)

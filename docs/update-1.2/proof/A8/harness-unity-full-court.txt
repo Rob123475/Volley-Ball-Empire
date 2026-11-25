@@ -6,32 +6,32 @@
   CHECK Dive fires from the keyboard (Space) and the gamepad (Circle): PASS  keyboard 1, gamepad 1
   CHECK Switch fires from the keyboard (Q) and the gamepad (LeftShoulder): PASS  keyboard 1, gamepad 1
   CHECK Cheer fires from the keyboard (C) and the gamepad (D-pad up): PASS  keyboard 1, gamepad 1
-  CHECK Move fires from WASD and the left stick: PASS  keyboard frames 252, gamepad frames 262
+  CHECK Move fires from WASD and the left stick: PASS  keyboard frames 249, gamepad frames 266
   CHECK Help still fires from H and DpadDown (ManualControl), and leaves the match in Manual, unpaused: PASS  keyboard 1, gamepad 1, mode Manual, paused False
   CHECK Pause still fires from Escape and Start (ManualControl), and leaves the match in Manual, unpaused: PASS  keyboard 1, gamepad 1, mode Manual, paused False
   CHECK Toggle still fires from Tab and Select (ManualControl), and leaves the match in Manual, unpaused: PASS  keyboard 1, gamepad 1, mode Manual, paused False
   device checks done after 4.9 s; the autopilot takes the seat
-  picture: C:/Users/rbonn/AppData/Local/Temp/claude/8abf43482208b43a/e4495fc7-4b0c-4358-b3dd-36548dcf22d3/scratchpad/unity-full-3\A6\a3-spike-meter.png
-  picture: C:/Users/rbonn/AppData/Local/Temp/claude/8abf43482208b43a/e4495fc7-4b0c-4358-b3dd-36548dcf22d3/scratchpad/unity-full-3\A6\a3-ring-incoming.png
-  picture: C:/Users/rbonn/AppData/Local/Temp/claude/8abf43482208b43a/e4495fc7-4b0c-4358-b3dd-36548dcf22d3/scratchpad/unity-full-3\A6\a3-serve-meter.png
-  match: 2-0 (11-9, 11-8); 39 points played; ways: Kill 27, Dropped 9, ServeFault 1, Out 1, NetFault 1
-  serves: serve test 0: wanted 96%, tapped at 94% on the keyboard | serve test 1: wanted 5%, tapped at 3% on the keyboard | serve test 2: wanted 96%, tapped at 94% on the keyboard | serve test 3: wanted 55%, tapped at 53% on the gamepad | serve test 4: wanted 96%, tapped at 94% on the gamepad | serve test 5: wanted 96%, tapped at 94% on the keyboard
-  CHECK the serve meter: a tap in the MAX zone is a perfect serve; a tap in the WEAK zone goes into the net: PASS  your serves 22: perfect 19, weak-zone faults 1
+  picture: C:\Users\rbonn\AppData\Local\Temp\vbe-played-Aq3jB9\proof\A6\a3-spike-meter.png
+  picture: C:\Users\rbonn\AppData\Local\Temp\vbe-played-Aq3jB9\proof\A6\a3-ring-incoming.png
+  picture: C:\Users\rbonn\AppData\Local\Temp\vbe-played-Aq3jB9\proof\A6\a3-serve-meter.png
+  match: 2-0 (11-9, 11-6); 37 points played; ways: Kill 30, Dropped 3, ServeFault 1, Ace 1, Out 1, BlockStuff 1
+  serves: serve test 0: wanted 96%, tapped at 94% on the gamepad | serve test 1: wanted 5%, tapped at 3% on the keyboard | serve test 2: wanted 96%, tapped at 94% on the keyboard | serve test 3: wanted 55%, tapped at 53% on the keyboard | serve test 4: wanted 96%, tapped at 94% on the gamepad | serve test 5: wanted 96%, tapped at 94% on the keyboard
+  CHECK the serve meter: a tap in the MAX zone is a perfect serve; a tap in the WEAK zone goes into the net: PASS  your serves 21: perfect 19, weak-zone faults 1
   CHECK and the WEAK tap lost the point (a serve fault to Team B): PASS
-  CHECK the person's touches reached the engine from both devices: PASS  keyboard 82, gamepad 76
-  CHECK Dig: made by the person and graded by the engine: PASS  44: Perfect 44; mean quality 0.78
-  CHECK Set: made by the person and graded by the engine: PASS  46: Perfect 46; mean quality 0.79
-  CHECK Spike: made by the person and graded by the engine: PASS  37: Perfect 37; mean quality 0.80
-  CHECK Soft: made by the person and graded by the engine: PASS  9: Perfect 9; mean quality 0.79
-  CHECK aim: spikes with the stick held left are sent left of spikes with it held right: PASS  left 19, mean x -2.67; right 18, mean x 2.59
-  CHECK the spike meter: a long hold hits harder than a tap: PASS  held 19: 17.0 m/s; tapped 18: 11.6 m/s
-  CHECK block: the person jumped at the net (L / Y) when they attacked: PASS  block jumps 1, blocks (touches) 0
-  CHECK dive: the person dived for a ball out of reach (Space / B): PASS  dives 16
-  CHECK control followed the ball: it switched between the two players by itself: PASS  switches 151, of them Q / LB 2
+  CHECK the person's touches reached the engine from both devices: PASS  keyboard 83, gamepad 86
+  CHECK Dig: made by the person and graded by the engine: PASS  46: Perfect 46; mean quality 0.78
+  CHECK Set: made by the person and graded by the engine: PASS  51: Perfect 51; mean quality 0.81
+  CHECK Spike: made by the person and graded by the engine: PASS  41: Perfect 41; mean quality 0.80
+  CHECK Soft: made by the person and graded by the engine: PASS  10: Perfect 10; mean quality 0.81
+  CHECK aim: spikes with the stick held left are sent left of spikes with it held right: PASS  left 21, mean x -2.41; right 20, mean x 2.58
+  CHECK the spike meter: a long hold hits harder than a tap: PASS  held 21: 17.1 m/s; tapped 20: 11.7 m/s
+  CHECK block: the person jumped at the net (L / Y) when they attacked: PASS  block jumps 5, blocks (touches) 0
+  CHECK dive: the person dived for a ball out of reach (Space / B): PASS  dives 21
+  CHECK control followed the ball: it switched between the two players by itself: PASS  switches 160, of them Q / LB 2
   CHECK and Q / LB took the other player: PASS  2
   CHECK no point was decided at a serve (no "[Point] decided" line in a played match): PASS  0 lines
-  CHECK every point played went to the court's score (MatchManager.Score is the engine's): PASS  points in the score 39, played 39
+  CHECK every point played went to the court's score (MatchManager.Score is the engine's): PASS  points in the score 37, played 37
   CHECK and the match ended on the score, every set legal: PASS
-  CHECK MatchManager announced every played point (its counters): PASS  39/39
+  CHECK MatchManager announced every played point (its counters): PASS  37/37
   CHECK three pictures from the match: PASS  a3-spike-meter.png, a3-ring-incoming.png, a3-serve-meter.png
 RESULT: PASS (28 passed, 0 failed)
