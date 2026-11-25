@@ -90,7 +90,8 @@ Brief: `docs/update-1.2/UNITY-REBUILD-BRIEF.md`. Plan: `docs/update-1.2/PLAYABLE
 | A1 Real ball flight | Done, PASS | `docs/update-1.2/proof/A1/`: `a1-ball-flight.txt` (Unity batch, 23/23), `a1-dotnet.txt` (dotnet, 18/18), `a1-unity.log`, 3 pictures | Unity `a656a3f`; game repo `23ba802e` |
 | A2 Every touch graded | Done, PASS | `docs/update-1.2/proof/A2/`: `a2-touch-grading.txt` (Unity batch, 27/27), `a2-dotnet.txt` (dotnet, 27/27), `a2-unity.log`, `a2-digs.png`, `a2-spikes.png` | Unity `2b964d0`; game repo `3be1fe35` |
 | Animations, first job | Done, PASS | `docs/update-1.2/proof/animation/`: `aa-volleyball-humanoid.txt`, `play-strips.txt` and five Play-mode strips | Unity `ed0e902` |
-| A3 Controls, played on the court | Done, PASS | `docs/update-1.2/proof/A3/`: `a3-played-match.txt` (Unity batch, 28/28), `a3-unity.log`, three pictures | Unity `ed0e902`; game repo: the A3 commit |
+| A3 Controls, played on the court | Done, PASS | `docs/update-1.2/proof/A3/`: `a3-played-match.txt` (Unity batch, 28/28), `a3-unity.log`, three pictures | Unity `ed0e902`; game repo `833aaeac` |
+| A4 AI plays the same game | Done, PASS | `docs/update-1.2/proof/A4/`: `a4-ai-same-game.txt` (Unity batch, 9/9), `a4-dotnet.txt` (dotnet, 8/8), `a4-unity.log` | Unity `ea77855`; game repo: the A4 commit |
 
 ### A1: real ball flight (25 Nov 2026)
 **Files:**
@@ -222,3 +223,23 @@ The RootMotion FBX was already Humanoid and was left as it is. The tool is `Edit
 - both sides win
 
 Two causes made blocks far too strong at first. A blocker stood square in front of every hitter, and her hands covered 0.85 m. Now the blocker takes the line or the angle, her hands follow the jump, and good hitters hit over the block. The win-rate tuning is in A6.
+
+### A4: the AI plays the same game (25 Nov 2026)
+**How it plays.** Each AI player (`AiSeat` in `PlayedAi.cs`) presses the same buttons a person does, through the same `SeatInput`:
+- She reads the ball's real landing prediction, the same one the ring shows.
+- She starts moving after her reaction time and runs at her own rated speed.
+- She presses at the ideal moment plus a timing error. The error's spread is set by the difficulty (for the opponents), then narrowed by her rating for that touch.
+- The engine grades her touches exactly as it grades the player's, and she has no other way to win a point.
+- She also serves through the meter, blocks at the net (taking the line or the angle), aims her attacks at the open court away from the block, and plays a soft shot about one time in six.
+
+**Proof** (`a4-ai-same-game.txt`, Unity batch 9/9, and the same 8 checks under dotnet):
+
+| Check | Result |
+|---|---|
+| Every point is the ball's | In 30 AI-only matches (Medium, pairs rated 62), 1,450 of 1,450 points went where the ball's own events say. The proof works that out apart from the engine: landed in or out, net faults, four hits. The points split: Kill 1,210, Dropped 190, Out 35, NetFault 11, Ace 4. |
+| Nothing decided beforehand | Even pairs split the matches: the home pair won 17 of 30. |
+| Timing comes from the ratings | Same AI level: players rated 85 time touches with a 56 ms spread, players rated 45 with 82 ms. The pair rated 85 beat the pair rated 45 in 20 of 20 matches. |
+| Timing comes from the difficulty | The opponents' spread is 98 ms on Easy, 71 on Medium and 47 on Hard. The player's partner stays at 70–71 ms on all three. |
+| The AI is graded like anyone | In one match: 211 perfect, 92 good, 15 late, 36 missed. |
+| Same seed, same match | Seed 9 played twice was identical point for point (55 points). Seed 10 played differently (68 points). |
+| No odds in a played match | None of the played match's nine files touches the game's odds or a rally plan (`PointModel.HomeWinsPoint`, `HomeChance(`, `DecidePoint`, `MakePlan`, `_plan`, `PointChanceHome`, `OverridePlan`). The A3 proof also found no `[Point] decided` line in a whole played match. |

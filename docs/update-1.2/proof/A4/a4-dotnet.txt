@@ -1,0 +1,14 @@
+A4 THE AI PLAYS THE SAME GAME (Assets/Scripts/PlayedMatch/PlayedAi.cs: AiSeat)
+  every seat below is an AiSeat: it reads the ball's prediction and presses the same buttons a person would; the engine grades its touches
+  Easy: partner AI timing sd 75 ms, reaction 230 ms, placing ±0.26 m, soft 16%; opponents AI timing sd 105 ms, reaction 300 ms, placing ±0.35 m, soft 14%
+  Medium: partner AI timing sd 75 ms, reaction 230 ms, placing ±0.26 m, soft 16%; opponents AI timing sd 75 ms, reaction 230 ms, placing ±0.26 m, soft 16%
+  Hard: partner AI timing sd 75 ms, reaction 230 ms, placing ±0.26 m, soft 16%; opponents AI timing sd 50 ms, reaction 170 ms, placing ±0.18 m, soft 18%
+  CHECK in 30 AI-only matches every point went where the ball says (re-worked from the ball's own events, apart from the engine): PASS  1450/1450 points; Kill 1210, Dropped 190, Out 35, NetFault 11, Ace 4
+  CHECK nothing decided the winner beforehand: even pairs at the same rating split the matches: PASS  home pair won 17 of 30
+  CHECK the same AI level, different ratings: players rated 85 time their touches more tightly than players rated 45: PASS  timing spread (sd) rated 85: 56 ms over 1843 touches; rated 45: 82 ms over 2400
+  CHECK and the pair rated 85 beats the pair rated 45, through the same ball and grading: PASS  won 20 of 20
+  CHECK the opponents' timing tightens with the difficulty (Easy > Medium > Hard): PASS  opponents' spread Easy 98 ms, Medium 71 ms, Hard 47 ms
+  CHECK the player's partner stays the same on every difficulty (within noise): PASS  partner's spread Easy 70 ms, Medium 71 ms, Hard 71 ms
+  CHECK an AI match's touches are graded perfect, good and late, and some are missed: PASS  perfect 211, good 92, late 15, missed (whiffs) 36
+  CHECK the same seed plays the same match point for point; another seed plays a different one: PASS  seed 9: 55 points twice, identical True; seed 10: 68 points
+RESULT: PASS (8 passed, 0 failed)
