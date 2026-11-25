@@ -1,0 +1,37 @@
+=== 1.2 A3 PLAYED MATCH PROOF (V19, no api-server; difficulty medium; seed 20261125) ===
+  played match running after 1.9 s; you control Player_A1
+  CHECK Dig fires from the keyboard (J) and the gamepad (A): PASS  keyboard 1, gamepad 1
+  CHECK Set fires from the keyboard (K) and the gamepad (X): PASS  keyboard 1, gamepad 1
+  CHECK Soft fires from the keyboard (I) and the gamepad (RightShoulder): PASS  keyboard 1, gamepad 1
+  CHECK Dive fires from the keyboard (Space) and the gamepad (Circle): PASS  keyboard 1, gamepad 1
+  CHECK Switch fires from the keyboard (Q) and the gamepad (LeftShoulder): PASS  keyboard 1, gamepad 1
+  CHECK Cheer fires from the keyboard (C) and the gamepad (D-pad up): PASS  keyboard 1, gamepad 1
+  CHECK Move fires from WASD and the left stick: PASS  keyboard frames 224, gamepad frames 217
+  CHECK Help still fires from H and DpadDown (ManualControl), and leaves the match in Manual, unpaused: PASS  keyboard 1, gamepad 1, mode Manual, paused False
+  CHECK Pause still fires from Escape and Start (ManualControl), and leaves the match in Manual, unpaused: PASS  keyboard 1, gamepad 1, mode Manual, paused False
+  CHECK Toggle still fires from Tab and Select (ManualControl), and leaves the match in Manual, unpaused: PASS  keyboard 1, gamepad 1, mode Manual, paused False
+  device checks done after 4.8 s; the autopilot takes the seat
+  picture: C:/Users/rbonn/Documents/Volley-Ball-Empire/docs/update-1.2/proof\A8\a3-spike-meter.png
+  picture: C:/Users/rbonn/Documents/Volley-Ball-Empire/docs/update-1.2/proof\A8\a3-ring-incoming.png
+  picture: C:/Users/rbonn/Documents/Volley-Ball-Empire/docs/update-1.2/proof\A8\a3-serve-meter.png
+  match: 2-0 (11-4, 11-7); 33 points played; ways: Kill 22, Dropped 7, Ace 3, ServeFault 1
+  serves: serve test 0: wanted 96%, tapped at 94% on the gamepad | serve test 1: wanted 5%, tapped at 3% on the gamepad | serve test 2: wanted 96%, tapped at 94% on the keyboard | serve test 3: wanted 55%, tapped at 53% on the keyboard | serve test 4: wanted 96%, tapped at 94% on the gamepad | serve test 5: wanted 96%, tapped at 94% on the gamepad
+  CHECK the serve meter: a tap in the MAX zone is a perfect serve; a tap in the WEAK zone goes into the net: PASS  your serves 22: perfect 19, weak-zone faults 1
+  CHECK and the WEAK tap lost the point (a serve fault to Team B): PASS
+  CHECK the person's touches reached the engine from both devices: PASS  keyboard 75, gamepad 72
+  CHECK Dig: made by the person and graded by the engine: PASS  39: Perfect 39; mean quality 0.76
+  CHECK Set: made by the person and graded by the engine: PASS  43: Perfect 43; mean quality 0.77
+  CHECK Spike: made by the person and graded by the engine: PASS  35: Perfect 35; mean quality 0.77
+  CHECK Soft: made by the person and graded by the engine: PASS  8: Perfect 8; mean quality 0.76
+  CHECK aim: spikes with the stick held left are sent left of spikes with it held right: PASS  left 18, mean x -2.55; right 17, mean x 2.37
+  CHECK the spike meter: a long hold hits harder than a tap: PASS  held 18: 16.9 m/s; tapped 17: 11.2 m/s
+  CHECK block: the person jumped at the net (L / Y) when they attacked: PASS  block jumps 2, blocks (touches) 0
+  CHECK dive: the person dived for a ball out of reach (Space / B): PASS  dives 13
+  CHECK control followed the ball: it switched between the two players by itself: PASS  switches 137, of them Q / LB 2
+  CHECK and Q / LB took the other player: PASS  2
+  CHECK no point was decided at a serve (no "[Point] decided" line in a played match): PASS  0 lines
+  CHECK every point played went to the court's score (MatchManager.Score is the engine's): PASS  points in the score 33, played 33
+  CHECK and the match ended on the score, every set legal: PASS
+  CHECK MatchManager announced every played point (its counters): PASS  33/33
+  CHECK three pictures from the match: PASS  a3-spike-meter.png, a3-ring-incoming.png, a3-serve-meter.png
+RESULT: PASS (28 passed, 0 failed)

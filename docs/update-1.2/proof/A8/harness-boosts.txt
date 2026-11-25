@@ -1,0 +1,24 @@
+========================================================================
+  UNITY 3: BOOSTS, COUNTED IN POINTS, WORTH SOMETHING
+========================================================================
+  PASS  the Unity project's BoostClock.cs and PointModel.cs compile and run  on 3 points, cooldown 5; Attack +0.06, Defence +0.055 per point
+  PASS  each boost adds to the player's chance of a point, never takes away
+  PASS  boosts last 3 points and cool down for 5 (the brief's suggestion)
+
+  REPORT  match win rate, 20000 matches per cell (best of 3 to 11):
+          case                                             no boosts   attack every time  defence every timealternate every time
+          even match (70 v 70), p 0.5032                       51.8%               64.9%               63.3%               64.1%
+          10 rating points weaker (65 v 75), p 0.4819               39.8%               52.9%               52.3%               52.5%
+          10 rating points stronger (75 v 65), p 0.5245               63.9%               75.7%               74.1%               75.2%
+
+  PASS  even match: attack every time it is ready goes from ~52% to about 65%  51.8% -> 64.9%
+  PASS  10 points weaker: attack every time goes from ~40% to about 52%  39.8% -> 52.9%
+  PASS  10 points stronger: attack still helps  63.9% -> 75.7%
+  PASS  even match: defence every time it is ready goes from ~52% to about 65%  51.8% -> 63.3%
+  PASS  10 points weaker: defence every time goes from ~40% to about 52%  39.8% -> 52.3%
+  PASS  10 points stronger: defence still helps  63.9% -> 74.1%
+  PASS  even match: alternate every time it is ready goes from ~52% to about 65%  51.8% -> 64.1%
+  PASS  10 points weaker: alternate every time goes from ~40% to about 52%  39.8% -> 52.5%
+  PASS  10 points stronger: alternate still helps  63.9% -> 75.2%
+
+=== 12/12 passed ===

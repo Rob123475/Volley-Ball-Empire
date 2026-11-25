@@ -1,0 +1,23 @@
+========================================================================
+  1.2 PART A: THE PLAYED MATCH
+========================================================================
+
+1. THE ENGINE'S OWN CHECKS (the Unity repo's files, run by dotnet)
+  PASS  the played-match engine's checks pass (A1, A2, A4, A6)  RESULT: PASS (65 passed, 0 failed)
+    | Difficulty | Weak (45) v strong (80) | Same, expert thumbs | Slightly weaker (57) v (67) | Even (62) v even (62) | Strong (80) v weak (45) |
+    |---|---|---|---|---|---|
+    | Easy | 1% (±2%; points 39%) | 10% (±4%; points 43%) | 43% (±7%; points 49%) | 69% (±6%; points 53%) | 100% (±0%; points 66%) |
+    | Medium | 0% (±0%; points 35%) | 6% (±3%; points 41%) | 24% (±6%; points 46%) | 52% (±7%; points 50%) | 97% (±2%; points 62%) |
+    | Hard | 1% (±1%; points 35%) | 11% (±4%; points 44%) | 12% (±4%; points 43%) | 29% (±6%; points 47%) | 90% (±4%; points 57%) |
+    | Sim Result (the game's engine) | 14% | (same as left) | 37% | 51% | 85% |
+
+2. A5: /unity/match-state SENDS THE CAREER'S DIFFICULTY
+  PASS  Easy: /unity/match-state says gameDifficulty "easy"  career 1, match 1: HTTP 200, gameDifficulty "easy", players 4
+  PASS  Medium: /unity/match-state says gameDifficulty "medium"  career 2, match 60: HTTP 200, gameDifficulty "medium", players 4
+  PASS  Hard: /unity/match-state says gameDifficulty "hard"  career 3, match 119: HTTP 200, gameDifficulty "hard", players 4
+  PASS  Before difficulty: /unity/match-state says gameDifficulty "medium"  career 4, match 178: HTTP 200, gameDifficulty "medium", players 4
+  PASS  the Empire Nations Cup payload sends it too (same route, same function)
+
+========================================================================
+  PASS: 6/6 checks
+========================================================================

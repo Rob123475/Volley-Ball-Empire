@@ -102,7 +102,9 @@ Brief: `docs/update-1.2/UNITY-REBUILD-BRIEF.md`. Plan: `docs/update-1.2/PLAYABLE
 | A3 Controls, played on the court | Done, PASS | `docs/update-1.2/proof/A3/`: `a3-played-match.txt` (Unity batch, 28/28), `a3-unity.log`, three pictures | Unity `ed0e902`; game repo `833aaeac` |
 | A4 AI plays the same game | Done, PASS | `docs/update-1.2/proof/A4/`: `a4-ai-same-game.txt` (Unity batch, 9/9), `a4-dotnet.txt` (dotnet, 8/8), `a4-unity.log` | Unity `ea77855`; game repo `74f3a669` |
 | A5 Difficulty from the career | Done, PASS | `docs/update-1.2/proof/A5/`: `a5-harness.txt` (9/9; the final run, on the tuned code, is in `proof/A6/a6-harness.txt`), `a5-easy.txt`, `a5-medium.txt`, `a5-hard.txt` (each court 14/14) | Unity `95c47c5`; game repo: the A5 commit |
-| A6 Fair to the career | Done, PASS | `docs/update-1.2/proof/A6/`: `a6-dotnet.txt` (the table, 11/11), `a6-harness.txt` and `a6-harness-full-match.txt` (suite 12/12), `a6-played-on-server.txt` (court 28/28), three pictures from that match (`a6-court-*.png`) | Unity `96acace`; game repo: the A6 commit |
+| A6 Fair to the career | Done, PASS | `docs/update-1.2/proof/A6/`: `a6-dotnet.txt` (the table, 11/11), `a6-harness.txt` and `a6-harness-full-match.txt` (suite 12/12), `a6-played-on-server.txt` (court 28/28), three pictures from that match (`a6-court-*.png`) | Unity `96acace`; game repo `8b5ecfe5` |
+| A7 Auto not touched | Done, PASS | `docs/update-1.2/proof/A7/RallyPlanProof.log` (RallyPlanProof PASS on the demolished code); `proof/A8/harness-one-set-of-odds.txt` (20/20), `harness-boosts.txt` (12/12), `harness-watched-result.txt` (22/22) | Unity `e6efc68` |
+| A8 Demolition | Done, PASS | `docs/update-1.2/proof/A8/`: `a8-played-match.txt` (the new engine's proof, 28/28), `a8-compile.log` (0 errors), `harness-played-match.txt` (6/6), three pictures | Unity `e6efc68`; game repo: the A8 commit |
 
 ### A1: real ball flight (25 Nov 2026)
 **Files:**
@@ -314,3 +316,48 @@ Two causes made blocks far too strong at first. A blocker stood square in front 
 **Found along the way.** The career sends heights in centimetres. Until it was fixed, a 188 cm player reached 250 m, and with real career players no set or spike could be timed. The court's prefab players carry metres, so the earlier proofs never saw it. Auto has the same reading of height; see decision 22.
 
 **`ManualControlsProof` is retired:** Manual is the played match now. A8 deletes it, and `PlayedMatchPlayProof` takes its place.
+
+### A7: Auto mode is not touched (25 Nov 2026)
+**What stays the same:**
+- Auto is still the default.
+- Auto still decides every point at the serve from the game's own chance (`PointModel`) and plays the rally to that plan.
+- The only changes to Auto's code are the two lines that hand a Manual serve to the played match (A3), and A8 removing the manual branches.
+
+**Proof, on the code after A8's demolition:**
+- **`RallyPlanProof`: RESULT: PASS.** The match was BLUE SHARKS 0-2 RED GIANTS (13-15, 6-11), and every set was legal. Every point went to the team decided at its serve. The zoom buttons, the result box, the crowd falling quiet and the ace ability (rated 95 against 94) all pass. One check is gone, the old "first dig after a serve is not aided", because A8 removed the aid it guarded.
+- **`harness/one-set-of-odds.mjs` (20/20):** the court's `PointModel.cs` and the game's engine still play the same matches from the same chance.
+- **`harness/boosts.mjs` (12/12):** the boosts still work as before.
+- **`harness/watched-result.mjs` (22/22):** the court's result is still recorded through `completeMatch`.
+
+### A8: the demolition (25 Nov 2026)
+**Deleted:**
+- `Assets/Editor/ManualControlsProof.cs` and its `.meta`: 478 lines. It proved the forgiving pathway, which no longer exists. `PlayedMatchPlayProof` is the new engine's proof.
+
+**Cut down** (1,266 lines out, 93 in):
+
+| File | Lines (before Part A → now) | What went |
+|---|---|---|
+| `Assets/Scripts/MatchManager.cs` | 2,529 → 2,265 | See the list below. |
+| `Assets/Scripts/ManualControl.cs` | 733 → 319 | Everything but the Auto / Manual switch (Tab / View / Share, the page, the Nations Cup "Auto only" rule), pause, the controls help and the mode badge. Gone: the ring and the ball that waited for you, the touch windows (`BallComing`, `Arrival`), the manual serve meter, the manual block, `Drive` and `DriveAlongServeLine`, the switch and cheer handling, the prompt and the old serve bar. `ManualAction` is cut to None, Toggle, Pause and Help. The played match's buttons and meters are `PlayedControls`'. |
+| `Assets/Editor/RallyPlanProof.cs` | 307 → 297 | The "first dig not aided" check, with the aid. |
+| `Assets/Scripts/PlayerAnimationHelper.cs` | one condition | `!ManualControl.Controls(...)` on Auto's automatic dive. |
+| `Assets/Scripts/PlayedMatchRunner.cs` | one line | It no longer asks ManualControl who to control: control follows the ball from the first serve. |
+
+**What went from `MatchManager.cs`:**
+- the manual serve phase: `UpdateManualServe`, `ClampToServeLine`, the serve band, the manual serve speed
+- the manual block
+- the ball waiting for a manual touch: `NotifyManualBallComing`, `HoldsForManualTouch`, `NeedFor`, `IsSaveableWinner`
+- the player's saves and misses rewriting the point's plan: `SaveByPlayer`, `OverridePlan`, `PointEnding.Miss`, and `MakePlan`'s mid-rally branch (always 0 since, so the draws are unchanged)
+- the first-dig aid and its record: `FirstDig`, `FirstDigs`, `AidsFirstDig`, `FirstDigAidRadius`
+- the manual drive
+- the serve snapshot's three manual fields
+
+A grep of the Unity project finds no reference left to any of it.
+
+**Proofs, after the demolition:**
+- The project compiles with 0 errors. The only warnings are four old ones in files A8 did not touch.
+- `PlayedMatchPlayProof` passes 28/28: a whole played match, 2-0 (11-4, 11-7), through the virtual keyboard and gamepad.
+- `harness/played-match.mjs --a6` passes 6/6 (engine checks A1, A2, A4 and A6, and the difficulty payload).
+- RallyPlanProof and the three Auto suites pass (A7).
+
+**The full harness gains the new suite.** `harness/run-all.mjs` now runs `played-match.mjs --a6` as suite 57b, without the Unity courts, which need Unity closed. `runSuite` gained an optional argument list for it.

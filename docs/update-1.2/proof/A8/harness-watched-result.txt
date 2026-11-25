@@ -1,0 +1,33 @@
+========================================================================
+  UNITY 4: THE 3D COURT'S RESULT COUNTS
+========================================================================
+
+A. THE COURT'S RESULT IS RECORDED
+  PASS  watching puts the match in progress  HTTP 200
+  PASS  while it is watched, Sim Result refuses to complete it  HTTP 409
+  PASS  and the day cannot move on past it  "pending_match"
+  PASS  the court's score after a point is taken  HTTP 200
+  PASS  an illegal score (11-10) is refused and changes nothing  HTTP 400; status in_progress
+  PASS  a result for another career is refused  HTTP 404
+  PASS  the posted result is recorded exactly: sets, 2-1 to the club  HTTP 200; completed 2-1 (9-11, 11-7, 13-11)
+  PASS  through the Sim Result path: one more win, the winner's prize on the ledger  wins 0 -> 1; ledger Prize money: World Tour R1 vs Paris Sables Royales $4333; balance +$4333
+  PASS  posting the same result twice changes nothing  HTTP 200; wins 1; balance $534795; 1 prize line(s)
+  PASS  a different result for a recorded match is refused  HTTP 409
+
+B. LEFT AT 7-4 IN SET 2: A FORFEIT
+  PASS  leaving (World Tour round 12) records the match at once, as a forfeit  HTTP 200; completed, forfeit true
+  PASS  no score is recorded: no sets won either side, no set scores  null-null, sets null
+  PASS  the club: a loss, no prize money on the ledger  losses 0 -> 1; balance $540072 -> $540072
+  PASS  the club: no ranking points (the loss is counted on the table, at 0 points)  points 1 -> 1, losses 0 -> 1
+  PASS  nothing is written against the club's players  [{"player_id":193,"ranking_points":1,"matches":1},{"player_id":292,"ranking_points":1,"matches":1}]
+  PASS  the opponent: the win and the match's ranking points  wins 0 -> 1, points 0 -> 1
+  PASS  an AI opponent is paid the winner's prize  $509813 -> $516313
+  PASS  the results carry the forfeit, for every list to show "Forfeit"
+
+C. THE WINDOW CLOSED AT 3-2: A FORFEIT
+  PASS  mid-match, the match is in progress
+  PASS  on the next launch the match is forfeited, never left in progress  completed, forfeit true, null-null
+  PASS  the same forfeit: a loss, no prize  losses 1 -> 2
+  PASS  and the boot log says so
+
+=== 22/22 passed ===

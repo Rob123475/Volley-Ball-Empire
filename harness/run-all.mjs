@@ -40,9 +40,9 @@ process.env.VBE_STAFF_ABSENCES = "off";
 // 1.1.1, Part 11: the staff budget's refusals are off too, except in its own suite (harness/staff-budget.mjs).
 process.env.VBE_STAFF_BUDGET = "off";
 
-function runSuite(name, file) {
+function runSuite(name, file, args = []) {
   const started = Date.now();
-  const r = spawnSync(process.execPath, [file], { stdio: "inherit", cwd: REPO });
+  const r = spawnSync(process.execPath, [file, ...args], { stdio: "inherit", cwd: REPO });
   results.push({ name, ok: r.status === 0, secs: ((Date.now() - started) / 1000).toFixed(1) });
   return r.status === 0;
 }
@@ -382,6 +382,13 @@ runSuite("boosts", path.join(REPO, "harness", "boosts.mjs"));
 // twice changes nothing; left at 7-4 finished from 7-4; a closed window finished on boot.
 console.log("\n########## 57/100  THE 3D COURT'S RESULT COUNTS (UNITY 4) ##########");
 runSuite("watched result", path.join(REPO, "harness", "watched-result.mjs"));
+
+// 1.2 Part A: the played match. The Unity repo's played-match engine and its checks, run by
+// dotnet (ball flight, touch grading, the AI, the win-rate table), and /unity/match-state's
+// gameDifficulty at Easy, Medium, Hard and a career made before difficulty. (The Unity
+// courts themselves run in batch mode with Unity closed: node harness/played-match.mjs --unity.)
+console.log("\n########## 57b/100  A MATCH YOU REALLY PLAY (1.2 PART A) ##########");
+runSuite("played match", path.join(REPO, "harness", "played-match.mjs"), ["--a6"]);
 
 // Unity brief item 5: the court page's Leave match and its return to the dashboard, and
 // the Unity finish (banner, crowd, header, labels) they rely on.
