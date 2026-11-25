@@ -361,3 +361,14 @@ A grep of the Unity project finds no reference left to any of it.
 - RallyPlanProof and the three Auto suites pass (A7).
 
 **The full harness gains the new suite.** `harness/run-all.mjs` now runs `played-match.mjs --a6` as suite 57b, without the Unity courts, which need Unity closed. `runSuite` gained an optional argument list for it.
+
+**The whole played match against the server, rerun on the finished code (25 Nov 2026, 19:23–19:30): 12/12, no failures.**
+- **The run:** `harness/played-match.mjs --unity-full`, on Unity `e6efc68` and game `194f4a63`.
+- **Engine and payload:** the engine's checks pass 54/54 under dotnet (A1, A2, A4), and the four difficulty payloads pass.
+- **The court:** it played the whole match, 28/28, 2-0 (11-4, 11-9).
+- **The game:**
+  - MatchReporter posted the result, and the game recorded exactly that score.
+  - The win counted, and the $4,333 prize is on the ledger.
+  - Both players' fitness and fatigue were charged: 100 to 96 and 95; 0 to 17 and 21.
+- **The files:** the output is `proof/A8/harness-unity-full.txt`. Beside it are the Unity log (`harness-unity-full-unity.log`) and the court's own proof (`harness-unity-full-court.txt`).
+- **Where it ran:** the suite was pointed at a scratch proof folder so the committed A6 files were not overwritten, and its two files were copied here.
