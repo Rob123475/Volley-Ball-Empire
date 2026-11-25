@@ -47,6 +47,39 @@ Brief: `docs/update-1.2/UNITY-REBUILD-BRIEF.md`. Plan: `docs/update-1.2/PLAYABLE
     - Spike jump: 0.40 m, plus up to 0.32 m from power.
     - Block jump: 0.30 m, plus up to 0.40 m from the block rating.
     - Running speed on sand: 3.8 m/s for the slowest up to 6.2 m/s for the quickest, pulled down by condition.
+12. **From A3, Manual means the played match.**
+    - When the match is in Manual, MatchManager hands each serve to the new engine. It does that in two lines of `MatchManager.cs`. Everything else MatchManager needs for a played point is in a new partial file, `MatchManager.Played.cs`, so `MatchManager.cs` itself did not grow.
+    - The old forgiving pathway (`ManualControl`'s touches, MatchManager's manual branches) can no longer be reached. It stays in the files until A8 deletes it.
+    - `ManualControlsProof` tests that old pathway, so it cannot pass after A3. A8 retires it.
+    - Auto is unchanged: same code, same odds.
+13. **The controls (A3).**
+    - **Kept as they were:** ManualControl's keys and pad buttons for move, dig, set, dive, switch, cheer, Auto/Manual, pause and help.
+    - **New: the soft shot,** on I / RB / R1. Those are free keys next to J, K and L, and the free right shoulder button.
+    - **The L / Y button still does three jobs:**
+      - *Serving:* tap the meter, as before.
+      - *At the net while they attack:* block.
+      - *On your side:* hold to jump and charge the new spike meter, release to hit. A plain tap still spikes, but softly.
+    - **Aim** is the direction held at the contact: forward goes deep, back goes short, left and right go along the net.
+    - **The serving player** still moves left and right along her serve line, so the stick both moves her and aims the serve.
+14. **Who you control.**
+    - Control follows the ball to whichever of your two players the engine says it is going to.
+    - **Q / LB** takes the other player until the ball next goes over the net. The AI then plays the ball for her partner.
+    - **A white ring** at her feet shows which player is yours.
+15. **AI sharpness by difficulty (A4, A5).**
+    - **The player's partner** has Medium sharpness on every difficulty, so a harder career does not give you a worse partner.
+    - **The opponents** get sharper with the difficulty: their timing spread is 105 ms on Easy, 75 ms on Medium and 50 ms on Hard, and their reaction time is 300, 230 and 170 ms.
+    - **Every AI player's timing** also narrows with her own rating for the touch.
+16. **Boosts in a played match.** There are no odds to shift in a played match, so a boost raises Team A's ratings instead:
+    - **Attack:** +8 power and serve.
+    - **Defence:** +8 defence, speed and block.
+
+    They are pressed and counted in points exactly as before.
+17. **Wind.** When `WeatherManager` says Windy, its wind force × 0.08 acts on the ball: up to about 0.3 m/s² of drift.
+18. **Animation proofs are done in Play mode.** Posing BeachPlayer in edit mode, as the brief's frame strips first did, leaves her body mesh unskinned: only her separate head mesh moves. Motion Cast's Spike, which plays correctly in every match, looks broken in edit mode too.
+    - So every clip is proven in Play mode, through the players' own controller (`PlayedAnimationPlayStrip`), with a measured check that her head bone stays inside her body's skin in all 24 poses.
+    - The rejected edit-mode pictures are kept in `proof/animation/rejected-edit-mode/` to show why.
+    - AA_Volleyball's InPlace clips have no vertical jump in them. The game lifts the player for jumps from the engine's jump curve, as MatchManager already does for Motion Cast clips.
+19. **Side switches.** Teams do not change ends during a set, in a played match or in Auto. Auto never did, so the two stay the same.
 
 ## Items
 
@@ -55,7 +88,9 @@ Brief: `docs/update-1.2/UNITY-REBUILD-BRIEF.md`. Plan: `docs/update-1.2/PLAYABLE
 | 0 Baseline | Done, PASS | `docs/update-1.2/proof/baseline/` (`results.txt`, plus the full `compile.log`, `RallyPlanProof.log` and `ManualControlsProof.log`) | game repo `dffed753`; Unity repo: `update-1.2` at `dd0a4875` (no file changes) |
 | Packs | Committed through LFS | `git lfs ls-files` lists all 672 pack FBX files | Unity `3c0e0f4` |
 | A1 Real ball flight | Done, PASS | `docs/update-1.2/proof/A1/`: `a1-ball-flight.txt` (Unity batch, 23/23), `a1-dotnet.txt` (dotnet, 18/18), `a1-unity.log`, 3 pictures | Unity `a656a3f`; game repo `23ba802e` |
-| A2 Every touch graded | Done, PASS | `docs/update-1.2/proof/A2/`: `a2-touch-grading.txt` (Unity batch, 27/27), `a2-dotnet.txt` (dotnet, 27/27), `a2-unity.log`, `a2-digs.png`, `a2-spikes.png` | Unity `2b964d0`; game repo: the A2 commit |
+| A2 Every touch graded | Done, PASS | `docs/update-1.2/proof/A2/`: `a2-touch-grading.txt` (Unity batch, 27/27), `a2-dotnet.txt` (dotnet, 27/27), `a2-unity.log`, `a2-digs.png`, `a2-spikes.png` | Unity `2b964d0`; game repo `3be1fe35` |
+| Animations, first job | Done, PASS | `docs/update-1.2/proof/animation/`: `aa-volleyball-humanoid.txt`, `play-strips.txt` and five Play-mode strips | Unity `ed0e902` |
+| A3 Controls, played on the court | Done, PASS | `docs/update-1.2/proof/A3/`: `a3-played-match.txt` (Unity batch, 28/28), `a3-unity.log`, three pictures | Unity `ed0e902`; game repo: the A3 commit |
 
 ### A1: real ball flight (25 Nov 2026)
 **Files:**
@@ -131,3 +166,59 @@ The same seed gives the same 400 graded touches, bit for bit.
 **Pictures:**
 - `a2-digs.png`: the green perfect digs fill the setter's 2 m ring; the red late digs scatter across the half and out of the court.
 - `a2-spikes.png`: the perfect spikes land in all over the far half; the late spikes mostly die in the net on the hitter's side.
+
+### Animations, first job (25 Nov 2026)
+**The InPlace FBX is now Humanoid.** `AA_Volleyball_InPlace.fbx` was Generic with no Avatar. It is now Humanoid, with "Create From This Model":
+- The Avatar is valid and human.
+- All 15 required bones are mapped, and 52 bones in all.
+- All 175 clips are humanoid.
+
+The RootMotion FBX was already Humanoid and was left as it is. The tool is `Editor/PlayedAnimationSetup.Humanoid`, and its output is `aa-volleyball-humanoid.txt`.
+
+**The soft shot clip.** `094_AA_Volleyball_Attacking_Tip` is the new `SoftShot` state in the players' controller (`Motion Cast#14 - Vol.1/VolleyballController.controller`). It has its own trigger and is wired as Spike is. The contact (her raised hand) is at about 44% of the clip, so the game starts the state at 40%. That way the tip on screen meets the ball.
+
+**Proven on BeachPlayer in Play mode** (`play-strips.txt` and `play-strip-*.png`):
+- SoftShot (the AA Tip), plus Spike, Dig, Block and EmergencySave from Motion Cast for comparison.
+- In all 24 poses of every clip, her head bone was within 0.08 m of her body's skin: the body follows the skeleton.
+- No T-pose.
+- The AA Tip is a one-handed tip over the head, with the left hand.
+
+### A3: the controls, played on the court (25 Nov 2026)
+**New files:**
+- `Assets/Scripts/PlayedMatch/PlayedEngine.cs`: the rally and the rules
+- `Assets/Scripts/PlayedMatch/PlayedAi.cs`: the AI seat (refined and proven in A4) and the LocalSeat
+- `Assets/Scripts/PlayedMatchRunner.cs` and `Assets/Scripts/PlayedControls.cs`: the court side and the controls
+- `Assets/Scripts/MatchManager.Played.cs`: MatchManager's played-match hooks
+- `Assets/Editor/PlayedMatchPlayProof.cs`: the proof
+
+**Changed:**
+- `MatchManager.cs`: `partial`, plus 2 lines that hand a Manual serve over
+- `ManualControl.cs`: the rally buttons stand aside during a played match, and the help panel shows the new controls
+- `PlayerStats.cs` and `UnityMatchDataLoader.cs`: fitness and fatigue are now carried through
+
+**Proof** (`a3-played-match.txt`, 28/28): a whole match on V19, Medium, players rated 62. It was driven only through a virtual keyboard and a virtual gamepad. An autopilot sat in the person's seat, took turns with the two devices, read the ball and pressed at the moment.
+
+**Results:**
+- **Buttons:** every action fired from both devices: move, dig, set, spike, soft shot, dive, switch and cheer, plus Tab / View, Esc / Menu and H / D-pad down, which stay with ManualControl.
+- **Touches:** 242 of the person's touches reached the engine, 121 from each device: 65 digs, 74 sets, 60 spikes and 14 soft shots, all graded by the engine.
+- **Serve meter:** 26 of 29 serves were tapped in the MAX zone and graded perfect. The WEAK tap went into the net and lost the point, a serve fault to Team B.
+- **Aim:** spikes with the stick held left were sent to x = −2.25 on average, and held right to +2.55.
+- **Spike meter:** a long hold hit at 16.9 m/s, a tap at 11.2 m/s.
+- **Block and dive:** 2 block jumps at the net (1 block touch) and 32 dives.
+- **Auto-switch:** control changed players 233 times by itself; Q / LB took the other player twice.
+- **No point decided in advance:** no `[Point] decided` line in the whole played match.
+- **Scoring:** 55 points played and 55 in the score, all announced by MatchManager (header, crowd, commentary, MatchReporter). The match ended 2-1, every set legal.
+- **Pictures:** `a3-serve-meter.png`, `a3-ring-incoming.png` (the landing ring) and `a3-spike-meter.png`.
+
+**Rules the proof made me add:**
+- **Your own serve:** nobody may play her own side's serve, and a serve left on the server's side is the receivers' point at once. The first run had the server's partner playing a serve that was dropping into the net.
+- **Aim:** the seat keeps the stick as it was at the press. The engine may only take its next 1/120 s step after the stick has moved on.
+
+**Tuning so far, AI against AI under dotnet** (Medium, both pairs rated 62; `dotnet run -- sim`):
+- matches last 9 to 17 minutes
+- about 10 touches a rally
+- most points are kills
+- there are aces, blocks and errors
+- both sides win
+
+Two causes made blocks far too strong at first. A blocker stood square in front of every hitter, and her hands covered 0.85 m. Now the blocker takes the line or the angle, her hands follow the jump, and good hitters hit over the block. The win-rate tuning is in A6.

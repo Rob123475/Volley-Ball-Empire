@@ -1,0 +1,2891 @@
+[Licensing::Module] Trying to connect to existing licensing client channel...
+Built from '6000.3/staging' branch; Version is '6000.3.16f1 (a56f230f6470) revision 10841891'; Using compiler version '194234433'; Build Type 'Release'
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-rbonn" at "2026-11-25T01:25:05.7324603Z"
+OS: 'Windows 11  (10.0.26200) Professional' Language: 'en' Physical Memory: 31830 MB
+BatchMode: 1, IsHumanControllingUs: 0, StartBugReporterOnCrash: 0, Is64bit: 1
+System  architecture: x64
+Process architecture: x64
+Date: 2026-11-25T01:25:05Z
+
+COMMAND LINE ARGUMENTS:
+C:\Program Files\Unity\Hub\Editor\6000.3.16f1\Editor\Unity.exe
+-batchmode
+-projectPath
+C:/Users/rbonn/Game_Dev/VolleyBall Empire/volleyball
+-executeMethod
+PlayedAnimationSetup.Humanoid
+-proofDir
+C:/Users/rbonn/Documents/Volley-Ball-Empire/docs/update-1.2/proof
+-logFile
+C:/Users/rbonn/Documents/Volley-Ball-Empire/docs/update-1.2/proof/animation/humanoid-unity.log
+Successfully changed project path to: C:/Users/rbonn/Game_Dev/VolleyBall Empire/volleyball
+C:/Users/rbonn/Game_Dev/VolleyBall Empire/volleyball
+[UnityMemory] Configuration Parameters - Can be set up in boot.config
+    "memorysetup-temp-allocator-size-nav-mesh-worker=65536"
+    "memorysetup-temp-allocator-size-audio-worker=65536"
+    "memorysetup-temp-allocator-size-gfx=262144"
+    "memorysetup-allocator-temp-initial-block-size-main=262144"
+    "memorysetup-allocator-temp-initial-block-size-worker=262144"
+    "memorysetup-temp-allocator-size-background-worker=32768"
+    "memorysetup-temp-allocator-size-job-worker=262144"
+    "memorysetup-temp-allocator-size-preload-manager=33554432"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-bucket-allocator-granularity=16"
+    "memorysetup-bucket-allocator-bucket-count=8"
+    "memorysetup-bucket-allocator-block-size=33554432"
+    "memorysetup-bucket-allocator-block-count=8"
+    "memorysetup-main-allocator-block-size=16777216"
+    "memorysetup-thread-allocator-block-size=16777216"
+    "memorysetup-gfx-main-allocator-block-size=16777216"
+    "memorysetup-gfx-thread-allocator-block-size=16777216"
+    "memorysetup-cache-allocator-block-size=4194304"
+    "memorysetup-typetree-allocator-block-size=2097152"
+    "memorysetup-profiler-bucket-allocator-granularity=16"
+    "memorysetup-profiler-bucket-allocator-bucket-count=8"
+    "memorysetup-profiler-bucket-allocator-block-size=33554432"
+    "memorysetup-profiler-bucket-allocator-block-count=8"
+    "memorysetup-profiler-allocator-block-size=16777216"
+    "memorysetup-profiler-editor-allocator-block-size=1048576"
+    "memorysetup-temp-allocator-size-main=16777216"
+    "memorysetup-job-temp-allocator-block-size=2097152"
+    "memorysetup-job-temp-allocator-block-size-background=1048576"
+    "memorysetup-job-temp-allocator-reduction-small-platforms=262144"
+    "memorysetup-temp-allocator-size-cloud-worker=32768"
+Player connection [54108]  Target information:
+
+Player connection [54108]  * "[IP] 10.0.0.72 [Port] 55504 [Flags] 2 [Guid] 3813375819 [EditorId] 3813375819 [Version] 1048832 [Id] WindowsEditor(7,Beast) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" 
+
+Player connection [54108] Host joined multi-casting on [225.0.0.222:54997]...
+Player connection [54108] Host joined alternative multi-casting on [225.0.0.222:34997]...
+Input System module state changed to: Initialized.
+[Physics::Module] Initialized fallback backend.
+[Physics::Module] Id: 0xdecafbad
+[Package Manager] Connected to IPC stream "Upm-12616" after 0.2 seconds.
+[Licensing::Module] Licensing is not yet initialized.
+[Licensing::Client] Error: HandshakeResponse reported an error:
+	ResponseCode: 505
+	ResponseStatus: Unsupported protocol version '1.18.1'.
+[Licensing::Module] Error: Failed to handshake to channel: "LicenseClient-rbonn"
+[Licensing::IpcConnector] LicenseClient-rbonn channel disconnected successfully.
+[Licensing::IpcConnector] Channel LicenseClient-rbonn-6000.3.16 doesn't exist
+[Licensing::Module] Successfully launched the LicensingClient (PId: 38592)
+Starting IPC server.
+Waiting for clients to connect on \\.\pipe\Unity-LicenseClient-rbonn-6000.3.16, press Ctrl-C to exit.
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-rbonn-6000.3.16" at "2026-11-25T01:25:07.2056554Z"
+[Licensing::Client] Code 10 while verifying Licensing Client signature (process Id: 38592, path: "C:/Program Files/Unity/Hub/Editor/6000.3.16f1/Editor/Data/Resources/Licensing/Client/Unity.Licensing.Client.exe")
+[Licensing::Module] LicensingClient has failed validation; ignoring
+[Licensing::Client] Handshaking with LicensingClient:
+  Version:                 1.18.1+9fbee8e
+  Session Id:              7dd6f308cb8b47cc9b5b3541de35198b
+  Correlation Id:          4bc7f3e62ca6ff0dae773db8750eaa50
+  External correlation Id: 2108309168190515632
+  Machine Id:              zgb6692Nnw+phkIExqmx8uDnzyM=
+[Licensing::Module] Successfully connected to LicensingClient on channel: "LicenseClient-rbonn-6000.3.16" (connect: 0.24s, validation: 0.04s, handshake: 0.01s)
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-rbonn-6000.3.16-notifications" at "2026-11-25T01:25:07.2561179Z"
+[Licensing::Module] Connected to LicensingClient (PId: 38592, launch time: 0.01, total connection time: 0.30s)
+[Licensing::Module] Error: Access token is unavailable; failed to update
+[Licensing::Client] Successfully resolved entitlement details
+[Licensing::Module] License group:
+  Id: 16768365838406-UnityPersXXXX
+  Product: Unity Personal
+  Type: Assigned
+  Expiration: Unlimited
+[Licensing::Client] Successfully updated license, isAsync: True, time: 0.01
+[Licensing::Client] Successfully resolved entitlement details
+[Licensing::Module] Licensing Background thread has ended after 1.54s
+[Licensing::Module] Licensing is initialized (took 1.18s).
+[Licensing::Client] Successfully resolved entitlement details
+Library Redirect Path: Library/
+[Physics::Module] Selected backend.
+[Physics::Module] Name: PhysX
+[Physics::Module] Id: 0xf2b8ea05
+[Physics::Module] SDK Version: 4.1.2
+[Physics::Module] Integration Version: 1.0.0
+[Physics::Module] Threading Mode: Multi-Threaded
+Refreshing native plugins compatible for Editor in 1.14 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Initialize engine version: 6000.3.16f1 (a56f230f6470)
+[Subsystems] Discovering subsystems at path C:/Program Files/Unity/Hub/Editor/6000.3.16f1/Editor/Data/Resources/UnitySubsystems
+[Subsystems] Discovering subsystems at path C:/Users/rbonn/Game_Dev/VolleyBall Empire/volleyball/Assets
+GfxDevice: creating device client; kGfxThreadingModeNonThreaded
+d3d12: failed to query info queue interface (0x80004002).
+Direct3D:
+    Version:         Direct3D 12 [level 12.2]
+    Renderer:        NVIDIA GeForce RTX 5080 (ID=0x2c02)
+    Vendor:          NVIDIA
+    VRAM:            15977 MB
+    App VRAM Budget: 15209 MB
+    Driver:          32.0.16.1088
+Initialize mono
+Mono path[0] = 'C:/Program Files/Unity/Hub/Editor/6000.3.16f1/Editor/Data/Managed'
+Mono path[1] = 'C:/Program Files/Unity/Hub/Editor/6000.3.16f1/Editor/Data/MonoBleedingEdge/lib/mono/unityjit-win32'
+Mono config path = 'C:/Program Files/Unity/Hub/Editor/6000.3.16f1/Editor/Data/MonoBleedingEdge/etc'
+Using monoOptions --debugger-agent=transport=dt_socket,embedding=1,server=y,suspend=n,address=127.0.0.1:56616
+Using cacheserver namespaces - metadata:defaultmetadata, artifacts:defaultartifacts
+Using cacheserver namespaces - metadata:defaultmetadata, artifacts:defaultartifacts
+ImportWorker Server TCP listen port: 0
+AcceleratorClientConnectionCallback - disconnected - :0
+Begin MonoManager ReloadAssembly
+Registering precompiled unity dll's ...
+Register platform support module: C:/Program Files/Unity/Hub/Editor/6000.3.16f1/Editor/Data/PlaybackEngines/WebGLSupport/UnityEditor.WebGL.Extensions.dll
+Register platform support module: C:/Program Files/Unity/Hub/Editor/6000.3.16f1/Editor/Data/PlaybackEngines/WindowsStandaloneSupport/UnityEditor.WindowsStandalone.Extensions.dll
+Registered in 0.002479 seconds.
+- Loaded All Assemblies, in  0.257 seconds
+Native extension for WindowsStandalone target not found
+Native extension for WebGL target not found
+Package Manager log level set to [2]
+ScheduleIndexationOnStartup MainProcess:False IndexOnStartup:True
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  0.212 seconds
+Domain Reload Profiling: 467ms
+	BeginReloadAssembly (95ms)
+		ExecutionOrderSort (0ms)
+		DisableScriptedObjects (0ms)
+		BackupInstance (0ms)
+		ReleaseScriptingObjects (0ms)
+		CreateAndSetChildDomain (17ms)
+	RebuildCommonClasses (21ms)
+	RebuildNativeTypeToScriptingClass (7ms)
+	initialDomainReloadingComplete (31ms)
+	LoadAllAssembliesAndSetupDomain (99ms)
+		LoadAssemblies (75ms)
+		RebuildTransferFunctionScriptingTraits (0ms)
+		AnalyzeDomain (97ms)
+			TypeCache.Refresh (96ms)
+				TypeCache.ScanAssembly (87ms)
+			BuildScriptInfoCaches (0ms)
+			ResolveRequiredComponents (0ms)
+	FinalizeReload (213ms)
+		ReleaseScriptCaches (0ms)
+		RebuildScriptCaches (0ms)
+		SetupLoadedEditorAssemblies (189ms)
+			LogAssemblyErrors (0ms)
+			InitializePlatformSupportModulesInManaged (29ms)
+			SetLoadedEditorAssemblies (2ms)
+			BeforeProcessingInitializeOnLoad (42ms)
+			ProcessInitializeOnLoadAttributes (69ms)
+			ProcessInitializeOnLoadMethodAttributes (48ms)
+			AfterProcessingInitializeOnLoad (0ms)
+			EditorAssembliesLoaded (0ms)
+		ExecutionOrderSort2 (0ms)
+		AwakeInstancesAfterBackupRestoration (0ms)
+[Licensing::Client] Successfully resolved entitlement details
+Application.AssetDatabase Initial Refresh Start
+[Package Manager] Restoring resolved packages state from cache
+[Licensing::Client] Successfully resolved entitlement details
+[Package Manager] Registered 62 packages:
+  Packages from [https://packages.unity.com]:
+    com.unity.ai.assistant@2.19.0-pre.2 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.ai.assistant@8d1e3e89e3a7)
+    com.unity.ai.inference@2.6.1 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.ai.inference@9a123aee5df7)
+    com.unity.ai.navigation@2.0.12 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.ai.navigation@734c2c4c5591)
+    com.unity.collab-proxy@2.12.4 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.collab-proxy@0b1559bcd34e)
+    com.unity.ide.rider@3.0.40 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.ide.rider@e4950c6d131b)
+    com.unity.ide.visualstudio@2.0.26 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.ide.visualstudio@a99d56dec63f)
+    com.unity.inputsystem@1.19.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.inputsystem@21a28c3a6c83)
+    com.unity.timeline@1.8.12 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.timeline@8cd8509afae5)
+    com.unity.visualscripting@1.9.11 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.visualscripting@8bed5ad90189)
+    com.unity.searcher@4.9.4 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.searcher@d45a78918735)
+    com.unity.burst@1.8.29 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.burst@6bb9aca3ef38)
+    com.unity.dt.app-ui@2.1.1 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.dt.app-ui@8ac7e730dd5d)
+    com.unity.collections@2.6.6 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.collections@9796e5ee0d9e)
+    com.unity.nuget.newtonsoft-json@3.2.2 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.nuget.newtonsoft-json@4dfd81071c64)
+    com.unity.mathematics@1.3.3 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.mathematics@19a9377c4ffa)
+    com.unity.nuget.mono-cecil@1.11.6 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.nuget.mono-cecil@ecb9724e46ff)
+    com.unity.test-framework.performance@3.4.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.test-framework.performance@aa81a99c4a75)
+  Built-in packages:
+    com.unity.multiplayer.center@1.0.1 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.multiplayer.center@f01f4ba8d00a)
+    com.unity.render-pipelines.universal@17.3.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.render-pipelines.universal@97f77d4dda9a)
+    com.unity.shadergraph@17.3.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.shadergraph@138213decc3c)
+    com.unity.test-framework@1.6.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.test-framework@aebcb98460c6)
+    com.unity.ugui@2.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.ugui@23e8d17bfaf9)
+    com.unity.modules.accessibility@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.accessibility)
+    com.unity.modules.adaptiveperformance@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.adaptiveperformance)
+    com.unity.modules.ai@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.ai)
+    com.unity.modules.androidjni@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.androidjni)
+    com.unity.modules.animation@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.animation)
+    com.unity.modules.assetbundle@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.assetbundle)
+    com.unity.modules.audio@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.audio)
+    com.unity.modules.cloth@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.cloth)
+    com.unity.modules.director@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.director)
+    com.unity.modules.imageconversion@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.imageconversion)
+    com.unity.modules.imgui@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.imgui)
+    com.unity.modules.jsonserialize@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.jsonserialize)
+    com.unity.modules.particlesystem@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.particlesystem)
+    com.unity.modules.physics@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.physics)
+    com.unity.modules.physics2d@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.physics2d)
+    com.unity.modules.screencapture@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.screencapture)
+    com.unity.modules.terrain@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.terrain)
+    com.unity.modules.terrainphysics@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.terrainphysics)
+    com.unity.modules.tilemap@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.tilemap)
+    com.unity.modules.ui@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.ui)
+    com.unity.modules.uielements@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.uielements)
+    com.unity.modules.umbra@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.umbra)
+    com.unity.modules.unityanalytics@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.unityanalytics)
+    com.unity.modules.unitywebrequest@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.unitywebrequest)
+    com.unity.modules.unitywebrequestassetbundle@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.unitywebrequestassetbundle)
+    com.unity.modules.unitywebrequestaudio@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.unitywebrequestaudio)
+    com.unity.modules.unitywebrequesttexture@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.unitywebrequesttexture)
+    com.unity.modules.unitywebrequestwww@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.unitywebrequestwww)
+    com.unity.modules.vectorgraphics@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.vectorgraphics)
+    com.unity.modules.vehicles@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.vehicles)
+    com.unity.modules.video@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.video)
+    com.unity.modules.vr@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.vr)
+    com.unity.modules.wind@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.wind)
+    com.unity.modules.xr@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.xr)
+    com.unity.modules.subsystems@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.subsystems)
+    com.unity.modules.hierarchycore@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.hierarchycore)
+    com.unity.ext.nunit@2.0.5 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.ext.nunit@d8c07649098d)
+    com.unity.render-pipelines.core@17.3.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.render-pipelines.core@648b47f96bf1)
+    com.unity.render-pipelines.universal-config@17.0.3 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.render-pipelines.universal-config@8dc1aab4af1d)
+    com.unity.2d.sprite@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.2d.sprite@3cb28db060cf)
+[Subsystems] No new subsystems found in resolved package list.
+[Package Manager] Done registering packages in 0.02 seconds
+[ScriptCompilation] Requested script compilation because: Assetdatabase observed changes in script compilation related files
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: http://localhost:80
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Production
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/2 POST http://ilpp/UnityILPP.PostProcessing/Ping application/grpc -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'gRPC - /UnityILPP.PostProcessing/Ping'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'gRPC - /UnityILPP.PostProcessing/Ping'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/2 POST http://ilpp/UnityILPP.PostProcessing/Ping application/grpc - - 200 - application/grpc 23.5058ms
+Refreshing native plugins compatible for Editor in 4.06 ms, found 5 plugins.
+Starting: C:\Program Files\Unity\Hub\Editor\6000.3.16f1\Editor\Data\Tools\BuildPipeline\bee_backend.exe --ipc --defer-dag-verification --dagfile="Library/Bee/2000b0aE.dag" --continue-on-failure --profile="Library/Bee/backend1.traceevents" ScriptAssemblies
+WorkingDir: C:/Users/rbonn/Game_Dev/VolleyBall Empire/volleyball
+DisplayProgressbar: Compiling Scripts
+Starting: C:\Program Files\Unity\Hub\Editor\6000.3.16f1\Editor\Data\netcorerun\netcorerun.exe "C:\Program Files\Unity\Hub\Editor\6000.3.16f1\Editor\Data\Tools\BuildPipeline\ScriptCompilationBuildProgram.exe" "Library/Bee/2000b0aE.dag.json" "Library/Bee/2000b0aE-inputdata.json" "Library\Bee\buildprogram0.traceevents"
+WorkingDir: C:/Users/rbonn/Game_Dev/VolleyBall Empire/volleyball
+ExitCode: 4 Duration: 0s263ms
+Rebuilding DAG because FileSignature timestamp changed: Library/Bee/2000b0aE-inputdata.json
+*** Tundra requires additional run (0.22 seconds), 0 items updated, 787 evaluated
+ExitCode: 0 Duration: 0s720ms
+Starting: C:\Program Files\Unity\Hub\Editor\6000.3.16f1\Editor\Data\Tools\BuildPipeline\bee_backend.exe --ipc --defer-dag-verification --dagfile="Library/Bee/2000b0aE.dag" --continue-on-failure --dagfilejson="Library\Bee\2000b0aE.dag.json" --profile="Library/Bee/backend2.traceevents" ScriptAssemblies
+WorkingDir: C:/Users/rbonn/Game_Dev/VolleyBall Empire/volleyball
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/2 POST http://ilpp/UnityILPP.PostProcessing/ConfigurePostProcessors application/grpc -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'gRPC - /UnityILPP.PostProcessing/ConfigurePostProcessors'
+warn: Unity.ILPP.Runner.PostProcessingAssemblyLoadContext[0]
+      Assembly system.runtime.interopservices.windowsruntime has duplicate hint path. Ignoring "C:\Program Files\Unity\Hub\Editor\6000.3.16f1\Editor\Data\UnityReferenceAssemblies\unity-4.8-api\Facades\System.Runtime.InteropServices.WindowsRuntime.dll" in favor of "C:\Program Files\Unity\Hub\Editor\6000.3.16f1\Editor\Data\NetStandard\Extensions\2.0.0\System.Runtime.InteropServices.WindowsRuntime.dll"
+warn: Unity.ILPP.Runner.PostProcessingAssemblyLoadContext[0]
+      Assembly system.componentmodel.composition has duplicate hint path. Ignoring "C:\Program Files\Unity\Hub\Editor\6000.3.16f1\Editor\Data\UnityReferenceAssemblies\unity-4.8-api\System.ComponentModel.Composition.dll" in favor of "C:\Program Files\Unity\Hub\Editor\6000.3.16f1\Editor\Data\NetStandard\compat\2.1.0\shims\netfx\System.ComponentModel.Composition.dll"
+info: Unity.ILPP.Runner.PostProcessingAssemblyLoadContext[0]
+      Resolved Unity.Burst.Cecil, Version=0.11.6.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e with Library\PackageCache\com.unity.burst@6bb9aca3ef38\Unity.Burst.CodeGen\Unity.Burst.Cecil.dll
+info: Unity.ILPP.Runner.PostProcessingAssemblyLoadContext[0]
+      Resolved Mono.Cecil, Version=0.11.5.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e with Library\PackageCache\com.unity.nuget.mono-cecil@ecb9724e46ff\Mono.Cecil.dll
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'gRPC - /UnityILPP.PostProcessing/ConfigurePostProcessors'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/2 POST http://ilpp/UnityILPP.PostProcessing/ConfigurePostProcessors application/grpc - - 200 - application/grpc 34.1157ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/2 POST http://ilpp/UnityILPP.PostProcessing/PostProcessAssembly application/grpc -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'gRPC - /UnityILPP.PostProcessing/PostProcessAssembly'
+info: Unity.ILPP.Runner.PostProcessingPipeline[0]
+      Processing assembly Library/Bee/artifacts/2000b0aE.dag/Assembly-CSharp.dll, with 115 defines and 336 references
+info: Unity.ILPP.Runner.PostProcessingPipeline[0]
+      processors: Unity.Jobs.CodeGen.JobsILPostProcessor, zzzUnity.Burst.CodeGen.BurstILPostProcessor
+info: Unity.ILPP.Runner.PostProcessingPipeline[0]
+      running Unity.Jobs.CodeGen.JobsILPostProcessor
+info: Unity.ILPP.Runner.PostProcessingAssemblyLoadContext[0]
+      Resolved Unity.Collections, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null with Library\Bee\artifacts\2000b0aE.dag\Unity.Collections.dll
+info: Unity.ILPP.Runner.PostProcessingAssemblyLoadContext[0]
+      Resolved UnityEditor.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null with C:\Program Files\Unity\Hub\Editor\6000.3.16f1\Editor\Data\Managed\UnityEngine\UnityEditor.CoreModule.dll
+info: Unity.ILPP.Runner.PostProcessingAssemblyLoadContext[0]
+      Resolved UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null with C:\Program Files\Unity\Hub\Editor\6000.3.16f1\Editor\Data\Managed\UnityEngine\UnityEngine.CoreModule.dll
+info: Unity.ILPP.Runner.PostProcessingPipeline[0]
+      running zzzUnity.Burst.CodeGen.BurstILPostProcessor
+info: Unity.ILPP.Runner.PostProcessingAssemblyLoadContext[0]
+      Resolved Unity.Burst.Cecil.Rocks, Version=0.11.6.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e with Library\PackageCache\com.unity.burst@6bb9aca3ef38\Unity.Burst.CodeGen\Unity.Burst.Cecil.Rocks.dll
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'gRPC - /UnityILPP.PostProcessing/PostProcessAssembly'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/2 POST http://ilpp/UnityILPP.PostProcessing/PostProcessAssembly application/grpc - - 200 - application/grpc 314.1726ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/2 POST http://ilpp/UnityILPP.PostProcessing/PostProcessAssembly application/grpc -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'gRPC - /UnityILPP.PostProcessing/PostProcessAssembly'
+info: Unity.ILPP.Runner.PostProcessingPipeline[0]
+      Processing assembly Library/Bee/artifacts/2000b0aE.dag/Assembly-CSharp-Editor.dll, with 113 defines and 365 references
+info: Unity.ILPP.Runner.PostProcessingPipeline[0]
+      processors: Unity.Jobs.CodeGen.JobsILPostProcessor, zzzUnity.Burst.CodeGen.BurstILPostProcessor
+info: Unity.ILPP.Runner.PostProcessingPipeline[0]
+      running Unity.Jobs.CodeGen.JobsILPostProcessor
+info: Unity.ILPP.Runner.PostProcessingPipeline[0]
+      running zzzUnity.Burst.CodeGen.BurstILPostProcessor
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'gRPC - /UnityILPP.PostProcessing/PostProcessAssembly'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/2 POST http://ilpp/UnityILPP.PostProcessing/PostProcessAssembly application/grpc - - 200 - application/grpc 56.5947ms
+ExitCode: 0 Duration: 1s810ms
+Finished compiling graph: 1519 nodes, 30962 flattened edges (24982 ToBuild, 252 ToUse), maximum node priority 1721
+[ 779/1515  0s] WriteText Library/Bee/artifacts/2000b0aE.dag/Assembly-CSharp-Editor.rsp
+[ 780/1515  0s] WriteText Library/Bee/artifacts/2000b0aE.dag/Assembly-CSharp.rsp
+[1152/1515  0s] ILPP-Configuration Library/ilpp-configuration.nevergeneratedoutput
+[1507/1515  0s] Csc Library/Bee/artifacts/2000b0aE.dag/Assembly-CSharp.dll (+2 others)
+Assets\Scripts\CeremonyDirector.cs(141,9): warning CS0618: 'TMP_Text.enableWordWrapping' is obsolete: 'The enabledWordWrapping property is now obsolete. Please use the textWrappingMode property instead.'
+
+Assets\Scripts\CeremonyDirector.cs(211,88): warning CS0184: The given expression is never of the provided ('Renderer') type
+
+Assets\Scripts\CeremonyDirector.cs(239,13): warning CS0618: 'TMP_Text.enableWordWrapping' is obsolete: 'The enabledWordWrapping property is now obsolete. Please use the textWrappingMode property instead.'
+
+Assets\Scripts\BallController.cs(13,37): warning CS0067: The event 'BallController.OnScore' is never used
+[1508/1515  0s] Csc Library/Bee/artifacts/2000b0aE.dag/Assembly-CSharp-Editor.dll (+2 others)
+[1509/1515  0s] ILPostProcess Library/Bee/artifacts/2000b0aE.dag/post-processed/Assembly-CSharp.dll (+pdb)
+Processing assembly Library/Bee/artifacts/2000b0aE.dag/Assembly-CSharp.dll, with 115 defines and 336 references
+
+processors: Unity.Jobs.CodeGen.JobsILPostProcessor, zzzUnity.Burst.CodeGen.BurstILPostProcessor
+
+running Unity.Jobs.CodeGen.JobsILPostProcessor
+
+running zzzUnity.Burst.CodeGen.BurstILPostProcessor
+[1510/1515  0s] CopyFiles Library/ScriptAssemblies/Assembly-CSharp.dll
+[1511/1515  0s] CopyFiles Library/ScriptAssemblies/Assembly-CSharp.pdb
+[1512/1515  0s] ILPostProcess Library/Bee/artifacts/2000b0aE.dag/post-processed/Assembly-CSharp-Editor.dll (+pdb)
+Processing assembly Library/Bee/artifacts/2000b0aE.dag/Assembly-CSharp-Editor.dll, with 113 defines and 365 references
+
+processors: Unity.Jobs.CodeGen.JobsILPostProcessor, zzzUnity.Burst.CodeGen.BurstILPostProcessor
+
+running Unity.Jobs.CodeGen.JobsILPostProcessor
+
+running zzzUnity.Burst.CodeGen.BurstILPostProcessor
+[1513/1515  0s] CopyFiles Library/ScriptAssemblies/Assembly-CSharp-Editor.pdb
+[1514/1515  0s] CopyFiles Library/ScriptAssemblies/Assembly-CSharp-Editor.dll
+*** Tundra build success (1.78 seconds), 11 items updated, 1515 evaluated
+Assets\Scripts\CeremonyDirector.cs(141,9): warning CS0618: 'TMP_Text.enableWordWrapping' is obsolete: 'The enabledWordWrapping property is now obsolete. Please use the textWrappingMode property instead.'
+Assets\Scripts\CeremonyDirector.cs(211,88): warning CS0184: The given expression is never of the provided ('Renderer') type
+Assets\Scripts\CeremonyDirector.cs(239,13): warning CS0618: 'TMP_Text.enableWordWrapping' is obsolete: 'The enabledWordWrapping property is now obsolete. Please use the textWrappingMode property instead.'
+Assets\Scripts\BallController.cs(13,37): warning CS0067: The event 'BallController.OnScore' is never used
+AssetDatabase: script compilation time: 3.181919s
+Begin MonoManager ReloadAssembly
+Symbol file LoadedFromMemory is not a mono symbol file
+Symbol file LoadedFromMemory is not a mono symbol file
+- Loaded All Assemblies, in  0.914 seconds
+Refreshing native plugins compatible for Editor in 3.35 ms, found 5 plugins.
+Native extension for WindowsStandalone target not found
+Native extension for WebGL target not found
+Refreshing native plugins compatible for Editor in 3.28 ms, found 5 plugins.
+[Licensing::Client] Error: Code 404 while processing request (status: Found 0 entitlement groups and 0 free entitlements matching requested entitlement ids)
+[Licensing::Client] Error: Code 404 while processing request (status: Found 0 entitlement groups and 0 free entitlements matching requested entitlement ids)
+[Licensing::Client] Error: Code 404 while processing request (status: Found 0 entitlement groups and 0 free entitlements matching requested entitlement ids)
+ScheduleIndexationOnStartup MainProcess:True IndexOnStartup:True
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  3.299 seconds
+Domain Reload Profiling: 4206ms
+	BeginReloadAssembly (275ms)
+		ExecutionOrderSort (0ms)
+		DisableScriptedObjects (41ms)
+		BackupInstance (0ms)
+		ReleaseScriptingObjects (0ms)
+		CreateAndSetChildDomain (149ms)
+	RebuildCommonClasses (21ms)
+	RebuildNativeTypeToScriptingClass (7ms)
+	initialDomainReloadingComplete (38ms)
+	LoadAllAssembliesAndSetupDomain (566ms)
+		LoadAssemblies (349ms)
+		RebuildTransferFunctionScriptingTraits (0ms)
+		AnalyzeDomain (275ms)
+			TypeCache.Refresh (209ms)
+				TypeCache.ScanAssembly (197ms)
+			BuildScriptInfoCaches (54ms)
+			ResolveRequiredComponents (6ms)
+	FinalizeReload (3299ms)
+		ReleaseScriptCaches (0ms)
+		RebuildScriptCaches (0ms)
+		SetupLoadedEditorAssemblies (3144ms)
+			LogAssemblyErrors (0ms)
+			InitializePlatformSupportModulesInManaged (16ms)
+			SetLoadedEditorAssemblies (4ms)
+			BeforeProcessingInitializeOnLoad (136ms)
+			ProcessInitializeOnLoadAttributes (2714ms)
+			ProcessInitializeOnLoadMethodAttributes (265ms)
+			AfterProcessingInitializeOnLoad (7ms)
+			EditorAssembliesLoaded (0ms)
+		ExecutionOrderSort2 (0ms)
+		AwakeInstancesAfterBackupRestoration (15ms)
+Refreshing native plugins compatible for Editor in 4.44 ms, found 5 plugins.
+Preloading 1 native plugins for Editor in 0.15 ms.
+Asset Pipeline Refresh (id=30e87493343222947913cc0fc6539578): Total: 8.774 seconds - Initiated by InitialRefreshV2(ForceSynchronousImport)
+	Summary:
+		Imports: total=0 (actual=0, local cache=0, cache server=0)
+		Asset DB Process Time: managed=0 ms, native=3845 ms
+		Asset DB Callback time: managed=745 ms, native=29 ms
+		Scripting: domain reloads=1, domain reload time=914 ms, compile time=3183 ms, other=56 ms
+		Project Asset Count: scripts=2604, non-scripts=9806
+		Asset File Changes: new=4, changed=6, moved=0, deleted=0
+		Scan Filter Count: 0
+	InvokeCustomDependenciesCallbacks: 0.002ms
+	InvokePackagesCallback: 19.263ms
+	ApplyChangesToAssetFolders: 0.545ms
+	Scan: 157.716ms
+	OnSourceAssetsModified: 0.566ms
+	CategorizeAssetsWithTransientArtifact: 53.359ms
+	ProcessAssetsWithTransientArtifactChanges: 72.847ms
+	CategorizeAssets: 101.423ms
+	ImportOutOfDateAssets: 3315.199ms (129.775ms without children)
+		CompileScripts: 3182.935ms
+		ReloadNativeAssets: 0.034ms
+		UnloadImportedAssets: 0.724ms
+		EnsureUptoDateAssetsAreRegisteredWithGuidPM: 0.977ms
+		InitializingProgressBar: 0.001ms
+		PostProcessAllAssetNotificationsAddChangedAssets: 0.001ms
+		OnDemandSchedulerStart: 0.753ms
+	PostProcessAllAssets: 727.569ms
+	Hotreload: 29.314ms
+	GatherAllCurrentPrimaryArtifactRevisions: 0.002ms
+	UnloadStreamsBegin: 3.211ms
+	PersistCurrentRevisions: 0.247ms
+	UnloadStreamsEnd: 0.001ms
+	GenerateScriptTypeHashes: 2.232ms
+	Untracked: 4293.042ms
+
+Application.AssetDatabase Initial Refresh End
+Launched and connected shader compiler UnityShaderCompiler.exe after 0.01 seconds
+Scanning for USB devices : 15.311ms
+Initializing Unity extensions:
+[MODES] ModeService[none].Initialize
+[MODES] ModeService[none].LoadModes
+[MODES] Loading mode Default (0) for mode-current-id-Beach Volleyball Empire
+Unloading 62 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 10269 unused Assets / (21.4 MB). Loaded Objects now: 11180.
+Memory consumption went from 321.5 MB to 300.2 MB.
+Total: 19.253000 ms (FindLiveObjects: 1.048100 ms CreateObjectMapping: 0.281400 ms MarkObjects: 11.684600 ms  DeleteObjects: 6.237600 ms)
+
+[PlayedAnim] Assets/Animo/AA_Volleyball/Animations/InPlace/AA_Volleyball_InPlace.fbx: animation type before: Generic, avatar setup NoAvatar
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:64)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+Start importing Assets/Animo/AA_Volleyball/Animations/InPlace/AA_Volleyball_InPlace.fbx using Guid(a02c917b61118a0429683f88ef018d0f) (FBXImporter)Keyframe reduction: Ratio: 13.740232%;
+Keyframe reduction: Ratio: 45.533077%;
+Keyframe reduction: Ratio: 25.066668%;
+Keyframe reduction: Ratio: 49.515152%;
+Keyframe reduction: Ratio: 47.129185%;
+Keyframe reduction: Ratio: 42.706398%;
+Keyframe reduction: Ratio: 46.899460%;
+Keyframe reduction: Ratio: 39.925926%;
+Keyframe reduction: Ratio: 43.021832%;
+Keyframe reduction: Ratio: 43.234566%;
+Keyframe reduction: Ratio: 41.111115%;
+Keyframe reduction: Ratio: 41.234570%;
+Keyframe reduction: Ratio: 28.648733%;
+Keyframe reduction: Ratio: 50.299042%;
+Keyframe reduction: Ratio: 52.679104%;
+Keyframe reduction: Ratio: 38.933117%;
+Keyframe reduction: Ratio: 46.399521%;
+Keyframe reduction: Ratio: 56.909489%;
+Keyframe reduction: Ratio: 44.468971%;
+Keyframe reduction: Ratio: 73.209076%;
+Keyframe reduction: Ratio: 36.793369%;
+Keyframe reduction: Ratio: 42.532074%;
+Keyframe reduction: Ratio: 52.081337%;
+Keyframe reduction: Ratio: 43.137913%;
+Keyframe reduction: Ratio: 62.675079%;
+Keyframe reduction: Ratio: 50.445633%;
+Keyframe reduction: Ratio: 43.274754%;
+Keyframe reduction: Ratio: 42.850105%;
+Keyframe reduction: Ratio: 37.928371%;
+Keyframe reduction: Ratio: 38.431934%;
+Keyframe reduction: Ratio: 13.710475%;
+Keyframe reduction: Ratio: 33.609852%;
+Keyframe reduction: Ratio: 34.335167%;
+Keyframe reduction: Ratio: 40.354206%;
+Keyframe reduction: Ratio: 40.789474%;
+Keyframe reduction: Ratio: 35.654324%;
+Keyframe reduction: Ratio: 34.200603%;
+Keyframe reduction: Ratio: 44.499619%;
+Keyframe reduction: Ratio: 41.350208%;
+Keyframe reduction: Ratio: 42.560555%;
+Keyframe reduction: Ratio: 34.734085%;
+Keyframe reduction: Ratio: 45.356041%;
+Keyframe reduction: Ratio: 50.472351%;
+Keyframe reduction: Ratio: 52.581524%;
+Keyframe reduction: Ratio: 51.162186%;
+Keyframe reduction: Ratio: 57.383968%;
+Keyframe reduction: Ratio: 51.496094%;
+Keyframe reduction: Ratio: 55.183464%;
+Keyframe reduction: Ratio: 48.629612%;
+Keyframe reduction: Ratio: 54.066814%;
+Keyframe reduction: Ratio: 50.191788%;
+Keyframe reduction: Ratio: 49.502361%;
+Keyframe reduction: Ratio: 47.072601%;
+Keyframe reduction: Ratio: 50.541672%;
+Keyframe reduction: Ratio: 50.819672%;
+Keyframe reduction: Ratio: 54.035751%;
+Keyframe reduction: Ratio: 53.618851%;
+Keyframe reduction: Ratio: 54.560215%;
+Keyframe reduction: Ratio: 45.848412%;
+Keyframe reduction: Ratio: 57.474136%;
+Keyframe reduction: Ratio: 55.445980%;
+Keyframe reduction: Ratio: 55.401115%;
+Keyframe reduction: Ratio: 53.795208%;
+Keyframe reduction: Ratio: 57.923073%;
+Keyframe reduction: Ratio: 58.417217%;
+Keyframe reduction: Ratio: 50.449291%;
+Keyframe reduction: Ratio: 44.487724%;
+Keyframe reduction: Ratio: 48.217316%;
+Keyframe reduction: Ratio: 54.103024%;
+Keyframe reduction: Ratio: 55.644085%;
+Keyframe reduction: Ratio: 15.181288%;
+Keyframe reduction: Ratio: 56.720657%;
+Keyframe reduction: Ratio: 55.304878%;
+Keyframe reduction: Ratio: 52.597404%;
+Keyframe reduction: Ratio: 55.837360%;
+Keyframe reduction: Ratio: 54.009190%;
+Keyframe reduction: Ratio: 56.138115%;
+Keyframe reduction: Ratio: 54.732323%;
+Keyframe reduction: Ratio: 53.323471%;
+Keyframe reduction: Ratio: 53.625595%;
+Keyframe reduction: Ratio: 55.031582%;
+Keyframe reduction: Ratio: 50.365658%;
+Keyframe reduction: Ratio: 52.459995%;
+Keyframe reduction: Ratio: 40.318184%;
+Keyframe reduction: Ratio: 52.143124%;
+Keyframe reduction: Ratio: 55.266048%;
+Keyframe reduction: Ratio: 54.031384%;
+Keyframe reduction: Ratio: 36.208340%;
+Keyframe reduction: Ratio: 54.442829%;
+Keyframe reduction: Ratio: 29.397684%;
+Keyframe reduction: Ratio: 55.040783%;
+Keyframe reduction: Ratio: 54.659092%;
+Keyframe reduction: Ratio: 54.876419%;
+Keyframe reduction: Ratio: 57.882240%;
+Keyframe reduction: Ratio: 57.051498%;
+Keyframe reduction: Ratio: 55.016506%;
+Keyframe reduction: Ratio: 52.695038%;
+Keyframe reduction: Ratio: 54.066059%;
+Keyframe reduction: Ratio: 14.273638%;
+Keyframe reduction: Ratio: 54.209824%;
+Keyframe reduction: Ratio: 54.360184%;
+Keyframe reduction: Ratio: 54.809399%;
+Keyframe reduction: Ratio: 53.490295%;
+Keyframe reduction: Ratio: 49.413269%;
+Keyframe reduction: Ratio: 50.535404%;
+Keyframe reduction: Ratio: 52.669338%;
+Keyframe reduction: Ratio: 44.958675%;
+Keyframe reduction: Ratio: 45.533493%;
+Keyframe reduction: Ratio: 47.695000%;
+Keyframe reduction: Ratio: 42.943218%;
+Keyframe reduction: Ratio: 38.274513%;
+Keyframe reduction: Ratio: 50.774242%;
+Keyframe reduction: Ratio: 46.083508%;
+Keyframe reduction: Ratio: 41.260998%;
+Keyframe reduction: Ratio: 49.377003%;
+Keyframe reduction: Ratio: 11.372551%;
+Keyframe reduction: Ratio: 33.457409%;
+Keyframe reduction: Ratio: 40.938099%;
+Keyframe reduction: Ratio: 53.735687%;
+Keyframe reduction: Ratio: 32.447620%;
+Keyframe reduction: Ratio: 19.783815%;
+Keyframe reduction: Ratio: 35.337341%;
+Keyframe reduction: Ratio: 20.354723%;
+Keyframe reduction: Ratio: 52.101685%;
+Keyframe reduction: Ratio: 39.946999%;
+Keyframe reduction: Ratio: 29.435482%;
+Keyframe reduction: Ratio: 34.477303%;
+Keyframe reduction: Ratio: 20.581141%;
+Keyframe reduction: Ratio: 21.655844%;
+Keyframe reduction: Ratio: 26.331457%;
+Keyframe reduction: Ratio: 28.232885%;
+Keyframe reduction: Ratio: 29.901014%;
+Keyframe reduction: Ratio: 45.294136%;
+Keyframe reduction: Ratio: 42.729927%;
+Keyframe reduction: Ratio: 25.701916%;
+Keyframe reduction: Ratio: 20.933126%;
+Keyframe reduction: Ratio: 26.250763%;
+Keyframe reduction: Ratio: 26.553886%;
+Keyframe reduction: Ratio: 26.630898%;
+Keyframe reduction: Ratio: 22.993694%;
+Keyframe reduction: Ratio: 39.810757%;
+Keyframe reduction: Ratio: 22.721838%;
+Keyframe reduction: Ratio: 41.554066%;
+Keyframe reduction: Ratio: 27.669439%;
+Keyframe reduction: Ratio: 25.503012%;
+Keyframe reduction: Ratio: 23.893002%;
+Keyframe reduction: Ratio: 20.393841%;
+Keyframe reduction: Ratio: 25.844799%;
+Keyframe reduction: Ratio: 25.418663%;
+Keyframe reduction: Ratio: 28.396605%;
+Keyframe reduction: Ratio: 33.675457%;
+Keyframe reduction: Ratio: 25.452114%;
+Keyframe reduction: Ratio: 24.975969%;
+Keyframe reduction: Ratio: 43.273170%;
+Keyframe reduction: Ratio: 26.967422%;
+Keyframe reduction: Ratio: 24.165192%;
+Keyframe reduction: Ratio: 23.303610%;
+Keyframe reduction: Ratio: 27.339819%;
+Keyframe reduction: Ratio: 25.763762%;
+Keyframe reduction: Ratio: 24.995880%;
+Keyframe reduction: Ratio: 30.808083%;
+Keyframe reduction: Ratio: 23.330795%;
+Keyframe reduction: Ratio: 24.042952%;
+Keyframe reduction: Ratio: 24.798960%;
+Keyframe reduction: Ratio: 25.048059%;
+Keyframe reduction: Ratio: 27.260292%;
+Keyframe reduction: Ratio: 28.172228%;
+Keyframe reduction: Ratio: 27.185354%;
+Keyframe reduction: Ratio: 25.153069%;
+Keyframe reduction: Ratio: 24.803196%;
+Keyframe reduction: Ratio: 34.580650%;
+Keyframe reduction: Ratio: 25.811121%;
+Keyframe reduction: Ratio: 33.177490%;
+Keyframe reduction: Ratio: 25.811123%;
+Keyframe reduction: Ratio: 36.886223%;
+ -> (artifact id: '47d6994dcfe471410604aa09cd20ed8a') in 5.9652912 seconds
+Refreshing native plugins compatible for Editor in 3.85 ms, found 5 plugins.
+Preloading 1 native plugins for Editor in 0.08 ms.
+Asset Pipeline Refresh (id=642e049e2ad576241afd241984040f26): Total: 6.149 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+	Summary:
+		Imports: total=1 (actual=1, local cache=0, cache server=0)
+		Asset DB Process Time: managed=13 ms, native=6120 ms
+		Asset DB Callback time: managed=4 ms, native=11 ms
+		Scripting: domain reloads=0, domain reload time=0 ms, compile time=0 ms, other=0 ms
+		Project Asset Count: scripts=2604, non-scripts=9806
+		Asset File Changes: new=0, changed=1, moved=0, deleted=0
+		Scan Filter Count: 6
+	InvokeCustomDependenciesCallbacks: 0.001ms
+	InvokePackagesCallback: 0.002ms
+	ApplyChangesToAssetFolders: 0.278ms
+	Scan: 24.590ms
+	OnSourceAssetsModified: 0.538ms
+	CategorizeAssetsWithTransientArtifact: 0.026ms
+	ProcessAssetsWithTransientArtifactChanges: 0.280ms
+	CategorizeAssets: 95.617ms
+	ImportOutOfDateAssets: 5972.123ms (0.386ms without children)
+		ImportManagerImport: 5968.516ms (2.699ms without children)
+			ImportInProcess: 5965.782ms
+			UpdateCategorizedAssets: 0.034ms
+		ReloadNativeAssets: 0.041ms
+		UnloadImportedAssets: 0.789ms
+		ReloadImportedAssets: 0.471ms
+		EnsureUptoDateAssetsAreRegisteredWithGuidPM: 0.938ms
+		InitializingProgressBar: 0.005ms
+		PostProcessAllAssetNotificationsAddChangedAssets: 0.002ms
+		OnDemandSchedulerStart: 0.975ms
+	PostProcessAllAssets: 9.157ms
+	Hotreload: 6.064ms
+	GatherAllCurrentPrimaryArtifactRevisions: 0.571ms
+	UnloadStreamsBegin: 0.245ms
+	PersistCurrentRevisions: 0.336ms
+	UnloadStreamsEnd: 0.002ms
+	Untracked: 39.402ms
+
+[PlayedAnim] after: animation type Human, avatar setup CreateFromThisModel
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:72)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim] avatar: AA_Volleyball_InPlaceAvatar, valid True, human True
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:75)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim] required humanoid bones mapped: 15/15; all bones mapped 52
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:83)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim] Assets/Animo/AA_Volleyball/Animations/AA_Volleyball_RootMotion.fbx: animation type Human (left as it is)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:87)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim] clips in the InPlace FBX: 175, humanoid 175
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:89)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   001_AA_Volleyball_Stand_Idle_Type01_Loop  4.40 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   002_AA_Volleyball_Stand_Idle_Type02_Loop  10.17 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   003_AA_Volleyball_Ready_Position_Loop  1.63 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   004_AA_Volleyball_Resting_Position_Loop  4.13 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   005_AA_Volleyball_Stand_to_Ready_Position  1.83 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   006_AA_Volleyball_Stand_to_Ready_Position02  1.37 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   007_AA_Volleyball_Ready_Position_to_Stand  1.83 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   008_AA_Volleyball_Footwork_Shuffle_F  1.80 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   009_AA_Volleyball_Footwork_Shuffle_B  1.80 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   010_AA_Volleyball_Footwork_Shuffle_R  1.80 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   011_AA_Volleyball_Footwork_Shuffle_L  1.80 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   012_AA_Volleyball_Footwork_Shuffle_RF  1.80 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   013_AA_Volleyball_Footwork_Shuffle_LF  1.80 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   014_AA_Volleyball_Footwork_Shuffle_RB  1.80 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   015_AA_Volleyball_Footwork_Shuffle_LB  1.80 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   016_AA_Volleyball_Footwork_1_Step_F  0.87 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   017_AA_Volleyball_Footwork_1_Step_B  0.87 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   018_AA_Volleyball_Footwork_1_Step_R  0.87 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   019_AA_Volleyball_Footwork_1_Step_L  0.87 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   020_AA_Volleyball_Footwork_1_Step_RF  0.87 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   021_AA_Volleyball_Footwork_1_Step_LF  0.87 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   022_AA_Volleyball_Footwork_1_Step_RB  0.87 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   023_AA_Volleyball_Footwork_1_Step_LB  0.87 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   024_AA_Volleyball_Ready_to_Sprint  0.90 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   025_AA_Volleyball_Sprint_Loop  0.57 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   026_AA_Volleyball_Sprint_to_Ready  0.97 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   027_AA_Volleyball_Stand_to_walk  1.23 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   028_AA_Volleyball_Walk_Loop  1.03 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   029_AA_Volleyball_Walk_to_Stand  0.83 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   030_AA_Volleyball_Stand_to_Turn_R45  1.33 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   031_AA_Volleyball_Stand_to_Turn_L45  1.33 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   032_AA_Volleyball_Stand_to_Turn_R90  1.67 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   033_AA_Volleyball_Stand_to_Turn_L90  1.67 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   034_AA_Volleyball_Stand_to_Turn_R180  1.67 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   035_AA_Volleyball_Stand_to_Turn_L180  1.67 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   036_AA_Volleyball_Ready_to_Turn_R45  0.87 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   037_AA_Volleyball_Ready_to_Turn_L45  0.87 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   038_AA_Volleyball_Ready_to_Turn_R90  1.10 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   039_AA_Volleyball_Ready_to_Turn_L90  1.10 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   040_AA_Volleyball_Ready_to_Turn_R180  1.10 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   041_AA_Volleyball_Ready_to_Turn_L180  1.10 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   042_AA_Volleyball_Passing_Forearm_Step_F  1.83 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   043_AA_Volleyball_Passing_Forearm_Step_R  2.17 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   044_AA_Volleyball_Passing_Forearm_Step_L  2.17 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   045_AA_Volleyball_Passing_Forearm_Step_RF  2.27 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   046_AA_Volleyball_Passing_Forearm_Step_LF  2.17 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   047_AA_Volleyball_Passing_Overhead_Type01  2.83 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   048_AA_Volleyball_Passing_Overhead_Type02  2.50 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   049_AA_Volleyball_Passing_Overhead_Type03  1.67 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   050_AA_Volleyball_Passing_Overhead_Digging_Type01  1.67 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   051_AA_Volleyball_Passing_Overhead_Digging_Type02  4.17 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   052_AA_Volleyball_Passing_Absorb_Pass_Type01  1.77 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   053_AA_Volleyball_Passing_Absorb_Pass_Type02_R  1.90 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   054_AA_Volleyball_Passing_Absorb_Pass_Type02_L  2.00 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   055_AA_Volleyball_Passing_Deep_Serve_R  2.00 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   056_AA_Volleyball_Passing_Deep_Serve_L  2.00 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   057_AA_Volleyball_Passing_Kneel_Down  2.33 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   058_AA_Volleyball_Passing_Fall_Down_Type01  2.60 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   059_AA_Volleyball_Passing_Fall_Down_Type02  2.83 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   060_AA_Volleyball_Passing_Fall_Back_Type01  3.33 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   061_AA_Volleyball_Passing_Fall_Back_Type02  3.50 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   062_AA_Volleyball_Passing_One_Arm_Dig_F  3.83 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   063_AA_Volleyball_Passing_One_Arm_Dig_R  4.17 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   064_AA_Volleyball_Passing_One_Arm_Dig_L  4.33 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   065_AA_Volleyball_Passing_One_Arm_Dig_RB  5.60 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   066_AA_Volleyball_Passing_One_Arm_Dig_LB  5.73 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   067_AA_Volleyball_Passing_Dive_Type01  10.30 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   068_AA_Volleyball_Passing_Dive_Type02  6.83 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   069_AA_Volleyball_Passing_Pancake  6.43 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   070_AA_Volleyball_Setting_Posture_Loop  1.87 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   071_AA_Volleyball_Ready_to_Setting_Posture  0.83 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   072_AA_Volleyball_Setting_Posture_to_Ready  0.83 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   073_AA_Volleyball_Setting_The_Four  1.33 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   074_AA_Volleyball_Setting_The_One  1.00 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   075_AA_Volleyball_Setting_The_Five  1.67 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   076_AA_Volleyball_Setting_Jump_Four_Set  1.50 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   077_AA_Volleyball_Setting_Jump_One_Set  1.33 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   078_AA_Volleyball_Setting_Jump_Five_Set  1.50 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   079_AA_Volleyball_Setting_Jump_R_Set  1.33 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   080_AA_Volleyball_Setting_Jump_L_Set  1.33 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   081_AA_Volleyball_Setting_Jump_Four_Set_One_Hand  2.83 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   082_AA_Volleyball_Setting_Jump_One_Set_One_Hand  2.83 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   083_AA_Volleyball_Setting_Jump_Five_Set_One_Hand  2.83 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   084_AA_Volleyball_Setting_The_Setter_Dump  1.67 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   085_AA_Volleyball_Attacking_Hard_Driven_Spike_in_Place  3.33 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   086_AA_Volleyball_Attacking_Hard_Driven_Spike_F  4.17 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   087_AA_Volleyball_Attacking_Hard_Driven_Spike_L  5.00 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   088_AA_Volleyball_Attacking_Hard_Driven_Spike_R  5.00 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   089_AA_Volleyball_Attacking_Off_Speed_Spike_F  3.67 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   090_AA_Volleyball_Attacking_Off_Speed_Spike_R  4.67 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   091_AA_Volleyball_Attacking_Off_Speed_Spike_L  4.83 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   092_AA_Volleyball_Attacking_Slide_Spike_R  4.10 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   093_AA_Volleyball_Attacking_Slide_Spike_L  4.10 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   094_AA_Volleyball_Attacking_Tip  3.67 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   095_AA_Volleyball_Attacking_Power_Tip  3.33 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   096_AA_Volleyball_Attacking_Fake_Jump_Type01  3.33 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   097_AA_Volleyball_Attacking_Fake_Jump_Type02  3.67 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   098_AA_Volleyball_Attacking_Fake_Jump_Type03  4.00 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   099_AA_Volleyball_Blocking_Reaction_Block  1.67 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   100_AA_Volleyball_Blocking_Posture_Loop  1.67 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   101_AA_Volleyball_Blocking_Shuffle_2_Step_L  3.57 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   102_AA_Volleyball_Blocking_Shuffle_2_Step_R  3.57 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   103_AA_Volleyball_Blocking_Posture_to_Ready  1.43 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   104_AA_Volleyball_Ready_to_Blocking_Posture  1.57 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   105_AA_Volleyball_Blocking_Swing_3_Step_L  3.67 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   106_AA_Volleyball_Blocking_Swing_3_Step_R  3.67 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   107_AA_Volleyball_Blocking_Shuffle_3_Step_L  3.23 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   108_AA_Volleyball_Blocking_Shuffle_3_Step_R_t02  3.23 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   109_AA_Volleyball_Blocking_Commit_Block_t02  2.03 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   110_AA_Volleyball_Serving_Idle_Loop_Type01  1.53 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   111_AA_Volleyball_Serving_Idle_Loop_Type02_t02  6.80 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   112_AA_Volleyball_Serving_Idle_Loop_Type03_t01  10.33 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   113_AA_Volleyball_Serving_Underhand_Serve  5.27 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   114_AA_Volleyball_Serving_Overhand_Serve  5.67 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   115_AA_Volleyball_Serving_Side_Arm_Serve  5.50 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   116_AA_Volleyball_Serving_Float_Serve_t06  5.73 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   117_AA_Volleyball_Serving_Jump_TopSpin_High_Toss_t02  5.70 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   118_AA_Volleyball_Serving_Jump_TopSpin_Low_Toss_t01  4.33 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   119_AA_Volleyball_Passing_Practice_Loop  15.43 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   120_AA_Volleyball_Setting_Practice_Loop  12.77 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   121_AA_Volleyball_Collision_B  1.80 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   122_AA_Volleyball_Collision_F  2.17 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   123_AA_Volleyball_Collision_L  1.70 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   124_AA_Volleyball_Collision_R  2.10 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   125_AA_Volleyball_Hit_by_Ball_F  1.67 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   126_AA_Volleyball_Missing_the_Ball_Type01  2.80 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   127_AA_Volleyball_Missing_the_Ball_Type02  2.57 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   128_AA_Volleyball_Referee_Authorization_to_Serve_R  3.97 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   129_AA_Volleyball_Referee_Authorization_to_Serve_L  3.97 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   130_AA_Volleyball_Referee_Team_to_Serve_L  2.87 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   131_AA_Volleyball_Referee_Team_to_Serve_R  2.87 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   132_AA_Volleyball_Referee_Change_of_courts  3.60 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   133_AA_Volleyball_Referee_TimeOut_R  3.07 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   134_AA_Volleyball_Referee_TimeOut_L  3.07 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   135_AA_Volleyball_Referee_Substitution  2.30 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   136_AA_Volleyball_Referee_Misconduct_Warning_Penalty  4.40 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   137_AA_Volleyball_Referee_Expulsion  5.00 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   138_AA_Volleyball_Referee_Disqualification  4.60 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   139_AA_Volleyball_Referee_End_of_Set  2.77 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   140_AA_Volleyball_Referee_Ball_Not_Tossed_Released_at_Service_Hit_R  4.00 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   141_AA_Volleyball_Referee_Ball_Not_Tossed_Released_at_Service_Hit_L  4.00 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   142_AA_Volleyball_Referee_Delay_in_service_R  4.10 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   143_AA_Volleyball_Referee_Delay_in_service_L  4.10 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   144_AA_Volleyball_Referee_Blocking_Fault_R  4.50 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   145_AA_Volleyball_Referee_Blocking_Fault_L  4.50 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   146_AA_Volleyball_Referee_Positional_Rotational_Fault_R  5.27 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   147_AA_Volleyball_Referee_Positional_Rotational_Fault_L  5.27 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   148_AA_Volleyball_Referee_Ball_In_R  4.00 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   149_AA_Volleyball_Referee_Ball_In_L  4.00 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   150_AA_Volleyball_Referee_Ball_Out_R  3.80 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   151_AA_Volleyball_Referee_Ball_Out_L  3.80 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   152_AA_Volleyball_Referee_Catch_R  2.90 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   153_AA_Volleyball_Referee_Catch_L  2.90 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   154_AA_Volleyball_Referee_Double_Contact_R  3.47 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   155_AA_Volleyball_Referee_Double_Contact_L  3.47 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   156_AA_Volleyball_Referee_Four_Hits_R  3.47 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   157_AA_Volleyball_Referee_Four_Hits_L  3.47 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   158_AA_Volleyball_Referee_Net_Touched_by_Player_R  3.37 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   159_AA_Volleyball_Referee_Net_Touched_by_Player_L  3.37 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   160_AA_Volleyball_Referee_Reaching_Beyond_the_Net_R  3.43 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   161_AA_Volleyball_Referee_Reaching_Beyond_the_Net_L  3.43 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   162_AA_Volleyball_Referee_Attack_Hit_Fault_R  3.93 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   163_AA_Volleyball_Referee_Attack_Hit_Fault_L  3.93 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   164_AA_Volleyball_Referee_Penetration_into_the_Opponent_Court_R  3.70 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   165_AA_Volleyball_Referee_Penetration_into_the_Opponent_Court_L  3.70 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   166_AA_Volleyball_Referee_Double_Fault_and_Replay  2.17 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   167_AA_Volleyball_Referee_Ball_Touched_t02_mcp  3.33 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   168_AA_Volleyball_Referee_Ball_Touched_L  3.33 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   169_AA_Volleyball_Referee_Delay_Warning_Penalty_R  5.53 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   170_AA_Volleyball_Referee_Delay_Warning_Penalty_L  5.53 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   171_AA_Volleyball_Line_Judge_Ball_In  3.73 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   172_AA_Volleyball_Line_Judge_Ball_Out_t01_mcp  3.60 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   173_AA_Volleyball_Line_Judge_Ball_Touched  3.83 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   174_AA_Volleyball_Line_Judge_Crossing_Space_Faults  4.93 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim]   175_AA_Volleyball_Line_Judge_Judgment_Impossible  3.67 s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:90)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+[PlayedAnim] RESULT: PASS
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedAnimationSetup:Log (string) (at Assets/Editor/PlayedAnimationSetup.cs:33)
+PlayedAnimationSetup:Done (string,bool) (at Assets/Editor/PlayedAnimationSetup.cs:51)
+PlayedAnimationSetup:Humanoid () (at Assets/Editor/PlayedAnimationSetup.cs:92)
+
+(Filename: Assets/Editor/PlayedAnimationSetup.cs Line: 33)
+
+Start importing ProjectSettings/EditorBuildSettings.asset using Guid(0000000000000000b000000000000000) (LibraryAssetImporter) -> (artifact id: '977b2d4d2e14457778b11ba1c6342647') in 0.0048134 seconds
+Refreshing native plugins compatible for Editor in 3.40 ms, found 5 plugins.
+Preloading 1 native plugins for Editor in 0.07 ms.
+Asset Pipeline Refresh (id=22c6d8a6aeeb0644cab9d10a7d21fcac): Total: 0.031 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+[Physics::Module] Cleanup current backend.
+[Physics::Module] Id: 0xf2b8ea05
+Input System module state changed to: ShutdownInProgress.
+Input System polling thread exited.
+Input System module state changed to: Shutdown.
+[Licensing::IpcConnector] LicenseClient-rbonn-6000.3.16-notifications channel disconnected successfully.
+[Licensing::IpcConnector] LicenseClient-rbonn-6000.3.16 channel disconnected successfully.
+AcceleratorClientConnectionCallback - disconnected - :0
+Shut down.
+Cleanup mono
+abort_threads: Failed aborting id: 000000000000C780, mono_thread_manage will ignore it
+
+abort_threads: Failed aborting id: 0000000000006980, mono_thread_manage will ignore it
+
+abort_threads: Failed aborting id: 000000000000C780, mono_thread_manage will ignore it
+
+abort_threads: Failed aborting id: 0000000000006980, mono_thread_manage will ignore it
+
+debugger-agent: Unable to listen on 5152
+Checking for leaked weakptr:
+  Found no leaked weakptrs.
+[Package Manager] Server process was shutdown
+##utp:{"type":"MemoryLeaks","version":2,"phase":"Immediate","time":1795569925488,"processId":12616,"allocatedMemory":27466557,"memoryLabels":[{"Default":29313},{"Permanent":15236},{"NewDelete":71299},{"Thread":4238000},{"Manager":42461},{"VertexData":8},{"Geometry":816},{"Texture":160},{"Shader":83989},{"Material":24},{"GfxDevice":57912},{"Animation":392},{"Audio":3040},{"FreeType":8},{"FontEngine":736},{"Physics":2090},{"Physics2D":16},{"Serialization":336},{"Input":14984},{"JobScheduler":33024},{"TextLib":216},{"Mono":32},{"MonoCode":320},{"ScriptingNativeRuntime":155060},{"BaseObject":1620272},{"Resource":1336},{"Renderer":3000},{"Transform":4685},{"File":1016},{"WebCam":616},{"Culling":32},{"Terrain":11394},{"Wind":24},{"STL":40},{"String":17824},{"DynamicArray":126073},{"HashMap":90853},{"Utility":2662998},{"Curl":2579},{"PoolAlloc":2728},{"AI":80},{"TypeTree":13637},{"ScriptManager":512},{"RuntimeInitializeOnLoadManager":64},{"SpriteAtlas":112},{"GI":7792},{"Director":8240},{"CloudService":8208},{"WebRequest":845},{"VR":47994},{"SceneManager":504},{"Video":64},{"LazyScriptCache":32},{"Camera":17},{"Secure":2377},{"SerializationCache":1576},{"APIUpdating":10320},{"Subsystems":336},{"VirtualTexturing":57888},{"StaticSafetyDebugInfo":278528},{"Analytics":384},{"Hierarchy":608},{"CoreStats":13032},{"Identifiers":12960},{"Gui":96},{"EditorUtility":116103},{"VersionControl":4},{"Undo":947},{"AssetDatabase":17543339},{"EditorGi":328},{"UnityConnect":29208},{"Upm":1896},{"AssetCompliance":64},{"DrivenProperties":72},{"LocalIPC":211},{"ProfilerEditor":9746},{"CoreBusinessMetrics":2867},{"Licensing":664},{"AssetReference":32},{"IPCStream":32}]}

@@ -1,0 +1,4 @@
+Assets/Motion Cast#14 - Vol.1/VolleyballController.controller: trigger SoftShot, state SoftShot = '094_AA_Volleyball_Attacking_Tip' (3.67 s), from Any State (blend 0.10 s, as Spike's), back to 'Locomotion' at 90%
+parameters: Speed:Float, ActionIndex:Float, Serve:Trigger, Dig:Trigger, Set:Trigger, Spike:Trigger, Block:Trigger, EmergencySave:Trigger, HitToFloor:Trigger, PointWon:Trigger, PointLost:Trigger, SoftShot:Trigger
+states: Locomotion=Locomotion, Serve=2-Floating service, Dig=DigBT, Set=SetBT, Block=BlockBT, Spike=SpikeBT, EmergencySave=EmergencySaveBT, HitToFloor=7-Falls after a powerful hit ball, PointWon=PointWonBT, PointLost=PointLostBT, SoftShot=094_AA_Volleyball_Attacking_Tip
+RESULT: PASS

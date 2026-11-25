@@ -1,0 +1,19 @@
+Animator BeachPlayer: active True, enabled True, avatar SK_BeachGirl_05Avatar (human), controller VolleyballController
+Skinned BeachPlayer/BG_HEAD_02/SK_BG_HEAD_02: active True, root bone BeachPlayer/root/pelvis/spine_01/spine_02/spine_03/spine_04, bones 34
+Skinned BeachPlayer/BG_HEAD_02/SK_BG_HEAD_CARUNCLE_02: active True, root bone BeachPlayer/root/pelvis/spine_01/spine_02/spine_03/spine_04, bones 33
+Skinned BeachPlayer/BG_HEAD_02/SK_BG_HEAD_EYES_02: active True, root bone BeachPlayer/root/pelvis/spine_01/spine_02/spine_03/spine_04, bones 33
+Skinned BeachPlayer/BG_HEAD_02/SK_BG_HEAD_LASHES_02: active True, root bone BeachPlayer/root/pelvis/spine_01/spine_02/spine_03/spine_04, bones 33
+Skinned BeachPlayer/BG_HEAD_02/SK_BG_HEAD_TEETH_02: active True, root bone BeachPlayer/root/pelvis/spine_01/spine_02/spine_03/spine_04, bones 33
+Skinned BeachPlayer/SK_BG_BIKINI_02: active True, root bone BeachPlayer/root, bones 123
+Skinned BeachPlayer/SK_BG_BODY_FULL: active True, root bone BeachPlayer/root, bones 123
+Skinned BeachPlayer/SK_BG_BRACELET_02: active False, root bone BeachPlayer/root, bones 123
+Skinned BeachPlayer/SK_BG_EARRINGS: active False, root bone BeachPlayer/root, bones 123
+Skinned BeachPlayer/SK_BG_HAIR_BANGS_01: active True, root bone BeachPlayer/root, bones 123
+Skinned BeachPlayer/SK_BG_HAIR_BUN: active True, root bone BeachPlayer/root, bones 123
+Skinned BeachPlayer/SK_BG_HAIR_SCALP: active True, root bone BeachPlayer/root, bones 123
+Skinned BeachPlayer/SK_BG_LEG_ACS_01: active False, root bone BeachPlayer/root, bones 123
+Skinned BeachPlayer/SK_BG_NECKLACE_02: active False, root bone BeachPlayer/root, bones 123
+Skinned BeachPlayer/SK_BG_SHOES_02: active False, root bone BeachPlayer/root, bones 123
+Skinned BeachPlayer/SK_BG_TOP_02: active True, root bone BeachPlayer/root, bones 123
+GetComponentInChildren<Animator>() (what the match uses) -> BeachPlayer
+RESULT: PASS

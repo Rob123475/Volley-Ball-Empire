@@ -1,0 +1,2 @@
+strip: 8-Smash-Take1 (4.75 s, humanoid True) on BeachPlayer -> C:/Users/rbonn/Documents/Volley-Ball-Empire/docs/update-1.2/proof\animation\strip-8-Smash-Take1.png; hips height 0.84-1.17 m, right hand highest 2.50 m at 3.12 s (66% of the clip)
+RESULT: PASS
