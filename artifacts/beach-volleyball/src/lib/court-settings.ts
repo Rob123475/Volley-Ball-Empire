@@ -61,6 +61,61 @@ export function saveMatchVolume(volume: MatchVolume): void {
 }
 
 /**
+ * 1.2 B1 (Rob, 23 Nov): the court's two camera looks, chosen at any time in
+ * the match and in Settings, and remembered here, one for each kind of match:
+ *   - TV: the roaming director (always moving; replays and reactions);
+ *   - Game: six fixed views of the court (1 behind your baseline ... 6 low
+ *     courtside), the one remembered with it.
+ * Defaults (the brief): a played match (Manual) opens on Game, behind your own
+ * baseline; a watched match (Auto) on TV. The court page sends both to the court
+ * when it has loaded and whenever they change (unity-build/index.html,
+ * CourtCamera.SetCameraPrefs); a change made on the court (keys 1-6, V, the pad)
+ * comes back as "unity-camera:played:game:3" and is stored here.
+ */
+export type CameraLook = "tv" | "game";
+export type CameraChoice = { look: CameraLook; view: number };
+export type CourtCamera = { played: CameraChoice; watched: CameraChoice };
+export const COURT_CAMERA_KEY = "vbe-court-camera";
+export const COURT_CAMERA_DEFAULTS: CourtCamera = { played: { look: "game", view: 1 }, watched: { look: "tv", view: 1 } };
+/** The six Game views, as the court numbers them (CourtCamera.ViewNames). */
+export const CAMERA_VIEWS = ["Behind your baseline", "Behind the far baseline", "Side-on at the net", "High sideline", "Overhead", "Low courtside"] as const;
+
+function cameraChoice(v: unknown, fallback: CameraChoice): CameraChoice {
+  const c = v as Partial<CameraChoice> | null | undefined;
+  const look: CameraLook = c?.look === "tv" || c?.look === "game" ? c.look : fallback.look;
+  const view = typeof c?.view === "number" && Number.isInteger(c.view) && c.view >= 1 && c.view <= 6 ? c.view : fallback.view;
+  return { look, view };
+}
+
+export function readCourtCamera(): CourtCamera {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(COURT_CAMERA_KEY) ?? "null") as Partial<CourtCamera> | null;
+    return { played: cameraChoice(parsed?.played, COURT_CAMERA_DEFAULTS.played), watched: cameraChoice(parsed?.watched, COURT_CAMERA_DEFAULTS.watched) };
+  } catch {
+    return { ...COURT_CAMERA_DEFAULTS };
+  }
+}
+
+export function saveCourtCamera(camera: CourtCamera): void {
+  try { localStorage.setItem(COURT_CAMERA_KEY, JSON.stringify(camera)); } catch { /* not remembered, still used */ }
+}
+
+/** What the court is sent: "played=game:1;watched=tv:1". */
+export function cameraPrefs(camera: CourtCamera = readCourtCamera()): string {
+  const one = (c: CameraChoice) => `${c.look}:${c.view}`;
+  return `played=${one(camera.played)};watched=${one(camera.watched)}`;
+}
+
+/** A change made on the court ("unity-camera:played:game:3"), stored; null if the message is not one. */
+export function cameraFromCourt(message: string, camera: CourtCamera = readCourtCamera()): CourtCamera | null {
+  const m = /^unity-camera:(played|watched):(tv|game):([1-6])$/.exec(message);
+  if (!m) return null;
+  const next: CourtCamera = { ...camera, [m[1]]: { look: m[2] as CameraLook, view: Number(m[3]) } };
+  saveCourtCamera(next);
+  return next;
+}
+
+/**
  * The 3D court's controls in Manual, as the court itself binds them (Unity
  * ManualControl.cs, Input System; proved key by key and button by button on 5
  * Oct, docs/STATUS-05OCT.md item C, and listed for Rob's check on 6 Oct). In
@@ -80,6 +135,8 @@ export const COURT_CONTROLS: ReadonlyArray<{ action: string; keyboard: string; x
 
 /** In both modes: the camera and the boosts. */
 export const COURT_OTHER_CONTROLS: ReadonlyArray<{ action: string; how: string }> = [
-  { action: "Camera angles", how: "1, 2 and 3 (Auto: Space and the mouse wheel move the camera too)" },
+  { action: "Camera look", how: "V (L3 on a pad) switches between TV and Game" },
+  { action: "Game views", how: "1 to 6 pick a view (and the Game look); the D-pad's left and right step through them" },
+  { action: "Zoom", how: "+ and - (and the mouse wheel when watching) move in and out; the 1x, 2x and 4x buttons on the court" },
   { action: "Boosts", how: "Auto: the A and D keys. Manual: click the boost buttons with the mouse" },
 ];

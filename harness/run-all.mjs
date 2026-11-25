@@ -390,6 +390,11 @@ runSuite("watched result", path.join(REPO, "harness", "watched-result.mjs"));
 console.log("\n########## 57b/100  A MATCH YOU REALLY PLAY (1.2 PART A) ##########");
 runSuite("played match", path.join(REPO, "harness", "played-match.mjs"), ["--a6"]);
 
+// 1.2 Part B: TV presentation, the page's side (the camera looks chosen, remembered, sent;
+// what comes back from the court), and the court's own batch proofs' results.
+console.log("\n########## 57c/100  TV PRESENTATION (1.2 PART B) ##########");
+runSuite("presentation", path.join(REPO, "harness", "presentation.mjs"));
+
 // Unity brief item 5: the court page's Leave match and its return to the dashboard, and
 // the Unity finish (banner, crowd, header, labels) they rely on.
 console.log("\n########## 58/100  A PROPER FINISH, AND A WAY OUT (UNITY 5) ##########");

@@ -15,11 +15,12 @@ import { useEffect, useState } from "react";
 import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Monitor, Volume2, Gamepad2, BookOpen, ArrowLeft } from "lucide-react";
+import { Monitor, Volume2, Gamepad2, BookOpen, ArrowLeft, Video } from "lucide-react";
 import { SoundSettings } from "@/components/sound-settings";
 import { ControlsSettings } from "@/components/controls-settings";
+import { CameraSettings } from "@/components/camera-settings";
 import { ExitGame } from "@/components/exit-game";
-import { readControlMode, saveControlMode, type ControlMode } from "@/lib/court-settings";
+import { readControlMode, saveControlMode, readCourtCamera, saveCourtCamera, type ControlMode, type CourtCamera } from "@/lib/court-settings";
 
 type WindowSettings = { mode: "windowed" | "fullscreen"; size: string | null; zoom: number; sizes?: string[]; defaultSize?: string; zoomMin?: number; zoomMax?: number };
 type WindowBridge = { get: () => Promise<WindowSettings>; set: (patch: Partial<WindowSettings>) => Promise<WindowSettings> };
@@ -30,6 +31,7 @@ const SIZE_LABEL = (s: string) => s.replace("x", " × ");
 export default function SettingsPage() {
   const [win, setWin] = useState<WindowSettings | null>(null);
   const [mode, setMode] = useState<ControlMode>(readControlMode);
+  const [camera, setCamera] = useState<CourtCamera>(readCourtCamera);
 
   useEffect(() => { bridge()?.get().then(setWin).catch(() => setWin(null)); }, []);
   const setWindow = async (patch: Partial<WindowSettings>) => {
@@ -38,6 +40,7 @@ export default function SettingsPage() {
     setWin((w) => ({ ...(w ?? {}), ...next }));
   };
   const chooseMode = (m: ControlMode) => { setMode(m); saveControlMode(m); };
+  const chooseCamera = (c: CourtCamera) => { setCamera(c); saveCourtCamera(c); };
 
   return (
     <div className="min-h-screen bg-background p-4 sm:p-8" data-testid="settings-page">
@@ -106,6 +109,17 @@ export default function SettingsPage() {
           </CardHeader>
           <CardContent>
             <ControlsSettings mode={mode} onChoose={chooseMode} />
+          </CardContent>
+        </Card>
+
+        {/* Camera (1.2 B1) */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2"><Video className="h-4 w-4" /> Camera</CardTitle>
+            <CardDescription>The 3D court's two looks: TV, where the camera roams like a broadcast, or Game, one of six fixed views. Remembered for when you play and for when you watch.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <CameraSettings camera={camera} onChange={chooseCamera} />
           </CardContent>
         </Card>
 

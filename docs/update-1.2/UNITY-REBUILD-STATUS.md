@@ -107,6 +107,20 @@ Brief: `docs/update-1.2/UNITY-REBUILD-BRIEF.md`. Plan: `docs/update-1.2/PLAYABLE
 25. **The presentation's clips are plain states played by name.** They are in the players' controller (`VolleyballController`) as 42 states with no triggers. The presentation crossfades to one by name, and each one-shot state goes back to Locomotion when it ends. Nothing in a rally uses them, so the rally's triggers are unchanged.
 26. **The umpire signals from her chair.** AA_Volleyball's referee clips are made standing. On her they play on a new upper-body layer (head, arms, fingers) above her seated pose, so she signals without leaving the chair. Her seated pose is now frozen by its own state (speed 0) instead of by stopping her whole Animator, which would have stopped the signals too.
 27. **There are no line judges in the scene,** so AA_Volleyball's five line-judge clips are not used. Adding line judges would be new venue content, which is Part D's.
+28. **"All six venues" (B1): there is one venue today.**
+    - V19's beach is the only venue. The six are Part D's plan (D1), which has not started.
+    - So both looks are built from the court itself: its position, its net, its chair and the objects round it (`CameraKeepOut`). A venue built round the same court gets the same six views and shots, each moved out of whatever that venue puts in the way.
+    - Each must still be checked there, with `PresentationCameraProof`, once D1 builds the other venues. Only V19 is checked today.
+29. **One court camera, driven.** `CourtCamera` replaces `SimpleCameraPresets`, which switched three scene cameras on and off. It drives `Camera_Gameplay_Close` (its name is kept, since proofs and the page find it by name). The other two scene cameras stay in the scene, switched off.
+30. **The stick in a played match.**
+    - In the Game look, up on the stick is up on the screen. In the overhead view, that is towards the net.
+    - In the TV look the camera never stops moving, so the stick keeps the frame from behind your own baseline.
+31. **The camera choice is remembered per kind of match.** There is one choice for a played match and one for a watched match, kept by the page in localStorage like Auto/Manual, with the brief's defaults: Game, behind your baseline, when playing; TV when watching. Switching Auto/Manual mid-match switches to that kind of match's choice.
+32. **Keys.**
+    - 1 to 6 pick a Game view; V (L3 on a pad) switches look; the D-pad's left and right step through the views.
+    - All are Input System actions, so any keyboard or pad works.
+    - R and Space no longer pick the close camera; there is no close camera now.
+    - The 1x/2x/4x buttons work in both looks. The + / - dolly works in the Game look only.
 
 ## Items
 
@@ -118,6 +132,7 @@ Brief: `docs/update-1.2/UNITY-REBUILD-BRIEF.md`. Plan: `docs/update-1.2/PLAYABLE
 | A2 Every touch graded | Done, PASS | `docs/update-1.2/proof/A2/`: `a2-touch-grading.txt` (Unity batch, 27/27), `a2-dotnet.txt` (dotnet, 27/27), `a2-unity.log`, `a2-digs.png`, `a2-spikes.png` | Unity `2b964d0`; game repo `3be1fe35` |
 | Animations, first job | Done, PASS | `docs/update-1.2/proof/animation/`: `aa-volleyball-humanoid.txt`, `play-strips.txt` and five Play-mode strips | Unity `ed0e902` |
 | Animations, the rest | Done, PASS | `docs/update-1.2/proof/animation/`: `presentation-states.txt`, `presentation-strips.txt` (42/42) and a `play-strip-*.png` for each state, `pair-placement.txt` with `pair-strip-HighFive.png` and `pair-strip-Hug.png`, `pose-proof.txt` with `pose-strip-HandSignals.png`, `pose-strip-Drink.png` and `pose-strip-Umpire.png`, `rejected/` | Unity `287718e` |
+| B1 Two camera looks | Done, PASS | `docs/update-1.2/proof/B1/`: `b1-court-camera.txt` (Unity batch, V19, 23/23) with `b1-tv-shots.png`, `b1-game-views.png` and `b1-court-camera-unity.log`; `RallyPlanProof.log` (PASS); `harness-played-match-unity.txt` (9/9, the three played courts); `harness/presentation.mjs` 17/17; `harness/settings.mjs` 40/40 | Unity `f807a08` |
 | A3 Controls, played on the court | Done, PASS | `docs/update-1.2/proof/A3/`: `a3-played-match.txt` (Unity batch, 28/28), `a3-unity.log`, three pictures | Unity `ed0e902`; game repo `833aaeac` |
 | A4 AI plays the same game | Done, PASS (the check that failed under the second ruling passes again since the ruling was withdrawn) | `docs/update-1.2/proof/A4/`: `a4-ai-same-game.txt` (Unity batch, 9/9), `a4-dotnet.txt` (dotnet, 8/8), `a4-unity.log` | Unity `ea77855`; game repo `74f3a669` |
 | A5 Difficulty from the career | Done, PASS | `docs/update-1.2/proof/A5/`: `a5-harness.txt` (9/9; the final run, on the tuned code, is in `proof/A6/a6-harness.txt`), `a5-easy.txt`, `a5-medium.txt`, `a5-hard.txt` (each court 14/14) | Unity `95c47c5`; game repo: the A5 commit |
@@ -775,3 +790,86 @@ Two of the import settings changed: Loop Time is now on for KAWAII's Walk01 and 
 - **Sides:** from where she sits, Team A plays on her left and Team B on her right. "Team to serve" points to the right team's half on both sides.
 - **Shown plainly:** the chair's umbrella shades her head from the court side, so her arms read well but her face does not.
 - `UmpireController` has methods for each signal; B2 calls them. Its old placeholders, which only wrote log lines, are gone.
+
+### B1: two camera looks, TV and Game (26 Nov 2026)
+**What the player has.** In the match and in Settings, and remembered:
+- **TV**: the roaming director.
+- **Game**: six fixed views.
+
+A played match opens on Game, behind your own baseline. A watched match opens on TV.
+
+**The Game look's six views** (court frame: x across the net, Team A at z < 0; metres):
+
+| Key | View | Where | Looks at | Zoom in / out |
+|---|---|---|---|---|
+| 1 | Behind your baseline | (0, 12, -14) | (0, 0, 3.1) | 8 / 10 m |
+| 2 | Behind the far baseline | (0, 12, 14) | (0, 0, -3.1) | 8 / 10 m |
+| 3 | Side-on at the net | (11, 3, -2.6), the chair's side | (0, 1.2, 0) | 4 / 3 m |
+| 4 | High sideline (classic broadcast) | (16.9, 11, -4.5) | (-9.3, 0, -1.5) | 9 / 8 m |
+| 5 | Overhead | (0, 24, 0), your end at the bottom | the centre | 10 / 16 m |
+| 6 | Low courtside | (-6.2, 0.9, -10.5) | (0, 1.4, 1.0) | 3 / 3 m |
+
+- **Kept from the three old cameras:**
+  - view 1 is the old wide camera;
+  - view 4 is the old close camera, moved 4.5 m towards your end and 2.5 m higher;
+  - view 5 is the old overhead camera.
+- **Moved because the proof showed something in the way:**
+  - View 3 was first across from the chair, at the net. On V19 that spot is inside the grandstands, which meet there (picture).
+  - View 4 at its old place looked through the umpire's chair.
+- Each view is checked clear of everything, with nothing between it and the court's middle.
+
+**The TV look's shots** (`CameraDirector`). Each moment has its own shots, one picked at random and never the one used last time for that moment:
+
+| Moment | Shots |
+|---|---|
+| Serve | a slow push-in from behind the server; beside her; low off the sand |
+| Rally | a follow camera that drifts and orbits, keeps the ball and all four players in frame (its field of view fits them), and swings as the ball crosses the net: from the broadcast side, end-on, or high on the chair's side |
+| The kill | a quick swoop in close to where the point was won; a cut close on the scorer |
+| Between points | a crane on the scorer; an orbit round the pair; the crowd; the venue |
+| Match over | a slow orbit of the venue |
+
+- Every shot keeps moving; the ones that are not orbits also turn slowly round what they look at.
+- **Collision checks.** Every frame, the camera is pushed out of anything it must never be inside (`CameraKeepOut`): the players (1 m), the ball (2.2 m, or it fills the picture), the net, the posts and antennae, the umpire's chair and the umpire, the 18 courtside boards, both grandstands and the beach umbrella. The boxes are the objects' own bounds plus 35 cm.
+- **Between points today:** Auto gives 2.0 s between points, so it is the kill (1.1 s), a short between-points shot (0.6 s), then the serve's shot. B2's sequence holds the serve longer.
+
+**The proof** (`b1-court-camera.txt`, 23/23, V19 in Play mode, batch, Unity closed):
+- **100 s of a watched match in the TV look:**
+  - 10 points and 39 shots;
+  - every moment used more than one shot (serve 3, rally 3, the kill 2, between points 4), and none followed itself;
+  - the camera was inside something in 0 of 184,351 frames;
+  - it moved in every one of 99 seconds.
+- **Keys 1 to 6 on a virtual keyboard:** each view came up and was clear (`b1-game-views.png`). The first shot of each kind is in `b1-tv-shots.png`.
+- **Zoom:** + held 1 s moved view 1 in 8.00 m (its limit), and 2x made the picture exactly twice as large.
+- **V, L3 and the D-pad** switched look and stepped the views.
+- **The page:** its remembered choice for a watched match (Game 5) was used, and its in-match menu switched look. Switching to Manual opened the played match's choice (Game 3). In view 3, up on the stick is across the court, as the screen shows it.
+- **Getting the proof right:** the virtual keyboard only reached the game once the proof set the Input System's editor and background behaviour (as `PlayedMatchPlayProof` does) and sent the held key every frame. Its first runs reported key failures that were the proof's, not the game's.
+
+**Still passing:**
+- `RallyPlanProof` PASS (`proof/B1/RallyPlanProof.log`); its zoom-button check now runs through `CourtCamera`.
+- The three played courts, at Easy, Medium and Hard (`harness/played-match.mjs --unity`, 9/9; each court 14/14). The played match's stick and the A3 proof's autopilot both read `CourtCamera.StickFrame`.
+
+**The game's side:**
+- Settings has a new Camera card. The same panel is in the court's own settings (the gear). For playing and for watching, it offers TV or Game, and for Game the six views.
+- The choice is stored in `vbe-court-camera` and sent to the court when it loads and when it changes. The court's page passes it to `CourtCamera.SetCameraPrefs`, only in the form `played=game:1;watched=tv:1`.
+- A change made on the court comes back as `unity-camera:played:game:3` and is stored.
+- The controls list names the new keys.
+- `harness/presentation.mjs` (new, suite 57c in `run-all`): 17/17, testing the real `court-settings.ts` module and the wiring. `harness/settings.mjs` 40/40.
+
+**Files deleted or cut down:**
+
+| File | What | Why |
+|---|---|---|
+| `Scripts/SimpleCameraPresets.cs` | deleted | replaced by `CourtCamera` |
+| `Scripts/ArcadeCamera.cs` | deleted | never in the scene. Its one caller, a "camera shake" on spikes in `MatchManager.cs` (7 lines), found nothing and did nothing, and is removed. Auto plays the same (RallyPlanProof). |
+| `Editor/CourtPlayProbe.cs` | deleted | a 1.0-era probe (R-71/73/74/76). Its camera test drove `SimpleCameraPresets`, and the rest were one-off diagnostics that no harness runs. |
+| `Editor/OverheadCameraDefault.cs` | deleted | a one-off batch edit of a camera that is now switched off |
+
+**New:** `Scripts/CourtCamera.cs`, `Scripts/CameraDirector.cs`, `Scripts/CameraKeepOut.cs`, `Scripts/MatchManager.Presentation.cs` (each point's ending and scorer, for Part B), `Editor/PresentationCameraProof.cs`.
+
+**Changed:**
+- `MatchManager.cs`: +1 line in `AwardPointTo` (it raises the point's moment); the dead shake removed.
+- `MatchManager.Played.cs`: +2 lines, the same moment.
+- `PlayedControls.cs`: the stick's frame.
+- `CameraZoomButtons.cs`, `CeremonyDirector.cs` and `RallyPlanProof.cs`: `CourtCamera` in place of `SimpleCameraPresets`.
+- `CourtsideBoards.cs`: lists its boards for the keep-out.
+- V19: `CourtCamera` on `Camera_Gameplay_Close` in place of the old component.

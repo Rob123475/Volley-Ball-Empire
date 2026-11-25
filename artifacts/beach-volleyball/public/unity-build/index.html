@@ -121,6 +121,16 @@
           if (typeof d.commentary === "number") window.__vbeUnity.SendMessage("MatchManager", "SetCommentaryVolume", v(d.commentary));
         } catch (err) { console.warn(err); }
       });
+
+      // 1.2 B1: the camera look for a played and a watched match ("played=game:1;watched=tv:1"),
+      // from the game's Settings > Camera, to the court camera (CourtCamera.SetCameraPrefs).
+      window.addEventListener("message", function (e) {
+        var d = e.data;
+        if (!d || d.type !== "vbe-camera" || typeof d.prefs !== "string" || !window.__vbeUnity) return;
+        if (!/^played=(tv|game):[1-6];watched=(tv|game):[1-6]$/.test(d.prefs)) return;
+        try { window.__vbeUnity.SendMessage("Camera_Gameplay_Close", "SetCameraPrefs", d.prefs); }
+        catch (err) { console.warn(err); }
+      });
     </script>
   </body>
 </html>

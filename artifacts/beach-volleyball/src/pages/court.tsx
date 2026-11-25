@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { readControlMode, saveControlMode, courtVolumes, MATCH_VOLUME_EVENT, MATCH_VOLUME_KEY, type ControlMode } from "@/lib/court-settings";
+import { readControlMode, saveControlMode, courtVolumes, MATCH_VOLUME_EVENT, MATCH_VOLUME_KEY, type ControlMode, readCourtCamera, saveCourtCamera, cameraPrefs, cameraFromCourt, type CourtCamera } from "@/lib/court-settings";
 import { SoundSettings } from "@/components/sound-settings";
 import { ControlsSettings } from "@/components/controls-settings";
+import { CameraSettings } from "@/components/camera-settings";
 import { ExitGame } from "@/components/exit-game";
 import { useLocation } from "wouter";
 import { useQueryClient } from "@tanstack/react-query";
@@ -53,6 +54,8 @@ export default function ThreeDCourt() {
   // The mode now: the opening one, then the court's own switches and the settings over the match.
   const [mode, setMode] = useState<ControlMode>(openingMode);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  // 1.2 B1: the camera look for each kind of match (Settings > Camera), and what the court changes.
+  const [camera, setCamera] = useState<CourtCamera>(readCourtCamera);
   const [paused, setPaused] = useState(false);
 
   // matchId set by match-day-modal's "Watch Match" button (navigate(`/court?matchId=...`)).
@@ -109,6 +112,7 @@ export default function ThreeDCourt() {
       if (e.data === "unity-loaded") {
         setUnityLoaded(true);
         sendMatchVolume();
+        sendCamera();
         // Part C: the keyboard goes to the court, so WASD, Tab and the rest work at once.
         iframeRef.current?.focus();
         iframeRef.current?.contentWindow?.focus();
@@ -118,6 +122,11 @@ export default function ThreeDCourt() {
         const m: ControlMode = e.data.endsWith("manual") ? "manual" : "auto";
         saveControlMode(m);
         setMode(m);
+      }
+      // 1.2 B1: the camera look changed on the court (keys 1-6, V, the pad): remembered for that kind of match.
+      if (typeof e.data === "string" && e.data.startsWith("unity-camera:")) {
+        const next = cameraFromCourt(e.data);
+        if (next) setCamera(next);
       }
       if (e.data === "unity-paused:1" || e.data === "unity-paused:0") setPaused(e.data === "unity-paused:1");
       // A Nations Cup match too (1.1.3 rebuild C1: Rob's rule is the dashboard, where the day's other Cup matches have their Watch buttons).
@@ -146,6 +155,16 @@ export default function ThreeDCourt() {
       window.removeEventListener("storage", onStorage);
     };
   }, []);
+
+  // 1.2 B1: both camera choices go to the court when it has loaded and when they change here.
+  function sendCamera(c: CourtCamera = readCourtCamera()) {
+    iframeRef.current?.contentWindow?.postMessage({ type: "vbe-camera", prefs: cameraPrefs(c) }, "*");
+  }
+  function chooseCamera(c: CourtCamera) {
+    setCamera(c);
+    saveCourtCamera(c);
+    sendCamera(c);
+  }
 
   // The settings over the match: Auto or Manual goes to the court at once (its own page passes it on).
   function chooseMode(m: ControlMode) {
@@ -321,6 +340,8 @@ export default function ThreeDCourt() {
             <SoundSettings onCourt />
             <h3 className="text-sm font-bold mt-5 mb-2">Controls</h3>
             <ControlsSettings mode={mode} onChoose={chooseMode} />
+            <h3 className="text-sm font-bold mt-5 mb-2">Camera</h3>
+            <CameraSettings camera={camera} onChange={chooseCamera} />
             <div className="mt-5 flex justify-end">
               <ExitGame matchId={matchId} />
             </div>

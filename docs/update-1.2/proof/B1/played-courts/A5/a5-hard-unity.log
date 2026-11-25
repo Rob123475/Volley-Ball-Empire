@@ -1,0 +1,2256 @@
+[Licensing::Module] Trying to connect to existing licensing client channel...
+Built from '6000.3/staging' branch; Version is '6000.3.16f1 (a56f230f6470) revision 10841891'; Using compiler version '194234433'; Build Type 'Release'
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-rbonn" at "2026-11-25T23:05:24.5891203Z"
+OS: 'Windows 11  (10.0.26200) Professional' Language: 'en' Physical Memory: 31830 MB
+BatchMode: 1, IsHumanControllingUs: 0, StartBugReporterOnCrash: 0, Is64bit: 1
+System  architecture: x64
+Process architecture: x64
+Date: 2026-11-25T23:05:24Z
+
+COMMAND LINE ARGUMENTS:
+C:/Program Files/Unity/Hub/Editor/6000.3.16f1/Editor/Unity.exe
+-batchmode
+-projectPath
+C:/Users/rbonn/Game_Dev/VolleyBall Empire/volleyball
+-executeMethod
+PlayedMatchPlayProof.Run
+-proofDir
+C:/Users/rbonn/Documents/Volley-Ball-Empire/docs/update-1.2/proof/B1/played-courts
+-section
+A5
+-out
+a5-hard.txt
+-points
+6
+-expect
+hard
+-apiBase
+http://localhost:4967
+-careerSaveId
+3
+-matchId
+119
+-logFile
+C:\Users\rbonn\Documents\Volley-Ball-Empire\docs\update-1.2\proof\B1\played-courts\A5\a5-hard-unity.log
+Successfully changed project path to: C:/Users/rbonn/Game_Dev/VolleyBall Empire/volleyball
+C:/Users/rbonn/Game_Dev/VolleyBall Empire/volleyball
+[UnityMemory] Configuration Parameters - Can be set up in boot.config
+    "memorysetup-temp-allocator-size-nav-mesh-worker=65536"
+    "memorysetup-temp-allocator-size-audio-worker=65536"
+    "memorysetup-temp-allocator-size-gfx=262144"
+    "memorysetup-allocator-temp-initial-block-size-main=262144"
+    "memorysetup-allocator-temp-initial-block-size-worker=262144"
+    "memorysetup-temp-allocator-size-background-worker=32768"
+    "memorysetup-temp-allocator-size-job-worker=262144"
+    "memorysetup-temp-allocator-size-preload-manager=33554432"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-bucket-allocator-granularity=16"
+    "memorysetup-bucket-allocator-bucket-count=8"
+    "memorysetup-bucket-allocator-block-size=33554432"
+    "memorysetup-bucket-allocator-block-count=8"
+    "memorysetup-main-allocator-block-size=16777216"
+    "memorysetup-thread-allocator-block-size=16777216"
+    "memorysetup-gfx-main-allocator-block-size=16777216"
+    "memorysetup-gfx-thread-allocator-block-size=16777216"
+    "memorysetup-cache-allocator-block-size=4194304"
+    "memorysetup-typetree-allocator-block-size=2097152"
+    "memorysetup-profiler-bucket-allocator-granularity=16"
+    "memorysetup-profiler-bucket-allocator-bucket-count=8"
+    "memorysetup-profiler-bucket-allocator-block-size=33554432"
+    "memorysetup-profiler-bucket-allocator-block-count=8"
+    "memorysetup-profiler-allocator-block-size=16777216"
+    "memorysetup-profiler-editor-allocator-block-size=1048576"
+    "memorysetup-temp-allocator-size-main=16777216"
+    "memorysetup-job-temp-allocator-block-size=2097152"
+    "memorysetup-job-temp-allocator-block-size-background=1048576"
+    "memorysetup-job-temp-allocator-reduction-small-platforms=262144"
+    "memorysetup-temp-allocator-size-cloud-worker=32768"
+Player connection [31540]  Target information:
+
+Player connection [31540]  * "[IP] 10.0.0.72 [Port] 55504 [Flags] 2 [Guid] 590052530 [EditorId] 590052530 [Version] 1048832 [Id] WindowsEditor(7,Beast) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" 
+
+Player connection [31540] Host joined multi-casting on [225.0.0.222:54997]...
+Player connection [31540] Host joined alternative multi-casting on [225.0.0.222:34997]...
+Input System module state changed to: Initialized.
+[Physics::Module] Initialized fallback backend.
+[Physics::Module] Id: 0xdecafbad
+[Package Manager] Connected to IPC stream "Upm-4040" after 0.2 seconds.
+[Licensing::Module] Licensing is not yet initialized.
+[Licensing::Client] Error: HandshakeResponse reported an error:
+	ResponseCode: 505
+	ResponseStatus: Unsupported protocol version '1.18.1'.
+[Licensing::Module] Error: Failed to handshake to channel: "LicenseClient-rbonn"
+[Licensing::IpcConnector] LicenseClient-rbonn channel disconnected successfully.
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-rbonn-6000.3.16" at "2026-11-25T23:05:25.8254029Z"
+[Licensing::Client] Code 10 while verifying Licensing Client signature (process Id: 37180, path: "C:/Program Files/Unity/Hub/Editor/6000.3.16f1/Editor/Data/Resources/Licensing/Client/Unity.Licensing.Client.exe")
+[Licensing::Module] LicensingClient has failed validation; ignoring
+[Licensing::Client] Handshaking with LicensingClient:
+  Version:                 1.18.1+9fbee8e
+  Session Id:              57b0c6a40f0d44d9b6ecc29ddb28d055
+  Correlation Id:          51e0f22a04312c1c7b33447c77c17341
+  External correlation Id: 571144442560973222
+  Machine Id:              zgb6692Nnw+phkIExqmx8uDnzyM=
+[Licensing::Module] Successfully connected to LicensingClient on channel: "LicenseClient-rbonn-6000.3.16" (connect: 0.00s, validation: 0.00s, handshake: 0.01s)
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-rbonn-6000.3.16-notifications" at "2026-11-25T23:05:25.8329308Z"
+[Licensing::Module] Error: Access token is unavailable; failed to update
+[Licensing::Client] Successfully resolved entitlement details
+[Licensing::Module] License group:
+  Id: 16768365838406-UnityPersXXXX
+  Product: Unity Personal
+  Type: Assigned
+  Expiration: Unlimited
+[Licensing::Client] Successfully updated license, isAsync: True, time: 0.00
+[Licensing::Client] Successfully resolved entitlement details
+[Licensing::Module] Licensing Background thread has ended after 1.26s
+[Licensing::Module] Licensing is initialized (took 0.99s).
+[Licensing::Client] Successfully resolved entitlement details
+Library Redirect Path: Library/
+[Physics::Module] Selected backend.
+[Physics::Module] Name: PhysX
+[Physics::Module] Id: 0xf2b8ea05
+[Physics::Module] SDK Version: 4.1.2
+[Physics::Module] Integration Version: 1.0.0
+[Physics::Module] Threading Mode: Multi-Threaded
+Refreshing native plugins compatible for Editor in 0.93 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Initialize engine version: 6000.3.16f1 (a56f230f6470)
+[Subsystems] Discovering subsystems at path C:/Program Files/Unity/Hub/Editor/6000.3.16f1/Editor/Data/Resources/UnitySubsystems
+[Subsystems] Discovering subsystems at path C:/Users/rbonn/Game_Dev/VolleyBall Empire/volleyball/Assets
+GfxDevice: creating device client; kGfxThreadingModeNonThreaded
+d3d12: failed to query info queue interface (0x80004002).
+Direct3D:
+    Version:         Direct3D 12 [level 12.2]
+    Renderer:        NVIDIA GeForce RTX 5080 (ID=0x2c02)
+    Vendor:          NVIDIA
+    VRAM:            15977 MB
+    App VRAM Budget: 15209 MB
+    Driver:          32.0.16.1088
+Initialize mono
+Mono path[0] = 'C:/Program Files/Unity/Hub/Editor/6000.3.16f1/Editor/Data/Managed'
+Mono path[1] = 'C:/Program Files/Unity/Hub/Editor/6000.3.16f1/Editor/Data/MonoBleedingEdge/lib/mono/unityjit-win32'
+Mono config path = 'C:/Program Files/Unity/Hub/Editor/6000.3.16f1/Editor/Data/MonoBleedingEdge/etc'
+Using monoOptions --debugger-agent=transport=dt_socket,embedding=1,server=y,suspend=n,address=127.0.0.1:56040
+Using cacheserver namespaces - metadata:defaultmetadata, artifacts:defaultartifacts
+Using cacheserver namespaces - metadata:defaultmetadata, artifacts:defaultartifacts
+ImportWorker Server TCP listen port: 0
+AcceleratorClientConnectionCallback - disconnected - :0
+Begin MonoManager ReloadAssembly
+Registering precompiled unity dll's ...
+Register platform support module: C:/Program Files/Unity/Hub/Editor/6000.3.16f1/Editor/Data/PlaybackEngines/WebGLSupport/UnityEditor.WebGL.Extensions.dll
+Register platform support module: C:/Program Files/Unity/Hub/Editor/6000.3.16f1/Editor/Data/PlaybackEngines/WindowsStandaloneSupport/UnityEditor.WindowsStandalone.Extensions.dll
+Registered in 0.002375 seconds.
+- Loaded All Assemblies, in  0.261 seconds
+Native extension for WindowsStandalone target not found
+Native extension for WebGL target not found
+Package Manager log level set to [2]
+ScheduleIndexationOnStartup MainProcess:False IndexOnStartup:True
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  0.218 seconds
+Domain Reload Profiling: 476ms
+	BeginReloadAssembly (95ms)
+		ExecutionOrderSort (0ms)
+		DisableScriptedObjects (0ms)
+		BackupInstance (0ms)
+		ReleaseScriptingObjects (0ms)
+		CreateAndSetChildDomain (15ms)
+	RebuildCommonClasses (23ms)
+	RebuildNativeTypeToScriptingClass (7ms)
+	initialDomainReloadingComplete (30ms)
+	LoadAllAssembliesAndSetupDomain (103ms)
+		LoadAssemblies (77ms)
+		RebuildTransferFunctionScriptingTraits (0ms)
+		AnalyzeDomain (101ms)
+			TypeCache.Refresh (99ms)
+				TypeCache.ScanAssembly (90ms)
+			BuildScriptInfoCaches (0ms)
+			ResolveRequiredComponents (0ms)
+	FinalizeReload (218ms)
+		ReleaseScriptCaches (0ms)
+		RebuildScriptCaches (0ms)
+		SetupLoadedEditorAssemblies (194ms)
+			LogAssemblyErrors (0ms)
+			InitializePlatformSupportModulesInManaged (29ms)
+			SetLoadedEditorAssemblies (2ms)
+			BeforeProcessingInitializeOnLoad (42ms)
+			ProcessInitializeOnLoadAttributes (71ms)
+			ProcessInitializeOnLoadMethodAttributes (49ms)
+			AfterProcessingInitializeOnLoad (0ms)
+			EditorAssembliesLoaded (0ms)
+		ExecutionOrderSort2 (0ms)
+		AwakeInstancesAfterBackupRestoration (0ms)
+[Licensing::Client] Successfully resolved entitlement details
+Application.AssetDatabase Initial Refresh Start
+[Package Manager] Restoring resolved packages state from cache
+[Licensing::Client] Successfully resolved entitlement details
+[Package Manager] Registered 62 packages:
+  Packages from [https://packages.unity.com]:
+    com.unity.ai.assistant@2.19.0-pre.2 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.ai.assistant@8d1e3e89e3a7)
+    com.unity.ai.inference@2.6.1 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.ai.inference@9a123aee5df7)
+    com.unity.ai.navigation@2.0.12 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.ai.navigation@734c2c4c5591)
+    com.unity.collab-proxy@2.12.4 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.collab-proxy@0b1559bcd34e)
+    com.unity.ide.rider@3.0.40 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.ide.rider@e4950c6d131b)
+    com.unity.ide.visualstudio@2.0.26 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.ide.visualstudio@a99d56dec63f)
+    com.unity.inputsystem@1.19.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.inputsystem@21a28c3a6c83)
+    com.unity.timeline@1.8.12 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.timeline@8cd8509afae5)
+    com.unity.visualscripting@1.9.11 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.visualscripting@8bed5ad90189)
+    com.unity.searcher@4.9.4 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.searcher@d45a78918735)
+    com.unity.burst@1.8.29 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.burst@6bb9aca3ef38)
+    com.unity.dt.app-ui@2.1.1 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.dt.app-ui@8ac7e730dd5d)
+    com.unity.collections@2.6.6 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.collections@9796e5ee0d9e)
+    com.unity.nuget.newtonsoft-json@3.2.2 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.nuget.newtonsoft-json@4dfd81071c64)
+    com.unity.mathematics@1.3.3 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.mathematics@19a9377c4ffa)
+    com.unity.nuget.mono-cecil@1.11.6 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.nuget.mono-cecil@ecb9724e46ff)
+    com.unity.test-framework.performance@3.4.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.test-framework.performance@aa81a99c4a75)
+  Built-in packages:
+    com.unity.multiplayer.center@1.0.1 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.multiplayer.center@f01f4ba8d00a)
+    com.unity.render-pipelines.universal@17.3.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.render-pipelines.universal@97f77d4dda9a)
+    com.unity.shadergraph@17.3.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.shadergraph@138213decc3c)
+    com.unity.test-framework@1.6.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.test-framework@aebcb98460c6)
+    com.unity.ugui@2.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.ugui@23e8d17bfaf9)
+    com.unity.modules.accessibility@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.accessibility)
+    com.unity.modules.adaptiveperformance@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.adaptiveperformance)
+    com.unity.modules.ai@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.ai)
+    com.unity.modules.androidjni@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.androidjni)
+    com.unity.modules.animation@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.animation)
+    com.unity.modules.assetbundle@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.assetbundle)
+    com.unity.modules.audio@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.audio)
+    com.unity.modules.cloth@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.cloth)
+    com.unity.modules.director@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.director)
+    com.unity.modules.imageconversion@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.imageconversion)
+    com.unity.modules.imgui@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.imgui)
+    com.unity.modules.jsonserialize@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.jsonserialize)
+    com.unity.modules.particlesystem@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.particlesystem)
+    com.unity.modules.physics@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.physics)
+    com.unity.modules.physics2d@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.physics2d)
+    com.unity.modules.screencapture@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.screencapture)
+    com.unity.modules.terrain@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.terrain)
+    com.unity.modules.terrainphysics@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.terrainphysics)
+    com.unity.modules.tilemap@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.tilemap)
+    com.unity.modules.ui@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.ui)
+    com.unity.modules.uielements@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.uielements)
+    com.unity.modules.umbra@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.umbra)
+    com.unity.modules.unityanalytics@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.unityanalytics)
+    com.unity.modules.unitywebrequest@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.unitywebrequest)
+    com.unity.modules.unitywebrequestassetbundle@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.unitywebrequestassetbundle)
+    com.unity.modules.unitywebrequestaudio@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.unitywebrequestaudio)
+    com.unity.modules.unitywebrequesttexture@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.unitywebrequesttexture)
+    com.unity.modules.unitywebrequestwww@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.unitywebrequestwww)
+    com.unity.modules.vectorgraphics@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.vectorgraphics)
+    com.unity.modules.vehicles@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.vehicles)
+    com.unity.modules.video@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.video)
+    com.unity.modules.vr@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.vr)
+    com.unity.modules.wind@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.wind)
+    com.unity.modules.xr@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.xr)
+    com.unity.modules.subsystems@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.subsystems)
+    com.unity.modules.hierarchycore@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.hierarchycore)
+    com.unity.ext.nunit@2.0.5 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.ext.nunit@d8c07649098d)
+    com.unity.render-pipelines.core@17.3.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.render-pipelines.core@648b47f96bf1)
+    com.unity.render-pipelines.universal-config@17.0.3 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.render-pipelines.universal-config@8dc1aab4af1d)
+    com.unity.2d.sprite@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.2d.sprite@3cb28db060cf)
+[Subsystems] No new subsystems found in resolved package list.
+[Package Manager] Done registering packages in 0.09 seconds
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: http://localhost:80
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Production
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/2 POST http://ilpp/UnityILPP.PostProcessing/Ping application/grpc -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'gRPC - /UnityILPP.PostProcessing/Ping'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'gRPC - /UnityILPP.PostProcessing/Ping'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/2 POST http://ilpp/UnityILPP.PostProcessing/Ping application/grpc - - 200 - application/grpc 23.1764ms
+Refreshing native plugins compatible for Editor in 3.60 ms, found 5 plugins.
+Starting: C:\Program Files\Unity\Hub\Editor\6000.3.16f1\Editor\Data\Tools\BuildPipeline\bee_backend.exe --ipc --defer-dag-verification --dagfile="Library/Bee/2000b0aE.dag" --continue-on-failure --profile="Library/Bee/backend1.traceevents" ScriptAssemblies
+WorkingDir: C:/Users/rbonn/Game_Dev/VolleyBall Empire/volleyball
+DisplayProgressbar: Compiling Scripts
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/2 POST http://ilpp/UnityILPP.PostProcessing/ConfigurePostProcessors application/grpc -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'gRPC - /UnityILPP.PostProcessing/ConfigurePostProcessors'
+warn: Unity.ILPP.Runner.PostProcessingAssemblyLoadContext[0]
+      Assembly system.runtime.interopservices.windowsruntime has duplicate hint path. Ignoring "C:\Program Files\Unity\Hub\Editor\6000.3.16f1\Editor\Data\UnityReferenceAssemblies\unity-4.8-api\Facades\System.Runtime.InteropServices.WindowsRuntime.dll" in favor of "C:\Program Files\Unity\Hub\Editor\6000.3.16f1\Editor\Data\NetStandard\Extensions\2.0.0\System.Runtime.InteropServices.WindowsRuntime.dll"
+warn: Unity.ILPP.Runner.PostProcessingAssemblyLoadContext[0]
+      Assembly system.componentmodel.composition has duplicate hint path. Ignoring "C:\Program Files\Unity\Hub\Editor\6000.3.16f1\Editor\Data\UnityReferenceAssemblies\unity-4.8-api\System.ComponentModel.Composition.dll" in favor of "C:\Program Files\Unity\Hub\Editor\6000.3.16f1\Editor\Data\NetStandard\compat\2.1.0\shims\netfx\System.ComponentModel.Composition.dll"
+info: Unity.ILPP.Runner.PostProcessingAssemblyLoadContext[0]
+      Resolved Unity.Burst.Cecil, Version=0.11.6.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e with Library\PackageCache\com.unity.burst@6bb9aca3ef38\Unity.Burst.CodeGen\Unity.Burst.Cecil.dll
+info: Unity.ILPP.Runner.PostProcessingAssemblyLoadContext[0]
+      Resolved Mono.Cecil, Version=0.11.5.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e with Library\PackageCache\com.unity.nuget.mono-cecil@ecb9724e46ff\Mono.Cecil.dll
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'gRPC - /UnityILPP.PostProcessing/ConfigurePostProcessors'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/2 POST http://ilpp/UnityILPP.PostProcessing/ConfigurePostProcessors application/grpc - - 200 - application/grpc 33.5355ms
+ExitCode: 0 Duration: 0s363ms
+[1154/1515  0s] ILPP-Configuration Library/ilpp-configuration.nevergeneratedoutput
+*** Tundra build success (0.32 seconds), 1 items updated, 1515 evaluated
+AssetDatabase: script compilation time: 0.722959s
+Begin MonoManager ReloadAssembly
+Symbol file LoadedFromMemory is not a mono symbol file
+Symbol file LoadedFromMemory is not a mono symbol file
+- Loaded All Assemblies, in  0.940 seconds
+Refreshing native plugins compatible for Editor in 3.37 ms, found 5 plugins.
+Native extension for WindowsStandalone target not found
+Native extension for WebGL target not found
+Refreshing native plugins compatible for Editor in 4.17 ms, found 5 plugins.
+[Licensing::Client] Error: Code 404 while processing request (status: Found 0 entitlement groups and 0 free entitlements matching requested entitlement ids)
+[Licensing::Client] Error: Code 404 while processing request (status: Found 0 entitlement groups and 0 free entitlements matching requested entitlement ids)
+[Licensing::Client] Error: Code 404 while processing request (status: Found 0 entitlement groups and 0 free entitlements matching requested entitlement ids)
+ScheduleIndexationOnStartup MainProcess:True IndexOnStartup:True
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  3.350 seconds
+Domain Reload Profiling: 4283ms
+	BeginReloadAssembly (294ms)
+		ExecutionOrderSort (0ms)
+		DisableScriptedObjects (65ms)
+		BackupInstance (0ms)
+		ReleaseScriptingObjects (0ms)
+		CreateAndSetChildDomain (148ms)
+	RebuildCommonClasses (21ms)
+	RebuildNativeTypeToScriptingClass (8ms)
+	initialDomainReloadingComplete (37ms)
+	LoadAllAssembliesAndSetupDomain (573ms)
+		LoadAssemblies (352ms)
+		RebuildTransferFunctionScriptingTraits (0ms)
+		AnalyzeDomain (280ms)
+			TypeCache.Refresh (211ms)
+				TypeCache.ScanAssembly (198ms)
+			BuildScriptInfoCaches (56ms)
+			ResolveRequiredComponents (6ms)
+	FinalizeReload (3351ms)
+		ReleaseScriptCaches (0ms)
+		RebuildScriptCaches (0ms)
+		SetupLoadedEditorAssemblies (3168ms)
+			LogAssemblyErrors (0ms)
+			InitializePlatformSupportModulesInManaged (17ms)
+			SetLoadedEditorAssemblies (4ms)
+			BeforeProcessingInitializeOnLoad (132ms)
+			ProcessInitializeOnLoadAttributes (2646ms)
+			ProcessInitializeOnLoadMethodAttributes (363ms)
+			AfterProcessingInitializeOnLoad (7ms)
+			EditorAssembliesLoaded (0ms)
+		ExecutionOrderSort2 (0ms)
+		AwakeInstancesAfterBackupRestoration (14ms)
+Asset Pipeline Refresh (id=2cd42b771f7b1ed4e82ea9b4d5b6a6c8): Total: 5.755 seconds - Initiated by InitialRefreshV2(ForceSynchronousImport)
+	Summary:
+		Imports: total=0 (actual=0, local cache=0, cache server=0)
+		Asset DB Process Time: managed=0 ms, native=3867 ms
+		Asset DB Callback time: managed=75 ms, native=92 ms
+		Scripting: domain reloads=1, domain reload time=940 ms, compile time=724 ms, other=55 ms
+		Project Asset Count: scripts=2604, non-scripts=9808
+		Asset File Changes: new=0, changed=0, moved=0, deleted=0
+		Scan Filter Count: 0
+	InvokeCustomDependenciesCallbacks: 0.002ms
+	InvokePackagesCallback: 93.987ms
+	ApplyChangesToAssetFolders: 0.535ms
+	Scan: 130.909ms
+	OnSourceAssetsModified: 0.003ms
+	CategorizeAssetsWithTransientArtifact: 53.741ms
+	ProcessAssetsWithTransientArtifactChanges: 76.736ms
+	CategorizeAssets: 96.108ms
+	ImportOutOfDateAssets: 3366.558ms (2639.927ms without children)
+		CompileScripts: 724.015ms
+		ReloadNativeAssets: 0.041ms
+		UnloadImportedAssets: 0.700ms
+		EnsureUptoDateAssetsAreRegisteredWithGuidPM: 1.126ms
+		InitializingProgressBar: 0.001ms
+		PostProcessAllAssetNotificationsAddChangedAssets: 0.001ms
+		OnDemandSchedulerStart: 0.747ms
+	PostProcessAllAssets: 75.504ms
+	GatherAllCurrentPrimaryArtifactRevisions: 0.001ms
+	UnloadStreamsBegin: 3.484ms
+	PersistCurrentRevisions: 0.271ms
+	UnloadStreamsEnd: 0.002ms
+	GenerateScriptTypeHashes: 2.173ms
+	Untracked: 1856.948ms
+
+Application.AssetDatabase Initial Refresh End
+Launched and connected shader compiler UnityShaderCompiler.exe after 0.01 seconds
+Scanning for USB devices : 18.792ms
+Initializing Unity extensions:
+[MODES] ModeService[none].Initialize
+[MODES] ModeService[none].LoadModes
+[MODES] Loading mode Default (0) for mode-current-id-Beach Volleyball Empire
+Unloading 62 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 10279 unused Assets / (20.9 MB). Loaded Objects now: 11178.
+Memory consumption went from 315.7 MB to 294.8 MB.
+Total: 17.303200 ms (FindLiveObjects: 1.067700 ms CreateObjectMapping: 0.399600 ms MarkObjects: 10.867100 ms  DeleteObjects: 4.967800 ms)
+
+Opening scene 'Assets/BeachVolleyball V19.unity'
+Unloading 6 Unused Serialized files (Serialized files now loaded: 0)
+d3d12: upload buffer was too small for the requested resource! Size: 16777216. Requested: 59664000.
+Couldn't create a Convex Mesh from source mesh, within the maximum polygons limit (256). The partial hull will be used. Consider simplifying your mesh. Source mesh name: SM_rack_balls_Volleyball_1
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEditor.SceneManagement.EditorSceneManager:OpenScene (string,UnityEditor.SceneManagement.OpenSceneMode)
+PlayedMatchPlayProof:Run () (at Assets/Editor/PlayedMatchPlayProof.cs:58)
+
+[Assets/Editor/PlayedMatchPlayProof.cs line 58]
+
+Loaded scene 'Assets/BeachVolleyball V19.unity'
+	Deserialize:            145.608 ms
+	Integration:            1217.100 ms
+	Integration of assets:  2.488 ms
+	Thread Wait Time:       0.428 ms
+	Total Operation Time:   1365.624 ms
+Unloading 3 unused Assets / (1.8 KB). Loaded Objects now: 103522.
+Memory consumption went from 0.67 GB to 0.67 GB.
+Total: 24.913100 ms (FindLiveObjects: 8.228000 ms CreateObjectMapping: 3.538400 ms MarkObjects: 13.077200 ms  DeleteObjects: 0.068500 ms)
+
+[Project] Loading completed in 10.688 seconds
+	Project init time: 				8.661 seconds
+		Template init time: 		0.000 seconds
+		Package Manager init time: 		1.170 seconds
+		Asset Database init time: 		0.185 seconds
+		Global illumination init time: 	0.003 seconds
+		Assemblies load time: 			0.494 seconds
+		Unity extensions init time: 	0.041 seconds
+		Asset Database refresh time: 	5.755 seconds
+	Scene opening time: 			1.847 seconds
+##utp:{"type":"ProjectInfo","version":2,"phase":"Immediate","time":1795647935189,"processId":4040,"projectLoad":10.688141,"projectInit":8.6612379,"templateInit":0.0,"packageManagerInit":1.1701728,"assetDatabaseInit":0.1848661,"globalIlluminationInit":0.0025976,"assembliesLoad":0.4943347,"unityExtensionsInit":0.0414747,"assetDatabaseRefresh":5.7549382,"sceneOpening":1.846981}
+##utp:{"type":"EditorInfo","version":2,"phase":"Immediate","time":1795647935189,"processId":4040,"editorVersion":"6000.3.16f1 (a56f230f6470)","branch":"6000.3/staging","buildType":"Release","platform":"Windows"}
+Reloading assemblies for play mode.
+Reloading assemblies after forced synchronous recompile.
+Begin MonoManager ReloadAssembly
+Symbol file LoadedFromMemory is not a mono symbol file
+Symbol file LoadedFromMemory is not a mono symbol file
+- Loaded All Assemblies, in  0.809 seconds
+Refreshing native plugins compatible for Editor in 3.41 ms, found 5 plugins.
+Native extension for WindowsStandalone target not found
+Native extension for WebGL target not found
+Refreshing native plugins compatible for Editor in 3.42 ms, found 5 plugins.
+[Licensing::Client] Error: Code 404 while processing request (status: Found 0 entitlement groups and 0 free entitlements matching requested entitlement ids)
+[Licensing::Client] Error: Code 404 while processing request (status: Found 0 entitlement groups and 0 free entitlements matching requested entitlement ids)
+[Licensing::Client] Error: Code 404 while processing request (status: Found 0 entitlement groups and 0 free entitlements matching requested entitlement ids)
+ScheduleIndexationOnStartup MainProcess:True IndexOnStartup:True
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  1.049 seconds
+Domain Reload Profiling: 1856ms
+	BeginReloadAssembly (477ms)
+		ExecutionOrderSort (0ms)
+		DisableScriptedObjects (53ms)
+		BackupInstance (0ms)
+		ReleaseScriptingObjects (1ms)
+		CreateAndSetChildDomain (331ms)
+	RebuildCommonClasses (21ms)
+	RebuildNativeTypeToScriptingClass (9ms)
+	initialDomainReloadingComplete (37ms)
+	LoadAllAssembliesAndSetupDomain (263ms)
+		LoadAssemblies (117ms)
+		RebuildTransferFunctionScriptingTraits (0ms)
+		AnalyzeDomain (201ms)
+			TypeCache.Refresh (7ms)
+				TypeCache.ScanAssembly (0ms)
+			BuildScriptInfoCaches (180ms)
+			ResolveRequiredComponents (7ms)
+	FinalizeReload (1049ms)
+		ReleaseScriptCaches (0ms)
+		RebuildScriptCaches (0ms)
+		SetupLoadedEditorAssemblies (845ms)
+			LogAssemblyErrors (0ms)
+			InitializePlatformSupportModulesInManaged (18ms)
+			SetLoadedEditorAssemblies (3ms)
+			BeforeProcessingInitializeOnLoad (139ms)
+			ProcessInitializeOnLoadAttributes (470ms)
+			ProcessInitializeOnLoadMethodAttributes (208ms)
+			AfterProcessingInitializeOnLoad (6ms)
+			EditorAssembliesLoaded (0ms)
+		ExecutionOrderSort2 (0ms)
+		AwakeInstancesAfterBackupRestoration (37ms)
+Asset Pipeline Refresh (id=9762deef0aeba3b499e243a20d4eadb0): Total: 2.070 seconds - Initiated by StopAssetImportingV2(ForceSynchronousImport | ForceDomainReload)
+	Summary:
+		Imports: total=0 (actual=0, local cache=0, cache server=0)
+		Asset DB Process Time: managed=0 ms, native=1217 ms
+		Asset DB Callback time: managed=19 ms, native=0 ms
+		Scripting: domain reloads=1, domain reload time=830 ms, compile time=1 ms, other=0 ms
+		Project Asset Count: scripts=2604, non-scripts=9808
+		Asset File Changes: new=0, changed=0, moved=0, deleted=0
+		Scan Filter Count: 0
+	InvokeCustomDependenciesCallbacks: 0.001ms
+	InvokePackagesCallback: 2.006ms
+	ApplyChangesToAssetFolders: 0.291ms
+	Scan: 0.001ms
+	OnSourceAssetsModified: 0.002ms
+	CategorizeAssetsWithTransientArtifact: 0.004ms
+	ProcessAssetsWithTransientArtifactChanges: 5.782ms
+	CategorizeAssets: 94.425ms
+	ImportOutOfDateAssets: 1065.755ms (1061.110ms without children)
+		CompileScripts: 0.816ms
+		CollectScriptTypesHashes: 1.226ms
+		ReloadNativeAssets: 0.916ms
+		UnloadImportedAssets: 0.083ms
+		EnsureUptoDateAssetsAreRegisteredWithGuidPM: 1.126ms
+		InitializingProgressBar: 0.001ms
+		PostProcessAllAssetNotificationsAddChangedAssets: 0.000ms
+		OnDemandSchedulerStart: 0.477ms
+	PostProcessAllAssets: 19.713ms
+	GatherAllCurrentPrimaryArtifactRevisions: 0.373ms
+	UnloadStreamsBegin: 4.642ms
+	PersistCurrentRevisions: 0.258ms
+	UnloadStreamsEnd: 0.001ms
+	GenerateScriptTypeHashes: 3.773ms
+	Untracked: 876.688ms
+
+[CourtsideBoards] 18 boards dressed around the court: 9 Beach Volleyball Empire, 9 GB Sunglasses
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+CourtsideBoards:Dress () (at Assets/Scripts/CourtsideBoards.cs:71)
+
+(Filename: Assets/Scripts/CourtsideBoards.cs Line: 71)
+
+Loaded scene 'Temp/__Backupscenes/0.backup'
+	Deserialize:            307.328 ms
+	Integration:            565.813 ms
+	Integration of assets:  61.053 ms
+	Thread Wait Time:       -0.077 ms
+	Total Operation Time:   934.118 ms
+[BoostUIController] Created Polished Attack and Defence boost buttons.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+BoostUIController:CreatePolishedBoostButtons (UnityEngine.Canvas) (at Assets/Scripts/BoostUIController.cs:235)
+BoostUIController:Start () (at Assets/Scripts/BoostUIController.cs:39)
+
+(Filename: Assets/Scripts/BoostUIController.cs Line: 235)
+
+[MatchManager] AudioManager initialized.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+MatchManager:Start () (at Assets/Scripts/MatchManager.cs:261)
+
+(Filename: Assets/Scripts/MatchManager.cs Line: 261)
+
+[UnityMatchDataLoader] careerSaveId 3 (from editorCareerSaveId Inspector field)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+UnityMatchDataLoader:BuildUrl () (at Assets/Scripts/UnityMatchDataLoader.cs:330)
+UnityMatchDataLoader/<LoadMatchDataInner>d__63:MoveNext () (at Assets/Scripts/UnityMatchDataLoader.cs:225)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+UnityEngine.MonoBehaviour:StartCoroutineManaged2 (System.Collections.IEnumerator)
+UnityEngine.MonoBehaviour:StartCoroutine (System.Collections.IEnumerator)
+UnityMatchDataLoader:Start () (at Assets/Scripts/UnityMatchDataLoader.cs:207)
+
+(Filename: Assets/Scripts/UnityMatchDataLoader.cs Line: 330)
+
+[UnityMatchDataLoader] GET http://localhost:4967/api/unity/match-state?careerSaveId=3&matchId=119
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+UnityMatchDataLoader/<LoadMatchDataInner>d__63:MoveNext () (at Assets/Scripts/UnityMatchDataLoader.cs:227)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+UnityEngine.MonoBehaviour:StartCoroutineManaged2 (System.Collections.IEnumerator)
+UnityEngine.MonoBehaviour:StartCoroutine (System.Collections.IEnumerator)
+UnityMatchDataLoader:Start () (at Assets/Scripts/UnityMatchDataLoader.cs:207)
+
+(Filename: Assets/Scripts/UnityMatchDataLoader.cs Line: 227)
+
+Setting the duration while system is still playing is not supported. Please wait until the system has stopped and all particles have expired or call Stop with ParticleSystemStopBehavior.StopEmittingAndClear to completely stop the system.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+WeatherManager:CreateRainSystem () (at Assets/Scripts/WeatherManager.cs:190)
+WeatherManager:Start () (at Assets/Scripts/WeatherManager.cs:52)
+
+[Assets/Scripts/WeatherManager.cs line 190]
+
+WEATHER SUNNY
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+WeatherManager:ApplyWeather (WeatherState) (at Assets/Scripts/WeatherManager.cs:77)
+WeatherManager:Start () (at Assets/Scripts/WeatherManager.cs:55)
+
+(Filename: Assets/Scripts/WeatherManager.cs Line: 77)
+
+[Director] Serve: beside the server
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+CameraDirector:StartShot (CameraDirector/Moment) (at Assets/Scripts/CameraDirector.cs:112)
+CameraDirector:Tick (single) (at Assets/Scripts/CameraDirector.cs:121)
+CourtCamera:LateUpdate () (at Assets/Scripts/CourtCamera.cs:250)
+
+(Filename: Assets/Scripts/CameraDirector.cs Line: 112)
+
+The character with Unicode value \u2600 was not found in the [LiberationSans SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [WeatherText].
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object,UnityEngine.Object)
+UnityEngine.Debug:LogWarning (object,UnityEngine.Object)
+TMPro.TextMeshProUGUI:SetArraySizes (TMPro.TMP_Text/TextProcessingElement[]) (at ./Library/PackageCache/com.unity.ugui@23e8d17bfaf9/Runtime/TMP/TextMeshProUGUI.cs:2012)
+TMPro.TMP_Text:ParseInputText () (at ./Library/PackageCache/com.unity.ugui@23e8d17bfaf9/Runtime/TMP/TMP_Text.cs:2044)
+TMPro.TextMeshProUGUI:OnPreRenderCanvas () (at ./Library/PackageCache/com.unity.ugui@23e8d17bfaf9/Runtime/TMP/TextMeshProUGUI.cs:2496)
+TMPro.TextMeshProUGUI:Rebuild (UnityEngine.UI.CanvasUpdate) (at ./Library/PackageCache/com.unity.ugui@23e8d17bfaf9/Runtime/TMP/TextMeshProUGUI.cs:229)
+UnityEngine.UI.CanvasUpdateRegistry:PerformUpdate () (at ./Library/PackageCache/com.unity.ugui@23e8d17bfaf9/Runtime/UGUI/UI/Core/CanvasUpdateRegistry.cs:215)
+UnityEngine.Canvas:SendWillRenderCanvases ()
+
+(Filename: ./Library/PackageCache/com.unity.ugui@23e8d17bfaf9/Runtime/TMP/TextMeshProUGUI.cs Line: 2012)
+
+[Licensing::Client] Error: Code 404 while processing request (status: Found 0 entitlement groups and 0 free entitlements matching requested entitlement ids)
+[Licensing::Client] Error: Code 404 while processing request (status: Found 0 entitlement groups and 0 free entitlements matching requested entitlement ids)
+[MODES] ModeService[none].Initialize
+[MODES] ModeService[none].LoadModes
+[PlayedPlay] === 1.2 A3 PLAYED MATCH PROOF (V19, no api-server; difficulty medium; seed 20261125) ===
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchPlayProof:Line (string) (at Assets/Editor/PlayedMatchPlayProof.cs:103)
+PlayedMatchPlayProof:Tick () (at Assets/Editor/PlayedMatchPlayProof.cs:145)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/PlayedMatchPlayProof.cs Line: 103)
+
+[Manual] mode Manual (proof): a played match from the next serve
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+ManualControl:SetMode (ControlMode,string) (at Assets/Scripts/ManualControl.cs:153)
+PlayedMatchPlayProof:Tick () (at Assets/Editor/PlayedMatchPlayProof.cs:158)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Scripts/ManualControl.cs Line: 153)
+
+[CourtBridge] to the game page: unity-control-mode:manual
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+CourtBridge:Post (string) (at Assets/Scripts/CourtBridge.cs:20)
+ManualControl:SetMode (ControlMode,string) (at Assets/Scripts/ManualControl.cs:155)
+PlayedMatchPlayProof:Tick () (at Assets/Editor/PlayedMatchPlayProof.cs:158)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Scripts/CourtBridge.cs Line: 20)
+
+[PromptMotion] Newtonsoft.Json detected — no setup prompt needed.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PromptMotion.Shared.Setup.NewtonsoftDependencyChecker:Check () (at Assets/PromptMotion/Shared/Editor/Setup/NewtonsoftDependencyChecker.cs:45)
+PromptMotion.Shared.Setup.NewtonsoftDependencyChecker:WaitForEditorReady () (at Assets/PromptMotion/Shared/Editor/Setup/NewtonsoftDependencyChecker.cs:38)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/PromptMotion/Shared/Editor/Setup/NewtonsoftDependencyChecker.cs Line: 45)
+
+Start Indexing on Editor startup
+[Indexing] Starting Initial Indexing for Assets
+[UnityMatchDataLoader] point chance for the home pair: 0.4949
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+UnityMatchDataLoader/<LoadMatchDataInner>d__63:MoveNext () (at Assets/Scripts/UnityMatchDataLoader.cs:249)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+(Filename: Assets/Scripts/UnityMatchDataLoader.cs Line: 249)
+
+[UnityMatchDataLoader] game difficulty hard (a played match grades and plays at it)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+UnityMatchDataLoader/<LoadMatchDataInner>d__63:MoveNext () (at Assets/Scripts/UnityMatchDataLoader.cs:273)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+(Filename: Assets/Scripts/UnityMatchDataLoader.cs Line: 273)
+
+[UnityMatchDataLoader] event (null), kits (null), boards (null) '(null)', manual allowed
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+UnityMatchDataLoader/<LoadMatchDataInner>d__63:MoveNext () (at Assets/Scripts/UnityMatchDataLoader.cs:276)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+(Filename: Assets/Scripts/UnityMatchDataLoader.cs Line: 276)
+
+[UnityMatchDataLoader] Player_A1: skin 'Light' resolved via band 'Light' -> #EEC9B8
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+UnityMatchDataLoader:ApplyAppearance (UnityEngine.Transform,UnityMatchDataLoader/MatchPlayer,bool) (at Assets/Scripts/UnityMatchDataLoader.cs:560)
+UnityMatchDataLoader:Apply (UnityMatchDataLoader/MatchStatePayload) (at Assets/Scripts/UnityMatchDataLoader.cs:457)
+UnityMatchDataLoader/<LoadMatchDataInner>d__63:MoveNext () (at Assets/Scripts/UnityMatchDataLoader.cs:285)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+(Filename: Assets/Scripts/UnityMatchDataLoader.cs Line: 560)
+
+[UnityMatchDataLoader] Player_A1 <- Camila Santiago | team Maldives Coral Kings (home) | skinTone Light | kit #1e3a8a/#f59e0b | appearance controller found | applied ovr 80 pwr 85 spd 73 def 78 srv 74 blk 89 sta 79 mor 75 fit 100 fat 0 | (not applied: injured False)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+UnityMatchDataLoader:Apply (UnityMatchDataLoader/MatchStatePayload) (at Assets/Scripts/UnityMatchDataLoader.cs:459)
+UnityMatchDataLoader/<LoadMatchDataInner>d__63:MoveNext () (at Assets/Scripts/UnityMatchDataLoader.cs:285)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+(Filename: Assets/Scripts/UnityMatchDataLoader.cs Line: 459)
+
+[UnityMatchDataLoader] Player_A2: skin 'Light' resolved via band 'Light' -> #EEC9B8
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+UnityMatchDataLoader:ApplyAppearance (UnityEngine.Transform,UnityMatchDataLoader/MatchPlayer,bool) (at Assets/Scripts/UnityMatchDataLoader.cs:560)
+UnityMatchDataLoader:Apply (UnityMatchDataLoader/MatchStatePayload) (at Assets/Scripts/UnityMatchDataLoader.cs:457)
+UnityMatchDataLoader/<LoadMatchDataInner>d__63:MoveNext () (at Assets/Scripts/UnityMatchDataLoader.cs:285)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+(Filename: Assets/Scripts/UnityMatchDataLoader.cs Line: 560)
+
+[UnityMatchDataLoader] Player_A2 <- Nurul Ain | team Maldives Coral Kings (home) | skinTone Light | kit #1e3a8a/#f59e0b | appearance controller found | applied ovr 67 pwr 55 spd 74 def 70 srv 78 blk 52 sta 73 mor 75 fit 100 fat 0 | (not applied: injured False)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+UnityMatchDataLoader:Apply (UnityMatchDataLoader/MatchStatePayload) (at Assets/Scripts/UnityMatchDataLoader.cs:459)
+UnityMatchDataLoader/<LoadMatchDataInner>d__63:MoveNext () (at Assets/Scripts/UnityMatchDataLoader.cs:285)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+(Filename: Assets/Scripts/UnityMatchDataLoader.cs Line: 459)
+
+[UnityMatchDataLoader] Player_B1: skin 'Medium' resolved via band 'Medium' -> #AA7339
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+UnityMatchDataLoader:ApplyAppearance (UnityEngine.Transform,UnityMatchDataLoader/MatchPlayer,bool) (at Assets/Scripts/UnityMatchDataLoader.cs:560)
+UnityMatchDataLoader:Apply (UnityMatchDataLoader/MatchStatePayload) (at Assets/Scripts/UnityMatchDataLoader.cs:457)
+UnityMatchDataLoader/<LoadMatchDataInner>d__63:MoveNext () (at Assets/Scripts/UnityMatchDataLoader.cs:285)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+(Filename: Assets/Scripts/UnityMatchDataLoader.cs Line: 560)
+
+[UnityMatchDataLoader] Player_B1 <- Giulia Ricci | team Rome Beach Gladiators (away) | skinTone Medium | kit #FFFFFF/#0B2545 | appearance controller found | applied ovr 78 pwr 77 spd 78 def 80 srv 78 blk 80 sta 76 mor 60 fit 80 fat 0 | (not applied: injured False)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+UnityMatchDataLoader:Apply (UnityMatchDataLoader/MatchStatePayload) (at Assets/Scripts/UnityMatchDataLoader.cs:459)
+UnityMatchDataLoader/<LoadMatchDataInner>d__63:MoveNext () (at Assets/Scripts/UnityMatchDataLoader.cs:285)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+(Filename: Assets/Scripts/UnityMatchDataLoader.cs Line: 459)
+
+[UnityMatchDataLoader] Player_B2: skin 'Medium' resolved via band 'Medium' -> #AA7339
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+UnityMatchDataLoader:ApplyAppearance (UnityEngine.Transform,UnityMatchDataLoader/MatchPlayer,bool) (at Assets/Scripts/UnityMatchDataLoader.cs:560)
+UnityMatchDataLoader:Apply (UnityMatchDataLoader/MatchStatePayload) (at Assets/Scripts/UnityMatchDataLoader.cs:457)
+UnityMatchDataLoader/<LoadMatchDataInner>d__63:MoveNext () (at Assets/Scripts/UnityMatchDataLoader.cs:285)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+(Filename: Assets/Scripts/UnityMatchDataLoader.cs Line: 560)
+
+[UnityMatchDataLoader] Player_B2 <- Valentina Bianchi | team Rome Beach Gladiators (away) | skinTone Medium | kit #FFFFFF/#0B2545 | appearance controller found | applied ovr 78 pwr 75 spd 80 def 78 srv 76 blk 78 sta 78 mor 60 fit 80 fat 0 | (not applied: injured False)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+UnityMatchDataLoader:Apply (UnityMatchDataLoader/MatchStatePayload) (at Assets/Scripts/UnityMatchDataLoader.cs:459)
+UnityMatchDataLoader/<LoadMatchDataInner>d__63:MoveNext () (at Assets/Scripts/UnityMatchDataLoader.cs:285)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+(Filename: Assets/Scripts/UnityMatchDataLoader.cs Line: 459)
+
+[UnityMatchDataLoader] team names: MALDIVES CORAL KINGS (home) vs ROME BEACH GLADIATORS (away)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+UnityMatchDataLoader:Apply (UnityMatchDataLoader/MatchStatePayload) (at Assets/Scripts/UnityMatchDataLoader.cs:482)
+UnityMatchDataLoader/<LoadMatchDataInner>d__63:MoveNext () (at Assets/Scripts/UnityMatchDataLoader.cs:285)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+(Filename: Assets/Scripts/UnityMatchDataLoader.cs Line: 482)
+
+[UnityMatchDataLoader] applied 4 of 4 player(s)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+UnityMatchDataLoader:Apply (UnityMatchDataLoader/MatchStatePayload) (at Assets/Scripts/UnityMatchDataLoader.cs:495)
+UnityMatchDataLoader/<LoadMatchDataInner>d__63:MoveNext () (at Assets/Scripts/UnityMatchDataLoader.cs:285)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+(Filename: Assets/Scripts/UnityMatchDataLoader.cs Line: 495)
+
+[Camera] Game look, view 1 (Behind your baseline)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+CourtCamera:SetLookInternal (CourtCamera/Look,int,bool) (at Assets/Scripts/CourtCamera.cs:167)
+CourtCamera:ApplyPref (bool) (at Assets/Scripts/CourtCamera.cs:140)
+CourtCamera:Update () (at Assets/Scripts/CourtCamera.cs:193)
+
+(Filename: Assets/Scripts/CourtCamera.cs Line: 167)
+
+[MatchManager] match starts after 3.7s: match data applied; home point chance 0.4949
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+MatchManager:CheckMatchDataReady () (at Assets/Scripts/MatchManager.cs:512)
+MatchManager:Update () (at Assets/Scripts/MatchManager.cs:460)
+
+(Filename: Assets/Scripts/MatchManager.cs Line: 512)
+
+[MatchManager] ratings in play Player_A1 (Camila Santiago): ovr 80 pwr 85 spd 73 def 78 srv 74 blk 89 sta 79 mor 75
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+MatchManager:LogRatingsInPlay (PlayerAI) (at Assets/Scripts/MatchManager.cs:530)
+MatchManager:CheckMatchDataReady () (at Assets/Scripts/MatchManager.cs:514)
+MatchManager:Update () (at Assets/Scripts/MatchManager.cs:460)
+
+(Filename: Assets/Scripts/MatchManager.cs Line: 530)
+
+[MatchManager] ratings in play Player_A2 (Nurul Ain): ovr 67 pwr 55 spd 74 def 70 srv 78 blk 52 sta 73 mor 75
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+MatchManager:LogRatingsInPlay (PlayerAI) (at Assets/Scripts/MatchManager.cs:530)
+MatchManager:CheckMatchDataReady () (at Assets/Scripts/MatchManager.cs:515)
+MatchManager:Update () (at Assets/Scripts/MatchManager.cs:460)
+
+(Filename: Assets/Scripts/MatchManager.cs Line: 530)
+
+[MatchManager] ratings in play Player_B1 (Giulia Ricci): ovr 78 pwr 77 spd 78 def 80 srv 78 blk 80 sta 76 mor 60
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+MatchManager:LogRatingsInPlay (PlayerAI) (at Assets/Scripts/MatchManager.cs:530)
+MatchManager:CheckMatchDataReady () (at Assets/Scripts/MatchManager.cs:516)
+MatchManager:Update () (at Assets/Scripts/MatchManager.cs:460)
+
+(Filename: Assets/Scripts/MatchManager.cs Line: 530)
+
+[MatchManager] ratings in play Player_B2 (Valentina Bianchi): ovr 78 pwr 75 spd 80 def 78 srv 76 blk 78 sta 78 mor 60
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+MatchManager:LogRatingsInPlay (PlayerAI) (at Assets/Scripts/MatchManager.cs:530)
+MatchManager:CheckMatchDataReady () (at Assets/Scripts/MatchManager.cs:517)
+MatchManager:Update () (at Assets/Scripts/MatchManager.cs:460)
+
+(Filename: Assets/Scripts/MatchManager.cs Line: 530)
+
+[Played] a played match from this serve: Hard, server Player_A2, you control Player_A1; partner AI timing sd 105 ms, reaction 268 ms, placing ±0.33 m, soft 16%; opponents AI timing sd 88 ms, reaction 242 ms, placing ±0.28 m, soft 18%; seed 20261125
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchRunner:StartPlayed (MatchManager,PlayerAI) (at Assets/Scripts/PlayedMatchRunner.cs:92)
+PlayedMatchRunner:Begin (MatchManager,PlayerAI) (at Assets/Scripts/PlayedMatchRunner.cs:54)
+MatchManager:BeginServe () (at Assets/Scripts/MatchManager.cs:709)
+MatchManager:Update () (at Assets/Scripts/MatchManager.cs:480)
+
+(Filename: Assets/Scripts/PlayedMatchRunner.cs Line: 92)
+
+Created GICache directory at C:/Users/rbonn/AppData/LocalLow/Unity/Caches/GiCache. Took: 0.007s, timestamps: [14.250 - 14.258]
+[Licensing::Client] Successfully resolved entitlement details
+[PlayedPlay]   played match running after 0.3 s; you control Player_A1
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchPlayProof:Line (string) (at Assets/Editor/PlayedMatchPlayProof.cs:103)
+PlayedMatchPlayProof:Tick () (at Assets/Editor/PlayedMatchPlayProof.cs:159)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/PlayedMatchPlayProof.cs Line: 103)
+
+[Licensing::Client] Successfully resolved entitlement details
+[Commentary] 0 of 48 clips loaded from file:///C:/Users/rbonn/Game_Dev/VolleyBall Empire/volleyball/Assets/StreamingAssets/commentary
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+CommentaryManager/<LoadClips>d__32:MoveNext () (at Assets/Scripts/CommentaryManager.cs:108)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+(Filename: Assets/Scripts/CommentaryManager.cs Line: 108)
+
+[INFO ] [relay] relay.startup port=9001 mcpClientPort=9002 editorPid=4040
+[INFO ] [relay] log === RELAY SERVER STARTED === (unity-ai-relay v1.0.12-build.99)
+[INFO ] [relay] log TLS trust: NODE_USE_SYSTEM_CA=on systemCAs=87 bundledCAs=145
+[INFO ] [relay] log Starting relay server...
+[INFO ] [relay] log Command line arguments: ["bun","B:/~BUN/root/relay_win.exe","--relay","--port","9001","--mcp-client-port","9002","--editor-pid","4040","--shutdown-delay","180","--log-dir","C:\\Users\\rbonn\\Game_Dev\\VolleyBall Empire\\volleyball\\Logs"]
+[INFO ] [relay] log Parsed config: {"port":9001,"mcpClientPort":9002,"editorPid":"4040","shutdownDelaySeconds":180}
+[INFO ] [relay] log Initializing relay components...
+[INFO ] [relay] log Creating RelayEditor...
+[INFO ] [relay] log WebSocket server started
+[INFO ] [relay] log Relay server initialization completed
+[INFO ] [relay] log MCP Client initialized at port: 9002
+[INFO ] [relay] log [shell-env] PATH augmented with shell environment (26 entries)
+[INFO ] [relay] log Unity MCP Relay server started | Port: 9002 | Endpoints: /mcp/start-server, /mcp/stop-server, /mcp/server-status, /mcp/call-tool
+[PlayedPlay]   CHECK Dig fires from the keyboard (J) and the gamepad (A): PASS  keyboard 1, gamepad 1
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchPlayProof:Line (string) (at Assets/Editor/PlayedMatchPlayProof.cs:103)
+PlayedMatchPlayProof:Check (string,bool,string) (at Assets/Editor/PlayedMatchPlayProof.cs:107)
+PlayedMatchPlayProof:DeviceChecks (PlayedMatchRunner) (at Assets/Editor/PlayedMatchPlayProof.cs:217)
+PlayedMatchPlayProof:Tick () (at Assets/Editor/PlayedMatchPlayProof.cs:162)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/PlayedMatchPlayProof.cs Line: 103)
+
+[INFO ] [relay] log Unity client connected with ID: editor-4040-5gg5hl (relay 1.0.12-build.99)
+[INFO ] [relay] connection.established clientId=editor-4040-5gg5hl port=9001
+[PlayedPlay]   CHECK Set fires from the keyboard (K) and the gamepad (X): PASS  keyboard 1, gamepad 1
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchPlayProof:Line (string) (at Assets/Editor/PlayedMatchPlayProof.cs:103)
+PlayedMatchPlayProof:Check (string,bool,string) (at Assets/Editor/PlayedMatchPlayProof.cs:107)
+PlayedMatchPlayProof:DeviceChecks (PlayedMatchRunner) (at Assets/Editor/PlayedMatchPlayProof.cs:217)
+PlayedMatchPlayProof:Tick () (at Assets/Editor/PlayedMatchPlayProof.cs:162)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/PlayedMatchPlayProof.cs Line: 103)
+
+[PlayedPlay]   CHECK Soft fires from the keyboard (I) and the gamepad (RightShoulder): PASS  keyboard 1, gamepad 1
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchPlayProof:Line (string) (at Assets/Editor/PlayedMatchPlayProof.cs:103)
+PlayedMatchPlayProof:Check (string,bool,string) (at Assets/Editor/PlayedMatchPlayProof.cs:107)
+PlayedMatchPlayProof:DeviceChecks (PlayedMatchRunner) (at Assets/Editor/PlayedMatchPlayProof.cs:217)
+PlayedMatchPlayProof:Tick () (at Assets/Editor/PlayedMatchPlayProof.cs:162)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/PlayedMatchPlayProof.cs Line: 103)
+
+[PlayedPlay]   CHECK Dive fires from the keyboard (Space) and the gamepad (Circle): PASS  keyboard 1, gamepad 1
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchPlayProof:Line (string) (at Assets/Editor/PlayedMatchPlayProof.cs:103)
+PlayedMatchPlayProof:Check (string,bool,string) (at Assets/Editor/PlayedMatchPlayProof.cs:107)
+PlayedMatchPlayProof:DeviceChecks (PlayedMatchRunner) (at Assets/Editor/PlayedMatchPlayProof.cs:217)
+PlayedMatchPlayProof:Tick () (at Assets/Editor/PlayedMatchPlayProof.cs:162)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/PlayedMatchPlayProof.cs Line: 103)
+
+[Played] Q / LB: you now control Player_A1 (until the ball goes over)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchRunner:Update () (at Assets/Scripts/PlayedMatchRunner.cs:145)
+
+(Filename: Assets/Scripts/PlayedMatchRunner.cs Line: 145)
+
+[Played] Q / LB: you now control Player_A2 (until the ball goes over)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchRunner:Update () (at Assets/Scripts/PlayedMatchRunner.cs:145)
+
+(Filename: Assets/Scripts/PlayedMatchRunner.cs Line: 145)
+
+[PlayedPlay]   CHECK Switch fires from the keyboard (Q) and the gamepad (LeftShoulder): PASS  keyboard 1, gamepad 1
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchPlayProof:Line (string) (at Assets/Editor/PlayedMatchPlayProof.cs:103)
+PlayedMatchPlayProof:Check (string,bool,string) (at Assets/Editor/PlayedMatchPlayProof.cs:107)
+PlayedMatchPlayProof:DeviceChecks (PlayedMatchRunner) (at Assets/Editor/PlayedMatchPlayProof.cs:217)
+PlayedMatchPlayProof:Tick () (at Assets/Editor/PlayedMatchPlayProof.cs:162)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/PlayedMatchPlayProof.cs Line: 103)
+
+[PlayedPlay]   CHECK Cheer fires from the keyboard (C) and the gamepad (D-pad up): PASS  keyboard 1, gamepad 1
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchPlayProof:Line (string) (at Assets/Editor/PlayedMatchPlayProof.cs:103)
+PlayedMatchPlayProof:Check (string,bool,string) (at Assets/Editor/PlayedMatchPlayProof.cs:107)
+PlayedMatchPlayProof:DeviceChecks (PlayedMatchRunner) (at Assets/Editor/PlayedMatchPlayProof.cs:217)
+PlayedMatchPlayProof:Tick () (at Assets/Editor/PlayedMatchPlayProof.cs:162)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/PlayedMatchPlayProof.cs Line: 103)
+
+[PlayedPlay]   CHECK Move fires from WASD and the left stick: PASS  keyboard frames 248, gamepad frames 253
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchPlayProof:Line (string) (at Assets/Editor/PlayedMatchPlayProof.cs:103)
+PlayedMatchPlayProof:Check (string,bool,string) (at Assets/Editor/PlayedMatchPlayProof.cs:107)
+PlayedMatchPlayProof:DeviceChecks (PlayedMatchRunner) (at Assets/Editor/PlayedMatchPlayProof.cs:228)
+PlayedMatchPlayProof:Tick () (at Assets/Editor/PlayedMatchPlayProof.cs:162)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/PlayedMatchPlayProof.cs Line: 103)
+
+[Manual] controls panel hidden
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+ManualControl:SetHelpVisible (bool) (at Assets/Scripts/ManualControl.cs:173)
+ManualControl:Fire (ManualAction,UnityEngine.InputSystem.InputAction/CallbackContext) (at Assets/Scripts/ManualControl.cs:120)
+ManualControl/<>c__DisplayClass43_0:<AddButton>b__0 (UnityEngine.InputSystem.InputAction/CallbackContext) (at Assets/Scripts/ManualControl.cs:102)
+UnityEngine.InputSystem.Utilities.DelegateHelpers:InvokeCallbacksSafe<UnityEngine.InputSystem.InputAction/CallbackContext> (UnityEngine.InputSystem.Utilities.CallbackArray`1<System.Action`1<UnityEngine.InputSystem.InputAction/CallbackContext>>&,UnityEngine.InputSystem.InputAction/CallbackContext,string,object) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/Utilities/DelegateHelpers.cs:46)
+UnityEngine.InputSystem.InputActionState:CallActionListeners (int,UnityEngine.InputSystem.InputActionMap,UnityEngine.InputSystem.InputActionPhase,UnityEngine.InputSystem.Utilities.CallbackArray`1<System.Action`1<UnityEngine.InputSystem.InputAction/CallbackContext>>&,string) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/Actions/InputActionState.cs:2601)
+UnityEngine.InputSystem.InputActionState:ChangePhaseOfActionInternal (int,UnityEngine.InputSystem.InputActionState/TriggerState*,UnityEngine.InputSystem.InputActionPhase,UnityEngine.InputSystem.InputActionState/TriggerState&,bool) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/Actions/InputActionState.cs:2547)
+UnityEngine.InputSystem.InputActionState:ChangePhaseOfAction (UnityEngine.InputSystem.InputActionPhase,UnityEngine.InputSystem.InputActionState/TriggerState&,UnityEngine.InputSystem.InputActionPhase) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/Actions/InputActionState.cs:2429)
+UnityEngine.InputSystem.InputActionState:ProcessDefaultInteraction (UnityEngine.InputSystem.InputActionState/TriggerState&,int) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/Actions/InputActionState.cs:1971)
+UnityEngine.InputSystem.InputActionState:ProcessControlStateChange (int,int,int,double,UnityEngine.InputSystem.LowLevel.InputEventPtr) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/Actions/InputActionState.cs:1569)
+UnityEngine.InputSystem.InputActionState:UnityEngine.InputSystem.LowLevel.IInputStateChangeMonitor.NotifyControlStateChanged (UnityEngine.InputSystem.InputControl,double,UnityEngine.InputSystem.LowLevel.InputEventPtr,long) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/Actions/InputActionState.cs:1364)
+UnityEngine.InputSystem.InputManager:FireStateChangeNotifications (int,double,UnityEngine.InputSystem.LowLevel.InputEvent*) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/InputManagerStateMonitors.cs:394)
+UnityEngine.InputSystem.InputManager:UpdateState (UnityEngine.InputSystem.InputDevice,UnityEngine.InputSystem.LowLevel.InputUpdateType,void*,uint,uint,double,UnityEngine.InputSystem.LowLevel.InputEventPtr) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/InputManager.cs:4074)
+UnityEngine.InputSystem.InputManager:UpdateState (UnityEngine.InputSystem.InputDevice,UnityEngine.InputSystem.LowLevel.InputEvent*,UnityEngine.InputSystem.LowLevel.InputUpdateType) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/InputManager.cs:3949)
+UnityEngine.InputSystem.InputManager:OnUpdate (UnityEngine.InputSystem.LowLevel.InputUpdateType,UnityEngine.InputSystem.LowLevel.InputEventBuffer&) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/InputManager.cs:3538)
+UnityEngine.InputSystem.LowLevel.NativeInputRuntime/<>c__DisplayClass7_0:<set_onUpdate>b__0 (UnityEngineInternal.Input.NativeInputUpdateType,UnityEngineInternal.Input.NativeInputEventBuffer*) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/NativeInputRuntime.cs:65)
+UnityEngineInternal.Input.NativeInputSystem:NotifyUpdate (UnityEngineInternal.Input.NativeInputUpdateType,intptr)
+
+(Filename: Assets/Scripts/ManualControl.cs Line: 173)
+
+[Manual] controls panel shown
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+ManualControl:SetHelpVisible (bool) (at Assets/Scripts/ManualControl.cs:173)
+ManualControl:Fire (ManualAction,UnityEngine.InputSystem.InputAction/CallbackContext) (at Assets/Scripts/ManualControl.cs:120)
+ManualControl/<>c__DisplayClass43_0:<AddButton>b__0 (UnityEngine.InputSystem.InputAction/CallbackContext) (at Assets/Scripts/ManualControl.cs:102)
+UnityEngine.InputSystem.Utilities.DelegateHelpers:InvokeCallbacksSafe<UnityEngine.InputSystem.InputAction/CallbackContext> (UnityEngine.InputSystem.Utilities.CallbackArray`1<System.Action`1<UnityEngine.InputSystem.InputAction/CallbackContext>>&,UnityEngine.InputSystem.InputAction/CallbackContext,string,object) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/Utilities/DelegateHelpers.cs:46)
+UnityEngine.InputSystem.InputActionState:CallActionListeners (int,UnityEngine.InputSystem.InputActionMap,UnityEngine.InputSystem.InputActionPhase,UnityEngine.InputSystem.Utilities.CallbackArray`1<System.Action`1<UnityEngine.InputSystem.InputAction/CallbackContext>>&,string) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/Actions/InputActionState.cs:2601)
+UnityEngine.InputSystem.InputActionState:ChangePhaseOfActionInternal (int,UnityEngine.InputSystem.InputActionState/TriggerState*,UnityEngine.InputSystem.InputActionPhase,UnityEngine.InputSystem.InputActionState/TriggerState&,bool) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/Actions/InputActionState.cs:2547)
+UnityEngine.InputSystem.InputActionState:ChangePhaseOfAction (UnityEngine.InputSystem.InputActionPhase,UnityEngine.InputSystem.InputActionState/TriggerState&,UnityEngine.InputSystem.InputActionPhase) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/Actions/InputActionState.cs:2429)
+UnityEngine.InputSystem.InputActionState:ProcessDefaultInteraction (UnityEngine.InputSystem.InputActionState/TriggerState&,int) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/Actions/InputActionState.cs:1971)
+UnityEngine.InputSystem.InputActionState:ProcessControlStateChange (int,int,int,double,UnityEngine.InputSystem.LowLevel.InputEventPtr) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/Actions/InputActionState.cs:1569)
+UnityEngine.InputSystem.InputActionState:UnityEngine.InputSystem.LowLevel.IInputStateChangeMonitor.NotifyControlStateChanged (UnityEngine.InputSystem.InputControl,double,UnityEngine.InputSystem.LowLevel.InputEventPtr,long) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/Actions/InputActionState.cs:1364)
+UnityEngine.InputSystem.InputManager:FireStateChangeNotifications (int,double,UnityEngine.InputSystem.LowLevel.InputEvent*) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/InputManagerStateMonitors.cs:394)
+UnityEngine.InputSystem.InputManager:UpdateState (UnityEngine.InputSystem.InputDevice,UnityEngine.InputSystem.LowLevel.InputUpdateType,void*,uint,uint,double,UnityEngine.InputSystem.LowLevel.InputEventPtr) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/InputManager.cs:4074)
+UnityEngine.InputSystem.InputManager:UpdateState (UnityEngine.InputSystem.InputDevice,UnityEngine.InputSystem.LowLevel.InputEvent*,UnityEngine.InputSystem.LowLevel.InputUpdateType) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/InputManager.cs:3949)
+UnityEngine.InputSystem.InputManager:OnUpdate (UnityEngine.InputSystem.LowLevel.InputUpdateType,UnityEngine.InputSystem.LowLevel.InputEventBuffer&) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/InputManager.cs:3538)
+UnityEngine.InputSystem.LowLevel.NativeInputRuntime/<>c__DisplayClass7_0:<set_onUpdate>b__0 (UnityEngineInternal.Input.NativeInputUpdateType,UnityEngineInternal.Input.NativeInputEventBuffer*) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/NativeInputRuntime.cs:65)
+UnityEngineInternal.Input.NativeInputSystem:NotifyUpdate (UnityEngineInternal.Input.NativeInputUpdateType,intptr)
+
+(Filename: Assets/Scripts/ManualControl.cs Line: 173)
+
+[PlayedPlay]   CHECK Help still fires from H and DpadDown (ManualControl), and leaves the match in Manual, unpaused: PASS  keyboard 1, gamepad 1, mode Manual, paused False
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchPlayProof:Line (string) (at Assets/Editor/PlayedMatchPlayProof.cs:103)
+PlayedMatchPlayProof:Check (string,bool,string) (at Assets/Editor/PlayedMatchPlayProof.cs:107)
+PlayedMatchPlayProof:DeviceChecks (PlayedMatchRunner) (at Assets/Editor/PlayedMatchPlayProof.cs:247)
+PlayedMatchPlayProof:Tick () (at Assets/Editor/PlayedMatchPlayProof.cs:162)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/PlayedMatchPlayProof.cs Line: 103)
+
+[Manual] paused
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+ManualControl:SetPaused (bool) (at Assets/Scripts/ManualControl.cs:165)
+ManualControl:Fire (ManualAction,UnityEngine.InputSystem.InputAction/CallbackContext) (at Assets/Scripts/ManualControl.cs:119)
+ManualControl/<>c__DisplayClass43_0:<AddButton>b__0 (UnityEngine.InputSystem.InputAction/CallbackContext) (at Assets/Scripts/ManualControl.cs:102)
+UnityEngine.InputSystem.Utilities.DelegateHelpers:InvokeCallbacksSafe<UnityEngine.InputSystem.InputAction/CallbackContext> (UnityEngine.InputSystem.Utilities.CallbackArray`1<System.Action`1<UnityEngine.InputSystem.InputAction/CallbackContext>>&,UnityEngine.InputSystem.InputAction/CallbackContext,string,object) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/Utilities/DelegateHelpers.cs:46)
+UnityEngine.InputSystem.InputActionState:CallActionListeners (int,UnityEngine.InputSystem.InputActionMap,UnityEngine.InputSystem.InputActionPhase,UnityEngine.InputSystem.Utilities.CallbackArray`1<System.Action`1<UnityEngine.InputSystem.InputAction/CallbackContext>>&,string) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/Actions/InputActionState.cs:2601)
+UnityEngine.InputSystem.InputActionState:ChangePhaseOfActionInternal (int,UnityEngine.InputSystem.InputActionState/TriggerState*,UnityEngine.InputSystem.InputActionPhase,UnityEngine.InputSystem.InputActionState/TriggerState&,bool) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/Actions/InputActionState.cs:2547)
+UnityEngine.InputSystem.InputActionState:ChangePhaseOfAction (UnityEngine.InputSystem.InputActionPhase,UnityEngine.InputSystem.InputActionState/TriggerState&,UnityEngine.InputSystem.InputActionPhase) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/Actions/InputActionState.cs:2429)
+UnityEngine.InputSystem.InputActionState:ProcessDefaultInteraction (UnityEngine.InputSystem.InputActionState/TriggerState&,int) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/Actions/InputActionState.cs:1971)
+UnityEngine.InputSystem.InputActionState:ProcessControlStateChange (int,int,int,double,UnityEngine.InputSystem.LowLevel.InputEventPtr) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/Actions/InputActionState.cs:1569)
+UnityEngine.InputSystem.InputActionState:UnityEngine.InputSystem.LowLevel.IInputStateChangeMonitor.NotifyControlStateChanged (UnityEngine.InputSystem.InputControl,double,UnityEngine.InputSystem.LowLevel.InputEventPtr,long) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/Actions/InputActionState.cs:1364)
+UnityEngine.InputSystem.InputManager:FireStateChangeNotifications (int,double,UnityEngine.InputSystem.LowLevel.InputEvent*) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/InputManagerStateMonitors.cs:394)
+UnityEngine.InputSystem.InputManager:UpdateState (UnityEngine.InputSystem.InputDevice,UnityEngine.InputSystem.LowLevel.InputUpdateType,void*,uint,uint,double,UnityEngine.InputSystem.LowLevel.InputEventPtr) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/InputManager.cs:4074)
+UnityEngine.InputSystem.InputManager:UpdateState (UnityEngine.InputSystem.InputDevice,UnityEngine.InputSystem.LowLevel.InputEvent*,UnityEngine.InputSystem.LowLevel.InputUpdateType) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/InputManager.cs:3949)
+UnityEngine.InputSystem.InputManager:OnUpdate (UnityEngine.InputSystem.LowLevel.InputUpdateType,UnityEngine.InputSystem.LowLevel.InputEventBuffer&) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/InputManager.cs:3538)
+UnityEngine.InputSystem.LowLevel.NativeInputRuntime/<>c__DisplayClass7_0:<set_onUpdate>b__0 (UnityEngineInternal.Input.NativeInputUpdateType,UnityEngineInternal.Input.NativeInputEventBuffer*) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/NativeInputRuntime.cs:65)
+UnityEngineInternal.Input.NativeInputSystem:NotifyUpdate (UnityEngineInternal.Input.NativeInputUpdateType,intptr)
+
+(Filename: Assets/Scripts/ManualControl.cs Line: 165)
+
+[Manual] resumed
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+ManualControl:SetPaused (bool) (at Assets/Scripts/ManualControl.cs:165)
+ManualControl:Fire (ManualAction,UnityEngine.InputSystem.InputAction/CallbackContext) (at Assets/Scripts/ManualControl.cs:119)
+ManualControl/<>c__DisplayClass43_0:<AddButton>b__0 (UnityEngine.InputSystem.InputAction/CallbackContext) (at Assets/Scripts/ManualControl.cs:102)
+UnityEngine.InputSystem.Utilities.DelegateHelpers:InvokeCallbacksSafe<UnityEngine.InputSystem.InputAction/CallbackContext> (UnityEngine.InputSystem.Utilities.CallbackArray`1<System.Action`1<UnityEngine.InputSystem.InputAction/CallbackContext>>&,UnityEngine.InputSystem.InputAction/CallbackContext,string,object) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/Utilities/DelegateHelpers.cs:46)
+UnityEngine.InputSystem.InputActionState:CallActionListeners (int,UnityEngine.InputSystem.InputActionMap,UnityEngine.InputSystem.InputActionPhase,UnityEngine.InputSystem.Utilities.CallbackArray`1<System.Action`1<UnityEngine.InputSystem.InputAction/CallbackContext>>&,string) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/Actions/InputActionState.cs:2601)
+UnityEngine.InputSystem.InputActionState:ChangePhaseOfActionInternal (int,UnityEngine.InputSystem.InputActionState/TriggerState*,UnityEngine.InputSystem.InputActionPhase,UnityEngine.InputSystem.InputActionState/TriggerState&,bool) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/Actions/InputActionState.cs:2547)
+UnityEngine.InputSystem.InputActionState:ChangePhaseOfAction (UnityEngine.InputSystem.InputActionPhase,UnityEngine.InputSystem.InputActionState/TriggerState&,UnityEngine.InputSystem.InputActionPhase) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/Actions/InputActionState.cs:2429)
+UnityEngine.InputSystem.InputActionState:ProcessDefaultInteraction (UnityEngine.InputSystem.InputActionState/TriggerState&,int) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/Actions/InputActionState.cs:1971)
+UnityEngine.InputSystem.InputActionState:ProcessControlStateChange (int,int,int,double,UnityEngine.InputSystem.LowLevel.InputEventPtr) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/Actions/InputActionState.cs:1569)
+UnityEngine.InputSystem.InputActionState:UnityEngine.InputSystem.LowLevel.IInputStateChangeMonitor.NotifyControlStateChanged (UnityEngine.InputSystem.InputControl,double,UnityEngine.InputSystem.LowLevel.InputEventPtr,long) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/Actions/InputActionState.cs:1364)
+UnityEngine.InputSystem.InputManager:FireStateChangeNotifications (int,double,UnityEngine.InputSystem.LowLevel.InputEvent*) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/InputManagerStateMonitors.cs:394)
+UnityEngine.InputSystem.InputManager:UpdateState (UnityEngine.InputSystem.InputDevice,UnityEngine.InputSystem.LowLevel.InputUpdateType,void*,uint,uint,double,UnityEngine.InputSystem.LowLevel.InputEventPtr) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/InputManager.cs:4074)
+UnityEngine.InputSystem.InputManager:UpdateState (UnityEngine.InputSystem.InputDevice,UnityEngine.InputSystem.LowLevel.InputEvent*,UnityEngine.InputSystem.LowLevel.InputUpdateType) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/InputManager.cs:3949)
+UnityEngine.InputSystem.InputManager:OnUpdate (UnityEngine.InputSystem.LowLevel.InputUpdateType,UnityEngine.InputSystem.LowLevel.InputEventBuffer&) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/InputManager.cs:3538)
+UnityEngine.InputSystem.LowLevel.NativeInputRuntime/<>c__DisplayClass7_0:<set_onUpdate>b__0 (UnityEngineInternal.Input.NativeInputUpdateType,UnityEngineInternal.Input.NativeInputEventBuffer*) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/NativeInputRuntime.cs:65)
+UnityEngineInternal.Input.NativeInputSystem:NotifyUpdate (UnityEngineInternal.Input.NativeInputUpdateType,intptr)
+
+(Filename: Assets/Scripts/ManualControl.cs Line: 165)
+
+[PlayedPlay]   CHECK Pause still fires from Escape and Start (ManualControl), and leaves the match in Manual, unpaused: PASS  keyboard 1, gamepad 1, mode Manual, paused False
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchPlayProof:Line (string) (at Assets/Editor/PlayedMatchPlayProof.cs:103)
+PlayedMatchPlayProof:Check (string,bool,string) (at Assets/Editor/PlayedMatchPlayProof.cs:107)
+PlayedMatchPlayProof:DeviceChecks (PlayedMatchRunner) (at Assets/Editor/PlayedMatchPlayProof.cs:247)
+PlayedMatchPlayProof:Tick () (at Assets/Editor/PlayedMatchPlayProof.cs:162)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/PlayedMatchPlayProof.cs Line: 103)
+
+[Manual] mode Auto (keyboard): Auto from the next serve
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+ManualControl:SetMode (ControlMode,string) (at Assets/Scripts/ManualControl.cs:153)
+ManualControl:Fire (ManualAction,UnityEngine.InputSystem.InputAction/CallbackContext) (at Assets/Scripts/ManualControl.cs:114)
+ManualControl/<>c__DisplayClass43_0:<AddButton>b__0 (UnityEngine.InputSystem.InputAction/CallbackContext) (at Assets/Scripts/ManualControl.cs:102)
+UnityEngine.InputSystem.Utilities.DelegateHelpers:InvokeCallbacksSafe<UnityEngine.InputSystem.InputAction/CallbackContext> (UnityEngine.InputSystem.Utilities.CallbackArray`1<System.Action`1<UnityEngine.InputSystem.InputAction/CallbackContext>>&,UnityEngine.InputSystem.InputAction/CallbackContext,string,object) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/Utilities/DelegateHelpers.cs:46)
+UnityEngine.InputSystem.InputActionState:CallActionListeners (int,UnityEngine.InputSystem.InputActionMap,UnityEngine.InputSystem.InputActionPhase,UnityEngine.InputSystem.Utilities.CallbackArray`1<System.Action`1<UnityEngine.InputSystem.InputAction/CallbackContext>>&,string) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/Actions/InputActionState.cs:2601)
+UnityEngine.InputSystem.InputActionState:ChangePhaseOfActionInternal (int,UnityEngine.InputSystem.InputActionState/TriggerState*,UnityEngine.InputSystem.InputActionPhase,UnityEngine.InputSystem.InputActionState/TriggerState&,bool) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/Actions/InputActionState.cs:2547)
+UnityEngine.InputSystem.InputActionState:ChangePhaseOfAction (UnityEngine.InputSystem.InputActionPhase,UnityEngine.InputSystem.InputActionState/TriggerState&,UnityEngine.InputSystem.InputActionPhase) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/Actions/InputActionState.cs:2429)
+UnityEngine.InputSystem.InputActionState:ProcessDefaultInteraction (UnityEngine.InputSystem.InputActionState/TriggerState&,int) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/Actions/InputActionState.cs:1971)
+UnityEngine.InputSystem.InputActionState:ProcessControlStateChange (int,int,int,double,UnityEngine.InputSystem.LowLevel.InputEventPtr) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/Actions/InputActionState.cs:1569)
+UnityEngine.InputSystem.InputActionState:UnityEngine.InputSystem.LowLevel.IInputStateChangeMonitor.NotifyControlStateChanged (UnityEngine.InputSystem.InputControl,double,UnityEngine.InputSystem.LowLevel.InputEventPtr,long) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/Actions/InputActionState.cs:1364)
+UnityEngine.InputSystem.InputManager:FireStateChangeNotifications (int,double,UnityEngine.InputSystem.LowLevel.InputEvent*) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/InputManagerStateMonitors.cs:394)
+UnityEngine.InputSystem.InputManager:UpdateState (UnityEngine.InputSystem.InputDevice,UnityEngine.InputSystem.LowLevel.InputUpdateType,void*,uint,uint,double,UnityEngine.InputSystem.LowLevel.InputEventPtr) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/InputManager.cs:4074)
+UnityEngine.InputSystem.InputManager:UpdateState (UnityEngine.InputSystem.InputDevice,UnityEngine.InputSystem.LowLevel.InputEvent*,UnityEngine.InputSystem.LowLevel.InputUpdateType) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/InputManager.cs:3949)
+UnityEngine.InputSystem.InputManager:OnUpdate (UnityEngine.InputSystem.LowLevel.InputUpdateType,UnityEngine.InputSystem.LowLevel.InputEventBuffer&) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/InputManager.cs:3538)
+UnityEngine.InputSystem.LowLevel.NativeInputRuntime/<>c__DisplayClass7_0:<set_onUpdate>b__0 (UnityEngineInternal.Input.NativeInputUpdateType,UnityEngineInternal.Input.NativeInputEventBuffer*) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/NativeInputRuntime.cs:65)
+UnityEngineInternal.Input.NativeInputSystem:NotifyUpdate (UnityEngineInternal.Input.NativeInputUpdateType,intptr)
+
+(Filename: Assets/Scripts/ManualControl.cs Line: 153)
+
+[CourtBridge] to the game page: unity-control-mode:auto
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+CourtBridge:Post (string) (at Assets/Scripts/CourtBridge.cs:20)
+ManualControl:SetMode (ControlMode,string) (at Assets/Scripts/ManualControl.cs:155)
+ManualControl:Fire (ManualAction,UnityEngine.InputSystem.InputAction/CallbackContext) (at Assets/Scripts/ManualControl.cs:114)
+ManualControl/<>c__DisplayClass43_0:<AddButton>b__0 (UnityEngine.InputSystem.InputAction/CallbackContext) (at Assets/Scripts/ManualControl.cs:102)
+UnityEngine.InputSystem.Utilities.DelegateHelpers:InvokeCallbacksSafe<UnityEngine.InputSystem.InputAction/CallbackContext> (UnityEngine.InputSystem.Utilities.CallbackArray`1<System.Action`1<UnityEngine.InputSystem.InputAction/CallbackContext>>&,UnityEngine.InputSystem.InputAction/CallbackContext,string,object) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/Utilities/DelegateHelpers.cs:46)
+UnityEngine.InputSystem.InputActionState:CallActionListeners (int,UnityEngine.InputSystem.InputActionMap,UnityEngine.InputSystem.InputActionPhase,UnityEngine.InputSystem.Utilities.CallbackArray`1<System.Action`1<UnityEngine.InputSystem.InputAction/CallbackContext>>&,string) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/Actions/InputActionState.cs:2601)
+UnityEngine.InputSystem.InputActionState:ChangePhaseOfActionInternal (int,UnityEngine.InputSystem.InputActionState/TriggerState*,UnityEngine.InputSystem.InputActionPhase,UnityEngine.InputSystem.InputActionState/TriggerState&,bool) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/Actions/InputActionState.cs:2547)
+UnityEngine.InputSystem.InputActionState:ChangePhaseOfAction (UnityEngine.InputSystem.InputActionPhase,UnityEngine.InputSystem.InputActionState/TriggerState&,UnityEngine.InputSystem.InputActionPhase) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/Actions/InputActionState.cs:2429)
+UnityEngine.InputSystem.InputActionState:ProcessDefaultInteraction (UnityEngine.InputSystem.InputActionState/TriggerState&,int) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/Actions/InputActionState.cs:1971)
+UnityEngine.InputSystem.InputActionState:ProcessControlStateChange (int,int,int,double,UnityEngine.InputSystem.LowLevel.InputEventPtr) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/Actions/InputActionState.cs:1569)
+UnityEngine.InputSystem.InputActionState:UnityEngine.InputSystem.LowLevel.IInputStateChangeMonitor.NotifyControlStateChanged (UnityEngine.InputSystem.InputControl,double,UnityEngine.InputSystem.LowLevel.InputEventPtr,long) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/Actions/InputActionState.cs:1364)
+UnityEngine.InputSystem.InputManager:FireStateChangeNotifications (int,double,UnityEngine.InputSystem.LowLevel.InputEvent*) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/InputManagerStateMonitors.cs:394)
+UnityEngine.InputSystem.InputManager:UpdateState (UnityEngine.InputSystem.InputDevice,UnityEngine.InputSystem.LowLevel.InputUpdateType,void*,uint,uint,double,UnityEngine.InputSystem.LowLevel.InputEventPtr) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/InputManager.cs:4074)
+UnityEngine.InputSystem.InputManager:UpdateState (UnityEngine.InputSystem.InputDevice,UnityEngine.InputSystem.LowLevel.InputEvent*,UnityEngine.InputSystem.LowLevel.InputUpdateType) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/InputManager.cs:3949)
+UnityEngine.InputSystem.InputManager:OnUpdate (UnityEngine.InputSystem.LowLevel.InputUpdateType,UnityEngine.InputSystem.LowLevel.InputEventBuffer&) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/InputManager.cs:3538)
+UnityEngine.InputSystem.LowLevel.NativeInputRuntime/<>c__DisplayClass7_0:<set_onUpdate>b__0 (UnityEngineInternal.Input.NativeInputUpdateType,UnityEngineInternal.Input.NativeInputEventBuffer*) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/NativeInputRuntime.cs:65)
+UnityEngineInternal.Input.NativeInputSystem:NotifyUpdate (UnityEngineInternal.Input.NativeInputUpdateType,intptr)
+
+(Filename: Assets/Scripts/CourtBridge.cs Line: 20)
+
+[Camera] TV look
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+CourtCamera:SetLookInternal (CourtCamera/Look,int,bool) (at Assets/Scripts/CourtCamera.cs:167)
+CourtCamera:ApplyPref (bool) (at Assets/Scripts/CourtCamera.cs:140)
+CourtCamera:Update () (at Assets/Scripts/CourtCamera.cs:193)
+
+(Filename: Assets/Scripts/CourtCamera.cs Line: 167)
+
+[Played] serve by Player_A2: Serve Late (late) +172 ms, Balanced 0.00 m, skill 0.61, condition 1.00 -> quality 0.42 (meter 58%); from (2.01, 2.65, -8.45) at 15.0 m/s to (2.33, 0.11, 6.92) (meant (1.64, 0.11, 5.76), error up to 1.78 m); clears the tape by 0.22 m (wanted 0.04)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchRunner:HandleEvents () (at Assets/Scripts/PlayedMatchRunner.cs:188)
+PlayedMatchRunner:Update () (at Assets/Scripts/PlayedMatchRunner.cs:163)
+
+(Filename: Assets/Scripts/PlayedMatchRunner.cs Line: 188)
+
+[Director] Rally: end-on drift
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+CameraDirector:StartShot (CameraDirector/Moment) (at Assets/Scripts/CameraDirector.cs:112)
+CameraDirector:Tick (single) (at Assets/Scripts/CameraDirector.cs:121)
+CourtCamera:LateUpdate () (at Assets/Scripts/CourtCamera.cs:250)
+
+(Filename: Assets/Scripts/CameraDirector.cs Line: 112)
+
+[Manual] mode Manual (gamepad): a played match from the next serve
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+ManualControl:SetMode (ControlMode,string) (at Assets/Scripts/ManualControl.cs:153)
+ManualControl:Fire (ManualAction,UnityEngine.InputSystem.InputAction/CallbackContext) (at Assets/Scripts/ManualControl.cs:114)
+ManualControl/<>c__DisplayClass43_0:<AddButton>b__0 (UnityEngine.InputSystem.InputAction/CallbackContext) (at Assets/Scripts/ManualControl.cs:102)
+UnityEngine.InputSystem.Utilities.DelegateHelpers:InvokeCallbacksSafe<UnityEngine.InputSystem.InputAction/CallbackContext> (UnityEngine.InputSystem.Utilities.CallbackArray`1<System.Action`1<UnityEngine.InputSystem.InputAction/CallbackContext>>&,UnityEngine.InputSystem.InputAction/CallbackContext,string,object) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/Utilities/DelegateHelpers.cs:46)
+UnityEngine.InputSystem.InputActionState:CallActionListeners (int,UnityEngine.InputSystem.InputActionMap,UnityEngine.InputSystem.InputActionPhase,UnityEngine.InputSystem.Utilities.CallbackArray`1<System.Action`1<UnityEngine.InputSystem.InputAction/CallbackContext>>&,string) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/Actions/InputActionState.cs:2601)
+UnityEngine.InputSystem.InputActionState:ChangePhaseOfActionInternal (int,UnityEngine.InputSystem.InputActionState/TriggerState*,UnityEngine.InputSystem.InputActionPhase,UnityEngine.InputSystem.InputActionState/TriggerState&,bool) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/Actions/InputActionState.cs:2547)
+UnityEngine.InputSystem.InputActionState:ChangePhaseOfAction (UnityEngine.InputSystem.InputActionPhase,UnityEngine.InputSystem.InputActionState/TriggerState&,UnityEngine.InputSystem.InputActionPhase) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/Actions/InputActionState.cs:2429)
+UnityEngine.InputSystem.InputActionState:ProcessDefaultInteraction (UnityEngine.InputSystem.InputActionState/TriggerState&,int) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/Actions/InputActionState.cs:1971)
+UnityEngine.InputSystem.InputActionState:ProcessControlStateChange (int,int,int,double,UnityEngine.InputSystem.LowLevel.InputEventPtr) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/Actions/InputActionState.cs:1569)
+UnityEngine.InputSystem.InputActionState:UnityEngine.InputSystem.LowLevel.IInputStateChangeMonitor.NotifyControlStateChanged (UnityEngine.InputSystem.InputControl,double,UnityEngine.InputSystem.LowLevel.InputEventPtr,long) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/Actions/InputActionState.cs:1364)
+UnityEngine.InputSystem.InputManager:FireStateChangeNotifications (int,double,UnityEngine.InputSystem.LowLevel.InputEvent*) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/InputManagerStateMonitors.cs:394)
+UnityEngine.InputSystem.InputManager:UpdateState (UnityEngine.InputSystem.InputDevice,UnityEngine.InputSystem.LowLevel.InputUpdateType,void*,uint,uint,double,UnityEngine.InputSystem.LowLevel.InputEventPtr) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/InputManager.cs:4074)
+UnityEngine.InputSystem.InputManager:UpdateState (UnityEngine.InputSystem.InputDevice,UnityEngine.InputSystem.LowLevel.InputEvent*,UnityEngine.InputSystem.LowLevel.InputUpdateType) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/InputManager.cs:3949)
+UnityEngine.InputSystem.InputManager:OnUpdate (UnityEngine.InputSystem.LowLevel.InputUpdateType,UnityEngine.InputSystem.LowLevel.InputEventBuffer&) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/InputManager.cs:3538)
+UnityEngine.InputSystem.LowLevel.NativeInputRuntime/<>c__DisplayClass7_0:<set_onUpdate>b__0 (UnityEngineInternal.Input.NativeInputUpdateType,UnityEngineInternal.Input.NativeInputEventBuffer*) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/NativeInputRuntime.cs:65)
+UnityEngineInternal.Input.NativeInputSystem:NotifyUpdate (UnityEngineInternal.Input.NativeInputUpdateType,intptr)
+
+(Filename: Assets/Scripts/ManualControl.cs Line: 153)
+
+[CourtBridge] to the game page: unity-control-mode:manual
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+CourtBridge:Post (string) (at Assets/Scripts/CourtBridge.cs:20)
+ManualControl:SetMode (ControlMode,string) (at Assets/Scripts/ManualControl.cs:155)
+ManualControl:Fire (ManualAction,UnityEngine.InputSystem.InputAction/CallbackContext) (at Assets/Scripts/ManualControl.cs:114)
+ManualControl/<>c__DisplayClass43_0:<AddButton>b__0 (UnityEngine.InputSystem.InputAction/CallbackContext) (at Assets/Scripts/ManualControl.cs:102)
+UnityEngine.InputSystem.Utilities.DelegateHelpers:InvokeCallbacksSafe<UnityEngine.InputSystem.InputAction/CallbackContext> (UnityEngine.InputSystem.Utilities.CallbackArray`1<System.Action`1<UnityEngine.InputSystem.InputAction/CallbackContext>>&,UnityEngine.InputSystem.InputAction/CallbackContext,string,object) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/Utilities/DelegateHelpers.cs:46)
+UnityEngine.InputSystem.InputActionState:CallActionListeners (int,UnityEngine.InputSystem.InputActionMap,UnityEngine.InputSystem.InputActionPhase,UnityEngine.InputSystem.Utilities.CallbackArray`1<System.Action`1<UnityEngine.InputSystem.InputAction/CallbackContext>>&,string) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/Actions/InputActionState.cs:2601)
+UnityEngine.InputSystem.InputActionState:ChangePhaseOfActionInternal (int,UnityEngine.InputSystem.InputActionState/TriggerState*,UnityEngine.InputSystem.InputActionPhase,UnityEngine.InputSystem.InputActionState/TriggerState&,bool) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/Actions/InputActionState.cs:2547)
+UnityEngine.InputSystem.InputActionState:ChangePhaseOfAction (UnityEngine.InputSystem.InputActionPhase,UnityEngine.InputSystem.InputActionState/TriggerState&,UnityEngine.InputSystem.InputActionPhase) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/Actions/InputActionState.cs:2429)
+UnityEngine.InputSystem.InputActionState:ProcessDefaultInteraction (UnityEngine.InputSystem.InputActionState/TriggerState&,int) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/Actions/InputActionState.cs:1971)
+UnityEngine.InputSystem.InputActionState:ProcessControlStateChange (int,int,int,double,UnityEngine.InputSystem.LowLevel.InputEventPtr) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/Actions/InputActionState.cs:1569)
+UnityEngine.InputSystem.InputActionState:UnityEngine.InputSystem.LowLevel.IInputStateChangeMonitor.NotifyControlStateChanged (UnityEngine.InputSystem.InputControl,double,UnityEngine.InputSystem.LowLevel.InputEventPtr,long) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/Actions/InputActionState.cs:1364)
+UnityEngine.InputSystem.InputManager:FireStateChangeNotifications (int,double,UnityEngine.InputSystem.LowLevel.InputEvent*) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/InputManagerStateMonitors.cs:394)
+UnityEngine.InputSystem.InputManager:UpdateState (UnityEngine.InputSystem.InputDevice,UnityEngine.InputSystem.LowLevel.InputUpdateType,void*,uint,uint,double,UnityEngine.InputSystem.LowLevel.InputEventPtr) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/InputManager.cs:4074)
+UnityEngine.InputSystem.InputManager:UpdateState (UnityEngine.InputSystem.InputDevice,UnityEngine.InputSystem.LowLevel.InputEvent*,UnityEngine.InputSystem.LowLevel.InputUpdateType) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/InputManager.cs:3949)
+UnityEngine.InputSystem.InputManager:OnUpdate (UnityEngine.InputSystem.LowLevel.InputUpdateType,UnityEngine.InputSystem.LowLevel.InputEventBuffer&) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/InputManager.cs:3538)
+UnityEngine.InputSystem.LowLevel.NativeInputRuntime/<>c__DisplayClass7_0:<set_onUpdate>b__0 (UnityEngineInternal.Input.NativeInputUpdateType,UnityEngineInternal.Input.NativeInputEventBuffer*) (at ./Library/PackageCache/com.unity.inputsystem@21a28c3a6c83/InputSystem/NativeInputRuntime.cs:65)
+UnityEngineInternal.Input.NativeInputSystem:NotifyUpdate (UnityEngineInternal.Input.NativeInputUpdateType,intptr)
+
+(Filename: Assets/Scripts/CourtBridge.cs Line: 20)
+
+[Camera] Game look, view 1 (Behind your baseline)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+CourtCamera:SetLookInternal (CourtCamera/Look,int,bool) (at Assets/Scripts/CourtCamera.cs:167)
+CourtCamera:ApplyPref (bool) (at Assets/Scripts/CourtCamera.cs:140)
+CourtCamera:Update () (at Assets/Scripts/CourtCamera.cs:193)
+
+(Filename: Assets/Scripts/CourtCamera.cs Line: 167)
+
+[PlayedPlay]   CHECK Toggle still fires from Tab and Select (ManualControl), and leaves the match in Manual, unpaused: PASS  keyboard 1, gamepad 1, mode Manual, paused False
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchPlayProof:Line (string) (at Assets/Editor/PlayedMatchPlayProof.cs:103)
+PlayedMatchPlayProof:Check (string,bool,string) (at Assets/Editor/PlayedMatchPlayProof.cs:107)
+PlayedMatchPlayProof:DeviceChecks (PlayedMatchRunner) (at Assets/Editor/PlayedMatchPlayProof.cs:247)
+PlayedMatchPlayProof:Tick () (at Assets/Editor/PlayedMatchPlayProof.cs:162)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/PlayedMatchPlayProof.cs Line: 103)
+
+[PlayedPlay]   device checks done after 4.9 s; the autopilot takes the seat
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchPlayProof:Line (string) (at Assets/Editor/PlayedMatchPlayProof.cs:103)
+PlayedMatchPlayProof:DeviceChecks (PlayedMatchRunner) (at Assets/Editor/PlayedMatchPlayProof.cs:254)
+PlayedMatchPlayProof:Tick () (at Assets/Editor/PlayedMatchPlayProof.cs:162)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/PlayedMatchPlayProof.cs Line: 103)
+
+[Played] Dig by Player_B2: Dig Late (late) +126 ms, Balanced 0.40 m, skill 0.65, condition 0.92 -> quality 0.34; from (2.31, 0.63, 5.85) at 7.9 m/s to (1.57, 0.11, 2.47) (meant (0.81, 0.11, 1.70), error up to 2.41 m)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchRunner:HandleEvents () (at Assets/Scripts/PlayedMatchRunner.cs:204)
+PlayedMatchRunner:Update () (at Assets/Scripts/PlayedMatchRunner.cs:163)
+
+(Filename: Assets/Scripts/PlayedMatchRunner.cs Line: 204)
+
+[Played] Set by Player_B1: Set Late (late) +101 ms, Balanced 0.17 m, skill 0.65, condition 0.92 -> quality 0.41; from (1.70, 2.11, 3.10) at 6.6 m/s to (0.13, 2.88, 0.87) (meant (1.31, 2.88, 1.10), error up to 1.24 m)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchRunner:HandleEvents () (at Assets/Scripts/PlayedMatchRunner.cs:204)
+PlayedMatchRunner:Update () (at Assets/Scripts/PlayedMatchRunner.cs:163)
+
+(Filename: Assets/Scripts/PlayedMatchRunner.cs Line: 204)
+
+[Played] Soft by Player_B2: Soft Perfect -14 ms, Balanced 0.22 m, skill 0.64, condition 0.92 -> quality 0.75; from (0.13, 2.87, 0.87) at 4.3 m/s to (-1.86, 0.11, -2.09) (meant (-1.43, 0.11, -2.01), error up to 0.54 m)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchRunner:HandleEvents () (at Assets/Scripts/PlayedMatchRunner.cs:204)
+PlayedMatchRunner:Update () (at Assets/Scripts/PlayedMatchRunner.cs:163)
+
+(Filename: Assets/Scripts/PlayedMatchRunner.cs Line: 204)
+
+[Played] Dig by Player_A2: Dig Perfect +8 ms, Balanced 0.08 m, skill 0.61, condition 1.00 -> quality 0.76; from (-1.70, 0.75, -1.85) at 8.7 m/s to (-0.94, 0.11, -1.67) (meant (-0.59, 0.11, -1.70), error up to 0.69 m)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchRunner:HandleEvents () (at Assets/Scripts/PlayedMatchRunner.cs:204)
+PlayedMatchRunner:Update () (at Assets/Scripts/PlayedMatchRunner.cs:163)
+
+(Filename: Assets/Scripts/PlayedMatchRunner.cs Line: 204)
+
+[Played] Set by Player_A1: Set Perfect +2 ms, Balanced 0.19 m, skill 0.64, condition 1.00 -> quality 0.78; from (-1.05, 2.25, -1.70) at 6.8 m/s to (1.87, 2.75, -1.03) (meant (1.60, 2.75, -1.10), error up to 0.40 m)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchRunner:HandleEvents () (at Assets/Scripts/PlayedMatchRunner.cs:204)
+PlayedMatchRunner:Update () (at Assets/Scripts/PlayedMatchRunner.cs:163)
+
+(Filename: Assets/Scripts/PlayedMatchRunner.cs Line: 204)
+
+[PlayedPlay]   picture: C:/Users/rbonn/Documents/Volley-Ball-Empire/docs/update-1.2/proof/B1/played-courts\A5\a3-spike-meter.png
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchPlayProof:Line (string) (at Assets/Editor/PlayedMatchPlayProof.cs:103)
+PlayedMatchPlayProof:Shoot (string) (at Assets/Editor/PlayedMatchPlayProof.cs:505)
+PlayedMatchPlayProof:Pictures (Played.PlayedEngine) (at Assets/Editor/PlayedMatchPlayProof.cs:486)
+PlayedMatchPlayProof:Autopilot (PlayedMatchRunner,MatchManager) (at Assets/Editor/PlayedMatchPlayProof.cs:310)
+PlayedMatchPlayProof:Tick () (at Assets/Editor/PlayedMatchPlayProof.cs:163)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/PlayedMatchPlayProof.cs Line: 103)
+
+[Played] Spike by Player_A2: Spike Perfect +1 ms, Balanced 0.04 m, skill 0.54, condition 1.00 -> quality 0.71; from (1.87, 2.75, -1.03) at 12.9 m/s to (-2.88, 0.11, 6.38) (meant (-2.71, 0.11, 6.02), error up to 1.10 m); clears the tape by 0.31 m (wanted 0.29)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchRunner:HandleEvents () (at Assets/Scripts/PlayedMatchRunner.cs:204)
+PlayedMatchRunner:Update () (at Assets/Scripts/PlayedMatchRunner.cs:163)
+
+(Filename: Assets/Scripts/PlayedMatchRunner.cs Line: 204)
+
+[Played] block by Player_B2: Block Late (late) +150 ms, Stretching 0.24 m, skill 0.65, condition 0.92 -> quality 0.23, a touch off the block
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchRunner:HandleEvents () (at Assets/Scripts/PlayedMatchRunner.cs:208)
+PlayedMatchRunner:Update () (at Assets/Scripts/PlayedMatchRunner.cs:163)
+
+(Filename: Assets/Scripts/PlayedMatchRunner.cs Line: 208)
+
+[Played] Player_B2 missed the Set: out of reach (2.08 m) (Set Good -68 ms, OutOfReach 2.08 m, skill 0.65, condition 0.92 -> quality 0.00)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchRunner:HandleEvents () (at Assets/Scripts/PlayedMatchRunner.cs:211)
+PlayedMatchRunner:Update () (at Assets/Scripts/PlayedMatchRunner.cs:163)
+
+(Filename: Assets/Scripts/PlayedMatchRunner.cs Line: 211)
+
+[Played] point to TeamA by Kill (8 touches)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchRunner:HandleEvents () (at Assets/Scripts/PlayedMatchRunner.cs:218)
+PlayedMatchRunner:Update () (at Assets/Scripts/PlayedMatchRunner.cs:163)
+
+(Filename: Assets/Scripts/PlayedMatchRunner.cs Line: 218)
+
+MALDIVES CORAL KINGS point (played, Kill): set 1 1-0, sets 0-0
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+MatchManager/<AnnouncePlayedPoint>d__3:MoveNext () (at Assets/Scripts/MatchManager.Played.cs:74)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+UnityEngine.MonoBehaviour:StartCoroutineManaged2 (System.Collections.IEnumerator)
+UnityEngine.MonoBehaviour:StartCoroutine (System.Collections.IEnumerator)
+MatchManager:PlayedPoint (Team,string,bool,bool) (at Assets/Scripts/MatchManager.Played.cs:48)
+PlayedMatchRunner:HandleEvents () (at Assets/Scripts/PlayedMatchRunner.cs:219)
+PlayedMatchRunner:Update () (at Assets/Scripts/PlayedMatchRunner.cs:163)
+
+(Filename: Assets/Scripts/MatchManager.Played.cs Line: 74)
+
+[MatchReporter] POST /api/unity/match-progress failed (attempt 1/1): 409 HTTP/1.1 409 Conflict {"error":"This match is not being watched."}
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:LogError (object)
+MatchReporter/<Post>d__17:MoveNext () (at Assets/Scripts/MatchReporter.cs:106)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+(Filename: Assets/Scripts/MatchReporter.cs Line: 106)
+
+[PlayedPlay]   picture: C:/Users/rbonn/Documents/Volley-Ball-Empire/docs/update-1.2/proof/B1/played-courts\A5\a3-serve-meter.png
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchPlayProof:Line (string) (at Assets/Editor/PlayedMatchPlayProof.cs:103)
+PlayedMatchPlayProof:Shoot (string) (at Assets/Editor/PlayedMatchPlayProof.cs:505)
+PlayedMatchPlayProof:Pictures (Played.PlayedEngine) (at Assets/Editor/PlayedMatchPlayProof.cs:482)
+PlayedMatchPlayProof:Autopilot (PlayedMatchRunner,MatchManager) (at Assets/Editor/PlayedMatchPlayProof.cs:310)
+PlayedMatchPlayProof:Tick () (at Assets/Editor/PlayedMatchPlayProof.cs:163)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/PlayedMatchPlayProof.cs Line: 103)
+
+[Played] serve by Player_A2: Serve Perfect +0 ms, Balanced 0.00 m, skill 0.61, condition 1.00 -> quality 0.76 (meter 95%); from (1.98, 2.65, -8.45) at 15.1 m/s to (-1.85, 0.11, 7.18) (meant (-2.12, 0.11, 6.56), error up to 0.77 m); clears the tape by 0.37 m (wanted 0.28)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchRunner:HandleEvents () (at Assets/Scripts/PlayedMatchRunner.cs:188)
+PlayedMatchRunner:Update () (at Assets/Scripts/PlayedMatchRunner.cs:163)
+
+(Filename: Assets/Scripts/PlayedMatchRunner.cs Line: 188)
+
+[Played] Dig by Player_B1: Dig Good +69 ms, Balanced 0.29 m, skill 0.65, condition 0.92 -> quality 0.60; from (-1.52, 0.79, 5.82) at 8.7 m/s to (0.30, 0.11, 2.03) (meant (-0.53, 0.11, 1.70), error up to 1.23 m)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchRunner:HandleEvents () (at Assets/Scripts/PlayedMatchRunner.cs:204)
+PlayedMatchRunner:Update () (at Assets/Scripts/PlayedMatchRunner.cs:163)
+
+(Filename: Assets/Scripts/PlayedMatchRunner.cs Line: 204)
+
+[Played] Set by Player_B2: Set Good -50 ms, Balanced 0.17 m, skill 0.65, condition 0.92 -> quality 0.64; from (0.05, 2.06, 2.55) at 6.8 m/s to (-2.22, 2.88, 1.23) (meant (-1.66, 2.88, 1.10), error up to 0.66 m)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchRunner:HandleEvents () (at Assets/Scripts/PlayedMatchRunner.cs:204)
+PlayedMatchRunner:Update () (at Assets/Scripts/PlayedMatchRunner.cs:163)
+
+(Filename: Assets/Scripts/PlayedMatchRunner.cs Line: 204)
+
+[Played] Spike by Player_B1: Spike Perfect +15 ms, Balanced 0.11 m, skill 0.64, condition 0.92 -> quality 0.75; from (-2.24, 2.81, 1.21) at 17.8 m/s to (-2.30, 0.11, -4.83) (meant (-2.82, 0.11, -4.38), error up to 1.00 m); clears the tape by 0.02 m (wanted -0.04)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchRunner:HandleEvents () (at Assets/Scripts/PlayedMatchRunner.cs:204)
+PlayedMatchRunner:Update () (at Assets/Scripts/PlayedMatchRunner.cs:163)
+
+(Filename: Assets/Scripts/PlayedMatchRunner.cs Line: 204)
+
+[Played] Player_A1 missed the Dig: out of reach (3.54 m) (Dig Perfect +3 ms, OutOfReach 3.54 m, skill 0.64, condition 1.00 -> quality 0.00)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchRunner:HandleEvents () (at Assets/Scripts/PlayedMatchRunner.cs:211)
+PlayedMatchRunner:Update () (at Assets/Scripts/PlayedMatchRunner.cs:163)
+
+(Filename: Assets/Scripts/PlayedMatchRunner.cs Line: 211)
+
+[Played] point to TeamB by Kill (4 touches)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchRunner:HandleEvents () (at Assets/Scripts/PlayedMatchRunner.cs:218)
+PlayedMatchRunner:Update () (at Assets/Scripts/PlayedMatchRunner.cs:163)
+
+(Filename: Assets/Scripts/PlayedMatchRunner.cs Line: 218)
+
+ROME BEACH GLADIATORS point (played, Kill): set 1 1-1, sets 0-0
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+MatchManager/<AnnouncePlayedPoint>d__3:MoveNext () (at Assets/Scripts/MatchManager.Played.cs:74)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+UnityEngine.MonoBehaviour:StartCoroutineManaged2 (System.Collections.IEnumerator)
+UnityEngine.MonoBehaviour:StartCoroutine (System.Collections.IEnumerator)
+MatchManager:PlayedPoint (Team,string,bool,bool) (at Assets/Scripts/MatchManager.Played.cs:48)
+PlayedMatchRunner:HandleEvents () (at Assets/Scripts/PlayedMatchRunner.cs:219)
+PlayedMatchRunner:Update () (at Assets/Scripts/PlayedMatchRunner.cs:163)
+
+(Filename: Assets/Scripts/MatchManager.Played.cs Line: 74)
+
+[MatchReporter] POST /api/unity/match-progress failed (attempt 1/1): 409 HTTP/1.1 409 Conflict {"error":"This match is not being watched."}
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:LogError (object)
+MatchReporter/<Post>d__17:MoveNext () (at Assets/Scripts/MatchReporter.cs:106)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+(Filename: Assets/Scripts/MatchReporter.cs Line: 106)
+
+[Played] serve by Player_B2: Serve Perfect +0 ms, Balanced 0.00 m, skill 0.63, condition 0.92 -> quality 0.74 (meter 96%); from (1.98, 2.72, 8.45) at 13.9 m/s to (-1.86, 0.11, -6.07) (meant (-1.87, 0.11, -5.46), error up to 0.82 m); clears the tape by 0.32 m (wanted 0.27)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchRunner:HandleEvents () (at Assets/Scripts/PlayedMatchRunner.cs:188)
+PlayedMatchRunner:Update () (at Assets/Scripts/PlayedMatchRunner.cs:163)
+
+(Filename: Assets/Scripts/PlayedMatchRunner.cs Line: 188)
+
+[PlayedPlay]   picture: C:/Users/rbonn/Documents/Volley-Ball-Empire/docs/update-1.2/proof/B1/played-courts\A5\a3-ring-incoming.png
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchPlayProof:Line (string) (at Assets/Editor/PlayedMatchPlayProof.cs:103)
+PlayedMatchPlayProof:Shoot (string) (at Assets/Editor/PlayedMatchPlayProof.cs:505)
+PlayedMatchPlayProof:Pictures (Played.PlayedEngine) (at Assets/Editor/PlayedMatchPlayProof.cs:484)
+PlayedMatchPlayProof:Autopilot (PlayedMatchRunner,MatchManager) (at Assets/Editor/PlayedMatchPlayProof.cs:310)
+PlayedMatchPlayProof:Tick () (at Assets/Editor/PlayedMatchPlayProof.cs:163)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/PlayedMatchPlayProof.cs Line: 103)
+
+[Played] Dig by Player_A1: Dig Perfect +1 ms, Balanced 0.07 m, skill 0.64, condition 1.00 -> quality 0.78; from (-1.54, 0.79, -4.85) at 8.9 m/s to (-0.79, 0.11, -1.54) (meant (-0.54, 0.11, -1.70), error up to 0.63 m)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchRunner:HandleEvents () (at Assets/Scripts/PlayedMatchRunner.cs:204)
+PlayedMatchRunner:Update () (at Assets/Scripts/PlayedMatchRunner.cs:163)
+
+(Filename: Assets/Scripts/PlayedMatchRunner.cs Line: 204)
+
+[Played] Set by Player_A2: Set Perfect +5 ms, Balanced 0.23 m, skill 0.60, condition 1.00 -> quality 0.75; from (-0.88, 2.01, -1.95) at 6.9 m/s to (-1.25, 3.05, -1.12) (meant (-1.60, 3.05, -1.10), error up to 0.44 m)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchRunner:HandleEvents () (at Assets/Scripts/PlayedMatchRunner.cs:204)
+PlayedMatchRunner:Update () (at Assets/Scripts/PlayedMatchRunner.cs:163)
+
+(Filename: Assets/Scripts/PlayedMatchRunner.cs Line: 204)
+
+[Played] Spike by Player_A1: Spike Perfect +8 ms, Balanced 0.06 m, skill 0.67, condition 1.00 -> quality 0.80; from (-1.26, 3.01, -1.12) at 12.7 m/s to (2.87, 0.11, 6.21) (meant (2.71, 0.11, 6.02), error up to 0.59 m); clears the tape by 0.51 m (wanted 0.32)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchRunner:HandleEvents () (at Assets/Scripts/PlayedMatchRunner.cs:204)
+PlayedMatchRunner:Update () (at Assets/Scripts/PlayedMatchRunner.cs:163)
+
+(Filename: Assets/Scripts/PlayedMatchRunner.cs Line: 204)
+
+[Played] Dig by Player_B2: Dig Good -100 ms, Balanced 0.15 m, skill 0.65, condition 0.92 -> quality 0.51; from (2.27, 0.80, 5.14) at 8.7 m/s to (0.34, 0.11, 0.72) (meant (0.79, 0.11, 1.70), error up to 1.59 m)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchRunner:HandleEvents () (at Assets/Scripts/PlayedMatchRunner.cs:204)
+PlayedMatchRunner:Update () (at Assets/Scripts/PlayedMatchRunner.cs:163)
+
+(Filename: Assets/Scripts/PlayedMatchRunner.cs Line: 204)
+
+[Played] Set by Player_B1: Set Good +91 ms, Balanced 0.17 m, skill 0.65, condition 0.92 -> quality 0.53; from (0.61, 2.06, 1.34) at 6.2 m/s to (1.31, 2.88, 1.55) (meant (1.31, 2.88, 1.10), error up to 0.91 m)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchRunner:HandleEvents () (at Assets/Scripts/PlayedMatchRunner.cs:204)
+PlayedMatchRunner:Update () (at Assets/Scripts/PlayedMatchRunner.cs:163)
+
+(Filename: Assets/Scripts/PlayedMatchRunner.cs Line: 204)
+
+[Played] Player_B2 missed the Spike: far too early (Spike Miss -257 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchRunner:HandleEvents () (at Assets/Scripts/PlayedMatchRunner.cs:211)
+PlayedMatchRunner:Update () (at Assets/Scripts/PlayedMatchRunner.cs:163)
+
+(Filename: Assets/Scripts/PlayedMatchRunner.cs Line: 211)
+
+[Played] point to TeamA by Dropped (6 touches)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchRunner:HandleEvents () (at Assets/Scripts/PlayedMatchRunner.cs:218)
+PlayedMatchRunner:Update () (at Assets/Scripts/PlayedMatchRunner.cs:163)
+
+(Filename: Assets/Scripts/PlayedMatchRunner.cs Line: 218)
+
+MALDIVES CORAL KINGS point (played, Dropped): set 1 2-1, sets 0-0
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+MatchManager/<AnnouncePlayedPoint>d__3:MoveNext () (at Assets/Scripts/MatchManager.Played.cs:74)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+UnityEngine.MonoBehaviour:StartCoroutineManaged2 (System.Collections.IEnumerator)
+UnityEngine.MonoBehaviour:StartCoroutine (System.Collections.IEnumerator)
+MatchManager:PlayedPoint (Team,string,bool,bool) (at Assets/Scripts/MatchManager.Played.cs:48)
+PlayedMatchRunner:HandleEvents () (at Assets/Scripts/PlayedMatchRunner.cs:219)
+PlayedMatchRunner:Update () (at Assets/Scripts/PlayedMatchRunner.cs:163)
+
+(Filename: Assets/Scripts/MatchManager.Played.cs Line: 74)
+
+[MatchReporter] POST /api/unity/match-progress failed (attempt 1/1): 409 HTTP/1.1 409 Conflict {"error":"This match is not being watched."}
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:LogError (object)
+MatchReporter/<Post>d__17:MoveNext () (at Assets/Scripts/MatchReporter.cs:106)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+(Filename: Assets/Scripts/MatchReporter.cs Line: 106)
+
+[Played] serve by Player_A1: Serve Miss +439 ms, Balanced 0.00 m, skill 0.64, condition 1.00 -> quality 0.00 (meter 4%); from (-1.98, 2.86, -8.45) at 9.8 m/s to (2.12, 1.45, 0.00) (meant (2.12, 0.11, 6.56), error up to 0.00 m); tapped in the WEAK zone: into the net
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchRunner:HandleEvents () (at Assets/Scripts/PlayedMatchRunner.cs:188)
+PlayedMatchRunner:Update () (at Assets/Scripts/PlayedMatchRunner.cs:163)
+
+(Filename: Assets/Scripts/PlayedMatchRunner.cs Line: 188)
+
+[Played] point to TeamB by ServeFault (1 touches)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchRunner:HandleEvents () (at Assets/Scripts/PlayedMatchRunner.cs:218)
+PlayedMatchRunner:Update () (at Assets/Scripts/PlayedMatchRunner.cs:163)
+
+(Filename: Assets/Scripts/PlayedMatchRunner.cs Line: 218)
+
+ROME BEACH GLADIATORS point (played, ServeFault): set 1 2-2, sets 0-0
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+MatchManager/<AnnouncePlayedPoint>d__3:MoveNext () (at Assets/Scripts/MatchManager.Played.cs:74)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+UnityEngine.MonoBehaviour:StartCoroutineManaged2 (System.Collections.IEnumerator)
+UnityEngine.MonoBehaviour:StartCoroutine (System.Collections.IEnumerator)
+MatchManager:PlayedPoint (Team,string,bool,bool) (at Assets/Scripts/MatchManager.Played.cs:48)
+PlayedMatchRunner:HandleEvents () (at Assets/Scripts/PlayedMatchRunner.cs:219)
+PlayedMatchRunner:Update () (at Assets/Scripts/PlayedMatchRunner.cs:163)
+
+(Filename: Assets/Scripts/MatchManager.Played.cs Line: 74)
+
+[MatchReporter] POST /api/unity/match-progress failed (attempt 1/1): 409 HTTP/1.1 409 Conflict {"error":"This match is not being watched."}
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:LogError (object)
+MatchReporter/<Post>d__17:MoveNext () (at Assets/Scripts/MatchReporter.cs:106)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+(Filename: Assets/Scripts/MatchReporter.cs Line: 106)
+
+TrimDiskCacheJob: Current cache size 0mb
+[Played] serve by Player_B1: Serve Good +12 ms, Balanced 0.00 m, skill 0.64, condition 0.92 -> quality 0.64 (meter 90%); from (-2.00, 2.72, 8.45) at 16.2 m/s to (0.91, 0.11, -7.66) (meant (0.44, 0.11, -6.75), error up to 1.09 m); clears the tape by 0.28 m (wanted 0.20)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchRunner:HandleEvents () (at Assets/Scripts/PlayedMatchRunner.cs:188)
+PlayedMatchRunner:Update () (at Assets/Scripts/PlayedMatchRunner.cs:163)
+
+(Filename: Assets/Scripts/PlayedMatchRunner.cs Line: 188)
+
+[Played] Dig by Player_A2: Dig Perfect +1 ms, Balanced 0.06 m, skill 0.61, condition 1.00 -> quality 0.76; from (0.63, 0.79, -6.14) at 9.2 m/s to (-0.11, 0.11, -1.90) (meant (0.22, 0.11, -1.70), error up to 0.69 m)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchRunner:HandleEvents () (at Assets/Scripts/PlayedMatchRunner.cs:204)
+PlayedMatchRunner:Update () (at Assets/Scripts/PlayedMatchRunner.cs:163)
+
+(Filename: Assets/Scripts/PlayedMatchRunner.cs Line: 204)
+
+[Played] Set by Player_A1: Set Perfect +3 ms, Balanced 0.14 m, skill 0.64, condition 1.00 -> quality 0.78; from (-0.01, 2.24, -2.47) at 6.7 m/s to (1.32, 2.75, -1.25) (meant (1.60, 2.75, -1.10), error up to 0.40 m)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchRunner:HandleEvents () (at Assets/Scripts/PlayedMatchRunner.cs:204)
+PlayedMatchRunner:Update () (at Assets/Scripts/PlayedMatchRunner.cs:163)
+
+(Filename: Assets/Scripts/PlayedMatchRunner.cs Line: 204)
+
+[Played] Spike by Player_A2: Spike Perfect +6 ms, Balanced 0.04 m, skill 0.54, condition 1.00 -> quality 0.72; from (1.33, 2.72, -1.24) at 11.4 m/s to (-3.23, 0.11, 5.95) (meant (-2.71, 0.11, 6.02), error up to 1.10 m); clears the tape by 0.31 m (wanted 0.29)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchRunner:HandleEvents () (at Assets/Scripts/PlayedMatchRunner.cs:204)
+PlayedMatchRunner:Update () (at Assets/Scripts/PlayedMatchRunner.cs:163)
+
+(Filename: Assets/Scripts/PlayedMatchRunner.cs Line: 204)
+
+[Played] Dig by Player_B1: Dig Good -73 ms, Balanced 0.26 m, skill 0.65, condition 0.92 -> quality 0.59; from (-2.61, 0.79, 4.96) at 8.9 m/s to (0.31, 0.11, 1.62) (meant (-0.91, 0.11, 1.70), error up to 1.28 m)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchRunner:HandleEvents () (at Assets/Scripts/PlayedMatchRunner.cs:204)
+PlayedMatchRunner:Update () (at Assets/Scripts/PlayedMatchRunner.cs:163)
+
+(Filename: Assets/Scripts/PlayedMatchRunner.cs Line: 204)
+
+[Played] Set by Player_B2: Set Perfect -39 ms, Balanced 0.17 m, skill 0.65, condition 0.92 -> quality 0.75; from (-0.08, 2.10, 2.08) at 7.1 m/s to (-1.66, 2.88, 0.85) (meant (-1.43, 2.88, 1.10), error up to 0.45 m)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchRunner:HandleEvents () (at Assets/Scripts/PlayedMatchRunner.cs:204)
+PlayedMatchRunner:Update () (at Assets/Scripts/PlayedMatchRunner.cs:163)
+
+(Filename: Assets/Scripts/PlayedMatchRunner.cs Line: 204)
+
+[Played] Spike by Player_B1: Spike Late (late) +176 ms, Balanced 0.21 m, skill 0.64, condition 0.92 -> quality 0.20; from (-1.87, 1.72, 0.69) at 6.0 m/s to (-2.17, 0.11, -4.25) (meant (-2.62, 0.11, -6.36), error up to 2.51 m); clears the tape by -0.33 m (wanted -0.34)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchRunner:HandleEvents () (at Assets/Scripts/PlayedMatchRunner.cs:204)
+PlayedMatchRunner:Update () (at Assets/Scripts/PlayedMatchRunner.cs:163)
+
+(Filename: Assets/Scripts/PlayedMatchRunner.cs Line: 204)
+
+[Played] point to TeamA by Dropped (7 touches)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchRunner:HandleEvents () (at Assets/Scripts/PlayedMatchRunner.cs:218)
+PlayedMatchRunner:Update () (at Assets/Scripts/PlayedMatchRunner.cs:163)
+
+(Filename: Assets/Scripts/PlayedMatchRunner.cs Line: 218)
+
+MALDIVES CORAL KINGS point (played, Dropped): set 1 3-2, sets 0-0
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+MatchManager/<AnnouncePlayedPoint>d__3:MoveNext () (at Assets/Scripts/MatchManager.Played.cs:74)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+UnityEngine.MonoBehaviour:StartCoroutineManaged2 (System.Collections.IEnumerator)
+UnityEngine.MonoBehaviour:StartCoroutine (System.Collections.IEnumerator)
+MatchManager:PlayedPoint (Team,string,bool,bool) (at Assets/Scripts/MatchManager.Played.cs:48)
+PlayedMatchRunner:HandleEvents () (at Assets/Scripts/PlayedMatchRunner.cs:219)
+PlayedMatchRunner:Update () (at Assets/Scripts/PlayedMatchRunner.cs:163)
+
+(Filename: Assets/Scripts/MatchManager.Played.cs Line: 74)
+
+[MatchReporter] POST /api/unity/match-progress failed (attempt 1/1): 409 HTTP/1.1 409 Conflict {"error":"This match is not being watched."}
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:LogError (object)
+MatchReporter/<Post>d__17:MoveNext () (at Assets/Scripts/MatchReporter.cs:106)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+(Filename: Assets/Scripts/MatchReporter.cs Line: 106)
+
+[Played] serve by Player_A2: Serve Perfect +0 ms, Balanced 0.00 m, skill 0.61, condition 1.00 -> quality 0.76 (meter 95%); from (1.98, 2.65, -8.45) at 15.1 m/s to (-2.23, 0.11, 7.05) (meant (-2.12, 0.11, 6.56), error up to 0.77 m); clears the tape by 0.35 m (wanted 0.28)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchRunner:HandleEvents () (at Assets/Scripts/PlayedMatchRunner.cs:188)
+PlayedMatchRunner:Update () (at Assets/Scripts/PlayedMatchRunner.cs:163)
+
+(Filename: Assets/Scripts/PlayedMatchRunner.cs Line: 188)
+
+[Played] Dig by Player_B1: Dig Perfect -30 ms, Balanced 0.22 m, skill 0.65, condition 0.92 -> quality 0.75; from (-1.87, 0.77, 5.73) at 9.4 m/s to (-0.80, 0.11, 1.55) (meant (-0.65, 0.11, 1.70), error up to 0.70 m)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchRunner:HandleEvents () (at Assets/Scripts/PlayedMatchRunner.cs:204)
+PlayedMatchRunner:Update () (at Assets/Scripts/PlayedMatchRunner.cs:163)
+
+(Filename: Assets/Scripts/PlayedMatchRunner.cs Line: 204)
+
+[Played] Set by Player_B2: Set Perfect -27 ms, Balanced 0.13 m, skill 0.65, condition 0.92 -> quality 0.75; from (-0.93, 2.07, 2.03) at 6.8 m/s to (-1.33, 2.88, 1.32) (meant (-1.43, 2.88, 1.10), error up to 0.45 m)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchRunner:HandleEvents () (at Assets/Scripts/PlayedMatchRunner.cs:204)
+PlayedMatchRunner:Update () (at Assets/Scripts/PlayedMatchRunner.cs:163)
+
+(Filename: Assets/Scripts/PlayedMatchRunner.cs Line: 204)
+
+[Played] Spike by Player_B1: Spike Late (early) -118 ms, Balanced 0.19 m, skill 0.64, condition 0.92 -> quality 0.36; from (-1.33, 2.85, 1.32) at 9.3 m/s to (-3.24, 0.11, -2.28) (meant (-2.47, 0.11, -3.21), error up to 1.97 m); clears the tape by -0.25 m (wanted -0.25)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchRunner:HandleEvents () (at Assets/Scripts/PlayedMatchRunner.cs:204)
+PlayedMatchRunner:Update () (at Assets/Scripts/PlayedMatchRunner.cs:163)
+
+(Filename: Assets/Scripts/PlayedMatchRunner.cs Line: 204)
+
+[Played] point to TeamA by Dropped (4 touches)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchRunner:HandleEvents () (at Assets/Scripts/PlayedMatchRunner.cs:218)
+PlayedMatchRunner:Update () (at Assets/Scripts/PlayedMatchRunner.cs:163)
+
+(Filename: Assets/Scripts/PlayedMatchRunner.cs Line: 218)
+
+MALDIVES CORAL KINGS point (played, Dropped): set 1 4-2, sets 0-0
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+MatchManager/<AnnouncePlayedPoint>d__3:MoveNext () (at Assets/Scripts/MatchManager.Played.cs:74)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+UnityEngine.MonoBehaviour:StartCoroutineManaged2 (System.Collections.IEnumerator)
+UnityEngine.MonoBehaviour:StartCoroutine (System.Collections.IEnumerator)
+MatchManager:PlayedPoint (Team,string,bool,bool) (at Assets/Scripts/MatchManager.Played.cs:48)
+PlayedMatchRunner:HandleEvents () (at Assets/Scripts/PlayedMatchRunner.cs:219)
+PlayedMatchRunner:Update () (at Assets/Scripts/PlayedMatchRunner.cs:163)
+
+(Filename: Assets/Scripts/MatchManager.Played.cs Line: 74)
+
+[PlayedPlay]   A5: the loader read game difficulty 'hard' (connection: applied 4 of 4 player(s)); the played match runs at Hard (runner: Hard)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchPlayProof:Line (string) (at Assets/Editor/PlayedMatchPlayProof.cs:103)
+PlayedMatchPlayProof:ReportA5 (PlayedMatchRunner,MatchManager) (at Assets/Editor/PlayedMatchPlayProof.cs:529)
+PlayedMatchPlayProof:Tick () (at Assets/Editor/PlayedMatchPlayProof.cs:164)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/PlayedMatchPlayProof.cs Line: 103)
+
+[PlayedPlay]   CHECK the court plays at the career's difficulty, sent by /api/unity/match-state (hard): PASS  loader 'hard', engine Hard
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchPlayProof:Line (string) (at Assets/Editor/PlayedMatchPlayProof.cs:103)
+PlayedMatchPlayProof:Check (string,bool,string) (at Assets/Editor/PlayedMatchPlayProof.cs:107)
+PlayedMatchPlayProof:ReportA5 (PlayedMatchRunner,MatchManager) (at Assets/Editor/PlayedMatchPlayProof.cs:530)
+PlayedMatchPlayProof:Tick () (at Assets/Editor/PlayedMatchPlayProof.cs:164)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/PlayedMatchPlayProof.cs Line: 103)
+
+[PlayedPlay]   timing windows at Hard: perfect ±45 ms, good ±100 ms, late ±190 ms; stats weigh 62%
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchPlayProof:Line (string) (at Assets/Editor/PlayedMatchPlayProof.cs:103)
+PlayedMatchPlayProof:ReportA5 (PlayedMatchRunner,MatchManager) (at Assets/Editor/PlayedMatchPlayProof.cs:533)
+PlayedMatchPlayProof:Tick () (at Assets/Editor/PlayedMatchPlayProof.cs:164)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/PlayedMatchPlayProof.cs Line: 103)
+
+[PlayedPlay]   CHECK the opponents play at Hard's sharpness, the partner at Medium's: PASS  opponents timing sd 88 ms, reaction 242 ms, placing ±0.28 m, soft 18%; partner timing sd 105 ms, reaction 268 ms, placing ±0.33 m, soft 16%
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchPlayProof:Line (string) (at Assets/Editor/PlayedMatchPlayProof.cs:103)
+PlayedMatchPlayProof:Check (string,bool,string) (at Assets/Editor/PlayedMatchPlayProof.cs:107)
+PlayedMatchPlayProof:ReportA5 (PlayedMatchRunner,MatchManager) (at Assets/Editor/PlayedMatchPlayProof.cs:535)
+PlayedMatchPlayProof:Tick () (at Assets/Editor/PlayedMatchPlayProof.cs:164)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/PlayedMatchPlayProof.cs Line: 103)
+
+[PlayedPlay]   CHECK Hard: no ring: PASS  ball coming to your side in 14437 frames: ring shown in 0; you to play it in 14429: prompt shown in 0; any prompt in 0 frames
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchPlayProof:Line (string) (at Assets/Editor/PlayedMatchPlayProof.cs:103)
+PlayedMatchPlayProof:Check (string,bool,string) (at Assets/Editor/PlayedMatchPlayProof.cs:107)
+PlayedMatchPlayProof:ReportA5 (PlayedMatchRunner,MatchManager) (at Assets/Editor/PlayedMatchPlayProof.cs:552)
+PlayedMatchPlayProof:Tick () (at Assets/Editor/PlayedMatchPlayProof.cs:164)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/PlayedMatchPlayProof.cs Line: 103)
+
+[PlayedPlay]   CHECK Hard: no button prompts: PASS  ball coming to your side in 14437 frames: ring shown in 0; you to play it in 14429: prompt shown in 0; any prompt in 0 frames
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchPlayProof:Line (string) (at Assets/Editor/PlayedMatchPlayProof.cs:103)
+PlayedMatchPlayProof:Check (string,bool,string) (at Assets/Editor/PlayedMatchPlayProof.cs:107)
+PlayedMatchPlayProof:ReportA5 (PlayedMatchRunner,MatchManager) (at Assets/Editor/PlayedMatchPlayProof.cs:553)
+PlayedMatchPlayProof:Tick () (at Assets/Editor/PlayedMatchPlayProof.cs:164)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/PlayedMatchPlayProof.cs Line: 103)
+
+[PlayedPlay] RESULT: PASS (14 passed, 0 failed)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchPlayProof:Line (string) (at Assets/Editor/PlayedMatchPlayProof.cs:103)
+PlayedMatchPlayProof:Finish () (at Assets/Editor/PlayedMatchPlayProof.cs:615)
+PlayedMatchPlayProof:ReportA5 (PlayedMatchRunner,MatchManager) (at Assets/Editor/PlayedMatchPlayProof.cs:555)
+PlayedMatchPlayProof:Tick () (at Assets/Editor/PlayedMatchPlayProof.cs:164)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: Assets/Editor/PlayedMatchPlayProof.cs Line: 103)
+
+[MatchReporter] POST /api/unity/match-progress failed (attempt 1/1): 409 HTTP/1.1 409 Conflict {"error":"This match is not being watched."}
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:LogError (object)
+MatchReporter/<Post>d__17:MoveNext () (at Assets/Scripts/MatchReporter.cs:106)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+(Filename: Assets/Scripts/MatchReporter.cs Line: 106)
+
+Unloading 236 Unused Serialized files (Serialized files now loaded: 0)
+Loaded scene 'Temp/__Backupscenes/0.backup'
+	Deserialize:            154.470 ms
+	Integration:            472.081 ms
+	Integration of assets:  0.225 ms
+	Thread Wait Time:       -0.043 ms
+	Total Operation Time:   626.732 ms
+Unloading 112 unused Assets / (10.3 MB). Loaded Objects now: 103758.
+Memory consumption went from 1.07 GB to 1.06 GB.
+Total: 28.378400 ms (FindLiveObjects: 7.775700 ms CreateObjectMapping: 3.798200 ms MarkObjects: 16.490500 ms  DeleteObjects: 0.312900 ms)
+
+[UnityConnectServicesConfig] config is NOT valid, switching to default
+[INFO ] [relay] log Shutdown request received from client editor-4040-5gg5hl
+[INFO ] [relay] log Unity client requested immediate shutdown - shutting down now, reason: Shutdown requested by client
+[INFO ] [relay] log Shutdown: Initiating graceful shutdown: Shutdown requested by client
+SUCCESS: The process with PID 2552 (child process of PID 29940) has been terminated.
+SUCCESS: The process with PID 29940 (child process of PID 4040) has been terminated.
+Start importing ProjectSettings/EditorBuildSettings.asset using Guid(0000000000000000b000000000000000) (LibraryAssetImporter) -> (artifact id: '977b2d4d2e14457778b11ba1c6342647') in 0.0071554 seconds
+Refreshing native plugins compatible for Editor in 3.40 ms, found 5 plugins.
+Preloading 1 native plugins for Editor in 0.08 ms.
+Asset Pipeline Refresh (id=c42e46d88d707c24eb7bf7331437cb14): Total: 0.245 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+[Physics::Module] Cleanup current backend.
+[Physics::Module] Id: 0xf2b8ea05
+Input System module state changed to: ShutdownInProgress.
+Input System polling thread exited.
+Input System module state changed to: Shutdown.
+[Licensing::IpcConnector] LicenseClient-rbonn-6000.3.16-notifications channel disconnected successfully.
+[Licensing::IpcConnector] LicenseClient-rbonn-6000.3.16 channel disconnected successfully.
+AcceleratorClientConnectionCallback - disconnected - :0
+Cleanup mono
+abort_threads: Failed aborting id: 00000000000097A4, mono_thread_manage will ignore it
+
+abort_threads: Failed aborting id: 0000000000009730, mono_thread_manage will ignore it
+
+abort_threads: Failed aborting id: 00000000000097A4, mono_thread_manage will ignore it
+
+abort_threads: Failed aborting id: 0000000000009730, mono_thread_manage will ignore it
+
+debugger-agent: Unable to listen on 3636
+Checking for leaked weakptr:
+  Found no leaked weakptrs.
+[Package Manager] Server process was shutdown
+##utp:{"type":"MemoryLeaks","version":2,"phase":"Immediate","time":1795647984989,"processId":4040,"allocatedMemory":28350441,"memoryLabels":[{"Default":29313},{"Permanent":15236},{"NewDelete":69547},{"Thread":4237960},{"Manager":830205},{"VertexData":8},{"Geometry":816},{"Texture":296},{"Shader":83989},{"Material":24},{"GfxDevice":60552},{"Animation":392},{"Audio":2664},{"FreeType":8},{"FontEngine":736},{"Physics":2090},{"Physics2D":16},{"Serialization":272},{"Input":14984},{"JobScheduler":33024},{"TextLib":216},{"Mono":32},{"MonoCode":384},{"ScriptingNativeRuntime":155060},{"BaseObject":1622128},{"Resource":1336},{"Renderer":3000},{"Transform":4685},{"File":3949},{"WebCam":616},{"Culling":32},{"Terrain":11394},{"Wind":24},{"STL":40},{"String":23262},{"DynamicArray":136124},{"HashMap":132509},{"Utility":2662998},{"Curl":3411},{"PoolAlloc":2824},{"AI":80},{"TypeTree":5341},{"ScriptManager":512},{"RuntimeInitializeOnLoadManager":64},{"SpriteAtlas":112},{"GI":7792},{"Director":8240},{"CloudService":10512},{"WebRequest":808},{"VR":47994},{"SceneManager":504},{"Video":208},{"LazyScriptCache":32},{"NativeArray":372},{"Camera":17},{"Secure":2377},{"SerializationCache":1576},{"APIUpdating":10320},{"Subsystems":336},{"VirtualTexturing":57888},{"StaticSafetyDebugInfo":278528},{"Analytics":384},{"Hierarchy":608},{"CoreStats":13032},{"Identifiers":12960},{"Gui":96},{"EditorUtility":154298},{"VersionControl":4},{"Undo":947},{"AssetDatabase":17543303},{"EditorGi":328},{"UnityConnect":29232},{"Upm":1896},{"AssetCompliance":64},{"DrivenProperties":72},{"LocalIPC":211},{"ProfilerEditor":9746},{"CoreBusinessMetrics":2867},{"Licensing":664},{"AssetReference":32},{"IPCStream":32}]}
