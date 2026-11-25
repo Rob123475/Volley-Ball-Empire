@@ -13,7 +13,7 @@ import { matchPointChance, completeMatch, type MatchContext } from "./matches.js
 import { isLegalResult, isLegalProgress, type SetScore } from "../utils/matchEngine.js";
 
 import { aiPairTx, type AiMember } from "../utils/aiSquads.js";
-import { careerPlayerStateTable, nationsCupFixturesTable, olympicMatchesTable, nationalKit, type OlympicPlayerEntry, type NationsCupFixture } from "@workspace/db";
+import { careerPlayerStateTable, nationsCupFixturesTable, olympicMatchesTable, nationalKit, gameDifficultyOf, type OlympicPlayerEntry, type NationsCupFixture } from "@workspace/db";
 import { withCareerStateTx, type CareerStateTx } from "../lib/playerDto.js";
 import { careerGameDateTx } from "../utils/gameDate.js";
 import { coachedNationTx } from "../utils/nationalCoach.js";
@@ -113,7 +113,7 @@ router.get("/unity/match-state", async (req, res): Promise<void> => {
 
   // An id that does not exist is a 404, not a silent fallback.
   const [career] = await db
-    .select({ id: careerSavesTable.id, teamId: careerSavesTable.teamId })
+    .select({ id: careerSavesTable.id, teamId: careerSavesTable.teamId, gameDifficulty: careerSavesTable.gameDifficulty })
     .from(careerSavesTable)
     .where(eq(careerSavesTable.id, careerSaveId))
     .limit(1);
@@ -136,7 +136,8 @@ router.get("/unity/match-state", async (req, res): Promise<void> => {
     const state = nationsMatchState(careerSaveId, Number(req.query.nationsMatchId));
     if ("error" in state) { res.status(state.status).json({ error: state.error }); return; }
     req.log.info({ nationsMatchId: state.nationsMatchId, players: state.players.length }, "unity/match-state served (Nations Cup)");
-    res.json(state);
+    // 1.2 A5: a played match grades every touch at the career's difficulty.
+    res.json({ ...state, gameDifficulty: gameDifficultyOf(career.gameDifficulty) });
     return;
   }
 
@@ -423,6 +424,9 @@ router.get("/unity/match-state", async (req, res): Promise<void> => {
     crowdSize:            estimateCrowdSize(match.tier),
     commentaryLine:       liveState?.lastAction ?? commentaryLine,
     pointChanceHome,
+    // 1.2 A5: Easy / Medium / Hard (schema/game-difficulty.ts): a played match grades
+    // every touch at it and sets the opponents' AI by it. A career made before it: medium.
+    gameDifficulty:       gameDifficultyOf(career.gameDifficulty),
     // Boost mechanic isn't implemented in the API yet — always off for now.
     attackBoostActive:    false,
     defenceBoostActive:   false,
