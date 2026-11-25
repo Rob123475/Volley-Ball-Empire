@@ -5,23 +5,31 @@ A6 FAIR TO THE CAREER: AN AVERAGE PLAYER WITH A PAD (PlayedMatchSims.AveragePlay
 
   | Difficulty | Weak (45) v strong (80) | Same, expert thumbs | Slightly weaker (57) v (67) | Even (62) v even (62) | Strong (80) v weak (45) |
   |---|---|---|---|---|---|
-  | Easy | 1% (±2%; points 39%) | 10% (±4%; points 43%) | 43% (±7%; points 49%) | 69% (±6%; points 53%) | 100% (±0%; points 66%) |
-  | Medium | 0% (±0%; points 35%) | 6% (±3%; points 41%) | 24% (±6%; points 46%) | 52% (±7%; points 50%) | 97% (±2%; points 62%) |
-  | Hard | 1% (±1%; points 35%) | 11% (±4%; points 44%) | 12% (±4%; points 43%) | 29% (±6%; points 47%) | 90% (±4%; points 57%) |
+  | Easy | 10% (±4%; points 42%) | 26% (±6%; points 47%) | 58% (±7%; points 51%) | 86% (±5%; points 57%) | 100% (±0%; points 67%) |
+  | Medium | 3% (±2%; points 40%) | 15% (±5%; points 45%) | 50% (±7%; points 50%) | 73% (±6%; points 53%) | 99% (±1%; points 64%) |
+  | Hard | 3% (±2%; points 40%) | 47% (±7%; points 50%) | 35% (±7%; points 48%) | 56% (±7%; points 51%) | 97% (±2%; points 62%) |
 
   | Sim Result (the game's engine) | 14% | (same as left) | 37% | 51% | 85% |
 
   (each cell: the person's pair's match win rate, its 95% margin, and the share of points it won;
    expert thumbs: timing spread 40 ms, reaction 200 ms, reads the ball within 0.15 m, blocks more)
-  CHECK Easy: a weak pair does not beat a far stronger pair on quick thumbs (wins at most 20%): PASS  1%
-  CHECK Easy: even an expert's quick thumbs do not carry a weak pair past a far stronger one (at most 20%): PASS  10%
-  CHECK Easy: a strong pair beats a far weaker one (at least 80%): PASS  100%
-  CHECK Medium: a weak pair does not beat a far stronger pair on quick thumbs (wins at most 20%): PASS  0%
-  CHECK Medium: even an expert's quick thumbs do not carry a weak pair past a far stronger one (at most 20%): PASS  6%
-  CHECK Medium: a strong pair beats a far weaker one (at least 80%): PASS  97%
-  CHECK Hard: a weak pair does not beat a far stronger pair on quick thumbs (wins at most 20%): PASS  1%
-  CHECK Hard: even an expert's quick thumbs do not carry a weak pair past a far stronger one (at most 20%): PASS  11%
-  CHECK Hard: a strong pair beats a far weaker one (at least 80%): PASS  90%
-  CHECK even pairs: Easy is easier than Medium, Medium easier than Hard: PASS  Easy 69%, Medium 52%, Hard 29%
-  CHECK even pairs on Medium: a fair contest (35-65%): PASS  52%
-RESULT: PASS (11 passed, 0 failed)
+
+  A PLAYED MATCH'S LENGTH AT NORMAL SPEED (1x), even pairs (62 v 62), the average player, 200 matches; per point: the rally, the serve wait, the pause after a point, the walk back to positions
+  | Difficulty | Match (mean) | Points | A point | Rally | Serve wait | Point over | Positions |
+  |---|---|---|---|---|---|---|---|
+  | Easy | 11.6 min (longest 19.5) | 45 | 15.5 s | 9.7 s (8.5 touches) | 2.6 s | 1.9 s | 1.3 s |
+  | Medium | 12.5 min (longest 19.5) | 49 | 15.2 s | 9.5 s (8.5 touches) | 2.5 s | 1.9 s | 1.3 s |
+  | Hard | 11.2 min (longest 18.4) | 49 | 13.6 s | 7.9 s (7.2 touches) | 2.5 s | 1.9 s | 1.3 s |
+
+  CHECK Easy: a weak pair (45) beats a far stronger one (80) under 14% of the time: PASS  10%
+  CHECK Easy: a strong pair (80) beats a far weaker one (45) at least 90% of the time: PASS  100%
+  CHECK Medium: a weak pair (45) beats a far stronger one (80) under 14% of the time: PASS  3%
+  CHECK Medium: a strong pair (80) beats a far weaker one (45) at least 90% of the time: PASS  99%
+  CHECK Hard: a weak pair (45) beats a far stronger one (80) under 14% of the time: PASS  3%
+  CHECK Hard: a strong pair (80) beats a far weaker one (45) at least 90% of the time: PASS  97%
+  CHECK Easy, even pairs: the player wins at least 80% (aim 85%): PASS  86%
+  CHECK Medium, even pairs: the player wins 60-80% (aim 70%): PASS  73%
+  CHECK Hard, even pairs: the player wins 50-70% (aim 60%): PASS  56%
+  CHECK even pairs: Hard is harder than Medium, Medium harder than Easy: PASS  Easy 86%, Medium 73%, Hard 56%
+  reported, not a target: with expert thumbs a weak pair (45) beats a far stronger one (80) Easy 26%, Medium 15%, Hard 47%
+RESULT: PASS (10 passed, 0 failed)

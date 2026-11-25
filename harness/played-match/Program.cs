@@ -32,16 +32,18 @@ public static class Program
     {
         var d = a.Length > 1 ? (Difficulty)Enum.Parse(typeof(Difficulty), a[1]) : Difficulty.Medium;
         int n = a.Length > 2 ? int.Parse(a[2]) : 100;
-        foreach (var (you, them) in new[] { (45, 80), (57, 67), (62, 62), (67, 57) })
+        foreach (var (you, them) in new[] { (45, 80), (62, 62), (80, 45) })
         {
-            int wins = 0, pts = 0, won = 0;
+            int wins = 0, pts = 0, won = 0; double secs = 0; var ph = new double[5];
             for (int k = 1; k <= n; k++)
             {
                 ulong seed = (ulong)(70000 + k);
                 var s = PlayedMatchSims.Play(new[] { Ratings.All(you), Ratings.All(you), Ratings.All(them), Ratings.All(them) }, d, seed, PlayedMatchSims.PersonAgainstAi(d, seed));
-                if (s.HomeWon) wins++; pts += s.points; won += s.pointsByTeam[0];
+                if (s.HomeWon) wins++; pts += s.points; won += s.pointsByTeam[0]; secs += s.seconds;
+                for (int q = 0; q < 5; q++) ph[q] += s.phaseSeconds[q];
             }
-            Console.WriteLine($"{d} {you} v {them}: won {wins * 100 / n}%, points {won * 100.0 / pts:F1}% (Sim Result {PlayedMatchChecks.SimResultWinRate(you, them) * 100:F0}%, per point {Math.Min(0.58, Math.Max(0.42, 0.5 + (you - them) * 0.00213)) * 100:F1}%)");
+            string per = string.Join(", ", new[] { "positioning", "serve wait", "rally", "point over" }.Select((nm, q) => $"{nm} {ph[q] / pts:F1}s"));
+            Console.WriteLine($"{d} {you} v {them}: won {wins * 100 / n}%, points {won * 100.0 / pts:F1}% (Sim Result {PlayedMatchChecks.SimResultWinRate(you, them) * 100:F0}%, per point {Math.Min(0.58, Math.Max(0.42, 0.5 + (you - them) * 0.00213)) * 100:F1}%); match {secs / n / 60:F1} min, {pts / (double)n:F0} points; a point: {per}");
         }
         {
             int wins = 0;

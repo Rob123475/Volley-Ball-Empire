@@ -1,15 +1,16 @@
 A4 THE AI PLAYS THE SAME GAME (Assets/Scripts/PlayedMatch/PlayedAi.cs: AiSeat)
   every seat below is an AiSeat: it reads the ball's prediction and presses the same buttons a person would; the engine grades its touches
-  Easy: partner AI timing sd 97 ms, reaction 260 ms, placing ±0.31 m, soft 16%; opponents AI timing sd 120 ms, reaction 305 ms, placing ±0.39 m, soft 14%
-  Medium: partner AI timing sd 97 ms, reaction 260 ms, placing ±0.31 m, soft 16%; opponents AI timing sd 97 ms, reaction 260 ms, placing ±0.31 m, soft 16%
-  Hard: partner AI timing sd 97 ms, reaction 260 ms, placing ±0.31 m, soft 16%; opponents AI timing sd 79 ms, reaction 230 ms, placing ±0.26 m, soft 18%
-  CHECK in 30 AI-only matches every point went where the ball says (re-worked from the ball's own events, apart from the engine): PASS  1453/1453 points; Kill 1162, Dropped 187, Ace 46, Out 37, BlockStuff 12, NetFault 9
-  CHECK nothing decided the winner beforehand: even pairs at the same rating split the matches: PASS  home pair won 17 of 30
-  CHECK the same AI level, different ratings: players rated 85 time their touches more tightly than players rated 45: PASS  timing spread (sd) rated 85: 88 ms over 2246 touches; rated 45: 94 ms over 2440
+  Easy: partner AI timing sd 105 ms, reaction 268 ms, placing ±0.33 m, soft 16%; opponents AI timing sd 128 ms, reaction 318 ms, placing ±0.42 m, soft 14%
+  Medium: partner AI timing sd 105 ms, reaction 268 ms, placing ±0.33 m, soft 16%; opponents AI timing sd 105 ms, reaction 268 ms, placing ±0.33 m, soft 16%
+  Hard: partner AI timing sd 105 ms, reaction 268 ms, placing ±0.33 m, soft 16%; opponents AI timing sd 88 ms, reaction 242 ms, placing ±0.28 m, soft 18%
+  CHECK in 30 AI-only matches every point went where the ball says (re-worked from the ball's own events, apart from the engine): PASS  1353/1353 points; Kill 945, Dropped 260, Ace 63, Out 53, NetFault 25, BlockStuff 7
+  CHECK nothing decided the winner beforehand: even pairs at the same rating split the matches: PASS  home pair won 13 of 30
+  CHECK the same AI level, different ratings: players rated 85 time their touches more tightly than players rated 45: PASS  timing spread (sd) rated 85: 92 ms over 2176 touches; rated 45: 99 ms over 2373
   CHECK and the pair rated 85 beats the pair rated 45, through the same ball and grading: PASS  won 20 of 20
-  CHECK the opponents' timing tightens with the difficulty (Easy > Medium > Hard): PASS  opponents' spread Easy 106 ms, Medium 90 ms, Hard 74 ms
-  CHECK the player's partner stays the same on every difficulty (within noise): PASS  partner's spread Easy 92 ms, Medium 92 ms, Hard 83 ms
-  CHECK an AI match's touches are graded perfect, good and late, and some are missed: PASS  perfect 259, good 158, late 62, missed (whiffs) 68
-  CHECK the same seed plays the same match point for point; another seed plays a different one: PASS  seed 9: 53 points twice, identical True; seed 10: 60 points
+  (timing spreads measured over Hard's late window, ±190 ms, on every difficulty; over each difficulty's own window: opponents Easy 118, Medium 95, Hard 79 ms; partner Easy 99, Medium 98, Hard 87 ms)
+  CHECK the opponents' timing tightens with the difficulty (Easy > Medium > Hard): PASS  opponents' spread Easy 94 ms, Medium 86 ms, Hard 79 ms
+  CHECK the player's partner stays the same on every difficulty (within noise): PASS  partner's spread Easy 87 ms, Medium 88 ms, Hard 87 ms; her level on every difficulty: timing sd 105 ms, reaction 268 ms, placing ±0.33 m, soft 16%
+  CHECK an AI match's touches are graded perfect, good and late, and some are missed: PASS  perfect 209, good 164, late 68, missed (whiffs) 55
+  CHECK the same seed plays the same match point for point; another seed plays a different one: PASS  seed 9: 39 points twice, identical True; seed 10: 34 points
   CHECK the played match's 9 files never touch the game's odds or a rally plan (PointModel.HomeWinsPoint, HomeChance(, DecidePoint, MakePlan, _plan., _plan =, PointChanceHome, OverridePlan): PASS  BallFlight.cs, PlayedAi.cs, PlayedEngine.cs, PlayedMath.cs, TouchGrade.cs, TouchShapes.cs, PlayedMatchRunner.cs, PlayedControls.cs, MatchManager.Played.cs
 RESULT: PASS (9 passed, 0 failed)

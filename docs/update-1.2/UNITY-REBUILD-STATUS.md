@@ -69,7 +69,10 @@ Brief: `docs/update-1.2/UNITY-REBUILD-BRIEF.md`. Plan: `docs/update-1.2/PLAYABLE
     - **A white ring** at her feet shows which player is yours.
 15. **AI sharpness by difficulty (A4, A5).**
     - **The player's partner** has Medium sharpness on every difficulty, so a harder career does not give you a worse partner.
-    - **The opponents** get sharper with the difficulty: their timing spread is 120 ms on Easy, 97 ms on Medium and 79 ms on Hard, and their reaction time is 305, 260 and 230 ms. These were set in A6 so that an average player has a fair match on Medium.
+    - **The opponents** get sharper with the difficulty: their timing spread is 128 ms on Easy, 105 ms on Medium and 88 ms on Hard, and their reaction time is 318, 268 and 242 ms.
+      - A6 first set them to 120, 97 and 79 ms (reactions 305, 260 and 230) for a fair match on Medium.
+      - They were retuned on 26 Nov to Rob's rule that the player must not lose more often than he wins at any difficulty. See "Difficulty retuned" at the end of this file.
+      - The partner's level is Medium's, so she moved with it: 105 ms and 268 ms.
     - **Every AI player's timing** also narrows a little with her own rating for the touch: one rated 85 is about 10% steadier than one rated 45.
 16. **Boosts in a played match.** There are no odds to shift in a played match, so a boost raises Team A's ratings instead:
     - **Attack:** +8 power and serve.
@@ -109,9 +112,15 @@ Brief: `docs/update-1.2/UNITY-REBUILD-BRIEF.md`. Plan: `docs/update-1.2/PLAYABLE
 | A3 Controls, played on the court | Done, PASS | `docs/update-1.2/proof/A3/`: `a3-played-match.txt` (Unity batch, 28/28), `a3-unity.log`, three pictures | Unity `ed0e902`; game repo `833aaeac` |
 | A4 AI plays the same game | Done, PASS | `docs/update-1.2/proof/A4/`: `a4-ai-same-game.txt` (Unity batch, 9/9), `a4-dotnet.txt` (dotnet, 8/8), `a4-unity.log` | Unity `ea77855`; game repo `74f3a669` |
 | A5 Difficulty from the career | Done, PASS | `docs/update-1.2/proof/A5/`: `a5-harness.txt` (9/9; the final run, on the tuned code, is in `proof/A6/a6-harness.txt`), `a5-easy.txt`, `a5-medium.txt`, `a5-hard.txt` (each court 14/14) | Unity `95c47c5`; game repo: the A5 commit |
-| A6 Fair to the career | Done, PASS | `docs/update-1.2/proof/A6/`: `a6-dotnet.txt` (the table, 11/11), `a6-harness.txt` and `a6-harness-full-match.txt` (suite 12/12), `a6-played-on-server.txt` (court 28/28), three pictures from that match (`a6-court-*.png`) | Unity `96acace`; game repo `8b5ecfe5` |
+| A6 Fair to the career | Done, PASS (retuned 26 Nov) | `docs/update-1.2/proof/A6/`: see the list after this table | Unity `96acace`; retune `fadb71f`; game repo `8b5ecfe5`; retune: the retune commit |
 | A7 Auto not touched | Done, PASS | `docs/update-1.2/proof/A7/RallyPlanProof.log` (RallyPlanProof PASS on the demolished code); `proof/A8/harness-one-set-of-odds.txt` (20/20), `harness-boosts.txt` (12/12), `harness-watched-result.txt` (22/22) | Unity `e6efc68` |
 | A8 Demolition | Done, PASS | `docs/update-1.2/proof/A8/`: `a8-played-match.txt` (the new engine's proof, 28/28), `a8-compile.log` (0 errors), `harness-played-match.txt` (6/6), three pictures | Unity `e6efc68`; game repo `ee7d5dda` |
+
+**A6's proof files** (`docs/update-1.2/proof/A6/`), with a correction:
+- **`a6-dotnet.txt`:** the win-rate table after the 26 Nov retune, 10/10. `a6-dotnet-25nov.txt` is the first table, 11/11 against the first targets.
+- **`a6-harness.txt` ended FAIL, 14/15, not a pass.** That combined run's whole played match on the server failed 2 of its 28 checks (no set made by the person, no block). The cause was the career's heights in centimetres: a 188 cm player reached 250 m, so with real career players no set or spike could be timed. I fixed the height reading, and the rerun, `a6-harness-full-match.txt`, passed 12/12. This row used to say the suite passed 12/12 without naming the failed run first.
+- **`a6-played-on-server.txt`:** the court's proof of that rerun, 28/28, with three pictures from that match (`a6-court-*.png`).
+- **The latest whole match on the server,** on the retuned code, is `proof/A8/harness-unity-full.txt`: 12/12.
 
 ### A1: real ball flight (25 Nov 2026)
 **Files:**
@@ -369,13 +378,105 @@ A grep of the Unity project finds no reference left to any of it.
 
 **The full harness gains the new suite.** `harness/run-all.mjs` now runs `played-match.mjs --a6` as suite 57b, without the Unity courts, which need Unity closed. `runSuite` gained an optional argument list for it.
 
-**The whole played match against the server, rerun on the finished code (25 Nov 2026, 19:23–19:30): 12/12, no failures.**
-- **The run:** `harness/played-match.mjs --unity-full`, on Unity `e6efc68` and game `194f4a63`.
-- **Engine and payload:** the engine's checks pass 54/54 under dotnet (A1, A2, A4), and the four difficulty payloads pass.
-- **The court:** it played the whole match, 28/28, 2-0 (11-4, 11-9).
-- **The game:**
-  - MatchReporter posted the result, and the game recorded exactly that score.
-  - The win counted, and the $4,333 prize is on the ledger.
-  - Both players' fitness and fatigue were charged: 100 to 96 and 95; 0 to 17 and 21.
-- **The files:** the output is `proof/A8/harness-unity-full.txt`. Beside it are the Unity log (`harness-unity-full-unity.log`) and the court's own proof (`harness-unity-full-court.txt`).
-- **Where it ran:** the suite was pointed at a scratch proof folder so the committed A6 files were not overwritten, and its two files were copied here.
+**The whole played match against the server, `harness/played-match.mjs --unity-full`.**
+- **25 Nov, 19:23–19:30:** 12/12, on Unity `e6efc68`. The court won 2-0 (11-4, 11-9). Recorded in commit `6a482129`.
+- **26 Nov, after the Auto height fix and the retune: 12/12, no failures.**
+  - **The run:** 20:00–20:06, on Unity `fadb71f`.
+  - **Engine and payload:** the engine's checks pass 54/54 under dotnet, and the four difficulty payloads pass.
+  - **The court:** it played the whole match, 28/28, 2-0 (11-5, 11-7).
+  - **The game:**
+    - MatchReporter posted the result, and the game recorded exactly that score.
+    - The win counted, and the prize is on the ledger.
+    - Fitness was charged 100 to 93 for both players, and fatigue 0 to 18 and 21.
+  - **The files:** the output is `proof/A8/harness-unity-full.txt` (now this run's). Beside it are the Unity log (`harness-unity-full-unity.log`) and the court's own proof (`harness-unity-full-court.txt`).
+  - **Where it ran:** the suite was pointed at a scratch proof folder so the committed A6 files were not overwritten, and its two files were copied here.
+
+### Difficulty retuned to Rob's rule (26 Nov 2026)
+**Rob's rule:** the player must not lose more often than he wins at any difficulty.
+
+**The targets,** for even pairs (62 v 62), the average player, 200 matches a cell:
+- Easy at least 80% (aim 85%)
+- Medium 60–80% (aim 70%)
+- Hard 50–70% (aim 60%)
+
+**The limits:**
+- Strong (80) v weak (45) stays at 90% or more.
+- Weak (45) v strong (80) stays under 14%.
+- Hard is harder than Medium, and Medium harder than Easy.
+- Hard keeps no ring.
+
+**The result:** the first full 200-match table was inside every target, so it was run once (of the three allowed). `proof/A6/a6-dotnet.txt` has 10/10 checks.
+
+**The new table beside the old one** (the person's pair's match win rate; ± is the 95% margin):
+
+| Difficulty | Weak (45) v strong (80) | Same, expert thumbs | Slightly weaker (57) v (67) | Even (62) v even (62) | Strong (80) v weak (45) |
+|---|---|---|---|---|---|
+| Easy, **now** | 10% (±4%) | 26% (±6%) | 58% (±7%) | **86%** (±5%) | 100% |
+| Easy, 25 Nov | 1% (±2%) | 10% (±4%) | 43% (±7%) | 69% (±6%) | 100% |
+| Medium, **now** | 3% (±2%) | 15% (±5%) | 50% (±7%) | **73%** (±6%) | 99% (±1%) |
+| Medium, 25 Nov | 0% | 6% (±3%) | 24% (±6%) | 52% (±7%) | 97% (±2%) |
+| Hard, **now** | 3% (±2%) | 47% (±7%) | 35% (±7%) | **56%** (±7%) | 97% (±2%) |
+| Hard, 25 Nov | 1% (±1%) | 11% (±4%) | 12% (±4%) | 29% (±6%) | 90% (±4%) |
+| Sim Result (the game's engine, same ratings) | 14% | — | 37% | 51% | 85% |
+
+**Against the targets:**
+- **Even pairs:** Easy 86% (aim 85%), Medium 73% (aim 70%), Hard 56% (aim 60%). All three are inside, and Easy > Medium > Hard.
+- **Weak v strong:** 3–10%, under 14% everywhere.
+- **Strong v weak:** 97–100%, 90% or more everywhere.
+
+**One thing for Rob, not one of his limits:** with expert thumbs (a 40 ms timing spread, 200 ms reaction), a weak pair now beats a far stronger one 26% of the time on Easy and 47% on Hard.
+- **Why:** Hard's narrow timing windows punish a sloppy opponent far more than a steady player. To let the average player win 56% there, the Hard AI's timing had to be about as loose as Medium's. An expert's 40 ms timing then loses almost nothing in those windows, while the AI loses a lot.
+- **Your call:** this clashes with the brief's line that "a weak pair should not beat a far stronger pair just because the player has quick thumbs". The new rule wins for now, and the A6 checks follow Rob's 26 Nov targets. The expert cell is reported, not checked.
+
+**Every number changed:**
+
+| Setting (`Assets/Scripts/PlayedMatch/PlayedAi.cs`, `AiLevel.For`) | Was (25 Nov) | Now |
+|---|---|---|
+| Easy opponents: timing spread / reaction / placing | 0.120 s / 0.305 s / 0.39 m | 0.128 s / 0.318 s / 0.415 m |
+| Medium opponents, and the player's partner on every difficulty | 0.097 s / 0.260 s / 0.31 m | 0.105 s / 0.268 s / 0.325 m |
+| Hard opponents | 0.079 s / 0.230 s / 0.262 m | 0.088 s / 0.242 s / 0.28 m |
+
+**What did not change:**
+- the timing windows (Easy ±100/200/360 ms, Medium ±65/140/260, Hard ±45/100/190)
+- how much the ratings count (`SkillSpread` 0.40, `Physical`, `StatWeight` .46/.50/.62)
+- the soft-shot share
+- the ring, which Hard still does not have
+
+**The checks changed to match** (`Assets/Editor/PlayedMatchChecks.cs`):
+
+| Check | Was | Now |
+|---|---|---|
+| A6, weak v strong | at most 20% | under 14% |
+| A6, strong v weak | at least 80% | at least 90% |
+| A6, even pairs on Medium | 35–65% | per difficulty: Easy 80%+, Medium 60–80%, Hard 50–70% |
+| A6, expert thumbs | at most 20% (a check) | reported only |
+| A4, AI timing spread | measured over each difficulty's own window | measured over Hard's late window (±190 ms) on all three |
+
+**Why A4's measurement changed.** The partner's level is the same on every difficulty, yet over each difficulty's own window her spread read 99 ms on Easy, 98 on Medium and 87 on Hard. That failed the 12 ms tolerance. Only touches that are made carry a timing error, and Hard's window cuts off the worst ones sooner, so Hard alone made her look steadier. Over the same window she reads 87, 88 and 87 ms, and the opponents 94, 86 and 79 ms. `a4-dotnet.txt` keeps both sets of figures.
+
+**Proofs rerun on the final code** (Unity `fadb71f`):
+
+| Proof | Unity batch | dotnet |
+|---|---|---|
+| A1 | 23/23 | 18/18 |
+| A2 | 28/28 | 28/28 |
+| A4 | 9/9 | 8/8 |
+| A6 | — | 10/10 |
+
+The whole played match on the server (`harness/played-match.mjs --unity-full`) passed 12/12; see A8.
+
+**How long a played match takes at normal speed (1x).** These are from the same 200-match runs, at even ratings with the average player. The engine's clock is real time at 1x.
+
+| Difficulty | Match (mean) | Longest | Points | A point | Rally | Serve wait | Point over | Walk to positions |
+|---|---|---|---|---|---|---|---|---|
+| Easy | 11.6 min | 19.5 min | 45 | 15.5 s | 9.7 s (8.5 touches) | 2.6 s | 1.9 s | 1.3 s |
+| Medium | 12.5 min | 19.5 min | 49 | 15.2 s | 9.5 s (8.5 touches) | 2.5 s | 1.9 s | 1.3 s |
+| Hard | 11.2 min | 18.4 min | 49 | 13.6 s | 7.9 s (7.2 touches) | 2.5 s | 1.9 s | 1.3 s |
+
+**Rob's matches run no longer than 5 minutes. A played match runs more than twice that.** Nothing was changed for it yet, as instructed. Where the time goes, per point:
+- **The rally, 8–10 s (58–63% of a point).** Rallies average 7–8.5 touches, about three attacks, and each touch is a real flight. A dig or set rises to 3–5 m, and a ball that high takes about 1.5 s up and down.
+- **The serve wait, 2.5 s (16–18%).** The meter sweeps for 1.2 s each way, and the server waits a moment before tapping: the AI 0.6–1.5 s, the average player 0.8–2.0 s.
+- **The pause after a point, 1.9 s (12–14%).** That is the engine's `PointOverSeconds` (1.8 s; 3.2 s after a set).
+- **The walk back to positions, 1.3 s (8–10%).**
+
+There are 45–49 points a match.
