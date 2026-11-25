@@ -1,0 +1,914 @@
+Soak: 30 seasons, medium, career 1, work C:\Users\rbonn\AppData\Local\Temp\vbe-soak-medium-dzsRTB
+  season 1 pre-season: {"choice":"camp","location":"altitude","length":"4w"} -> 200
+
+=== Season 1 (2026), medium ===
+  AI seniors: average rating 75.7; top 5: Fernanda Silva 91, Beatriz Costa 90, Ashley Carter 88, Taylor Brooks 88, Annika Bauer 87
+  Player's squad: Lani Faumuina 66 (26), Nurul Ain 67 (28), Camila Santiago 79 (28)
+  AI clubs over the cap that signed anyone this season: 0 (must be 0); over it only through a promoted youth (C-5, allowed): 4
+  AI clubs with 3 seniors: 48 of 60; with a coach and a medic: 60 of 60
+  Stats above 99 or below 1: 0
+  AI injuries this season: 104; long-injured released to the market: 0
+  Free agents left: 146
+  AI clubs paid at Silver / Gold this season: 10 / 0 of 18 in the World Tour field
+  AI balances: lowest $278,434, median $540,059, 0 below zero, 0 sold
+  Champion (first in the final standings): Honolulu Aloha Warriors
+  Player's club balance: 947,645; AI originals retired so far: 0
+  Injuries (AI clubs): 101; by type: Cramp or strained muscle 30, Sprained ankle 24, Broken finger or toe 16, Torn hamstring 11, Concussion 6, Torn shoulder 5, Broken wrist 4, Torn knee ligament (ACL) 2, Broken leg 2, Ankle reconstruction 1
+  Average weeks out (not reconstructions), by the treatment on the day: both null (0 injuries, base null); right 2.6 (55 injuries, base 4.02); wrong 4.84 (38 injuries, base 4.84); none 6 (7 injuries, base 3); reconstructions: 1
+  Injured list: 16 put on it this season, 2 on it now; AI cover promoted from academies this season: 7
+  1.1.1 transfers: 0 moves in the window (0 outside it, on a contract's end); 0 bought ahead; counters 0 won, 0 lost (0 by mood; 0 on his players); 0 fell through
+  AI bids: 0 in all; 0 on his seniors, 0 of his players lost to bids (he never answers in the soak, so an unanswered bid takes her); most on one club 0 (none); most on one player 0 (none)
+  Perks paid: player's club $0, AI clubs about $0; 0 contracts with perks now
+  Staff budget: AI clubs' staff 120 (top staff, skill 85+: 41); AI budgets median $39,500, top $39,500; 60 with a main sponsor; 0 can't afford a missing coach or medic; his budget $39,500 (Oak Group)
+  Youth deals: 2 sales (2 AI to AI), 52 loans started
+  1.1.3 AI limits: 117 scouting reports, 187 bids; most by one AI club 6 reports (limit 10) and 7 bids (limit 10); most by one AI club on one club 1 reports and 2 bids (limit 2)
+  1.1.3 staff: AI clubs short of a doctor or physio: 0 of 60
+  1.1.3 market: senior transfers completed 130 (87 signed from the free agents, 87 of them in the window; 43 refills; 0 moved by a bid); free agents 146 at the season's start, 146 at its end; continental pool 170 seniors
+  1.1.3 market: 37 clubs with a contract ending (87 players), 88 left for the market; renewals 23 (clubs renewing two or more: 0); places filled by a youth's promotion 7; places left open 12 (cap 12); clubs that did not fill their places 0; market reports on free agents and leavers 117
+  1.1.3 market: players at the same club 3+ seasons 0 (most at one club 0; clubs with two or more 0); short-squad club-days this season 0
+  1.1.3 rebuild contracts: AI 6-month contracts 0 (players off a season's end 0, pool 0, staff 0); staff and medical contracts not ending 7 January: 0
+  1.1.3 national coach: offers this season none; job none
+  (1.3 min so far)
+  season 2 pre-season: {"choice":"camp","location":"power_house","length":"4w"} -> 200
+
+=== Season 2 (2027), medium ===
+  AI seniors: average rating 71.9; top 5: Yaritza Mendez 89, Ashley Carter 89, Taylor Brooks 89, Jasmine Washington 88, Destiny Rivera 87
+  Player's squad: Lani Faumuina 67 (27), Nurul Ain 67 (29), Leilani Leota 51 (18)
+  AI clubs over the cap that signed anyone this season: 0 (must be 0); over it only through a promoted youth (C-5, allowed): 0
+  AI clubs with 3 seniors: 59 of 60; with a coach and a medic: 60 of 60
+  Stats above 99 or below 1: 0
+  AI injuries this season: 95; long-injured released to the market: 0
+  Free agents left: 158
+  AI clubs paid at Silver / Gold this season: 6 / 2 of 18 in the World Tour field
+  AI balances: lowest $200,434, median $509,047, 0 below zero, 0 sold
+  Champion (first in the final standings): Miami Shoreline Queens
+  Player's club balance: 1,353,586; AI originals retired so far: 0
+  Injuries (AI clubs): 86; by type: Cramp or strained muscle 30, Sprained ankle 17, Broken finger or toe 12, Torn hamstring 11, Broken wrist 7, Torn shoulder 4, Concussion 3, Broken leg 1, Ankle reconstruction 1
+  Average weeks out (not reconstructions), by the treatment on the day: both null (0 injuries, base null); right 2.07 (38 injuries, base 3.21); wrong 4.15 (47 injuries, base 4.15); none null (0 injuries, base null); reconstructions: 1
+  Injured list: 9 put on it this season, 1 on it now; AI cover promoted from academies this season: 29
+  1.1.1 transfers: 1 moves in the window (0 outside it, on a contract's end); 1 bought ahead; counters 0 won, 0 lost (0 by mood; 0 on his players); 0 fell through
+  AI bids: 1 in all; 1 on his seniors, 1 of his players lost to bids (he never answers in the soak, so an unanswered bid takes her); most on one club 1 (his club); most on one player 1 (Camila Santiago)
+  Perks paid: player's club $0, AI clubs about $387; 1 contracts with perks now
+  Staff budget: AI clubs' staff 120 (top staff, skill 85+: 37); AI budgets median $37,500, top $48,800; 60 with a main sponsor; 0 can't afford a missing coach or medic; his budget $43,500 (Fresco Provisions)
+  Youth deals: 12 sales (12 AI to AI), 64 loans started
+  1.1.3 AI limits: 237 scouting reports, 265 bids; most by one AI club 7 reports (limit 10) and 9 bids (limit 10); most by one AI club on one club 2 reports and 2 bids (limit 2)
+  1.1.3 staff: AI clubs short of a doctor or physio: 0 of 60
+  1.1.3 market: senior transfers completed 168 (160 signed from the free agents, 160 of them in the window; 7 refills; 1 moved by a bid); free agents 158 at the season's start, 158 at its end; continental pool 180 seniors
+  1.1.3 market: 60 clubs with a contract ending (161 players), 161 left for the market; renewals 7 (clubs renewing two or more: 0); places filled by a youth's promotion 8; places left open 1 (cap 1); clubs that did not fill their places 0; market reports on free agents and leavers 212
+  1.1.3 market: players at the same club 3+ seasons 0 (most at one club 0; clubs with two or more 0); short-squad club-days this season 0
+  1.1.3 rebuild contracts: AI 6-month contracts 0 (players off a season's end 0, pool 0, staff 0); staff and medical contracts not ending 7 January: 0
+  1.1.3 national coach: offers this season none; job none
+  (2.6 min so far)
+  season 3 pre-season: {"choice":"rest"} -> 200
+
+=== Season 3 (2028), medium ===
+  AI seniors: average rating 71.6; top 5: Jasmine Washington 91, Sophie Müller 90, Yaritza Mendez 89, Annika Bauer 88, Haruka Mori 87
+  Player's squad: Lani Faumuina 68 (28), Nurul Ain 68 (30), Leilani Leota 53 (19), Kavya Sharma 58 (18)
+  AI clubs over the cap that signed anyone this season: 0 (must be 0); over it only through a promoted youth (C-5, allowed): 0
+  AI clubs with 3 seniors: 59 of 60; with a coach and a medic: 60 of 60
+  Stats above 99 or below 1: 0
+  AI injuries this season: 102; long-injured released to the market: 0
+  Free agents left: 185
+  AI clubs paid at Silver / Gold this season: 1 / 3 of 18 in the World Tour field
+  AI balances: lowest $17,643, median $495,551, 0 below zero, 0 sold
+  Champion (first in the final standings): Vancouver Pacific Orcas
+  Player's club balance: 1,759,855; AI originals retired so far: 0
+  Injuries (AI clubs): 100; by type: Cramp or strained muscle 48, Broken finger or toe 14, Sprained ankle 13, Torn hamstring 12, Concussion 8, Broken leg 3, Broken wrist 1, Torn shoulder 1
+  Average weeks out (not reconstructions), by the treatment on the day: both null (0 injuries, base null); right 1.95 (45 injuries, base 3.07); wrong 3.15 (54 injuries, base 3.15); none 2 (1 injuries, base 1); reconstructions: 0
+  Injured list: 5 put on it this season, 1 on it now; AI cover promoted from academies this season: 42
+  1.1.1 transfers: 0 moves in the window (0 outside it, on a contract's end); 0 bought ahead; counters 0 won, 0 lost (0 by mood; 0 on his players); 0 fell through
+  AI bids: 0 in all; 0 on his seniors, 0 of his players lost to bids (he never answers in the soak, so an unanswered bid takes her); most on one club 0 (none); most on one player 0 (none)
+  Perks paid: player's club $0, AI clubs about $6,734; 1 contracts with perks now
+  Staff budget: AI clubs' staff 120 (top staff, skill 85+: 45); AI budgets median $39,500, top $58,500; 60 with a main sponsor; 0 can't afford a missing coach or medic; his budget $50,000 (Prism Press)
+  Youth deals: 11 sales (11 AI to AI), 56 loans started
+  1.1.3 AI limits: 153 scouting reports, 214 bids; most by one AI club 6 reports (limit 10) and 8 bids (limit 10); most by one AI club on one club 2 reports and 2 bids (limit 2)
+  1.1.3 staff: AI clubs short of a doctor or physio: 0 of 60
+  1.1.3 market: senior transfers completed 115 (110 signed from the free agents, 110 of them in the window; 5 refills; 0 moved by a bid); free agents 184 at the season's start, 185 at its end; continental pool 180 seniors
+  1.1.3 market: 42 clubs with a contract ending (113 players), 113 left for the market; renewals 4 (clubs renewing two or more: 0); places filled by a youth's promotion 3; places left open 1 (cap 1); clubs that did not fill their places 0; market reports on free agents and leavers 143
+  1.1.3 market: players at the same club 3+ seasons 1 (most at one club 1; clubs with two or more 0); short-squad club-days this season 0
+  1.1.3 rebuild contracts: AI 6-month contracts 0 (players off a season's end 0, pool 0, staff 0); staff and medical contracts not ending 7 January: 0
+  1.1.3 national coach: offers this season Jamaica $4500 (Cup window); Ireland $6000 (Cup window); Sweden $7500 (Cup window); job Jamaica, 5 years to 2033-05-25, $4500/mo, $32,548 paid (active); Nations Cup 20 matches over 4 days, 20 decided, 6 medals
+  (3.6 min so far)
+  season 4 pre-season: {"choice":"camp","location":"beach_academy","length":"4w"} -> 200
+
+=== Season 4 (2029), medium ===
+  AI seniors: average rating 70.9; top 5: Annika Bauer 90, Yaritza Mendez 89, Haruka Mori 89, Aoi Yamamoto 89, Valentina Torres 89
+  Player's squad: Nurul Ain 67 (31), Chinaza Nwosu 50 (18), Leilani Leota 53 (20), Kavya Sharma 57 (19), Keisha Brown 47 (19)
+  AI clubs over the cap that signed anyone this season: 0 (must be 0); over it only through a promoted youth (C-5, allowed): 0
+  AI clubs with 3 seniors: 60 of 60; with a coach and a medic: 60 of 60
+  Stats above 99 or below 1: 0
+  AI injuries this season: 108; long-injured released to the market: 0
+  Free agents left: 204
+  AI clubs paid at Silver / Gold this season: 3 / 3 of 18 in the World Tour field
+  AI balances: lowest $-99,053, median $412,001, 2 below zero, 0 sold
+  Champion (first in the final standings): Rio Copacabana Queens
+  Player's club balance: 2,063,882; AI originals retired so far: 0
+  Injuries (AI clubs): 107; by type: Cramp or strained muscle 38, Sprained ankle 29, Broken finger or toe 16, Concussion 9, Torn hamstring 8, Broken wrist 5, Torn shoulder 2
+  Average weeks out (not reconstructions), by the treatment on the day: both null (0 injuries, base null); right 1.71 (58 injuries, base 2.66); wrong 3.29 (49 injuries, base 3.29); none null (0 injuries, base null); reconstructions: 0
+  Injured list: 5 put on it this season, 0 on it now; AI cover promoted from academies this season: 64
+  1.1.1 transfers: 1 moves in the window (0 outside it, on a contract's end); 1 bought ahead; counters 0 won, 0 lost (0 by mood; 0 on his players); 0 fell through
+  AI bids: 1 in all; 1 on his seniors, 1 of his players lost to bids (he never answers in the soak, so an unanswered bid takes her); most on one club 1 (his club); most on one player 1 (Lani Faumuina)
+  Perks paid: player's club $0, AI clubs about $7,596; 1 contracts with perks now
+  Staff budget: AI clubs' staff 120 (top staff, skill 85+: 38); AI budgets median $39,500, top $76,400; 60 with a main sponsor; 0 can't afford a missing coach or medic; his budget $57,500 (Summit Voyages)
+  Youth deals: 7 sales (7 AI to AI), 44 loans started
+  1.1.3 AI limits: 202 scouting reports, 257 bids; most by one AI club 6 reports (limit 10) and 10 bids (limit 10); most by one AI club on one club 2 reports and 2 bids (limit 2)
+  1.1.3 staff: AI clubs short of a doctor or physio: 0 of 60
+  1.1.3 market: senior transfers completed 156 (152 signed from the free agents, 152 of them in the window; 3 refills; 1 moved by a bid); free agents 198 at the season's start, 204 at its end; continental pool 180 seniors
+  1.1.3 market: 59 clubs with a contract ending (159 players), 159 left for the market; renewals 13 (clubs renewing two or more: 0); places filled by a youth's promotion 6; places left open 0; clubs that did not fill their places 0; market reports on free agents and leavers 183
+  1.1.3 market: players at the same club 3+ seasons 0 (most at one club 0; clubs with two or more 0); short-squad club-days this season 0
+  1.1.3 rebuild contracts: AI 6-month contracts 0 (players off a season's end 0, pool 0, staff 0); staff and medical contracts not ending 7 January: 0
+  1.1.3 national coach: offers this season none; job Jamaica, 5 years to 2033-05-25, $4500/mo, $86,548 paid (active)
+  (4.7 min so far)
+  season 5 pre-season: {"choice":"camp","location":"altitude","length":"4w"} -> 200
+
+=== Season 5 (2030), medium ===
+  AI seniors: average rating 72.3; top 5: Camila Gómez 92, Sofía Herrera 91, Yaritza Mendez 90, Ella Andersson 89, Tariro Moyo 89
+  Player's squad: Chinaza Nwosu 52 (19), Leilani Leota 55 (21), Kavya Sharma 59 (20), Moearii Teriitahi 57 (19)
+  AI clubs over the cap that signed anyone this season: 0 (must be 0); over it only through a promoted youth (C-5, allowed): 0
+  AI clubs with 3 seniors: 59 of 60; with a coach and a medic: 58 of 60
+  Stats above 99 or below 1: 0
+  AI injuries this season: 109; long-injured released to the market: 1
+  Free agents left: 211
+  AI clubs paid at Silver / Gold this season: 4 / 1 of 18 in the World Tour field
+  AI balances: lowest $20,657, median $343,755, 0 below zero, 0 sold
+  Champion (first in the final standings): Lima Pacific Soarers
+  Player's club balance: 2,261,481; AI originals retired so far: 0
+  Injuries (AI clubs): 103; by type: Cramp or strained muscle 47, Torn hamstring 13, Sprained ankle 13, Broken finger or toe 13, Concussion 7, Broken wrist 5, Torn shoulder 3, Hand/foot reconstruction 1, Broken leg 1
+  Average weeks out (not reconstructions), by the treatment on the day: both null (0 injuries, base null); right 1.86 (47 injuries, base 2.89); wrong 3.43 (53 injuries, base 3.43); none 2 (2 injuries, base 1); reconstructions: 1
+  Injured list: 7 put on it this season, 1 on it now; AI cover promoted from academies this season: 42
+  1.1.1 transfers: 1 moves in the window (0 outside it, on a contract's end); 1 bought ahead; counters 0 won, 0 lost (0 by mood; 0 on his players); 0 fell through
+  AI bids: 1 in all; 1 on his seniors, 1 of his players lost to bids (he never answers in the soak, so an unanswered bid takes her); most on one club 1 (his club); most on one player 1 (Nurul Ain)
+  Perks paid: player's club $0, AI clubs about $20,533; 1 contracts with perks now
+  Staff budget: AI clubs' staff 117 (top staff, skill 85+: 41); AI budgets median $39,500, top $90,000; 60 with a main sponsor; 0 can't afford a missing coach or medic; his budget $57,500 (Rally Wheels)
+  Youth deals: 11 sales (11 AI to AI), 57 loans started
+  1.1.3 AI limits: 135 scouting reports, 205 bids; most by one AI club 6 reports (limit 10) and 8 bids (limit 10); most by one AI club on one club 1 reports and 2 bids (limit 2)
+  1.1.3 staff: AI clubs short of a doctor or physio: 2 of 60
+  1.1.3 market: senior transfers completed 106 (100 signed from the free agents, 100 of them in the window; 5 refills; 1 moved by a bid); free agents 209 at the season's start, 211 at its end; continental pool 180 seniors
+  1.1.3 market: 42 clubs with a contract ending (105 players), 106 left for the market; renewals 13 (clubs renewing two or more: 0); places filled by a youth's promotion 5; places left open 1 (cap 1); clubs that did not fill their places 0; market reports on free agents and leavers 125
+  1.1.3 market: players at the same club 3+ seasons 2 (most at one club 1; clubs with two or more 0); short-squad club-days this season 0
+  1.1.3 rebuild contracts: AI 6-month contracts 0 (players off a season's end 0, pool 0, staff 0); staff and medical contracts not ending 7 January: 0
+  1.1.3 national coach: offers this season none; job Jamaica, 5 years to 2033-05-25, $4500/mo, $140,548 paid (active)
+  (5.7 min so far)
+  season 6 pre-season: {"choice":"camp","location":"power_house","length":"4w"} -> 200
+
+=== Season 6 (2031), medium ===
+  AI seniors: average rating 71.2; top 5: Kayla Thompson 90, Céline Moreau 90, Haruka Mori 89, Valentina Torres 89, Scarlett Thompson 89
+  Player's squad: Chinaza Nwosu 53 (20), Leilani Leota 56 (22), Neema Mollel 56 (19), Moearii Teriitahi 58 (20)
+  AI clubs over the cap that signed anyone this season: 0 (must be 0); over it only through a promoted youth (C-5, allowed): 0
+  AI clubs with 3 seniors: 60 of 60; with a coach and a medic: 59 of 60
+  Stats above 99 or below 1: 0
+  AI injuries this season: 113; long-injured released to the market: 0
+  Free agents left: 222
+  AI clubs paid at Silver / Gold this season: 0 / 4 of 18 in the World Tour field
+  AI balances: lowest $3,290, median $407,387, 0 below zero, 4 sold
+  Champion (first in the final standings): Buenos Aires Pampas Storm
+  Player's club balance: 2,582,498; AI originals retired so far: 0
+  Injuries (AI clubs): 117; by type: Cramp or strained muscle 28, Sprained ankle 25, Torn hamstring 15, Broken finger or toe 14, Concussion 12, Broken wrist 8, Torn shoulder 7, Ankle reconstruction 3, Broken leg 3, Hand/foot reconstruction 1, Torn knee ligament (ACL) 1
+  Average weeks out (not reconstructions), by the treatment on the day: both null (0 injuries, base null); right 2.79 (55 injuries, base 4.4); wrong 4.18 (56 injuries, base 4.18); none 21 (2 injuries, base 10.5); reconstructions: 4
+  Injured list: 19 put on it this season, 1 on it now; AI cover promoted from academies this season: 66
+  1.1.1 transfers: 0 moves in the window (0 outside it, on a contract's end); 0 bought ahead; counters 0 won, 0 lost (0 by mood; 0 on his players); 0 fell through
+  AI bids: 0 in all; 0 on his seniors, 0 of his players lost to bids (he never answers in the soak, so an unanswered bid takes her); most on one club 0 (none); most on one player 0 (none)
+  Perks paid: player's club $0, AI clubs about $0; 0 contracts with perks now
+  Staff budget: AI clubs' staff 119 (top staff, skill 85+: 41); AI budgets median $39,500, top $85,500; 60 with a main sponsor; 0 can't afford a missing coach or medic; his budget $57,500 (Summit Escapes)
+  Youth deals: 13 sales (13 AI to AI), 58 loans started
+  1.1.3 AI limits: 234 scouting reports, 241 bids; most by one AI club 9 reports (limit 10) and 9 bids (limit 10); most by one AI club on one club 2 reports and 2 bids (limit 2)
+  1.1.3 staff: AI clubs short of a doctor or physio: 1 of 60
+  1.1.3 market: senior transfers completed 151 (137 signed from the free agents, 137 of them in the window; 14 refills; 0 moved by a bid); free agents 219 at the season's start, 222 at its end; continental pool 181 seniors
+  1.1.3 market: 59 clubs with a contract ending (149 players), 150 left for the market; renewals 19 (clubs renewing two or more: 0); places filled by a youth's promotion 14; places left open 0; clubs that did not fill their places 0; market reports on free agents and leavers 233
+  1.1.3 market: players at the same club 3+ seasons 5 (most at one club 1; clubs with two or more 0); short-squad club-days this season 0
+  1.1.3 rebuild contracts: AI 6-month contracts 0 (players off a season's end 0, pool 0, staff 0); staff and medical contracts not ending 7 January: 0
+  1.1.3 national coach: offers this season none; job Jamaica, 5 years to 2033-05-25, $4500/mo, $194,548 paid (active)
+  (6.8 min so far)
+  season 7 pre-season: {"choice":"camp","location":"altitude","length":"4w"} -> 200
+
+=== Season 7 (2032), medium ===
+  AI seniors: average rating 72.5; top 5: Liu Yi 90, Ruby Walker 90, Sofia Rivera 89, Valentina Torres 89, Beatriz Costa 89
+  Player's squad: Leilani Leota 58 (23), Neema Mollel 58 (20), Sofia Romano 59 (19), Keziah Campbell 51 (18)
+  AI clubs over the cap that signed anyone this season: 0 (must be 0); over it only through a promoted youth (C-5, allowed): 0
+  AI clubs with 3 seniors: 60 of 60; with a coach and a medic: 58 of 60
+  Stats above 99 or below 1: 0
+  AI injuries this season: 106; long-injured released to the market: 0
+  Free agents left: 220
+  AI clubs paid at Silver / Gold this season: 5 / 1 of 18 in the World Tour field
+  AI balances: lowest $19,565, median $480,267, 0 below zero, 12 sold
+  Champion (first in the final standings): Durban Indian Ocean Tides
+  Player's club balance: 2,971,379; AI originals retired so far: 0
+  Injuries (AI clubs): 110; by type: Cramp or strained muscle 41, Sprained ankle 30, Concussion 11, Broken finger or toe 10, Torn hamstring 7, Torn shoulder 7, Broken wrist 2, Ankle reconstruction 1, Broken leg 1
+  Average weeks out (not reconstructions), by the treatment on the day: both null (0 injuries, base null); right 1.82 (72 injuries, base 2.82); wrong 3.75 (36 injuries, base 3.75); none 6 (1 injuries, base 3); reconstructions: 1
+  Injured list: 10 put on it this season, 0 on it now; AI cover promoted from academies this season: 43
+  1.1.1 transfers: 1 moves in the window (0 outside it, on a contract's end); 1 bought ahead; counters 0 won, 0 lost (0 by mood; 0 on his players); 0 fell through
+  AI bids: 1 in all; 1 on his seniors, 1 of his players lost to bids (he never answers in the soak, so an unanswered bid takes her); most on one club 1 (his club); most on one player 1 (Moearii Teriitahi)
+  Perks paid: player's club $0, AI clubs about $742; 1 contracts with perks now
+  Staff budget: AI clubs' staff 117 (top staff, skill 85+: 36); AI budgets median $39,500, top $90,000; 60 with a main sponsor; 0 can't afford a missing coach or medic; his budget $57,500 (Odyssey Resorts)
+  Youth deals: 6 sales (6 AI to AI), 53 loans started
+  1.1.3 AI limits: 138 scouting reports, 205 bids; most by one AI club 4 reports (limit 10) and 7 bids (limit 10); most by one AI club on one club 1 reports and 2 bids (limit 2)
+  1.1.3 staff: AI clubs short of a doctor or physio: 1 of 60
+  1.1.3 market: senior transfers completed 110 (100 signed from the free agents, 100 of them in the window; 9 refills; 1 moved by a bid); free agents 223 at the season's start, 220 at its end; continental pool 180 seniors
+  1.1.3 market: 47 clubs with a contract ending (99 players), 101 left for the market; renewals 26 (clubs renewing two or more: 0); places filled by a youth's promotion 3; places left open 0; clubs that did not fill their places 0; market reports on free agents and leavers 137
+  1.1.3 market: players at the same club 3+ seasons 9 (most at one club 1; clubs with two or more 0); short-squad club-days this season 0
+  1.1.3 rebuild contracts: AI 6-month contracts 0 (players off a season's end 0, pool 0, staff 0); staff and medical contracts not ending 7 January: 0
+  1.1.3 national coach: offers this season none; job Jamaica, 5 years to 2033-05-25, $4500/mo, $248,696 paid (active); Nations Cup 20 matches over 4 days, 20 decided, 6 medals
+  (7.8 min so far)
+  season 8 pre-season: {"choice":"camp","location":"power_house","length":"4w"} -> 200
+
+=== Season 8 (2033), medium ===
+  AI seniors: average rating 70.7; top 5: Pimchanok Meesuk 90, Vahiné Maohi 89, Wang Yun 89, Ella Andersson 89, Amara James 89
+  Player's squad: Leilani Leota 60 (24), Neema Mollel 60 (21), Sofia Romano 60 (20), Keziah Campbell 52 (19)
+  AI clubs over the cap that signed anyone this season: 0 (must be 0); over it only through a promoted youth (C-5, allowed): 1
+  AI clubs with 3 seniors: 59 of 60; with a coach and a medic: 58 of 60
+  Stats above 99 or below 1: 0
+  AI injuries this season: 98; long-injured released to the market: 0
+  Free agents left: 230
+  AI clubs paid at Silver / Gold this season: 2 / 4 of 18 in the World Tour field
+  AI balances: lowest $-91,462, median $472,348, 5 below zero, 13 sold
+  Champion (first in the final standings): Amsterdam Dune Riders
+  Player's club balance: 3,274,405; AI originals retired so far: 0
+  Injuries (AI clubs): 97; by type: Cramp or strained muscle 31, Sprained ankle 16, Broken finger or toe 16, Torn hamstring 14, Concussion 10, Broken wrist 5, Broken leg 2, Torn shoulder 2, Torn knee ligament (ACL) 1
+  Average weeks out (not reconstructions), by the treatment on the day: both null (0 injuries, base null); right 2.72 (50 injuries, base 4.22); wrong 3.28 (32 injuries, base 3.28); none 8.13 (15 injuries, base 4.07); reconstructions: 0
+  Injured list: 11 put on it this season, 3 on it now; AI cover promoted from academies this season: 69
+  1.1.1 transfers: 0 moves in the window (0 outside it, on a contract's end); 0 bought ahead; counters 0 won, 0 lost (0 by mood; 0 on his players); 0 fell through
+  AI bids: 0 in all; 0 on his seniors, 0 of his players lost to bids (he never answers in the soak, so an unanswered bid takes her); most on one club 0 (none); most on one player 0 (none)
+  Perks paid: player's club $0, AI clubs about $12,887; 1 contracts with perks now
+  Staff budget: AI clubs' staff 117 (top staff, skill 85+: 36); AI budgets median $41,300, top $90,000; 60 with a main sponsor; 0 can't afford a missing coach or medic; his budget $66,100 (Viper Athletic)
+  Youth deals: 8 sales (8 AI to AI), 51 loans started
+  1.1.3 AI limits: 180 scouting reports, 224 bids; most by one AI club 6 reports (limit 10) and 9 bids (limit 10); most by one AI club on one club 2 reports and 2 bids (limit 2)
+  1.1.3 staff: AI clubs short of a doctor or physio: 2 of 60
+  1.1.3 market: senior transfers completed 129 (120 signed from the free agents, 120 of them in the window; 9 refills; 0 moved by a bid); free agents 215 at the season's start, 230 at its end; continental pool 182 seniors
+  1.1.3 market: 59 clubs with a contract ending (140 players), 140 left for the market; renewals 21 (clubs renewing two or more: 0); places filled by a youth's promotion 22; places left open 1 (cap 1); clubs that did not fill their places 0; market reports on free agents and leavers 180
+  1.1.3 market: players at the same club 3+ seasons 11 (most at one club 1; clubs with two or more 0); short-squad club-days this season 0
+  1.1.3 rebuild contracts: AI 6-month contracts 0 (players off a season's end 0, pool 0, staff 0); staff and medical contracts not ending 7 January: 0
+  1.1.3 national coach: offers this season China $3000 (contract end); USA $4500 (contract end); job China, 3 years to 2036-05-27, $3000/mo, $21,501 paid (active)
+  (8.9 min so far)
+  season 9 pre-season: {"choice":"rest"} -> 200
+
+=== Season 9 (2034), medium ===
+  AI seniors: average rating 72.5; top 5: Pimchanok Meesuk 92, Keovilay Phommachanh 91, Sofia Rivera 90, Mere Bainivalu 89, Vahiné Maohi 89
+  Player's squad: Sofia Romano 62 (21), Valentina Rojas 58 (19), Céline Amiri 51 (18), Emily Harrison 52 (18)
+  AI clubs over the cap that signed anyone this season: 0 (must be 0); over it only through a promoted youth (C-5, allowed): 0
+  AI clubs with 3 seniors: 60 of 60; with a coach and a medic: 55 of 60
+  Stats above 99 or below 1: 0
+  AI injuries this season: 102; long-injured released to the market: 0
+  Free agents left: 223
+  AI clubs paid at Silver / Gold this season: 6 / 2 of 18 in the World Tour field
+  AI balances: lowest $14,755, median $433,207, 0 below zero, 14 sold
+  Champion (first in the final standings): Gold Coast Thunderbirds
+  Player's club balance: 3,689,438; AI originals retired so far: 0
+  Injuries (AI clubs): 102; by type: Cramp or strained muscle 40, Sprained ankle 21, Broken finger or toe 19, Concussion 8, Torn hamstring 7, Broken wrist 5, Torn shoulder 2
+  Average weeks out (not reconstructions), by the treatment on the day: both null (0 injuries, base null); right 1.92 (50 injuries, base 2.96); wrong 2.9 (51 injuries, base 2.9); none 2 (1 injuries, base 1); reconstructions: 0
+  Injured list: 6 put on it this season, 0 on it now; AI cover promoted from academies this season: 56
+  1.1.1 transfers: 2 moves in the window (0 outside it, on a contract's end); 2 bought ahead; counters 0 won, 0 lost (0 by mood; 0 on his players); 0 fell through
+  AI bids: 2 in all; 2 on his seniors, 2 of his players lost to bids (he never answers in the soak, so an unanswered bid takes her); most on one club 2 (his club); most on one player 1 (Leilani Leota)
+  Perks paid: player's club $0, AI clubs about $13,660; 2 contracts with perks now
+  Staff budget: AI clubs' staff 112 (top staff, skill 85+: 36); AI budgets median $41,900, top $90,000; 60 with a main sponsor; 0 can't afford a missing coach or medic; his budget $69,400 (Nexus Works)
+  Youth deals: 9 sales (9 AI to AI), 55 loans started
+  1.1.3 AI limits: 162 scouting reports, 199 bids; most by one AI club 6 reports (limit 10) and 9 bids (limit 10); most by one AI club on one club 2 reports and 2 bids (limit 2)
+  1.1.3 staff: AI clubs short of a doctor or physio: 5 of 60
+  1.1.3 market: senior transfers completed 110 (93 signed from the free agents, 93 of them in the window; 15 refills; 2 moved by a bid); free agents 222 at the season's start, 223 at its end; continental pool 180 seniors
+  1.1.3 market: 50 clubs with a contract ending (99 players), 97 left for the market; renewals 32 (clubs renewing two or more: 0); places filled by a youth's promotion 6; places left open 0; clubs that did not fill their places 0; market reports on free agents and leavers 158
+  1.1.3 market: players at the same club 3+ seasons 10 (most at one club 1; clubs with two or more 0); short-squad club-days this season 0
+  1.1.3 rebuild contracts: AI 6-month contracts 0 (players off a season's end 0, pool 0, staff 0); staff and medical contracts not ending 7 January: 0
+  1.1.3 national coach: offers this season none; job China, 3 years to 2036-05-27, $3000/mo, $57,501 paid (active)
+  (9.9 min so far)
+  season 10 pre-season: {"choice":"camp","location":"beach_academy","length":"4w"} -> 200
+
+=== Season 10 (2035), medium ===
+  AI seniors: average rating 72; top 5: Mere Bainivalu 89, Vahiné Maohi 89, Ella Andersson 89, Scarlett Thompson 89, Ruby Walker 89
+  Player's squad: Valentina Rojas 57 (20), Emily Harrison 52 (19), Sofía Rojas 51 (18), Chen Yuxuan 51 (19)
+  AI clubs over the cap that signed anyone this season: 0 (must be 0); over it only through a promoted youth (C-5, allowed): 0
+  AI clubs with 3 seniors: 59 of 60; with a coach and a medic: 59 of 60
+  Stats above 99 or below 1: 0
+  AI injuries this season: 122; long-injured released to the market: 0
+  Free agents left: 207
+  AI clubs paid at Silver / Gold this season: 3 / 3 of 18 in the World Tour field
+  AI balances: lowest $-118,102, median $400,790, 4 below zero, 14 sold
+  Champion (first in the final standings): Vancouver Pacific Orcas
+  Player's club balance: 4,065,021; AI originals retired so far: 0
+  Injuries (AI clubs): 119; by type: Cramp or strained muscle 52, Sprained ankle 22, Broken finger or toe 13, Concussion 12, Torn shoulder 7, Torn hamstring 7, Broken wrist 3, Torn knee ligament (ACL) 2, Ankle reconstruction 1
+  Average weeks out (not reconstructions), by the treatment on the day: both null (0 injuries, base null); right 1.79 (54 injuries, base 2.78); wrong 3.75 (64 injuries, base 3.75); none null (0 injuries, base null); reconstructions: 1
+  Injured list: 10 put on it this season, 1 on it now; AI cover promoted from academies this season: 87
+  1.1.1 transfers: 1 moves in the window (0 outside it, on a contract's end); 1 bought ahead; counters 0 won, 0 lost (0 by mood; 0 on his players); 0 fell through
+  AI bids: 1 in all; 1 on his seniors, 1 of his players lost to bids (he never answers in the soak, so an unanswered bid takes her); most on one club 1 (his club); most on one player 1 (Sofia Romano)
+  Perks paid: player's club $0, AI clubs about $25,032; 1 contracts with perks now
+  Staff budget: AI clubs' staff 119 (top staff, skill 85+: 42); AI budgets median $44,200, top $90,000; 60 with a main sponsor; 0 can't afford a missing coach or medic; his budget $72,900 (Horizons Express)
+  Youth deals: 7 sales (7 AI to AI), 44 loans started
+  1.1.3 AI limits: 191 scouting reports, 219 bids; most by one AI club 6 reports (limit 10) and 8 bids (limit 10); most by one AI club on one club 2 reports and 2 bids (limit 2)
+  1.1.3 staff: AI clubs short of a doctor or physio: 0 of 60
+  1.1.3 market: senior transfers completed 130 (114 signed from the free agents, 114 of them in the window; 15 refills; 1 moved by a bid); free agents 199 at the season's start, 207 at its end; continental pool 180 seniors
+  1.1.3 market: 58 clubs with a contract ending (128 players), 127 left for the market; renewals 28 (clubs renewing two or more: 0); places filled by a youth's promotion 14; places left open 1 (cap 1); clubs that did not fill their places 0; market reports on free agents and leavers 190
+  1.1.3 market: players at the same club 3+ seasons 13 (most at one club 1; clubs with two or more 0); short-squad club-days this season 0
+  1.1.3 rebuild contracts: AI 6-month contracts 0 (players off a season's end 0, pool 0, staff 0); staff and medical contracts not ending 7 January: 0
+  1.1.3 national coach: offers this season none; job China, 3 years to 2036-05-27, $3000/mo, $93,501 paid (active)
+  (10.9 min so far)
+  season 11 pre-season: {"choice":"camp","location":"altitude","length":"4w"} -> 200
+
+=== Season 11 (2036), medium ===
+  AI seniors: average rating 71.5; top 5: Ella Andersson 89, Sofia Rivera 89, Elena Caruana 88, Laila El Hassani 88, Yui Tanaka 88
+  Player's squad: Emily Harrison 54 (20), Chen Yuxuan 52 (20), Isabella Castillo 56 (19), Qistina Rahimah 57 (18)
+  AI clubs over the cap that signed anyone this season: 0 (must be 0); over it only through a promoted youth (C-5, allowed): 0
+  AI clubs with 3 seniors: 59 of 60; with a coach and a medic: 55 of 60
+  Stats above 99 or below 1: 0
+  AI injuries this season: 113; long-injured released to the market: 0
+  Free agents left: 205
+  AI clubs paid at Silver / Gold this season: 2 / 3 of 18 in the World Tour field
+  AI balances: lowest $-89,920, median $434,606, 1 below zero, 15 sold
+  Champion (first in the final standings): Tokyo Surf Samurai
+  Player's club balance: 4,437,254; AI originals retired so far: 0
+  Injuries (AI clubs): 118; by type: Cramp or strained muscle 48, Sprained ankle 22, Broken finger or toe 15, Torn hamstring 11, Torn shoulder 9, Concussion 6, Broken wrist 5, Broken leg 2
+  Average weeks out (not reconstructions), by the treatment on the day: both null (0 injuries, base null); right 2.68 (47 injuries, base 4.11); wrong 3.29 (69 injuries, base 3.29); none 2 (2 injuries, base 1); reconstructions: 0
+  Injured list: 13 put on it this season, 1 on it now; AI cover promoted from academies this season: 84
+  1.1.1 transfers: 1 moves in the window (0 outside it, on a contract's end); 1 bought ahead; counters 0 won, 0 lost (0 by mood; 0 on his players); 0 fell through
+  AI bids: 1 in all; 1 on his seniors, 1 of his players lost to bids (he never answers in the soak, so an unanswered bid takes her); most on one club 1 (his club); most on one player 1 (Valentina Rojas)
+  Perks paid: player's club $0, AI clubs about $12,717; 1 contracts with perks now
+  Staff budget: AI clubs' staff 112 (top staff, skill 85+: 44); AI budgets median $43,200, top $90,000; 60 with a main sponsor; 0 can't afford a missing coach or medic; his budget $76,500 (Vector Digital)
+  Youth deals: 4 sales (4 AI to AI), 59 loans started
+  1.1.3 AI limits: 167 scouting reports, 196 bids; most by one AI club 6 reports (limit 10) and 7 bids (limit 10); most by one AI club on one club 2 reports and 2 bids (limit 2)
+  1.1.3 staff: AI clubs short of a doctor or physio: 5 of 60
+  1.1.3 market: senior transfers completed 109 (91 signed from the free agents, 91 of them in the window; 17 refills; 1 moved by a bid); free agents 196 at the season's start, 205 at its end; continental pool 180 seniors
+  1.1.3 market: 49 clubs with a contract ending (101 players), 105 left for the market; renewals 31 (clubs renewing two or more: 0); places filled by a youth's promotion 15; places left open 1 (cap 1); clubs that did not fill their places 0; market reports on free agents and leavers 166
+  1.1.3 market: players at the same club 3+ seasons 11 (most at one club 1; clubs with two or more 0); short-squad club-days this season 0
+  1.1.3 rebuild contracts: AI 6-month contracts 0 (players off a season's end 0, pool 0, staff 0); staff and medical contracts not ending 7 January: 0
+  1.1.3 national coach: offers this season Guyana $3000 (contract end); Chile $4500 (contract end); job Guyana, 5 years to 2041-05-31, $3000/mo, $21,107 paid (active); Nations Cup 20 matches over 4 days, 20 decided, 6 medals
+  (12.0 min so far)
+  season 12 pre-season: {"choice":"camp","location":"power_house","length":"4w"} -> 200
+
+=== Season 12 (2037), medium ===
+  AI seniors: average rating 72.4; top 5: Mere Bainivalu 89, Ella Andersson 89, Ruby Walker 89, Jada Knowles 88, Elena Caruana 88
+  Player's squad: Emily Harrison 56 (21), Qistina Rahimah 58 (19), Ariana Tepava 56 (19), Isabella González 56 (18)
+  AI clubs over the cap that signed anyone this season: 0 (must be 0); over it only through a promoted youth (C-5, allowed): 0
+  AI clubs with 3 seniors: 59 of 60; with a coach and a medic: 58 of 60
+  Stats above 99 or below 1: 0
+  AI injuries this season: 120; long-injured released to the market: 0
+  Free agents left: 205
+  AI clubs paid at Silver / Gold this season: 3 / 5 of 18 in the World Tour field
+  AI balances: lowest $21,177, median $477,117, 0 below zero, 16 sold
+  Champion (first in the final standings): Shanghai Yangtze Elites
+  Player's club balance: 4,798,965; AI originals retired so far: 0
+  Injuries (AI clubs): 122; by type: Cramp or strained muscle 59, Sprained ankle 26, Broken finger or toe 12, Torn hamstring 9, Concussion 5, Torn shoulder 4, Broken wrist 4, Broken leg 2, Hand/foot reconstruction 1
+  Average weeks out (not reconstructions), by the treatment on the day: both null (0 injuries, base null); right 2.54 (51 injuries, base 4); wrong 2.15 (65 injuries, base 2.15); none 6.8 (5 injuries, base 3.4); reconstructions: 1
+  Injured list: 8 put on it this season, 1 on it now; AI cover promoted from academies this season: 104
+  1.1.1 transfers: 1 moves in the window (0 outside it, on a contract's end); 1 bought ahead; counters 0 won, 0 lost (0 by mood; 0 on his players); 0 fell through
+  AI bids: 1 in all; 1 on his seniors, 1 of his players lost to bids (he never answers in the soak, so an unanswered bid takes her); most on one club 1 (his club); most on one player 1 (Isabella Castillo)
+  Perks paid: player's club $0, AI clubs about $7,459; 2 contracts with perks now
+  Staff budget: AI clubs' staff 118 (top staff, skill 85+: 47); AI budgets median $45,700, top $90,000; 60 with a main sponsor; 0 can't afford a missing coach or medic; his budget $80,300 (Crest Bank)
+  Youth deals: 6 sales (6 AI to AI), 53 loans started
+  1.1.3 AI limits: 172 scouting reports, 224 bids; most by one AI club 4 reports (limit 10) and 8 bids (limit 10); most by one AI club on one club 2 reports and 2 bids (limit 2)
+  1.1.3 staff: AI clubs short of a doctor or physio: 2 of 60
+  1.1.3 market: senior transfers completed 128 (119 signed from the free agents, 119 of them in the window; 8 refills; 1 moved by a bid); free agents 204 at the season's start, 205 at its end; continental pool 180 seniors
+  1.1.3 market: 59 clubs with a contract ending (122 players), 121 left for the market; renewals 34 (clubs renewing two or more: 0); places filled by a youth's promotion 5; places left open 1 (cap 1); clubs that did not fill their places 0; market reports on free agents and leavers 171
+  1.1.3 market: players at the same club 3+ seasons 17 (most at one club 1; clubs with two or more 0); short-squad club-days this season 0
+  1.1.3 rebuild contracts: AI 6-month contracts 0 (players off a season's end 0, pool 0, staff 0); staff and medical contracts not ending 7 January: 0
+  1.1.3 national coach: offers this season none; job Guyana, 5 years to 2041-05-31, $3000/mo, $57,107 paid (active)
+  (13.0 min so far)
+  season 13 pre-season: {"choice":"camp","location":"altitude","length":"4w"} -> 200
+
+=== Season 13 (2038), medium ===
+  AI seniors: average rating 72; top 5: Mere Bainivalu 90, Sofia Rivera 89, Jada Knowles 88, Elena Caruana 88, Laila El Hassani 88
+  Player's squad: Qistina Rahimah 60 (20), Ariana Tepava 58 (20), Isabella González 59 (19), Habiba Bouazizi 59 (19)
+  AI clubs over the cap that signed anyone this season: 0 (must be 0); over it only through a promoted youth (C-5, allowed): 0
+  AI clubs with 3 seniors: 60 of 60; with a coach and a medic: 59 of 60
+  Stats above 99 or below 1: 0
+  AI injuries this season: 105; long-injured released to the market: 0
+  Free agents left: 199
+  AI clubs paid at Silver / Gold this season: 5 / 1 of 18 in the World Tour field
+  AI balances: lowest $-59,348, median $494,556, 1 below zero, 17 sold
+  Champion (first in the final standings): Stockholm Northern Lights
+  Player's club balance: 5,144,550; AI originals retired so far: 0
+  Injuries (AI clubs): 109; by type: Cramp or strained muscle 41, Sprained ankle 27, Torn hamstring 12, Broken finger or toe 12, Concussion 9, Torn shoulder 3, Broken wrist 3, Hand/foot reconstruction 1, Torn knee ligament (ACL) 1
+  Average weeks out (not reconstructions), by the treatment on the day: both null (0 injuries, base null); right 1.99 (50 injuries, base 3.12); wrong 3.31 (52 injuries, base 3.31); none 5.33 (6 injuries, base 2.67); reconstructions: 1
+  Injured list: 8 put on it this season, 0 on it now; AI cover promoted from academies this season: 92
+  1.1.1 transfers: 0 moves in the window (0 outside it, on a contract's end); 0 bought ahead; counters 0 won, 0 lost (0 by mood; 0 on his players); 0 fell through
+  AI bids: 0 in all; 0 on his seniors, 0 of his players lost to bids (he never answers in the soak, so an unanswered bid takes her); most on one club 0 (none); most on one player 0 (none)
+  Perks paid: player's club $0, AI clubs about $12,269; 0 contracts with perks now
+  Staff budget: AI clubs' staff 119 (top staff, skill 85+: 40); AI budgets median $47,800, top $90,000; 60 with a main sponsor; 0 can't afford a missing coach or medic; his budget $84,300 (Harbor Wealth)
+  Youth deals: 13 sales (13 AI to AI), 58 loans started
+  1.1.3 AI limits: 179 scouting reports, 199 bids; most by one AI club 5 reports (limit 10) and 8 bids (limit 10); most by one AI club on one club 2 reports and 2 bids (limit 2)
+  1.1.3 staff: AI clubs short of a doctor or physio: 1 of 60
+  1.1.3 market: senior transfers completed 104 (95 signed from the free agents, 95 of them in the window; 9 refills; 0 moved by a bid); free agents 195 at the season's start, 199 at its end; continental pool 180 seniors
+  1.1.3 market: 51 clubs with a contract ending (100 players), 100 left for the market; renewals 30 (clubs renewing two or more: 0); places filled by a youth's promotion 8; places left open 0; clubs that did not fill their places 0; market reports on free agents and leavers 178
+  1.1.3 market: players at the same club 3+ seasons 20 (most at one club 1; clubs with two or more 0); short-squad club-days this season 0
+  1.1.3 rebuild contracts: AI 6-month contracts 0 (players off a season's end 0, pool 0, staff 0); staff and medical contracts not ending 7 January: 0
+  1.1.3 national coach: offers this season none; job Guyana, 5 years to 2041-05-31, $3000/mo, $93,107 paid (active)
+  (14.1 min so far)
+  season 14 pre-season: {"choice":"camp","location":"power_house","length":"4w"} -> 200
+
+=== Season 14 (2039), medium ===
+  AI seniors: average rating 70.8; top 5: Mere Bainivalu 89, Sofia Rivera 89, Yui Tanaka 88, Ella Andersson 88, Upendo Mollel 88
+  Player's squad: Qistina Rahimah 60 (21), Ariana Tepava 60 (21), Isabella González 60 (20), Habiba Bouazizi 60 (20)
+  AI clubs over the cap that signed anyone this season: 0 (must be 0); over it only through a promoted youth (C-5, allowed): 0
+  AI clubs with 3 seniors: 60 of 60; with a coach and a medic: 59 of 60
+  Stats above 99 or below 1: 0
+  AI injuries this season: 138; long-injured released to the market: 0
+  Free agents left: 189
+  AI clubs paid at Silver / Gold this season: 3 / 2 of 18 in the World Tour field
+  AI balances: lowest $-118,581, median $546,846, 2 below zero, 17 sold
+  Champion (first in the final standings): Bangkok Palm Beach Stars
+  Player's club balance: 5,495,897; AI originals retired so far: 0
+  Injuries (AI clubs): 136; by type: Cramp or strained muscle 58, Sprained ankle 21, Concussion 17, Broken finger or toe 12, Torn hamstring 12, Broken wrist 7, Torn shoulder 5, Broken leg 3, Ankle reconstruction 1
+  Average weeks out (not reconstructions), by the treatment on the day: both null (0 injuries, base null); right 1.91 (60 injuries, base 2.95); wrong 3.52 (75 injuries, base 3.52); none null (0 injuries, base null); reconstructions: 1
+  Injured list: 12 put on it this season, 0 on it now; AI cover promoted from academies this season: 118
+  1.1.1 transfers: 0 moves in the window (0 outside it, on a contract's end); 0 bought ahead; counters 0 won, 0 lost (0 by mood; 0 on his players); 0 fell through
+  AI bids: 0 in all; 0 on his seniors, 0 of his players lost to bids (he never answers in the soak, so an unanswered bid takes her); most on one club 0 (none); most on one player 0 (none)
+  Perks paid: player's club $0, AI clubs about $0; 0 contracts with perks now
+  Staff budget: AI clubs' staff 119 (top staff, skill 85+: 40); AI budgets median $50,400, top $90,000; 60 with a main sponsor; 0 can't afford a missing coach or medic; his budget $88,500 (Axle Performance)
+  Youth deals: 6 sales (6 AI to AI), 45 loans started
+  1.1.3 AI limits: 218 scouting reports, 219 bids; most by one AI club 7 reports (limit 10) and 7 bids (limit 10); most by one AI club on one club 2 reports and 2 bids (limit 2)
+  1.1.3 staff: AI clubs short of a doctor or physio: 1 of 60
+  1.1.3 market: senior transfers completed 133 (115 signed from the free agents, 115 of them in the window; 18 refills; 0 moved by a bid); free agents 186 at the season's start, 189 at its end; continental pool 180 seniors
+  1.1.3 market: 59 clubs with a contract ending (120 players), 122 left for the market; renewals 34 (clubs renewing two or more: 0); places filled by a youth's promotion 8; places left open 0; clubs that did not fill their places 0; market reports on free agents and leavers 215
+  1.1.3 market: players at the same club 3+ seasons 14 (most at one club 1; clubs with two or more 0); short-squad club-days this season 0
+  1.1.3 rebuild contracts: AI 6-month contracts 0 (players off a season's end 0, pool 0, staff 0); staff and medical contracts not ending 7 January: 0
+  1.1.3 national coach: offers this season none; job Guyana, 5 years to 2041-05-31, $3000/mo, $129,107 paid (active)
+  (15.1 min so far)
+  season 15 pre-season: {"choice":"rest"} -> 200
+
+=== Season 15 (2040), medium ===
+  AI seniors: average rating 71.2; top 5: Zola Nkosi 90, Yui Tanaka 88, Caitlin O’Brien 88, Sofia Rivera 88, Ella Andersson 87
+  Player's squad: Qistina Rahimah 62 (22), Ariana Tepava 62 (22), Isabella González 62 (21), Lisa Kalotiti 49 (18)
+  AI clubs over the cap that signed anyone this season: 0 (must be 0); over it only through a promoted youth (C-5, allowed): 1
+  AI clubs with 3 seniors: 59 of 60; with a coach and a medic: 58 of 60
+  Stats above 99 or below 1: 0
+  AI injuries this season: 125; long-injured released to the market: 0
+  Free agents left: 181
+  AI clubs paid at Silver / Gold this season: 2 / 2 of 18 in the World Tour field
+  AI balances: lowest $56,459, median $595,402, 0 below zero, 17 sold
+  Champion (first in the final standings): Myrtle Beach Sunblazers
+  Player's club balance: 5,940,628; AI originals retired so far: 0
+  Injuries (AI clubs): 128; by type: Cramp or strained muscle 52, Torn hamstring 24, Sprained ankle 14, Broken finger or toe 11, Concussion 11, Broken wrist 9, Broken leg 3, Torn shoulder 2, Hand/foot reconstruction 1, Ankle reconstruction 1
+  Average weeks out (not reconstructions), by the treatment on the day: both null (0 injuries, base null); right 2.23 (57 injuries, base 3.47); wrong 3.74 (69 injuries, base 3.74); none null (0 injuries, base null); reconstructions: 2
+  Injured list: 13 put on it this season, 3 on it now; AI cover promoted from academies this season: 103
+  1.1.1 transfers: 1 moves in the window (0 outside it, on a contract's end); 1 bought ahead; counters 0 won, 0 lost (0 by mood; 0 on his players); 0 fell through
+  AI bids: 2 in all; 2 on his seniors, 1 of his players lost to bids (he never answers in the soak, so an unanswered bid takes her); most on one club 2 (his club); most on one player 1 (Habiba Bouazizi)
+  Perks paid: player's club $0, AI clubs about $742; 1 contracts with perks now
+  Staff budget: AI clubs' staff 117 (top staff, skill 85+: 32); AI budgets median $55,400, top $90,000; 60 with a main sponsor; 0 can't afford a missing coach or medic; his budget $90,000 (Nano Tech)
+  Youth deals: 9 sales (9 AI to AI), 56 loans started
+  1.1.3 AI limits: 185 scouting reports, 210 bids; most by one AI club 5 reports (limit 10) and 7 bids (limit 10); most by one AI club on one club 2 reports and 2 bids (limit 2)
+  1.1.3 staff: AI clubs short of a doctor or physio: 2 of 60
+  1.1.3 market: senior transfers completed 114 (104 signed from the free agents, 104 of them in the window; 9 refills; 1 moved by a bid); free agents 180 at the season's start, 181 at its end; continental pool 182 seniors
+  1.1.3 market: 53 clubs with a contract ending (106 players), 108 left for the market; renewals 29 (clubs renewing two or more: 0); places filled by a youth's promotion 5; places left open 1 (cap 1); clubs that did not fill their places 0; market reports on free agents and leavers 179
+  1.1.3 market: players at the same club 3+ seasons 16 (most at one club 1; clubs with two or more 0); short-squad club-days this season 0
+  1.1.3 rebuild contracts: AI 6-month contracts 0 (players off a season's end 0, pool 0, staff 0); staff and medical contracts not ending 7 January: 0
+  1.1.3 national coach: offers this season none; job Guyana, 5 years to 2041-05-31, $3000/mo, $165,205 paid (active); Nations Cup 20 matches over 4 days, 20 decided, 6 medals
+  (16.2 min so far)
+  season 16 pre-season: {"choice":"camp","location":"beach_academy","length":"4w"} -> 200
+
+=== Season 16 (2041), medium ===
+  AI seniors: average rating 71.4; top 5: Upendo Mollel 91, Yui Tanaka 89, Sofia Rivera 88, Litia Vakatale 87, Taylor Johnson 87
+  Player's squad: Ariana Tepava 62 (23), Isabella González 62 (22), Charlotte Moreau 71 (18), Fatima Nkosi 49 (19)
+  AI clubs over the cap that signed anyone this season: 0 (must be 0); over it only through a promoted youth (C-5, allowed): 0
+  AI clubs with 3 seniors: 59 of 60; with a coach and a medic: 60 of 60
+  Stats above 99 or below 1: 0
+  AI injuries this season: 107; long-injured released to the market: 0
+  Free agents left: 178
+  AI clubs paid at Silver / Gold this season: 2 / 1 of 18 in the World Tour field
+  AI balances: lowest $-18,842, median $575,558, 1 below zero, 17 sold
+  Champion (first in the final standings): LA Beach Legends
+  Player's club balance: 6,218,217; AI originals retired so far: 0
+  Injuries (AI clubs): 109; by type: Cramp or strained muscle 45, Sprained ankle 20, Broken finger or toe 17, Torn hamstring 13, Concussion 6, Broken wrist 3, Torn shoulder 2, Broken leg 2, Ankle reconstruction 1
+  Average weeks out (not reconstructions), by the treatment on the day: both null (0 injuries, base null); right 2.55 (49 injuries, base 4.02); wrong 2.6 (57 injuries, base 2.6); none 2 (2 injuries, base 1); reconstructions: 1
+  Injured list: 6 put on it this season, 1 on it now; AI cover promoted from academies this season: 121
+  1.1.1 transfers: 0 moves in the window (1 outside it, on a contract's end); 0 bought ahead; counters 0 won, 0 lost (0 by mood; 0 on his players); 0 fell through
+  AI bids: 0 in all; 0 on his seniors, 1 of his players lost to bids (he never answers in the soak, so an unanswered bid takes her); most on one club 0 (none); most on one player 0 (none)
+  Perks paid: player's club $0, AI clubs about $24,414; 0 contracts with perks now
+  Staff budget: AI clubs' staff 120 (top staff, skill 85+: 42); AI budgets median $54,100, top $90,000; 60 with a main sponsor; 0 can't afford a missing coach or medic; his budget $90,000 (Accord Trust)
+  Youth deals: 6 sales (6 AI to AI), 56 loans started
+  1.1.3 AI limits: 204 scouting reports, 221 bids; most by one AI club 9 reports (limit 10) and 8 bids (limit 10); most by one AI club on one club 2 reports and 2 bids (limit 2)
+  1.1.3 staff: AI clubs short of a doctor or physio: 0 of 60
+  1.1.3 market: senior transfers completed 128 (117 signed from the free agents, 117 of them in the window; 10 refills; 1 moved by a bid); free agents 169 at the season's start, 178 at its end; continental pool 180 seniors
+  1.1.3 market: 59 clubs with a contract ending (125 players), 128 left for the market; renewals 29 (clubs renewing two or more: 0); places filled by a youth's promotion 8; places left open 1 (cap 1); clubs that did not fill their places 0; market reports on free agents and leavers 203
+  1.1.3 market: players at the same club 3+ seasons 9 (most at one club 1; clubs with two or more 0); short-squad club-days this season 0
+  1.1.3 rebuild contracts: AI 6-month contracts 0 (players off a season's end 0, pool 0, staff 0); staff and medical contracts not ending 7 January: 0
+  1.1.3 national coach: offers this season Germany $4500 (contract end); job Germany, 3 years to 2044-06-01, $4500/mo, $31,512 paid (active)
+  (17.2 min so far)
+  season 17 pre-season: {"choice":"camp","location":"altitude","length":"4w"} -> 200
+
+=== Season 17 (2042), medium ===
+  AI seniors: average rating 71.8; top 5: Habiba Ben Ammar 90, Yui Tanaka 89, Caitlin O’Brien 89, Taylor Johnson 88, Litia Vakatale 87
+  Player's squad: Lani Faumuina 54 (19), Matilde Costa 52 (18), Adi Cakobau 49 (18), Moearii Teriitahi 52 (18)
+  AI clubs over the cap that signed anyone this season: 0 (must be 0); over it only through a promoted youth (C-5, allowed): 0
+  AI clubs with 3 seniors: 59 of 60; with a coach and a medic: 59 of 60
+  Stats above 99 or below 1: 0
+  AI injuries this season: 108; long-injured released to the market: 0
+  Free agents left: 167
+  AI clubs paid at Silver / Gold this season: 3 / 3 of 18 in the World Tour field
+  AI balances: lowest $-92,105, median $573,752, 2 below zero, 17 sold
+  Champion (first in the final standings): Shanghai Yangtze Elites
+  Player's club balance: 6,600,996; AI originals retired so far: 0
+  Injuries (AI clubs): 109; by type: Cramp or strained muscle 43, Sprained ankle 20, Broken finger or toe 15, Torn hamstring 10, Concussion 10, Broken wrist 6, Torn shoulder 2, Ankle reconstruction 1, Broken leg 1, Hand/foot reconstruction 1
+  Average weeks out (not reconstructions), by the treatment on the day: both null (0 injuries, base null); right 1.97 (59 injuries, base 3.14); wrong 2.94 (47 injuries, base 2.94); none 16 (1 injuries, base 8); reconstructions: 2
+  Injured list: 7 put on it this season, 1 on it now; AI cover promoted from academies this season: 102
+  1.1.1 transfers: 3 moves in the window (0 outside it, on a contract's end); 2 bought ahead; counters 0 won, 0 lost (0 by mood; 0 on his players); 0 fell through
+  AI bids: 3 in all; 3 on his seniors, 3 of his players lost to bids (he never answers in the soak, so an unanswered bid takes her); most on one club 3 (his club); most on one player 1 (Charlotte Moreau)
+  Perks paid: player's club $0, AI clubs about $1,940; 3 contracts with perks now
+  Staff budget: AI clubs' staff 118 (top staff, skill 85+: 41); AI budgets median $56,100, top $90,000; 60 with a main sponsor; 0 can't afford a missing coach or medic; his budget $90,000 (Ignite Performance)
+  Youth deals: 9 sales (9 AI to AI), 50 loans started
+  1.1.3 AI limits: 176 scouting reports, 208 bids; most by one AI club 7 reports (limit 10) and 8 bids (limit 10); most by one AI club on one club 2 reports and 2 bids (limit 2)
+  1.1.3 staff: AI clubs short of a doctor or physio: 1 of 60
+  1.1.3 market: senior transfers completed 114 (101 signed from the free agents, 101 of them in the window; 10 refills; 3 moved by a bid); free agents 164 at the season's start, 167 at its end; continental pool 180 seniors
+  1.1.3 market: 54 clubs with a contract ending (108 players), 106 left for the market; renewals 30 (clubs renewing two or more: 0); places filled by a youth's promotion 4; places left open 1 (cap 1); clubs that did not fill their places 0; market reports on free agents and leavers 160
+  1.1.3 market: players at the same club 3+ seasons 14 (most at one club 1; clubs with two or more 0); short-squad club-days this season 0
+  1.1.3 rebuild contracts: AI 6-month contracts 0 (players off a season's end 0, pool 0, staff 0); staff and medical contracts not ending 7 January: 0
+  1.1.3 national coach: offers this season none; job Germany, 3 years to 2044-06-01, $4500/mo, $85,512 paid (active)
+  (18.3 min so far)
+  season 18 pre-season: {"choice":"camp","location":"power_house","length":"4w"} -> 200
+
+=== Season 18 (2043), medium ===
+  AI seniors: average rating 71.1; top 5: Kanlaya Pornpun 89, Litia Vakatale 87, Annika Schneider 87, Hinemoa Ngata 86, Chloe MacLeod 85
+  Player's squad: Lani Faumuina 56 (20), Matilde Costa 54 (19), Adi Cakobau 51 (19), Moearii Teriitahi 54 (19)
+  AI clubs over the cap that signed anyone this season: 0 (must be 0); over it only through a promoted youth (C-5, allowed): 0
+  AI clubs with 3 seniors: 60 of 60; with a coach and a medic: 58 of 60
+  Stats above 99 or below 1: 0
+  AI injuries this season: 118; long-injured released to the market: 0
+  Free agents left: 143
+  AI clubs paid at Silver / Gold this season: 2 / 3 of 18 in the World Tour field
+  AI balances: lowest $39,346, median $577,689, 0 below zero, 17 sold
+  Champion (first in the final standings): Cancún Coral Storm
+  Player's club balance: 6,906,261; AI originals retired so far: 0
+  Injuries (AI clubs): 115; by type: Cramp or strained muscle 42, Sprained ankle 29, Torn hamstring 14, Broken finger or toe 12, Broken wrist 6, Torn shoulder 6, Concussion 4, Torn knee ligament (ACL) 1, Head reconstruction 1
+  Average weeks out (not reconstructions), by the treatment on the day: both null (0 injuries, base null); right 2.08 (60 injuries, base 3.27); wrong 3.9 (50 injuries, base 3.9); none 8 (4 injuries, base 4); reconstructions: 1
+  Injured list: 12 put on it this season, 0 on it now; AI cover promoted from academies this season: 117
+  1.1.1 transfers: 0 moves in the window (0 outside it, on a contract's end); 0 bought ahead; counters 0 won, 0 lost (0 by mood; 0 on his players); 0 fell through
+  AI bids: 0 in all; 0 on his seniors, 0 of his players lost to bids (he never answers in the soak, so an unanswered bid takes her); most on one club 0 (none); most on one player 0 (none)
+  Perks paid: player's club $0, AI clubs about $24,291; 0 contracts with perks now
+  Staff budget: AI clubs' staff 116 (top staff, skill 85+: 43); AI budgets median $57,300, top $90,000; 60 with a main sponsor; 0 can't afford a missing coach or medic; his budget $90,000 (Capital Advisory)
+  Youth deals: 1 sales (1 AI to AI), 62 loans started
+  1.1.3 AI limits: 176 scouting reports, 219 bids; most by one AI club 5 reports (limit 10) and 8 bids (limit 10); most by one AI club on one club 2 reports and 2 bids (limit 2)
+  1.1.3 staff: AI clubs short of a doctor or physio: 2 of 60
+  1.1.3 market: senior transfers completed 137 (115 signed from the free agents, 115 of them in the window; 22 refills; 0 moved by a bid); free agents 149 at the season's start, 143 at its end; continental pool 180 seniors
+  1.1.3 market: 54 clubs with a contract ending (115 players), 115 left for the market; renewals 31 (clubs renewing two or more: 0); places filled by a youth's promotion 0; places left open 0; clubs that did not fill their places 0; market reports on free agents and leavers 176
+  1.1.3 market: players at the same club 3+ seasons 12 (most at one club 1; clubs with two or more 0); short-squad club-days this season 0
+  1.1.3 rebuild contracts: AI 6-month contracts 0 (players off a season's end 0, pool 0, staff 0); staff and medical contracts not ending 7 January: 0
+  1.1.3 national coach: offers this season none; job Germany, 3 years to 2044-06-01, $4500/mo, $139,512 paid (active)
+  (19.3 min so far)
+  season 19 pre-season: {"choice":"camp","location":"altitude","length":"4w"} -> 200
+
+=== Season 19 (2044), medium ===
+  AI seniors: average rating 71.2; top 5: Kanlaya Pornpun 91, Haruka Watanabe 88, Mika Villanueva 88, Litia Vakatale 87, Hinemoa Ngata 86
+  Player's squad: Lani Faumuina 57 (21), Matilde Costa 57 (20), Moearii Teriitahi 56 (20), Lin Pei-Shan 54 (19)
+  AI clubs over the cap that signed anyone this season: 0 (must be 0); over it only through a promoted youth (C-5, allowed): 0
+  AI clubs with 3 seniors: 59 of 60; with a coach and a medic: 60 of 60
+  Stats above 99 or below 1: 0
+  AI injuries this season: 120; long-injured released to the market: 0
+  Free agents left: 143
+  AI clubs paid at Silver / Gold this season: 3 / 3 of 18 in the World Tour field
+  AI balances: lowest $22,419, median $582,229, 0 below zero, 17 sold
+  Champion (first in the final standings): Cairo Desert Eagles
+  Player's club balance: 7,237,542; AI originals retired so far: 0
+  Injuries (AI clubs): 122; by type: Cramp or strained muscle 38, Sprained ankle 20, Torn hamstring 19, Broken finger or toe 17, Concussion 12, Broken wrist 9, Torn shoulder 3, Broken leg 2, Hamstring reconstruction 1, Hand/foot reconstruction 1
+  Average weeks out (not reconstructions), by the treatment on the day: both null (0 injuries, base null); right 2.26 (58 injuries, base 3.52); wrong 3.64 (61 injuries, base 3.64); none 40 (1 injuries, base 20); reconstructions: 2
+  Injured list: 13 put on it this season, 1 on it now; AI cover promoted from academies this season: 106
+  1.1.1 transfers: 0 moves in the window (0 outside it, on a contract's end); 0 bought ahead; counters 0 won, 0 lost (0 by mood; 0 on his players); 0 fell through
+  AI bids: 0 in all; 0 on his seniors, 0 of his players lost to bids (he never answers in the soak, so an unanswered bid takes her); most on one club 0 (none); most on one player 0 (none)
+  Perks paid: player's club $0, AI clubs about $0; 0 contracts with perks now
+  Staff budget: AI clubs' staff 120 (top staff, skill 85+: 41); AI budgets median $58,900, top $90,000; 60 with a main sponsor; 0 can't afford a missing coach or medic; his budget $90,000 (Nova Solutions)
+  Youth deals: 9 sales (9 AI to AI), 60 loans started
+  1.1.3 AI limits: 178 scouting reports, 211 bids; most by one AI club 6 reports (limit 10) and 7 bids (limit 10); most by one AI club on one club 2 reports and 2 bids (limit 2)
+  1.1.3 staff: AI clubs short of a doctor or physio: 0 of 60
+  1.1.3 market: senior transfers completed 119 (107 signed from the free agents, 107 of them in the window; 12 refills; 0 moved by a bid); free agents 141 at the season's start, 143 at its end; continental pool 180 seniors
+  1.1.3 market: 56 clubs with a contract ending (110 players), 112 left for the market; renewals 31 (clubs renewing two or more: 0); places filled by a youth's promotion 8; places left open 1 (cap 1); clubs that did not fill their places 0; market reports on free agents and leavers 177
+  1.1.3 market: players at the same club 3+ seasons 16 (most at one club 1; clubs with two or more 0); short-squad club-days this season 0
+  1.1.3 rebuild contracts: AI 6-month contracts 0 (players off a season's end 0, pool 0, staff 0); staff and medical contracts not ending 7 January: 0
+  1.1.3 national coach: offers this season Guyana $3000 (contract end); Samoa $4500 (contract end); job Guyana, 5 years to 2049-06-05, $3000/mo, $20,614 paid (active); Nations Cup 20 matches over 4 days, 20 decided, 6 medals
+  (20.4 min so far)
+  season 20 pre-season: {"choice":"camp","location":"power_house","length":"4w"} -> 200
+
+=== Season 20 (2045), medium ===
+  AI seniors: average rating 70.2; top 5: Mika Villanueva 90, Litia Vakatale 88, Haruka Watanabe 88, Habiba Trabelsi 86, Hinemoa Ngata 86
+  Player's squad: Lani Faumuina 57 (22), Matilde Costa 58 (21), Moearii Teriitahi 57 (21), Lin Pei-Shan 56 (20)
+  AI clubs over the cap that signed anyone this season: 0 (must be 0); over it only through a promoted youth (C-5, allowed): 0
+  AI clubs with 3 seniors: 60 of 60; with a coach and a medic: 59 of 60
+  Stats above 99 or below 1: 0
+  AI injuries this season: 103; long-injured released to the market: 0
+  Free agents left: 131
+  AI clubs paid at Silver / Gold this season: 3 / 3 of 18 in the World Tour field
+  AI balances: lowest $-170,314, median $580,998, 2 below zero, 17 sold
+  Champion (first in the final standings): Stockholm Northern Lights
+  Player's club balance: 7,577,677; AI originals retired so far: 0
+  Injuries (AI clubs): 105; by type: Cramp or strained muscle 43, Sprained ankle 23, Broken finger or toe 13, Torn hamstring 10, Concussion 8, Torn shoulder 5, Broken wrist 2, Ankle reconstruction 1
+  Average weeks out (not reconstructions), by the treatment on the day: both null (0 injuries, base null); right 2.03 (45 injuries, base 3.18); wrong 2.79 (58 injuries, base 2.79); none 2 (1 injuries, base 1); reconstructions: 1
+  Injured list: 5 put on it this season, 0 on it now; AI cover promoted from academies this season: 105
+  1.1.1 transfers: 0 moves in the window (0 outside it, on a contract's end); 0 bought ahead; counters 0 won, 0 lost (0 by mood; 0 on his players); 0 fell through
+  AI bids: 0 in all; 0 on his seniors, 0 of his players lost to bids (he never answers in the soak, so an unanswered bid takes her); most on one club 0 (none); most on one player 0 (none)
+  Perks paid: player's club $0, AI clubs about $0; 0 contracts with perks now
+  Staff budget: AI clubs' staff 119 (top staff, skill 85+: 45); AI budgets median $58,900, top $90,000; 60 with a main sponsor; 0 can't afford a missing coach or medic; his budget $90,000 (Relay Broadcasting)
+  Youth deals: 7 sales (7 AI to AI), 55 loans started
+  1.1.3 AI limits: 169 scouting reports, 205 bids; most by one AI club 5 reports (limit 10) and 8 bids (limit 10); most by one AI club on one club 1 reports and 2 bids (limit 2)
+  1.1.3 staff: AI clubs short of a doctor or physio: 1 of 60
+  1.1.3 market: senior transfers completed 114 (101 signed from the free agents, 101 of them in the window; 13 refills; 0 moved by a bid); free agents 126 at the season's start, 131 at its end; continental pool 180 seniors
+  1.1.3 market: 56 clubs with a contract ending (108 players), 109 left for the market; renewals 39 (clubs renewing two or more: 0); places filled by a youth's promotion 9; places left open 1 (cap 1); clubs that did not fill their places 0; market reports on free agents and leavers 168
+  1.1.3 market: players at the same club 3+ seasons 15 (most at one club 1; clubs with two or more 0); short-squad club-days this season 0
+  1.1.3 rebuild contracts: AI 6-month contracts 0 (players off a season's end 0, pool 0, staff 0); staff and medical contracts not ending 7 January: 0
+  1.1.3 national coach: offers this season none; job Guyana, 5 years to 2049-06-05, $3000/mo, $56,614 paid (active)
+  (21.4 min so far)
+  season 21 pre-season: {"choice":"rest"} -> 200
+
+=== Season 21 (2046), medium ===
+  AI seniors: average rating 70.6; top 5: Haruka Watanabe 89, Hinemoa Ngata 87, Putri Rahmawati 87, Lissette Fuentes 87, Camille Laurent 86
+  Player's squad: Lani Faumuina 59 (23), Moearii Teriitahi 59 (22), Lin Pei-Shan 58 (21), Nguyen Thi Bich 50 (18)
+  AI clubs over the cap that signed anyone this season: 0 (must be 0); over it only through a promoted youth (C-5, allowed): 0
+  AI clubs with 3 seniors: 58 of 60; with a coach and a medic: 58 of 60
+  Stats above 99 or below 1: 0
+  AI injuries this season: 119; long-injured released to the market: 0
+  Free agents left: 127
+  AI clubs paid at Silver / Gold this season: 3 / 3 of 18 in the World Tour field
+  AI balances: lowest $-65,245, median $707,807, 1 below zero, 17 sold
+  Champion (first in the final standings): Havana Salsa Spikers
+  Player's club balance: 7,995,876; AI originals retired so far: 0
+  Injuries (AI clubs): 124; by type: Cramp or strained muscle 52, Sprained ankle 22, Concussion 17, Torn hamstring 9, Broken finger or toe 8, Broken wrist 7, Torn shoulder 4, Ankle reconstruction 3, Torn knee ligament (ACL) 2
+  Average weeks out (not reconstructions), by the treatment on the day: both null (0 injuries, base null); right 3.01 (42 injuries, base 4.67); wrong 2.5 (74 injuries, base 2.5); none 5.2 (5 injuries, base 2.6); reconstructions: 3
+  Injured list: 13 put on it this season, 5 on it now; AI cover promoted from academies this season: 101
+  1.1.1 transfers: 1 moves in the window (0 outside it, on a contract's end); 1 bought ahead; counters 0 won, 0 lost (0 by mood; 0 on his players); 0 fell through
+  AI bids: 1 in all; 1 on his seniors, 1 of his players lost to bids (he never answers in the soak, so an unanswered bid takes her); most on one club 1 (his club); most on one player 1 (Matilde Costa)
+  Perks paid: player's club $0, AI clubs about $742; 1 contracts with perks now
+  Staff budget: AI clubs' staff 117 (top staff, skill 85+: 40); AI budgets median $59,600, top $90,000; 60 with a main sponsor; 0 can't afford a missing coach or medic; his budget $90,000 (Quantum Digital)
+  Youth deals: 9 sales (9 AI to AI), 57 loans started
+  1.1.3 AI limits: 169 scouting reports, 203 bids; most by one AI club 5 reports (limit 10) and 6 bids (limit 10); most by one AI club on one club 2 reports and 2 bids (limit 2)
+  1.1.3 staff: AI clubs short of a doctor or physio: 1 of 60
+  1.1.3 market: senior transfers completed 114 (98 signed from the free agents, 98 of them in the window; 15 refills; 1 moved by a bid); free agents 126 at the season's start, 127 at its end; continental pool 183 seniors
+  1.1.3 market: 55 clubs with a contract ending (106 players), 107 left for the market; renewals 37 (clubs renewing two or more: 0); places filled by a youth's promotion 6; places left open 2 (cap 2); clubs that did not fill their places 0; market reports on free agents and leavers 164
+  1.1.3 market: players at the same club 3+ seasons 23 (most at one club 1; clubs with two or more 0); short-squad club-days this season 0
+  1.1.3 rebuild contracts: AI 6-month contracts 0 (players off a season's end 0, pool 0, staff 0); staff and medical contracts not ending 7 January: 0
+  1.1.3 national coach: offers this season none; job Guyana, 5 years to 2049-06-05, $3000/mo, $92,614 paid (active)
+  (22.5 min so far)
+  season 22 pre-season: {"choice":"camp","location":"beach_academy","length":"4w"} -> 200
+
+=== Season 22 (2047), medium ===
+  AI seniors: average rating 70.9; top 5: Lissette Fuentes 89, Haruka Watanabe 88, Putri Rahmawati 88, Zawadi Mwakalinga 87, Habiba Trabelsi 86
+  Player's squad: Lani Faumuina 58 (24), Moearii Teriitahi 58 (23), Lin Pei-Shan 58 (22), Nguyen Thi Bich 50 (19)
+  AI clubs over the cap that signed anyone this season: 0 (must be 0); over it only through a promoted youth (C-5, allowed): 0
+  AI clubs with 3 seniors: 59 of 60; with a coach and a medic: 58 of 60
+  Stats above 99 or below 1: 0
+  AI injuries this season: 106; long-injured released to the market: 0
+  Free agents left: 121
+  AI clubs paid at Silver / Gold this season: 5 / 2 of 18 in the World Tour field
+  AI balances: lowest $-103,114, median $690,365, 1 below zero, 17 sold
+  Champion (first in the final standings): Bondi Beach Legends
+  Player's club balance: 8,342,593; AI originals retired so far: 0
+  Injuries (AI clubs): 109; by type: Cramp or strained muscle 44, Sprained ankle 19, Concussion 13, Broken finger or toe 12, Torn shoulder 7, Torn hamstring 7, Broken wrist 6, Broken leg 1
+  Average weeks out (not reconstructions), by the treatment on the day: both null (0 injuries, base null); right 2.23 (60 injuries, base 3.52); wrong 2.94 (49 injuries, base 2.94); none null (0 injuries, base null); reconstructions: 0
+  Injured list: 10 put on it this season, 1 on it now; AI cover promoted from academies this season: 106
+  1.1.1 transfers: 0 moves in the window (0 outside it, on a contract's end); 0 bought ahead; counters 0 won, 0 lost (0 by mood; 0 on his players); 0 fell through
+  AI bids: 0 in all; 0 on his seniors, 0 of his players lost to bids (he never answers in the soak, so an unanswered bid takes her); most on one club 0 (none); most on one player 0 (none)
+  Perks paid: player's club $0, AI clubs about $12,269; 0 contracts with perks now
+  Staff budget: AI clubs' staff 116 (top staff, skill 85+: 40); AI budgets median $63,700, top $90,000; 60 with a main sponsor; 0 can't afford a missing coach or medic; his budget $90,000 (Drive Speed)
+  Youth deals: 10 sales (10 AI to AI), 57 loans started
+  1.1.3 AI limits: 151 scouting reports, 212 bids; most by one AI club 4 reports (limit 10) and 9 bids (limit 10); most by one AI club on one club 2 reports and 2 bids (limit 2)
+  1.1.3 staff: AI clubs short of a doctor or physio: 2 of 60
+  1.1.3 market: senior transfers completed 123 (108 signed from the free agents, 108 of them in the window; 15 refills; 0 moved by a bid); free agents 121 at the season's start, 121 at its end; continental pool 180 seniors
+  1.1.3 market: 56 clubs with a contract ending (110 players), 112 left for the market; renewals 35 (clubs renewing two or more: 0); places filled by a youth's promotion 8; places left open 1 (cap 1); clubs that did not fill their places 0; market reports on free agents and leavers 150
+  1.1.3 market: players at the same club 3+ seasons 16 (most at one club 1; clubs with two or more 0); short-squad club-days this season 0
+  1.1.3 rebuild contracts: AI 6-month contracts 0 (players off a season's end 0, pool 0, staff 0); staff and medical contracts not ending 7 January: 0
+  1.1.3 national coach: offers this season none; job Guyana, 5 years to 2049-06-05, $3000/mo, $128,614 paid (active)
+  (23.5 min so far)
+  season 23 pre-season: {"choice":"camp","location":"altitude","length":"4w"} -> 200
+
+=== Season 23 (2048), medium ===
+  AI seniors: average rating 70.8; top 5: Lissette Fuentes 88, Putri Rahmawati 87, Zawadi Mwakalinga 87, Chisom Okafor 87, Sofía Torres 87
+  Player's squad: Moearii Teriitahi 59 (24), Lin Pei-Shan 59 (23), Chloe Rolle 52 (19), Ines Mzoughi 54 (18)
+  AI clubs over the cap that signed anyone this season: 0 (must be 0); over it only through a promoted youth (C-5, allowed): 0
+  AI clubs with 3 seniors: 59 of 60; with a coach and a medic: 60 of 60
+  Stats above 99 or below 1: 0
+  AI injuries this season: 120; long-injured released to the market: 0
+  Free agents left: 116
+  AI clubs paid at Silver / Gold this season: 3 / 3 of 18 in the World Tour field
+  AI balances: lowest $38,475, median $799,060, 0 below zero, 18 sold
+  Champion (first in the final standings): Barcelona Playa Elites
+  Player's club balance: 8,701,494; AI originals retired so far: 0
+  Injuries (AI clubs): 121; by type: Cramp or strained muscle 52, Sprained ankle 18, Torn hamstring 14, Broken finger or toe 14, Concussion 12, Broken leg 4, Broken wrist 4, Head reconstruction 1, Torn knee ligament (ACL) 1, Torn shoulder 1
+  Average weeks out (not reconstructions), by the treatment on the day: both null (0 injuries, base null); right 2.49 (59 injuries, base 3.97); wrong 3.1 (59 injuries, base 3.1); none 5 (2 injuries, base 2.5); reconstructions: 1
+  Injured list: 9 put on it this season, 3 on it now; AI cover promoted from academies this season: 104
+  1.1.1 transfers: 1 moves in the window (0 outside it, on a contract's end); 1 bought ahead; counters 0 won, 0 lost (0 by mood; 0 on his players); 0 fell through
+  AI bids: 3 in all; 3 on his seniors, 1 of his players lost to bids (he never answers in the soak, so an unanswered bid takes her); most on one club 3 (his club); most on one player 1 (Lani Faumuina)
+  Perks paid: player's club $0, AI clubs about $742; 1 contracts with perks now
+  Staff budget: AI clubs' staff 120 (top staff, skill 85+: 43); AI budgets median $68,900, top $90,000; 60 with a main sponsor; 0 can't afford a missing coach or medic; his budget $90,000 (Trans Holdings)
+  Youth deals: 6 sales (6 AI to AI), 53 loans started
+  1.1.3 AI limits: 170 scouting reports, 214 bids; most by one AI club 7 reports (limit 10) and 7 bids (limit 10); most by one AI club on one club 2 reports and 2 bids (limit 2)
+  1.1.3 staff: AI clubs short of a doctor or physio: 0 of 60
+  1.1.3 market: senior transfers completed 119 (107 signed from the free agents, 107 of them in the window; 11 refills; 1 moved by a bid); free agents 115 at the season's start, 116 at its end; continental pool 182 seniors
+  1.1.3 market: 55 clubs with a contract ending (110 players), 114 left for the market; renewals 34 (clubs renewing two or more: 0); places filled by a youth's promotion 5; places left open 1 (cap 1); clubs that did not fill their places 0; market reports on free agents and leavers 166
+  1.1.3 market: players at the same club 3+ seasons 13 (most at one club 1; clubs with two or more 0); short-squad club-days this season 0
+  1.1.3 rebuild contracts: AI 6-month contracts 0 (players off a season's end 0, pool 0, staff 0); staff and medical contracts not ending 7 January: 0
+  1.1.3 national coach: offers this season none; job Guyana, 5 years to 2049-06-05, $3000/mo, $164,712 paid (active); Nations Cup 20 matches over 4 days, 20 decided, 6 medals
+  (24.6 min so far)
+  season 24 pre-season: {"choice":"camp","location":"power_house","length":"4w"} -> 200
+
+=== Season 24 (2049), medium ===
+  AI seniors: average rating 70.9; top 5: Lissette Fuentes 88, Isabela Cruz 88, Soa Rakoto 88, Rehema Mwakalinga 88, Putri Rahmawati 87
+  Player's squad: Ines Mzoughi 55 (19), Huang Wan-Ting 58 (19)
+  AI clubs over the cap that signed anyone this season: 0 (must be 0); over it only through a promoted youth (C-5, allowed): 0
+  AI clubs with 3 seniors: 58 of 60; with a coach and a medic: 60 of 60
+  Stats above 99 or below 1: 0
+  AI injuries this season: 133; long-injured released to the market: 1
+  Free agents left: 118
+  AI clubs paid at Silver / Gold this season: 2 / 3 of 18 in the World Tour field
+  AI balances: lowest $-10,213, median $1,111,858, 1 below zero, 18 sold
+  Champion (first in the final standings): Berlin Sand Queens
+  Player's club balance: 9,376,323; AI originals retired so far: 0
+  Injuries (AI clubs): 130; by type: Cramp or strained muscle 44, Sprained ankle 24, Broken finger or toe 20, Torn hamstring 17, Concussion 8, Broken wrist 8, Broken leg 3, Torn knee ligament (ACL) 3, Ankle reconstruction 1, Hamstring reconstruction 1, Torn shoulder 1
+  Average weeks out (not reconstructions), by the treatment on the day: both null (0 injuries, base null); right 2.48 (69 injuries, base 3.88); wrong 4.59 (56 injuries, base 4.59); none 8.67 (3 injuries, base 4.33); reconstructions: 2
+  Injured list: 15 put on it this season, 2 on it now; AI cover promoted from academies this season: 109
+  1.1.1 transfers: 0 moves in the window (2 outside it, on a contract's end); 0 bought ahead; counters 0 won, 0 lost (0 by mood; 0 on his players); 0 fell through
+  AI bids: 0 in all; 0 on his seniors, 2 of his players lost to bids (he never answers in the soak, so an unanswered bid takes her); most on one club 0 (none); most on one player 0 (none)
+  Perks paid: player's club $0, AI clubs about $38,476; 3 contracts with perks now
+  Staff budget: AI clubs' staff 120 (top staff, skill 85+: 36); AI budgets median $65,300, top $90,000; 60 with a main sponsor; 0 can't afford a missing coach or medic; his budget $90,000 (Continental Partners)
+  Youth deals: 9 sales (9 AI to AI), 53 loans started
+  1.1.3 AI limits: 171 scouting reports, 209 bids; most by one AI club 6 reports (limit 10) and 7 bids (limit 10); most by one AI club on one club 2 reports and 2 bids (limit 2)
+  1.1.3 staff: AI clubs short of a doctor or physio: 0 of 60
+  1.1.3 market: senior transfers completed 123 (105 signed from the free agents, 105 of them in the window; 16 refills; 2 moved by a bid); free agents 109 at the season's start, 118 at its end; continental pool 180 seniors
+  1.1.3 market: 53 clubs with a contract ending (113 players), 120 left for the market; renewals 31 (clubs renewing two or more: 0); places filled by a youth's promotion 11; places left open 5 (cap 5); clubs that did not fill their places 0; market reports on free agents and leavers 171
+  1.1.3 market: players at the same club 3+ seasons 12 (most at one club 1; clubs with two or more 0); short-squad club-days this season 0
+  1.1.3 rebuild contracts: AI 6-month contracts 0 (players off a season's end 0, pool 0, staff 0); staff and medical contracts not ending 7 January: 0
+  1.1.3 national coach: offers this season Brazil $3000 (contract end); Malaysia $4500 (contract end); job Brazil, 3 years to 2052-06-07, $3000/mo, $20,416 paid (active)
+  (25.6 min so far)
+  season 25 pre-season: {"choice":"camp","location":"altitude","length":"4w"} -> 200
+
+=== Season 25 (2050), medium ===
+  AI seniors: average rating 71.3; top 5: Isabela Cruz 89, Soa Rakoto 89, Rehema Mwakalinga 89, Daniela Morejón 89, Putri Rahmawati 88
+  Player's squad: Alyssa Valdez 52 (18), Hasina Razafindranaivo 53 (18), Carla Reyes 52 (18), Caitlin Wade 52 (18)
+  AI clubs over the cap that signed anyone this season: 0 (must be 0); over it only through a promoted youth (C-5, allowed): 0
+  AI clubs with 3 seniors: 57 of 60; with a coach and a medic: 59 of 60
+  Stats above 99 or below 1: 0
+  AI injuries this season: 116; long-injured released to the market: 0
+  Free agents left: 120
+  AI clubs paid at Silver / Gold this season: 4 / 2 of 18 in the World Tour field
+  AI balances: lowest $122,064, median $1,056,051, 0 below zero, 18 sold
+  Champion (first in the final standings): Berlin Sand Queens
+  Player's club balance: 9,794,272; AI originals retired so far: 0
+  Injuries (AI clubs): 117; by type: Cramp or strained muscle 55, Sprained ankle 25, Torn hamstring 12, Broken finger or toe 10, Concussion 8, Broken wrist 3, Torn knee ligament (ACL) 1, Hand/foot reconstruction 1, Torn shoulder 1, Broken leg 1
+  Average weeks out (not reconstructions), by the treatment on the day: both null (0 injuries, base null); right 2.46 (43 injuries, base 3.81); wrong 2.41 (71 injuries, base 2.41); none 7 (2 injuries, base 3.5); reconstructions: 1
+  Injured list: 6 put on it this season, 3 on it now; AI cover promoted from academies this season: 112
+  1.1.1 transfers: 1 moves in the window (0 outside it, on a contract's end); 1 bought ahead; counters 0 won, 0 lost (0 by mood; 0 on his players); 0 fell through
+  AI bids: 1 in all; 1 on his seniors, 1 of his players lost to bids (he never answers in the soak, so an unanswered bid takes her); most on one club 1 (his club); most on one player 1 (Huang Wan-Ting)
+  Perks paid: player's club $0, AI clubs about $36,915; 1 contracts with perks now
+  Staff budget: AI clubs' staff 119 (top staff, skill 85+: 33); AI budgets median $72,500, top $90,000; 60 with a main sponsor; 0 can't afford a missing coach or medic; his budget $90,000 (Velo Automotive)
+  Youth deals: 12 sales (12 AI to AI), 63 loans started
+  1.1.3 AI limits: 178 scouting reports, 219 bids; most by one AI club 5 reports (limit 10) and 7 bids (limit 10); most by one AI club on one club 2 reports and 2 bids (limit 2)
+  1.1.3 staff: AI clubs short of a doctor or physio: 0 of 60
+  1.1.3 market: senior transfers completed 121 (114 signed from the free agents, 114 of them in the window; 6 refills; 1 moved by a bid); free agents 118 at the season's start, 120 at its end; continental pool 180 seniors
+  1.1.3 market: 55 clubs with a contract ending (119 players), 119 left for the market; renewals 27 (clubs renewing two or more: 0); places filled by a youth's promotion 4; places left open 4 (cap 4); clubs that did not fill their places 0; market reports on free agents and leavers 175
+  1.1.3 market: players at the same club 3+ seasons 14 (most at one club 1; clubs with two or more 0); short-squad club-days this season 0
+  1.1.3 rebuild contracts: AI 6-month contracts 0 (players off a season's end 0, pool 0, staff 0); staff and medical contracts not ending 7 January: 0
+  1.1.3 national coach: offers this season none; job Brazil, 3 years to 2052-06-07, $3000/mo, $56,416 paid (active)
+  (26.7 min so far)
+  season 26 pre-season: {"choice":"camp","location":"power_house","length":"4w"} -> 200
+
+=== Season 26 (2051), medium ===
+  AI seniors: average rating 70.7; top 5: Isabela Cruz 90, Valentina Herrera 89, Mika Valdez 89, Putri Rahmawati 88, Lissette Fuentes 88
+  Player's squad: Alyssa Valdez 53 (19), Hasina Razafindranaivo 53 (19), Carla Reyes 53 (19), Caitlin Wade 53 (19)
+  AI clubs over the cap that signed anyone this season: 0 (must be 0); over it only through a promoted youth (C-5, allowed): 0
+  AI clubs with 3 seniors: 59 of 60; with a coach and a medic: 60 of 60
+  Stats above 99 or below 1: 0
+  AI injuries this season: 110; long-injured released to the market: 0
+  Free agents left: 111
+  AI clubs paid at Silver / Gold this season: 1 / 3 of 18 in the World Tour field
+  AI balances: lowest $45,938, median $1,014,087, 0 below zero, 18 sold
+  Champion (first in the final standings): Honolulu Aloha Warriors
+  Player's club balance: 10,248,203; AI originals retired so far: 0
+  Injuries (AI clubs): 108; by type: Cramp or strained muscle 48, Sprained ankle 19, Torn hamstring 11, Broken finger or toe 10, Concussion 10, Ankle reconstruction 3, Broken wrist 3, Broken leg 2, Torn knee ligament (ACL) 1, Torn shoulder 1
+  Average weeks out (not reconstructions), by the treatment on the day: both null (0 injuries, base null); right 1.79 (48 injuries, base 2.81); wrong 3.56 (54 injuries, base 3.56); none 5.33 (3 injuries, base 2.67); reconstructions: 3
+  Injured list: 9 put on it this season, 2 on it now; AI cover promoted from academies this season: 119
+  1.1.1 transfers: 0 moves in the window (0 outside it, on a contract's end); 0 bought ahead; counters 0 won, 0 lost (0 by mood; 0 on his players); 0 fell through
+  AI bids: 0 in all; 0 on his seniors, 0 of his players lost to bids (he never answers in the soak, so an unanswered bid takes her); most on one club 0 (none); most on one player 0 (none)
+  Perks paid: player's club $0, AI clubs about $6,331; 0 contracts with perks now
+  Staff budget: AI clubs' staff 120 (top staff, skill 85+: 35); AI budgets median $68,900, top $90,000; 60 with a main sponsor; 0 can't afford a missing coach or medic; his budget $90,000 (Beacon Channel)
+  Youth deals: 7 sales (7 AI to AI), 50 loans started
+  1.1.3 AI limits: 150 scouting reports, 221 bids; most by one AI club 5 reports (limit 10) and 8 bids (limit 10); most by one AI club on one club 1 reports and 2 bids (limit 2)
+  1.1.3 staff: AI clubs short of a doctor or physio: 0 of 60
+  1.1.3 market: senior transfers completed 132 (117 signed from the free agents, 117 of them in the window; 15 refills; 0 moved by a bid); free agents 112 at the season's start, 111 at its end; continental pool 181 seniors
+  1.1.3 market: 54 clubs with a contract ending (118 players), 119 left for the market; renewals 25 (clubs renewing two or more: 0); places filled by a youth's promotion 4; places left open 1 (cap 1); clubs that did not fill their places 0; market reports on free agents and leavers 150
+  1.1.3 market: players at the same club 3+ seasons 11 (most at one club 1; clubs with two or more 0); short-squad club-days this season 0
+  1.1.3 rebuild contracts: AI 6-month contracts 0 (players off a season's end 0, pool 0, staff 0); staff and medical contracts not ending 7 January: 0
+  1.1.3 national coach: offers this season none; job Brazil, 3 years to 2052-06-07, $3000/mo, $92,416 paid (active)
+  (27.7 min so far)
+  season 27 pre-season: {"choice":"rest"} -> 200
+
+=== Season 27 (2052), medium ===
+  AI seniors: average rating 71.8; top 5: Mika Valdez 91, Valentina Herrera 90, Mariana Salazar 89, Lissette Fuentes 88, Laís Costa 88
+  Player's squad: Alyssa Valdez 55 (20), Carla Reyes 56 (20), Caitlin Wade 55 (20), Carolina Ribeiro 55 (19)
+  AI clubs over the cap that signed anyone this season: 0 (must be 0); over it only through a promoted youth (C-5, allowed): 0
+  AI clubs with 3 seniors: 59 of 60; with a coach and a medic: 60 of 60
+  Stats above 99 or below 1: 0
+  AI injuries this season: 108; long-injured released to the market: 0
+  Free agents left: 113
+  AI clubs paid at Silver / Gold this season: 2 / 3 of 18 in the World Tour field
+  AI balances: lowest $-21,636, median $1,085,864, 1 below zero, 18 sold
+  Champion (first in the final standings): Myrtle Beach Sunblazers
+  Player's club balance: 10,607,920; AI originals retired so far: 0
+  Injuries (AI clubs): 113; by type: Cramp or strained muscle 55, Sprained ankle 20, Broken finger or toe 12, Concussion 7, Torn hamstring 7, Broken wrist 7, Torn shoulder 3, Torn knee ligament (ACL) 1, Ankle reconstruction 1
+  Average weeks out (not reconstructions), by the treatment on the day: both null (0 injuries, base null); right 2.11 (50 injuries, base 3.34); wrong 2.71 (62 injuries, base 2.71); none null (0 injuries, base null); reconstructions: 1
+  Injured list: 7 put on it this season, 1 on it now; AI cover promoted from academies this season: 111
+  1.1.1 transfers: 0 moves in the window (0 outside it, on a contract's end); 0 bought ahead; counters 0 won, 0 lost (0 by mood; 0 on his players); 0 fell through
+  AI bids: 0 in all; 0 on his seniors, 0 of his players lost to bids (he never answers in the soak, so an unanswered bid takes her); most on one club 0 (none); most on one player 0 (none)
+  Perks paid: player's club $0, AI clubs about $0; 0 contracts with perks now
+  Staff budget: AI clubs' staff 120 (top staff, skill 85+: 43); AI budgets median $72,500, top $90,000; 60 with a main sponsor; 0 can't afford a missing coach or medic; his budget $90,000 (Torque Motors)
+  Youth deals: 10 sales (10 AI to AI), 58 loans started
+  1.1.3 AI limits: 179 scouting reports, 220 bids; most by one AI club 5 reports (limit 10) and 6 bids (limit 10); most by one AI club on one club 2 reports and 2 bids (limit 2)
+  1.1.3 staff: AI clubs short of a doctor or physio: 0 of 60
+  1.1.3 market: senior transfers completed 121 (116 signed from the free agents, 116 of them in the window; 5 refills; 0 moved by a bid); free agents 114 at the season's start, 113 at its end; continental pool 180 seniors
+  1.1.3 market: 56 clubs with a contract ending (119 players), 119 left for the market; renewals 29 (clubs renewing two or more: 0); places filled by a youth's promotion 4; places left open 1 (cap 1); clubs that did not fill their places 0; market reports on free agents and leavers 179
+  1.1.3 market: players at the same club 3+ seasons 12 (most at one club 1; clubs with two or more 0); short-squad club-days this season 0
+  1.1.3 rebuild contracts: AI 6-month contracts 0 (players off a season's end 0, pool 0, staff 0); staff and medical contracts not ending 7 January: 0
+  1.1.3 national coach: offers this season Puerto Rico $3000 (contract end); job Puerto Rico, 5 years to 2057-06-11, $3000/mo, $20,022 paid (active); Nations Cup 20 matches over 4 days, 20 decided, 6 medals
+  (28.8 min so far)
+  season 28 pre-season: {"choice":"camp","location":"beach_academy","length":"4w"} -> 200
+
+=== Season 28 (2053), medium ===
+  AI seniors: average rating 70.9; top 5: Isabela Cruz 90, Priya Nair 89, Moana Puna 89, Sofía Duarte 88, Laís Costa 88
+  Player's squad: Alyssa Valdez 55 (21), Carla Reyes 56 (21), Caitlin Wade 55 (21), Carolina Ribeiro 55 (20)
+  AI clubs over the cap that signed anyone this season: 0 (must be 0); over it only through a promoted youth (C-5, allowed): 0
+  AI clubs with 3 seniors: 58 of 60; with a coach and a medic: 59 of 60
+  Stats above 99 or below 1: 0
+  AI injuries this season: 117; long-injured released to the market: 0
+  Free agents left: 97
+  AI clubs paid at Silver / Gold this season: 3 / 2 of 18 in the World Tour field
+  AI balances: lowest $-5,452, median $1,041,331, 1 below zero, 19 sold
+  Champion (first in the final standings): Shanghai Yangtze Elites
+  Player's club balance: 10,955,635; AI originals retired so far: 0
+  Injuries (AI clubs): 124; by type: Cramp or strained muscle 49, Sprained ankle 28, Broken finger or toe 18, Torn hamstring 13, Concussion 6, Broken wrist 5, Torn knee ligament (ACL) 1, Ankle reconstruction 1, Broken leg 1, Hand/foot reconstruction 1, Torn shoulder 1
+  Average weeks out (not reconstructions), by the treatment on the day: both null (0 injuries, base null); right 1.99 (65 injuries, base 3.15); wrong 3.38 (56 injuries, base 3.38); none 2 (1 injuries, base 1); reconstructions: 2
+  Injured list: 9 put on it this season, 2 on it now; AI cover promoted from academies this season: 106
+  1.1.1 transfers: 0 moves in the window (0 outside it, on a contract's end); 0 bought ahead; counters 0 won, 0 lost (0 by mood; 0 on his players); 0 fell through
+  AI bids: 0 in all; 0 on his seniors, 0 of his players lost to bids (he never answers in the soak, so an unanswered bid takes her); most on one club 0 (none); most on one player 0 (none)
+  Perks paid: player's club $0, AI clubs about $0; 0 contracts with perks now
+  Staff budget: AI clubs' staff 118 (top staff, skill 85+: 42); AI budgets median $79,800, top $90,000; 60 with a main sponsor; 0 can't afford a missing coach or medic; his budget $90,000 (Clutch Performance)
+  Youth deals: 7 sales (7 AI to AI), 61 loans started
+  1.1.3 AI limits: 148 scouting reports, 209 bids; most by one AI club 5 reports (limit 10) and 10 bids (limit 10); most by one AI club on one club 2 reports and 2 bids (limit 2)
+  1.1.3 staff: AI clubs short of a doctor or physio: 1 of 60
+  1.1.3 market: senior transfers completed 120 (105 signed from the free agents, 105 of them in the window; 15 refills; 0 moved by a bid); free agents 97 at the season's start, 97 at its end; continental pool 180 seniors
+  1.1.3 market: 51 clubs with a contract ending (109 players), 110 left for the market; renewals 28 (clubs renewing two or more: 0); places filled by a youth's promotion 5; places left open 2 (cap 2); clubs that did not fill their places 0; market reports on free agents and leavers 148
+  1.1.3 market: players at the same club 3+ seasons 12 (most at one club 1; clubs with two or more 0); short-squad club-days this season 0
+  1.1.3 rebuild contracts: AI 6-month contracts 0 (players off a season's end 0, pool 0, staff 0); staff and medical contracts not ending 7 January: 0
+  1.1.3 national coach: offers this season none; job Puerto Rico, 5 years to 2057-06-11, $3000/mo, $56,022 paid (active)
+  (29.8 min so far)
+  season 29 pre-season: {"choice":"camp","location":"altitude","length":"4w"} -> 200
+
+=== Season 29 (2054), medium ===
+  AI seniors: average rating 70.4; top 5: Mariana Salazar 90, Rosa Matola 89, Amelia Mears 89, Lissette Fuentes 88, Beatriz Santos 88
+  Player's squad: Alyssa Valdez 56 (22), Carolina Ribeiro 57 (21), Leilani Kalotiti 57 (19), Yarelis Rivera 48 (18)
+  AI clubs over the cap that signed anyone this season: 0 (must be 0); over it only through a promoted youth (C-5, allowed): 0
+  AI clubs with 3 seniors: 60 of 60; with a coach and a medic: 58 of 60
+  Stats above 99 or below 1: 0
+  AI injuries this season: 123; long-injured released to the market: 0
+  Free agents left: 93
+  AI clubs paid at Silver / Gold this season: 1 / 3 of 18 in the World Tour field
+  AI balances: lowest $-22,325, median $1,005,545, 1 below zero, 19 sold
+  Champion (first in the final standings): Tokyo Surf Samurai
+  Player's club balance: 11,334,718; AI originals retired so far: 0
+  Injuries (AI clubs): 130; by type: Cramp or strained muscle 52, Broken finger or toe 20, Torn hamstring 19, Sprained ankle 18, Concussion 10, Broken leg 4, Broken wrist 3, Torn knee ligament (ACL) 2, Torn shoulder 2
+  Average weeks out (not reconstructions), by the treatment on the day: both null (0 injuries, base null); right 3 (69 injuries, base 4.72); wrong 3.02 (58 injuries, base 3.02); none 2 (3 injuries, base 1); reconstructions: 0
+  Injured list: 9 put on it this season, 0 on it now; AI cover promoted from academies this season: 119
+  1.1.1 transfers: 1 moves in the window (0 outside it, on a contract's end); 1 bought ahead; counters 0 won, 0 lost (0 by mood; 0 on his players); 0 fell through
+  AI bids: 1 in all; 1 on his seniors, 1 of his players lost to bids (he never answers in the soak, so an unanswered bid takes her); most on one club 1 (his club); most on one player 1 (Carla Reyes)
+  Perks paid: player's club $0, AI clubs about $742; 1 contracts with perks now
+  Staff budget: AI clubs' staff 117 (top staff, skill 85+: 40); AI budgets median $81,000, top $90,000; 60 with a main sponsor; 0 can't afford a missing coach or medic; his budget $90,000 (Trans Worldwide)
+  Youth deals: 8 sales (8 AI to AI), 54 loans started
+  1.1.3 AI limits: 179 scouting reports, 216 bids; most by one AI club 4 reports (limit 10) and 8 bids (limit 10); most by one AI club on one club 2 reports and 2 bids (limit 2)
+  1.1.3 staff: AI clubs short of a doctor or physio: 2 of 60
+  1.1.3 market: senior transfers completed 129 (111 signed from the free agents, 111 of them in the window; 17 refills; 1 moved by a bid); free agents 97 at the season's start, 93 at its end; continental pool 180 seniors
+  1.1.3 market: 57 clubs with a contract ending (114 players), 114 left for the market; renewals 37 (clubs renewing two or more: 0); places filled by a youth's promotion 4; places left open 0; clubs that did not fill their places 0; market reports on free agents and leavers 177
+  1.1.3 market: players at the same club 3+ seasons 13 (most at one club 1; clubs with two or more 0); short-squad club-days this season 0
+  1.1.3 rebuild contracts: AI 6-month contracts 0 (players off a season's end 0, pool 0, staff 0); staff and medical contracts not ending 7 January: 0
+  1.1.3 national coach: offers this season none; job Puerto Rico, 5 years to 2057-06-11, $3000/mo, $92,022 paid (active)
+  (30.9 min so far)
+  season 30 pre-season: {"choice":"camp","location":"power_house","length":"4w"} -> 200
+
+=== Season 30 (2055), medium ===
+  AI seniors: average rating 70.6; top 5: Lara Brunner 91, Jessica MacLeod 89, María Zambrano 89, Martha Kwanairara 88, Elsie Kera 88
+  Player's squad: Alyssa Valdez 58 (23), Carolina Ribeiro 58 (22), Leilani Kalotiti 59 (20), Yarelis Rivera 50 (19)
+  AI clubs over the cap that signed anyone this season: 0 (must be 0); over it only through a promoted youth (C-5, allowed): 0
+  AI clubs with 3 seniors: 59 of 60; with a coach and a medic: 59 of 60
+  Stats above 99 or below 1: 0
+  AI injuries this season: 119; long-injured released to the market: 1
+  Free agents left: 82
+  AI clubs paid at Silver / Gold this season: 3 / 4 of 18 in the World Tour field
+  AI balances: lowest $35,317, median $978,810, 0 below zero, 20 sold
+  Champion (first in the final standings): Lima Pacific Soarers
+  Player's club balance: 11,690,799; AI originals retired so far: 0
+  Injuries (AI clubs): 121; by type: Cramp or strained muscle 47, Sprained ankle 26, Broken finger or toe 17, Torn hamstring 12, Concussion 8, Torn shoulder 4, Broken wrist 4, Broken leg 3
+  Average weeks out (not reconstructions), by the treatment on the day: both null (0 injuries, base null); right 2.09 (67 injuries, base 3.24); wrong 3.63 (54 injuries, base 3.63); none null (0 injuries, base null); reconstructions: 0
+  Injured list: 8 put on it this season, 1 on it now; AI cover promoted from academies this season: 116
+  1.1.1 transfers: 0 moves in the window (0 outside it, on a contract's end); 0 bought ahead; counters 0 won, 0 lost (0 by mood; 0 on his players); 0 fell through
+  AI bids: 0 in all; 0 on his seniors, 0 of his players lost to bids (he never answers in the soak, so an unanswered bid takes her); most on one club 0 (none); most on one player 0 (none)
+  Perks paid: player's club $0, AI clubs about $12,269; 0 contracts with perks now
+  Staff budget: AI clubs' staff 118 (top staff, skill 85+: 33); AI budgets median $81,000, top $90,000; 60 with a main sponsor; 0 can't afford a missing coach or medic; his budget $90,000 (Intl Group)
+  Youth deals: 10 sales (10 AI to AI), 49 loans started
+  1.1.3 AI limits: 157 scouting reports, 215 bids; most by one AI club 5 reports (limit 10) and 9 bids (limit 10); most by one AI club on one club 1 reports and 2 bids (limit 2)
+  1.1.3 staff: AI clubs short of a doctor or physio: 1 of 60
+  1.1.3 market: senior transfers completed 127 (111 signed from the free agents, 111 of them in the window; 16 refills; 0 moved by a bid); free agents 85 at the season's start, 82 at its end; continental pool 180 seniors
+  1.1.3 market: 54 clubs with a contract ending (114 players), 114 left for the market; renewals 25 (clubs renewing two or more: 0); places filled by a youth's promotion 2; places left open 1 (cap 1); clubs that did not fill their places 0; market reports on free agents and leavers 155
+  1.1.3 market: players at the same club 3+ seasons 12 (most at one club 1; clubs with two or more 0); short-squad club-days this season 0
+  1.1.3 rebuild contracts: AI 6-month contracts 0 (players off a season's end 0, pool 0, staff 0); staff and medical contracts not ending 7 January: 0
+  1.1.3 national coach: offers this season none; job Puerto Rico, 5 years to 2057-06-11, $3000/mo, $128,022 paid (active)
+  (31.9 min so far)
+
+Pre-season choices made: 30
+
+FLAGS: AI clubs short of a doctor or physio: 0/0/0/0/2/1/1/2/5/0/5/2/1/1/2/0/1/2/0/1/1/2/0/0/0/0/0/1/2/1 a season
+AI clubs with fewer than two seniors to play: 0 club-days
+D1 breakdown: 0 episodes, 0 club-days
+  episode length: 
+  month it began: 
+  who left the day it began: 
+  at the start: over the cap 0, balance below zero 0, taken over 0
+  episodes: 
+
+SOAK COMPLETE: 30 of 30 seasons

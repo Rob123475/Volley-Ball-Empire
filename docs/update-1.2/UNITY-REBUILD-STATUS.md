@@ -573,3 +573,19 @@ Neither is in the final code.
 - **It uses only Sim Result.** Every one of the player's matches is played through `POST /matches/:id/simulate` (line 408), and the AI clubs' matches are simulated on the server.
 - **It never uses the played match.** It does not touch the 3D court or any code under `Assets/Scripts/PlayedMatch`.
 - **So:** nothing in Part A or in either retune can change its results. It tests the career around the matches: the market, retirements, money, injuries and the champion.
+
+**The run (25 Nov 2026, 20:55 to 21:27, about 32 minutes).** It ran once, on Medium, career 1, on the final code. It ended with SOAK COMPLETE: 30 of 30 seasons and exit code 0, with nothing on stderr. The table is saved in `proof/30-season/`: `soak-30-seasons.txt` (the printed table) and `soak-30-seasons.json` (the same figures as data).
+
+| Season 30 (the last) | Figure |
+|---|---|
+| AI seniors' average rating | 70.6 (top: 91, 89, 89, 88, 88) |
+| AI clubs with 3 seniors / with a coach and a medic | 59 of 60 / 59 of 60 |
+| Stats above 99 or below 1 | 0 |
+| AI clubs over the cap that signed anyone | 0 (must be 0) |
+| Free agents left at the season's end | 82 |
+| AI balances | lowest $35,317, median $978,810, 0 below zero |
+| AI injuries | 121 (reconstructions 0) |
+| Short-squad club-days (fewer than two seniors) | 0 across all 30 seasons |
+| Champion | Lima Pacific Soarers |
+
+**The one flag.** In some seasons a few AI clubs were short of a doctor or physio. By season it ran 0/0/0/0/2/1/1/2/5/0/5/2/1/1/2/0/1/2/0/1/1/2/0/0/0/0/0/1/2/1, so the worst seasons had 5 clubs of 60 short. This flag belongs to the career's staff market and not to the played match. Nothing was changed for it.
