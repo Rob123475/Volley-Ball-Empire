@@ -110,9 +110,9 @@ Brief: `docs/update-1.2/UNITY-REBUILD-BRIEF.md`. Plan: `docs/update-1.2/PLAYABLE
 | A2 Every touch graded | Done, PASS | `docs/update-1.2/proof/A2/`: `a2-touch-grading.txt` (Unity batch, 27/27), `a2-dotnet.txt` (dotnet, 27/27), `a2-unity.log`, `a2-digs.png`, `a2-spikes.png` | Unity `2b964d0`; game repo `3be1fe35` |
 | Animations, first job | Done, PASS | `docs/update-1.2/proof/animation/`: `aa-volleyball-humanoid.txt`, `play-strips.txt` and five Play-mode strips | Unity `ed0e902` |
 | A3 Controls, played on the court | Done, PASS | `docs/update-1.2/proof/A3/`: `a3-played-match.txt` (Unity batch, 28/28), `a3-unity.log`, three pictures | Unity `ed0e902`; game repo `833aaeac` |
-| A4 AI plays the same game | Done, PASS | `docs/update-1.2/proof/A4/`: `a4-ai-same-game.txt` (Unity batch, 9/9), `a4-dotnet.txt` (dotnet, 8/8), `a4-unity.log` | Unity `ea77855`; game repo `74f3a669` |
+| A4 AI plays the same game | Done; since Rob's second ruling one check fails (see "Rob's ruling on mismatches") | `docs/update-1.2/proof/A4/`: `a4-ai-same-game.txt` (Unity batch, 9/9), `a4-dotnet.txt` (dotnet, 8/8), `a4-unity.log` | Unity `ea77855`; game repo `74f3a669` |
 | A5 Difficulty from the career | Done, PASS | `docs/update-1.2/proof/A5/`: `a5-harness.txt` (9/9; the final run, on the tuned code, is in `proof/A6/a6-harness.txt`), `a5-easy.txt`, `a5-medium.txt`, `a5-hard.txt` (each court 14/14) | Unity `95c47c5`; game repo: the A5 commit |
-| A6 Fair to the career | Done, PASS (retuned 26 Nov) | `docs/update-1.2/proof/A6/`: see the list after this table | Unity `96acace`; retune `fadb71f`; game repo `8b5ecfe5`; retune `7401b78b` |
+| A6 Fair to the career | Done, PASS (retuned twice on 26 Nov; see "Difficulty retuned" and "Rob's ruling on mismatches") | `docs/update-1.2/proof/A6/`: see the list after this table | Unity `96acace`; retune `fadb71f`; game repo `8b5ecfe5`; retune `7401b78b` |
 | A7 Auto not touched | Done, PASS | `docs/update-1.2/proof/A7/RallyPlanProof.log` (RallyPlanProof PASS on the demolished code); `proof/A8/harness-one-set-of-odds.txt` (20/20), `harness-boosts.txt` (12/12), `harness-watched-result.txt` (22/22) | Unity `e6efc68` |
 | A8 Demolition | Done, PASS | `docs/update-1.2/proof/A8/`: `a8-played-match.txt` (the new engine's proof, 28/28), `a8-compile.log` (0 errors), `harness-played-match.txt` (6/6), three pictures | Unity `e6efc68`; game repo `ee7d5dda` |
 
@@ -480,3 +480,96 @@ The whole played match on the server (`harness/played-match.mjs --unity-full`) p
 - **The walk back to positions, 1.3 s (8–10%).**
 
 There are 45–49 points a match.
+
+### Rob's ruling on mismatches (26 Nov 2026, second ruling)
+**The ruling,** in the opponents' terms, with the player as the average player:
+- **Leave as they are (even pairs, 62 v 62):** an equal AI team beats the player Easy 14%, Medium 27%, Hard 44%, within 3 points.
+- **Change (the player's strong pair 80 v an AI weak pair 45):** the weak AI team beats the player Easy 2%, Medium 4%, Hard 10%.
+- **Report, not a target:** the player's weak pair (45) against an AI strong pair (80), both with expert thumbs and with the average player.
+- **Rules:** Hard is harder than Medium and Medium harder than Easy; Hard has no ring; no game timing changes.
+
+**The result.** The full 200-match table was run twice (of the three allowed); run 2 is final (`proof/A6/a6-dotnet.txt`, 7/7). Every target is within one point:
+
+| The AI team wins (opponents' side) | Easy | Medium | Hard |
+|---|---|---|---|
+| Equal AI team (62 v 62), target | 14% | 27% | 44% |
+| Equal AI team, **now** | **14%** | **27%** | **44%** |
+| Weak AI team (45) v the player's strong pair (80), target | 2% | 4% | 10% |
+| Weak AI team v strong pair, **now** | **2%** | **5%** | **11%** |
+
+**The three tables side by side**, all from the opponents' side: how often the AI team wins. Each is 200 matches a cell; the ± margins are in the proof files.
+
+| The AI team wins | Weak AI (45) v the player's strong pair (80) | Equal (62 v 62) | AI (67) v the player's (57) | Strong AI (80) v the player's weak pair (45) | The same, the player with expert thumbs |
+|---|---|---|---|---|---|
+| Easy, 25 Nov | 0% | 31% | 57% | 99% | 90% |
+| Easy, 26 Nov first retune | 0% | 14% | 42% | 90% | 74% |
+| **Easy, now** | **2%** | **14%** | **19%** | **50%** | **18%** |
+| Medium, 25 Nov | 3% | 48% | 76% | 100% | 94% |
+| Medium, 26 Nov first retune | 1% | 27% | 50% | 97% | 85% |
+| **Medium, now** | **5%** | **27%** | **43%** | **76%** | **28%** |
+| Hard, 25 Nov | 10% | 71% | 88% | 99% | 89% |
+| Hard, 26 Nov first retune | 3% | 44% | 65% | 97% | 53% |
+| **Hard, now** | **11%** | **44%** | **48%** | **80%** | **20%** |
+
+The files are `proof/A6/a6-dotnet-25nov.txt`, `a6-dotnet-26nov-first.txt` and `a6-dotnet.txt` (now). Those files give the player's side, so each figure here is 100 minus the file's.
+
+**The reported figures, in the player's terms** (the player's weak pair, 45, against an AI strong pair, 80):
+
+| | Easy | Medium | Hard |
+|---|---|---|---|
+| Average player | 50% | 24% | 20% |
+| Expert thumbs | 82% | 72% | 80% |
+
+**What this means, plainly:**
+- **Ratings now count for less in a played match, on purpose.** For a far weaker AI team to win 2–11% against the player's strong pair, while equal teams stay where they were, the gap between a 45 and an 80 has to shrink. That cuts both ways.
+- **A weak pair can now beat a strong one.** The average player's weak pair (45) beats a strong AI pair (80) half the time on Easy, and an expert's beats it 72–82% of the time.
+- **The first brief said otherwise.** It wanted a weak pair not to beat a far stronger pair "just because the player has quick thumbs". Your ruling made that a figure to report, and it is reported here.
+
+**Why Hard was the highest for expert thumbs (26%, 15%, 47% before this change).**
+- Hard has the narrowest timing windows. The AI's timing is looser than an expert's, and to let an average player win 56% on Hard, the Hard AI's timing had to be about as loose as Medium's.
+- In Hard's narrow windows, many of that AI's touches land late or are missed, while an expert's 40 ms timing almost always lands inside. So the narrow windows cost the AI far more than they cost the expert, and the expert's gain is biggest on Hard.
+- **Now (82%, 72%, 80%):** Hard and Easy are about level, and both are above Medium.
+  - **Easy:** the AI is loosest and ratings count least, so the expert's precision wins most there.
+  - **Hard:** the window effect above still applies.
+  - **Medium:** the AI is sharper than Easy's and the windows are wider than Hard's, so there is less for an expert to gain.
+
+**Every number changed:**
+
+| What | Before | Now | Where |
+|---|---|---|---|
+| How far each rating stands from an average player (62) in a played match, per difficulty | 1.00 everywhere (no such pull) | Easy 0.45, Medium 0.42, Hard 0.50 | New: `TouchRules.RatingReach(Difficulty)` and `Toward62`, applied once in `PlayedEngine.Effective` to power, speed, defence, serve, block and overall. An even pair (all 62) is exactly unchanged. Stamina, fitness and fatigue are not pulled. |
+| A6 checks | the 26 Nov targets (player wins Easy 80%+, Medium 60–80%, Hard 50–70%; weak v strong under 14%; strong v weak 90%+) | the AI team wins Easy 14%, Medium 27%, Hard 44% (±3 points); the weak AI team wins Easy 2%, Medium 4%, Hard 10% (within the cell's 95% margin, at least ±2); Easy < Medium < Hard | `PlayedMatchChecks.A6` |
+
+**What did not change:**
+- the AI's sharpness (`AiLevel`)
+- the timing windows
+- `SkillSpread`, `Physical`, `StatWeight`
+- the ring (Hard still has none)
+- match length and every game timing: serve meter, point-over pause, positioning, flight and reaction times
+
+**Tried and put back:**
+1. Pulling only the body's ratings (speed, power, reach) towards the average moved Easy and Medium but hardly moved Hard.
+2. Lowering Medium's and Hard's stat weights moved the even pairs out of their 3-point band.
+
+Neither is in the final code.
+
+**The target that gave way: A4's check "players rated 85 time their touches more tightly than players rated 45".**
+- **What failed:** the check measured 96 ms against 97 ms and needs a 3% difference. A4 now fails 7/8 under dotnet and 8/9 in Unity. `played-match.mjs` therefore reports its engine-checks line as FAIL (53/54).
+- **Why:** the AI's timing still comes from its ratings, by the same formula. But your ruling pulls ratings close to average: on Medium an 85 plays like a 72 and a 45 like a 55. So the formula now expects only about 4% less spread, and the measurement does not show it clearly.
+- **What I did about it:** nothing. The ruling did not touch A4, so I left the check as it was rather than loosen it to pass.
+
+**Proofs on the final code:**
+
+| Proof | Result |
+|---|---|
+| A1 | 23/23 (Unity), 18/18 (dotnet) |
+| A2 | 28/28, 28/28 |
+| A4 | 8/9 (Unity), 7/8 (dotnet): the check above |
+| A6 | 7/7 |
+| `harness/played-match.mjs --unity-full` (`proof/A8/harness-unity-full.txt`, with the Unity log and the court's proof beside it) | 11/12. The one failure is the engine-checks line (A4's check). The court played the whole match 28/28, 2-0 (11-9, 11-8). The game recorded exactly that score, the win and prize counted, and fitness was charged (100 to 93 for both players). |
+
+### The 30-season career harness
+**What it plays.** The harness is `harness/long-career-update1.mjs`, run with `SEASONS=30`.
+- **It uses only Sim Result.** Every one of the player's matches is played through `POST /matches/:id/simulate` (line 408), and the AI clubs' matches are simulated on the server.
+- **It never uses the played match.** It does not touch the 3D court or any code under `Assets/Scripts/PlayedMatch`.
+- **So:** nothing in Part A or in either retune can change its results. It tests the career around the matches: the market, retirements, money, injuries and the champion.
