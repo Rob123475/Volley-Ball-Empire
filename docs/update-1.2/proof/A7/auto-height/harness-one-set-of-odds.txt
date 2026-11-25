@@ -1,0 +1,35 @@
+========================================================================
+  UNITY 1: ONE SET OF ODDS, ONE FORMAT
+========================================================================
+
+1. THE CHANCE SENT TO UNITY IS THE CHANCE SIM RESULT PLAYS
+  PASS  a new career reaches its first match day  match 1
+  PASS  /unity/match-state sends the home pair's per-point chance  0.493965
+  PASS  Sim Result plays at exactly that chance  sent 0.493965, played 0.493965
+  PASS  and records a legal best-of-3-to-11 score  [{"home":8,"away":11},{"home":12,"away":10},{"home":11,"away":13}]
+
+2. 2000 MATCHES EACH, UNITY'S POINT MODEL AND THE GAME'S ENGINE, ONE STREAM OF DRAWS
+  PASS  the Unity project's PointModel.cs compiles and runs
+  PASS  chance 0.5000: match win rates within 2 points  Unity 50.9%, game 50.9%, gap 0.0
+  PASS  chance 0.5000: every score legal in both (2000 matches each)  Unity true, game true
+  PASS  chance 0.5000: from the same draws, the same 2000 matches point for point  2000/2000 identical
+  PASS  chance 0.4940: match win rates within 2 points  Unity 46.3%, game 46.3%, gap 0.0
+  PASS  chance 0.4940: every score legal in both (2000 matches each)  Unity true, game true
+  PASS  chance 0.4940: from the same draws, the same 2000 matches point for point  2000/2000 identical
+  PASS  chance 0.4500: match win rates within 2 points  Unity 24.4%, game 24.4%, gap 0.0
+  PASS  chance 0.4500: every score legal in both (2000 matches each)  Unity true, game true
+  PASS  chance 0.4500: from the same draws, the same 2000 matches point for point  2000/2000 identical
+  PASS  chance 0.5500: match win rates within 2 points  Unity 75.8%, game 75.8%, gap 0.0
+  PASS  chance 0.5500: every score legal in both (2000 matches each)  Unity true, game true
+  PASS  chance 0.5500: from the same draws, the same 2000 matches point for point  2000/2000 identical
+  PASS  chance 0.5800: match win rates within 2 points  Unity 88.3%, game 88.3%, gap 0.0
+  PASS  chance 0.5800: every score legal in both (2000 matches each)  Unity true, game true
+  PASS  chance 0.5800: from the same draws, the same 2000 matches point for point  2000/2000 identical
+  REPORT  match win rate at a per-point chance, best of 3 to 11 (game engine, 20,000 matches each):
+          0.50 -> 50.1%
+          0.52 -> 61.2%
+          0.54 -> 72.1%
+          0.56 -> 81.0%
+          0.58 -> 87.6%
+
+=== 20/20 passed ===

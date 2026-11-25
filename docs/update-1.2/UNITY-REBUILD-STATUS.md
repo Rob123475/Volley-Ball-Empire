@@ -88,7 +88,14 @@ Brief: `docs/update-1.2/UNITY-REBUILD-BRIEF.md`. Plan: `docs/update-1.2/PLAYABLE
 
     The table in A6 compares every match-up with Sim Result's own rate.
 21. **A dig shanks wild below quality 0.30.** A dig 200 ms late on Medium then goes wild about half the time (51%). Otherwise it lands about 3.8 m from the setter.
-22. **An Auto issue found, not fixed (A7: Auto is not touched).** MatchManager's Auto block formula reads a player's height as metres, but the career sends centimetres. In Auto, every player therefore gets the full height bonus at the block. It is a one-line fix in Auto's own code, which A7 says to leave alone, so it is Rob's call.
+22. **Auto's height reading, fixed on Rob's instruction (26 Nov 2026).** MatchManager's Auto block formula read a player's height as metres, but the career sends centimetres. In Auto, every career player therefore got the full height bonus at the block.
+    - **The fix:** one line, the formula's height reading. A value over 3 is now read as centimetres and divided by 100. A height already in metres (the court's prefab players) and Auto's own fallback for no height (1.90 m) are as they were. Nothing else in Auto changed.
+    - **What it changes:** the block's height score is (height − 1.5) ÷ 0.7 × 100, capped at 100. A 188 cm player now scores 54 instead of 100; a 158 cm player scores 11.
+    - **Proof** (`docs/update-1.2/proof/A7/auto-height/`):
+      - `RallyPlanProof` RESULT: PASS, with all 8 checks.
+      - `one-set-of-odds` 20/20, `boosts` 12/12 and `watched-result` 22/22.
+
+      The proof's prefab players carry no height in centimetres, so their block ratings are unchanged (162).
 
 ## Items
 
