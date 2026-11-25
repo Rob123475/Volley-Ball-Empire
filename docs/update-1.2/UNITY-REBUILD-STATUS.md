@@ -20,6 +20,33 @@ Brief: `docs/update-1.2/UNITY-REBUILD-BRIEF.md`. Plan: `docs/update-1.2/PLAYABLE
    - **Faults at the net:** a ball that passes under the net, or crosses outside an antenna, is a fault by the team that played it. The antennae stand over the sidelines.
    - **The tape:** a ball that clips the tape rolls over if its centre is above the tape and falls back if it is below. It keeps more speed the higher it crosses.
 8. **V19's baselines are named the other way round from the teams.** `Baseline_A` is the line at z = +8, which is Team B's end in MatchManager. Only the names differ: the lines are symmetric. The A1 proof therefore checks the lines by position, not by name.
+9. **How a touch is graded (A2).** Every touch gets a quality from 0 to 1, made of three parts multiplied together:
+   - **Timing:** perfect, good, late or miss. The windows are each side of the ideal moment:
+
+     | | Perfect | Good | Late | Then |
+     |---|---|---|---|---|
+     | Easy | ±100 ms | ±200 ms | ±360 ms | a miss |
+     | Medium | ±65 ms | ±140 ms | ±260 ms | a miss |
+     | Hard | ±45 ms | ±100 ms | ±190 ms | a miss |
+
+     "Late" covers early too. The grade keeps the sign.
+   - **Position:** balanced, stretching or diving. A dig reaches 0.75 m balanced, about 1.3 m stretching and about 2.5 m diving. Diving is for digs only.
+   - **Stats:** the rating each touch uses, as the brief lists them, times her condition.
+     - Condition comes from fitness, career fatigue and the stamina she has left in this match.
+     - How much the stats weigh against the timing goes up with difficulty: 55% on Easy, 70% on Medium, 85% on Hard ("Hard: stats matter more").
+     - A rating counts from 20 (nothing) to 95 (the best), so the differences between real players show.
+
+   The quality then sets what comes off the touch: how close to the aim the ball goes, how high a dig or set goes, and how safely a spike or serve clears the tape. A spike or serve that is hit badly can go into the net.
+10. **The serve meter and the spike meter.**
+    - **Serve:** the meter stays as it was: it sweeps WEAK to MAX, and one tap serves. Its own numbers are kept: under 12% goes into the net, and from 92% is the MAX zone.
+    - **Serve grade:** the meter is the serve's "timing". MAX zone is perfect, from 70% is good, from 12% is weak (graded "Late"), and under 12% is a fault.
+    - **Ace ability:** Rob's rule stays (rated 95+ and tapping in MAX), but there is no automatic ace now. Instead that serve goes 8% faster and its error is halved, and the physics decides the rest.
+    - **Spike:** the spike meter is a charge, from a tap (0) to full (1). A full charge hits about 60% harder but is a little less accurate. How the buttons drive it is in A3.
+11. **Player reach comes from the career's own data.**
+    - Standing reach is 1.33 × her height.
+    - Spike jump: 0.40 m, plus up to 0.32 m from power.
+    - Block jump: 0.30 m, plus up to 0.40 m from the block rating.
+    - Running speed on sand: 3.8 m/s for the slowest up to 6.2 m/s for the quickest, pulled down by condition.
 
 ## Items
 
@@ -27,7 +54,8 @@ Brief: `docs/update-1.2/UNITY-REBUILD-BRIEF.md`. Plan: `docs/update-1.2/PLAYABLE
 |---|---|---|---|
 | 0 Baseline | Done, PASS | `docs/update-1.2/proof/baseline/` (`results.txt`, plus the full `compile.log`, `RallyPlanProof.log` and `ManualControlsProof.log`) | game repo `dffed753`; Unity repo: `update-1.2` at `dd0a4875` (no file changes) |
 | Packs | Committed through LFS | `git lfs ls-files` lists all 672 pack FBX files | Unity `3c0e0f4` |
-| A1 Real ball flight | Done, PASS | `docs/update-1.2/proof/A1/`: `a1-ball-flight.txt` (Unity batch, 23/23), `a1-dotnet.txt` (dotnet, 18/18), `a1-unity.log`, 3 pictures | Unity `a656a3f`; game repo: the A1 commit |
+| A1 Real ball flight | Done, PASS | `docs/update-1.2/proof/A1/`: `a1-ball-flight.txt` (Unity batch, 23/23), `a1-dotnet.txt` (dotnet, 18/18), `a1-unity.log`, 3 pictures | Unity `a656a3f`; game repo `23ba802e` |
+| A2 Every touch graded | Done, PASS | `docs/update-1.2/proof/A2/`: `a2-touch-grading.txt` (Unity batch, 27/27), `a2-dotnet.txt` (dotnet, 27/27), `a2-unity.log`, `a2-digs.png`, `a2-spikes.png` | Unity `2b964d0`; game repo: the A2 commit |
 
 ### A1: real ball flight (25 Nov 2026)
 **Files:**
@@ -74,3 +102,32 @@ Brief: `docs/update-1.2/UNITY-REBUILD-BRIEF.md`. Plan: `docs/update-1.2/PLAYABLE
   - the score was 2-0 (12-10, 11-9), and 42 of 42 points went to the team the plan said
 - The baseline is sound, so Part A can start on it.
 - The ManualControlsProof results also record what the old manual mode does: 24 of 42 points were "changed" by the player, and 42 of 42 were still "awarded as planned". This is the pre-decided pathway the brief replaces in Part A and removes in A8.
+
+### A2: every touch is graded (25 Nov 2026)
+**Files:**
+- `Assets/Scripts/PlayedMatch/TouchGrade.cs`: the grade (timing, position and stats), plus difficulty and ratings
+- `Assets/Scripts/PlayedMatch/TouchShapes.cs`: what comes off each touch (dig, set, spike, soft shot, serve)
+
+**Results** (Medium, players rated 62 unless stated; 1,000 real flights per line):
+
+| What | Result |
+|---|---|
+| Perfect digs | 0.60 m from the setter on average; 100% within 1 m; top height 4.6 m. That is an easy set. |
+| Late digs (200 ms off) | 2.66 m from the setter on average; 11% within 1 m; 21% wild (shanked). She has to chase them. |
+| Perfect digs by defenders rated 90 and 40 | 0.19 m against 1.13 m from the setter |
+| Sets | A perfect set misses the hitter's spot by 0.31 m at spike height; a late one by 1.01 m. |
+| Spike pace | Power 88 hits at 21.2 m/s; power 40 at 12.8 m/s. A full spike meter hits at 16.5 m/s; a tap at 10.2 m/s. |
+| Perfect spikes (aimed 0.8 m inside the lines) | 99% in |
+| Late spikes | 25% in, 72% in the net, 2% out. A late contact is lower, so the ball doesn't clear the tape. |
+| Soft shots | 500 of 500 cleared the tape by 0.4 m or more and landed in, short. |
+| Serves | Under 12% on the meter: always into the net. MAX zone: 100% in. Half power: 97% in. |
+| Ace ability | A server rated 95 in the MAX zone serves at 21.4 m/s with an error of up to 0.20 m; one rated 94 at 19.7 m/s and 0.42 m. |
+| Timing against stats (Medium dig) | A good touch by a player rated 85 scores 0.71; a perfect touch by a player rated 45 scores 0.53. |
+| Difficulty and stats | The gap between perfect digs by players rated 85 and 45 is 0.29 on Easy and 0.45 on Hard. |
+| Fitness and fatigue | Fitness 60 with fatigue 50 drops a perfect spike from 0.69 to 0.57 and running speed from 5.14 to 4.28 m/s. Stamina 15 drops the spike to 0.61. |
+
+The same seed gives the same 400 graded touches, bit for bit.
+
+**Pictures:**
+- `a2-digs.png`: the green perfect digs fill the setter's 2 m ring; the red late digs scatter across the half and out of the court.
+- `a2-spikes.png`: the perfect spikes land in all over the far half; the late spikes mostly die in the net on the hitter's side.

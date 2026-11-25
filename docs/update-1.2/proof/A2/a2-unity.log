@@ -1,0 +1,980 @@
+[Licensing::Module] Trying to connect to existing licensing client channel...
+Built from '6000.3/staging' branch; Version is '6000.3.16f1 (a56f230f6470) revision 10841891'; Using compiler version '194234433'; Build Type 'Release'
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-rbonn" at "2026-11-25T01:11:44.0606463Z"
+OS: 'Windows 11  (10.0.26200) Professional' Language: 'en' Physical Memory: 31830 MB
+BatchMode: 1, IsHumanControllingUs: 0, StartBugReporterOnCrash: 0, Is64bit: 1
+System  architecture: x64
+Process architecture: x64
+Date: 2026-11-25T01:11:44Z
+
+COMMAND LINE ARGUMENTS:
+C:\Program Files\Unity\Hub\Editor\6000.3.16f1\Editor\Unity.exe
+-batchmode
+-projectPath
+C:/Users/rbonn/Game_Dev/VolleyBall Empire/volleyball
+-executeMethod
+PlayedMatchProof.A2
+-proofDir
+C:/Users/rbonn/Documents/Volley-Ball-Empire/docs/update-1.2/proof
+-logFile
+C:/Users/rbonn/Documents/Volley-Ball-Empire/docs/update-1.2/proof/A2/a2-unity.log
+Successfully changed project path to: C:/Users/rbonn/Game_Dev/VolleyBall Empire/volleyball
+C:/Users/rbonn/Game_Dev/VolleyBall Empire/volleyball
+[UnityMemory] Configuration Parameters - Can be set up in boot.config
+    "memorysetup-temp-allocator-size-nav-mesh-worker=65536"
+    "memorysetup-temp-allocator-size-audio-worker=65536"
+    "memorysetup-temp-allocator-size-gfx=262144"
+    "memorysetup-allocator-temp-initial-block-size-main=262144"
+    "memorysetup-allocator-temp-initial-block-size-worker=262144"
+    "memorysetup-temp-allocator-size-background-worker=32768"
+    "memorysetup-temp-allocator-size-job-worker=262144"
+    "memorysetup-temp-allocator-size-preload-manager=33554432"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-bucket-allocator-granularity=16"
+    "memorysetup-bucket-allocator-bucket-count=8"
+    "memorysetup-bucket-allocator-block-size=33554432"
+    "memorysetup-bucket-allocator-block-count=8"
+    "memorysetup-main-allocator-block-size=16777216"
+    "memorysetup-thread-allocator-block-size=16777216"
+    "memorysetup-gfx-main-allocator-block-size=16777216"
+    "memorysetup-gfx-thread-allocator-block-size=16777216"
+    "memorysetup-cache-allocator-block-size=4194304"
+    "memorysetup-typetree-allocator-block-size=2097152"
+    "memorysetup-profiler-bucket-allocator-granularity=16"
+    "memorysetup-profiler-bucket-allocator-bucket-count=8"
+    "memorysetup-profiler-bucket-allocator-block-size=33554432"
+    "memorysetup-profiler-bucket-allocator-block-count=8"
+    "memorysetup-profiler-allocator-block-size=16777216"
+    "memorysetup-profiler-editor-allocator-block-size=1048576"
+    "memorysetup-temp-allocator-size-main=16777216"
+    "memorysetup-job-temp-allocator-block-size=2097152"
+    "memorysetup-job-temp-allocator-block-size-background=1048576"
+    "memorysetup-job-temp-allocator-reduction-small-platforms=262144"
+    "memorysetup-temp-allocator-size-cloud-worker=32768"
+Player connection [46672]  Target information:
+
+Player connection [46672]  * "[IP] 10.0.0.72 [Port] 55504 [Flags] 2 [Guid] 3181419157 [EditorId] 3181419157 [Version] 1048832 [Id] WindowsEditor(7,Beast) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" 
+
+Player connection [46672] Host joined multi-casting on [225.0.0.222:54997]...
+Player connection [46672] Host joined alternative multi-casting on [225.0.0.222:34997]...
+Input System module state changed to: Initialized.
+[Physics::Module] Initialized fallback backend.
+[Physics::Module] Id: 0xdecafbad
+[Package Manager] Connected to IPC stream "Upm-47092" after 0.2 seconds.
+[Licensing::Module] Licensing is not yet initialized.
+[Licensing::Client] Error: HandshakeResponse reported an error:
+	ResponseCode: 505
+	ResponseStatus: Unsupported protocol version '1.18.1'.
+[Licensing::Module] Error: Failed to handshake to channel: "LicenseClient-rbonn"
+[Licensing::IpcConnector] LicenseClient-rbonn channel disconnected successfully.
+[Licensing::IpcConnector] Channel LicenseClient-rbonn-6000.3.16 doesn't exist
+[Licensing::Module] Successfully launched the LicensingClient (PId: 712)
+Starting IPC server.
+Waiting for clients to connect on \\.\pipe\Unity-LicenseClient-rbonn-6000.3.16, press Ctrl-C to exit.
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-rbonn-6000.3.16" at "2026-11-25T01:11:45.5588037Z"
+[Licensing::Client] Code 10 while verifying Licensing Client signature (process Id: 712, path: "C:/Program Files/Unity/Hub/Editor/6000.3.16f1/Editor/Data/Resources/Licensing/Client/Unity.Licensing.Client.exe")
+[Licensing::Module] LicensingClient has failed validation; ignoring
+[Licensing::Client] Handshaking with LicensingClient:
+  Version:                 1.18.1+9fbee8e
+  Session Id:              c17b3315a0e64a6eb8379443204b9067
+  Correlation Id:          9b177126d8d4f24834654ea61f16cdc6
+  External correlation Id: 397135883135317252
+  Machine Id:              zgb6692Nnw+phkIExqmx8uDnzyM=
+[Licensing::Module] Successfully connected to LicensingClient on channel: "LicenseClient-rbonn-6000.3.16" (connect: 0.25s, validation: 0.14s, handshake: 0.01s)
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-rbonn-6000.3.16-notifications" at "2026-11-25T01:11:45.7028707Z"
+[Licensing::Module] Connected to LicensingClient (PId: 712, launch time: 0.01, total connection time: 0.39s)
+[Licensing::Module] Error: Access token is unavailable; failed to update
+[Licensing::Client] Successfully resolved entitlement details
+[Licensing::Module] License group:
+  Id: 16768365838406-UnityPersXXXX
+  Product: Unity Personal
+  Type: Assigned
+  Expiration: Unlimited
+[Licensing::Client] Successfully updated license, isAsync: True, time: 0.01
+[Licensing::Client] Successfully resolved entitlement details
+[Licensing::Module] Licensing Background thread has ended after 1.67s
+[Licensing::Module] Licensing is initialized (took 1.34s).
+[Licensing::Client] Successfully resolved entitlement details
+Library Redirect Path: Library/
+[Physics::Module] Selected backend.
+[Physics::Module] Name: PhysX
+[Physics::Module] Id: 0xf2b8ea05
+[Physics::Module] SDK Version: 4.1.2
+[Physics::Module] Integration Version: 1.0.0
+[Physics::Module] Threading Mode: Multi-Threaded
+Refreshing native plugins compatible for Editor in 0.98 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Initialize engine version: 6000.3.16f1 (a56f230f6470)
+[Subsystems] Discovering subsystems at path C:/Program Files/Unity/Hub/Editor/6000.3.16f1/Editor/Data/Resources/UnitySubsystems
+[Subsystems] Discovering subsystems at path C:/Users/rbonn/Game_Dev/VolleyBall Empire/volleyball/Assets
+GfxDevice: creating device client; kGfxThreadingModeNonThreaded
+d3d12: failed to query info queue interface (0x80004002).
+Direct3D:
+    Version:         Direct3D 12 [level 12.2]
+    Renderer:        NVIDIA GeForce RTX 5080 (ID=0x2c02)
+    Vendor:          NVIDIA
+    VRAM:            15977 MB
+    App VRAM Budget: 15209 MB
+    Driver:          32.0.16.1088
+Initialize mono
+Mono path[0] = 'C:/Program Files/Unity/Hub/Editor/6000.3.16f1/Editor/Data/Managed'
+Mono path[1] = 'C:/Program Files/Unity/Hub/Editor/6000.3.16f1/Editor/Data/MonoBleedingEdge/lib/mono/unityjit-win32'
+Mono config path = 'C:/Program Files/Unity/Hub/Editor/6000.3.16f1/Editor/Data/MonoBleedingEdge/etc'
+Using monoOptions --debugger-agent=transport=dt_socket,embedding=1,server=y,suspend=n,address=127.0.0.1:56092
+Using cacheserver namespaces - metadata:defaultmetadata, artifacts:defaultartifacts
+Using cacheserver namespaces - metadata:defaultmetadata, artifacts:defaultartifacts
+ImportWorker Server TCP listen port: 0
+AcceleratorClientConnectionCallback - disconnected - :0
+Begin MonoManager ReloadAssembly
+Registering precompiled unity dll's ...
+Register platform support module: C:/Program Files/Unity/Hub/Editor/6000.3.16f1/Editor/Data/PlaybackEngines/WebGLSupport/UnityEditor.WebGL.Extensions.dll
+Register platform support module: C:/Program Files/Unity/Hub/Editor/6000.3.16f1/Editor/Data/PlaybackEngines/WindowsStandaloneSupport/UnityEditor.WindowsStandalone.Extensions.dll
+Registered in 0.002639 seconds.
+- Loaded All Assemblies, in  0.259 seconds
+Native extension for WindowsStandalone target not found
+Native extension for WebGL target not found
+Package Manager log level set to [2]
+ScheduleIndexationOnStartup MainProcess:False IndexOnStartup:True
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  0.227 seconds
+Domain Reload Profiling: 484ms
+	BeginReloadAssembly (87ms)
+		ExecutionOrderSort (0ms)
+		DisableScriptedObjects (0ms)
+		BackupInstance (0ms)
+		ReleaseScriptingObjects (0ms)
+		CreateAndSetChildDomain (3ms)
+	RebuildCommonClasses (24ms)
+	RebuildNativeTypeToScriptingClass (7ms)
+	initialDomainReloadingComplete (33ms)
+	LoadAllAssembliesAndSetupDomain (105ms)
+		LoadAssemblies (81ms)
+		RebuildTransferFunctionScriptingTraits (0ms)
+		AnalyzeDomain (103ms)
+			TypeCache.Refresh (101ms)
+				TypeCache.ScanAssembly (92ms)
+			BuildScriptInfoCaches (0ms)
+			ResolveRequiredComponents (0ms)
+	FinalizeReload (227ms)
+		ReleaseScriptCaches (0ms)
+		RebuildScriptCaches (0ms)
+		SetupLoadedEditorAssemblies (204ms)
+			LogAssemblyErrors (0ms)
+			InitializePlatformSupportModulesInManaged (33ms)
+			SetLoadedEditorAssemblies (2ms)
+			BeforeProcessingInitializeOnLoad (46ms)
+			ProcessInitializeOnLoadAttributes (72ms)
+			ProcessInitializeOnLoadMethodAttributes (51ms)
+			AfterProcessingInitializeOnLoad (0ms)
+			EditorAssembliesLoaded (0ms)
+		ExecutionOrderSort2 (0ms)
+		AwakeInstancesAfterBackupRestoration (0ms)
+[Licensing::Client] Successfully resolved entitlement details
+Application.AssetDatabase Initial Refresh Start
+[Package Manager] Restoring resolved packages state from cache
+[Licensing::Client] Successfully resolved entitlement details
+[Package Manager] Registered 62 packages:
+  Packages from [https://packages.unity.com]:
+    com.unity.ai.assistant@2.19.0-pre.2 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.ai.assistant@8d1e3e89e3a7)
+    com.unity.ai.inference@2.6.1 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.ai.inference@9a123aee5df7)
+    com.unity.ai.navigation@2.0.12 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.ai.navigation@734c2c4c5591)
+    com.unity.collab-proxy@2.12.4 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.collab-proxy@0b1559bcd34e)
+    com.unity.ide.rider@3.0.40 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.ide.rider@e4950c6d131b)
+    com.unity.ide.visualstudio@2.0.26 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.ide.visualstudio@a99d56dec63f)
+    com.unity.inputsystem@1.19.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.inputsystem@21a28c3a6c83)
+    com.unity.timeline@1.8.12 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.timeline@8cd8509afae5)
+    com.unity.visualscripting@1.9.11 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.visualscripting@8bed5ad90189)
+    com.unity.searcher@4.9.4 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.searcher@d45a78918735)
+    com.unity.burst@1.8.29 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.burst@6bb9aca3ef38)
+    com.unity.dt.app-ui@2.1.1 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.dt.app-ui@8ac7e730dd5d)
+    com.unity.collections@2.6.6 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.collections@9796e5ee0d9e)
+    com.unity.nuget.newtonsoft-json@3.2.2 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.nuget.newtonsoft-json@4dfd81071c64)
+    com.unity.mathematics@1.3.3 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.mathematics@19a9377c4ffa)
+    com.unity.nuget.mono-cecil@1.11.6 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.nuget.mono-cecil@ecb9724e46ff)
+    com.unity.test-framework.performance@3.4.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.test-framework.performance@aa81a99c4a75)
+  Built-in packages:
+    com.unity.multiplayer.center@1.0.1 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.multiplayer.center@f01f4ba8d00a)
+    com.unity.render-pipelines.universal@17.3.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.render-pipelines.universal@97f77d4dda9a)
+    com.unity.shadergraph@17.3.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.shadergraph@138213decc3c)
+    com.unity.test-framework@1.6.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.test-framework@aebcb98460c6)
+    com.unity.ugui@2.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.ugui@23e8d17bfaf9)
+    com.unity.modules.accessibility@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.accessibility)
+    com.unity.modules.adaptiveperformance@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.adaptiveperformance)
+    com.unity.modules.ai@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.ai)
+    com.unity.modules.androidjni@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.androidjni)
+    com.unity.modules.animation@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.animation)
+    com.unity.modules.assetbundle@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.assetbundle)
+    com.unity.modules.audio@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.audio)
+    com.unity.modules.cloth@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.cloth)
+    com.unity.modules.director@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.director)
+    com.unity.modules.imageconversion@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.imageconversion)
+    com.unity.modules.imgui@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.imgui)
+    com.unity.modules.jsonserialize@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.jsonserialize)
+    com.unity.modules.particlesystem@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.particlesystem)
+    com.unity.modules.physics@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.physics)
+    com.unity.modules.physics2d@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.physics2d)
+    com.unity.modules.screencapture@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.screencapture)
+    com.unity.modules.terrain@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.terrain)
+    com.unity.modules.terrainphysics@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.terrainphysics)
+    com.unity.modules.tilemap@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.tilemap)
+    com.unity.modules.ui@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.ui)
+    com.unity.modules.uielements@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.uielements)
+    com.unity.modules.umbra@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.umbra)
+    com.unity.modules.unityanalytics@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.unityanalytics)
+    com.unity.modules.unitywebrequest@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.unitywebrequest)
+    com.unity.modules.unitywebrequestassetbundle@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.unitywebrequestassetbundle)
+    com.unity.modules.unitywebrequestaudio@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.unitywebrequestaudio)
+    com.unity.modules.unitywebrequesttexture@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.unitywebrequesttexture)
+    com.unity.modules.unitywebrequestwww@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.unitywebrequestwww)
+    com.unity.modules.vectorgraphics@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.vectorgraphics)
+    com.unity.modules.vehicles@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.vehicles)
+    com.unity.modules.video@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.video)
+    com.unity.modules.vr@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.vr)
+    com.unity.modules.wind@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.wind)
+    com.unity.modules.xr@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.xr)
+    com.unity.modules.subsystems@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.subsystems)
+    com.unity.modules.hierarchycore@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.modules.hierarchycore)
+    com.unity.ext.nunit@2.0.5 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.ext.nunit@d8c07649098d)
+    com.unity.render-pipelines.core@17.3.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.render-pipelines.core@648b47f96bf1)
+    com.unity.render-pipelines.universal-config@17.0.3 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.render-pipelines.universal-config@8dc1aab4af1d)
+    com.unity.2d.sprite@1.0.0 (location: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\Library\PackageCache\com.unity.2d.sprite@3cb28db060cf)
+[Subsystems] No new subsystems found in resolved package list.
+[Package Manager] Done registering packages in 0.01 seconds
+[ScriptCompilation] Requested script compilation because: Assetdatabase observed changes in script compilation related files
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: http://localhost:80
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Production
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball\
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/2 POST http://ilpp/UnityILPP.PostProcessing/Ping application/grpc -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'gRPC - /UnityILPP.PostProcessing/Ping'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'gRPC - /UnityILPP.PostProcessing/Ping'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/2 POST http://ilpp/UnityILPP.PostProcessing/Ping application/grpc - - 200 - application/grpc 23.7067ms
+Refreshing native plugins compatible for Editor in 4.09 ms, found 5 plugins.
+Starting: C:\Program Files\Unity\Hub\Editor\6000.3.16f1\Editor\Data\Tools\BuildPipeline\bee_backend.exe --ipc --defer-dag-verification --dagfile="Library/Bee/2000b0aE.dag" --continue-on-failure --profile="Library/Bee/backend1.traceevents" ScriptAssemblies
+WorkingDir: C:/Users/rbonn/Game_Dev/VolleyBall Empire/volleyball
+DisplayProgressbar: Compiling Scripts
+Starting: C:\Program Files\Unity\Hub\Editor\6000.3.16f1\Editor\Data\netcorerun\netcorerun.exe "C:\Program Files\Unity\Hub\Editor\6000.3.16f1\Editor\Data\Tools\BuildPipeline\ScriptCompilationBuildProgram.exe" "Library/Bee/2000b0aE.dag.json" "Library/Bee/2000b0aE-inputdata.json" "Library\Bee\buildprogram0.traceevents"
+WorkingDir: C:/Users/rbonn/Game_Dev/VolleyBall Empire/volleyball
+ExitCode: 4 Duration: 0s287ms
+Rebuilding DAG because FileSignature timestamp changed: Library/Bee/2000b0aE-inputdata.json
+*** Tundra requires additional run (0.24 seconds), 0 items updated, 791 evaluated
+ExitCode: 0 Duration: 0s717ms
+Starting: C:\Program Files\Unity\Hub\Editor\6000.3.16f1\Editor\Data\Tools\BuildPipeline\bee_backend.exe --ipc --defer-dag-verification --dagfile="Library/Bee/2000b0aE.dag" --continue-on-failure --dagfilejson="Library\Bee\2000b0aE.dag.json" --profile="Library/Bee/backend2.traceevents" ScriptAssemblies
+WorkingDir: C:/Users/rbonn/Game_Dev/VolleyBall Empire/volleyball
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/2 POST http://ilpp/UnityILPP.PostProcessing/ConfigurePostProcessors application/grpc -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'gRPC - /UnityILPP.PostProcessing/ConfigurePostProcessors'
+warn: Unity.ILPP.Runner.PostProcessingAssemblyLoadContext[0]
+      Assembly system.runtime.interopservices.windowsruntime has duplicate hint path. Ignoring "C:\Program Files\Unity\Hub\Editor\6000.3.16f1\Editor\Data\UnityReferenceAssemblies\unity-4.8-api\Facades\System.Runtime.InteropServices.WindowsRuntime.dll" in favor of "C:\Program Files\Unity\Hub\Editor\6000.3.16f1\Editor\Data\NetStandard\Extensions\2.0.0\System.Runtime.InteropServices.WindowsRuntime.dll"
+warn: Unity.ILPP.Runner.PostProcessingAssemblyLoadContext[0]
+      Assembly system.componentmodel.composition has duplicate hint path. Ignoring "C:\Program Files\Unity\Hub\Editor\6000.3.16f1\Editor\Data\UnityReferenceAssemblies\unity-4.8-api\System.ComponentModel.Composition.dll" in favor of "C:\Program Files\Unity\Hub\Editor\6000.3.16f1\Editor\Data\NetStandard\compat\2.1.0\shims\netfx\System.ComponentModel.Composition.dll"
+info: Unity.ILPP.Runner.PostProcessingAssemblyLoadContext[0]
+      Resolved Unity.Burst.Cecil, Version=0.11.6.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e with Library\PackageCache\com.unity.burst@6bb9aca3ef38\Unity.Burst.CodeGen\Unity.Burst.Cecil.dll
+info: Unity.ILPP.Runner.PostProcessingAssemblyLoadContext[0]
+      Resolved Mono.Cecil, Version=0.11.5.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e with Library\PackageCache\com.unity.nuget.mono-cecil@ecb9724e46ff\Mono.Cecil.dll
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'gRPC - /UnityILPP.PostProcessing/ConfigurePostProcessors'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/2 POST http://ilpp/UnityILPP.PostProcessing/ConfigurePostProcessors application/grpc - - 200 - application/grpc 32.3900ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/2 POST http://ilpp/UnityILPP.PostProcessing/PostProcessAssembly application/grpc -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'gRPC - /UnityILPP.PostProcessing/PostProcessAssembly'
+info: Unity.ILPP.Runner.PostProcessingPipeline[0]
+      Processing assembly Library/Bee/artifacts/2000b0aE.dag/Assembly-CSharp.dll, with 115 defines and 336 references
+info: Unity.ILPP.Runner.PostProcessingPipeline[0]
+      processors: Unity.Jobs.CodeGen.JobsILPostProcessor, zzzUnity.Burst.CodeGen.BurstILPostProcessor
+info: Unity.ILPP.Runner.PostProcessingPipeline[0]
+      running Unity.Jobs.CodeGen.JobsILPostProcessor
+info: Unity.ILPP.Runner.PostProcessingAssemblyLoadContext[0]
+      Resolved Unity.Collections, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null with Library\Bee\artifacts\2000b0aE.dag\Unity.Collections.dll
+info: Unity.ILPP.Runner.PostProcessingAssemblyLoadContext[0]
+      Resolved UnityEditor.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null with C:\Program Files\Unity\Hub\Editor\6000.3.16f1\Editor\Data\Managed\UnityEngine\UnityEditor.CoreModule.dll
+info: Unity.ILPP.Runner.PostProcessingAssemblyLoadContext[0]
+      Resolved UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null with C:\Program Files\Unity\Hub\Editor\6000.3.16f1\Editor\Data\Managed\UnityEngine\UnityEngine.CoreModule.dll
+info: Unity.ILPP.Runner.PostProcessingPipeline[0]
+      running zzzUnity.Burst.CodeGen.BurstILPostProcessor
+info: Unity.ILPP.Runner.PostProcessingAssemblyLoadContext[0]
+      Resolved Unity.Burst.Cecil.Rocks, Version=0.11.6.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e with Library\PackageCache\com.unity.burst@6bb9aca3ef38\Unity.Burst.CodeGen\Unity.Burst.Cecil.Rocks.dll
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/2 POST http://ilpp/UnityILPP.PostProcessing/PostProcessAssembly application/grpc -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'gRPC - /UnityILPP.PostProcessing/PostProcessAssembly'
+info: Unity.ILPP.Runner.PostProcessingPipeline[0]
+      Processing assembly Library/Bee/artifacts/2000b0aE.dag/Assembly-CSharp-Editor.dll, with 113 defines and 365 references
+info: Unity.ILPP.Runner.PostProcessingPipeline[0]
+      processors: Unity.Jobs.CodeGen.JobsILPostProcessor, zzzUnity.Burst.CodeGen.BurstILPostProcessor
+info: Unity.ILPP.Runner.PostProcessingPipeline[0]
+      running Unity.Jobs.CodeGen.JobsILPostProcessor
+info: Unity.ILPP.Runner.PostProcessingPipeline[0]
+      running zzzUnity.Burst.CodeGen.BurstILPostProcessor
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'gRPC - /UnityILPP.PostProcessing/PostProcessAssembly'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/2 POST http://ilpp/UnityILPP.PostProcessing/PostProcessAssembly application/grpc - - 200 - application/grpc 311.0836ms
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'gRPC - /UnityILPP.PostProcessing/PostProcessAssembly'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/2 POST http://ilpp/UnityILPP.PostProcessing/PostProcessAssembly application/grpc - - 200 - application/grpc 30.9080ms
+ExitCode: 0 Duration: 1s745ms
+Finished compiling graph: 1519 nodes, 30962 flattened edges (24982 ToBuild, 252 ToUse), maximum node priority 1721
+[ 780/1515  0s] WriteText Library/Bee/artifacts/2000b0aE.dag/Assembly-CSharp.rsp
+[1152/1515  0s] ILPP-Configuration Library/ilpp-configuration.nevergeneratedoutput
+[1507/1515  0s] Csc Library/Bee/artifacts/2000b0aE.dag/Assembly-CSharp.dll (+2 others)
+Assets\Scripts\CeremonyDirector.cs(141,9): warning CS0618: 'TMP_Text.enableWordWrapping' is obsolete: 'The enabledWordWrapping property is now obsolete. Please use the textWrappingMode property instead.'
+
+Assets\Scripts\CeremonyDirector.cs(211,88): warning CS0184: The given expression is never of the provided ('Renderer') type
+
+Assets\Scripts\CeremonyDirector.cs(239,13): warning CS0618: 'TMP_Text.enableWordWrapping' is obsolete: 'The enabledWordWrapping property is now obsolete. Please use the textWrappingMode property instead.'
+
+Assets\Scripts\BallController.cs(13,37): warning CS0067: The event 'BallController.OnScore' is never used
+[1508/1515  0s] Csc Library/Bee/artifacts/2000b0aE.dag/Assembly-CSharp-Editor.dll (+2 others)
+[1509/1515  0s] ILPostProcess Library/Bee/artifacts/2000b0aE.dag/post-processed/Assembly-CSharp.dll (+pdb)
+Processing assembly Library/Bee/artifacts/2000b0aE.dag/Assembly-CSharp.dll, with 115 defines and 336 references
+
+processors: Unity.Jobs.CodeGen.JobsILPostProcessor, zzzUnity.Burst.CodeGen.BurstILPostProcessor
+
+running Unity.Jobs.CodeGen.JobsILPostProcessor
+
+running zzzUnity.Burst.CodeGen.BurstILPostProcessor
+[1510/1515  0s] ILPostProcess Library/Bee/artifacts/2000b0aE.dag/post-processed/Assembly-CSharp-Editor.dll (+pdb)
+Processing assembly Library/Bee/artifacts/2000b0aE.dag/Assembly-CSharp-Editor.dll, with 113 defines and 365 references
+
+processors: Unity.Jobs.CodeGen.JobsILPostProcessor, zzzUnity.Burst.CodeGen.BurstILPostProcessor
+
+running Unity.Jobs.CodeGen.JobsILPostProcessor
+
+running zzzUnity.Burst.CodeGen.BurstILPostProcessor
+[1511/1515  0s] CopyFiles Library/ScriptAssemblies/Assembly-CSharp.pdb
+[1512/1515  0s] CopyFiles Library/ScriptAssemblies/Assembly-CSharp.dll
+[1513/1515  0s] CopyFiles Library/ScriptAssemblies/Assembly-CSharp-Editor.pdb
+[1514/1515  0s] CopyFiles Library/ScriptAssemblies/Assembly-CSharp-Editor.dll
+*** Tundra build success (1.71 seconds), 10 items updated, 1515 evaluated
+Assets\Scripts\CeremonyDirector.cs(141,9): warning CS0618: 'TMP_Text.enableWordWrapping' is obsolete: 'The enabledWordWrapping property is now obsolete. Please use the textWrappingMode property instead.'
+Assets\Scripts\CeremonyDirector.cs(211,88): warning CS0184: The given expression is never of the provided ('Renderer') type
+Assets\Scripts\CeremonyDirector.cs(239,13): warning CS0618: 'TMP_Text.enableWordWrapping' is obsolete: 'The enabledWordWrapping property is now obsolete. Please use the textWrappingMode property instead.'
+Assets\Scripts\BallController.cs(13,37): warning CS0067: The event 'BallController.OnScore' is never used
+AssetDatabase: script compilation time: 3.177331s
+Begin MonoManager ReloadAssembly
+Symbol file LoadedFromMemory is not a mono symbol file
+Symbol file LoadedFromMemory is not a mono symbol file
+- Loaded All Assemblies, in  0.922 seconds
+Refreshing native plugins compatible for Editor in 3.28 ms, found 5 plugins.
+Native extension for WindowsStandalone target not found
+Native extension for WebGL target not found
+Refreshing native plugins compatible for Editor in 3.34 ms, found 5 plugins.
+[Licensing::Client] Error: Code 404 while processing request (status: Found 0 entitlement groups and 0 free entitlements matching requested entitlement ids)
+[Licensing::Client] Error: Code 404 while processing request (status: Found 0 entitlement groups and 0 free entitlements matching requested entitlement ids)
+[Licensing::Client] Error: Code 404 while processing request (status: Found 0 entitlement groups and 0 free entitlements matching requested entitlement ids)
+ScheduleIndexationOnStartup MainProcess:True IndexOnStartup:True
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  3.336 seconds
+Domain Reload Profiling: 4251ms
+	BeginReloadAssembly (262ms)
+		ExecutionOrderSort (0ms)
+		DisableScriptedObjects (21ms)
+		BackupInstance (0ms)
+		ReleaseScriptingObjects (0ms)
+		CreateAndSetChildDomain (148ms)
+	RebuildCommonClasses (22ms)
+	RebuildNativeTypeToScriptingClass (7ms)
+	initialDomainReloadingComplete (38ms)
+	LoadAllAssembliesAndSetupDomain (584ms)
+		LoadAssemblies (368ms)
+		RebuildTransferFunctionScriptingTraits (0ms)
+		AnalyzeDomain (282ms)
+			TypeCache.Refresh (214ms)
+				TypeCache.ScanAssembly (201ms)
+			BuildScriptInfoCaches (55ms)
+			ResolveRequiredComponents (6ms)
+	FinalizeReload (3337ms)
+		ReleaseScriptCaches (0ms)
+		RebuildScriptCaches (0ms)
+		SetupLoadedEditorAssemblies (3180ms)
+			LogAssemblyErrors (0ms)
+			InitializePlatformSupportModulesInManaged (16ms)
+			SetLoadedEditorAssemblies (4ms)
+			BeforeProcessingInitializeOnLoad (134ms)
+			ProcessInitializeOnLoadAttributes (2716ms)
+			ProcessInitializeOnLoadMethodAttributes (302ms)
+			AfterProcessingInitializeOnLoad (8ms)
+			EditorAssembliesLoaded (0ms)
+		ExecutionOrderSort2 (0ms)
+		AwakeInstancesAfterBackupRestoration (15ms)
+Refreshing native plugins compatible for Editor in 3.43 ms, found 5 plugins.
+Preloading 1 native plugins for Editor in 0.08 ms.
+Asset Pipeline Refresh (id=20b8c0be8075cca4a88579956c9f8c81): Total: 8.781 seconds - Initiated by InitialRefreshV2(ForceSynchronousImport)
+	Summary:
+		Imports: total=0 (actual=0, local cache=0, cache server=0)
+		Asset DB Process Time: managed=0 ms, native=3895 ms
+		Asset DB Callback time: managed=697 ms, native=27 ms
+		Scripting: domain reloads=1, domain reload time=922 ms, compile time=3178 ms, other=59 ms
+		Project Asset Count: scripts=2604, non-scripts=9806
+		Asset File Changes: new=2, changed=4, moved=0, deleted=0
+		Scan Filter Count: 0
+	InvokeCustomDependenciesCallbacks: 0.002ms
+	InvokePackagesCallback: 19.067ms
+	ApplyChangesToAssetFolders: 0.704ms
+	Scan: 152.847ms
+	OnSourceAssetsModified: 0.626ms
+	CategorizeAssetsWithTransientArtifact: 56.809ms
+	ProcessAssetsWithTransientArtifactChanges: 77.481ms
+	CategorizeAssets: 99.933ms
+	ImportOutOfDateAssets: 3353.369ms (172.272ms without children)
+		CompileScripts: 3178.346ms
+		ReloadNativeAssets: 0.037ms
+		UnloadImportedAssets: 0.766ms
+		EnsureUptoDateAssetsAreRegisteredWithGuidPM: 1.042ms
+		InitializingProgressBar: 0.001ms
+		PostProcessAllAssetNotificationsAddChangedAssets: 0.001ms
+		OnDemandSchedulerStart: 0.905ms
+	PostProcessAllAssets: 696.790ms
+	Hotreload: 9.884ms
+	GatherAllCurrentPrimaryArtifactRevisions: 0.002ms
+	UnloadStreamsBegin: 4.614ms
+	PersistCurrentRevisions: 0.271ms
+	UnloadStreamsEnd: 0.002ms
+	GenerateScriptTypeHashes: 2.208ms
+	Untracked: 4308.194ms
+
+Application.AssetDatabase Initial Refresh End
+Launched and connected shader compiler UnityShaderCompiler.exe after 0.02 seconds
+Scanning for USB devices : 15.386ms
+Initializing Unity extensions:
+[MODES] ModeService[none].Initialize
+[MODES] ModeService[none].LoadModes
+[MODES] Loading mode Default (0) for mode-current-id-Beach Volleyball Empire
+Unloading 62 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 10265 unused Assets / (21.4 MB). Loaded Objects now: 11176.
+Memory consumption went from 323.6 MB to 302.1 MB.
+Total: 19.604100 ms (FindLiveObjects: 1.080900 ms CreateObjectMapping: 0.317400 ms MarkObjects: 11.693100 ms  DeleteObjects: 6.511500 ms)
+
+Opening scene 'Assets/BeachVolleyball V19.unity'
+Unloading 6 Unused Serialized files (Serialized files now loaded: 0)
+d3d12: upload buffer was too small for the requested resource! Size: 16777216. Requested: 59664000.
+Couldn't create a Convex Mesh from source mesh, within the maximum polygons limit (256). The partial hull will be used. Consider simplifying your mesh. Source mesh name: SM_rack_balls_Volleyball_1
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEditor.SceneManagement.EditorSceneManager:OpenScene (string,UnityEditor.SceneManagement.OpenSceneMode)
+PlayedMatchProof:A2 () (at Assets/Editor/PlayedMatchProof.cs:146)
+
+[Assets/Editor/PlayedMatchProof.cs line 146]
+
+Loaded scene 'Assets/BeachVolleyball V19.unity'
+	Deserialize:            133.664 ms
+	Integration:            1041.720 ms
+	Integration of assets:  2.160 ms
+	Thread Wait Time:       0.246 ms
+	Total Operation Time:   1177.791 ms
+Unloading 3 unused Assets / (1.8 KB). Loaded Objects now: 103356.
+Memory consumption went from 0.63 GB to 0.63 GB.
+Total: 26.031500 ms (FindLiveObjects: 8.112400 ms CreateObjectMapping: 3.423900 ms MarkObjects: 14.383500 ms  DeleteObjects: 0.111100 ms)
+
+[PlayedProof] A2 EVERY TOUCH IS GRADED (Assets/Scripts/PlayedMatch/TouchGrade.cs, TouchShapes.cs)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchProof:Log (string) (at Assets/Editor/PlayedMatchProof.cs:33)
+PlayedMatchProof:Finish (PlayedMatchChecks/Report,string,string) (at Assets/Editor/PlayedMatchProof.cs:39)
+PlayedMatchProof:A2 () (at Assets/Editor/PlayedMatchProof.cs:184)
+
+(Filename: Assets/Editor/PlayedMatchProof.cs Line: 33)
+
+[PlayedProof]   CHECK Easy: timing windows perfect ±100 ms, good ±200 ms, late ±360 ms, then a miss: PASS  Perfect, Perfect, Good, Good, Late, Late, Miss
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchProof:Log (string) (at Assets/Editor/PlayedMatchProof.cs:33)
+PlayedMatchProof:Finish (PlayedMatchChecks/Report,string,string) (at Assets/Editor/PlayedMatchProof.cs:39)
+PlayedMatchProof:A2 () (at Assets/Editor/PlayedMatchProof.cs:184)
+
+(Filename: Assets/Editor/PlayedMatchProof.cs Line: 33)
+
+[PlayedProof]   CHECK Medium: timing windows perfect ±65 ms, good ±140 ms, late ±260 ms, then a miss: PASS  Perfect, Perfect, Good, Good, Late, Late, Miss
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchProof:Log (string) (at Assets/Editor/PlayedMatchProof.cs:33)
+PlayedMatchProof:Finish (PlayedMatchChecks/Report,string,string) (at Assets/Editor/PlayedMatchProof.cs:39)
+PlayedMatchProof:A2 () (at Assets/Editor/PlayedMatchProof.cs:184)
+
+(Filename: Assets/Editor/PlayedMatchProof.cs Line: 33)
+
+[PlayedProof]   CHECK Hard: timing windows perfect ±45 ms, good ±100 ms, late ±190 ms, then a miss: PASS  Perfect, Perfect, Good, Good, Late, Late, Miss
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchProof:Log (string) (at Assets/Editor/PlayedMatchProof.cs:33)
+PlayedMatchProof:Finish (PlayedMatchChecks/Report,string,string) (at Assets/Editor/PlayedMatchProof.cs:39)
+PlayedMatchProof:A2 () (at Assets/Editor/PlayedMatchProof.cs:184)
+
+(Filename: Assets/Editor/PlayedMatchProof.cs Line: 33)
+
+[PlayedProof]   CHECK the windows narrow Easy > Medium > Hard: PASS
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchProof:Log (string) (at Assets/Editor/PlayedMatchProof.cs:33)
+PlayedMatchProof:Finish (PlayedMatchChecks/Report,string,string) (at Assets/Editor/PlayedMatchProof.cs:39)
+PlayedMatchProof:A2 () (at Assets/Editor/PlayedMatchProof.cs:184)
+
+(Filename: Assets/Editor/PlayedMatchProof.cs Line: 33)
+
+[PlayedProof]   CHECK a dig at 0.5 m is balanced, 1.2 m stretching, 2.0 m out of reach standing, 2.0 m diving a dive, 3.4 m out of reach even diving: PASS  Balanced, Stretching, OutOfReach, Diving, OutOfReach
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchProof:Log (string) (at Assets/Editor/PlayedMatchProof.cs:33)
+PlayedMatchProof:Finish (PlayedMatchChecks/Report,string,string) (at Assets/Editor/PlayedMatchProof.cs:39)
+PlayedMatchProof:A2 () (at Assets/Editor/PlayedMatchProof.cs:184)
+
+(Filename: Assets/Editor/PlayedMatchProof.cs Line: 33)
+
+[PlayedProof]   CHECK at the same timing a balanced touch beats a stretch, which beats a dive: PASS  quality balanced 0.69, stretching 0.48, diving 0.32
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchProof:Log (string) (at Assets/Editor/PlayedMatchProof.cs:33)
+PlayedMatchProof:Finish (PlayedMatchChecks/Report,string,string) (at Assets/Editor/PlayedMatchProof.cs:39)
+PlayedMatchProof:A2 () (at Assets/Editor/PlayedMatchProof.cs:184)
+
+(Filename: Assets/Editor/PlayedMatchProof.cs Line: 33)
+
+[PlayedProof]   CHECK a perfect Dig by a player rated 85 is better than by one rated 45: PASS  quality 85: 0.91, 45: 0.53
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchProof:Log (string) (at Assets/Editor/PlayedMatchProof.cs:33)
+PlayedMatchProof:Finish (PlayedMatchChecks/Report,string,string) (at Assets/Editor/PlayedMatchProof.cs:39)
+PlayedMatchProof:A2 () (at Assets/Editor/PlayedMatchProof.cs:184)
+
+(Filename: Assets/Editor/PlayedMatchProof.cs Line: 33)
+
+[PlayedProof]   CHECK a perfect Set by a player rated 85 is better than by one rated 45: PASS  quality 85: 0.91, 45: 0.53
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchProof:Log (string) (at Assets/Editor/PlayedMatchProof.cs:33)
+PlayedMatchProof:Finish (PlayedMatchChecks/Report,string,string) (at Assets/Editor/PlayedMatchProof.cs:39)
+PlayedMatchProof:A2 () (at Assets/Editor/PlayedMatchProof.cs:184)
+
+(Filename: Assets/Editor/PlayedMatchProof.cs Line: 33)
+
+[PlayedProof]   CHECK a perfect Spike by a player rated 85 is better than by one rated 45: PASS  quality 85: 0.91, 45: 0.53
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchProof:Log (string) (at Assets/Editor/PlayedMatchProof.cs:33)
+PlayedMatchProof:Finish (PlayedMatchChecks/Report,string,string) (at Assets/Editor/PlayedMatchProof.cs:39)
+PlayedMatchProof:A2 () (at Assets/Editor/PlayedMatchProof.cs:184)
+
+(Filename: Assets/Editor/PlayedMatchProof.cs Line: 33)
+
+[PlayedProof]   CHECK a perfect Block by a player rated 85 is better than by one rated 45: PASS  quality 85: 0.91, 45: 0.53
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchProof:Log (string) (at Assets/Editor/PlayedMatchProof.cs:33)
+PlayedMatchProof:Finish (PlayedMatchChecks/Report,string,string) (at Assets/Editor/PlayedMatchProof.cs:39)
+PlayedMatchProof:A2 () (at Assets/Editor/PlayedMatchProof.cs:184)
+
+(Filename: Assets/Editor/PlayedMatchProof.cs Line: 33)
+
+[PlayedProof]   CHECK defence (not power) lifts a dig; power (not defence) lifts a spike: PASS
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchProof:Log (string) (at Assets/Editor/PlayedMatchProof.cs:33)
+PlayedMatchProof:Finish (PlayedMatchChecks/Report,string,string) (at Assets/Editor/PlayedMatchProof.cs:39)
+PlayedMatchProof:A2 () (at Assets/Editor/PlayedMatchProof.cs:184)
+
+(Filename: Assets/Editor/PlayedMatchProof.cs Line: 33)
+
+[PlayedProof]   CHECK on Hard the stats matter more: the gap between 85 and 45 is wider than on Easy: PASS  gap Easy 0.29, Hard 0.45
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchProof:Log (string) (at Assets/Editor/PlayedMatchProof.cs:33)
+PlayedMatchProof:Finish (PlayedMatchChecks/Report,string,string) (at Assets/Editor/PlayedMatchProof.cs:39)
+PlayedMatchProof:A2 () (at Assets/Editor/PlayedMatchProof.cs:184)
+
+(Filename: Assets/Editor/PlayedMatchProof.cs Line: 33)
+
+[PlayedProof]   timing against stats (Medium dig): a GOOD touch by an 85 is 0.71, a PERFECT touch by a 45 is 0.53
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchProof:Log (string) (at Assets/Editor/PlayedMatchProof.cs:33)
+PlayedMatchProof:Finish (PlayedMatchChecks/Report,string,string) (at Assets/Editor/PlayedMatchProof.cs:39)
+PlayedMatchProof:A2 () (at Assets/Editor/PlayedMatchProof.cs:184)
+
+(Filename: Assets/Editor/PlayedMatchProof.cs Line: 33)
+
+[PlayedProof]   CHECK fitness 60 and fatigue 50 pull a perfect spike down; so does a match's worth of tiredness (stamina 15): PASS  fresh 0.69, unfit and fatigued 0.57 (condition 0.69), stamina 15 0.61
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchProof:Log (string) (at Assets/Editor/PlayedMatchProof.cs:33)
+PlayedMatchProof:Finish (PlayedMatchChecks/Report,string,string) (at Assets/Editor/PlayedMatchProof.cs:39)
+PlayedMatchProof:A2 () (at Assets/Editor/PlayedMatchProof.cs:184)
+
+(Filename: Assets/Editor/PlayedMatchProof.cs Line: 33)
+
+[PlayedProof]   CHECK and slow her down on the sand: PASS  5.14 m/s fresh, 4.28 m/s unfit and fatigued
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchProof:Log (string) (at Assets/Editor/PlayedMatchProof.cs:33)
+PlayedMatchProof:Finish (PlayedMatchChecks/Report,string,string) (at Assets/Editor/PlayedMatchProof.cs:39)
+PlayedMatchProof:A2 () (at Assets/Editor/PlayedMatchProof.cs:184)
+
+(Filename: Assets/Editor/PlayedMatchProof.cs Line: 33)
+
+[PlayedProof]   PERFECT digs by a 62-rated defender: mean 0.60 m from the setter, 100% within 1 m, 0% wild, top height 4.6 m
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchProof:Log (string) (at Assets/Editor/PlayedMatchProof.cs:33)
+PlayedMatchProof:Finish (PlayedMatchChecks/Report,string,string) (at Assets/Editor/PlayedMatchProof.cs:39)
+PlayedMatchProof:A2 () (at Assets/Editor/PlayedMatchProof.cs:184)
+
+(Filename: Assets/Editor/PlayedMatchProof.cs Line: 33)
+
+[PlayedProof]   LATE (200 ms) digs by a 62-rated defender: mean 2.66 m from the setter, 11% within 1 m, 21% wild, top height 3.6 m
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchProof:Log (string) (at Assets/Editor/PlayedMatchProof.cs:33)
+PlayedMatchProof:Finish (PlayedMatchChecks/Report,string,string) (at Assets/Editor/PlayedMatchProof.cs:39)
+PlayedMatchProof:A2 () (at Assets/Editor/PlayedMatchProof.cs:184)
+
+(Filename: Assets/Editor/PlayedMatchProof.cs Line: 33)
+
+[PlayedProof]   CHECK a perfect dig lands near the setter: most within 1 m, none wild: PASS  mean 0.60 m from her, 100% within 1 m, wild 0%, mean top height 4.6 m
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchProof:Log (string) (at Assets/Editor/PlayedMatchProof.cs:33)
+PlayedMatchProof:Finish (PlayedMatchChecks/Report,string,string) (at Assets/Editor/PlayedMatchProof.cs:39)
+PlayedMatchProof:A2 () (at Assets/Editor/PlayedMatchProof.cs:184)
+
+(Filename: Assets/Editor/PlayedMatchProof.cs Line: 33)
+
+[PlayedProof]   CHECK a late dig is wild or far from her: she has to chase it: PASS  mean 2.66 m from her, 11% within 1 m, wild 21%, mean top height 3.6 m
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchProof:Log (string) (at Assets/Editor/PlayedMatchProof.cs:33)
+PlayedMatchProof:Finish (PlayedMatchChecks/Report,string,string) (at Assets/Editor/PlayedMatchProof.cs:39)
+PlayedMatchProof:A2 () (at Assets/Editor/PlayedMatchProof.cs:184)
+
+(Filename: Assets/Editor/PlayedMatchProof.cs Line: 33)
+
+[PlayedProof]   PERFECT digs by a 40-rated defender: mean 1.13 m from the setter, 35% within 1 m, 0% wild, top height 4.1 m
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchProof:Log (string) (at Assets/Editor/PlayedMatchProof.cs:33)
+PlayedMatchProof:Finish (PlayedMatchChecks/Report,string,string) (at Assets/Editor/PlayedMatchProof.cs:39)
+PlayedMatchProof:A2 () (at Assets/Editor/PlayedMatchProof.cs:184)
+
+(Filename: Assets/Editor/PlayedMatchProof.cs Line: 33)
+
+[PlayedProof]   PERFECT digs by a 90-rated defender: mean 0.19 m from the setter, 100% within 1 m, 0% wild, top height 5.3 m
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchProof:Log (string) (at Assets/Editor/PlayedMatchProof.cs:33)
+PlayedMatchProof:Finish (PlayedMatchChecks/Report,string,string) (at Assets/Editor/PlayedMatchProof.cs:39)
+PlayedMatchProof:A2 () (at Assets/Editor/PlayedMatchProof.cs:184)
+
+(Filename: Assets/Editor/PlayedMatchProof.cs Line: 33)
+
+[PlayedProof]   CHECK a better defender's perfect dig is closer to the setter than a weaker one's: PASS  rated 90: 0.19 m, rated 40: 1.13 m
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchProof:Log (string) (at Assets/Editor/PlayedMatchProof.cs:33)
+PlayedMatchProof:Finish (PlayedMatchChecks/Report,string,string) (at Assets/Editor/PlayedMatchProof.cs:39)
+PlayedMatchProof:A2 () (at Assets/Editor/PlayedMatchProof.cs:184)
+
+(Filename: Assets/Editor/PlayedMatchProof.cs Line: 33)
+
+[PlayedProof]   CHECK a perfect set arrives within reach of the hitter's spot; a late one does not: PASS  mean miss at her spike height: perfect 0.31 m, late 1.01 m
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchProof:Log (string) (at Assets/Editor/PlayedMatchProof.cs:33)
+PlayedMatchProof:Finish (PlayedMatchChecks/Report,string,string) (at Assets/Editor/PlayedMatchProof.cs:39)
+PlayedMatchProof:A2 () (at Assets/Editor/PlayedMatchProof.cs:184)
+
+(Filename: Assets/Editor/PlayedMatchProof.cs Line: 33)
+
+[PlayedProof]   CHECK power 88 spikes faster than power 40: PASS  21.2 m/s against 12.8 m/s (full meter, perfect)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchProof:Log (string) (at Assets/Editor/PlayedMatchProof.cs:33)
+PlayedMatchProof:Finish (PlayedMatchChecks/Report,string,string) (at Assets/Editor/PlayedMatchProof.cs:39)
+PlayedMatchProof:A2 () (at Assets/Editor/PlayedMatchProof.cs:184)
+
+(Filename: Assets/Editor/PlayedMatchProof.cs Line: 33)
+
+[PlayedProof]   CHECK a full spike meter hits harder than a tap: PASS  full 16.5 m/s, tapped 10.2 m/s
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchProof:Log (string) (at Assets/Editor/PlayedMatchProof.cs:33)
+PlayedMatchProof:Finish (PlayedMatchChecks/Report,string,string) (at Assets/Editor/PlayedMatchProof.cs:39)
+PlayedMatchProof:A2 () (at Assets/Editor/PlayedMatchProof.cs:184)
+
+(Filename: Assets/Editor/PlayedMatchProof.cs Line: 33)
+
+[PlayedProof]   CHECK perfect spikes (aimed 0.8 m inside the lines) mostly land in: PASS  in 99%, net 1%, out 0% of 1000
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchProof:Log (string) (at Assets/Editor/PlayedMatchProof.cs:33)
+PlayedMatchProof:Finish (PlayedMatchChecks/Report,string,string) (at Assets/Editor/PlayedMatchProof.cs:39)
+PlayedMatchProof:A2 () (at Assets/Editor/PlayedMatchProof.cs:184)
+
+(Filename: Assets/Editor/PlayedMatchProof.cs Line: 33)
+
+[PlayedProof]   CHECK late spikes go into the net or out far more often: PASS  in 25%, net 73%, out 2% of 1000
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchProof:Log (string) (at Assets/Editor/PlayedMatchProof.cs:33)
+PlayedMatchProof:Finish (PlayedMatchChecks/Report,string,string) (at Assets/Editor/PlayedMatchProof.cs:39)
+PlayedMatchProof:A2 () (at Assets/Editor/PlayedMatchProof.cs:184)
+
+(Filename: Assets/Editor/PlayedMatchProof.cs Line: 33)
+
+[PlayedProof]   CHECK a well-timed soft shot clears the tape by 0.4 m+ (over the block) and lands in, short: PASS  over 500/500, short and in 500/500
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchProof:Log (string) (at Assets/Editor/PlayedMatchProof.cs:33)
+PlayedMatchProof:Finish (PlayedMatchChecks/Report,string,string) (at Assets/Editor/PlayedMatchProof.cs:39)
+PlayedMatchProof:A2 () (at Assets/Editor/PlayedMatchProof.cs:184)
+
+(Filename: Assets/Editor/PlayedMatchProof.cs Line: 33)
+
+[PlayedProof]   CHECK a serve tapped under 12% always goes into the net: PASS  net 100%
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchProof:Log (string) (at Assets/Editor/PlayedMatchProof.cs:33)
+PlayedMatchProof:Finish (PlayedMatchChecks/Report,string,string) (at Assets/Editor/PlayedMatchProof.cs:39)
+PlayedMatchProof:A2 () (at Assets/Editor/PlayedMatchProof.cs:184)
+
+(Filename: Assets/Editor/PlayedMatchProof.cs Line: 33)
+
+[PlayedProof]   CHECK a serve tapped in the MAX zone lands in most of the time: PASS  MAX: in 100%, net 0%, out 0%; half power: in 97%, net 0%, out 3%
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchProof:Log (string) (at Assets/Editor/PlayedMatchProof.cs:33)
+PlayedMatchProof:Finish (PlayedMatchChecks/Report,string,string) (at Assets/Editor/PlayedMatchProof.cs:39)
+PlayedMatchProof:A2 () (at Assets/Editor/PlayedMatchProof.cs:184)
+
+(Filename: Assets/Editor/PlayedMatchProof.cs Line: 33)
+
+[PlayedProof]   CHECK the ace ability (rated 95+, MAX zone): faster and truer than a 94 in the MAX zone: PASS  95: 21.4 m/s, error up to 0.20 m; 94: 19.7 m/s, 0.42 m
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchProof:Log (string) (at Assets/Editor/PlayedMatchProof.cs:33)
+PlayedMatchProof:Finish (PlayedMatchChecks/Report,string,string) (at Assets/Editor/PlayedMatchProof.cs:39)
+PlayedMatchProof:A2 () (at Assets/Editor/PlayedMatchProof.cs:184)
+
+(Filename: Assets/Editor/PlayedMatchProof.cs Line: 33)
+
+[PlayedProof]   CHECK the same seed gives the same 400 graded touches, bit for bit: PASS  hash 72D8D25CCE6BD8DF
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchProof:Log (string) (at Assets/Editor/PlayedMatchProof.cs:33)
+PlayedMatchProof:Finish (PlayedMatchChecks/Report,string,string) (at Assets/Editor/PlayedMatchProof.cs:39)
+PlayedMatchProof:A2 () (at Assets/Editor/PlayedMatchProof.cs:184)
+
+(Filename: Assets/Editor/PlayedMatchProof.cs Line: 33)
+
+[PlayedProof] PICTURES: C:/Users/rbonn/Documents/Volley-Ball-Empire/docs/update-1.2/proof\A2/a2-digs.png (yellow ring: the setter's spot, 2 m across; green: 300 perfect digs; red: 300 late digs; blue: the digger)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchProof:Log (string) (at Assets/Editor/PlayedMatchProof.cs:33)
+PlayedMatchProof:Finish (PlayedMatchChecks/Report,string,string) (at Assets/Editor/PlayedMatchProof.cs:39)
+PlayedMatchProof:A2 () (at Assets/Editor/PlayedMatchProof.cs:184)
+
+(Filename: Assets/Editor/PlayedMatchProof.cs Line: 33)
+
+[PlayedProof]           C:/Users/rbonn/Documents/Volley-Ball-Empire/docs/update-1.2/proof\A2/a2-spikes.png (blue: the hitter; green: perfect spikes that land in; orange: late spikes that land in; red: late or perfect spikes in the net or out)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchProof:Log (string) (at Assets/Editor/PlayedMatchProof.cs:33)
+PlayedMatchProof:Finish (PlayedMatchChecks/Report,string,string) (at Assets/Editor/PlayedMatchProof.cs:39)
+PlayedMatchProof:A2 () (at Assets/Editor/PlayedMatchProof.cs:184)
+
+(Filename: Assets/Editor/PlayedMatchProof.cs Line: 33)
+
+[PlayedProof] RESULT: PASS (27 passed, 0 failed)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+PlayedMatchProof:Log (string) (at Assets/Editor/PlayedMatchProof.cs:33)
+PlayedMatchProof:Finish (PlayedMatchChecks/Report,string,string) (at Assets/Editor/PlayedMatchProof.cs:39)
+PlayedMatchProof:A2 () (at Assets/Editor/PlayedMatchProof.cs:184)
+
+(Filename: Assets/Editor/PlayedMatchProof.cs Line: 33)
+
+Start importing ProjectSettings/EditorBuildSettings.asset using Guid(0000000000000000b000000000000000) (LibraryAssetImporter) -> (artifact id: '977b2d4d2e14457778b11ba1c6342647') in 0.0143439 seconds
+Refreshing native plugins compatible for Editor in 3.94 ms, found 5 plugins.
+Preloading 1 native plugins for Editor in 0.07 ms.
+Asset Pipeline Refresh (id=ef22bab73c741d7469de8c0730ab3797): Total: 0.122 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+[Physics::Module] Cleanup current backend.
+[Physics::Module] Id: 0xf2b8ea05
+Input System module state changed to: ShutdownInProgress.
+Input System polling thread exited.
+Input System module state changed to: Shutdown.
+[Licensing::IpcConnector] LicenseClient-rbonn-6000.3.16-notifications channel disconnected successfully.
+[Licensing::IpcConnector] LicenseClient-rbonn-6000.3.16 channel disconnected successfully.
+AcceleratorClientConnectionCallback - disconnected - :0
+Shut down.
+Cleanup mono
+abort_threads: Failed aborting id: 000000000000B13C, mono_thread_manage will ignore it
+
+abort_threads: Failed aborting id: 0000000000008FD8, mono_thread_manage will ignore it
+
+abort_threads: Failed aborting id: 000000000000B13C, mono_thread_manage will ignore it
+
+abort_threads: Failed aborting id: 0000000000008FD8, mono_thread_manage will ignore it
+
+debugger-agent: Unable to listen on 5192
+Checking for leaked weakptr:
+  Found no leaked weakptrs.
+[Package Manager] Server process was shutdown
+##utp:{"type":"MemoryLeaks","version":2,"phase":"Immediate","time":1795569120130,"processId":47092,"allocatedMemory":28341431,"memoryLabels":[{"Default":29313},{"Permanent":15236},{"NewDelete":68371},{"Thread":4237960},{"Manager":830141},{"VertexData":8},{"Geometry":816},{"Texture":160},{"Shader":83989},{"Material":24},{"GfxDevice":60312},{"Animation":392},{"Audio":3040},{"FreeType":8},{"FontEngine":736},{"Physics":2090},{"Physics2D":16},{"Serialization":336},{"Input":14984},{"JobScheduler":33024},{"TextLib":216},{"Mono":32},{"MonoCode":320},{"ScriptingNativeRuntime":155060},{"BaseObject":1620272},{"Resource":1336},{"Renderer":3000},{"Transform":4685},{"File":3949},{"WebCam":616},{"Culling":32},{"Terrain":11394},{"Wind":24},{"STL":40},{"String":17194},{"DynamicArray":135041},{"HashMap":130973},{"Utility":2662998},{"Curl":2579},{"PoolAlloc":2824},{"AI":80},{"TypeTree":13637},{"ScriptManager":512},{"RuntimeInitializeOnLoadManager":64},{"SpriteAtlas":112},{"GI":7792},{"Director":8240},{"CloudService":8208},{"WebRequest":808},{"VR":47994},{"SceneManager":504},{"Video":64},{"LazyScriptCache":32},{"Camera":17},{"Secure":2377},{"SerializationCache":1576},{"APIUpdating":10320},{"Subsystems":336},{"VirtualTexturing":57888},{"StaticSafetyDebugInfo":278528},{"Analytics":384},{"Hierarchy":608},{"CoreStats":13032},{"Identifiers":12960},{"Gui":96},{"EditorUtility":152455},{"VersionControl":4},{"Undo":947},{"AssetDatabase":17543299},{"EditorGi":328},{"UnityConnect":29208},{"Upm":1896},{"AssetCompliance":64},{"DrivenProperties":72},{"LocalIPC":211},{"ProfilerEditor":9746},{"CoreBusinessMetrics":2867},{"Licensing":664},{"AssetReference":32},{"IPCStream":32}]}
