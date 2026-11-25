@@ -12,6 +12,7 @@ public static class Program
     {
         if (args.Length > 0 && args[0] == "sim") return Sim(args);
         if (args.Length > 0 && args[0] == "trace") return Trace(args);
+        if (args.Length > 0 && args[0] == "tune") return Tune(args);
         if (args.Length == 0) args = new[] { "A1" };
         int failed = 0, passed = 0;
         foreach (string section in args)
@@ -24,6 +25,35 @@ public static class Program
         }
         Console.WriteLine($"RESULT: {(failed == 0 && passed > 0 ? "PASS" : "FAIL")} ({passed} passed, {failed} failed)");
         return failed == 0 && passed > 0 ? 0 : 1;
+    }
+
+    // Quick look for tuning: the average player on one difficulty, a few match-ups, N matches each.
+    private static int Tune(string[] a)
+    {
+        var d = a.Length > 1 ? (Difficulty)Enum.Parse(typeof(Difficulty), a[1]) : Difficulty.Medium;
+        int n = a.Length > 2 ? int.Parse(a[2]) : 100;
+        foreach (var (you, them) in new[] { (45, 80), (57, 67), (62, 62), (67, 57) })
+        {
+            int wins = 0, pts = 0, won = 0;
+            for (int k = 1; k <= n; k++)
+            {
+                ulong seed = (ulong)(70000 + k);
+                var s = PlayedMatchSims.Play(new[] { Ratings.All(you), Ratings.All(you), Ratings.All(them), Ratings.All(them) }, d, seed, PlayedMatchSims.PersonAgainstAi(d, seed));
+                if (s.HomeWon) wins++; pts += s.points; won += s.pointsByTeam[0];
+            }
+            Console.WriteLine($"{d} {you} v {them}: won {wins * 100 / n}%, points {won * 100.0 / pts:F1}% (Sim Result {PlayedMatchChecks.SimResultWinRate(you, them) * 100:F0}%, per point {Math.Min(0.58, Math.Max(0.42, 0.5 + (you - them) * 0.00213)) * 100:F1}%)");
+        }
+        {
+            int wins = 0;
+            for (int k = 1; k <= n; k++)
+            {
+                ulong seed = (ulong)(70000 + k);
+                var s = PlayedMatchSims.Play(new[] { Ratings.All(45), Ratings.All(45), Ratings.All(80), Ratings.All(80) }, d, seed, PlayedMatchSims.PersonAgainstAi(d, seed, true));
+                if (s.HomeWon) wins++;
+            }
+            Console.WriteLine($"{d} 45 v 80 with EXPERT thumbs: won {wins * 100 / n}%");
+        }
+        return 0;
     }
 
     private static int Trace(string[] a)

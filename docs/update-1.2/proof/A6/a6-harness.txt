@@ -1,0 +1,84 @@
+========================================================================
+  1.2 PART A: THE PLAYED MATCH
+========================================================================
+
+1. THE ENGINE'S OWN CHECKS (the Unity repo's files, run by dotnet)
+  PASS  the played-match engine's checks pass (A1, A2, A4, A6)  RESULT: PASS (64 passed, 0 failed)
+    | Difficulty | Weak (45) v strong (80) | Same, expert thumbs | Slightly weaker (57) v (67) | Even (62) v even (62) | Strong (80) v weak (45) |
+    |---|---|---|---|---|---|
+    | Easy | 2% (±2%; points 39%) | 12% (±5%; points 43%) | 46% (±7%; points 49%) | 69% (±6%; points 53%) | 100% (±0%; points 65%) |
+    | Medium | 1% (±1%; points 37%) | 6% (±3%; points 41%) | 20% (±6%; points 46%) | 49% (±7%; points 50%) | 99% (±1%; points 62%) |
+    | Hard | 1% (±1%; points 36%) | 12% (±5%; points 44%) | 12% (±5%; points 43%) | 24% (±6%; points 47%) | 93% (±4%; points 57%) |
+    | Sim Result (the game's engine) | 14% | (same as left) | 37% | 51% | 85% |
+
+2. A5: /unity/match-state SENDS THE CAREER'S DIFFICULTY
+  PASS  Easy: /unity/match-state says gameDifficulty "easy"  career 1, match 1: HTTP 200, gameDifficulty "easy", players 4
+  PASS  Medium: /unity/match-state says gameDifficulty "medium"  career 2, match 60: HTTP 200, gameDifficulty "medium", players 4
+  PASS  Hard: /unity/match-state says gameDifficulty "hard"  career 3, match 119: HTTP 200, gameDifficulty "hard", players 4
+  PASS  Before difficulty: /unity/match-state says gameDifficulty "medium"  career 4, match 178: HTTP 200, gameDifficulty "medium", players 4
+  PASS  the Empire Nations Cup payload sends it too (same route, same function)
+
+3. THE COURT PLAYS AT IT (Unity batch mode, reading this server)
+    CHECK Dig fires from the keyboard (J) and the gamepad (A): PASS  keyboard 1, gamepad 1
+    CHECK Set fires from the keyboard (K) and the gamepad (X): PASS  keyboard 1, gamepad 1
+    CHECK Soft fires from the keyboard (I) and the gamepad (RightShoulder): PASS  keyboard 1, gamepad 1
+    CHECK Dive fires from the keyboard (Space) and the gamepad (Circle): PASS  keyboard 1, gamepad 1
+    CHECK Switch fires from the keyboard (Q) and the gamepad (LeftShoulder): PASS  keyboard 1, gamepad 1
+    CHECK Cheer fires from the keyboard (C) and the gamepad (D-pad up): PASS  keyboard 1, gamepad 1
+    CHECK Move fires from WASD and the left stick: PASS  keyboard frames 252, gamepad frames 262
+    CHECK Help still fires from H and DpadDown (ManualControl), and leaves the match in Manual, unpaused: PASS  keyboard 1, gamepad 1, mode Manual, paused False
+    CHECK Pause still fires from Escape and Start (ManualControl), and leaves the match in Manual, unpaused: PASS  keyboard 1, gamepad 1, mode Manual, paused False
+    CHECK Toggle still fires from Tab and Select (ManualControl), and leaves the match in Manual, unpaused: PASS  keyboard 1, gamepad 1, mode Manual, paused False
+    A5: the loader read game difficulty 'easy' (connection: applied 4 of 4 player(s)); the played match runs at Easy (runner: Easy)
+    CHECK the court plays at the career's difficulty, sent by /api/unity/match-state (easy): PASS  loader 'easy', engine Easy
+    timing windows at Easy: perfect ±100 ms, good ±200 ms, late ±360 ms; stats weigh 46%
+    CHECK the opponents play at Easy's sharpness, the partner at Medium's: PASS  opponents timing sd 120 ms, reaction 305 ms, placing ±0.39 m, soft 14%; partner timing sd 97 ms, reaction 260 ms, placing ±0.31 m, soft 16%
+    CHECK Easy: the landing ring shows whenever the ball is coming to your side: PASS  ball coming to your side in 5870 frames: ring shown in 5870; you to play it in 5868: prompt shown in 5868; any prompt in 25852 frames
+    CHECK Easy: the button prompt shows when it is yours to play: PASS  ball coming to your side in 5870 frames: ring shown in 5870; you to play it in 5868: prompt shown in 5868; any prompt in 25852 frames
+  PASS  Easy: the Unity court read the career's match and played at easy (PlayedMatchPlayProof)  exit 0; RESULT: PASS (14 passed, 0 failed)
+    CHECK Dig fires from the keyboard (J) and the gamepad (A): PASS  keyboard 1, gamepad 1
+    CHECK Set fires from the keyboard (K) and the gamepad (X): PASS  keyboard 1, gamepad 1
+    CHECK Soft fires from the keyboard (I) and the gamepad (RightShoulder): PASS  keyboard 1, gamepad 1
+    CHECK Dive fires from the keyboard (Space) and the gamepad (Circle): PASS  keyboard 1, gamepad 1
+    CHECK Switch fires from the keyboard (Q) and the gamepad (LeftShoulder): PASS  keyboard 1, gamepad 1
+    CHECK Cheer fires from the keyboard (C) and the gamepad (D-pad up): PASS  keyboard 1, gamepad 1
+    CHECK Move fires from WASD and the left stick: PASS  keyboard frames 253, gamepad frames 252
+    CHECK Help still fires from H and DpadDown (ManualControl), and leaves the match in Manual, unpaused: PASS  keyboard 1, gamepad 1, mode Manual, paused False
+    CHECK Pause still fires from Escape and Start (ManualControl), and leaves the match in Manual, unpaused: PASS  keyboard 1, gamepad 1, mode Manual, paused False
+    CHECK Toggle still fires from Tab and Select (ManualControl), and leaves the match in Manual, unpaused: PASS  keyboard 1, gamepad 1, mode Manual, paused False
+    A5: the loader read game difficulty 'medium' (connection: applied 4 of 4 player(s)); the played match runs at Medium (runner: Medium)
+    CHECK the court plays at the career's difficulty, sent by /api/unity/match-state (medium): PASS  loader 'medium', engine Medium
+    timing windows at Medium: perfect ±65 ms, good ±140 ms, late ±260 ms; stats weigh 50%
+    CHECK the opponents play at Medium's sharpness, the partner at Medium's: PASS  opponents timing sd 97 ms, reaction 260 ms, placing ±0.31 m, soft 16%; partner timing sd 97 ms, reaction 260 ms, placing ±0.31 m, soft 16%
+    CHECK Medium: the ring stays: PASS  ball coming to your side in 3649 frames: ring shown in 3649; you to play it in 3647: prompt shown in 0; any prompt in 0 frames
+    CHECK Medium: no button prompts: PASS  ball coming to your side in 3649 frames: ring shown in 3649; you to play it in 3647: prompt shown in 0; any prompt in 0 frames
+  PASS  Medium: the Unity court read the career's match and played at medium (PlayedMatchPlayProof)  exit 0; RESULT: PASS (14 passed, 0 failed)
+    CHECK Dig fires from the keyboard (J) and the gamepad (A): PASS  keyboard 1, gamepad 1
+    CHECK Set fires from the keyboard (K) and the gamepad (X): PASS  keyboard 1, gamepad 1
+    CHECK Soft fires from the keyboard (I) and the gamepad (RightShoulder): PASS  keyboard 1, gamepad 1
+    CHECK Dive fires from the keyboard (Space) and the gamepad (Circle): PASS  keyboard 1, gamepad 1
+    CHECK Switch fires from the keyboard (Q) and the gamepad (LeftShoulder): PASS  keyboard 1, gamepad 1
+    CHECK Cheer fires from the keyboard (C) and the gamepad (D-pad up): PASS  keyboard 1, gamepad 1
+    CHECK Move fires from WASD and the left stick: PASS  keyboard frames 245, gamepad frames 258
+    CHECK Help still fires from H and DpadDown (ManualControl), and leaves the match in Manual, unpaused: PASS  keyboard 1, gamepad 1, mode Manual, paused False
+    CHECK Pause still fires from Escape and Start (ManualControl), and leaves the match in Manual, unpaused: PASS  keyboard 1, gamepad 1, mode Manual, paused False
+    CHECK Toggle still fires from Tab and Select (ManualControl), and leaves the match in Manual, unpaused: PASS  keyboard 1, gamepad 1, mode Manual, paused False
+    A5: the loader read game difficulty 'hard' (connection: applied 4 of 4 player(s)); the played match runs at Hard (runner: Hard)
+    CHECK the court plays at the career's difficulty, sent by /api/unity/match-state (hard): PASS  loader 'hard', engine Hard
+    timing windows at Hard: perfect ±45 ms, good ±100 ms, late ±190 ms; stats weigh 62%
+    CHECK the opponents play at Hard's sharpness, the partner at Medium's: PASS  opponents timing sd 79 ms, reaction 230 ms, placing ±0.26 m, soft 18%; partner timing sd 97 ms, reaction 260 ms, placing ±0.31 m, soft 16%
+    CHECK Hard: no ring: PASS  ball coming to your side in 9793 frames: ring shown in 0; you to play it in 9788: prompt shown in 0; any prompt in 0 frames
+    CHECK Hard: no button prompts: PASS  ball coming to your side in 9793 frames: ring shown in 0; you to play it in 9788: prompt shown in 0; any prompt in 0 frames
+  PASS  Hard: the Unity court read the career's match and played at hard (PlayedMatchPlayProof)  exit 0; RESULT: PASS (14 passed, 0 failed)
+
+4. A6: A WHOLE PLAYED MATCH ON THE COURT, REPORTED THROUGH MatchReporter, RECORDED AND PAID
+  PASS  the match is being watched (in progress), as the court page does before it plays  HTTP 200
+  FAIL  the court played the whole match (PlayedMatchPlayProof)  exit 1; RESULT: FAIL (26 passed, 2 failed); match: 2-0 (11-1, 11-0)
+  PASS  MatchReporter sent the result, and the game took it (POST /api/unity/match-result ok)  [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":2,"matchId":60,"sets":[{"home":11,"away":1}],"current":{"home":10,"away":0}} | [MatchReporter] POST /api/unity/match-result ok: {"careerSaveId":2,"matchId":60,"sets":[{"home":11,"away":1},{"home":11,"away":0}]}
+  PASS  the game recorded exactly the court's score  court 2-0 (11-1, 11-0); game completed 2-0 (11-1, 11-0)
+  PASS  through the Sim Result path (completeMatch): the win counted and the winner's prize is on the ledger  wins 0 -> 1, losses 0 -> 0; prize lines Prize money: World Tour R1 vs Barcelona Playa Elites $4333; balance 530462 -> 534795
+  PASS  and the match's cost to the players (fitness, fatigue) was charged, as for a simmed match  player 193: fitness 100->93, fatigue 0->16; player 292: fitness 100->94, fatigue 0->17
+
+========================================================================
+  FAIL: 14/15 checks
+========================================================================

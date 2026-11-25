@@ -33,8 +33,8 @@ Brief: `docs/update-1.2/UNITY-REBUILD-BRIEF.md`. Plan: `docs/update-1.2/PLAYABLE
    - **Position:** balanced, stretching or diving. A dig reaches 0.75 m balanced, about 1.3 m stretching and about 2.5 m diving. Diving is for digs only.
    - **Stats:** the rating each touch uses, as the brief lists them, times her condition.
      - Condition comes from fitness, career fatigue and the stamina she has left in this match.
-     - How much the stats weigh against the timing goes up with difficulty: 55% on Easy, 70% on Medium, 85% on Hard ("Hard: stats matter more").
-     - A rating counts from 20 (nothing) to 95 (the best), so the differences between real players show.
+     - How much the stats weigh against the timing goes up with difficulty: 46% on Easy, 50% on Medium, 62% on Hard ("Hard: stats matter more"). These were 55/70/85% until A6 retuned them.
+     - A rating counts from 20 (nothing) to 95 (the best). For skill in the touch, its effect reaches 40% of the way from an average player (62) towards those ends (`TouchRules.SkillSpread`). For the body (speed, power for pace and jump, block for reach), it reaches the whole way. See decision 20.
 
    The quality then sets what comes off the touch: how close to the aim the ball goes, how high a dig or set goes, and how safely a spike or serve clears the tape. A spike or serve that is hit badly can go into the net.
 10. **The serve meter and the spike meter.**
@@ -44,9 +44,11 @@ Brief: `docs/update-1.2/UNITY-REBUILD-BRIEF.md`. Plan: `docs/update-1.2/PLAYABLE
     - **Spike:** the spike meter is a charge, from a tap (0) to full (1). A full charge hits about 60% harder but is a little less accurate. How the buttons drive it is in A3.
 11. **Player reach comes from the career's own data.**
     - Standing reach is 1.33 × her height.
-    - Spike jump: 0.40 m, plus up to 0.32 m from power.
-    - Block jump: 0.30 m, plus up to 0.40 m from the block rating.
-    - Running speed on sand: 3.8 m/s for the slowest up to 6.2 m/s for the quickest, pulled down by condition.
+    - Height is in centimetres in the career (158–193) and in metres on the court's own prefab players. `TouchRules.Metres` reads both.
+    - Spike jump: 0.45 m, plus up to 0.22 m from power.
+    - Block jump: 0.18 m, plus up to 0.26 m from the block rating. Her hands rise and fall with the jump.
+    - Running speed on sand: 4.3 m/s for the slowest up to 5.9 m/s for the quickest, pulled down by condition.
+    - All of these were set in A6. A1 and A2 first had them steeper.
 12. **From A3, Manual means the played match.**
     - When the match is in Manual, MatchManager hands each serve to the new engine. It does that in two lines of `MatchManager.cs`. Everything else MatchManager needs for a played point is in a new partial file, `MatchManager.Played.cs`, so `MatchManager.cs` itself did not grow.
     - The old forgiving pathway (`ManualControl`'s touches, MatchManager's manual branches) can no longer be reached. It stays in the files until A8 deletes it.
@@ -67,8 +69,8 @@ Brief: `docs/update-1.2/UNITY-REBUILD-BRIEF.md`. Plan: `docs/update-1.2/PLAYABLE
     - **A white ring** at her feet shows which player is yours.
 15. **AI sharpness by difficulty (A4, A5).**
     - **The player's partner** has Medium sharpness on every difficulty, so a harder career does not give you a worse partner.
-    - **The opponents** get sharper with the difficulty: their timing spread is 105 ms on Easy, 75 ms on Medium and 50 ms on Hard, and their reaction time is 300, 230 and 170 ms.
-    - **Every AI player's timing** also narrows with her own rating for the touch.
+    - **The opponents** get sharper with the difficulty: their timing spread is 120 ms on Easy, 97 ms on Medium and 79 ms on Hard, and their reaction time is 305, 260 and 230 ms. These were set in A6 so that an average player has a fair match on Medium.
+    - **Every AI player's timing** also narrows a little with her own rating for the touch: one rated 85 is about 10% steadier than one rated 45.
 16. **Boosts in a played match.** There are no odds to shift in a played match, so a boost raises Team A's ratings instead:
     - **Attack:** +8 power and serve.
     - **Defence:** +8 defence, speed and block.
@@ -80,6 +82,13 @@ Brief: `docs/update-1.2/UNITY-REBUILD-BRIEF.md`. Plan: `docs/update-1.2/PLAYABLE
     - The rejected edit-mode pictures are kept in `proof/animation/rejected-edit-mode/` to show why.
     - AA_Volleyball's InPlace clips have no vertical jump in them. The game lifts the player for jumps from the engine's jump curve, as MatchManager already does for Motion Cast clips.
 19. **Side switches.** Teams do not change ends during a set, in a played match or in Auto. Auto never did, so the two stay the same.
+20. **How steeply the ratings count (A6).** The first engine made ratings count about three times as steeply as the career's Sim Result: a pair 10 points weaker almost never won. That would make playing a match yourself a punishment when slightly outrated, and a gift when slightly stronger. A6 tuned it in two parts:
+    - **Skill in the touch** reaches only 40% of the way from average to the extremes.
+    - **The body** keeps its whole range, because no thumbs make a slow player quicker, a weak hitter harder or a short blocker taller. That is what stops quick thumbs from carrying a far weaker pair.
+
+    The table in A6 compares every match-up with Sim Result's own rate.
+21. **A dig shanks wild below quality 0.30.** A dig 200 ms late on Medium then goes wild about half the time (51%). Otherwise it lands about 3.8 m from the setter.
+22. **An Auto issue found, not fixed (A7: Auto is not touched).** MatchManager's Auto block formula reads a player's height as metres, but the career sends centimetres. In Auto, every player therefore gets the full height bonus at the block. It is a one-line fix in Auto's own code, which A7 says to leave alone, so it is Rob's call.
 
 ## Items
 
@@ -91,7 +100,9 @@ Brief: `docs/update-1.2/UNITY-REBUILD-BRIEF.md`. Plan: `docs/update-1.2/PLAYABLE
 | A2 Every touch graded | Done, PASS | `docs/update-1.2/proof/A2/`: `a2-touch-grading.txt` (Unity batch, 27/27), `a2-dotnet.txt` (dotnet, 27/27), `a2-unity.log`, `a2-digs.png`, `a2-spikes.png` | Unity `2b964d0`; game repo `3be1fe35` |
 | Animations, first job | Done, PASS | `docs/update-1.2/proof/animation/`: `aa-volleyball-humanoid.txt`, `play-strips.txt` and five Play-mode strips | Unity `ed0e902` |
 | A3 Controls, played on the court | Done, PASS | `docs/update-1.2/proof/A3/`: `a3-played-match.txt` (Unity batch, 28/28), `a3-unity.log`, three pictures | Unity `ed0e902`; game repo `833aaeac` |
-| A4 AI plays the same game | Done, PASS | `docs/update-1.2/proof/A4/`: `a4-ai-same-game.txt` (Unity batch, 9/9), `a4-dotnet.txt` (dotnet, 8/8), `a4-unity.log` | Unity `ea77855`; game repo: the A4 commit |
+| A4 AI plays the same game | Done, PASS | `docs/update-1.2/proof/A4/`: `a4-ai-same-game.txt` (Unity batch, 9/9), `a4-dotnet.txt` (dotnet, 8/8), `a4-unity.log` | Unity `ea77855`; game repo `74f3a669` |
+| A5 Difficulty from the career | Done, PASS | `docs/update-1.2/proof/A5/`: `a5-harness.txt` (9/9; the final run, on the tuned code, is in `proof/A6/a6-harness.txt`), `a5-easy.txt`, `a5-medium.txt`, `a5-hard.txt` (each court 14/14) | Unity `95c47c5`; game repo: the A5 commit |
+| A6 Fair to the career | Done, PASS | `docs/update-1.2/proof/A6/`: `a6-dotnet.txt` (the table, 11/11), `a6-harness.txt` and `a6-harness-full-match.txt` (suite 12/12), `a6-played-on-server.txt` (court 28/28), three pictures from that match (`a6-court-*.png`) | Unity `96acace`; game repo: the A6 commit |
 
 ### A1: real ball flight (25 Nov 2026)
 **Files:**
@@ -144,23 +155,24 @@ Brief: `docs/update-1.2/UNITY-REBUILD-BRIEF.md`. Plan: `docs/update-1.2/PLAYABLE
 - `Assets/Scripts/PlayedMatch/TouchGrade.cs`: the grade (timing, position and stats), plus difficulty and ratings
 - `Assets/Scripts/PlayedMatch/TouchShapes.cs`: what comes off each touch (dig, set, spike, soft shot, serve)
 
-**Results** (Medium, players rated 62 unless stated; 1,000 real flights per line):
+**Results** (Medium, players rated 62 unless stated; 1,000 real flights per line). These are the final numbers, after A6's tuning; `proof/A2/a2-touch-grading.txt` was rerun on the finished code.
 
 | What | Result |
 |---|---|
-| Perfect digs | 0.60 m from the setter on average; 100% within 1 m; top height 4.6 m. That is an easy set. |
-| Late digs (200 ms off) | 2.66 m from the setter on average; 11% within 1 m; 21% wild (shanked). She has to chase them. |
-| Perfect digs by defenders rated 90 and 40 | 0.19 m against 1.13 m from the setter |
-| Sets | A perfect set misses the hitter's spot by 0.31 m at spike height; a late one by 1.01 m. |
-| Spike pace | Power 88 hits at 21.2 m/s; power 40 at 12.8 m/s. A full spike meter hits at 16.5 m/s; a tap at 10.2 m/s. |
+| Perfect digs | 0.42 m from the setter on average; 100% within 1 m; top height 4.8 m. That is an easy set. |
+| Late digs (200 ms off) | 3.84 m from the setter on average; 9% within 1 m; 51% wild (shanked). She has to chase them. |
+| Perfect digs by defenders rated 90 and 40 | 0.30 m against 0.53 m from the setter |
+| Sets | A perfect set misses the hitter's spot by 0.22 m at spike height; a late one by 1.21 m. |
+| Spike pace | Power 88 hits at 19.5 m/s; power 40 at 14.3 m/s. A full spike meter hits at 16.6 m/s; a tap at 10.3 m/s. |
 | Perfect spikes (aimed 0.8 m inside the lines) | 99% in |
-| Late spikes | 25% in, 72% in the net, 2% out. A late contact is lower, so the ball doesn't clear the tape. |
+| Late spikes | 25% in, 73% in the net, 2% out. A late contact is lower, so the ball doesn't clear the tape. |
 | Soft shots | 500 of 500 cleared the tape by 0.4 m or more and landed in, short. |
-| Serves | Under 12% on the meter: always into the net. MAX zone: 100% in. Half power: 97% in. |
-| Ace ability | A server rated 95 in the MAX zone serves at 21.4 m/s with an error of up to 0.20 m; one rated 94 at 19.7 m/s and 0.42 m. |
-| Timing against stats (Medium dig) | A good touch by a player rated 85 scores 0.71; a perfect touch by a player rated 45 scores 0.53. |
-| Difficulty and stats | The gap between perfect digs by players rated 85 and 45 is 0.29 on Easy and 0.45 on Hard. |
-| Fitness and fatigue | Fitness 60 with fatigue 50 drops a perfect spike from 0.69 to 0.57 and running speed from 5.14 to 4.28 m/s. Stamina 15 drops the spike to 0.61. |
+| Serves | Under 12% on the meter: always into the net. MAX zone: 100% in. Half power: 98% in. |
+| Ace ability | A server rated 95 in the MAX zone serves at 20.2 m/s with an error of up to 0.28 m; one rated 94 at 18.6 m/s and 0.57 m. |
+| Timing against stats (Medium dig) | A good touch by a player rated 85 scores 0.66; a perfect touch by a player rated 45 scores 0.73. Your timing now counts for more than the ratings in a single touch, as A6 needs. |
+| Difficulty and stats | The gap between perfect digs by players rated 85 and 45 is 0.10 on Easy and 0.13 on Hard. |
+| Fitness and fatigue | Fitness 60 with fatigue 50 drops a perfect spike from 0.78 to 0.69 and running speed from 5.20 to 4.33 m/s. Stamina 15 drops the spike to 0.72. |
+| Height in centimetres | A career height of 188 reaches what 1.88 m does: 2.50 m standing, 2.97 m spiking and 2.83 m blocking. |
 
 The same seed gives the same 400 graded touches, bit for bit.
 
@@ -236,10 +248,69 @@ Two causes made blocks far too strong at first. A blocker stood square in front 
 
 | Check | Result |
 |---|---|
-| Every point is the ball's | In 30 AI-only matches (Medium, pairs rated 62), 1,450 of 1,450 points went where the ball's own events say. The proof works that out apart from the engine: landed in or out, net faults, four hits. The points split: Kill 1,210, Dropped 190, Out 35, NetFault 11, Ace 4. |
+| Every point is the ball's | In 30 AI-only matches (Medium, pairs rated 62), 1,453 of 1,453 points went where the ball's own events say. The proof works that out apart from the engine: landed in or out, net faults, four hits. The points split: Kill 1,162, Dropped 187, Ace 46, Out 37, BlockStuff 12, NetFault 9. These are the final numbers, after A6's tuning. |
 | Nothing decided beforehand | Even pairs split the matches: the home pair won 17 of 30. |
-| Timing comes from the ratings | Same AI level: players rated 85 time touches with a 56 ms spread, players rated 45 with 82 ms. The pair rated 85 beat the pair rated 45 in 20 of 20 matches. |
-| Timing comes from the difficulty | The opponents' spread is 98 ms on Easy, 71 on Medium and 47 on Hard. The player's partner stays at 70–71 ms on all three. |
-| The AI is graded like anyone | In one match: 211 perfect, 92 good, 15 late, 36 missed. |
-| Same seed, same match | Seed 9 played twice was identical point for point (55 points). Seed 10 played differently (68 points). |
+| Timing comes from the ratings | Same AI level: players rated 85 time touches with an 88 ms spread, players rated 45 with 94 ms. The pair rated 85 beat the pair rated 45 in 20 of 20 matches. |
+| Timing comes from the difficulty | The opponents' spread is 106 ms on Easy, 90 on Medium and 74 on Hard. The player's partner stays between 83 and 92 ms on all three. |
+| The AI is graded like anyone | In one match: 259 perfect, 158 good, 62 late, 68 missed. |
+| Same seed, same match | Seed 9 played twice was identical point for point (53 points). Seed 10 played differently (60 points). |
 | No odds in a played match | None of the played match's nine files touches the game's odds or a rally plan (`PointModel.HomeWinsPoint`, `HomeChance(`, `DecidePoint`, `MakePlan`, `_plan`, `PointChanceHome`, `OverridePlan`). The A3 proof also found no `[Point] decided` line in a whole played match. |
+
+### A5: difficulty from the career (25 Nov 2026)
+**Game side.** `GET /api/unity/match-state` now sends `gameDifficulty` for club matches and Empire Nations Cup matches. It comes from the career's own setting through the game's `gameDifficultyOf`, so a career made before difficulty existed sends `medium`. The change is in `artifacts/api-server/src/routes/unity.ts`.
+
+**Court side.** The loader reads it, and the played match runs at it:
+- the timing windows
+- how much the stats weigh
+- the opponents' AI sharpness (the partner stays at Medium's)
+- the landing ring: on Easy and Medium, not on Hard
+- the button prompts: on Easy only
+
+**Proof: `harness/played-match.mjs --unity`.** This is a new suite (port 4967). It runs the real api-server on a copy of the starter database and makes four careers.
+- **The payload (6/6):** Easy, Medium and Hard send "easy", "medium" and "hard". A career with no value sends "medium".
+- **The courts:** three Unity batch runs, one per career. Each reads its career's match from that server and plays 6 points, measuring the helpers in every frame. Each passes 14/14:
+
+| | The court plays at | Ring shown | Prompt shown |
+|---|---|---|---|
+| Easy | easy | 14,494 of 14,494 frames with the ball coming to your side | 14,488 of 14,488 frames when it was yours to play |
+| Medium | medium | in every such frame | never |
+| Hard | hard | never | never |
+
+  On every court, the opponents played at that difficulty's sharpness and the partner at Medium's.
+
+### A6: fair to the career (25 Nov 2026)
+**Reported and paid exactly as now.**
+- A played point is announced by `MatchManager.Played.cs` and reported through the same `MatchReporter.SendProgress` and `SendResult` calls as an Auto point. Nothing in the report says how the match was played.
+- `harness/watched-result.mjs` (existing) proves that `/unity/match-result` goes through `completeMatch`, the path Sim Result uses.
+- **Proof, `harness/played-match.mjs --unity-full`, 12/12.** The real career's match (Medium; pairs rated about 67–80) was watched, then the Unity court played the whole match on the server, 28/28 checks.
+  - MatchReporter posted the result, and the game recorded exactly the court's score: 2-1 (9-11, 11-3, 11-3).
+  - The win counted, and the $4,333 prize ("World Tour R1 vs Amsterdam Dune Riders") is on the ledger.
+  - Both players' fitness and fatigue were charged: 100 to 95 and 93; 0 to 15 and 17.
+
+**The win-rate table (for Rob to judge).**
+- **Who plays:** an "average player" with a pad (`PlayedMatchSims.AveragePlayer`) plays whole matches headless under dotnet.
+- **Her thumbs:** a 75 ms timing spread and a 280 ms reaction, whoever she controls.
+- **Her play:** she reads the ring to within 0.30 m (0.65 m on Hard, where there is no ring), aims where she fancies rather than at the open court, and tries a block about one time in three.
+- **The court around her:** control follows the ball as on the court, her partner is the Medium AI, and the opponents are the AI at the difficulty.
+- **The sample:** 200 matches per cell, with fitness 100 and fatigue 0.
+
+| Difficulty | Weak (45) v strong (80) | Same, expert thumbs | Slightly weaker (57) v (67) | Even (62) v even (62) | Strong (80) v weak (45) |
+|---|---|---|---|---|---|
+| Easy | 1% (±2%) | 10% (±4%) | 43% (±7%) | 69% (±6%) | 100% |
+| Medium | 0% | 6% (±3%) | 24% (±6%) | 52% (±7%) | 97% (±2%) |
+| Hard | 1% (±1%) | 11% (±4%) | 12% (±4%) | 29% (±6%) | 90% (±4%) |
+| Sim Result (the game's engine, same ratings) | 14% | — | 37% | 51% | 85% |
+
+"Expert thumbs" means a 40 ms timing spread, a 200 ms reaction, reading the ball to within 0.15 m and blocking more. The ± figure is the 95% margin of each 200-match cell. The share of points won is in `a6-dotnet.txt`.
+
+**What the table says:**
+- **Even pairs:** Medium is a fair contest (52%, against Sim Result's 51%). Easy gives the player an edge (69%). Hard is a stiff test (29%).
+- **Quick thumbs:** they do not carry a far weaker pair. Even an expert wins only 6–11% with a 45 pair against an 80 pair.
+- **Mismatches are more decisive than in Sim Result.** A far weaker pair almost never wins (0–1%, against Sim's 14%), and a far stronger one almost always does (90–100%, against Sim's 85%). The body's ratings (speed, power, reach) keep their full range, so a big gap is hard to play through.
+- **Close gaps are a little steeper than Sim Result on Medium:** 24% at −10, against Sim's 37%. The quick tuning runs put this between 20% and 31%, inside the ±6% margin.
+
+**How it got here.** The first engine counted ratings about three times as steeply as Sim Result, and the opponents' timing was sharper than an average human's. A6 tuned three things: how far a touch's rating reaches (`TouchRules.SkillSpread` 0.40), the body's full range (`TouchRules.Physical`), and the AI's sharpness at each difficulty. Decision 20 explains why.
+
+**Found along the way.** The career sends heights in centimetres. Until it was fixed, a 188 cm player reached 250 m, and with real career players no set or spike could be timed. The court's prefab players carry metres, so the earlier proofs never saw it. Auto has the same reading of height; see decision 22.
+
+**`ManualControlsProof` is retired:** Manual is the played match now. A8 deletes it, and `PlayedMatchPlayProof` takes its place.

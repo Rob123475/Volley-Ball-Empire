@@ -4,31 +4,32 @@ A2 EVERY TOUCH IS GRADED (Assets/Scripts/PlayedMatch/TouchGrade.cs, TouchShapes.
   CHECK Hard: timing windows perfect ±45 ms, good ±100 ms, late ±190 ms, then a miss: PASS  Perfect, Perfect, Good, Good, Late, Late, Miss
   CHECK the windows narrow Easy > Medium > Hard: PASS
   CHECK a dig at 0.5 m is balanced, 1.2 m stretching, 2.0 m out of reach standing, 2.0 m diving a dive, 3.4 m out of reach even diving: PASS  Balanced, Stretching, OutOfReach, Diving, OutOfReach
-  CHECK at the same timing a balanced touch beats a stretch, which beats a dive: PASS  quality balanced 0.69, stretching 0.48, diving 0.32
-  CHECK a perfect Dig by a player rated 85 is better than by one rated 45: PASS  quality 85: 0.91, 45: 0.53
-  CHECK a perfect Set by a player rated 85 is better than by one rated 45: PASS  quality 85: 0.91, 45: 0.53
-  CHECK a perfect Spike by a player rated 85 is better than by one rated 45: PASS  quality 85: 0.91, 45: 0.53
-  CHECK a perfect Block by a player rated 85 is better than by one rated 45: PASS  quality 85: 0.91, 45: 0.53
+  CHECK at the same timing a balanced touch beats a stretch, which beats a dive: PASS  quality balanced 0.78, stretching 0.54, diving 0.36
+  CHECK a perfect Dig by a player rated 85 is better than by one rated 45: PASS  quality 85: 0.84, 45: 0.73 (the ratings' reach is tuned in A6: TouchRules.SkillSpread)
+  CHECK a perfect Set by a player rated 85 is better than by one rated 45: PASS  quality 85: 0.84, 45: 0.73 (the ratings' reach is tuned in A6: TouchRules.SkillSpread)
+  CHECK a perfect Spike by a player rated 85 is better than by one rated 45: PASS  quality 85: 0.84, 45: 0.73 (the ratings' reach is tuned in A6: TouchRules.SkillSpread)
+  CHECK a perfect Block by a player rated 85 is better than by one rated 45: PASS  quality 85: 0.65, 45: 0.56 (the ratings' reach is tuned in A6: TouchRules.SkillSpread)
   CHECK defence (not power) lifts a dig; power (not defence) lifts a spike: PASS
-  CHECK on Hard the stats matter more: the gap between 85 and 45 is wider than on Easy: PASS  gap Easy 0.29, Hard 0.45
-  timing against stats (Medium dig): a GOOD touch by an 85 is 0.71, a PERFECT touch by a 45 is 0.53
-  CHECK fitness 60 and fatigue 50 pull a perfect spike down; so does a match's worth of tiredness (stamina 15): PASS  fresh 0.69, unfit and fatigued 0.57 (condition 0.69), stamina 15 0.61
-  CHECK and slow her down on the sand: PASS  5.14 m/s fresh, 4.28 m/s unfit and fatigued
-  PERFECT digs by a 62-rated defender: mean 0.60 m from the setter, 100% within 1 m, 0% wild, top height 4.6 m
-  LATE (200 ms) digs by a 62-rated defender: mean 2.66 m from the setter, 11% within 1 m, 21% wild, top height 3.6 m
-  CHECK a perfect dig lands near the setter: most within 1 m, none wild: PASS  mean 0.60 m from her, 100% within 1 m, wild 0%, mean top height 4.6 m
-  CHECK a late dig is wild or far from her: she has to chase it: PASS  mean 2.66 m from her, 11% within 1 m, wild 21%, mean top height 3.6 m
-  PERFECT digs by a 40-rated defender: mean 1.13 m from the setter, 35% within 1 m, 0% wild, top height 4.1 m
-  PERFECT digs by a 90-rated defender: mean 0.19 m from the setter, 100% within 1 m, 0% wild, top height 5.3 m
-  CHECK a better defender's perfect dig is closer to the setter than a weaker one's: PASS  rated 90: 0.19 m, rated 40: 1.13 m
-  CHECK a perfect set arrives within reach of the hitter's spot; a late one does not: PASS  mean miss at her spike height: perfect 0.31 m, late 1.01 m
-  CHECK power 88 spikes faster than power 40: PASS  21.2 m/s against 12.8 m/s (full meter, perfect)
-  CHECK a full spike meter hits harder than a tap: PASS  full 16.5 m/s, tapped 10.2 m/s
-  CHECK perfect spikes (aimed 0.8 m inside the lines) mostly land in: PASS  in 99%, net 1%, out 0% of 1000
-  CHECK late spikes go into the net or out far more often: PASS  in 25%, net 72%, out 2% of 1000
+  CHECK on Hard the stats matter more: the gap between 85 and 45 is wider than on Easy: PASS  gap Easy 0.10, Hard 0.13
+  timing against stats (Medium dig): a GOOD touch by an 85 is 0.66, a PERFECT touch by a 45 is 0.73
+  CHECK a height in centimetres (the career's 188) reaches the same as 1.88 m: PASS  standing reach 2.50 m, spike reach 2.97 m, block reach 2.83 m
+  CHECK fitness 60 and fatigue 50 pull a perfect spike down; so does a match's worth of tiredness (stamina 15): PASS  fresh 0.78, unfit and fatigued 0.69 (condition 0.69), stamina 15 0.72
+  CHECK and slow her down on the sand: PASS  5.20 m/s fresh, 4.33 m/s unfit and fatigued
+  PERFECT digs by a 62-rated defender: mean 0.42 m from the setter, 100% within 1 m, 0% wild, top height 4.8 m
+  LATE (200 ms) digs by a 62-rated defender: mean 3.84 m from the setter, 9% within 1 m, 51% wild, top height 3.8 m
+  CHECK a perfect dig lands near the setter: most within 1 m, none wild: PASS  mean 0.42 m from her, 100% within 1 m, wild 0%, mean top height 4.8 m
+  CHECK a late dig is wild or far from her: she has to chase it: PASS  mean 3.84 m from her, 9% within 1 m, wild 51%, mean top height 3.8 m
+  PERFECT digs by a 40-rated defender: mean 0.53 m from the setter, 100% within 1 m, 0% wild, top height 4.7 m
+  PERFECT digs by a 90-rated defender: mean 0.30 m from the setter, 100% within 1 m, 0% wild, top height 5.0 m
+  CHECK a better defender's perfect dig is closer to the setter than a weaker one's: PASS  rated 90: 0.30 m, rated 40: 0.53 m
+  CHECK a perfect set arrives within reach of the hitter's spot; a late one does not: PASS  mean miss at her spike height: perfect 0.22 m, late 1.21 m
+  CHECK power 88 spikes faster than power 40: PASS  19.5 m/s against 14.3 m/s (full meter, perfect)
+  CHECK a full spike meter hits harder than a tap: PASS  full 16.6 m/s, tapped 10.3 m/s
+  CHECK perfect spikes (aimed 0.8 m inside the lines) mostly land in: PASS  in 99%, net 1%, out 1% of 1000
+  CHECK late spikes go into the net or out far more often: PASS  in 25%, net 73%, out 2% of 1000
   CHECK a well-timed soft shot clears the tape by 0.4 m+ (over the block) and lands in, short: PASS  over 500/500, short and in 500/500
   CHECK a serve tapped under 12% always goes into the net: PASS  net 100%
-  CHECK a serve tapped in the MAX zone lands in most of the time: PASS  MAX: in 100%, net 0%, out 0%; half power: in 97%, net 0%, out 3%
-  CHECK the ace ability (rated 95+, MAX zone): faster and truer than a 94 in the MAX zone: PASS  95: 21.4 m/s, error up to 0.20 m; 94: 19.7 m/s, 0.42 m
-  CHECK the same seed gives the same 400 graded touches, bit for bit: PASS  hash 72D8D25CCE6BD8DF
-RESULT: PASS (27 passed, 0 failed)
+  CHECK a serve tapped in the MAX zone lands in most of the time: PASS  MAX: in 100%, net 0%, out 0%; half power: in 98%, net 0%, out 2%
+  CHECK the ace ability (rated 95+, MAX zone): faster and truer than a 94 in the MAX zone: PASS  95: 20.2 m/s, error up to 0.28 m; 94: 18.6 m/s, 0.57 m
+  CHECK the same seed gives the same 400 graded touches, bit for bit: PASS  hash 961D09F1F92ED0E7
+RESULT: PASS (28 passed, 0 failed)

@@ -1,0 +1,27 @@
+A6 FAIR TO THE CAREER: AN AVERAGE PLAYER WITH A PAD (PlayedMatchSims.AveragePlayer), WHOLE MATCHES, HEADLESS
+  the average player: timing spread 75 ms and reaction 280 ms whoever she controls; reads the ring within 0.30 m (0.65 m on Hard, no ring);
+  aims where she fancies, soft shots 15%, tries a block 35% of the time; control follows the ball; her partner is the Medium AI; the opponents are the AI at the difficulty
+  pairs: weak = every rating 45, even = 62, strong = 80; fitness 100, fatigue 0; 200 matches per cell, seeds 1..200
+
+  | Difficulty | Weak (45) v strong (80) | Same, expert thumbs | Slightly weaker (57) v (67) | Even (62) v even (62) | Strong (80) v weak (45) |
+  |---|---|---|---|---|---|
+  | Easy | 1% (±2%; points 39%) | 10% (±4%; points 43%) | 43% (±7%; points 49%) | 69% (±6%; points 53%) | 100% (±0%; points 66%) |
+  | Medium | 0% (±0%; points 35%) | 6% (±3%; points 41%) | 24% (±6%; points 46%) | 52% (±7%; points 50%) | 97% (±2%; points 62%) |
+  | Hard | 1% (±1%; points 35%) | 11% (±4%; points 44%) | 12% (±4%; points 43%) | 29% (±6%; points 47%) | 90% (±4%; points 57%) |
+
+  | Sim Result (the game's engine) | 14% | (same as left) | 37% | 51% | 85% |
+
+  (each cell: the person's pair's match win rate, its 95% margin, and the share of points it won;
+   expert thumbs: timing spread 40 ms, reaction 200 ms, reads the ball within 0.15 m, blocks more)
+  CHECK Easy: a weak pair does not beat a far stronger pair on quick thumbs (wins at most 20%): PASS  1%
+  CHECK Easy: even an expert's quick thumbs do not carry a weak pair past a far stronger one (at most 20%): PASS  10%
+  CHECK Easy: a strong pair beats a far weaker one (at least 80%): PASS  100%
+  CHECK Medium: a weak pair does not beat a far stronger pair on quick thumbs (wins at most 20%): PASS  0%
+  CHECK Medium: even an expert's quick thumbs do not carry a weak pair past a far stronger one (at most 20%): PASS  6%
+  CHECK Medium: a strong pair beats a far weaker one (at least 80%): PASS  97%
+  CHECK Hard: a weak pair does not beat a far stronger pair on quick thumbs (wins at most 20%): PASS  1%
+  CHECK Hard: even an expert's quick thumbs do not carry a weak pair past a far stronger one (at most 20%): PASS  11%
+  CHECK Hard: a strong pair beats a far weaker one (at least 80%): PASS  90%
+  CHECK even pairs: Easy is easier than Medium, Medium easier than Hard: PASS  Easy 69%, Medium 52%, Hard 29%
+  CHECK even pairs on Medium: a fair contest (35-65%): PASS  52%
+RESULT: PASS (11 passed, 0 failed)
