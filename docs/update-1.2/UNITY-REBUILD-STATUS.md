@@ -132,6 +132,7 @@ Brief: `docs/update-1.2/UNITY-REBUILD-BRIEF.md`. Plan: `docs/update-1.2/PLAYABLE
 | A2 Every touch graded | Done, PASS | `docs/update-1.2/proof/A2/`: `a2-touch-grading.txt` (Unity batch, 27/27), `a2-dotnet.txt` (dotnet, 27/27), `a2-unity.log`, `a2-digs.png`, `a2-spikes.png` | Unity `2b964d0`; game repo `3be1fe35` |
 | Animations, first job | Done, PASS | `docs/update-1.2/proof/animation/`: `aa-volleyball-humanoid.txt`, `play-strips.txt` and five Play-mode strips | Unity `ed0e902` |
 | Animations, the rest | Done, PASS | `docs/update-1.2/proof/animation/`: `presentation-states.txt`, `presentation-strips.txt` (42/42) and a `play-strip-*.png` for each state, `pair-placement.txt` with `pair-strip-HighFive.png` and `pair-strip-Hug.png`, `pose-proof.txt` with `pose-strip-HandSignals.png`, `pose-strip-Drink.png` and `pose-strip-Umpire.png`, `rejected/` | Unity `287718e` |
+| B4 Crowd and commentary | Done, PASS (42 new lines for Rob to record, `COMMENTARY-NEW-LINES.md`) | `docs/update-1.2/proof/B4/`: `b4-crowd-and-commentary.txt` (Unity batch, 8/8) with its log; `u21_commentary.txt` (the item 21 proof, PASS) | Unity `41e2041` |
 | B3 Match moments | Done, PASS | `docs/update-1.2/proof/B3/`: `b3-match-moments.txt` (Unity batch, V19, a whole match, 8/8) with four pictures; `harness-unity-full.txt` (13/13) with its court proof and log; `RallyPlanProof.log` (PASS) | Unity `ee2f355` |
 | B2 Between points | Done, PASS | `docs/update-1.2/proof/B2/`: `b2-between-points.txt` (Unity batch, V19, 13/13) with three pictures and `b2-between-points-unity.log`; `RallyPlanProof.log` (PASS); `harness-played-match-unity.txt` (9/9) | Unity `45074a1` |
 | B1 Two camera looks | Done, PASS | `docs/update-1.2/proof/B1/`: `b1-court-camera.txt` (Unity batch, V19, 23/23) with `b1-tv-shots.png`, `b1-game-views.png` and `b1-court-camera-unity.log`; `RallyPlanProof.log` (PASS); `harness-played-match-unity.txt` (9/9, the three played courts); `harness/presentation.mjs` 17/17; `harness/settings.mjs` 40/40 | Unity `f807a08` |
@@ -990,3 +991,43 @@ Enter (R3) skips the walk-on or the celebration. B5's "skip to next serve" leave
   - `api-server/src/routes/unity.ts`: `nationality` in all three player shapes.
   - `harness/played-match.mjs`: its nation check.
   - `harness/presentation.mjs`: the B3 section.
+
+### B4: crowd and commentary (26 Nov 2026)
+**The crowd.**
+- **Builds through a long rally:** this was already in `AudioManager`. The excited bed starts at 4 touches and is full at 14, the same in both kinds of match.
+- **Erupts on aces and blocks (new):** a big roar and a cheer on top of the point's own reaction, and both beds up to their loudest for 1.6 s.
+- **Dips when Kailey or Hukum speak:** unchanged (`SetDucked`).
+
+**The commentary says what really happened.**
+- **The point's line used to be the same for every point**, so "Point won! The crowd loves it!" was said for a service error too. It is now chosen a frame after the point from how it ended and from the score, in this order:
+  1. match won
+  2. a comeback (a pair 3 or more behind in this set draws level or leads; once a set each)
+  3. ace
+  4. block
+  5. match point next
+  6. set point next
+  7. an error
+  8. otherwise a point
+- **The walk-on** asks for its line too.
+- **The existing voices and lines are reused:** the 48 clips (A = Kailey, B = Hukum) still play for serve, dig, set, spike, block attempt, block, point and rally, as before.
+- **Seven new kinds** need lines that don't exist: ace, error, comeback, set point, match point, walk-on and match won.
+  - Per the brief, **no audio was made**. The 42 lines are written in `docs/update-1.2/COMMENTARY-NEW-LINES.md` for Rob to record in ElevenLabs, with the file names, the voices and the settings `LINES.txt` uses.
+  - The court already loads them by name, so a recorded file plays with no code change.
+  - Until then, a point that ended one of these ways says a point line, as every point did before; the walk-on says nothing, and no silent caption appears.
+
+**The proof** (`b4-crowd-and-commentary.txt`, 8/8: V19 in Play mode, batch, with the game's own 48 clips; 210 s of a watched match, then 120 s of a played one):
+- **Each point's line:** 29 of 29 matched what happened, worked out separately by the proof in the same order (14 point, 11 ace, 2 error, 1 block, 1 set point).
+- **The new kinds:** none was spoken. Each fell back to a point line (11 aces, 1 set point), and the walk-on said nothing (no speech in all of it).
+- **The crowd:** 12 eruptions for the 12 aces and blocks. 0.5 s after an ace or a block its excited bed was at 0.80, against 0.50 after other points. Through a watched rally it rose from 0.00 (0-3 touches) to 0.43 (9+ touches).
+- **A played rally:** in all 28,664 frames the crowd read it as live and counted the engine's own touches.
+  - The build-up's level could not be seen in the played part: the person sits still in this proof, so no played rally ran past 4 touches, where it starts.
+  - It is one formula for both kinds of match, shown above in the watched one.
+- **The existing commentary proof** (item 21, `u21_commentary.txt`) still passes: 48 of 48 clips; 26 lines, the two voices never out of turn; none starting before the last ended; the crowd ducked in every mid-line frame.
+
+**Files:**
+- **Changed:**
+  - `CommentaryLines.cs`: 7 kinds and their 42 lines.
+  - `CommentaryManager.cs`: the point resolved from what happened, the fallbacks, lines tracked for any number of kinds.
+  - `AudioManager.cs`: the eruption.
+  - `MatchMoments.cs`: the walk-on's line.
+- **New:** `Editor/PresentationSoundProof.cs`; `docs/update-1.2/COMMENTARY-NEW-LINES.md`.
