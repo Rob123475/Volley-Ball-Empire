@@ -1,0 +1,35 @@
+B3 MATCH MOMENTS, V19 IN PLAY MODE (batch), A WATCHED MATCH
+  walk-on started: the players 6.0 to 6.0 m from the court's middle, across (the sidelines are at 4 m)
+  -> b3-walk-on.png
+  -> b3-lower-third.png
+  CHECK the walk-on: the four start off the court (beyond the sideline) and walk to their places: PASS  nearest 6.0 m from the middle at the start; when the walk ended the furthest still had 0.05 m to go
+  CHECK a lower third for each with her name and her nation (and her team): PASS  ALYSSA VALDEZ | PHILIPPINES  ·  BLUE SHARKS / CAROLINA RIBEIRO | BRAZIL  ·  BLUE SHARKS / LENA BRUNNER | SWITZERLAND  ·  RED GIANTS / MELE KALOTITI | TONGA  ·  RED GIANTS
+  CHECK no serve during the walk-on: PASS  
+  CHECK the walk-on took about 10 s (the walk, then 1.5 s for each): PASS  10.7 s
+  the match, at 4x:
+    8-10 (sets 0-0): SET POINT  ·  RED GIANTS
+  -> b3-set-point.png
+    9-10 (sets 0-0): SET POINT  ·  RED GIANTS
+    10-11 (sets 0-0): SET POINT  ·  RED GIANTS
+    10-8 (sets 0-1): SET POINT  ·  BLUE SHARKS
+    9-10 (sets 1-1): MATCH POINT  ·  RED GIANTS
+  match over 1-2: the celebration starts; banner 'RED GIANTS WIN'
+  CHECK the winners applaud the crowd, and a banner names them: PASS  applauding 2 of 2; banner 'RED GIANTS WIN'
+  -> b3-celebration.png
+  CHECK the result box comes after the celebration, not during it: PASS  celebration 5.0 s (scaled); result box up after it
+  CHECK the banner showed at every set point and match point, and at no other point: PASS  61 points right (5 with a banner), 0 wrong
+  CHECK pictures: the walk-on, a lower third, a set point, the celebration: PASS  
+    moments: walk-on: from the umpire's side
+    moments: lower third: Alyssa Valdez | Philippines | BLUE SHARKS
+    moments: lower third: Carolina Ribeiro | Brazil | BLUE SHARKS
+    moments: lower third: Lena Brunner | Switzerland | RED GIANTS
+    moments: lower third: Mele Kalotiti | Tonga | RED GIANTS
+    moments: walk-on took 10.7 s
+    moments: banner: SET POINT  ·  RED GIANTS at 8-10, sets 0-0
+    moments: banner: SET POINT  ·  RED GIANTS at 9-10, sets 0-0
+    moments: banner: SET POINT  ·  RED GIANTS at 10-11, sets 0-0
+    moments: banner: SET POINT  ·  BLUE SHARKS at 10-8, sets 0-1
+    moments: banner: MATCH POINT  ·  RED GIANTS at 9-10, sets 1-1
+    moments: celebration: RED GIANTS applaud the crowd
+    moments: celebration took 5.0 s
+RESULT: PASS

@@ -132,6 +132,14 @@ try {
       `career ${c.cid}, match ${matchId}: HTTP ${st.status}, gameDifficulty ${JSON.stringify(st.data?.gameDifficulty)}, players ${st.data?.players?.length}`);
     careers.push({ label, want, cid: c.cid, matchId, api: c.api });
   }
+  // 1.2 B3: each player's nation, for the walk-on's lower third (career players and pool players alike).
+  {
+    const c0 = careers[1];
+    const st = await c0.api("GET", `/unity/match-state?careerSaveId=${c0.cid}&matchId=${c0.matchId}`);
+    const ps = st.data?.players ?? [];
+    check("/unity/match-state sends each player's nation (B3: the walk-on's lower third)", ps.length === 4 && ps.every((p) => typeof p.nationality === "string" && p.nationality.length > 0),
+      ps.map((p) => `${p.name} (${p.nationality})`).join(", "));
+  }
   const src = fs.readFileSync(path.join(REPO, "artifacts", "api-server", "src", "routes", "unity.ts"), "utf8");
   check("the Empire Nations Cup payload sends it too (same route, same function)", /res\.json\(\{ \.\.\.state, gameDifficulty: gameDifficultyOf\(career\.gameDifficulty\) \}\)/.test(src));
 

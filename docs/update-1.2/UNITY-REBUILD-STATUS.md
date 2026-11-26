@@ -132,6 +132,7 @@ Brief: `docs/update-1.2/UNITY-REBUILD-BRIEF.md`. Plan: `docs/update-1.2/PLAYABLE
 | A2 Every touch graded | Done, PASS | `docs/update-1.2/proof/A2/`: `a2-touch-grading.txt` (Unity batch, 27/27), `a2-dotnet.txt` (dotnet, 27/27), `a2-unity.log`, `a2-digs.png`, `a2-spikes.png` | Unity `2b964d0`; game repo `3be1fe35` |
 | Animations, first job | Done, PASS | `docs/update-1.2/proof/animation/`: `aa-volleyball-humanoid.txt`, `play-strips.txt` and five Play-mode strips | Unity `ed0e902` |
 | Animations, the rest | Done, PASS | `docs/update-1.2/proof/animation/`: `presentation-states.txt`, `presentation-strips.txt` (42/42) and a `play-strip-*.png` for each state, `pair-placement.txt` with `pair-strip-HighFive.png` and `pair-strip-Hug.png`, `pose-proof.txt` with `pose-strip-HandSignals.png`, `pose-strip-Drink.png` and `pose-strip-Umpire.png`, `rejected/` | Unity `287718e` |
+| B3 Match moments | Done, PASS | `docs/update-1.2/proof/B3/`: `b3-match-moments.txt` (Unity batch, V19, a whole match, 8/8) with four pictures; `harness-unity-full.txt` (13/13) with its court proof and log; `RallyPlanProof.log` (PASS) | Unity `ee2f355` |
 | B2 Between points | Done, PASS | `docs/update-1.2/proof/B2/`: `b2-between-points.txt` (Unity batch, V19, 13/13) with three pictures and `b2-between-points-unity.log`; `RallyPlanProof.log` (PASS); `harness-played-match-unity.txt` (9/9) | Unity `45074a1` |
 | B1 Two camera looks | Done, PASS | `docs/update-1.2/proof/B1/`: `b1-court-camera.txt` (Unity batch, V19, 23/23) with `b1-tv-shots.png`, `b1-game-views.png` and `b1-court-camera-unity.log`; `RallyPlanProof.log` (PASS); `harness-played-match-unity.txt` (9/9, the three played courts); `harness/presentation.mjs` 17/17; `harness/settings.mjs` 40/40 | Unity `f807a08` |
 | A3 Controls, played on the court | Done, PASS | `docs/update-1.2/proof/A3/`: `a3-played-match.txt` (Unity batch, 28/28), `a3-unity.log`, three pictures | Unity `ed0e902`; game repo `833aaeac` |
@@ -932,3 +933,60 @@ A played match opens on Game, behind your own baseline. A watched match opens on
   - `PlayedMatchRunner.cs`: the engine waits; the cheer button plays a point-won reaction.
   - `CameraKeepOut.cs`, `CameraDirector.cs`, `CourtCamera.cs`: as above.
 - **Cut down:** `PlayerAnimationHelper.cs` lost its point-won and point-lost reactions (56 lines), which fired as the point was scored. `PointPresenter` has them now.
+
+### B3: match moments (26 Nov 2026)
+**What the player sees** (`MatchMoments`), in both looks and both modes:
+
+**The walk-on, before the first serve (about 11 s).**
+- The four start off the court, beside the net on the umpire's side, and walk to their places. The camera watches from across the court, off the net line.
+- Then each in turn gets a close-up, waving or bowing, with a lower third: her name, then her nation and her team ("CAROLINA RIBEIRO / BRAZIL · BLUE SHARKS").
+- The first serve waits for it from the very first frame, because the match could otherwise serve on the frame its data arrives. Then it waits until everyone is on her spot (`SettleAfterWalkOn`), as after a point.
+- A match resumed with points already on the board has no walk-on.
+
+**Set point and match point.** After each point, if the next point can end the set or the match, a banner says so and whose it is ("SET POINT · RED GIANTS", "MATCH POINT · BLUE SHARKS"). It shows for 2.6 s, below the action word under the header. The rule is the score's own (`PointModel.IsSetWon`).
+
+**The winners' celebration, after the last point is presented (5 s).**
+- The winners walk to the net together, applauding the crowd: Motion Cast's "passes under the net applauding", as it was made to be used. The losers play the point-lost reactions.
+- A banner says "BLUE SHARKS WIN", and the camera watches from the far sideline.
+- Only then the existing result box, which waits for it (`MatchResultBanner`).
+- The ball is hidden during the walk-on and the celebration (it isn't in play). In the first picture it sat by a winner's head and filled the shot.
+- The podium ceremonies (`CeremonyDirector`) are not touched.
+
+Enter (R3) skips the walk-on or the celebration. B5's "skip to next serve" leaves both out.
+
+**Nations.**
+- `/unity/match-state` now sends each player's nation (`nationality`), for career players and pool players alike. A Nations Cup's players are sent her nation.
+- The court keeps it as `PlayerStats.country`.
+- Against the real server: Camila Santiago (Puerto Rico), Nurul Ain (Malaysia), Valentina Bianchi (Italy), Mariana Torres (Colombia) (`harness/played-match.mjs`, its new check).
+
+**The proof** (`b3-match-moments.txt`, 8/8: a whole watched match on V19 in Play mode, batch, Unity closed; the walk-on at 1x, the match at 4x):
+- **The walk-on:**
+  - the four started 6.0 m out from the court's middle (the sidelines are at 4 m);
+  - when the walk ended, the furthest still had 0.05 m to go;
+  - four lower thirds, each with her name, nation and team;
+  - no serve during it, and it took 10.7 s.
+- **The banners:** 61 points read; the banner showed at exactly the 5 set and match points and at no other point.
+- **The end:** both winners applauding under "RED GIANTS WIN"; the result box only after the 5.0 s celebration.
+- **Pictures:** `b3-walk-on.png`, `b3-lower-third.png`, `b3-set-point.png`, `b3-celebration.png`.
+- **What the pictures caught:**
+  - The players walked on in the ready crouch, because the court dressing them from the career resets their Animators. The walk-on now keeps the walk playing.
+  - The first walk-on camera sat on the net line with the post in the middle.
+  - The banner first cut its text short ("SET POINT · BLUE…"), then sat on the WINNER word. It is now 900 wide, sizes its text to fit, and sits lower.
+  - The score bar's "10" crowded the dash, so the cells are wider.
+
+**Still passing, with B2 and B3 in place:**
+- `harness/played-match.mjs --unity-full` 13/13 (`proof/B3/harness-unity-full.txt`, with the court's proof and Unity log beside it). It is a whole played match against the real server: 2-0 (11-5, 11-3), recorded exactly, prize and fitness charged. In it the walk-on took 10.7 s and all 30 points were presented. This also proves B2's rule that a played match ends after its last point's presentation.
+  - An earlier try at this run, during B2, is void: it compiled while B3's files were being copied in (my mistake), so it was deleted.
+- `RallyPlanProof` PASS (`proof/B3/RallyPlanProof.log`): 39 serves, all exactly placed after the walk-on and between points.
+
+**Files:**
+- **New:** `Scripts/MatchMoments.cs`, `Editor/PresentationMomentsProof.cs`.
+- **Changed:**
+  - `MatchManager.Presentation.cs`: the walk-on in the hold, `MatchDataReady`, `SettleAfterWalkOn`.
+  - `MatchResultBanner.cs`: +1 line, it waits for the celebration.
+  - `UnityMatchDataLoader.cs`: the nation, kept as country.
+  - `PresentationGraphics.cs`: the banner and the score cells.
+- **The game repo:**
+  - `api-server/src/routes/unity.ts`: `nationality` in all three player shapes.
+  - `harness/played-match.mjs`: its nation check.
+  - `harness/presentation.mjs`: the B3 section.

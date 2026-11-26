@@ -314,6 +314,8 @@ router.get("/unity/match-state", async (req, res): Promise<void> => {
     return {
       id:            p.id,
       name:          p.name,
+      // 1.2 B3: her nation, for the court's walk-on lower third.
+      nationality:   p.nationality ?? null,
       team:          teamLabel,
       position:      p.position,
       speed:         p.speed,
@@ -351,6 +353,7 @@ router.get("/unity/match-state", async (req, res): Promise<void> => {
       id:             pp.poolPlayerId ?? pp.id,
       poolPlayerId:   pp.poolPlayerId,
       name:           pp.name,
+      nationality:    pp.nationality ?? null,
       team:           teamLabel,
       position:       null,
       ...ratings,
@@ -598,7 +601,7 @@ function nationsMatchState(careerSaveId: number, id: number) {
       const r = stats ?? pool ?? { speed: 60, power: 60, defense: 60, serve: 60, block: 60, stamina: 60 };
       const ratings = { speed: r.speed, power: r.power, defense: r.defense, serve: r.serve, block: r.block, stamina: r.stamina };
       return {
-        id: entry.id, name: entry.name, team: nation, position: stats?.position ?? null, ...ratings, overall: overallRating(ratings),
+        id: entry.id, name: entry.name, nationality: nation, team: nation, position: stats?.position ?? null, ...ratings, overall: overallRating(ratings),
         morale: stats?.morale ?? 80, fatigue: stats?.fatigue ?? 0, fitness: stats?.fitness ?? 100, injured: false, injuryStatus: "Healthy",
         age: stats?.age ?? pool?.baseAge ?? 0, height: stats?.height ?? 0,
         primaryColor: kit.primary, secondaryColor: kit.secondary,
