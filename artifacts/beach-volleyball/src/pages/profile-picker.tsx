@@ -20,6 +20,16 @@ import { MusicBar } from "@/components/music/music-bar";
 type Profile = { id: string; name: string; profileImage: string | null };
 
 /**
+ * 27 Nov 2026: the game's name and version on the title screen, from the
+ * desktop app (electron/preload.js vbeApp; the 1.2 demo is "Beach Volleyball
+ * Empire 1.2 Demo", 1.2.0-demo1). A plain browser run has neither and shows nothing.
+ */
+function appEdition(): { name: string; version: string } | null {
+  const app = (window as unknown as { vbeApp?: { name?: string | null; version?: string | null } }).vbeApp;
+  return app?.name && app.version ? { name: app.name, version: app.version } : null;
+}
+
+/**
  * Where to go once a profile is chosen: a router path ("/", "/team"), never an
  * absolute URL, and never back to the picker itself.
  */
@@ -35,6 +45,7 @@ export default function ProfilePicker() {
   const [, navigate] = useLocation();
   const [creating, setCreating] = useState(false);
   const [newName, setNewName] = useState("");
+  const edition = appEdition();
 
   // A failed profiles request must never render as "you have no managers" —
   // that reads as data loss on what is often the first screen of the game.
@@ -239,6 +250,11 @@ export default function ProfilePicker() {
             the bar — this is where the music first starts. */}
         <MusicBar variant="dark" />
       </div>
+      {edition && (
+        <p className="fixed bottom-3 left-0 right-0 text-center text-sm text-white/45" data-testid="title-version">
+          {edition.name} · version {edition.version}
+        </p>
+      )}
     </div>
   );
 }

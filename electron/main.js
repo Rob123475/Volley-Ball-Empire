@@ -1,6 +1,8 @@
 const { app, BrowserWindow, Menu, dialog, ipcMain } = require("electron");
 // Update 1, overnight part 8: the window's settings (Settings > Display), remembered in userData.
 const windowSettings = require("./window-settings");
+// 1.2 demo: the real game or the demo, kept apart (electron/edition.js).
+const edition = require("./edition");
 const path = require("path");
 const fs = require("fs");
 const { fork } = require("child_process");
@@ -14,7 +16,7 @@ const http = require("http");
 // userData folder from the app name, which otherwise comes from the monorepo's
 // package.json "name" ("workspace") and put every player's save in a folder
 // called workspace. migrateLegacyUserData() below moves an existing one across.
-const APP_NAME = "Beach Volleyball Empire";
+const APP_NAME = edition.appName;
 
 // The name this app shipped under immediately before R-23's rename. Kept
 // separate from LEGACY_APP_DIRS below: that list is COPY semantics for
@@ -141,7 +143,7 @@ const publicDir = isPackaged
 // packaged/dev branch is needed here.
 const windowIconPath = path.join(publicDir, "images", "brand", "bve-icon-256.ico");
 
-const SERVER_PORT = 4173;
+const SERVER_PORT = edition.serverPort;
 
 let serverProcess = null;
 let mainWindow = null;
@@ -202,8 +204,11 @@ function ensureUserDb() {
   // migrateLegacyUserData() reached an unrelated empty "workspace" folder
   // first and copied it in before migrateRenamedAppData() ever got to look
   // at the real save.
-  migrateRenamedAppData();
-  migrateLegacyUserData();
+  // The 1.2 demo never brings a save forward: it starts from the starter DB.
+  if (edition.bringOldSavesForward) {
+    migrateRenamedAppData();
+    migrateLegacyUserData();
+  }
   if (!fs.existsSync(userDbPath)) {
     fs.mkdirSync(path.dirname(userDbPath), { recursive: true });
     fs.copyFileSync(bundledDbPath, userDbPath);
@@ -247,6 +252,8 @@ const STEAM_APP_ID = 5233750;
 let steamClient = null;
 
 function initSteam() {
+  // The 1.2 demo runs without Steam, so it can never unlock the real game's achievements.
+  if (!edition.steam) { console.log(`[steam] off in ${APP_NAME}`); return; }
   try {
     const steamworks = require("steamworks.js");
     steamClient = steamworks.init(STEAM_APP_ID);
@@ -442,6 +449,8 @@ function createWindow() {
       autoplayPolicy: "no-user-gesture-required",
       // Update 1, overnight part 8: Settings > Display talks to the window here.
       preload: path.join(__dirname, "preload.js"),
+      // The title screen shows the version (preload.js reads it).
+      additionalArguments: [`--vbe-version=${edition.version}`, `--vbe-name=${APP_NAME}`],
     },
   });
 
