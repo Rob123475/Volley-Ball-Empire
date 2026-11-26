@@ -1,0 +1,48 @@
+[WEB] === STEP 7: BUILD WEB ===
+[WEB]   compressionFormat = Disabled
+[WEB]   maxTextureSize override = 2048
+[WEB]   textureCompression      = NoOverride (left at default)
+[WEB]   scene   : Assets/BeachVolleyball V19.unity
+[WEB]   outDir  : C:\Users\rbonn\Game_Dev\VolleyBall Empire\webgl-out
+[WEB] 
+[WEB]   RESULT      : Succeeded
+[WEB]   total time  : 00:03:50.1480222
+[WEB]   total size  : 360.1 MB
+[WEB]   errors      : 1   warnings: 358
+[WEB] 
+[WEB]   --- TOP 15 ASSETS BY PACKED SIZE ---
+[WEB]     1.     25.42 MB  Mesh                   Assets/my assets/Environment/palm1/tripo_convert_2629a417-d0a0-4be5-9804-774838909636.fbx
+[WEB]     2.     25.42 MB  Mesh                   Assets/my assets/Environment/palm11/palm tree 2.fbx
+[WEB]     3.     23.57 MB  Mesh                   Assets/my assets/Environment/palm22/tripo_convert_dee4a94e-b98e-42b6-9390-3da254d687dd.fbx
+[WEB]     4.      6.51 MB  ComputeShader          Packages/com.unity.ai.inference/Runtime/Core/Resources/Sentis/ComputeShaders/ConvGeneric.compute
+[WEB]     5.      5.33 MB  Texture2D              Assets/Volleyball_Set_1/Textures/Decor/T_volleyball_ball_1_OLD_RoughnessMetallic.png
+[WEB]     6.      5.33 MB  Texture2D              Assets/Volleyball_Set_1/Textures/Decor/T_volleyball_ball_3_OLD_RoughnessMetallic.png
+[WEB]     7.      5.33 MB  Texture2D              Assets/Volleyball_Set_1/Textures/Decor/T_volleyball_ball_2_OLD_RoughnessMetallic.png
+[WEB]     8.      5.33 MB  Texture2D              Assets/Volleyball_Set_1/Textures/Decor/T_volleyball_ball_4_OLD_RoughnessMetallic.png
+[WEB]     9.      5.33 MB  Texture2D              Assets/my assets/Environment/ball/tripo_convert_12743fa7-8708-4a36-9a84-3f527b047c88.fbm/beachvolleyballball3dmodel_normal.JPEG
+[WEB]    10.      5.33 MB  Texture2D              Assets/Volleyball_Set_1/Textures/Decor/T_rack_balls_1_OLD_RoughnessMetallic.png
+[WEB]    11.      5.33 MB  Texture2D              Assets/Volleyball_Set_1/Textures/Decor/T_volleyball_ball_2_OLD_Normal.png
+[WEB]    12.      5.33 MB  Texture2D              Assets/Volleyball_Set_1/Textures/Decor/T_volleyball_ball_4_OLD_Normal.png
+[WEB]    13.      5.33 MB  Texture2D              Assets/Volleyball_Set_1/Textures/Decor/T_volleyball_ball_3_OLD_Normal.png
+[WEB]    14.      5.33 MB  Texture2D              Assets/Volleyball_Set_1/Textures/Decor/T_volleyball_ball_1_OLD_Normal.png
+[WEB]    15.      5.33 MB  Texture2D              Assets/Volleyball_Set_1/Textures/Decor/T_rack_balls_1_OLD_Normal.png
+[WEB] 
+[WEB]   packed asset entries : 8096
+[WEB]   packed asset total   : 471.9 MB
+[WEB] 
+[WEB]   --- FILES IN webgl-out/Build ---
+[WEB]           264.06 MB  webgl-out.data
+[WEB]            49.83 MB  webgl-out.wasm
+[WEB]             0.45 MB  webgl-out.framework.js
+[WEB]             0.03 MB  webgl-out.loader.js
+[WEB] === DONE ===
+
+Copied into the game repo as before (the 1.1.3 export, 4c656682): the four files under the deployed
+names artifacts/beach-volleyball/public/unity-build/Build/Volleyball_WebGL_Uncompressed_2.*
+(byte-identical, checked with cmp); the repo's own unity-build/index.html kept (not Unity's template).
+.data and .wasm through Git LFS (.gitattributes). Texture cap 2048 (WebBuild.Step7). Unity at 5825432,
+ProjectSettings' APP_UI_EDITOR_ONLY line reverted before the build (status decision 2).
+
+.data: 276,887,442 bytes (264.06 MB) against the last export 260,920,681 bytes (248.83 MB): +15,966,761 bytes (+6.1%).
+.wasm: 52,253,303 bytes against 51,719,498 (+533,805). framework.js 471,445 against 468,892.
+The build's "errors: 1" is the editor's licensing handshake in batch mode, as in the last export's summary (also "errors: 1").
