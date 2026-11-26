@@ -2,69 +2,71 @@ B2 BETWEEN POINTS, V19 IN PLAY MODE (batch)
   -> b2-close-up.png
   -> b2-other-side.png
   -> b2-replay.png
-  point 1 (4.0 s): point to B by AttackError (big: a diving save) | score BLUE SHARKS 0 0 - 1 0 RED GIANTS [ATTACK ERROR] | umpire: team to serve | Player_B1 Won_MC2 | Player_B2 Won_ThumbsUp2 | Player_A1 Lost_MC1 | Player_A2 Lost_MC2 | close-up: Player_B2 | the other side: Player_A1 | replay 1.2 s at 0.6x (2.2 s)
-  point 2 (3.0 s): point to A by ServeError | score BLUE SHARKS 0 1 - 1 0 RED GIANTS [SERVICE ERROR] | umpire: team to serve | Player_A1 Won_Yay | Player_A2 Won_Cheer | Player_B1 Lost_Angry | Player_B2 Lost_MC1 | close-up: Player_A1 | the other side: Player_B2
-  point 3 (4.0 s): point to B by Kill (big: a hard spike, 55 m/s) | score BLUE SHARKS 0 1 - 2 0 RED GIANTS | umpire: team to serve | Player_B1 Won_Cartwheel | Player_B2 Won_ThumbsUp | Player_A1 Lost_Cry | Player_A2 Lost_FeelDown | close-up: Player_B2 | the other side: Player_A1 | replay 1.2 s at 0.6x (2.2 s)
+  point 1 (4.0 s): point to B by Kill (big: a hard spike, 53 m/s) | score BLUE SHARKS 0 0 - 1 0 RED GIANTS | umpire: team to serve | Player_B1 Won_MC2 | Player_B2 Won_ThumbsUp2 | Player_A1 Lost_MC1 | Player_A2 Lost_MC2 | close-up: Player_B2 | the other side: Player_A2 | replay 1.2 s at 0.6x (2.2 s)
+  point 2 (3.0 s): point to B by Kill | score BLUE SHARKS 0 0 - 2 0 RED GIANTS | umpire: team to serve | Player_B1 Won_Yay | Player_B2 Won_Cheer | Player_A1 Lost_Angry | Player_A2 Lost_MC1 | close-up: Player_B1 | the other side: Player_A2
+  point 3 (3.0 s): point to A by Kill | score BLUE SHARKS 0 1 - 2 0 RED GIANTS | umpire: team to serve | Player_A1 Won_ThumbsUp | Player_A2 Won_JumpForJoy | Player_B1 Lost_FeelDown | Player_B2 Lost_FeelDown | close-up: Player_A2 | the other side: Player_B2
   high five: closest hands 3 cm
-      0.69 s: Player_A1 2026547525 0.77, Player_A2 -1422558708 0.26; hands 31 cm; roots (48.48, 0.00, 16.73) y48 / (49.22, 0.00, 16.62) y263
-      0.84 s: Player_A1 2026547525 0.84, Player_A2 -1422558708 0.31; hands 72 cm; roots (48.48, 0.00, 16.73) y48 / (49.22, 0.00, 16.62) y263
-      0.99 s: Player_A1 _2 0.08, Player_A2 _1 0.08; hands 58 cm; roots (48.48, 0.00, 16.73) y48 / (49.22, 0.00, 16.62) y263
-      1.14 s: Player_A1 _2 0.11, Player_A2 _1 0.11; hands 38 cm; roots (48.48, 0.00, 16.73) y48 / (49.22, 0.00, 16.62) y263
-      1.29 s: Player_A1 _2 0.15, Player_A2 _1 0.15; hands 23 cm; roots (48.48, 0.00, 16.73) y48 / (49.22, 0.00, 16.62) y263
-      1.44 s: Player_A1 _2 0.19, Player_A2 _1 0.19; hands 20 cm; roots (48.48, 0.00, 16.73) y48 / (49.22, 0.00, 16.62) y263
-      1.59 s: Player_A1 _2 0.23, Player_A2 _1 0.23; hands 31 cm; roots (48.48, 0.00, 16.73) y48 / (49.22, 0.00, 16.62) y263
-      1.74 s: Player_A1 _2 0.26, Player_A2 _1 0.26; hands 32 cm; roots (48.48, 0.00, 16.73) y48 / (49.22, 0.00, 16.62) y263
-      1.89 s: Player_A1 _2 0.30, Player_A2 _1 0.30; hands 23 cm; roots (48.48, 0.00, 16.73) y48 / (49.22, 0.00, 16.62) y263
-      2.04 s: Player_A1 _2 0.34, Player_A2 _1 0.34; hands 17 cm; roots (48.48, 0.00, 16.73) y48 / (49.22, 0.00, 16.62) y263
-      2.19 s: Player_A1 _2 0.38, Player_A2 _1 0.38; hands 11 cm; roots (48.48, 0.00, 16.73) y48 / (49.22, 0.00, 16.62) y263
-      2.34 s: Player_A1 _2 0.41, Player_A2 _1 0.41; hands 6 cm; roots (48.48, 0.00, 16.73) y48 / (49.22, 0.00, 16.62) y263
-      2.49 s: Player_A1 _2 0.45, Player_A2 _1 0.45; hands 5 cm; roots (48.48, 0.00, 16.73) y48 / (49.22, 0.00, 16.62) y263
-      2.64 s: Player_A1 _2 0.49, Player_A2 _1 0.49; hands 10 cm; roots (48.48, 0.00, 16.73) y48 / (49.22, 0.00, 16.62) y263
-      2.79 s: Player_A1 _2 0.53, Player_A2 _1 0.53; hands 15 cm; roots (48.48, 0.00, 16.73) y48 / (49.22, 0.00, 16.62) y263
-      2.94 s: Player_A1 _2 0.56, Player_A2 _1 0.56; hands 14 cm; roots (48.48, 0.00, 16.73) y48 / (49.22, 0.00, 16.62) y263
+      0.69 s: Player_A1 -1108880259 0.10, Player_A2 -1269438207 1.28; hands 40 cm; roots (44.29, 0.00, 18.64) y120 / (44.81, 0.00, 18.11) y265
+      0.84 s: Player_A1 -1108880259 0.13, Player_A2 -1269438207 1.32; hands 54 cm; roots (44.29, 0.00, 18.64) y120 / (44.81, 0.00, 18.11) y265
+      0.99 s: Player_A1 _1 0.08, Player_A2 _2 0.08; hands 58 cm; roots (44.29, 0.00, 18.64) y120 / (44.81, 0.00, 18.11) y265
+      1.14 s: Player_A1 _1 0.11, Player_A2 _2 0.11; hands 38 cm; roots (44.29, 0.00, 18.64) y120 / (44.81, 0.00, 18.11) y265
+      1.29 s: Player_A1 _1 0.15, Player_A2 _2 0.15; hands 23 cm; roots (44.29, 0.00, 18.64) y120 / (44.81, 0.00, 18.11) y265
+      1.44 s: Player_A1 _1 0.19, Player_A2 _2 0.19; hands 20 cm; roots (44.29, 0.00, 18.64) y120 / (44.81, 0.00, 18.11) y265
+      1.59 s: Player_A1 _1 0.23, Player_A2 _2 0.23; hands 31 cm; roots (44.29, 0.00, 18.64) y120 / (44.81, 0.00, 18.11) y265
+      1.74 s: Player_A1 _1 0.26, Player_A2 _2 0.26; hands 32 cm; roots (44.29, 0.00, 18.64) y120 / (44.81, 0.00, 18.11) y265
+      1.89 s: Player_A1 _1 0.30, Player_A2 _2 0.30; hands 23 cm; roots (44.29, 0.00, 18.64) y120 / (44.81, 0.00, 18.11) y265
+      2.04 s: Player_A1 _1 0.34, Player_A2 _2 0.34; hands 17 cm; roots (44.29, 0.00, 18.64) y120 / (44.81, 0.00, 18.11) y265
+      2.19 s: Player_A1 _1 0.38, Player_A2 _2 0.38; hands 11 cm; roots (44.29, 0.00, 18.64) y120 / (44.81, 0.00, 18.11) y265
+      2.34 s: Player_A1 _1 0.41, Player_A2 _2 0.41; hands 6 cm; roots (44.29, 0.00, 18.64) y120 / (44.81, 0.00, 18.11) y265
+      2.49 s: Player_A1 _1 0.45, Player_A2 _2 0.45; hands 5 cm; roots (44.29, 0.00, 18.64) y120 / (44.81, 0.00, 18.11) y265
+      2.64 s: Player_A1 _1 0.49, Player_A2 _2 0.49; hands 10 cm; roots (44.29, 0.00, 18.64) y120 / (44.81, 0.00, 18.11) y265
+      2.80 s: Player_A1 _1 0.53, Player_A2 _2 0.53; hands 15 cm; roots (44.29, 0.00, 18.64) y120 / (44.81, 0.00, 18.11) y265
+      2.95 s: Player_A1 _1 0.56, Player_A2 _2 0.56; hands 14 cm; roots (44.29, 0.00, 18.64) y120 / (44.81, 0.00, 18.11) y265
   CHECK a high five between points: the hands meet: PASS  3 cm
-  point 4 (3.0 s): point to A by Kill | score BLUE SHARKS 0 2 - 2 0 RED GIANTS | umpire: team to serve | high five: Player_A2 and Player_A1 | Player_B1 Lost_FeelDown | Player_B2 Lost_MC1 | close-up: Player_A2 | placed: Player_A1 at (0.20, 0.72) in Player_A2's frame, turned 145°, scales 1.00/1.00 | the other side: Player_B1
-  point 5 (4.0 s): point to A by Kill (big: a diving save) | score BLUE SHARKS 0 3 - 2 0 RED GIANTS | umpire: team to serve | Player_A1 Won_ArmsUp | Player_A2 Won_DoublePeace | Player_B1 Lost_Cry | Player_B2 Lost_Cry | close-up: Player_A1 | the other side: Player_B2 | replay 1.2 s at 0.6x (2.2 s)
-  point 6 (4.0 s): point to A by BlockStuff (big: a block) | score BLUE SHARKS 0 4 - 2 0 RED GIANTS [BLOCK] | umpire: team to serve | Player_A1 Won_DoublePeace | Player_A2 Won_Backflip | Player_B1 Lost_MC2 | Player_B2 Lost_MC3 | close-up: Player_A2 | the other side: Player_B2 | replay 1.2 s at 0.6x (2.2 s)
-  point 7 (3.0 s): point to B by Kill | score BLUE SHARKS 0 4 - 3 0 RED GIANTS | umpire: team to serve | Player_B1 Won_DoublePeace | Player_B2 Won_JumpForJoy | Player_A1 Lost_MC1 | Player_A2 Lost_MC3 | close-up: Player_B1 | the other side: Player_A1
-  point 8 (4.0 s): point to A by Kill (big: a diving save) | score BLUE SHARKS 0 5 - 3 0 RED GIANTS | umpire: team to serve | Player_A1 Won_JumpForJoy | Player_A2 Won_Clap | Player_B1 Lost_Cry | Player_B2 Lost_MC1 | close-up: Player_A1 | the other side: Player_B2 | replay 1.2 s at 0.6x (2.2 s)
+  point 4 (3.0 s): point to A by AttackError | score BLUE SHARKS 0 2 - 2 0 RED GIANTS [ATTACK ERROR] | umpire: team to serve | high five: Player_A1 and Player_A2 | Player_B1 Lost_MC1 | Player_B2 Lost_MC3 | close-up: Player_A1 | placed: Player_A2 at (0.20, 0.72) in Player_A1's frame, turned 145°, scales 1.00/1.00 | the other side: Player_B1
+  point 5 (4.0 s): point to A by Ace (big: an ace) | score BLUE SHARKS 0 3 - 2 0 RED GIANTS | umpire: team to serve | Player_A1 Won_DoublePeace | Player_A2 Won_Yay | Player_B1 Lost_Cry | Player_B2 stays down (her dive) | close-up: Player_A2 | the other side: Player_B2 | replay 1.2 s at 0.6x (2.2 s)
+  point 6 (3.0 s): point to A by AttackError | score BLUE SHARKS 0 4 - 2 0 RED GIANTS [ATTACK ERROR] | umpire: team to serve | Player_A1 Won_Backflip | Player_A2 Won_MC2 | Player_B1 Lost_MC3 | Player_B2 Lost_MC2 | close-up: Player_A1 | the other side: Player_B1
+  point 7 (4.0 s): point to B by Kill (big: a diving save) | score BLUE SHARKS 0 4 - 3 0 RED GIANTS | umpire: team to serve | Player_B1 Won_Taunt | Player_B2 Won_Shout | Player_A1 Lost_MC1 | Player_A2 Lost_MC3 | close-up: Player_B2 | the other side: Player_A2 | replay 1.2 s at 0.6x (2.2 s)
+  point 8 (4.0 s): point to A by BlockStuff (big: a block) | score BLUE SHARKS 0 5 - 3 0 RED GIANTS [BLOCK] | umpire: team to serve | Player_A1 Won_JumpForJoy | Player_A2 Won_Clap | Player_B1 Lost_Cry | Player_B2 Lost_MC1 | close-up: Player_A2 | the other side: Player_B2 | replay 1.2 s at 0.6x (2.2 s)
   high five: closest hands 3 cm
-      0.70 s: Player_B1 2026547525 0.82, Player_B2 -1422558708 0.30; hands 84 cm; roots (48.38, 0.00, 24.30) y55 / (49.10, 0.00, 24.10) y270
-      0.85 s: Player_B1 2026547525 0.89, Player_B2 -1422558708 0.35; hands 77 cm; roots (48.38, 0.00, 24.30) y55 / (49.10, 0.00, 24.10) y270
-      1.00 s: Player_B1 _2 0.08, Player_B2 _1 0.08; hands 58 cm; roots (48.38, 0.00, 24.30) y55 / (49.10, 0.00, 24.10) y270
-      1.15 s: Player_B1 _2 0.11, Player_B2 _1 0.11; hands 38 cm; roots (48.38, 0.00, 24.30) y55 / (49.10, 0.00, 24.10) y270
-      1.30 s: Player_B1 _2 0.15, Player_B2 _1 0.15; hands 23 cm; roots (48.38, 0.00, 24.30) y55 / (49.10, 0.00, 24.10) y270
-      1.45 s: Player_B1 _2 0.19, Player_B2 _1 0.19; hands 20 cm; roots (48.38, 0.00, 24.30) y55 / (49.10, 0.00, 24.10) y270
-      1.60 s: Player_B1 _2 0.23, Player_B2 _1 0.23; hands 31 cm; roots (48.38, 0.00, 24.30) y55 / (49.10, 0.00, 24.10) y270
-      1.75 s: Player_B1 _2 0.26, Player_B2 _1 0.26; hands 32 cm; roots (48.38, 0.00, 24.30) y55 / (49.10, 0.00, 24.10) y270
-      1.90 s: Player_B1 _2 0.30, Player_B2 _1 0.30; hands 23 cm; roots (48.38, 0.00, 24.30) y55 / (49.10, 0.00, 24.10) y270
-      2.05 s: Player_B1 _2 0.34, Player_B2 _1 0.34; hands 17 cm; roots (48.38, 0.00, 24.30) y55 / (49.10, 0.00, 24.10) y270
-      2.20 s: Player_B1 _2 0.38, Player_B2 _1 0.38; hands 11 cm; roots (48.38, 0.00, 24.30) y55 / (49.10, 0.00, 24.10) y270
-      2.35 s: Player_B1 _2 0.41, Player_B2 _1 0.41; hands 6 cm; roots (48.38, 0.00, 24.30) y55 / (49.10, 0.00, 24.10) y270
-      2.50 s: Player_B1 _2 0.45, Player_B2 _1 0.45; hands 5 cm; roots (48.38, 0.00, 24.30) y55 / (49.10, 0.00, 24.10) y270
-      2.65 s: Player_B1 _2 0.49, Player_B2 _1 0.49; hands 10 cm; roots (48.38, 0.00, 24.30) y55 / (49.10, 0.00, 24.10) y270
-      2.80 s: Player_B1 _2 0.53, Player_B2 _1 0.53; hands 15 cm; roots (48.38, 0.00, 24.30) y55 / (49.10, 0.00, 24.10) y270
-      2.95 s: Player_B1 _2 0.56, Player_B2 _1 0.56; hands 14 cm; roots (48.38, 0.00, 24.30) y55 / (49.10, 0.00, 24.10) y270
+      0.69 s: Player_A1 2026547525 0.83, Player_A2 -1422558708 0.28; hands 65 cm; roots (48.38, 0.00, 16.30) y55 / (49.10, 0.00, 16.10) y270
+      0.84 s: Player_A1 2026547525 0.90, Player_A2 -1422558708 0.33; hands 77 cm; roots (48.38, 0.00, 16.30) y55 / (49.10, 0.00, 16.10) y270
+      0.99 s: Player_A1 _2 0.08, Player_A2 _1 0.08; hands 58 cm; roots (48.38, 0.00, 16.30) y55 / (49.10, 0.00, 16.10) y270
+      1.14 s: Player_A1 _2 0.11, Player_A2 _1 0.11; hands 38 cm; roots (48.38, 0.00, 16.30) y55 / (49.10, 0.00, 16.10) y270
+      1.29 s: Player_A1 _2 0.15, Player_A2 _1 0.15; hands 23 cm; roots (48.38, 0.00, 16.30) y55 / (49.10, 0.00, 16.10) y270
+      1.44 s: Player_A1 _2 0.19, Player_A2 _1 0.19; hands 20 cm; roots (48.38, 0.00, 16.30) y55 / (49.10, 0.00, 16.10) y270
+      1.59 s: Player_A1 _2 0.23, Player_A2 _1 0.23; hands 31 cm; roots (48.38, 0.00, 16.30) y55 / (49.10, 0.00, 16.10) y270
+      1.74 s: Player_A1 _2 0.26, Player_A2 _1 0.26; hands 32 cm; roots (48.38, 0.00, 16.30) y55 / (49.10, 0.00, 16.10) y270
+      1.89 s: Player_A1 _2 0.30, Player_A2 _1 0.30; hands 23 cm; roots (48.38, 0.00, 16.30) y55 / (49.10, 0.00, 16.10) y270
+      2.04 s: Player_A1 _2 0.34, Player_A2 _1 0.34; hands 17 cm; roots (48.38, 0.00, 16.30) y55 / (49.10, 0.00, 16.10) y270
+      2.19 s: Player_A1 _2 0.38, Player_A2 _1 0.38; hands 11 cm; roots (48.38, 0.00, 16.30) y55 / (49.10, 0.00, 16.10) y270
+      2.34 s: Player_A1 _2 0.41, Player_A2 _1 0.41; hands 6 cm; roots (48.38, 0.00, 16.30) y55 / (49.10, 0.00, 16.10) y270
+      2.49 s: Player_A1 _2 0.45, Player_A2 _1 0.45; hands 5 cm; roots (48.38, 0.00, 16.30) y55 / (49.10, 0.00, 16.10) y270
+      2.64 s: Player_A1 _2 0.49, Player_A2 _1 0.49; hands 10 cm; roots (48.38, 0.00, 16.30) y55 / (49.10, 0.00, 16.10) y270
+      2.79 s: Player_A1 _2 0.53, Player_A2 _1 0.53; hands 15 cm; roots (48.38, 0.00, 16.30) y55 / (49.10, 0.00, 16.10) y270
+      2.94 s: Player_A1 _2 0.56, Player_A2 _1 0.56; hands 14 cm; roots (48.38, 0.00, 16.30) y55 / (49.10, 0.00, 16.10) y270
   CHECK a high five between points: the hands meet: PASS  3 cm
-  point 9 (3.0 s): point to B by Kill | score BLUE SHARKS 0 5 - 4 0 RED GIANTS | umpire: team to serve | high five: Player_B2 and Player_B1 | Player_A1 Lost_MC2 | Player_A2 Lost_MC2 | close-up: Player_B2 | placed: Player_B1 at (0.20, 0.72) in Player_B2's frame, turned 145°, scales 1.00/1.00 | the other side: Player_A2
-  point 10 (4.0 s): point to A by BlockStuff (big: a block) | score BLUE SHARKS 0 6 - 4 0 RED GIANTS [BLOCK] | umpire: team to serve | Player_A1 Won_MC1 | Player_A2 Won_MC1 | Player_B1 Lost_MC3 | Player_B2 Lost_MC2 | close-up: Player_A1 | the other side: Player_B1 | replay 1.2 s at 0.6x (2.2 s)
-  point 11 (3.0 s): point to A by Kill | score BLUE SHARKS 0 7 - 4 0 RED GIANTS | umpire: team to serve | Player_A1 Won_Motivated | Player_A2 Won_Motivated | Player_B1 Lost_Angry | Player_B2 Lost_Angry | close-up: Player_A1 | the other side: Player_B2
-  point 12 (4.0 s): point to A by Kill (big: a diving save) | score BLUE SHARKS 0 8 - 4 0 RED GIANTS | umpire: team to serve | Player_A1 Won_Taunt | Player_A2 Won_Cartwheel | Player_B1 Lost_FeelDown | Player_B2 Lost_MC2 | close-up: Player_A1 | the other side: Player_B1 | replay 1.2 s at 0.6x (2.2 s)
+  point 9 (3.0 s): point to A by Kill | score BLUE SHARKS 0 6 - 3 0 RED GIANTS | umpire: team to serve | high five: Player_A2 and Player_A1 | Player_B1 Lost_MC2 | Player_B2 Lost_MC2 | close-up: Player_A2 | placed: Player_A1 at (0.20, 0.72) in Player_A2's frame, turned 145°, scales 1.00/1.00 | the other side: Player_B2
+  point 10 (4.0 s): point to B by BlockStuff (big: a block) | score BLUE SHARKS 0 6 - 4 0 RED GIANTS [BLOCK] | umpire: team to serve | Player_B1 Won_MC1 | Player_B2 Won_MC2 | Player_A1 Lost_MC3 | Player_A2 Lost_MC2 | close-up: Player_B1 | the other side: Player_A1 | replay 1.2 s at 0.6x (2.2 s)
+  point 11 (3.0 s): point to B by Kill | score BLUE SHARKS 0 6 - 5 0 RED GIANTS | umpire: team to serve | Player_B1 Won_Motivated | Player_B2 Won_Motivated | Player_A1 Lost_Angry | Player_A2 Lost_Angry | close-up: Player_B1 | the other side: Player_A1
+  point 12 (4.0 s): point to B by AttackError (big: a diving save) | score BLUE SHARKS 0 6 - 6 0 RED GIANTS [ATTACK ERROR] | umpire: team to serve | Player_B1 Won_Taunt | Player_B2 Won_Cartwheel | Player_A1 Lost_FeelDown | Player_A2 Lost_MC2 | close-up: Player_B1 | the other side: Player_A2 | replay 1.2 s at 0.6x (2.2 s)
+  point 13 (4.0 s): point to B by Ace (big: an ace) | score BLUE SHARKS 0 6 - 7 0 RED GIANTS | umpire: team to serve | Player_B1 Won_DoublePeace | Player_B2 Won_JumpForJoy | Player_A1 Lost_Angry | Player_A2 stays down (her dive) | close-up: Player_B2 | the other side: Player_A2 | replay 1.2 s at 0.6x (2.2 s)
+  point 14 (3.0 s): point to B by Kill | score BLUE SHARKS 0 6 - 8 0 RED GIANTS | umpire: team to serve | Player_B1 Won_Cheer | Player_B2 Won_Cartwheel | Player_A1 Lost_Cry | Player_A2 Lost_MC1 | close-up: Player_B2 | the other side: Player_A1
   -- 0 s; then the skip --
-  point 13 (0.4 s): point to A by Kill | score BLUE SHARKS 0 9 - 4 0 RED GIANTS | umpire: team to serve | Player_A1 Won_JumpForJoy | Player_A2 Won_ThumbsUp2 | Player_B1 Lost_Angry | Player_B2 Lost_FeelDown | close-up: Player_A2 | skipped
+  point 15 (0.9 s): point to A by Kill (big: a diving save) | score BLUE SHARKS 0 7 - 8 0 RED GIANTS | umpire: team to serve | Player_A1 Won_Backflip | Player_A2 Won_MC2 | Player_B1 Lost_FeelDown | Player_B2 Lost_MC3 | close-up: Player_A1 | skipped
   CHECK Enter skips the presentation at once: PASS  skipped 1, over 0.01 s after the press
-  point 14 (3.0 s): point to B by Kill | score BLUE SHARKS 0 9 - 5 0 RED GIANTS | umpire: team to serve | Player_B1 Won_Shout | Player_B2 Won_Backflip | Player_A1 Lost_MC1 | Player_A2 Lost_MC3 | close-up: Player_B1 | the other side: Player_A1
-  point 15 (4.0 s): point to B by Ace (big: an ace) | score BLUE SHARKS 0 9 - 6 0 RED GIANTS | umpire: team to serve | Player_B1 Won_Cheer | Player_B2 Won_Clap | Player_A1 Lost_Angry | Player_A2 Lost_Angry | close-up: Player_B1 | the other side: Player_A1 | replay 1.2 s at 0.6x (2.2 s)
-  point 16 (4.0 s): point to B by Ace (big: an ace) | score BLUE SHARKS 0 9 - 7 0 RED GIANTS | umpire: team to serve | Player_B1 Won_Motivated | Player_B2 Won_MC1 | Player_A1 Lost_FeelDown | Player_A2 Lost_MC1 | close-up: Player_B2 | the other side: Player_A2 | replay 1.2 s at 0.6x (2.2 s)
+  point 16 (3.0 s): point to B by Kill | score BLUE SHARKS 0 7 - 9 0 RED GIANTS | umpire: team to serve | Player_B1 Won_DoublePeace | Player_B2 Won_ThumbsUp2 | Player_A1 Lost_MC2 | Player_A2 Lost_FeelDown | close-up: Player_B1 | the other side: Player_A2
+  point 17 (4.0 s): point to B by Ace (big: an ace) | score BLUE SHARKS 0 7 - 10 0 RED GIANTS | umpire: team to serve | Player_B1 Won_Taunt | Player_B2 Won_Cheer | Player_A1 Lost_Cry | Player_A2 Lost_Angry | close-up: Player_B2 | the other side: Player_A2 | replay 1.2 s at 0.6x (2.2 s)
+  point 18 (4.0 s): point to B by Ace (big: an ace) | score BLUE SHARKS 0 7 - 11 1 RED GIANTS | umpire: team to serve | Player_B1 Won_Clap | Player_B2 Won_JumpForJoy | Player_A1 Lost_MC1 | Player_A2 Lost_MC1 | close-up: Player_B1 | the other side: Player_A2 | replay 1.2 s at 0.6x (2.2 s)
 
-  CHECK every point was presented: PASS  16 points, presenter 16
-  CHECK a plain point takes about 3 s (2.8 to 3.4): PASS  6: 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 s
+  CHECK every point was presented: PASS  18 points, presenter 18
+  CHECK a plain point takes about 3 s (2.8 to 3.4): PASS  8: 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 s
   CHECK a big moment takes about 4 s with its replay (3.6 to 4.4): PASS  9: 4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0 s
-  CHECK the score graphic showed the match's score: PASS  16 right, 0 wrong
-  CHECK all four players reacted (point-won, point-lost, the pair, or down from a dive): PASS  15 points, 0 not
+  CHECK the score graphic showed the match's score: PASS  18 right, 0 wrong
+  CHECK all four players reacted (point-won, point-lost, the pair, or down from a dive): PASS  17 points, 0 not
   CHECK no serve while a point was presented (Auto): PASS  0 frames
   CHECK big moments were replayed, and the court was put back exactly: PASS  9 replays, 9 put back, 0 not
-  CHECK the camera was never inside anything during the presentations: PASS  0 of 86536 frames
+  CHECK the camera was never inside anything during the presentations: PASS  0 of 98096 frames
   CHECK a played match: the engine waited while each point was presented: PASS  3 played points, the engine waited in 3, ran in 0
   CHECK pictures: the close-up, the other side and a replay: PASS  
 RESULT: PASS

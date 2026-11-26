@@ -15,12 +15,13 @@ import { useEffect, useState } from "react";
 import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Monitor, Volume2, Gamepad2, BookOpen, ArrowLeft, Video } from "lucide-react";
+import { Monitor, Volume2, Gamepad2, BookOpen, ArrowLeft, Video, FastForward } from "lucide-react";
 import { SoundSettings } from "@/components/sound-settings";
 import { ControlsSettings } from "@/components/controls-settings";
 import { CameraSettings } from "@/components/camera-settings";
+import { SkipSettings } from "@/components/skip-settings";
 import { ExitGame } from "@/components/exit-game";
-import { readControlMode, saveControlMode, readCourtCamera, saveCourtCamera, type ControlMode, type CourtCamera } from "@/lib/court-settings";
+import { readControlMode, saveControlMode, readCourtCamera, saveCourtCamera, readCourtSkips, saveCourtSkips, type ControlMode, type CourtCamera, type CourtSkips } from "@/lib/court-settings";
 
 type WindowSettings = { mode: "windowed" | "fullscreen"; size: string | null; zoom: number; sizes?: string[]; defaultSize?: string; zoomMin?: number; zoomMax?: number };
 type WindowBridge = { get: () => Promise<WindowSettings>; set: (patch: Partial<WindowSettings>) => Promise<WindowSettings> };
@@ -32,6 +33,7 @@ export default function SettingsPage() {
   const [win, setWin] = useState<WindowSettings | null>(null);
   const [mode, setMode] = useState<ControlMode>(readControlMode);
   const [camera, setCamera] = useState<CourtCamera>(readCourtCamera);
+  const [skips, setSkips] = useState<CourtSkips>(readCourtSkips);
 
   useEffect(() => { bridge()?.get().then(setWin).catch(() => setWin(null)); }, []);
   const setWindow = async (patch: Partial<WindowSettings>) => {
@@ -41,6 +43,7 @@ export default function SettingsPage() {
   };
   const chooseMode = (m: ControlMode) => { setMode(m); saveControlMode(m); };
   const chooseCamera = (c: CourtCamera) => { setCamera(c); saveCourtCamera(c); };
+  const chooseSkips = (k: CourtSkips) => { setSkips(k); saveCourtSkips(k); };
 
   return (
     <div className="min-h-screen bg-background p-4 sm:p-8" data-testid="settings-page">
@@ -120,6 +123,17 @@ export default function SettingsPage() {
           </CardHeader>
           <CardContent>
             <CameraSettings camera={camera} onChange={chooseCamera} />
+          </CardContent>
+        </Card>
+
+        {/* Match presentation (1.2 B5) */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2"><FastForward className="h-4 w-4" /> Match presentation</CardTitle>
+            <CardDescription>Between points the court shows the scorer, the other side and replays of the big moments; before the match the walk-on, after it the winners. Skip what you like, so a long career never slows down.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <SkipSettings skips={skips} onChange={chooseSkips} />
           </CardContent>
         </Card>
 

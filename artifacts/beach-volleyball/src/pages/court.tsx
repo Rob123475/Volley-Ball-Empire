@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import { readControlMode, saveControlMode, courtVolumes, MATCH_VOLUME_EVENT, MATCH_VOLUME_KEY, type ControlMode, readCourtCamera, saveCourtCamera, cameraPrefs, cameraFromCourt, type CourtCamera } from "@/lib/court-settings";
+import { readControlMode, saveControlMode, courtVolumes, MATCH_VOLUME_EVENT, MATCH_VOLUME_KEY, type ControlMode, readCourtCamera, saveCourtCamera, cameraPrefs, cameraFromCourt, type CourtCamera, readCourtSkips, saveCourtSkips, skipsPrefs, type CourtSkips } from "@/lib/court-settings";
 import { SoundSettings } from "@/components/sound-settings";
 import { ControlsSettings } from "@/components/controls-settings";
 import { CameraSettings } from "@/components/camera-settings";
+import { SkipSettings } from "@/components/skip-settings";
 import { ExitGame } from "@/components/exit-game";
 import { useLocation } from "wouter";
 import { useQueryClient } from "@tanstack/react-query";
@@ -56,6 +57,8 @@ export default function ThreeDCourt() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   // 1.2 B1: the camera look for each kind of match (Settings > Camera), and what the court changes.
   const [camera, setCamera] = useState<CourtCamera>(readCourtCamera);
+  // 1.2 B5: skip to next serve, skip replays (Settings > Match presentation).
+  const [skips, setSkips] = useState<CourtSkips>(readCourtSkips);
   const [paused, setPaused] = useState(false);
 
   // matchId set by match-day-modal's "Watch Match" button (navigate(`/court?matchId=...`)).
@@ -113,6 +116,7 @@ export default function ThreeDCourt() {
         setUnityLoaded(true);
         sendMatchVolume();
         sendCamera();
+        sendSkips();
         // Part C: the keyboard goes to the court, so WASD, Tab and the rest work at once.
         iframeRef.current?.focus();
         iframeRef.current?.contentWindow?.focus();
@@ -159,6 +163,15 @@ export default function ThreeDCourt() {
   // 1.2 B1: both camera choices go to the court when it has loaded and when they change here.
   function sendCamera(c: CourtCamera = readCourtCamera()) {
     iframeRef.current?.contentWindow?.postMessage({ type: "vbe-camera", prefs: cameraPrefs(c) }, "*");
+  }
+  // 1.2 B5: the skip switches go to the court when it has loaded and when they change here.
+  function sendSkips(k: CourtSkips = readCourtSkips()) {
+    iframeRef.current?.contentWindow?.postMessage({ type: "vbe-skips", prefs: skipsPrefs(k) }, "*");
+  }
+  function chooseSkips(k: CourtSkips) {
+    setSkips(k);
+    saveCourtSkips(k);
+    sendSkips(k);
   }
   function chooseCamera(c: CourtCamera) {
     setCamera(c);
@@ -342,6 +355,8 @@ export default function ThreeDCourt() {
             <ControlsSettings mode={mode} onChoose={chooseMode} />
             <h3 className="text-sm font-bold mt-5 mb-2">Camera</h3>
             <CameraSettings camera={camera} onChange={chooseCamera} />
+            <h3 className="text-sm font-bold mt-5 mb-2">Match presentation</h3>
+            <SkipSettings skips={skips} onChange={chooseSkips} />
             <div className="mt-5 flex justify-end">
               <ExitGame matchId={matchId} />
             </div>

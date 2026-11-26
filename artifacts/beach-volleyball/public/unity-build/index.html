@@ -131,6 +131,16 @@
         try { window.__vbeUnity.SendMessage("Camera_Gameplay_Close", "SetCameraPrefs", d.prefs); }
         catch (err) { console.warn(err); }
       });
+
+      // 1.2 B5: skip to next serve, skip replays ("serve=1;replays=0"), from the game's Settings, to the
+      // court's between-points presentation (PointPresenter.SetSkips).
+      window.addEventListener("message", function (e) {
+        var d = e.data;
+        if (!d || d.type !== "vbe-skips" || typeof d.prefs !== "string" || !window.__vbeUnity) return;
+        if (!/^serve=[01];replays=[01]$/.test(d.prefs)) return;
+        try { window.__vbeUnity.SendMessage("PointPresenter", "SetSkips", d.prefs); }
+        catch (err) { console.warn(err); }
+      });
     </script>
   </body>
 </html>

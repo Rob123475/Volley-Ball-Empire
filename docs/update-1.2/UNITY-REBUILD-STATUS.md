@@ -132,6 +132,7 @@ Brief: `docs/update-1.2/UNITY-REBUILD-BRIEF.md`. Plan: `docs/update-1.2/PLAYABLE
 | A2 Every touch graded | Done, PASS | `docs/update-1.2/proof/A2/`: `a2-touch-grading.txt` (Unity batch, 27/27), `a2-dotnet.txt` (dotnet, 27/27), `a2-unity.log`, `a2-digs.png`, `a2-spikes.png` | Unity `2b964d0`; game repo `3be1fe35` |
 | Animations, first job | Done, PASS | `docs/update-1.2/proof/animation/`: `aa-volleyball-humanoid.txt`, `play-strips.txt` and five Play-mode strips | Unity `ed0e902` |
 | Animations, the rest | Done, PASS | `docs/update-1.2/proof/animation/`: `presentation-states.txt`, `presentation-strips.txt` (42/42) and a `play-strip-*.png` for each state, `pair-placement.txt` with `pair-strip-HighFive.png` and `pair-strip-Hug.png`, `pose-proof.txt` with `pose-strip-HandSignals.png`, `pose-strip-Drink.png` and `pose-strip-Umpire.png`, `rejected/` | Unity `287718e` |
+| B5 Skip and settings | Done, PASS | `docs/update-1.2/proof/B5/`: `b5-skip.txt` (Unity batch, a whole match, 4/4); `harness/presentation.mjs` 43/43 (all of Part B) | Unity `5825432` |
 | B4 Crowd and commentary | Done, PASS (42 new lines for Rob to record, `COMMENTARY-NEW-LINES.md`) | `docs/update-1.2/proof/B4/`: `b4-crowd-and-commentary.txt` (Unity batch, 8/8) with its log; `u21_commentary.txt` (the item 21 proof, PASS) | Unity `41e2041` |
 | B3 Match moments | Done, PASS | `docs/update-1.2/proof/B3/`: `b3-match-moments.txt` (Unity batch, V19, a whole match, 8/8) with four pictures; `harness-unity-full.txt` (13/13) with its court proof and log; `RallyPlanProof.log` (PASS) | Unity `ee2f355` |
 | B2 Between points | Done, PASS | `docs/update-1.2/proof/B2/`: `b2-between-points.txt` (Unity batch, V19, 13/13) with three pictures and `b2-between-points-unity.log`; `RallyPlanProof.log` (PASS); `harness-played-match-unity.txt` (9/9) | Unity `45074a1` |
@@ -1031,3 +1032,41 @@ Enter (R3) skips the walk-on or the celebration. B5's "skip to next serve" leave
   - `AudioManager.cs`: the eruption.
   - `MatchMoments.cs`: the walk-on's line.
 - **New:** `Editor/PresentationSoundProof.cs`; `docs/update-1.2/COMMENTARY-NEW-LINES.md`.
+
+### B5: skip and settings (26 Nov 2026)
+**In Settings and in the match** (the court's own settings, the gear above the court), remembered on this PC (`vbe-court-skips`), there is a new "Match presentation" card with two switches, both off by default:
+- **Skip to next serve:** after a point the score shows for a moment (0.7 s), then straight on to the next serve. There are no close-ups and no replay, no walk-on before the match and no celebration after it.
+- **Skip replays:** the reactions and close-ups stay, without the slow-motion replays. A big moment then has the plain point's 3 s.
+
+**On the court:**
+- Enter (R3 on a pad) skips whatever is playing between points: the close-ups, the replay, the walk-on, the celebration (B2, B3).
+- The controls panel lists it.
+
+**How it reaches the court:**
+- The page sends both switches when the court loads and whenever they change, in the form `serve=1;replays=0`.
+- The court's page passes that, and only that, to `PointPresenter.SetSkips`.
+
+**The proof** (`b5-skip.txt`, 4/4: a whole watched match on V19 at 4x, batch, Unity closed; the switches sent as the page sends them, by the object's name):
+- **"Skip to next serve" from the start:** no walk-on. 8 points of 0.7 to 0.8 s each, and the camera never cut away.
+- **"Skip replays":** 10 points of 3.0 s each, with close-ups and no replays; 5 big moments went without one.
+- **"Skip to next serve" again to the end:** no celebration, and the result box was up 0.0 s after the match ended.
+
+**The game's side:** `harness/presentation.mjs` (suite 57c), 43/43 for all of Part B. It loads the real `court-settings.ts` for both the camera choice and the skips, checks the wiring in the Settings page, the court page and the court's own page, the Unity source, and each court proof's result. For B4 it also checks that the 42 written lines are exactly the lines in the code and that none is recorded yet.
+
+**Files:**
+- **Game:**
+  - `lib/court-settings.ts`: the skips; the controls list.
+  - `components/skip-settings.tsx`: new.
+  - `pages/settings.tsx` and `pages/court.tsx`: the card, and sending it.
+  - `public/unity-build/index.html`: `vbe-skips`.
+- **Unity:**
+  - `PointPresenter.cs`: `SetSkips`; with replays off, a big moment has the plain timings.
+  - `Editor/PresentationSkipProof.cs`: new.
+
+**Part B, the last regression on the finished code** (after B5; batch, Unity closed):
+- **`RallyPlanProof`:** PASS (`proof/B5/RallyPlanProof.log`). 34 serves, every server exactly placed; the zoom buttons; the result box; Auto's odds.
+- **B2's proof again:** 13/13 (`proof/B2/b2-between-points.txt`, rewritten). 18 points presented; 9 replays, all put back exactly.
+- **`harness/played-match.mjs --unity-full`:** 13/13 (`proof/B5/harness-unity-full.txt`, with the court's proof and log). The engine's checks 54/54; the four careers' difficulties and their players' nations. A whole played match against the server, 2-0 (11-8, 11-4), recorded exactly, with prize and fitness charged.
+- **`harness/presentation.mjs`:** 43/43.
+
+Part B is done (B1 to B5). Part D is not started, as instructed. The next steps are Rob's: playing the presentation and the win rates with a pad, and recording the 42 commentary lines.

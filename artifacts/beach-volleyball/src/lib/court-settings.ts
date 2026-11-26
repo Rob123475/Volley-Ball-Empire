@@ -116,6 +116,38 @@ export function cameraFromCourt(message: string, camera: CourtCamera = readCourt
 }
 
 /**
+ * 1.2 B5 (Rob, 23 Nov): so a long career is never slowed down, two switches, in
+ * Settings and in the court's own settings, remembered here:
+ *   - skipToServe: straight on to the next serve after a point (the score shows
+ *     briefly; no close-ups, no replay), and no walk-on or winners' celebration;
+ *   - skipReplays: the between-points sequence plays, without its replays.
+ * Both off by default (the full presentation). Sent to the court when it has
+ * loaded and whenever they change (unity-build/index.html, PointPresenter.SetSkips).
+ * Enter (R3 on a pad) still skips the one that is playing.
+ */
+export type CourtSkips = { skipToServe: boolean; skipReplays: boolean };
+export const COURT_SKIPS_KEY = "vbe-court-skips";
+export const COURT_SKIPS_DEFAULTS: CourtSkips = { skipToServe: false, skipReplays: false };
+
+export function readCourtSkips(): CourtSkips {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(COURT_SKIPS_KEY) ?? "null") as Partial<CourtSkips> | null;
+    return { skipToServe: parsed?.skipToServe === true, skipReplays: parsed?.skipReplays === true };
+  } catch {
+    return { ...COURT_SKIPS_DEFAULTS };
+  }
+}
+
+export function saveCourtSkips(skips: CourtSkips): void {
+  try { localStorage.setItem(COURT_SKIPS_KEY, JSON.stringify(skips)); } catch { /* not remembered, still used */ }
+}
+
+/** What the court is sent: "serve=1;replays=0". */
+export function skipsPrefs(skips: CourtSkips = readCourtSkips()): string {
+  return `serve=${skips.skipToServe ? 1 : 0};replays=${skips.skipReplays ? 1 : 0}`;
+}
+
+/**
  * The 3D court's controls in Manual, as the court itself binds them (Unity
  * ManualControl.cs, Input System; proved key by key and button by button on 5
  * Oct, docs/STATUS-05OCT.md item C, and listed for Rob's check on 6 Oct). In
@@ -138,5 +170,6 @@ export const COURT_OTHER_CONTROLS: ReadonlyArray<{ action: string; how: string }
   { action: "Camera look", how: "V (L3 on a pad) switches between TV and Game" },
   { action: "Game views", how: "1 to 6 pick a view (and the Game look); the D-pad's left and right step through them" },
   { action: "Zoom", how: "+ and - (and the mouse wheel when watching) move in and out; the 1x, 2x and 4x buttons on the court" },
+  { action: "Skip", how: "Enter (R3 on a pad) skips what is playing between points: the close-ups, the replay, the walk-on, the celebration" },
   { action: "Boosts", how: "Auto: the A and D keys. Manual: click the boost buttons with the mouse" },
 ];

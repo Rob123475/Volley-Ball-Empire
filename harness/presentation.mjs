@@ -109,6 +109,73 @@ console.log("\nB2. BETWEEN POINTS");
   check("the court's own proof (Unity batch, V19): every point presented in 3 to 4 s, replays put back, the engine waits, the skip", /RESULT: PASS/.test(text), `${n} checks passed, ${path.relative(REPO, proof)}`);
 }
 
+console.log("\nB3. MATCH MOMENTS");
+{
+  const unityTs = fs.readFileSync(path.join(REPO, "artifacts", "api-server", "src", "routes", "unity.ts"), "utf8");
+  const loader = U("Assets/Scripts/UnityMatchDataLoader.cs"), mo = U("Assets/Scripts/MatchMoments.cs"), mmp = U("Assets/Scripts/MatchManager.Presentation.cs"), box = U("Assets/Scripts/MatchResultBanner.cs");
+  check("(source) /unity/match-state sends each player's nation: career players, pool players, and a Nations Cup's (her nation)",
+    /nationality:\s+p\.nationality \?\? null,/.test(unityTs) && /nationality:\s+pp\.nationality \?\? null,/.test(unityTs) && /name: entry\.name, nationality: nation,/.test(unityTs));
+  check("(Unity source) the court keeps it as her country (PlayerStats.country) for the lower third",
+    /public string nationality;/.test(loader) && /stats\.country = p\.nationality \?\? "";/.test(loader) && /st\.country/.test(mo));
+  check("(Unity source) the first serve waits for the walk-on, from the first frame, and until all are on their spots",
+    /if \(!PointPresenter\.Busy && !MatchMoments\.Busy\) return false;/.test(mmp) && /Instance\._walkOn \|\| !Instance\._started/.test(mo) && /public void SettleAfterWalkOn\(\)/.test(mmp));
+  check("(Unity source) the result box waits for the winners' celebration", /if \(MatchMoments\.Celebrating\) return;/.test(box));
+  check("(Unity source) set point and match point from the score (PointModel's own rule)", /PointModel\.IsSetWon\(s\.HomePoints \+ 1, s\.AwayPoints\)/.test(mo) && /"MATCH POINT" : "SET POINT"/.test(mo));
+  check("(Unity source) the podium ceremonies are not touched (CeremonyDirector has no B3 code)", !/MatchMoments|PointPresenter/.test(U("Assets/Scripts/CeremonyDirector.cs")));
+  const proof = path.join(PROOF, "B3", "b3-match-moments.txt");
+  const text = fs.existsSync(proof) ? fs.readFileSync(proof, "utf8") : "";
+  const n = (text.match(/CHECK .*: PASS/g) ?? []).length;
+  check("the court's own proof (Unity batch, V19, a whole watched match): walk-on, lower thirds, banners, celebration", /RESULT: PASS/.test(text), `${n} checks passed, ${path.relative(REPO, proof)}`);
+}
+
+console.log("\nB4. CROWD AND COMMENTARY");
+{
+  const lines = U("Assets/Scripts/CommentaryLines.cs"), cm = U("Assets/Scripts/CommentaryManager.cs"), au = U("Assets/Scripts/AudioManager.cs");
+  const doc = fs.readFileSync(path.join(REPO, "docs", "update-1.2", "COMMENTARY-NEW-LINES.md"), "utf8");
+  const kinds = ["ace", "error", "comeback", "setpoint", "matchpoint", "walkon", "matchwon"];
+  const files = kinds.flatMap((k) => ["A", "B"].flatMap((s) => [1, 2, 3].map((n) => `${s}_${k}_${n}.mp3`)));
+  const folder = path.join(REPO, "artifacts", "beach-volleyball", "public", "unity-build", "StreamingAssets", "commentary");
+  const recorded = fs.readdirSync(folder).filter((f) => f.endsWith(".mp3"));
+  check("the 42 new lines are listed for Rob to record, by file name (7 kinds x 3 lines x 2 voices)", files.every((f) => doc.includes("`" + f + "`")), `${files.length} files`);
+  // Each line in the list is the line in the code (the same words, in the same order).
+  const said = [...lines.matchAll(/new\[\] \{ ("[^}]*") \}, \/\/ (Ace|Error|Comeback|SetPoint|MatchPoint|WalkOn|MatchWon)/g)].map((m) => [...m[1].matchAll(/"([^"]*)"/g)].map((x) => x[1]));
+  const inDoc = [...doc.matchAll(/\| `[AB]_[a-z]+_\d\.mp3` \| ([^|]+) \|/g)].map((m) => m[1].trim());
+  check("and each written line is the line in the code (CommentaryLines.cs)", said.flat().length === 42 && said.flat().every((l) => inDoc.includes(l)), `${said.flat().length} lines in the code, ${inDoc.length} in the list`);
+  check("none is recorded yet (no audio was made): the court falls back to a point line, the walk-on to nothing",
+    files.every((f) => !recorded.includes(f)) && recorded.length === 48 && /k == PlayKind\.WalkOn \? \(PlayKind\?\)null : k >= PlayKind\.Ace \? PlayKind\.Point : k/.test(cm), `${recorded.length} clips in the folder`);
+  check("(Unity source) the point's line from what happened; the crowd erupts on aces and blocks",
+    /private PlayKind ResolvePoint\(\)/.test(cm) && /if \(kind == PlayKind\.Point\) \{ _resolvePointAt = Time\.frameCount; return; \}/.test(cm) && /m\.how != "Ace" && m\.how != "BlockStuff"/.test(au));
+  const proof = path.join(PROOF, "B4", "b4-crowd-and-commentary.txt");
+  const text = fs.existsSync(proof) ? fs.readFileSync(proof, "utf8") : "";
+  check("the court's own proof (Unity batch, V19, the game's 48 clips)", /RESULT: PASS/.test(text), `${(text.match(/CHECK .*: PASS/g) ?? []).length} checks passed, ${path.relative(REPO, proof)}`);
+}
+
+console.log("\nB5. SKIP AND SETTINGS (the page's side)");
+{
+  const store = {};
+  const cs = loadCourtSettings(store);
+  const d = cs.readCourtSkips();
+  check("nothing stored: both off (the full presentation)", d.skipToServe === false && d.skipReplays === false && cs.skipsPrefs(d) === "serve=0;replays=0", cs.skipsPrefs(d));
+  cs.saveCourtSkips({ skipToServe: true, skipReplays: false });
+  check("a choice is stored, read back, and sent as the court reads it", cs.skipsPrefs() === "serve=1;replays=0" && JSON.parse(store[cs.COURT_SKIPS_KEY]).skipToServe === true);
+  store[cs.COURT_SKIPS_KEY] = "{broken";
+  check("a broken store reads as both off", cs.skipsPrefs(cs.readCourtSkips()) === "serve=0;replays=0");
+  const settings = FE("pages/settings.tsx"), court = FE("pages/court.tsx"), panel = FE("components/skip-settings.tsx");
+  const html = fs.readFileSync(path.join(REPO, "artifacts", "beach-volleyball", "public", "unity-build", "index.html"), "utf8");
+  check("(source) Settings has a Match presentation card: Skip to next serve, Skip replays", /<SkipSettings skips=\{skips\} onChange=\{chooseSkips\} \/>/.test(settings)
+    && /label="Skip to next serve"/.test(panel) && /label="Skip replays"/.test(panel) && /saveCourtSkips\(k\)/.test(settings));
+  check("(source) and in the match (the court's own settings), sent to the court at once and when it has loaded",
+    /<SkipSettings skips=\{skips\} onChange=\{chooseSkips\} \/>/.test(court) && /function chooseSkips\(k: CourtSkips\) \{\s*setSkips\(k\);\s*saveCourtSkips\(k\);\s*sendSkips\(k\);/.test(court)
+    && /sendCamera\(\);\s*sendSkips\(\);/.test(court) && /postMessage\(\{ type: "vbe-skips", prefs: skipsPrefs\(k\) \}/.test(court));
+  check("(source) the court's page passes it to the presentation, only in the shape it expects",
+    html.includes(`d.type !== "vbe-skips"`) && html.includes(`SendMessage("PointPresenter", "SetSkips", d.prefs)`) && html.includes("/^serve=[01];replays=[01]$/"));
+  check("(Unity source) the presentation takes it (PointPresenter.SetSkips), and the walk-on and celebration honour it",
+    /public void SetSkips\(string prefs\)/.test(U("Assets/Scripts/PointPresenter.cs")) && /if \(PointPresenter\.SkipToServe\) \{ Celebrated = true;/.test(U("Assets/Scripts/MatchMoments.cs")));
+  const proof = path.join(PROOF, "B5", "b5-skip.txt");
+  const text = fs.existsSync(proof) ? fs.readFileSync(proof, "utf8") : "";
+  check("the court's own proof (Unity batch, V19, a whole match): skip to next serve, skip replays, as the page sends them", /RESULT: PASS/.test(text), `${(text.match(/CHECK .*: PASS/g) ?? []).length} checks passed, ${path.relative(REPO, proof)}`);
+}
+
 console.log("\n" + "=".repeat(72));
 console.log(`  ${failures === 0 ? "PASS" : "FAIL"}: ${checks - failures}/${checks} checks`);
 console.log("=".repeat(72));
