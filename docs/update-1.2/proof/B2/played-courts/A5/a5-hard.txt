@@ -1,0 +1,23 @@
+=== 1.2 A3 PLAYED MATCH PROOF (V19, no api-server; difficulty medium; seed 20261125) ===
+  played match running after 0.3 s; you control Player_A1
+  CHECK Dig fires from the keyboard (J) and the gamepad (A): PASS  keyboard 1, gamepad 1
+  CHECK Set fires from the keyboard (K) and the gamepad (X): PASS  keyboard 1, gamepad 1
+  CHECK Soft fires from the keyboard (I) and the gamepad (RightShoulder): PASS  keyboard 1, gamepad 1
+  CHECK Dive fires from the keyboard (Space) and the gamepad (Circle): PASS  keyboard 1, gamepad 1
+  CHECK Switch fires from the keyboard (Q) and the gamepad (LeftShoulder): PASS  keyboard 1, gamepad 1
+  CHECK Cheer fires from the keyboard (C) and the gamepad (D-pad up): PASS  keyboard 1, gamepad 1
+  CHECK Move fires from WASD and the left stick: PASS  keyboard frames 235, gamepad frames 236
+  CHECK Help still fires from H and DpadDown (ManualControl), and leaves the match in Manual, unpaused: PASS  keyboard 1, gamepad 1, mode Manual, paused False
+  CHECK Pause still fires from Escape and Start (ManualControl), and leaves the match in Manual, unpaused: PASS  keyboard 1, gamepad 1, mode Manual, paused False
+  CHECK Toggle still fires from Tab and Select (ManualControl), and leaves the match in Manual, unpaused: PASS  keyboard 1, gamepad 1, mode Manual, paused False
+  device checks done after 4.9 s; the autopilot takes the seat
+  picture: C:/Users/rbonn/Documents/Volley-Ball-Empire/docs/update-1.2/proof/B2/played-courts\A5\a3-spike-meter.png
+  picture: C:/Users/rbonn/Documents/Volley-Ball-Empire/docs/update-1.2/proof/B2/played-courts\A5\a3-ring-incoming.png
+  picture: C:/Users/rbonn/Documents/Volley-Ball-Empire/docs/update-1.2/proof/B2/played-courts\A5\a3-serve-meter.png
+  A5: the loader read game difficulty 'hard' (connection: applied 4 of 4 player(s)); the played match runs at Hard (runner: Hard)
+  CHECK the court plays at the career's difficulty, sent by /api/unity/match-state (hard): PASS  loader 'hard', engine Hard
+  timing windows at Hard: perfect ±45 ms, good ±100 ms, late ±190 ms; stats weigh 62%
+  CHECK the opponents play at Hard's sharpness, the partner at Medium's: PASS  opponents timing sd 88 ms, reaction 242 ms, placing ±0.28 m, soft 18%; partner timing sd 105 ms, reaction 268 ms, placing ±0.33 m, soft 16%
+  CHECK Hard: no ring: PASS  ball coming to your side in 35495 frames: ring shown in 0; you to play it in 35472: prompt shown in 0; any prompt in 0 frames
+  CHECK Hard: no button prompts: PASS  ball coming to your side in 35495 frames: ring shown in 0; you to play it in 35472: prompt shown in 0; any prompt in 0 frames
+RESULT: PASS (14 passed, 0 failed)

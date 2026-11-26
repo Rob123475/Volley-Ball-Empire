@@ -91,6 +91,24 @@ console.log("\nB1. THE CAMERA LOOKS");
   check("the court's own proof (Unity batch, V19): the TV director and the six Game views", /RESULT: PASS/.test(text), `${n} checks passed, ${path.relative(REPO, proof)}`);
 }
 
+console.log("\nB2. BETWEEN POINTS");
+{
+  const mm = U("Assets/Scripts/MatchManager.cs"), mmp = U("Assets/Scripts/MatchManager.Presentation.cs"), run = U("Assets/Scripts/PlayedMatchRunner.cs");
+  const pp = U("Assets/Scripts/PointPresenter.cs"), helper = U("Assets/Scripts/PlayerAnimationHelper.cs");
+  check("(Unity source) Auto: the players stay for the presentation, and the serve waits for it and for them to reach their spots",
+    /if \(HeldForPresentation\(\)\) \{ UpdatePlayerLabels\(\); return; \}/.test(mm) && /yield return AfterPresentation\(\);/.test(mm)
+    && /private bool HeldForPresentation\(\)/.test(mmp) && /private System\.Collections\.IEnumerator AfterPresentation\(\)/.test(mmp));
+  check("(Unity source) a played match: the engine waits while the point is presented", /if \(PointPresenter\.Busy\) return;/.test(run));
+  check("(Unity source) the old reactions, fired as the point was scored, are gone (PointPresenter has them)", !/OnPointWon/.test(helper) && /PointPresenter's now/.test(helper));
+  check("(Unity source) skippable: Enter, or R3 on a pad", pp.includes(`AddBinding("<Keyboard>/enter")`) && pp.includes(`AddBinding("<Gamepad>/rightStickPress")`));
+  check("(Unity source) replays are positions, not video (ReplayRecorder), of aces, blocks, diving saves and hard spikes",
+    /class ReplayRecorder/.test(U("Assets/Scripts/ReplayRecorder.cs")) && /"an ace"/.test(pp) && /"a block"/.test(pp) && /"a diving save"/.test(pp) && /a hard spike/.test(pp));
+  const proof = path.join(PROOF, "B2", "b2-between-points.txt");
+  const text = fs.existsSync(proof) ? fs.readFileSync(proof, "utf8") : "";
+  const n = (text.match(/CHECK .*: PASS/g) ?? []).length;
+  check("the court's own proof (Unity batch, V19): every point presented in 3 to 4 s, replays put back, the engine waits, the skip", /RESULT: PASS/.test(text), `${n} checks passed, ${path.relative(REPO, proof)}`);
+}
+
 console.log("\n" + "=".repeat(72));
 console.log(`  ${failures === 0 ? "PASS" : "FAIL"}: ${checks - failures}/${checks} checks`);
 console.log("=".repeat(72));

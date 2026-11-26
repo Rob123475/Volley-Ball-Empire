@@ -1,5 +1,6 @@
 B1 THE COURT CAMERA, V19 IN PLAY MODE (batch)
-  CourtCamera on Camera_Gameplay_Close; the umpire's chair is on the court's +x side; keep-out boxes: VolleyballNet_Visual, NetPost_L, NetPost_R, Antenna_L, Antenna_R, Umpire chair, Umpire, StadiumGrandstand (1), StadiumGrandstand, Beach_Umbrella_Yellow, board x18
+  CourtCamera on Camera_Gameplay_Close; the umpire's chair is on the court's +x side; keep-out boxes: VolleyballNet_Visual, NetPost_L, NetPost_R, Antenna_L, Antenna_R, Umpire chair, Umpire, StadiumGrandstand, Beach_Umbrella_Yellow, StadiumGrandstand (1), board x18
+  keep-out: 616 boxes, 588 of them the venue's other props within 24 m across and 28 m along (tents, huts, racks, flags, palms, people standing)
   keep-out VolleyballNet_Visual: centre (0.0, 1.7, 0.0), size (9.2, 1.7, 0.7) m
   keep-out NetPost_L: centre (-4.3, 1.3, 0.0), size (0.9, 3.3, 0.9) m
   keep-out NetPost_R: centre (4.3, 1.3, 0.0), size (0.9, 3.3, 0.9) m
@@ -7,47 +8,47 @@ B1 THE COURT CAMERA, V19 IN PLAY MODE (batch)
   keep-out Antenna_R: centre (4.0, 3.5, 0.0), size (0.7, 2.5, 0.7) m
   keep-out Umpire chair: centre (6.0, 2.3, -0.1), size (2.1, 5.3, 2.1) m
   keep-out Umpire: centre (6.1, 3.6, -0.1), size (1.1, 2.8, 2.1) m
-  keep-out StadiumGrandstand (1): centre (-10.1, 2.1, 7.1), size (7.1, 4.7, 14.8) m
   keep-out StadiumGrandstand: centre (-10.1, 2.1, -7.1), size (7.1, 4.7, 14.8) m
   keep-out Beach_Umbrella_Yellow: centre (9.9, 1.3, 11.9), size (3.5, 3.2, 3.5) m
+  keep-out StadiumGrandstand (1): centre (-10.1, 2.1, 7.1), size (7.1, 4.7, 14.8) m
   Game view 1 (Behind your baseline): at (0.0, 12.0, -14.0) looking at (0.0, 0.0, 3.1) (court frame, m), field of view 60°, zoom in 8 m / out 10 m
   Game view 2 (Behind the far baseline): at (0.0, 12.0, 14.0) looking at (0.0, 0.0, -3.1) (court frame, m), field of view 60°, zoom in 8 m / out 10 m
   Game view 3 (Side-on at the net): at (11.0, 3.0, -2.6) looking at (0.0, 1.2, 0.0) (court frame, m), field of view 55°, zoom in 4 m / out 3 m
   Game view 4 (High sideline): at (16.9, 11.0, -4.5) looking at (-9.3, 0.0, -1.5) (court frame, m), field of view 60°, zoom in 9 m / out 8 m
   Game view 5 (Overhead): at (0.0, 24.0, 0.0) looking at (0.0, 0.0, 0.0) (court frame, m), field of view 60°, zoom in 10 m / out 16 m
-  Game view 6 (Low courtside): at (-6.2, 0.9, -10.5) looking at (0.0, 1.4, 1.0) (court frame, m), field of view 55°, zoom in 3 m / out 3 m
+  Game view 6 (Low courtside): at (-6.3, 0.9, -5.0) looking at (0.0, 1.4, 1.5) (court frame, m), field of view 55°, zoom in 3 m / out 2 m
   CHECK a watched (Auto) match opens on the TV look: PASS  mode Auto, look TV
   drawn: Serve: beside the server (column 1, row 1)
   drawn: Rally: end-on drift (column 2, row 1)
-  drawn: Kill: swoop in close (column 3, row 1)
-  drawn: Between: crane on the scorer (column 4, row 1)
+  drawn: Between: orbit round the pair (column 3, row 1)
+  drawn: Serve: push-in from behind the server (column 4, row 1)
   drawn: Serve: low off the sand (column 1, row 2)
-  drawn: Rally: high on the umpire's side (column 2, row 2)
-  drawn: Kill: cut close on the scorer (column 3, row 2)
-  drawn: Between: the venue (column 4, row 2)
-  drawn: Between: the crowd (column 1, row 3)
-  drawn: Serve: push-in from behind the server (column 2, row 3)
-  drawn: Between: orbit round the pair (column 3, row 3)
-  drawn: Rally: broadcast-side orbit (column 4, row 3)
+  drawn: Between: the venue (column 2, row 2)
+  drawn: Kill: swoop in close (column 3, row 2)
+  drawn: Rally: broadcast-side orbit (column 4, row 2)
+  drawn: Kill: cut close on the scorer (column 1, row 3)
+  drawn: Rally: high on the umpire's side (column 2, row 3)
+  drawn: Between: crane on the scorer (column 3, row 3)
+  drawn: Between: the crowd (column 4, row 3)
   -> b1-tv-shots.png
-  TV look, 100 s of a watched match: 10 points, 39 shots: Serve: beside the server | Rally: end-on drift | Kill: swoop in close | Between: crane on the scorer | Serve: low off the sand | Rally: high on the umpire's side | Kill: cut close on the scorer | Between: the venue | Serve: beside the server | Rally: end-on drift | Between: the crowd | Serve: push-in from behind the server | Rally: high on the umpire's side | Between: orbit round the pair | Serve: low off the sand | Rally: end-on drift | Between: the venue | Serve: push-in from behind the server | Rally: high on the umpire's side | Kill: swoop in close | Between: the crowd | Serve: beside the server | Rally: broadcast-side orbit | Kill: cut close on the scorer | Between: crane on the scorer | Serve: low off the sand | Rally: high on the umpire's side | Kill: swoop in close | Between: orbit round the pair | Serve: beside the server | Rally: broadcast-side orbit | Kill: cut close on the scorer | Between: the venue | Serve: low off the sand | Rally: end-on drift | Kill: swoop in close | Between: orbit round the pair | Serve: push-in from behind the server | Rally: high on the umpire's side
-  different shots used: Serve 3, Rally 3, Kill 2, Between 4
+  TV look, 100 s of a watched match: 11 points, 47 shots: Serve: beside the server | Rally: end-on drift | Between: orbit round the pair | Serve: push-in from behind the server | Serve: low off the sand | Rally: high on the umpire's side | Between: the venue | Serve: beside the server | Serve: low off the sand | Rally: end-on drift | Kill: swoop in close | Between: orbit round the pair | Serve: beside the server | Rally: broadcast-side orbit | Kill: cut close on the scorer | Between: the venue | Serve: low off the sand | Serve: push-in from behind the server | Rally: high on the umpire's side | Kill: swoop in close | Serve: low off the sand | Serve: push-in from behind the server | Rally: broadcast-side orbit | Kill: cut close on the scorer | Between: crane on the scorer | Serve: low off the sand | Rally: high on the umpire's side | Kill: swoop in close | Between: orbit round the pair | Serve: beside the server | Rally: broadcast-side orbit | Kill: cut close on the scorer | Between: the venue | Serve: low off the sand | Rally: end-on drift | Kill: swoop in close | Serve: push-in from behind the server | Serve: beside the server | Rally: high on the umpire's side | Kill: cut close on the scorer | Between: the crowd | Serve: low off the sand | Rally: broadcast-side orbit | Between: orbit round the pair | Serve: push-in from behind the server | Serve: low off the sand | Rally: end-on drift
+  different shots used: Serve 3, Rally 3, Between 4, Kill 2
   CHECK every moment's shot differs from the last one used for that moment: PASS  0 repeats
-  CHECK several shots for each moment were used (serve, rally, between points): PASS  Serve 3, Rally 3, Kill 2, Between 4
-  CHECK the camera was never inside a player, the net, the chair, the boards or the stands: PASS  0 of 184351 frames
+  CHECK several shots for each moment were used (serve, rally, between points): PASS  Serve 3, Rally 3, Between 4, Kill 2
+  CHECK the camera was never inside a player, the net, the chair, the boards or the stands: PASS  0 of 183512 frames
   CHECK always moving: every second the camera moved or turned: PASS  99 of 99 seconds moving
-  CHECK at least 6 points were played under the TV look: PASS  10
-  CHECK key 1: Game view 1 (Behind your baseline), clear of everything, nothing in the way of the court: PASS  look Game, view 1; inside nothing; between it and the court: nothing
+  CHECK at least 6 points were played under the TV look: PASS  11
+  CHECK key 1: Game view 1 (Behind your baseline), clear of everything, nothing in the way of the court: PASS  look Game, view 1; 0.00 m from the view's spot (pushed to (0.0, 12.0, -14.0)); inside nothing; between it and the court: nothing
   drawn: Behind your baseline (column 1, row 1)
-  CHECK key 2: Game view 2 (Behind the far baseline), clear of everything, nothing in the way of the court: PASS  look Game, view 2; inside nothing; between it and the court: nothing
+  CHECK key 2: Game view 2 (Behind the far baseline), clear of everything, nothing in the way of the court: PASS  look Game, view 2; 0.00 m from the view's spot (pushed to (0.0, 12.0, 14.0)); inside nothing; between it and the court: nothing
   drawn: Behind the far baseline (column 2, row 1)
-  CHECK key 3: Game view 3 (Side-on at the net), clear of everything, nothing in the way of the court: PASS  look Game, view 3; inside nothing; between it and the court: nothing
+  CHECK key 3: Game view 3 (Side-on at the net), clear of everything, nothing in the way of the court: PASS  look Game, view 3; 0.00 m from the view's spot (pushed to (11.0, 3.0, -2.6)); inside nothing; between it and the court: nothing
   drawn: Side-on at the net (column 3, row 1)
-  CHECK key 4: Game view 4 (High sideline), clear of everything, nothing in the way of the court: PASS  look Game, view 4; inside nothing; between it and the court: nothing
+  CHECK key 4: Game view 4 (High sideline), clear of everything, nothing in the way of the court: PASS  look Game, view 4; 0.00 m from the view's spot (pushed to (16.9, 11.0, -4.5)); inside nothing; between it and the court: nothing
   drawn: High sideline (column 1, row 2)
-  CHECK key 5: Game view 5 (Overhead), clear of everything, nothing in the way of the court: PASS  look Game, view 5; inside nothing; between it and the court: nothing
+  CHECK key 5: Game view 5 (Overhead), clear of everything, nothing in the way of the court: PASS  look Game, view 5; 0.00 m from the view's spot (pushed to (0.0, 24.0, 0.0)); inside nothing; between it and the court: nothing
   drawn: Overhead (column 2, row 2)
-  CHECK key 6: Game view 6 (Low courtside), clear of everything, nothing in the way of the court: PASS  look Game, view 6; inside nothing; between it and the court: nothing
+  CHECK key 6: Game view 6 (Low courtside), clear of everything, nothing in the way of the court: PASS  look Game, view 6; 0.00 m from the view's spot (pushed to (-6.3, 0.9, -5.0)); inside nothing; between it and the court: nothing
   drawn: Low courtside (column 3, row 2)
   -> b1-game-views.png
   CHECK + held 1 s dollies view 1 in (within its limit): PASS  8.00 m in (CourtCamera's dolly 8.00 m, limit 8 m)

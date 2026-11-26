@@ -132,6 +132,7 @@ Brief: `docs/update-1.2/UNITY-REBUILD-BRIEF.md`. Plan: `docs/update-1.2/PLAYABLE
 | A2 Every touch graded | Done, PASS | `docs/update-1.2/proof/A2/`: `a2-touch-grading.txt` (Unity batch, 27/27), `a2-dotnet.txt` (dotnet, 27/27), `a2-unity.log`, `a2-digs.png`, `a2-spikes.png` | Unity `2b964d0`; game repo `3be1fe35` |
 | Animations, first job | Done, PASS | `docs/update-1.2/proof/animation/`: `aa-volleyball-humanoid.txt`, `play-strips.txt` and five Play-mode strips | Unity `ed0e902` |
 | Animations, the rest | Done, PASS | `docs/update-1.2/proof/animation/`: `presentation-states.txt`, `presentation-strips.txt` (42/42) and a `play-strip-*.png` for each state, `pair-placement.txt` with `pair-strip-HighFive.png` and `pair-strip-Hug.png`, `pose-proof.txt` with `pose-strip-HandSignals.png`, `pose-strip-Drink.png` and `pose-strip-Umpire.png`, `rejected/` | Unity `287718e` |
+| B2 Between points | Done, PASS | `docs/update-1.2/proof/B2/`: `b2-between-points.txt` (Unity batch, V19, 13/13) with three pictures and `b2-between-points-unity.log`; `RallyPlanProof.log` (PASS); `harness-played-match-unity.txt` (9/9) | Unity `45074a1` |
 | B1 Two camera looks | Done, PASS | `docs/update-1.2/proof/B1/`: `b1-court-camera.txt` (Unity batch, V19, 23/23) with `b1-tv-shots.png`, `b1-game-views.png` and `b1-court-camera-unity.log`; `RallyPlanProof.log` (PASS); `harness-played-match-unity.txt` (9/9, the three played courts); `harness/presentation.mjs` 17/17; `harness/settings.mjs` 40/40 | Unity `f807a08` |
 | A3 Controls, played on the court | Done, PASS | `docs/update-1.2/proof/A3/`: `a3-played-match.txt` (Unity batch, 28/28), `a3-unity.log`, three pictures | Unity `ed0e902`; game repo `833aaeac` |
 | A4 AI plays the same game | Done, PASS (the check that failed under the second ruling passes again since the ruling was withdrawn) | `docs/update-1.2/proof/A4/`: `a4-ai-same-game.txt` (Unity batch, 9/9), `a4-dotnet.txt` (dotnet, 8/8), `a4-unity.log` | Unity `ea77855`; game repo `74f3a669` |
@@ -873,3 +874,61 @@ A played match opens on Game, behind your own baseline. A watched match opens on
 - `CameraZoomButtons.cs`, `CeremonyDirector.cs` and `RallyPlanProof.cs`: `CourtCamera` in place of `SimpleCameraPresets`.
 - `CourtsideBoards.cs`: lists its boards for the keep-out.
 - V19: `CourtCamera` on `Camera_Gameplay_Close` in place of the old component.
+
+### B2: between points (26 Nov 2026)
+**What happens after every point,** in both looks and both modes. It is 3 s for a plain point and 4 s for a big one, and it can be skipped with Enter (R3 on a pad). `PointPresenter` runs it:
+1. **The score graphic:** a bar low in the centre, with both teams' names, sets and points, above the commentary subtitle. A tab on it says what won the point (BLOCK, OUT, IN THE NET, FOUR HITS, SERVICE ERROR, ...). ACE and WINNER are already MatchManager's action word under the header, so the tab doesn't repeat them.
+2. **The umpire** signals the team to serve (towards their side). When it ends she authorises the serve.
+3. **The reactions:**
+   - The winners each play one of the 17 point-won reactions, never the one she played last.
+   - Now and then, the pair celebrates together instead (the high five, or the hug if they are close). Their spacing comes from the Animations section.
+   - Pairs are never followed by a replay: the replay takes the players back through the rally, and the slap comes about 2.7 s in.
+   - The other side plays the point-lost reactions, unless a player is down from a dive.
+4. **The camera** (the director's cutaways, whichever look is on): a close-up of the scorer, head to knees, pushing in, then the other side, then the replay.
+5. **A big moment gets a slow-motion replay** from another angle: low behind the losing side's baseline, the ball coming at the camera.
+   - A replay is the last 1.2 s of the rally at 0.6x speed.
+   - It is not video. `ReplayRecorder` keeps the four players (place, facing, animation state and time) and the ball 30 times a second for 5 s. It plays them back, then puts the court back exactly as it was.
+   - The big moments: every ace and every block; a diving save (a dive by the side that went on to win, in a rally of 6 or more touches); a hard spike (17 m/s in a played match; 45 m/s in Auto, whose scripted ball flies its last attack at 30 to 60 m/s).
+   - There are never two replays in a row, unless the second is an ace or a block.
+
+**The next serve waits for it.**
+- **Auto:** the players stay where they are for the reactions and the replay (`HeldForPresentation`). After the presentation they walk all the way onto their spots before the serve may go (`AfterPresentation`), as the old 2 s pause gave them. Without that, RallyPlanProof caught servers serving from 0.45 m behind the line.
+- **A played match:** the engine does not step while the point is presented, and the match ends only after the last point's presentation.
+
+**The proof** (`b2-between-points.txt`, 13/13, V19 in Play mode, batch, Unity closed):
+- **150 s of a watched match:**
+  - 16 points, every one presented: 6 plain ones in 3.0 s each, 9 big ones in 4.0 s each;
+  - the replays covered 2 blocks, 2 aces, 4 diving saves and 1 hard spike;
+  - the score graphic matched the match 16/16;
+  - all four players reacted at every point;
+  - no serve was struck during a presentation;
+  - all 9 replays put the court back exactly (under 1 mm);
+  - both high fives met, at 3 cm;
+  - the camera was inside something in 0 of 86,536 frames.
+- **Enter** (virtual keyboard) skipped a presentation 0.01 s after the press.
+- **A played match:** in 3 played points the engine's clock did not move while each was presented.
+- **Pictures:** `b2-close-up.png`, `b2-other-side.png` and `b2-replay.png`, each with the graphics on it.
+
+**What the proof and the pictures caught, and what was done:**
+- **The rally's animation triggers were still pending**, so the controller's Any State transitions took players straight out of a reaction into a set or a spike. Every reaction now clears them first.
+- **Nothing is drawn in batch mode**, so the players' bones were never updated, and the hands seemed not to meet. The proof makes the four always animate. The game draws them, so it doesn't need this.
+- **Diving saves were found on 8 points of 16** in Auto, where dives are common. They now count only for the winning side, in rallies of 6 or more, and never as a second replay in a row.
+- **The replay camera behind a baseline stood inside a tent**, and the picture was grey. The keep-out now holds every solid prop round the court: 588 more boxes for tents, huts, racks, flags, palms and people. The net's own strands are left out, as the net box covers them.
+- **The keep-out's push** moved the camera from one grandstand into the other where they meet at the net. Whatever still holds the camera after the push now lifts it over its top. The ball is pushed first and checked last; near the ball is a poor picture, not a collision.
+- **With the new prop boxes**, B1's view 6 (low courtside) had a sign between it and the court. It moved along the sideline to (-6.3, 0.9, -5). B1's proof was run again: 23/23.
+- **The score bar** first sat on the commentary subtitle, and its tab repeated WINNER. It is now above the subtitle, and the tab shows only what the header's word doesn't.
+
+**Still passing:**
+- `RallyPlanProof` PASS (`proof/B2/RallyPlanProof.log`): 29 serves, every server exactly 0.75 m behind her line.
+- The three played courts, 9/9 (`proof/B2/harness-played-match-unity.txt`).
+- `harness/presentation.mjs`, 23/23.
+
+**Files:**
+- **New:** `Scripts/PointPresenter.cs`, `Scripts/ReplayRecorder.cs`, `Scripts/PresentationGraphics.cs` (it also holds B3's lower third and banner), `Editor/PresentationPointProof.cs`.
+- **Changed:**
+  - `MatchManager.cs`: +2 lines, the hold and the wait.
+  - `MatchManager.Presentation.cs`: `HeldForPresentation`, `AfterPresentation`.
+  - `MatchManager.Played.cs`: +1 line, the end waits for the presentation.
+  - `PlayedMatchRunner.cs`: the engine waits; the cheer button plays a point-won reaction.
+  - `CameraKeepOut.cs`, `CameraDirector.cs`, `CourtCamera.cs`: as above.
+- **Cut down:** `PlayerAnimationHelper.cs` lost its point-won and point-lost reactions (56 lines), which fired as the point was scored. `PointPresenter` has them now.
