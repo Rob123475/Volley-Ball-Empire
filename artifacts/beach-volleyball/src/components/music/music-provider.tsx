@@ -54,7 +54,8 @@ const DEFAULT_VOLUME = 0.4;
 const FADE_OUT_FILES = new Set(["barefoot-tonight.mp3", "burn-under-the-sun.mp3", "rum-under-the-palms.mp3"]);
 const FADE_OUT_SECONDS = 5;
 
-const COURT_PATH = "/court";
+/** The 3D court: a career match, and (1.2 D6) an exhibition game. */
+const COURT_PATHS = ["/court", "/exhibition/court"];
 
 // ── Settings persistence ────────────────────────────────────────────────────
 
@@ -221,7 +222,7 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
   pausedRef.current = paused;
 
   const [location] = useLocation();
-  const onCourt = location === COURT_PATH;
+  const onCourt = COURT_PATHS.includes(location);
   const onCourtRef = useRef(onCourt);
   onCourtRef.current = onCourt;
   const levelRef = useRef(level);

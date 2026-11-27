@@ -45,6 +45,7 @@ const app = read("artifacts/beach-volleyball/src/App.tsx");
 const shell = read("artifacts/beach-volleyball/src/components/layout/shell.tsx");
 const picker = read("artifacts/beach-volleyball/src/pages/profile-picker.tsx");
 const main = read("electron/main.js");
+const court = read("artifacts/beach-volleyball/src/pages/court.tsx");
 
 /** Source with comments removed, for checks that must not match prose. */
 const stripComments = (src) => src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
@@ -182,14 +183,16 @@ check("every storage access is wrapped so blocked storage cannot break the game"
 check("the defaults are 40% and not muted",
   /DEFAULT_VOLUME = 0\.4/.test(provider) && /muted: false/.test(provider));
 
-// Unity brief item 9: no duck any more - out on /court, the next song after it.
+// 1.2 6e (Rob, 27 Nov), replacing Unity brief item 9's fade-out: the song plays on through the match
+// (a career match or an exhibition), from the band's stage, at the player's volume times the stage's
+// loudness where the court's camera is; off the court the stage no longer applies. Nothing pauses it.
 // Rob, 16 Oct: the normal volume is the player's own times the master (Settings > Sound).
-check("on /court the music fades out and stops; leaving the court plays the next song at the normal volume",
-  /COURT_FADE_MS = 1500/.test(provider)
-  && /COURT_PATH = "\/court"/.test(provider)
-  && /else audio\.pause\(\);/.test(provider)
-  && /if \(!onCourt && was\) \{\s*audio\.volume = level;\s*failuresRef\.current = 0;\s*advance\(\);/.test(provider)
-  && !/COURT_DUCK/.test(provider));
+check("on the court the song plays on at the player's volume times the stage's loudness; off it, the normal volume",
+  /COURT_PATHS = \["\/court", "\/exhibition\/court"\]/.test(provider)
+  && /const base = \(\) => levelRef\.current \* \(onCourtRef\.current \? stageGainRef\.current : 1\);/.test(provider)
+  && /if \(!onCourt\) stageGainRef\.current = 1;/.test(provider)
+  && /music\?\.setStageGain/.test(court) && /"vbe-stage-audio:"/.test(court)
+  && !/COURT_FADE_MS|COURT_DUCK|else audio\.pause\(\);/.test(provider));
 
 check("Electron lifts Chromium's autoplay block so the music starts on its own",
   /autoplayPolicy: "no-user-gesture-required"/.test(main));

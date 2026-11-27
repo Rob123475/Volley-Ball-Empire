@@ -162,10 +162,12 @@ check("(source) Sound starts with a master volume, stored with the court's volum
 check("(source) the court is sent each of its volumes times the master",
   /crowd: volume\.crowd \* volume\.master, commentary: volume\.commentary \* volume\.master/.test(courtSettings));
 check("(source) the music plays at its own volume times the master, and follows the master live",
-  /const level = volume \* master;/.test(provider) && /if \(!onCourt\) audio\.volume = level;/.test(provider)
+  // 1.2 6e: on the court the level is also scaled by the band's stage (base()); it still starts from volume * master.
+  /const level = volume \* master;/.test(provider) && /levelRef\.current = level;/.test(provider) && /audio\.volume = base\(\);/.test(provider)
     && provider.includes("window.addEventListener(MATCH_VOLUME_EVENT, read)") && !/audio\.volume = volume;/.test(provider));
 check("(source) the music's mute is the music element's own flag: it mutes only the songs",
-  /audio\.muted = muted;/.test(provider) && !/\bmuted\b/.test(courtSettings.replace(/\/\*[\s\S]*?\*\//g, "")) && !/useMusic|\.muted\b|toggleMute/.test(courtPage));
+  // 1.2 6e: the court page reads whether the music is sounding (to tell the band to play), and never changes it.
+  /audio\.muted = muted;/.test(provider) && !/\bmuted\b/.test(courtSettings.replace(/\/\*[\s\S]*?\*\//g, "")) && !/toggleMute|\.muted\s*=[^=]|setVolume/.test(courtPage));
 
 // ── 8. Settings on the match screen (Rob, 16 Oct) ────────────────────────────
 console.log("\n8. SETTINGS ON THE MATCH SCREEN, WITHOUT LEAVING THE MATCH");

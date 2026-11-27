@@ -98,7 +98,8 @@ console.log("\nB2. BETWEEN POINTS");
   check("(Unity source) Auto: the players stay for the presentation, and the serve waits for it and for them to reach their spots",
     /if \(HeldForPresentation\(\)\) \{ UpdatePlayerLabels\(\); return; \}/.test(mm) && /yield return AfterPresentation\(\);/.test(mm)
     && /private bool HeldForPresentation\(\)/.test(mmp) && /private System\.Collections\.IEnumerator AfterPresentation\(\)/.test(mmp));
-  check("(Unity source) a played match: the engine waits while the point is presented", /if \(PointPresenter\.Busy\) return;/.test(run));
+  // Additions section 4: it waits through the drinks break too.
+  check("(Unity source) a played match: the engine waits while the point is presented, and through the drinks break", /if \(PointPresenter\.Busy \|\| MatchMoments\.OnBreak\) return;/.test(run));
   check("(Unity source) the old reactions, fired as the point was scored, are gone (PointPresenter has them)", !/OnPointWon/.test(helper) && /PointPresenter's now/.test(helper));
   check("(Unity source) skippable: Enter, or R3 on a pad", pp.includes(`AddBinding("<Keyboard>/enter")`) && pp.includes(`AddBinding("<Gamepad>/rightStickPress")`));
   check("(Unity source) replays are positions, not video (ReplayRecorder), of aces, blocks, diving saves and hard spikes",

@@ -31,7 +31,7 @@ export function CeremonyDialog() {
     staleTime: 10_000,
   });
   const p = data?.pending ?? null;
-  if (!p || location.startsWith("/court")) return null;
+  if (!p || location.startsWith("/court") || location.startsWith("/exhibition")) return null;
   const close = async () => {
     await fetch(`/api/ceremonies/${p.event}/${p.seasonYear}/seen`, { method: "POST", credentials: "same-origin" });
     qc.invalidateQueries({ queryKey: ["ceremonies-pending"] });
