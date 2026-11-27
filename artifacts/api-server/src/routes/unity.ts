@@ -51,6 +51,21 @@ function poolOpponentFor(careerSaveId: number, matchId: number, teamId: number |
 }
 
 // Crowd size estimate by match tier
+/**
+ * 1.2 D2: the time of day the court plays a match at. The game keeps no hour for a match, so each
+ * match gets one of the four from its id: the same every time it is watched, and an even spread
+ * over a season. (An exhibition's player picks it on the court's side.)
+ */
+export const TIMES_OF_DAY = ["morning", "midday", "sunset", "night"] as const;
+export function timeOfDayFor(id: number): (typeof TIMES_OF_DAY)[number] {
+  // MurmurHash3's finaliser: neighbouring ids land far apart, so no run of matches repeats a pattern.
+  let h = id >>> 0;
+  h = Math.imul(h ^ (h >>> 16), 0x85ebca6b);
+  h = Math.imul(h ^ (h >>> 13), 0xc2b2ae35);
+  h = (h ^ (h >>> 16)) >>> 0;
+  return TIMES_OF_DAY[h % TIMES_OF_DAY.length];
+}
+
 function estimateCrowdSize(tier: string | null | undefined): number {
   switch (tier) {
     case "elite":      return 12000 + Math.floor(Math.random() * 4000);
@@ -427,6 +442,7 @@ router.get("/unity/match-state", async (req, res): Promise<void> => {
     servingTeam:          liveState?.servingTeam ?? null,
     weather:              match.weather,
     windSpeed:            match.windSpeed,
+    timeOfDay:            timeOfDayFor(match.id),
     crowdSize:            estimateCrowdSize(match.tier),
     commentaryLine:       liveState?.lastAction ?? commentaryLine,
     pointChanceHome,
@@ -640,6 +656,7 @@ function nationsMatchState(careerSaveId: number, id: number) {
       homeScore: progress.filter((s) => s.home > s.away).length,
       awayScore: progress.filter((s) => s.away > s.home).length,
       weather: null, windSpeed: null, crowdSize: 9000 + (f.id % 7) * 500, commentaryLine: "",
+      timeOfDay: timeOfDayFor(f.id),
       pointChanceHome: watchable ? (swap ? 1 - chance : chance) : null,
       players,
       awayKitChanged: away.changed,

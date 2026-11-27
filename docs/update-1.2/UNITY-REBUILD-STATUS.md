@@ -143,6 +143,10 @@ Brief: `docs/update-1.2/UNITY-REBUILD-BRIEF.md`. Plan: `docs/update-1.2/PLAYABLE
 39. **A continent waiting on Rob's assets plays at the island beach.** Each continent has its line in `Resources/venues.json`, with its look and what is missing. Its status is "waiting on Rob" until its venue is built. Until then, a match there plays at the fallback (oceania, the island beach) and the log says so.
 40. **The scenery's light is not baked.** D2 moves the sun through four times of day. A baked set would be right for one of them and wrong for the other three, and four sets per venue would multiply the download. So the scenery is lit by the real sun and sky, and casts no real-time shadow (section 2's rule: only the players and the ball do). Rob can ask for a baked set per time of day; each would add to the venue's download.
 41. **Each musician carries the instrument on Musical Motions' own skeleton.** Musical Motions hangs its instruments on bones of its own (Guitar, DrumStick_L/R). A Humanoid clip played on another skeleton, Citizens Pro's here, does not carry those bones. So the pack's own rig stands in each musician's spot, scaled to their height, with its body hidden. It plays the same clip in step and holds the instrument where the pack's animator put it.
+42. **The court's weather is what you see; it does not move the ball (D3).**
+    - **Why:** a match's weather is already in the game's odds, and A6's win rates were set with none.
+    - **What was taken out:** the wind's push on Auto's ball (up to 4 N on a 0.27 kg ball, enough to throw every windy rally off its course) and the breeze on a played match's ball.
+    - **What stays:** Auto's small weather touches to where its players move and aim (rain slows them a little, wind widens a serve's scatter). An Auto point is already decided by the game's odds before it is shown.
 
 
 ## Items
@@ -1491,3 +1495,57 @@ The people standing round the venue were treated under fix 1b.
 - The venue was in 0.7 s after the match data.
 - All seven features were on. The cameras' keep-out took 442 boxes, 414 of them props.
 - Pictures: the TV look, the band close and at match distance, the booth, the juice bar, the kiosk, a gull, the lifeguard tower, and the surf rack and signpost.
+
+### D2: time of day (28 Nov 2026)
+
+**Four times, each changing the sun, the sky, the light's colour and strength, the ambient light and the shadows together** (`TimeOfDay`). They belong to the scene, not to a venue, so every venue gets all four.
+
+| Time | Sun | Sky | Ambient and shadows |
+|---|---|---|---|
+| morning | 22° up in the east, warm, 1.6 | the day sky, a touch warmer | cool sky light, long shadows (0.85) |
+| midday | V19 exactly as it was: 50° up, 5000 K, 2.0 | the day sky | V19's own |
+| sunset | 7° up in the west, orange, 1.5 | Unity's procedural sky, drawn for the sun where it is | warm; shadows 0.8 |
+| night under lights | a weak cool moon (0.08), which keeps the players' shadows | a dark procedural sky; reflections down to 8% | four floodlight towers on, and the band's stage light |
+
+**Where a match's time comes from.**
+- **A career match:** the game keeps no hour for a match, so `/api/unity/match-state` sends `timeOfDay`, chosen from the match's id.
+  - The same match always gets the same time, and the four times are spread evenly: 400 ids gave 104, 113, 91 and 92.
+  - It is also sent for a Nations Cup match.
+- **An exhibition:** the player picks it (D6).
+- The court applies it once the venue is in and before the crowd bakes its cards, so the cards are lit for the match.
+
+**The floodlights** (`NightLightsBuild`): four 14 m towers by the court's corners, built from OlegWER's truss with two lamp heads each, and one spotlight each, aimed at the court.
+- Placed clear of the stands, the props and the run-off.
+- No shadows from the spotlights (section 2). They stand at night only.
+
+**Proof** (`proof/D2/d2-{morning,midday,sunset,night}*.png` and `.txt`, a real match each): the wide view from the TV camera's start, the court from the south, and the band.
+- **The night pictures:** the court is bright under the towers, the surroundings dark, and the band lit on its stage.
+- **The first night was wrong** (the far sand and palms pale and frosty). The cause was the reflections, still baked from the day sky. They are now scaled with the time of day, and the moon and night ambient were halved.
+
+**Still to measure:** the frame rate of every venue at every time (section 2), in the WebGL build that follows.
+
+### D3: weather everywhere (28 Nov 2026)
+
+**The four states work in every venue at every time of day.** The weather goes on top of the time:
+
+| Weather | Sun | Shadows | Sky | Clouds |
+|---|---|---|---|---|
+| sunny | full | full | as the time has it | thin, white |
+| windy | full | full | as the time has it | thin; the palms sway harder, the clouds drift faster |
+| cloudy | half | 45% | darker and greyer | thicker and grey |
+| light rain | 30% | 30% | darker and greyer still | thickest; rain falls |
+
+- At every time, the clouds and the rain take the sky's light. At night they are dark, not glowing.
+- **A career match's weather comes from the game**, because it is already in the odds. The game has ten words for weather, which the court maps to its four:
+  - sunny, hot, perfect, clear and extreme heat are sunny;
+  - windy is windy;
+  - cloudy and overcast are cloudy;
+  - rain and stormy are light rain.
+- The proof's match was "hot", so the court drew it sunny (`proof/D3/d3.txt`).
+- **An exhibition's weather is the player's pick** (D6).
+
+**The wind no longer pushes the ball** (decision 42). Both places did it: Auto's ball (`BallController`, up to 4 N on a 0.27 kg ball, about 15 m/s²) and a played match's ball (`PlayedMatchRunner`). Neither ever ran, because the court was always sunny.
+
+**Proof** (`proof/D3/d3-{time}-{weather}.png`, 16 pictures from one real match, each 1 s after its weather was set):
+- Every combination draws.
+- **The crowd's back-row cards look dark** in all but the night pictures. They were baked once, at the match's start under its night light. A real match bakes them under its own light; only the proof changes the light afterwards.

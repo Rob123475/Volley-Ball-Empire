@@ -1,0 +1,43 @@
+A VENUE IN PICTURES (d3), V19 IN PLAY MODE (batch), A WATCHED MATCH
+  log: [Venue] 'asia' is waiting on Rob; playing at oceania
+  log: [Venue] oceania (Island Beach) in after 0.7s, 0.0 MB; features on 7, off 0
+  log: [Camera] keep-out rebuilt for the venue: 454 boxes, 426 of them props
+  the match's continent: asia; venue loaded: oceania (Island Beach), 0.7 s
+  features: foodStand on, commentaryStand on, juiceBar on, kiosk on, lifeguardTower on, gulls on, band on
+  the venue's triangles, every level of every LOD counted: 37,201,517
+  keep-out: 454 boxes, 426 props
+  time of day: Night (the game sent night); sun 40 degrees up, 0.08; floodlights 5 on
+  -> d3-tv.png
+  the band: playing; the stage's loudness last sent to the page from the TV camera: 0.35
+  -> d3-morning-sunny.png
+     Morning in Sunny: sun 1.60, shadows 0.85, sky Skybox_Beach
+  -> d3-morning-windy.png
+     Morning in Windy: sun 1.60, shadows 0.85, sky Skybox_Beach
+  -> d3-morning-cloudy.png
+     Morning in Cloudy: sun 0.80, shadows 0.38, sky Skybox_Beach
+  -> d3-morning-lightrain.png
+     Morning in LightRain: sun 0.48, shadows 0.26, sky Skybox_Beach
+  -> d3-midday-sunny.png
+     Midday in Sunny: sun 2.00, shadows 1.00, sky Skybox_Beach
+  -> d3-midday-windy.png
+     Midday in Windy: sun 2.00, shadows 1.00, sky Skybox_Beach
+  -> d3-midday-cloudy.png
+     Midday in Cloudy: sun 1.00, shadows 0.45, sky Skybox_Beach
+  -> d3-midday-lightrain.png
+     Midday in LightRain: sun 0.60, shadows 0.30, sky Skybox_Beach
+  -> d3-sunset-sunny.png
+     Sunset in Sunny: sun 1.50, shadows 0.80, sky Sky_Sunset
+  -> d3-sunset-windy.png
+     Sunset in Windy: sun 1.50, shadows 0.80, sky Sky_Sunset
+  -> d3-sunset-cloudy.png
+     Sunset in Cloudy: sun 0.75, shadows 0.36, sky Sky_Sunset
+  -> d3-sunset-lightrain.png
+     Sunset in LightRain: sun 0.45, shadows 0.24, sky Sky_Sunset
+  -> d3-night-sunny.png
+     Night in Sunny: sun 0.08, shadows 0.55, sky Sky_Night
+  -> d3-night-windy.png
+     Night in Windy: sun 0.08, shadows 0.55, sky Sky_Night
+  -> d3-night-cloudy.png
+     Night in Cloudy: sun 0.04, shadows 0.25, sky Sky_Night
+  -> d3-night-lightrain.png
+     Night in LightRain: sun 0.02, shadows 0.17, sky Sky_Night
