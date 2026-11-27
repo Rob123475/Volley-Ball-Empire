@@ -1,0 +1,9 @@
+1a THE BALL BESIDE THE PLAYERS, V19 IN PLAY MODE (batch), A WATCHED MATCH
+  1a-tv-serve.png: look TV; ball 21.0 cm across; nearest player Player_A1, 1.79 m tall, the ball 0.12 m from her head
+  1a-tv-rally.png: look TV; ball 21.0 cm across; nearest player Player_B2, 1.79 m tall, the ball 0.80 m from her head
+  1a-game-1-serve.png: look Game view 1; ball 21.0 cm across; nearest player Player_A1, 1.79 m tall, the ball 0.11 m from her head
+  1a-game-1-rally.png: look Game view 1; ball 21.0 cm across; nearest player Player_B1, 1.79 m tall, the ball 0.28 m from her head
+  1a-game-6-serve.png: look Game view 6; ball 21.0 cm across; nearest player Player_B1, 1.79 m tall, the ball 0.09 m from her head
+  1a-game-6-rally.png: look Game view 6; ball 21.0 cm across; nearest player Player_A2, 1.79 m tall, the ball 1.85 m from her head
+  CHECK a picture at the serve and mid-rally in the TV look and two Game views: PASS  6 pictures
+RESULT: PASS

@@ -1,0 +1,24 @@
+A1 REAL BALL FLIGHT (Assets/Scripts/PlayedMatch/BallFlight.cs)
+  CHECK 120 steps of 1/120 s land on the exact parabola (gravity 9.81): PASS  after 1.0 s at (1.00, 4.09, -6.00), formula (1.00, 4.09, -6.00), error 1.7E-014 m
+  CHECK a launch for a 4.5 m top height lands on its target: PASS  target (-2.00, 0.10, 5.00), landed (-2.00, 0.10, 5.00) after 1.535 s (planned 1.535 s); highest 4.500 m; on the way: CrossedNet at (-0.91, 3.76, 0.00), Landed at (-2.00, 0.10, 5.00) IN
+  CHECK and reaches that top height: PASS  highest 4.500 m
+  CHECK a spike worked out for 0.6 s lands on its target on time, in a crosswind: PASS  landed (2.50, 0.10, 6.00) at 0.600 s
+  the net is the plane z = 0, tape at 2.24 m, ball radius 0.105 m, antennae over the sidelines (x = ±4)
+  CHECK a ball crossing at 1.36 m hits the net and drops back on its own side (still in play): PASS  NetHit at (0.00, 1.36, 0.00), Landed at (0.00, 0.10, -0.44) IN
+  CHECK a ball crossing at 2.29 m clips the tape and rolls over: PASS  TapeOver at (0.00, 2.29, 0.00), Landed at (0.00, 0.10, 3.41) IN
+  CHECK a ball crossing at 2.18 m clips the tape and falls back: PASS  TapeBack at (0.00, 2.18, 0.00), Landed at (0.00, 0.10, -0.93) IN
+  CHECK a ball crossing at 2.40 m clears the net: PASS  CrossedNet at (0.00, 2.40, 0.00), Landed at (0.00, 0.10, 5.91) IN
+  CHECK a ball crossing at 1.00 m passes under the net: a fault: PASS  UnderNet at (0.00, 1.00, 0.00)
+  CHECK a ball crossing at x = 4.05 is outside the antenna: a fault: PASS  Antenna at (4.05, 2.80, 0.00)
+  CHECK a ball crossing at x = 3.85 is inside the antennae: PASS  CrossedNet at (3.85, 2.80, 0.00), Landed at (3.85, 0.10, 6.48) IN
+  the painted lines are 0.15 m wide on x = ±4 and z = ±8; a ball touching any of a line is in
+  CHECK landing at x = 4.175 (the ball overlaps the sideline's outer edge by 5 mm) is IN: PASS  landed 4.1750, 5.0000: IN
+  CHECK landing at x = 4.185 (it misses the line by 5 mm) is OUT: PASS  landed 4.1850, 5.0000: OUT
+  CHECK landing at z = 8.175 (overlapping the baseline by 5 mm) is IN: PASS  landed 1.0000, 8.1750: IN
+  CHECK landing at z = 8.185 (missing it by 5 mm) is OUT: PASS  landed 1.0000, 8.1850: OUT
+  CHECK for 2000 random flights (net, tape, antenna, wind and all) the prediction at the strike ends where the ball ends: PASS  same ending 2000/2000, same spot 2000/2000 (worst 0.0E+000 m), same in/out 2000/2000; flights landed in 977, out 590, net faults 433, net/tape touches 842
+  CHECK and a prediction made half-way through the flight agrees too: PASS  2000/2000
+  CHECK the same 500 launches fly identically twice (bit for bit): PASS  hash 62369E713BC9B4F3
+  physics, not a rule: a serve driven FLAT at 15 m/s from 2.9 m (launch 15.1 m/s) clears the tape by -0.08 m and lands (1.25, 0.10, 4.13) after 1.31 s, so a touch has to loft it (A2)
+  a spike at 20 m/s from 1 m off the net: clears the tape by 0.32 m, lands (-2.50, 0.10, 6.50) after 0.40 s
+RESULT: PASS (18 passed, 0 failed)

@@ -1235,3 +1235,22 @@ Rob's instruction (28 Nov): section 0, then section 1 (the ball, then the crowd,
 - **One thing to know:** the coffee game's Library still holds their imported copies until Unity next opens the project.
 
 **Commits:** Unity `10a2d06`.
+
+### Fix 1a: the ball's size (28 Nov 2026)
+
+**Measured** (`proof/1a/ball-size-before.txt`):
+- **Before:** V19's visible ball (`Volleyball`, a Tripo mesh 0.976 m across) was at scale 0.5, so it was drawn **49.0 cm across, 2.33 times a real beach volleyball** (21 cm).
+- **The engine was already right:** `Court.BallRadius` is 0.105 m, a 21 cm ball. Only the drawing was wrong.
+
+**Set** (`ball-size-set.txt`): the ball's scale is now 0.2145, so it is drawn at 21.0 cm, the same as the engine. Nothing in the match's code reads the drawn size. The played engine places the ball by its centre, and Auto's scripted rally places it by position. The scene change is the ball's scale, three lines.
+
+**Pictures** (`proof/1a/`, V19 in Play mode, a watched match): at the serve, the server holding the ball at her head (the ball 0.09 to 0.12 m from her head), and mid-rally. Each is taken in the TV look and in Game views 1 (behind your baseline) and 6 (low courtside), with a 2× crop round the ball beside each: `1a-tv-serve.png` and `1a-tv-serve-close.png`, and so on. The ball is now about the size of her head, as a real one is.
+- The first set of pictures measured the ball by its world bounds, which grow up to √3 times as it spins (up to 33.7 cm). The proof now measures it from its mesh: 21.0 cm in every picture.
+- **Seen in passing, not changed:** in Auto, before each serve, the ball floats beside the server's head instead of sitting in her hand. It was like that before 1.2.
+
+**Reruns:**
+- **A1:** Unity 23/23 (`a1-ball-flight.txt`) and dotnet 18/18 (`a1-dotnet.txt`).
+- **`harness/played-match.mjs --unity-full`:** 13/13 (`harness-unity-full.txt`). The court played the whole match, 2-0 (11-6, 11-4), and the game recorded exactly that.
+  - Its first run is kept as `harness-unity-full-run1-relative-path.txt`, 11/13. I passed a relative proof folder, so Unity, which runs from its own project folder, wrote its result file there. The match itself was right (court 28/28, 2-0, 11-6, 11-3, recorded exactly). The stray folder was removed from the Unity project.
+
+**Commits:** Unity `c88ebc7`.

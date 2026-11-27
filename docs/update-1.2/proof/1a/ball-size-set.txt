@@ -1,0 +1,6 @@
+1a THE BALL'S SIZE IN V19: 'Volleyball'
+  drawn diameter 0.490 m (49.0 cm): renderers 1: world bounds 0.483 x 0.488 x 0.490 m; mesh 'tripo_node_12743fa7' 0.965 x 0.979 x 0.976 at lossy scale 0.5000; root scale 0.5000
+  a real beach volleyball: 0.210 m; the match engine (Court.BallRadius x 2): 0.210 m
+  the drawn ball is 2.33 times a real one
+  SET: root scale x 0.4290; drawn diameter now 0.210 m (21.0 cm): renderers 1: world bounds 0.207 x 0.209 x 0.210 m; mesh 'tripo_node_12743fa7' 0.965 x 0.979 x 0.976 at lossy scale 0.2145; root scale 0.2145
+  CHECK the drawn ball is 21 cm and agrees with the engine: PASS

@@ -1,0 +1,26 @@
+========================================================================
+  1.2 PART A: THE PLAYED MATCH
+========================================================================
+
+1. THE ENGINE'S OWN CHECKS (the Unity repo's files, run by dotnet)
+  PASS  the played-match engine's checks pass (A1, A2, A4)  RESULT: PASS (54 passed, 0 failed)
+
+2. A5: /unity/match-state SENDS THE CAREER'S DIFFICULTY
+  PASS  Easy: /unity/match-state says gameDifficulty "easy"  career 1, match 1: HTTP 200, gameDifficulty "easy", players 4
+  PASS  Medium: /unity/match-state says gameDifficulty "medium"  career 2, match 60: HTTP 200, gameDifficulty "medium", players 4
+  PASS  Hard: /unity/match-state says gameDifficulty "hard"  career 3, match 119: HTTP 200, gameDifficulty "hard", players 4
+  PASS  Before difficulty: /unity/match-state says gameDifficulty "medium"  career 4, match 178: HTTP 200, gameDifficulty "medium", players 4
+  PASS  /unity/match-state sends each player's nation (B3: the walk-on's lower third)  Camila Santiago (Puerto Rico), Nurul Ain (Malaysia), Emma van Dijk (Netherlands), Julia Fernandes (Brazil)
+  PASS  the Empire Nations Cup payload sends it too (same route, same function)
+
+4. A6: A WHOLE PLAYED MATCH ON THE COURT, REPORTED THROUGH MatchReporter, RECORDED AND PAID
+  PASS  the match is being watched (in progress), as the court page does before it plays  HTTP 200
+  FAIL  the court played the whole match (PlayedMatchPlayProof)  exit 0; no result; 
+  PASS  MatchReporter sent the result, and the game took it (POST /api/unity/match-result ok)  [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":2,"matchId":60,"sets":[{"home":11,"away":6}],"current":{"home":10,"away":3}} | [MatchReporter] POST /api/unity/match-result ok: {"careerSaveId":2,"matchId":60,"sets":[{"home":11,"away":6},{"home":11,"away":3}]}
+  FAIL  the game recorded exactly the court's score  court undefined-undefined (undefined); game completed 2-0 (11-6, 11-3)
+  PASS  through the Sim Result path (completeMatch): the win counted and the winner's prize is on the ledger  wins 0 -> 1, losses 0 -> 0; prize lines Prize money: World Tour R1 vs Amsterdam Dune Riders $4333; balance 530462 -> 534795
+  PASS  and the match's cost to the players (fitness, fatigue) was charged, as for a simmed match  player 193: fitness 100->93, fatigue 0->22; player 292: fitness 100->95, fatigue 0->20
+
+========================================================================
+  FAIL: 11/13 checks
+========================================================================
