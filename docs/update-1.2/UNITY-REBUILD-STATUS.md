@@ -121,11 +121,26 @@ Brief: `docs/update-1.2/UNITY-REBUILD-BRIEF.md`. Plan: `docs/update-1.2/PLAYABLE
     - All are Input System actions, so any keyboard or pad works.
     - R and Space no longer pick the close camera; there is no close camera now.
     - The 1x/2x/4x buttons work in both looks. The + / - dolly works in the Game look only.
+33. **The 1.2 demo is its own edition (27 Nov 2026, Rob's demo brief).** One switch, `electron/edition.js`, which reads the packaged `package.json`. Only the demo's packaging config (`electron-builder.demo.cjs`) marks a build as the demo, through electron-builder's `extraMetadata`. The repo's `package.json`, dev runs and the real game's package are unchanged.
+    - **Its own identity:** the name "Beach Volleyball Empire 1.2 Demo", the appId `com.volleyballempire.desktop.demo-1-2` and the version 1.2.0-demo1. That gives it its own install folder, Start-menu and desktop shortcuts, and Uninstall entry.
+    - **Its own save:** the save is in `AppData\Roaming\Beach Volleyball Empire 1.2 Demo`. It never brings a save forward from any other folder: the real game's move from "Volleyball Empire" and its copies from the older folders are off in the demo.
+    - **No Steam:** launched outside Steam, steamworks.js could still attach to the real app id and unlock the real game's achievements.
+    - **Its own port, 4174:** it runs even while the real game is open.
+    - **The title screen** shows the name and version from the desktop app (`vbeApp.name`, `vbeApp.version`).
+34. **The court asks only for the commentary clips its `LINES.txt` lists.** The first demo run found that every match in the WebGL build stopped at the walk-on.
+    - **The cause:** the court asked for every kind's three clips, and B4's seven new kinds are not recorded. The server answered each missing clip with the game's page and a 200. Chrome could not decode that page as audio, and Unity's loader turned the error into an `alert()` that stopped the page.
+    - **Why the editor proofs missed it:** they load clips from `file://`, where a missing clip simply fails.
+    - **The fix:** `LINES.txt` is the list `scripts/elevenlabs-commentary.mjs` records from, so a line Rob records is picked up with no code change.
+35. **The server answers a missing file with a 404, never the page.** Only the page's own routes (no file extension) get `index.html`. A missing asset can no longer be handed to Unity as something else.
+36. **`APP_UI_EDITOR_ONLY` and batch Play-mode proofs.**
+    - **What happens:** the App UI package puts the define back on WebGL whenever the editor enters Play mode (`AppUIManager`, on `delayCall`). With the line reverted for the WebGL build, the next Play-mode proof recompiled every script in the middle of its match, and the match broke with a NullReferenceException at every serve.
+    - **So:** the line stays as App UI writes it for Play-mode proofs, as it did all through Parts A and B, and is reverted right before each WebGL build (decision 2). Both demo exports were built with it reverted. The Unity repo is left without it, as committed; App UI adds it again the next time the editor plays.
 
 ## Items
 
 | Item | State | Proof | Commit |
 |---|---|---|---|
+| Demo build (27 Nov) | Done: steps 1 to 6 PASS; step 7, the full harness, run 2: 139/140, the one failure a chance rate that passed alone. See "Demo build" at the end | `docs/update-1.2/proof/demo/`; `DEMO-CHECKLIST.md`; package `C:\build\vbe-1.2-demo-2026-11-27\` | game `fd7301a0`, `4849bcd9`, `7f7ba5c1`, `8e7f8996`, `6f5d2a65`; Unity `8bbf267` |
 | 0 Baseline | Done, PASS | `docs/update-1.2/proof/baseline/` (`results.txt`, plus the full `compile.log`, `RallyPlanProof.log` and `ManualControlsProof.log`) | game repo `dffed753`; Unity repo: `update-1.2` at `dd0a4875` (no file changes) |
 | Packs | Committed through LFS | `git lfs ls-files` lists all 672 pack FBX files | Unity `3c0e0f4` |
 | A1 Real ball flight | Done, PASS | `docs/update-1.2/proof/A1/`: `a1-ball-flight.txt` (Unity batch, 23/23), `a1-dotnet.txt` (dotnet, 18/18), `a1-unity.log`, 3 pictures | Unity `a656a3f`; game repo `23ba802e` |
@@ -1070,3 +1085,97 @@ Enter (R3) skips the walk-on or the celebration. B5's "skip to next serve" leave
 - **`harness/presentation.mjs`:** 43/43.
 
 Part B is done (B1 to B5). Part D is not started, as instructed. The next steps are Rob's: playing the presentation and the win rates with a pad, and recording the 42 commentary lines.
+
+## Demo build (27 Nov 2026)
+
+Rob's brief: a demo of update 1.2 to show a friend this weekend. It covers Part A, the animations and Part B as they stand. Every Part D step of Part C is skipped (venues, time of day, the exhibition match), Part D is not started, and no win rates were tuned. Steam, the live save and `main` were not touched. Unity was closed for every batch run. Rob's checklist is `docs/update-1.2/DEMO-CHECKLIST.md`.
+
+**The demo:** `C:\build\vbe-1.2-demo-2026-11-27\`
+- `Beach Volleyball Empire 1.2 Demo Setup 1.2.0-demo1.exe` (450,517,108 bytes; not code-signed, so Windows asks "More info → Run anyway").
+- `win-unpacked\` (656 MB).
+
+It is packaged from game commit `7f7ba5c1`'s code (Unity `8bbf267`). It is installed on this PC, and its save folder is empty, so its next start is a first run. The test's copies of the live save are at `C:\build\vbe-1.2-demo-2026-11-27-test-saves\`, outside the folder Rob would copy.
+
+| Step | State | Proof | Commit |
+|---|---|---|---|
+| 1. `APP_UI_EDITOR_ONLY` reverted before the WebGL build | Done (decision 36: it comes back in Play mode, so it was reverted again before the second export) | `git status` clean in `ProjectSettings` for both builds | Unity: not committed (the line is out) |
+| 2. One WebGL build with `WebBuild.cs`, copied in as before | Done, twice (the first export stopped at the walk-on in the browser: run 1 below) | `proof/demo/webbuild-summary.txt`, `webbuild-summary-2.txt` | export 1 `fd7301a0`; export 2 (Unity `8bbf267`) `7f7ba5c1` |
+| 3. Headless render proof: a full Auto match and a full played match, both looks | Done, PASS: Auto 18/18, played 17/17 | `proof/demo/auto-match/`, `proof/demo/played-match/` (summary.json, console.log, pictures) | `8e7f8996` |
+| 4. Frame rate, TV look on | Done | `auto-match/summary.json` (fps), `install/summary.json` (fps) | `8e7f8996` |
+| 5. Package | Done | `C:\build\vbe-1.2-demo-2026-11-27\` | code `7f7ba5c1` |
+| 6. Install; a copy of the live save; a played match paid out; the real save unchanged | Done, PASS 26/26 | `proof/demo/install/` | `8e7f8996` |
+| 7. Full harness | Done, two full runs (of the three allowed): run 1 138/140, run 2 139/140; every failure fixed or passed alone | `proof/demo/harness-run1.log`, `harness-run2.log`, `harness-run2-staff-injuries-alone.txt` | run 1 on `8e7f8996`, run 2 on `6f5d2a65` |
+
+**Step 2, the export.** It was copied in as the 1.1.3 export was (`4c656682`):
+- **The files:** the four build files under the deployed names `Volleyball_WebGL_Uncompressed_2.*`, byte-identical (checked with `cmp`). The repo's own `unity-build/index.html` was kept, and `.data` and `.wasm` go through LFS.
+- **Texture cap:** 2048 (`WebBuild.Step7`).
+- **Brotli:** regenerated by `scripts/compress-unity-data.cjs`.
+- **Size:** `.data` is 276,887,540 bytes, against 260,920,681 for the last export before 1.2 (1.1.3, `4c656682`): **+15,966,859 bytes, +6.1%**.
+  - The build report lists 8,096 packed assets (471.9 MiB), against the 20 Oct export's 7,896 (451.5 MiB). It was not broken down further.
+- **Other files:** `.wasm` is 52,255,963 bytes, against 51,719,498.
+- **What ships:** the Brotli files, `.data.br` 224,161,079 bytes and `.wasm.br` 9,131,471.
+
+**Step 3, the render proof.** `scripts/webgl-proof/demo-1.2-proof.mjs` runs headless Chrome on the real GPU, against the built game on a copy of the starter database:
+- **Setup:** a new career, drafted and advanced to its first match day, then CONTINUE and Watch Match as a player does.
+- **Pictures:** each is taken from the court's own log lines, at the serve, mid-rally, between points (the scorer's close-up) and in a replay, in both looks. The celebration and the result box are taken at the end.
+- **Auto** (`auto-match/`, 1920×1080):
+  - It opens on TV (the watched default); V switches it to Game.
+  - The match went to its end: Sydney Riptide 2-1 Berlin Sand Queens (14-12, 10-12, 13-11), recorded. No played-match code ran, and there were no page errors.
+- **Played** (`played-match/`, 1280×720):
+  - It opens on Game (the played default); V switches it to TV.
+  - A keyboard bot presses J, K and L in turn every 120 ms. It never moves or aims, so it plays like a beginner who only presses buttons.
+  - Its presses reached the new engine: its side made 12 touches (9 Good or Perfect, 3 Late) and 139 whiffed presses.
+  - It lost 0-2 (0-11, 0-11), recorded, with no page errors. The pictures include REPLAY and ACE.
+- **Not tested here:** a real pad (checklist item 1), and the whole match at 1x with a person playing.
+
+**Step 4, the frame rate**, the TV look's roaming camera on, measured as every frame the court's page draws (requestAnimationFrame, which Unity draws on), for 60 s mid-match:
+
+| Where | Size | fps | Median frame | 95th percentile | Worst | Frames over 33 ms | Over 50 ms |
+|---|---|---|---|---|---|---|---|
+| Installed demo (Electron), this PC | 1280×720 | **58.6** | 16.7 ms | 16.8 ms | 50.0 ms | 18 of 3,516 | 0 |
+| Headless Chrome, real GPU | 1920×1080 | **55.6** | 16.7 ms | 33.3 ms | 33.6 ms | 82 of 3,337 | 0 |
+
+Both are capped at the 60 Hz display rate. This is Rob's PC; a weaker PC will be slower.
+
+**Steps 5 and 6, the package and the install test** (`scripts/webgl-proof/demo-install-proof.mjs`, `proof/demo/install/`, 26/26). The demo is kept apart from the real game (decision 33). The test:
+- **Fingerprinted, before and after:** every file in the real save folder (993 files, 1.07 GB), the older "Volleyball Empire" (385) and "workspace" (372) folders, the Steam install (2,193 files), and the Uninstall entries. It takes SHA-1 of each file's bytes; SQLite opens none of them.
+- **Installed silently:** the demo went to `AppData\Local\Programs\Beach Volleyball Empire 1.2 Demo`. Its own Uninstall entry is "Beach Volleyball Empire 1.2 Demo", and every other entry is as it was.
+- **First run:**
+  - The title screen shows "Beach Volleyball Empire 1.2 Demo · version 1.2.0-demo1", with no managers (the starter database).
+  - The save is in its own folder, on port 4174, with Steam off and no save brought forward.
+  - Exit game quit the app and its server.
+- **A copy of the live save in the demo's own folder:** Rob's profile, Manual remembered, Next match, Watch Match.
+  - The bot played the World Tour R23 match to its end: 0-2 against Miami Shoreline Queens.
+  - Continue went back to the dashboard, and Recent Results shows the match as a LOSS.
+  - **It paid out:** the runner-up prize ($2,667) is on the ledger. The balance moved by exactly the new ledger rows (218,110 → 215,030: the prize, a week's sponsors, salaries and running costs from the days Next match passed).
+- **After:** every fingerprinted file is byte for byte unchanged, including the live save's own SHA-1 (`d9965b78…`), and the Uninstall entries are unchanged.
+
+**Step 7, the full harness** (`pnpm run build`: typecheck, every workspace build, sync, then `harness/run-all.mjs`'s 140 suites). Two full runs, about 2 h 45 min each:
+- **Run 1, on `8e7f8996`: 138 of 140 suites passed** (`proof/demo/harness-run1.log`). Both failures were checks that read the source and were out of date:
+  - **`commentary-she`:** it wanted exactly 48 lines in the Unity commentary table. B4 (26 Nov) added the 42 lines not yet recorded, so the table holds 90. B4 caused this; Part B had run only its own suites. The check now wants the 48 shipped lines word for word, the 42 more, and none saying "he".
+  - **`settings`:** it wanted `vbeApp` to expose only `quit`. The demo added `name` and `version`, two strings for the title screen. The check now allows exactly those and checks that main.js passes them.
+  - **Both passed alone** (7/7, 40/40) and were committed as `6f5d2a65` (test files only; the game's code is as packaged).
+- **Run 2, on `6f5d2a65`: 139 of 140 passed** (`proof/demo/harness-run2.log`); both of run 1's suites passed.
+  - **The one failure:** `staff-injuries`, a rate measured over six seasons of chance. Staff were off 1.02 per 1,000 staff-days against players' 3.41, a ratio of 0.299 against the band's floor of 0.30. It passed in run 1.
+  - **Run alone on the same commit:** 20/20 (ratio 0.55; `proof/demo/harness-run2-staff-injuries-alone.txt`). Nothing the demo changed touches staff absences; the game's only server change is the 404 in `app.ts`.
+  - **So:** that is chance, not a fault, and I did not spend the third full run on it.
+
+**Runs that failed, kept on file** (three-run rule: each step stayed within three runs; the full harness took two):
+1. **Render proof run 1 (`proof/demo/run1-court-stopped/`): the court stopped at the walk-on of the first match.** The cause and both fixes are decisions 34 and 35: missing commentary clips came back as HTML, and the decode error reached Unity's loader as an alert. Unity `8bbf267`, game `7f7ba5c1`, export 2. B4's sound proof was rerun on the fix: PASS 8/8, with 48 of 90 clips loaded, the 48 `LINES.txt` lists (`proof/B4/b4-crowd-and-commentary.txt`, `proof/demo/b4-rerun-unity.log`).
+   - On the way, two batch runs of that proof broke mid-match on a recompile. That was the define coming back (decision 36), not the game.
+2. **Render proof run 2 (`proof/demo/run2-auto-stale-pictures/`): the match passed, but two TV pictures were late.** The 60 s frame-rate measurement held the picture loop up, so the "between" and "replay" pictures were taken off their moments. That was a proof-script fault. The script now drops a picture more than 1 s late and measures after the TV pictures are taken. Run 3 is the one on file.
+3. **Install run 1 (`proof/demo/install-run1-check-wrong/`): 25/26.** The payout check expected the balance to rise by the prize, but Next match also passed days of wages and costs. The ledger showed the prize was paid. That was a proof-script fault: the check now compares the balance with the new ledger rows. The demo was uninstalled and run 2 passed 26/26.
+
+What these have in common: nothing in the game's code failed twice. The real fault (the court stopping) appeared only in a browser against the game's server, which no batch proof in the editor could show. That is why Part C's browser run matters.
+
+**Found, not fixed (for Rob's pass):**
+- At 1280×720 the Manual controls help covers the left end of the score bar until H hides it.
+- A scorer's close-up is sometimes shot through the net.
+- A keyboard bot that never moves lost 0-22 in points: a played match is hard on a beginner. Rob's pad test decides that.
+
+**Files:**
+- **Game repo:**
+  - **New:** `electron/edition.js`, `electron-builder.demo.cjs`, `scripts/webgl-proof/demo-1.2-proof.mjs`, `scripts/webgl-proof/demo-install-proof.mjs` and `docs/update-1.2/DEMO-CHECKLIST.md`.
+  - **Changed:** `electron/main.js` (the edition's name, port, Steam and saves), `electron/preload.js` (`vbeApp.name`, `vbeApp.version`), `pages/profile-picker.tsx` (the version line) and `api-server/src/app.ts` (the 404).
+- **Unity:** `CommentaryManager.cs` (`LINES.txt`).
+- **Nothing deleted.**
