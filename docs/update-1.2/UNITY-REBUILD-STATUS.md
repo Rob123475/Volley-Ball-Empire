@@ -1549,3 +1549,31 @@ The people standing round the venue were treated under fix 1b.
 **Proof** (`proof/D3/d3-{time}-{weather}.png`, 16 pictures from one real match, each 1 s after its weather was set):
 - Every combination draws.
 - **The crowd's back-row cards look dark** in all but the night pictures. They were baked once, at the match's start under its night light. A real match bakes them under its own light; only the proof changes the light afterwards.
+
+### Section 4: the drinks break between sets (28 Nov 2026)
+
+**What happens** (`MatchMoments`):
+- **When:** once a set's last point has been presented, and the match goes on. Never during a rally: the next serve, and a played match's engine, wait for it.
+- **About 6 s:**
+  1. Each pair walks to its own half's sideline, away from the umpire's chair.
+  2. Each player drinks from a sports bottle, the pair a moment apart. This is the drinks idle built in the Animations section (`PresentationPoses`), raised to the mouth and lowered again.
+  3. The TV camera takes one slow shot of each team.
+  4. A banner reads "END OF SET 1 · 2-11".
+- **Skipping:** Enter (R3 on a pad) skips it, like the other moments. B5's "straight to the next serve" skips it altogether.
+- **Hands empty before the serve:** the bottles are put away and the pair goes to its places.
+
+**The bottle (Rob's rule: only when the ball is not in play; no alcohol, no brands):**
+- It is Rob's pink sports bottle, cut to 1,400 triangles, drawn from a grey copy of its texture and tinted to the team's kit colour.
+- It is 0.25 m long in her hand, whatever the scale of the bottle's prefab or the player.
+- **Fixed on the way:** in a match the bottle was left half a metre behind the visible hand. It is now held on her hand's own bone.
+
+**Proof** (`proof/section4/`, a real match through `harness/unity-on-server.mjs`):
+- **Pictures:** `section4-break-team-a.png` (in navy, with the navy bottle raised) and `section4-break-team-b.png` (in white, with white bottles).
+- **The first break:**
+  - It took 6.0 s, with 4 bottles out, each 0.25 to 0.29 m long and 0.06 m from the wrist.
+  - No point was decided during it.
+  - When the next point was decided, no bottle was out.
+- **The second break:** Enter skipped it after 1.0 s.
+- **B5's skip check still passes:** 4/4 (`proof/B5/b5-skip.txt`, rerun with the break in).
+
+Unity `eac671df`.

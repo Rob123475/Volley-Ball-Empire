@@ -1,0 +1,20 @@
+SECTION 4: THE DRINKS BREAK, V19 IN PLAY MODE (batch), A WATCHED MATCH
+  set 1 ended 11-5; the drinks break began once its last point was presented
+  -> section4-break-team-a.png
+     Player_A2/BeachPlayer: pose Drink; bottle out, 0.25 m long, 0.06 m from her hand; animators under the player 1; the body's right hand hand_r 0.00 m from the animator's; the body's root bone root (under the animator)
+     Player_B2/BeachPlayer: pose Drink; bottle out, 0.28 m long, 0.06 m from her hand; animators under the player 1; the body's right hand hand_r 0.00 m from the animator's; the body's root bone root (under the animator)
+     Player_B1/BeachPlayer: pose Drink; bottle out, 0.25 m long, 0.06 m from her hand; animators under the player 1; the body's right hand hand_r 0.00 m from the animator's; the body's root bone root (under the animator)
+     Player_A1/BeachPlayer: pose Drink; bottle out, 0.27 m long, 0.06 m from her hand; animators under the player 1; the body's right hand hand_r 0.00 m from the animator's; the body's root bone root (under the animator)
+  -> section4-break-team-b.png
+     Player_A2/BeachPlayer: pose Drink; bottle out, 0.26 m long, 0.06 m from her hand; animators under the player 1; the body's right hand hand_r 0.00 m from the animator's; the body's root bone root (under the animator)
+     Player_B2/BeachPlayer: pose Drink; bottle out, 0.29 m long, 0.06 m from her hand; animators under the player 1; the body's right hand hand_r 0.00 m from the animator's; the body's root bone root (under the animator)
+     Player_B1/BeachPlayer: pose Drink; bottle out, 0.26 m long, 0.06 m from her hand; animators under the player 1; the body's right hand hand_r 0.00 m from the animator's; the body's root bone root (under the animator)
+     Player_A1/BeachPlayer: pose Drink; bottle out, 0.27 m long, 0.06 m from her hand; animators under the player 1; the body's right hand hand_r 0.00 m from the animator's; the body's root bone root (under the animator)
+  the break took 6.0 s; up to 4 bottles out during it; points decided during it: 0
+  the next point: 0 bottles out when it was decided (hands empty before the serve: yes)
+  the second break: Enter skipped it after 1.0 s
+  moments: drinks break after set 1 (11-5)
+  moments: drinks: each from a bottle in her kit colour
+  moments: drinks break took 6.0 s; bottles away
+  moments: drinks break after set 2 (12-14)
+  moments: drinks break skipped after 1.0 s; bottles away

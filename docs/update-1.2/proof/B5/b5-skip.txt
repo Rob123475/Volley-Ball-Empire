@@ -1,7 +1,7 @@
 B5 SKIP AND SETTINGS, V19 IN PLAY MODE (batch), A WATCHED MATCH AT 4x
   the page sends "serve=1;replays=0"
   CHECK straight to the next serve: no walk-on: PASS  walk-on skipped (straight to the next serve)
-  CHECK each point only the score, briefly (0.7 s), and no cutaway: PASS  8 points: 0.8, 0.8, 0.8, 0.7, 0.7, 0.7, 0.8, 0.7 s; 0 frames of cutaway
+  CHECK each point only the score, briefly (0.7 s), and no cutaway: PASS  8 points: 0.7, 0.8, 0.8, 0.8, 0.8, 0.7, 0.7, 0.7 s; 0 frames of cutaway
   the page sends "serve=0;replays=1"
   CHECK skip replays: the reactions and close-ups, no replays (a big moment takes the plain 3 s): PASS  10 points, replays 0, 5 big moments without one; 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 s
   the page sends "serve=1;replays=0"
