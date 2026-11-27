@@ -83,9 +83,14 @@ check("(source) the window reads them at launch and applies them when it shows; 
 check("(source) a change is written and applied at once (fullscreen, size, zoom)",
   /ipcMain\.handle\("window-settings:set"[\s\S]{0,200}writeWindowSettings\(userDataPath, patch\)[\s\S]{0,80}applyWindowSettings\(mainWindow, next\)/.test(MAIN)
     && /setFullScreen\(settings\.mode === "fullscreen"\)/.test(MAIN) && /setZoomFactor\(settings\.zoom\)/.test(MAIN));
-check("(source) the preload exposes only get and set (and Exit game's quit), and the window loads it with context isolation on",
+// 27 Nov (1.2 demo): vbeApp also carries the game's name and version for the title screen, two strings
+// main.js passes as arguments (edition.js); nothing callable was added.
+check("(source) the preload exposes only get and set (and Exit game's quit, the name and version), and the window loads it with context isolation on",
   /exposeInMainWorld\("vbeWindow", \{\s*get:[^\n]*\n\s*set:[^\n]*\n\}\);/.test(PRELOAD)
-    && (PRELOAD.match(/exposeInMainWorld\(/g) ?? []).length === 2 && /exposeInMainWorld\("vbeApp", \{\s*quit: \(\) => ipcRenderer\.invoke\("app:quit"\),\s*\}\);/.test(PRELOAD) && /preload: path\.join\(__dirname, "preload\.js"\)/.test(MAIN) && /contextIsolation: true/.test(MAIN));
+    && (PRELOAD.match(/exposeInMainWorld\(/g) ?? []).length === 2
+    && /exposeInMainWorld\("vbeApp", \{\s*quit: \(\) => ipcRenderer\.invoke\("app:quit"\),\s*name: argValue\("vbe-name"\),\s*version: argValue\("vbe-version"\),\s*\}\);/.test(PRELOAD)
+    && /additionalArguments: \[`--vbe-version=\$\{edition\.version\}`, `--vbe-name=\$\{APP_NAME\}`\]/.test(MAIN)
+    && /preload: path\.join\(__dirname, "preload\.js"\)/.test(MAIN) && /contextIsolation: true/.test(MAIN));
 
 // ── 3. Controls ──────────────────────────────────────────────────────────────
 console.log("\n3. AUTO / MANUAL IN SETTINGS; THE MATCH SCREEN'S BUTTON IS GONE");

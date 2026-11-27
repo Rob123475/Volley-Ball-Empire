@@ -6,7 +6,8 @@
  *   - the Unity project's commentary table (Assets/Scripts/CommentaryLines.cs)
  *     and the match scene (whose old serialized line arrays held the "he" lines);
  *   - the clip list the game ships (public/unity-build/StreamingAssets/commentary/LINES.txt):
- *     all 48 clips present, each line she/her, matching the Unity table word for word;
+ *     all 48 clips present, each line she/her, matching the Unity table word for word
+ *     (since 1.2 B4 the table also holds 42 lines not yet recorded: 90 in all);
  *   - every string in the game's own code (UI and server), comments aside.
  *     Update 1, item 2 (Rob, 13 Oct): a manager can be a man, and an AI
  *     manager's wording takes he or she from the face. The male words are
@@ -54,8 +55,12 @@ if (!fs.existsSync(UNITY)) console.log(`  NOTE  Unity project not at ${UNITY}: U
 else {
   const table = fs.readFileSync(path.join(UNITY, "Assets", "Scripts", "CommentaryLines.cs"), "utf8");
   const strings = [...table.matchAll(/"((?:[^"\\]|\\.)*)"/g)].map((m) => m[1]).filter((s) => s.includes(" "));
-  check("the Unity commentary table holds the same 48 lines as the shipped list, none says he",
-    strings.length === 48 && list.every((l) => strings.includes(l.text)) && !strings.some((s) => HE.test(s)), `${strings.length} lines`);
+  // 1.2 B4 added seven kinds, 42 lines written but not yet recorded (harness/presentation.mjs checks them
+  // against docs/update-1.2/COMMENTARY-NEW-LINES.md): the table holds the 48 shipped lines and those 42.
+  const B4_UNRECORDED = 42;
+  check("the Unity commentary table holds the 48 shipped lines word for word, and B4's 42 not yet recorded; none says he",
+    strings.length === 48 + B4_UNRECORDED && list.every((l) => strings.includes(l.text)) && !strings.some((s) => HE.test(s)),
+    `${strings.length} lines: ${list.filter((l) => strings.includes(l.text)).length} of the 48 shipped, ${strings.length - list.filter((l) => strings.includes(l.text)).length} others`);
   const scene = fs.readFileSync(path.join(UNITY, "Assets", "BeachVolleyball V19.unity"), "utf8");
   check("the match scene no longer carries the old line arrays", !/serveLines:|pointWonLines:|He floats a high serve/.test(scene));
 }
