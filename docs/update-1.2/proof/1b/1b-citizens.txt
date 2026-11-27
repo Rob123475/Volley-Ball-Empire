@@ -1,0 +1,10 @@
+1b THE STANDS IN PICTURES (CITIZENS), V19 IN PLAY MODE (batch), A WATCHED MATCH
+  -> 1b-citizens-tv.png
+  -> 1b-citizens-game-view1.png
+  -> 1b-citizens-replay-angle.png
+  -> 1b-citizens-stand-close.png
+  the close shot of the stand, twice 0.5 s apart: 9.4% of the picture changed
+  Crowd: 34 real people in the front 1 row(s), 170 cards behind, 24 bystanders; 64 team fans (A #1E3A8A, B #E35205); 46 different people; the cards baked in 503 ms
+  -> 1b-citizens-card-atlas.png
+  the stands after the next point: point to B by Kill: 31 cheer, 94 clap, 103 stay put
+  -> 1b-citizens-reaction-replay-angle.png

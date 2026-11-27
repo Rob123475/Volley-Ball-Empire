@@ -1,0 +1,14 @@
+1b STEP 2: THE STANDS REBUILT WITH THE PACK'S VAT SPECTATORS
+  'StadiumGrandstand (1)' at (39.84, 0.00, 20.16): rows 6, columns 15, Compact, Court; children 262 -> 262; spectators were Spectator Variation 0, Spectator Variation 1, Spectator Variation 2...; now 102 VAT spectators, 102 seats
+  'StadiumGrandstand' at (39.84, 0.00, 6.04): rows 6, columns 15, Compact, Court; children 262 -> 262; spectators were Spectator Variation 0, Spectator Variation 1, Spectator Variation 2...; now 102 VAT spectators, 102 seats
+  kind 0: calm 'Idle 1', light 'Light Cheer 0', heavy 'Heavy Cheer 0', disappointed 'Dissapointed 0'
+  kind 1: calm 'Spectator_Clapping_Material', light 'Light Cheer 1', heavy 'Heavy Cheer 1', disappointed 'Dissapointed 1'
+  kind 2: calm 'Light Cheer 2', light 'Light Cheer 2', heavy 'Heavy Cheer 2', disappointed 'Dissapointed 2'
+  kind 3: calm 'Spectator Variation 3_Worrying', light 'Light Cheer 3', heavy 'Heavy Cheer 3', disappointed 'Dissapointed 3'
+  kind 4: calm 'Light Cheer 4', light 'Light Cheer 4', heavy 'Heavy Cheer 4', disappointed 'Dissapointed 4'
+  kind 5: calm 'Spectator Variation 5_Discussing_StandardMetallic', light 'Light Cheer 5', heavy 'Heavy Cheer 5', disappointed 'Dissapointed 5'
+  kind 6: calm 'Spectator Variation 6_Distracted_StandardMetallic', light 'Light Cheer 6', heavy 'Heavy Cheer 6', disappointed 'Dissapointed 6'
+  kind 7: calm 'Light Cheer 7', light 'Light Cheer 7', heavy 'Heavy Cheer 7', disappointed 'Dissapointed 7'
+  kind 8: calm 'Spectator Variation  8 air clap', light 'Light Cheer 8', heavy 'Heavy Cheer 8', disappointed 'Dissapointed 8'
+  kind 9: calm 'Light Cheer 9', light 'Light Cheer 9', heavy 'Heavy Cheer 9', disappointed 'Dissapointed 9'
+  grid colours (rows hair, skin, shirt, trousers, shoes): 23130B 3D2414 5A3825 CE9A67 23130B A28658 D1B97B EBDFA9 F7F4C3 D6B57E | 673C21 C38A63 E4B697 EBC7A9 F7D6BB D9A784 D9A784 E4B697 F7D6BB EBC7A9 | FFFFFF F4EFDE EF6939 90C5B9 EFC437 2C373C CED2D3 EB343D A0DFEF 2DDF4E | 212142 6B69D2 051B47 797979 292929 E7E7E7 392429 8C8279 2E2E2E 35454A | 1B1B1B 2D2C2D 86583F DEDDDE 212021 DEDDDE 5E4335 212021 FFFFFF 3F332E

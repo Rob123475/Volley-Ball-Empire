@@ -1,0 +1,197 @@
+CITIZENS PRO TO HUMANOID
+  OK   Models/People 1.0/Female/Girl_11.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 1.0/Female/Girl_22.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 1.0/Female/Girl_33.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 1.0/Female/Girl_44.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 1.0/Female/Girl_55.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 1.0/Female/Girl_66.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 1.0/Female/Girl_77.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 1.0/Male/Man_11.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 1.0/Male/Man_111.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 1.0/Male/Man_22.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 1.0/Male/Man_33.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 1.0/Male/Man_44.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 1.0/Male/Man_55.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 1.0/Male/Man_66.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 1.0/Male/Man_77.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 1.0/Male/Man_88.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 1.0/Male/Man_99.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Female/business01_f/business01_f.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Female/business02_f/business02_f.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Female/business03_f/business03_f.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Female/business04_f/business04_f.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Female/business05_f/business05_f.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Female/casual01_f/casual01_f.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Female/casual02_f/casual02_f.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Female/casual03_f/casual03_f.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Female/casual04_f/casual04_f.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Female/casual05_f/casual05_f.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Female/casual06_f/casual06_f.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Female/casual07_f/casual07_f.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Female/casual08_f/casual08_f.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Female/casual09_f/casual09_f.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Female/casual10_f/casual10_f.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Female/casual11_f/casual11_f.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Female/casual12_f/casual12_f.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Female/casual13_f+/casual13_f.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Female/casual14_f+/casual14_f.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Female/casual15_f+/casual15_f.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Female/casual16_f/casual16_f.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Female/casual17_f/casual17_f.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Female/casual18_f/casual18_f.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Female/casual19_f/casual19_f.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Female/casual20_f+/casual20_f.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Female/casual21_f+/casual21_f.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Female/casual22_f+/casual22_f.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Female/casual23_f/casual23_f.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Female/casual24_f/casual24_f.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Female/casual25_f/casual25_f.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Female/casual26_f/casual26_f.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Female/granny01/granny01.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Female/granny02/granny02.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Female/nude01_f/nude01_f.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Female/nude02_f/nude02_f.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Female/nude03_f/nude03_f.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Female/nude04_f/nude04_f.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Female/sportive01_f/sportive01_f.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Female/sportive02_f/sportive02_f.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Female/sportive03_f/sportive03_f.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Female/sportive04_f/sportive04_f.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Female/sportive05_f/sportive05_f.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Female/sportive06_f/sportive06_f.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Female/sportive07_f/sportive07_f.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Male/business01_m/business01_m.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Male/business02_m/business02_m.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Male/business03_m/business03_m.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Male/business04_m/business04_m.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Male/business05_m/business05_m.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Male/business06_m/business06_m_highpoly.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Male/business07_m/business07_m.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Male/casual01_m/casual01_m.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Male/casual02_m/casual02_m.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Male/casual03_m/casual03_m.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Male/casual04_m/casual04_m.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Male/casual05_m/casual05_m.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Male/casual06_m/casual06_m.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Male/casual07_m/casual07_m.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Male/casual08_m/casual08_m.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Male/casual09_m/casual09_m_highpoly.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Male/casual10_m/casual10_m_highpoly.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Male/casual11_m/casual11_m.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Male/casual12_m/casual12_m.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Male/casual13_m/casual13_m.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Male/casual14_m/casual14_m.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Male/casual15_m/casual15_m.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Male/casual16_m/casual16_m.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Male/casual17_m/casual17_m.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Male/casual18_m/casual18_m.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Male/casual19_m/casual19_m.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Male/casual20_m/casual20_m.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Male/casual21_m/casual21_m.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Male/casual22_m/casual22_m.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Male/casual23_m/casual23_m.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Male/casual24_m/casual24_m.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Male/casual25_m/casual25_m.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Male/casual26_m/casual26_m.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Male/casual27_m/casual27_m_highpoly.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Male/casual28_m/casual28_m.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Male/casual29_m/casual29_m.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Male/casual30_m/casual30_m.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Male/casual31_m/casual31_m.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Male/casual32_m/casual32_m.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Male/nude01_m/nude01_m.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Male/nude02_m/nude02_m.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Male/nude03_m/nude03_m.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Male/nude04_m/nude04_m.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Male/nude08_m/nude08_m.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Male/nude09_m/nude09_m.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Male/nude10_m/nude10_m.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Male/player_m/soccerplayer01_m.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Male/sportive01_m/sportive01_m.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Male/sportive03_m/sportive03_m.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Male/sportive04_m/sportive04_m.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Male/sportive05_m/sportive05_m.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Male/sportive07_m/sportive07_m.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Male/sportive08_m/sportive08_m.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Male/sportive09_m/sportive09_m.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Male/sportive10_m/sportive10_m.FBX: avatar valid, human True, 42 bones mapped
+  OK   Models/People 2.0/Male/sportive11_m/sportive11_m.FBX: avatar valid, human True, 42 bones mapped
+  models converted: 117 of 117
+  OK   Girl no Heel/cheer_f.FBX: 'cheer_f' 9.7 s looping, humanoid True
+  OK   Girl no Heel/claphands_f.FBX: 'claphands_f' 3.9 s looping, humanoid True
+  OK   Girl no Heel/dance_f.FBX: 'dance_f' 5.0 s looping, humanoid True
+  OK   Girl no Heel/drivecar_f.FBX: 'drivecar_f' 6.7 s looping, humanoid True
+  OK   Girl no Heel/drown_f.FBX: 'drown_f' 5.0 s looping, humanoid True
+  OK   Girl no Heel/eatsitting_f.FBX: 'eatsitting_f' 8.3 s looping, humanoid True
+  OK   Girl no Heel/idle1_f.FBX: 'idle1_f' 13.3 s looping, humanoid True
+  OK   Girl no Heel/idle2_f.FBX: 'idle2_f' 13.3 s looping, humanoid True
+  OK   Girl no Heel/idledrunk_f.FBX: 'idledrunk_f' 6.0 s looping, humanoid True
+  OK   Girl no Heel/idlewall_f.FBX: 'idlewall_f' 6.7 s looping, humanoid True
+  OK   Girl no Heel/lierelaxed1_f.FBX: 'lierelaxed1_f' 13.3 s looping, humanoid True
+  OK   Girl no Heel/lierelaxed2_f.FBX: 'lierelaxed2_f' 13.3 s looping, humanoid True
+  OK   Girl no Heel/listen_f.FBX: 'listen_f' 9.0 s looping, humanoid True
+  OK   Girl no Heel/lookaround_f.FBX: 'lookaround_f' 8.0 s looping, humanoid True
+  OK   Girl no Heel/run_f.FBX: 'run_f' 0.9 s looping, humanoid True
+  OK   Girl no Heel/shout_f.FBX: 'shout_f' 5.3 s looping, humanoid True
+  OK   Girl no Heel/sitground_f.FBX: 'sitground_f' 6.7 s looping, humanoid True
+  OK   Girl no Heel/sitidle_f.FBX: 'sitidle_f' 10.0 s looping, humanoid True
+  OK   Girl no Heel/swim_f.FBX: 'swim_f' 2.7 s looping, humanoid True
+  OK   Girl no Heel/talk1_f.FBX: 'talk1_f' 13.3 s looping, humanoid True
+  OK   Girl no Heel/talk2_f.FBX: 'talk2_f' 13.3 s looping, humanoid True
+  OK   Girl no Heel/walk_f.FBX: 'walk_f' 1.3 s looping, humanoid True
+  OK   Girl no Heel/walkcarry1_f.FBX: 'walkcarry1_f' 1.3 s looping, humanoid True
+  OK   Girl no Heel/walkdrunk_f.FBX: 'walkdrunk_f' 4.3 s looping, humanoid True
+  OK   Girl no Heel/work_assembly_f.FBX: 'work_assembly_f' 6.7 s looping, humanoid True
+  OK   Girl no Heel/work_computer_f.FBX: 'work_computer_f' 6.7 s looping, humanoid True
+  OK   Girl with Heel/cheer_f.FBX: 'cheer_f' 9.7 s looping, humanoid True
+  OK   Girl with Heel/claphands_f.FBX: 'claphands_f' 3.9 s looping, humanoid True
+  OK   Girl with Heel/Dance_woman.FBX: 'Dance_woman' 5.0 s looping, humanoid True
+  OK   Girl with Heel/drivecar_f.FBX: 'drivecar_f' 6.7 s looping, humanoid True
+  OK   Girl with Heel/drown_f.FBX: 'drown_f' 5.0 s looping, humanoid True
+  OK   Girl with Heel/eatsitting_f.FBX: 'eatsitting_f' 8.3 s looping, humanoid True
+  OK   Girl with Heel/idle1_f.FBX: 'idle1_f' 13.3 s looping, humanoid True
+  OK   Girl with Heel/idle2_f.FBX: 'idle2_f' 13.3 s looping, humanoid True
+  OK   Girl with Heel/idledrunk_f.FBX: 'idledrunk_f' 6.0 s looping, humanoid True
+  OK   Girl with Heel/idlewall_f.FBX: 'idlewall_f' 6.7 s looping, humanoid True
+  OK   Girl with Heel/lierelaxed1_f.FBX: 'lierelaxed1_f' 13.3 s looping, humanoid True
+  OK   Girl with Heel/lierelaxed2_f.FBX: 'lierelaxed2_f' 13.3 s looping, humanoid True
+  OK   Girl with Heel/listen_f.FBX: 'listen_f' 9.0 s looping, humanoid True
+  OK   Girl with Heel/lookaround_f.FBX: 'lookaround_f' 8.0 s looping, humanoid True
+  OK   Girl with Heel/manipulate_f.FBX: 'manipulate_f' 5.0 s looping, humanoid True
+  OK   Girl with Heel/run_f.FBX: 'run_f' 0.9 s looping, humanoid True
+  OK   Girl with Heel/shout_f.FBX: 'shout_f' 5.3 s looping, humanoid True
+  OK   Girl with Heel/sitground_f.FBX: 'sitground_f' 6.7 s looping, humanoid True
+  OK   Girl with Heel/swim_f.FBX: 'swim_f' 2.7 s looping, humanoid True
+  OK   Girl with Heel/talk1_f.FBX: 'talk1_f' 13.3 s looping, humanoid True
+  OK   Girl with Heel/talk2_f.FBX: 'talk2_f' 13.3 s looping, humanoid True
+  OK   Girl with Heel/walk_f.FBX: 'walk_f' 1.3 s looping, humanoid True
+  OK   Girl with Heel/walkcarry1_f.FBX: 'walkcarry1_f' 1.3 s looping, humanoid True
+  OK   Girl with Heel/walkdrunk_f.FBX: 'walkdrunk_f' 4.3 s looping, humanoid True
+  OK   Girl with Heel/work_assembly_f.FBX: 'work_assembly_f' 6.7 s looping, humanoid True
+  OK   Girl with Heel/work_computer_f.FBX: 'work_computer_f' 6.7 s looping, humanoid True
+  OK   Man/cheer.FBX: 'cheer' 9.2 s looping, humanoid True
+  OK   Man/claphands.FBX: 'claphands' 4.0 s looping, humanoid True
+  OK   Man/Dance_man.FBX: 'Dance_man' 5.0 s looping, humanoid True
+  OK   Man/drivecar.FBX: 'drivecar' 6.7 s looping, humanoid True
+  OK   Man/drown.FBX: 'drown' 5.3 s looping, humanoid True
+  OK   Man/eatsitting.FBX: 'eatsitting' 8.3 s looping, humanoid True
+  OK   Man/idle1.FBX: 'idle1' 13.3 s looping, humanoid True
+  OK   Man/idle2.FBX: 'idle2' 13.3 s looping, humanoid True
+  OK   Man/idledrunk.FBX: 'idledrunk' 6.0 s looping, humanoid True
+  OK   Man/lierelaxed1.FBX: 'lierelaxed1' 13.3 s looping, humanoid True
+  OK   Man/lierelaxed2.FBX: 'lierelaxed2' 13.3 s looping, humanoid True
+  OK   Man/listen.FBX: 'listen' 10.0 s looping, humanoid True
+  OK   Man/lookaround.FBX: 'lookaround' 6.7 s looping, humanoid True
+  OK   Man/run.FBX: 'run' 0.8 s looping, humanoid True
+  OK   Man/shout.FBX: 'shout' 5.3 s looping, humanoid True
+  OK   Man/sitground.FBX: 'sitground' 6.7 s looping, humanoid True
+  OK   Man/sitidle.FBX: 'sitidle' 13.3 s looping, humanoid True
+  OK   Man/swim.FBX: 'swim' 2.7 s looping, humanoid True
+  OK   Man/talk1.FBX: 'talk1' 10.0 s looping, humanoid True
+  OK   Man/talk2.FBX: 'talk2' 10.0 s looping, humanoid True
+  OK   Man/walk.FBX: 'walk' 1.3 s looping, humanoid True
+  OK   Man/walkcarry1.FBX: 'walkcarry1' 1.3 s looping, humanoid True
+  OK   Man/walkdrunk.FBX: 'walkdrunk' 4.3 s looping, humanoid True
+  OK   Man/work_computer.FBX: 'work_computer' 6.7 s looping, humanoid True
+  clips converted: 76 of 76
+RESULT: PASS

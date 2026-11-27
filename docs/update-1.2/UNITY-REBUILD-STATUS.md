@@ -1254,3 +1254,75 @@ Rob's instruction (28 Nov): section 0, then section 1 (the ball, then the crowd,
   - Its first run is kept as `harness-unity-full-run1-relative-path.txt`, 11/13. I passed a relative proof folder, so Unity, which runs from its own project folder, wrote its result file there. The match itself was right (court 28/28, 2-0, 11-6, 11-3, recorded exactly). The stray folder was removed from the Unity project.
 
 **Commits:** Unity `c88ebc7`.
+
+### Fix 1b: the crowd and the people round the venue (28 Nov 2026)
+
+Rob: "they look shit against our players." He wants them to move, and not all dressed alike. The steps went in his order.
+
+**Step 1, what it was** (`proof/1b/crowd-audit.txt`):
+- **The stands:** 204 spectators from the Stadium Crowd Generator (102 in each of two stands), about 1,100 triangles each.
+  - All in white shirts and navy trousers, from column 0 of the pack's colour grid.
+  - None with any animation: they never moved. In half a second, 0.6% of a close shot changed.
+- **Round the venue:** 24 low-poly people of 570 to 2,550 triangles each (PolyPeople Swimwear, CityPeople), as close as 9.7 m to the court.
+- **In all:** 258,000 triangles in 228 skinned people.
+- **Frame rate:** demo 1, with this crowd, measured 55.6 fps (TV look, 1920×1080, headless Chrome on this PC). The crowd's own share of that was not measured apart.
+
+**Step 2, the free fixes, with the crowd pack Rob already owned** (Unity `2170942`). Both stands were rebuilt by the pack's own generator with its vertex-animated (VAT) spectators. A crowd script gave them:
+- **Clothes:** per-person palettes in the grid's layout, so shirts, trousers and shoes vary; 35% of each half wore the kit colour of the team on that half.
+- **Timing:** each person had their own offset and speed.
+- **Reactions:** the pack's moods after each point.
+- **Results** (`1b-before-*.png`, `1b-after-*.png` in the TV look, the Game look and the replay angle; real match data through `harness/unity-on-server.mjs`):
+  - 14 shirt colours, 193 different timings, 66 team fans (Sydney navy, Paris orange).
+  - 11.9% of the close shot changed in half a second.
+  - The stands reacted to points (34 cheering, 82 clapping, 32 disappointed).
+- **Stand styles** (`stand-styles.png`): six styles the pack's generator builds (court, steel I-beams, wooden bleachers, concrete steps, with and without railings). This answers 6f with pictures only; the stands themselves were not changed.
+- **Said plainly: after step 2 they still looked low-poly** beside the players: faceless mannequins. Step 2 was superseded by step 4 below, and its code was removed.
+
+**Step 3, the realistic people already owned** (`people-packs.txt`):
+- **IdaFaber's Beach Girls:** 84,000 to 108,000 triangles each, and the players' own model.
+- **Abandoned World's Base Humans:** 30,000 and 41,000.
+- **Mia Lock:** 53,000 plus 155,000 for the hair. Imported from Rob's cache for this audit; 39 of 45 materials converted to URP.
+- **The verdict:** none is light enough for a crowd; one or two could stand near the court at most.
+- **Not on this PC at all:** Swimwear Girl 3 and Serah Fei are in neither `Assets` nor the Asset Store cache.
+
+**Step 4, the people pack: Citizens Pro** (bought 27 Nov; Unity `e35f0b8`, `75e32ce`, `28e76177`).
+- **It converts to Humanoid** (`citizens-humanoid.txt`, `citizens-retarget.png`):
+  - 117 adult models, each with its own valid avatar; 76 adult clips, each with an avatar from its own skeleton.
+  - The first try copied a model's avatar to the clips and crumpled every pose. The clips' skeleton isn't the models'.
+  - Its own seated, cheering, clapping and talking clips pose properly on its people, and so do Musical Motions' guitar, bass, drums, keyboard, sax, trumpet and violin and the Lounge Singer's singing (needed for 6e).
+- **Where the cameras come close** (`camera-reach.txt`, a watched match through the TV look and all six Game views): **every row comes within 6.1 to 7.6 m** of the camera, a seated fan filling 20 to 32% of the picture's height.
+  - So by Rob's rule nearly every seat wants a real person. With WebGL's CPU skinning, 204 real people would cost the frame rate, so the number of real rows is one setting (`Crowd.realRows`).
+  - It is set to the front row: the row the low courtside and replay cameras see face to face.
+- **What is in V19 now** (`Crowd.cs`, `CrowdSetup.cs`, `Shaders/CrowdCard.shader`):
+  - **The front row:** 34 real Citizens Pro people, seated, rising to clap and cheer after points, each at their own point in their loop and their own speed.
+  - **The rows behind:** 170 picture cards of 12 of the same people. A card is a quad that turns to face the camera, showing frames from an atlas baked at the start of each match from those people under that match's light: seated, clapping and cheering, 6 frames each. The bake took 258 ms in the WebGL build.
+  - **Round the venue:** 24 real Citizens Pro people where the low-poly ones stood, idling, talking, looking about, and clapping on points.
+  - **Clothes:** everyone's own outfit (89 different people, Summer and Beach sets). Team fans are chosen from the people whose shirts are nearest the team's kit colour, each shirt measured from its own texture over the torso's triangles.
+  - **The old pieces:** step 2's VAT spectators, its crowd script (`CrowdDresser`, `CrowdStandsSetup`) and the 24 low-poly people are gone from the scene and the code. Their packs stay in `Assets`.
+- **Proof** (`1b-citizens-*.png` and `1b-citizens.txt`, real match data):
+  - 34 real people, 170 cards, 24 bystanders, 64 team fans, 44 different people in one match.
+  - The stands cheer and clap after points (`1b-citizens-reaction-replay-angle.png`), and the atlas is `1b-citizens-card-atlas.png`.
+- **The bake's three faults, found and fixed on the way:**
+  - `Camera.Render` called from the game's Update drew nothing; URP's render request draws.
+  - `Destroy` waits for the end of the frame, so the people were drawn over each other; each is now hidden at once.
+  - A skinned mesh is skinned once a frame, so every pose drew the first; each pose is now baked into a plain mesh and drawn.
+- **Download:** Citizens Pro's 298 textures are capped at 512 px (spectators are 6 m away or more).
+- **Crowd sound unchanged:** B4's sound proof was rerun on the finished crowd and passes 8/8. The crowd erupts on every ace and block, 15 of 15.
+- **Said plainly:** the front row and the people round the venue now match the players' quality. The cards are flat and show it from the side at 6 m, which the cameras do reach. Rob can raise `realRows` and see what it costs.
+- **My mistake on the way:** removing the stray folder of 1a's first `--unity-full` run, I deleted the Unity repo's whole `docs` folder, which held one tracked file, `docs/UNITY-STATUS.md`. I restored it from git. I can't rule out that untracked files of Rob's were in that folder.
+
+**The demo rebuilt** (`C:\build\vbe-1.2-demo-2026-11-27b\`, version 1.2.0-demo2, the same separate app and save folder; `proof/demo2/`):
+- **The build:** WebGL `.data` is 316,561,412 bytes (demo 1: 276,887,540; +39.7 MB, the crowd). `.data.br` is 247,124,481 bytes. The installer is 473 MB.
+- **A whole watched match in headless Chrome:** 18/18, 2-1, the crowd built (34 real, 170 cards, 24 bystanders).
+- **Frame rate, roaming TV camera, 60 s:**
+  - headless Chrome at 1920×1080: **56.0 fps**, against 55.6 for demo 1 (median frame 17.6 ms, 95th percentile 18.1 ms, none over 50 ms);
+  - the installed demo, 1280×720: **56.4 fps**, against 58.6 for demo 1.
+  - So it did not drop in Chrome. In the installed app it is 2.2 fps lower: within this machine's run-to-run spread, but I've noted it.
+- **The install test** (`proof/demo2/install/`): everything that matters passes.
+  - The title screen shows 1.2.0-demo2.
+  - On a copy of the live save, a played match pays out.
+  - The real save folder, the older ones and the Steam install are byte for byte unchanged.
+- **The two set-up checks that failed, and why:**
+  - **The Uninstall entry:** demo 2 replaces demo 1, with the same app id and so the same Uninstall entry. The check expected a new one.
+  - **"No folder":** the demo's save folder existed, empty, when the test began (left by demo 1's uninstaller). Every file the test then moved aside dates from its own run, so none was Rob's.
+- **Demo 2 is installed on this PC**, its save folder moved aside after the test, so its next start is a first run.

@@ -1,13 +1,13 @@
 B4 CROWD AND COMMENTARY, V19 IN PLAY MODE (batch), THE GAME'S 48 CLIPS
-  210 s watched: 18 points; then a played match
+  210 s watched: 17 points; then a played match
   clips loaded: 48 (the 48 recorded; B4's 42 are Rob's to record)
-  each point's line, as chosen: Point 15, Ace 10, Block 2, Error 1, MatchWon 1
-  CHECK each point's line is chosen from what happened (match won, comeback, ace, block, match point, set point, error, point): PASS  29 of 29 right, 0 wrong
-  new kinds until Rob records them: WalkOn -> nothing x1, Error -> Point x1, Ace -> Point x10, MatchWon -> Point x1
-  CHECK no clip of a new kind is played (none is recorded): each falls back to a point line: PASS  0 new-kind lines spoken; 13 fallbacks
+  each point's line, as chosen: Ace 9, Point 7, Block 6, Error 4, Comeback 1, SetPoint 1
+  CHECK each point's line is chosen from what happened (match won, comeback, ace, block, match point, set point, error, point): PASS  28 of 28 right, 0 wrong
+  new kinds until Rob records them: WalkOn -> nothing x1, Error -> Point x4, Comeback -> Point x1, SetPoint -> Point x1, Ace -> Point x9
+  CHECK no clip of a new kind is played (none is recorded): each falls back to a point line: PASS  0 new-kind lines spoken; 16 fallbacks
   CHECK the walk-on says nothing until its lines are recorded: PASS  0 frames of speech during the walk-on
-  CHECK the crowd erupts on every ace and every block: PASS  13 eruptions, 13 aces and blocks
-  CHECK and louder than after another point (the excited bed, 0.5 s after): PASS  after an ace or block 0.80 (13), after another point 0.50 (16)
-  CHECK a played rally: the crowd reads it as live, and counts the engine's own touches: PASS  24517 frames of played rallies: live in 24517, the same touches in 24517
-  CHECK the crowd builds through a long rally (a watched match): PASS  excited bed 0.00 at 0-3 touches (66687 frames), 0.41 at 9+ touches (107450 frames)
+  CHECK the crowd erupts on every ace and every block: PASS  15 eruptions, 15 aces and blocks
+  CHECK and louder than after another point (the excited bed, 0.5 s after): PASS  after an ace or block 0.80 (15), after another point 0.50 (13)
+  CHECK a played rally: the crowd reads it as live, and counts the engine's own touches: PASS  34837 frames of played rallies: live in 34837, the same touches in 34837
+  CHECK the crowd builds through a long rally (a watched match): PASS  excited bed 0.00 at 0-3 touches (78099 frames), 0.44 at 9+ touches (157959 frames)
 RESULT: PASS

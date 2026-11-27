@@ -36,5 +36,5 @@ DRAWN FLIGHTS (the picture's colours):
   TAPE, rolls over: TapeOver, Landed; lands IN at (2.00, 0.11, 3.41); predicted at the strike: Landed IN at (2.00, 0.11, 3.41)
   TAPE, falls back: TapeBack, Landed; lands IN at (-2.50, 0.11, -0.93); predicted at the strike: Landed IN at (-2.50, 0.11, -0.93)
   outside the ANTENNA: Antenna; net fault (Antenna); predicted at the strike: Antenna  at (3.96, 2.21, 0.00)
-PICTURES: C:/Users/rbonn/AppData/Local/Temp/claude/8abf43482208b43a/e4495fc7-4b0c-4358-b3dd-36548dcf22d3/scratchpad/proof\A1/a1-flights-side.png, a1-flights-behind.png, a1-net-close.png (the scene is not saved)
+PICTURES: C:/Users/rbonn/Documents/Volley-Ball-Empire/docs/update-1.2/proof\A1/a1-flights-side.png, a1-flights-behind.png, a1-net-close.png (the scene is not saved)
 RESULT: PASS (23 passed, 0 failed)

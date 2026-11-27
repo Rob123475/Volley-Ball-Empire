@@ -1,0 +1,15 @@
+CITIZENS PRO, HUMANOID: THE CLIPS WE NEED, ON ITS PEOPLE (Play mode, 1.2 s into each clip)
+  own: sit idle                on casual05_f_highpoly   : pose 1.73 m tall, hands 0.52 m apart, avatar human True
+  own: cheer                   on casual05_f_highpoly   : pose 1.73 m tall, hands 0.12 m apart, avatar human True
+  own: clap                    on nude02_f_highpoly     : pose 1.74 m tall, hands 0.19 m apart, avatar human True
+  own: sit idle                on casual03_m_highpoly   : pose 1.89 m tall, hands 0.57 m apart, avatar human True
+  own: cheer                   on casual03_m_highpoly   : pose 1.98 m tall, hands 1.16 m apart, avatar human True
+  own: talk                    on nude03_m_highpoly     : pose 1.94 m tall, hands 0.56 m apart, avatar human True
+  Musical Motions: guitar      on casual12_m_highpoly   : pose 1.93 m tall, hands 0.65 m apart, avatar human True
+  Musical Motions: bass        on casual22_m_highpoly   : pose 1.93 m tall, hands 0.48 m apart, avatar human True
+  Musical Motions: drums       on casual18_m_highpoly   : pose 1.84 m tall, hands 0.61 m apart, avatar human True
+  Musical Motions: keyboard    on casual09_f_highpoly   : pose 1.76 m tall, hands 0.35 m apart, avatar human True
+  Musical Motions: sax         on casual25_m_highpoly   : pose 1.87 m tall, hands 0.36 m apart, avatar human True
+  Musical Motions: trumpet     on casual12_f_highpoly   : pose 1.78 m tall, hands 0.15 m apart, avatar human True
+  Musical Motions: violin      on casual14_f_highpoly   : pose 1.73 m tall, hands 0.38 m apart, avatar human True
+  Lounge Singer: sing upbeat   on casual20_f_highpoly   : pose 1.91 m tall, hands 0.63 m apart, avatar human True

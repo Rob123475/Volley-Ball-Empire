@@ -1,0 +1,50 @@
+== Assets/Mia Bikini
+  materials 45: 0 draw in URP, 45 do not
+      35  Standard   <- not URP
+       4  Hidden/InternalErrorShader   <- not URP
+       3  Standard (Specular setup)   <- not URP
+       2  Legacy Shaders/Transparent/VertexLit   <- not URP
+       1  Legacy Shaders/Transparent/Specular   <- not URP
+  models 2
+      154630 tris  rig Generic   clips  1  meshes/hairmia3dstounity-1.FBX
+       52751 tris  rig Human     clips  1  meshes/miaBikini3dstounity1.FBX
+  animation clips (in models and .anim files): 2 assets
+  prefabs 1, scenes 1, scripts 0: 
+  textures 35; largest: ml-cap-bend.png 2048x2048, ml-hair01.png 2048x2048, ml-hairbend.png 2048x2048, BikiniBottom_Base_Color.jpg 2048x2048
+== Assets/Abandoned World/Base Humans - Man and Woman
+  materials 15: 15 draw in URP, 0 do not
+      10  Shader Graphs/SH_AW_PBR_ORM
+       2  Shader Graphs/SH_AW_PBR_ORM_Transparent
+       2  Shader Graphs/SH_AW_PBR_ORM_Transparent_2side
+       1  Universal Render Pipeline/Autodesk Interactive/AutodeskInteractive
+  models 2
+       40922 tris  rig Human     clips  0  Meshes/SK_Man.fbx
+       29826 tris  rig Human     clips  0  Meshes/SK_Woman.fbx
+  animation clips (in models and .anim files): 0 assets
+  prefabs 2, scenes 1, scripts 0: 
+  textures 31; largest: T_eye_mouth_BaseColor.png 2048x2048, T_eye_mouth_Normal.png 2048x2048, T_eye_mouth_ORM.png 2048x2048, T_HairTextures_baseTexBaked.png 2048x2048
+== Assets/IdaFaber
+  materials 257: 256 draw in URP, 1 do not
+      96  Shader Graphs/IDA_Clothes
+      94  Shader Graphs/IDA_Skin
+      47  Shader Graphs/IDA_Hair
+      13  Shader Graphs/IDA_Base
+       4  Skybox/Cubemap
+       1  Universal Render Pipeline/Lit
+       1  Particles/Standard Unlit
+       1  Unlit/Color   <- not URP
+  models 11
+           0 tris  rig Generic   clips  1  Demo/A_Demo_Heavy_F.fbx
+           0 tris  rig Generic   clips  1  Demo/A_Demo_Heavy_M.fbx
+           0 tris  rig Human     clips  1  Demo/A_Idle_F.fbx
+         284 tris  rig Generic   clips  0  Demo/SM_Rectangle.fbx
+       92844 tris  rig Human     clips  0  Meshes/Girl/SK_BeachGirl_01.fbx
+       99780 tris  rig Human     clips  0  Meshes/Girl/SK_BeachGirl_02.fbx
+      107838 tris  rig Human     clips  0  Meshes/Girl/SK_BeachGirl_03.fbx
+       84120 tris  rig Human     clips  0  Meshes/Girl/SK_BeachGirl_04.fbx
+       90476 tris  rig Human     clips  0  Meshes/Girl/SK_BeachGirl_05.fbx
+       87148 tris  rig Human     clips  0  Meshes/Girl/SK_BeachGirl_06.fbx
+      249222 tris  rig Human     clips  0  Meshes/Girl/SK_BeachGirl_AllPartsTogether.fbx
+  animation clips (in models and .anim files): 3 assets
+  prefabs 7, scenes 2, scripts 1: S_CameraController.cs
+  textures 351; largest: T_HAIR_STRAIGHT_albedo.png 2048x2048, T_HAIR_STRAIGHT_alpha.png 2048x2048, T_HAIR_STRAIGHT_ambient.png 2048x2048, T_HAIR_STRAIGHT_depth.png 2048x2048

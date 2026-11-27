@@ -1,0 +1,6 @@
+Court (V19 today): beam sets, planks, rails: 262 pieces, 102 seats, 14.1 x 4.4 x 6.1 m, 120,398 triangles
+Steel I-beams, planks, rails: 353 pieces, 102 seats, 14.1 x 4.4 x 6.1 m, 121,546 triangles
+Wooden bleachers: steel, wooden planks, rails: 353 pieces, 102 seats, 14.1 x 4.4 x 6.1 m, 121,546 triangles
+Concrete steps, rails: 262 pieces, 102 seats, 14.1 x 4.4 x 6.1 m, 120,398 triangles
+Wooden bleachers, no railings: 327 pieces, 102 seats, 14.1 x 4.4 x 6.1 m, 119,674 triangles
+Concrete steps, no railings: 236 pieces, 102 seats, 14.1 x 4.4 x 6.1 m, 118,526 triangles

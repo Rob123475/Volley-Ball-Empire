@@ -1,0 +1,62 @@
+1b STEP 1: V19'S CROWD AND THE PEOPLE ROUND THE VENUE (everyone skinned except the four players and the umpire)
+  people: 228; triangles in all: 257,918; skinned meshes: 237; with an Animator: 24
+
+== grandstand 'StadiumGrandstand': 102 people, 111,514 triangles
+   102 x  1,101 tris  Assets/Stadium Crowd Generator/Prefabs/SkinnedMesh Grandstand.prefab
+        materials: Clothes 7 [Universal Render Pipeline/Lit] colour FFFFFF tex Texture Grid 512px
+        animation: no animation
+
+== grandstand 'StadiumGrandstand (1)': 102 people, 111,514 triangles
+   102 x  1,068 tris  Assets/Stadium Crowd Generator/Prefabs/SkinnedMesh Grandstand.prefab
+        materials: Clothes 4 [Universal Render Pipeline/Lit] colour FFFFFF tex Texture Grid 512px
+        animation: no animation
+
+== round the venue: 24 people, 34,890 triangles
+     7 x    570 tris  Assets/PolyPeople_Swimwear_Lite/Meshes/Swimwear_Female_YoungAdult.fbx
+        materials: Swimwear_Custom_RelativeTone [Shader Graphs/Swimwear_Custom_StaticColor]
+        animation: Spectator_Cheer (a_person_clapping_enthusiastically_while, a_person_cheering_with_both_arms_raised)
+        'Swimwear_Female_YoungAdult_CustomColors (1)' at 47.9 m from the court's centre
+        'Swimwear_Female_YoungAdult_ColorB (5)' at 9.7 m from the court's centre
+        'Swimwear_Female_YoungAdult_CustomSkin (4)' at 9.8 m from the court's centre
+        'Swimwear_Female_YoungAdult_CustomSkin (5)' at 13.4 m from the court's centre
+        'Swimwear_Female_YoungAdult_CustomSkin (3)' at 12.9 m from the court's centre
+        'Swimwear_Female_YoungAdult_CustomColors (4)' at 12.2 m from the court's centre
+        'Swimwear_Female_YoungAdult_ColorA (3)' at 12.9 m from the court's centre
+     4 x  1,812 tris  Assets/DenysAlmaral/CityPeople/Prefabs/downtown/casual_Male_K.prefab
+        materials: people_pal [Universal Render Pipeline/Lit] colour FFFFFF tex people_pal 256px
+        animation: Spectator_CityM (idle_m_2_220f, idle_m_1_200f, idle_phoneTalking_180f, a_person_clapping_enthusiastically_while, a_person_cheering_with_both_arms_raised)
+        'casual_Male_K (4)' at 33.4 m from the court's centre
+        'casual_Male_K (5)' at 46.8 m from the court's centre
+        'casual_Male_K (7)' at 17.3 m from the court's centre
+        'casual_Male_K (6)' at 13.8 m from the court's centre
+     4 x  1,552 tris  Assets/DenysAlmaral/CityPeople/Prefabs/city/casual_Male_G.prefab
+        materials: people_pal [Universal Render Pipeline/Lit] colour FFFFFF tex people_pal 256px
+        animation: Spectator_CityM (idle_m_2_220f, idle_m_1_200f, idle_phoneTalking_180f, a_person_clapping_enthusiastically_while, a_person_cheering_with_both_arms_raised)
+        'casual_Male_G' at 11.6 m from the court's centre
+        'casual_Male_G (4)' at 23.1 m from the court's centre
+        'casual_Male_G (3)' at 30.5 m from the court's centre
+        'casual_Male_G (2)' at 31.2 m from the court's centre
+     4 x  1,962 tris  Assets/DenysAlmaral/CityPeople/Prefabs/downtown/casual_Female_K.prefab
+        materials: people_pal [Universal Render Pipeline/Lit] colour FFFFFF tex people_pal 256px
+        animation: Spectator_CityF (idle_f_1_150f, idle_f_2_190f, idle_selfcheck_1_300f, a_person_clapping_enthusiastically_while, a_person_cheering_with_both_arms_raised)
+        'casual_Female_K (5)' at 25.0 m from the court's centre
+        'casual_Female_K (4)' at 36.4 m from the court's centre
+        'casual_Female_K (6)' at 14.2 m from the court's centre
+        'casual_Female_K (8)' at 18.1 m from the court's centre
+     2 x  1,622 tris  Assets/DenysAlmaral/CityPeople/Prefabs/city/casual_Female_G.prefab
+        materials: people_pal [Universal Render Pipeline/Lit] colour FFFFFF tex people_pal 256px
+        animation: Spectator_CityF (idle_f_1_150f, idle_f_2_190f, idle_selfcheck_1_300f, a_person_clapping_enthusiastically_while, a_person_cheering_with_both_arms_raised)
+        'casual_Female_G (2)' at 25.9 m from the court's centre
+        'casual_Female_G' at 11.9 m from the court's centre
+     1 x  2,546 tris  Assets/DenysAlmaral/CityPeople/Meshes/disabilities/prostheticLeg_girl_ani.fbx
+        materials: people_pal [Universal Render Pipeline/Lit] colour FFFFFF tex people_pal 256px
+        animation: Spectator_ProstheticLeg (idle, talking)
+        'prostheticLeg_girl (1)' at 13.0 m from the court's centre
+     1 x  1,892 tris  Assets/DenysAlmaral/CityPeople/Meshes/construction/worker_Male_constructor_B.fbx
+        materials: people_pal_s23 [Universal Render Pipeline/Lit] colour FFFFFF tex people_pal 256px
+        animation: Spectator_CityM (idle_m_2_220f, idle_m_1_200f, idle_phoneTalking_180f, a_person_clapping_enthusiastically_while, a_person_cheering_with_both_arms_raised)
+        'worker_Male_constructor_B (3)' at 35.2 m from the court's centre
+     1 x  1,914 tris  Assets/DenysAlmaral/CityPeople/Prefabs/professions/police_Female_A.prefab
+        materials: people_pal [Universal Render Pipeline/Lit] colour FFFFFF tex people_pal 256px
+        animation: Spectator_CityF (idle_f_1_150f, idle_f_2_190f, idle_selfcheck_1_300f, a_person_clapping_enthusiastically_while, a_person_cheering_with_both_arms_raised)
+        'police_Female_A (3)' at 12.3 m from the court's centre

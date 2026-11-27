@@ -26,7 +26,7 @@
  *  7. The demo's folder (with the copy of the live save in it) is moved to
  *     <buildDir>\test-saves\, so the demo's next start is a first run again.
  *
- * Usage: node scripts/webgl-proof/demo-install-proof.mjs <installer.exe> <outDir> <buildDir>
+ * Usage: node scripts/webgl-proof/demo-install-proof.mjs <installer.exe> <outDir> <buildDir> [version]
  */
 import { spawn, spawnSync } from "node:child_process";
 import crypto from "node:crypto";
@@ -37,7 +37,7 @@ const INSTALLER = path.resolve(process.argv[2]);
 const outDir = path.resolve(process.argv[3]);
 const buildDir = path.resolve(process.argv[4]);
 fs.mkdirSync(outDir, { recursive: true });
-const PRODUCT = "Beach Volleyball Empire 1.2 Demo", VERSION = "1.2.0-demo1";
+const PRODUCT = "Beach Volleyball Empire 1.2 Demo", VERSION = process.argv[5] ?? "1.2.0-demo1";
 const APPDATA = process.env.APPDATA, LOCAL = process.env.LOCALAPPDATA;
 const DEMO_DIR = path.join(APPDATA, PRODUCT);
 const INSTALL_DIR = path.join(LOCAL, "Programs", PRODUCT);

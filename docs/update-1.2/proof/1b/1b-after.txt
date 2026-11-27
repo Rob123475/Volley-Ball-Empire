@@ -1,0 +1,9 @@
+1b THE STANDS IN PICTURES (AFTER), V19 IN PLAY MODE (batch), A WATCHED MATCH
+  -> 1b-after-tv.png
+  -> 1b-after-game-view1.png
+  -> 1b-after-replay-angle.png
+  -> 1b-after-stand-close.png
+  the close shot of the stand, twice 0.5 s apart: 11.9% of the picture changed
+  CrowdDresser: 204 fans, 204 dressed, 66 in their team's colours, 14 shirt colours, 193 different timings
+  the stands after the next point: point to A by BlockStuff: 34 cheer, 82 clap, 32 disappointed
+  -> 1b-after-reaction-replay-angle.png

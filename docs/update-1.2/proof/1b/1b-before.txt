@@ -1,0 +1,7 @@
+1b THE STANDS IN PICTURES (BEFORE), V19 IN PLAY MODE (batch), A WATCHED MATCH
+  -> 1b-before-tv.png
+  -> 1b-before-game-view1.png
+  -> 1b-before-replay-angle.png
+  -> 1b-before-stand-close.png
+  the close shot of the stand, twice 0.5 s apart: 0.6% of the picture changed
+  no CrowdDresser in the scene

@@ -1,0 +1,311 @@
+{
+  "installer": "C:\\build\\vbe-1.2-demo-2026-11-27b\\Beach Volleyball Empire 1.2 Demo Setup 1.2.0-demo2.exe",
+  "steps": [
+    {
+      "at": "12:42:26",
+      "s": "fingerprints before",
+      "real save folder": {
+        "files": 993,
+        "bytes": 1072613100
+      },
+      "old 'Volleyball Empire' folder": {
+        "files": 385,
+        "bytes": 762027476
+      },
+      "old 'workspace' folder": {
+        "files": 372,
+        "bytes": 33949786
+      },
+      "Steam install": {
+        "files": 2193,
+        "bytes": 668098175
+      }
+    },
+    {
+      "at": "12:42:56",
+      "s": "first run: quit",
+      "exited": {
+        "code": 0,
+        "at": 1795783375859
+      }
+    },
+    {
+      "at": "12:43:01",
+      "s": "profiles in the copy",
+      "profiles": [
+        "Rob",
+        "Garry"
+      ],
+      "chosen": "Rob"
+    },
+    {
+      "at": "12:43:07",
+      "s": "the copy's career, before the match",
+      "name": "Sydney Riptide",
+      "budget": 218110,
+      "wins": 3,
+      "losses": 18
+    },
+    {
+      "at": "12:43:08",
+      "s": "match day",
+      "box": "MATCH DAY! | WORLD TOUR R23 | BRONZE | Sydney RiptidevsMiami Shoreline Queens | "
+    },
+    {
+      "at": "12:43:13",
+      "s": "Unity loaded",
+      "loaded": true
+    },
+    {
+      "at": "12:44:35",
+      "s": "frame rate",
+      "where": "installed demo (Electron), 1280x720 page, TV look",
+      "look": "[Camera] TV look (chosen)\n",
+      "seconds": 60,
+      "frames": 3382,
+      "fps": 56.4,
+      "p50ms": 17.6,
+      "p95ms": 19.3,
+      "p99ms": 20.1,
+      "worstMs": 123.2,
+      "over33ms": 2,
+      "over50ms": 2
+    },
+    {
+      "at": "12:47:39",
+      "s": "copy of the live save: quit",
+      "exited": {
+        "code": 0,
+        "at": 1795783658690
+      }
+    },
+    {
+      "at": "12:47:41",
+      "s": "the demo's folder moved aside",
+      "to": "C:\\build\\vbe-1.2-demo-2026-11-27b\\test-saves\\copy-of-live-save"
+    }
+  ],
+  "checks": [
+    {
+      "label": "(set-up) the real game's live save exists and has no -wal (the game is closed)",
+      "pass": true,
+      "detail": "C:\\Users\\rbonn\\AppData\\Roaming\\Beach Volleyball Empire\\volleyball-empire.sqlite"
+    },
+    {
+      "label": "(set-up) the demo is not installed yet and has no folder",
+      "pass": false,
+      "detail": "C:\\Users\\rbonn\\AppData\\Local\\Programs\\Beach Volleyball Empire 1.2 Demo; C:\\Users\\rbonn\\AppData\\Roaming\\Beach Volleyball Empire 1.2 Demo"
+    },
+    {
+      "label": "the installer put the demo in its own folder, with its own exe",
+      "pass": true,
+      "detail": "exit 0; C:\\Users\\rbonn\\AppData\\Local\\Programs\\Beach Volleyball Empire 1.2 Demo\\Beach Volleyball Empire 1.2 Demo.exe"
+    },
+    {
+      "label": "with its own Uninstall entry, named for the demo; every other entry as it was",
+      "pass": false,
+      "detail": ""
+    },
+    {
+      "label": "the Steam install of the real game untouched by the install",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "the title screen shows the demo's name and version",
+      "pass": true,
+      "detail": "Beach Volleyball Empire 1.2 Demo · version 1.2.0-demo2"
+    },
+    {
+      "label": "a first run with no save starts from the starter database: no managers",
+      "pass": true,
+      "detail": "{\"profiles\":[]}"
+    },
+    {
+      "label": "its save is in its own folder",
+      "pass": true,
+      "detail": "C:\\Users\\rbonn\\AppData\\Roaming\\Beach Volleyball Empire 1.2 Demo: starter-reference.db, starter-reference.db-shm, starter-reference.db-wal, volleyball-empire.sqlite, volleyball-empire.sqlite-shm, volleyball-empire.sqlite-wal"
+    },
+    {
+      "label": "on its own port (4174), not the real game's 4173",
+      "pass": true,
+      "detail": "Beach Volleyball Empire; http://localhost:4174/login?returnTo=%2F"
+    },
+    {
+      "label": "quit from the page (Exit game)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "no save brought forward from any other folder, and Steam off",
+      "pass": true,
+      "detail": "[steam] off in Beach Volleyball Empire 1.2 Demo"
+    },
+    {
+      "label": "the real save folder unchanged after the first run",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "a copy of the live save in the demo's own folder (the first run's folder moved to test-saves/first-run)",
+      "pass": true,
+      "detail": "C:\\Users\\rbonn\\AppData\\Roaming\\Beach Volleyball Empire 1.2 Demo\\volleyball-empire.sqlite sha1 d9965b782896ab1164f9280d633a7b989ad4e890"
+    },
+    {
+      "label": "Watch Match opens the court in Manual (the remembered choice)",
+      "pass": true,
+      "detail": "?matchId=688"
+    },
+    {
+      "label": "the played match went to its end and the court's result reached the game",
+      "pass": true,
+      "detail": "{\"id\":688,\"recorded\":{\"score\":\"0-2\",\"sets\":[{\"home\":0,\"away\":11},{\"home\":0,\"away\":11}],\"home\":\"Sydney Riptide\",\"away\":\"Miami Shoreline Queens\"},\"minutes\":2.8,\"playedServes\":1,\"touches\":33,\"presses\":1785}"
+    },
+    {
+      "label": "Continue on the result box goes back to the dashboard",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "the dashboard's Recent Results shows this match, with its WIN or LOSS",
+      "pass": true,
+      "detail": "row: \"Miami Shoreline Queens Plava Laguna Beach, Poreč 0 – 2 LOSS\"; recorded 0-2 v Miami Shoreline Queens"
+    },
+    {
+      "label": "it pays out: the loss counted, its prize on the ledger, and the balance moved by exactly the new ledger rows",
+      "pass": true,
+      "detail": "wins 3->3, losses 18->19; Runner-up prize: World Tour R23 vs Miami Shoreline Queens $2667; balance 218110 -> 215030 (-3080: +2667 prize_money, -4085 manager_salary, -6385 staff_salary, +26800 sponsorship, -12277 salaries, -9800 running_costs)"
+    },
+    {
+      "label": "quit from the page (Exit game)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "real save folder byte for byte unchanged (993 files, SHA-1 of each)",
+      "pass": true,
+      "detail": "C:\\Users\\rbonn\\AppData\\Roaming\\Beach Volleyball Empire"
+    },
+    {
+      "label": "old 'Volleyball Empire' folder byte for byte unchanged (385 files, SHA-1 of each)",
+      "pass": true,
+      "detail": "C:\\Users\\rbonn\\AppData\\Roaming\\Volleyball Empire"
+    },
+    {
+      "label": "old 'workspace' folder byte for byte unchanged (372 files, SHA-1 of each)",
+      "pass": true,
+      "detail": "C:\\Users\\rbonn\\AppData\\Roaming\\workspace"
+    },
+    {
+      "label": "Steam install byte for byte unchanged (2193 files, SHA-1 of each)",
+      "pass": true,
+      "detail": "C:/Program Files (x86)/Steam/steamapps/common/Beach Volleyball Empire"
+    },
+    {
+      "label": "the live save's own SHA-1 unchanged",
+      "pass": true,
+      "detail": "d9965b782896ab1164f9280d633a7b989ad4e890"
+    },
+    {
+      "label": "the real game's Uninstall entries unchanged",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "the copy in the demo's folder did move on (the match is in it)",
+      "pass": true,
+      "detail": ""
+    }
+  ],
+  "shots": [
+    "01-first-run-title-screen.png",
+    "02-copy-dashboard-before.png",
+    "03-copy-match-day.png",
+    "04-court-played-match.png",
+    "05-court-tv-look.png",
+    "06-court-result-box.png",
+    "07-dashboard-after-match.png"
+  ],
+  "before": {
+    "real save folder": {
+      "files": 993,
+      "bytes": 1072613100
+    },
+    "old 'Volleyball Empire' folder": {
+      "files": 385,
+      "bytes": 762027476
+    },
+    "old 'workspace' folder": {
+      "files": 372,
+      "bytes": 33949786
+    },
+    "Steam install": {
+      "files": 2193,
+      "bytes": 668098175
+    },
+    "team": {
+      "name": "Sydney Riptide",
+      "budget": 218110,
+      "wins": 3,
+      "losses": 18
+    }
+  },
+  "liveSaveSha1": "d9965b782896ab1164f9280d633a7b989ad4e890",
+  "install": {
+    "exit": 0,
+    "seconds": 24,
+    "exe": "C:\\Users\\rbonn\\AppData\\Local\\Programs\\Beach Volleyball Empire 1.2 Demo\\Beach Volleyball Empire 1.2 Demo.exe",
+    "newUninstallEntries": []
+  },
+  "matchDay": "MATCH DAY! | WORLD TOUR R23 | BRONZE | Sydney RiptidevsMiami Shoreline Queens | ",
+  "fps": {
+    "where": "installed demo (Electron), 1280x720 page, TV look",
+    "look": "[Camera] TV look (chosen)\n",
+    "seconds": 60,
+    "frames": 3382,
+    "fps": 56.4,
+    "p50ms": 17.6,
+    "p95ms": 19.3,
+    "p99ms": 20.1,
+    "worstMs": 123.2,
+    "over33ms": 2,
+    "over50ms": 2
+  },
+  "match": {
+    "id": 688,
+    "recorded": {
+      "score": "0-2",
+      "sets": [
+        {
+          "home": 0,
+          "away": 11
+        },
+        {
+          "home": 0,
+          "away": 11
+        }
+      ],
+      "home": "Sydney Riptide",
+      "away": "Miami Shoreline Queens"
+    },
+    "minutes": 2.8,
+    "playedServes": 1,
+    "touches": 33,
+    "presses": 1785
+  },
+  "after": {
+    "team": {
+      "budget": 215030,
+      "wins": 3,
+      "losses": 19
+    },
+    "newLedgerRows": [
+      "2026-06-01 prize_money Runner-up prize: World Tour R23 vs Miami Shoreline Queens 2667",
+      "2026-05-28 manager_salary Manager salary 4085",
+      "2026-05-28 staff_salary Weekly staff wages (2 staff) 6385",
+      "2026-05-28 sponsorship Weekly sponsor & commercial income 26800",
+      "2026-05-28 salaries Weekly player salaries (3 players) 12277",
+      "2026-05-28 running_costs Weekly running costs — club 5,000, squad of 3 300, Silver tour 4,500 9800"
+    ]
+  }
+}

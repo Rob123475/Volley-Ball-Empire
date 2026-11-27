@@ -1,0 +1,8 @@
+URP material upgraders available: 63
+== Assets/Mia Bikini: 45 materials; drew in URP before 0; converted 39; now 39; not converted 6
+    not converted: ml-ArmsD_1004.mat (Hidden/InternalErrorShader -> Hidden/InternalErrorShader)
+    not converted: ml-cap01.mat (Legacy Shaders/Transparent/VertexLit -> Legacy Shaders/Transparent/VertexLit)
+    not converted: ml-face01.mat (Hidden/InternalErrorShader -> Hidden/InternalErrorShader)
+    not converted: ml-hair01.mat (Legacy Shaders/Transparent/VertexLit -> Legacy Shaders/Transparent/VertexLit)
+    not converted: ml-LegsD_1003.mat (Hidden/InternalErrorShader -> Hidden/InternalErrorShader)
+    not converted: ml-TorsoD_1002.mat (Hidden/InternalErrorShader -> Hidden/InternalErrorShader)

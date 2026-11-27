@@ -1,0 +1,7 @@
+1b STEP 4: HOW CLOSE THE CAMERAS COME TO EACH ROW (60 s TV look at 2x, then 10 s in each Game view)
+  row 0 (34 fans in both stands): in shot 34; nearest camera 6.4 m (median 8.4 m); tallest in the picture 30% of its height (median 25%)
+  row 1 (34 fans in both stands): in shot 34; nearest camera 6.7 m (median 9.3 m); tallest in the picture 32% of its height (median 24%)
+  row 2 (34 fans in both stands): in shot 34; nearest camera 7.5 m (median 9.2 m); tallest in the picture 28% of its height (median 21%)
+  row 3 (34 fans in both stands): in shot 34; nearest camera 7.6 m (median 8.9 m); tallest in the picture 24% of its height (median 20%)
+  row 4 (34 fans in both stands): in shot 34; nearest camera 6.8 m (median 8.0 m); tallest in the picture 20% of its height (median 19%)
+  row 5 (34 fans in both stands): in shot 34; nearest camera 6.1 m (median 7.1 m); tallest in the picture 22% of its height (median 19%)
