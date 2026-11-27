@@ -1,0 +1,265 @@
+{
+  "mode": "auto",
+  "size": "1920x1080",
+  "gpu": true,
+  "checks": [
+    {
+      "label": "(set-up) a new career, its draft done, on its first match day",
+      "pass": true,
+      "detail": "match 1"
+    },
+    {
+      "label": "CONTINUE on the title screen, then Watch Match on the match day box",
+      "pass": true,
+      "detail": "/"
+    },
+    {
+      "label": "the court opens in Auto (the remembered choice)",
+      "pass": true,
+      "detail": "/unity-build/index.html?careerSaveId=1&matchId=1"
+    },
+    {
+      "label": "the court loaded and the match started",
+      "pass": true,
+      "detail": "[MatchManager] match starts after 4.4s: match data applied; home point chance 0.4825\n"
+    },
+    {
+      "label": "V switches the court to the Game look",
+      "pass": true,
+      "detail": "[Camera] Game look, view 1 (Behind your baseline) (chosen)\n"
+    },
+    {
+      "label": "TV look: a picture at the serve",
+      "pass": true,
+      "detail": "auto-TV-serve.png"
+    },
+    {
+      "label": "TV look: a picture at the rally",
+      "pass": true,
+      "detail": "auto-TV-rally.png"
+    },
+    {
+      "label": "TV look: a picture at the between",
+      "pass": true,
+      "detail": "auto-TV-between.png"
+    },
+    {
+      "label": "TV look: a picture at the replay",
+      "pass": true,
+      "detail": "auto-TV-replay.png"
+    },
+    {
+      "label": "Game look: a picture at the serve",
+      "pass": true,
+      "detail": "auto-Game-serve.png"
+    },
+    {
+      "label": "Game look: a picture at the rally",
+      "pass": true,
+      "detail": "auto-Game-rally.png"
+    },
+    {
+      "label": "Game look: a picture at the between",
+      "pass": true,
+      "detail": "auto-Game-between.png"
+    },
+    {
+      "label": "Game look: a picture at the replay",
+      "pass": true,
+      "detail": "auto-Game-replay.png"
+    },
+    {
+      "label": "Game look: the winners' celebration and the result box",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "the match was played to its end and recorded",
+      "pass": true,
+      "detail": "{\"id\":1,\"status\":\"completed\",\"score\":\"2-1\",\"sets\":[{\"home\":14,\"away\":12},{\"home\":10,\"away\":12},{\"home\":13,\"away\":11}],\"home\":\"Sydney Riptide\",\"away\":\"Berlin Sand Queens\"}"
+    },
+    {
+      "label": "in Auto no played-match code runs",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "the frame rate measured for 60 s in the TV look",
+      "pass": true,
+      "detail": "{\"seconds\":60,\"frames\":3337,\"fps\":55.6,\"p50ms\":16.7,\"p95ms\":33.3,\"p99ms\":33.4,\"worstMs\":33.6,\"over33ms\":82,\"over50ms\":0,\"shots\":49}"
+    },
+    {
+      "label": "no page errors",
+      "pass": true,
+      "detail": ""
+    }
+  ],
+  "shots": [
+    {
+      "file": "auto-TV-serve.png",
+      "at": "32.5",
+      "why": "TV-serve"
+    },
+    {
+      "file": "auto-TV-between.png",
+      "at": "33.5",
+      "why": "TV-between"
+    },
+    {
+      "file": "auto-TV-rally.png",
+      "at": "38.1",
+      "why": "TV-rally"
+    },
+    {
+      "file": "auto-TV-replay.png",
+      "at": "44.5",
+      "why": "TV-replay"
+    },
+    {
+      "file": "auto-Game-replay.png",
+      "at": "106.7",
+      "why": "Game-replay"
+    },
+    {
+      "file": "auto-Game-serve.png",
+      "at": "108.6",
+      "why": "Game-serve"
+    },
+    {
+      "file": "auto-Game-rally.png",
+      "at": "109.9",
+      "why": "Game-rally"
+    },
+    {
+      "file": "auto-Game-between.png",
+      "at": "116.9",
+      "why": "Game-between"
+    },
+    {
+      "file": "auto-Game-result-celebration.png",
+      "at": "786.3",
+      "why": "Game-result-celebration"
+    },
+    {
+      "file": "auto-Game-result-box.png",
+      "at": "792.3",
+      "why": "Game-result-box"
+    }
+  ],
+  "fps": {
+    "seconds": 60,
+    "frames": 3337,
+    "fps": 55.6,
+    "p50ms": 16.7,
+    "p95ms": 33.3,
+    "p99ms": 33.4,
+    "worstMs": 33.6,
+    "over33ms": 82,
+    "over50ms": 0,
+    "shots": 49
+  },
+  "match": {
+    "id": 1,
+    "status": "completed",
+    "score": "2-1",
+    "sets": [
+      {
+        "home": 14,
+        "away": 12
+      },
+      {
+        "home": 10,
+        "away": 12
+      },
+      {
+        "home": 13,
+        "away": 11
+      }
+    ],
+    "home": "Sydney Riptide",
+    "away": "Berlin Sand Queens"
+  },
+  "bot": null,
+  "console": [
+    "17.7s [Camera] remembered looks from the page: played game:1, watched tv:1\n",
+    "17.7s [Between points] from the page: skip to next serve off, skip replays off\n",
+    "20.8s [MatchManager] match starts after 4.4s: match data applied; home point chance 0.4825\n",
+    "31.4s [Match moments] walk-on took 10.7 s\n",
+    "35.5s [Between points] 3.0 s: point to B by ServeError | score SYDNEY RIPTIDE 0 0 - 1 0 BERLIN SAND QUEENS [SERVICE ERROR] | umpire: team to serve | Player_B1 Won_ThumbsUp2 | Player_B2 Won_DoublePeace | Player_A1 Lost_MC2 | Pl",
+    "45.5s [Between points] 4.0 s: point to A by Kill (big: a hard spike, 53 m/s) | score SYDNEY RIPTIDE 0 1 - 1 0 BERLIN SAND QUEENS | umpire: team to serve | Player_A1 Won_Yay | Player_A2 Won_Cheer | Player_B1 Lost_Angry | Player",
+    "51.1s [Between points] 3.0 s: point to B by Kill | score SYDNEY RIPTIDE 0 1 - 2 0 BERLIN SAND QUEENS | umpire: team to serve | Player_B1 Won_ThumbsUp | Player_B2 Won_JumpForJoy | Player_A1 Lost_FeelDown | Player_A2 Lost_FeelDo",
+    "60.9s [Between points] 4.0 s: point to A by Kill (big: a hard spike, 53 m/s) | score SYDNEY RIPTIDE 0 2 - 2 0 BERLIN SAND QUEENS | umpire: team to serve | Player_A1 Won_JumpForJoy | Player_A2 Won_Backflip | Player_B1 Lost_MC3 ",
+    "75.3s [Between points] 3.0 s: point to B by Kill | score SYDNEY RIPTIDE 0 2 - 3 0 BERLIN SAND QUEENS | umpire: team to serve | high five: Player_B2 and Player_B1 | Player_A1 Lost_Cry | Player_A2 Lost_MC1 | close-up: Player_B2 ",
+    "84.2s [Between points] 4.0 s: point to A by Kill (big: a diving save) | score SYDNEY RIPTIDE 0 3 - 3 0 BERLIN SAND QUEENS | umpire: team to serve | Player_A1 Won_Backflip | Player_A2 Won_MC2 | Player_B1 Lost_MC3 | Player_B2 Lo",
+    "89.9s [Between points] 3.0 s: point to B by Kill | score SYDNEY RIPTIDE 0 3 - 4 0 BERLIN SAND QUEENS | umpire: team to serve | Player_B1 Won_JumpForJoy | Player_B2 Won_Cartwheel | Player_A1 Lost_MC3 | Player_A2 Lost_Cry | clos",
+    "104.5s [Camera] Game look, view 1 (Behind your baseline) (chosen)\n",
+    "104.5s [CourtBridge] to the game page: unity-camera:watched:game:1\n",
+    "107.5s [Between points] 4.0 s: point to B by Kill (big: a diving save) | score SYDNEY RIPTIDE 0 3 - 5 0 BERLIN SAND QUEENS | umpire: team to serve | Player_B1 Won_Clap | Player_B2 Won_Shout | Player_A1 Lost_MC1 | Player_A2 Lost",
+    "119.8s [Between points] 4.0 s: point to A by BlockStuff (big: a block) | score SYDNEY RIPTIDE 0 4 - 5 0 BERLIN SAND QUEENS [BLOCK] | umpire: team to serve | Player_A1 Won_MC1 | Player_A2 Won_MC1 | Player_B1 Lost_MC2 | Player_B2",
+    "130.7s [Between points] 3.0 s: point to A by Kill | score SYDNEY RIPTIDE 0 5 - 5 0 BERLIN SAND QUEENS | umpire: team to serve | Player_A1 Won_Backflip | Player_A2 Won_MC2 | Player_B1 Lost_Angry | Player_B2 Lost_Angry | close-up",
+    "138.3s [Between points] 4.0 s: point to A by Kill (big: a hard spike, 80 m/s) | score SYDNEY RIPTIDE 0 6 - 5 0 BERLIN SAND QUEENS | umpire: team to serve | Player_A1 Won_ThumbsUp | Player_A2 Won_Motivated | Player_B1 Lost_MC1 |",
+    "150.1s [Between points] 4.0 s: point to B by BlockStuff (big: a block) | score SYDNEY RIPTIDE 0 6 - 6 0 BERLIN SAND QUEENS [BLOCK] | umpire: team to serve | Player_B1 Won_Yay | Player_B2 Won_MC1 | Player_A1 Lost_MC1 | Player_A2",
+    "154.9s [Between points] 4.0 s: point to B by Ace (big: an ace) | score SYDNEY RIPTIDE 0 6 - 7 0 BERLIN SAND QUEENS | umpire: team to serve | Player_B1 Won_Motivated | Player_B2 Won_Motivated | Player_A1 Lost_FeelDown | Player_A",
+    "163.9s [Between points] 3.1 s: point to A by Kill | score SYDNEY RIPTIDE 0 7 - 7 0 BERLIN SAND QUEENS | umpire: team to serve | high five: Player_A1 and Player_A2 | Player_B1 Lost_MC1 | Player_B2 Lost_MC1 | close-up: Player_A1 ",
+    "168.0s [Between points] 3.0 s: point to B by ServeError | score SYDNEY RIPTIDE 0 7 - 8 0 BERLIN SAND QUEENS [SERVICE ERROR] | umpire: team to serve | Player_B1 Won_Cheer | Player_B2 Won_Clap | Player_A1 Lost_Angry | Player_A2 L",
+    "178.2s [Between points] 4.0 s: point to A by Kill (big: a hard spike, 53 m/s) | score SYDNEY RIPTIDE 0 8 - 8 0 BERLIN SAND QUEENS | umpire: team to serve | Player_A1 Won_Motivated | Player_A2 Won_MC2 | Player_B1 Lost_FeelDown |",
+    "190.4s [Between points] 3.0 s: point to A by Kill | score SYDNEY RIPTIDE 0 9 - 8 0 BERLIN SAND QUEENS | umpire: team to serve | high five: Player_A1 and Player_A2 | Player_B1 Lost_Cry | Player_B2 Lost_Angry | close-up: Player_A",
+    "201.6s [Between points] 3.0 s: point to B by AttackError | score SYDNEY RIPTIDE 0 9 - 9 0 BERLIN SAND QUEENS [ATTACK ERROR] | umpire: team to serve | Player_B1 Won_JumpForJoy | Player_B2 Won_Backflip | Player_A1 Lost_MC1 | Play",
+    "209.7s [Between points] 4.0 s: point to B by Kill (big: a diving save) | score SYDNEY RIPTIDE 0 9 - 10 0 BERLIN SAND QUEENS | umpire: team to serve | Player_B1 Won_Cheers | Player_B2 Won_Cheer | Player_A1 Lost_Angry | Player_A2",
+    "217.8s [Between points] 3.0 s: point to A by AttackError | score SYDNEY RIPTIDE 0 10 - 10 0 BERLIN SAND QUEENS [ATTACK ERROR] | umpire: team to serve | high five: Player_A1 and Player_A2 | Player_B1 Lost_MC3 | Player_B2 Lost_Fe",
+    "234.0s [Between points] 4.0 s: point to B by Kill (big: a diving save) | score SYDNEY RIPTIDE 0 10 - 11 0 BERLIN SAND QUEENS | umpire: team to serve | Player_B1 Won_Clap | Player_B2 Won_ThumbsUp2 | Player_A1 Lost_FeelDown | Pla",
+    "239.2s [Between points] 3.1 s: point to A by Kill | score SYDNEY RIPTIDE 0 11 - 11 0 BERLIN SAND QUEENS | umpire: team to serve | Player_A1 Won_Taunt | Player_A2 Won_ThumbsUp2 | Player_B1 Lost_Angry | Player_B2 Lost_Cry | close",
+    "249.2s [Between points] 4.0 s: point to B by Kill (big: a hard spike, 68 m/s) | score SYDNEY RIPTIDE 0 11 - 12 0 BERLIN SAND QUEENS | umpire: team to serve | Player_B1 Won_Cheer | Player_B2 Won_ArmsUp | Player_A1 Lost_MC2 | Pla",
+    "260.4s [Between points] 3.1 s: point to A by Kill | score SYDNEY RIPTIDE 0 12 - 12 0 BERLIN SAND QUEENS | umpire: team to serve | high five: Player_A2 and Player_A1 | Player_B1 Lost_FeelDown | Player_B2 Lost_FeelDown | close-up",
+    "265.3s [Between points] 4.0 s: point to A by Ace (big: an ace) | score SYDNEY RIPTIDE 0 13 - 12 0 BERLIN SAND QUEENS | umpire: team to serve | Player_A1 Won_DoublePeace | Player_A2 Won_Motivated | Player_B1 Lost_MC3 | Player_B2",
+    "277.8s [Between points] 3.0 s: point to A by AttackError | score SYDNEY RIPTIDE 1 14 - 12 0 BERLIN SAND QUEENS [ATTACK ERROR] | umpire: team to serve | Player_A1 Won_ThumbsUp | Player_A2 Won_Backflip | Player_B1 Lost_FeelDown |",
+    "284.4s [Between points] 4.0 s: point to B by Kill (big: a hard spike, 61 m/s) | score SYDNEY RIPTIDE 1 0 - 1 0 BERLIN SAND QUEENS | umpire: team to serve | Player_B1 Won_ArmsUp | Player_B2 Won_Backflip | Player_A1 Lost_MC1 | Pl",
+    "293.6s [Between points] 3.0 s: point to B by Kill | score SYDNEY RIPTIDE 1 0 - 2 0 BERLIN SAND QUEENS | umpire: team to serve | high five: Player_B1 and Player_B2 | Player_A1 Lost_Cry | Player_A2 Lost_MC1 | close-up: Player_B1 ",
+    "302.3s [Between points] 4.0 s: point to A by BlockStuff (big: a block) | score SYDNEY RIPTIDE 1 1 - 2 0 BERLIN SAND QUEENS [BLOCK] | umpire: team to serve | Player_A1 Won_JumpForJoy | Player_A2 Won_MC3 | Player_B1 Lost_MC1 | Pl",
+    "314.5s [Between points] 3.1 s: point to B by Kill | score SYDNEY RIPTIDE 1 1 - 3 0 BERLIN SAND QUEENS | umpire: team to serve | high five: Player_B1 and Player_B2 | Player_A1 Lost_Cry | Player_A2 Lost_Cry | close-up: Player_B1 ",
+    "320.9s [Between points] 4.0 s: point to A by Kill (big: a hard spike, 53 m/s) | score SYDNEY RIPTIDE 1 2 - 3 0 BERLIN SAND QUEENS | umpire: team to serve | Player_A1 Won_Cheers | Player_A2 Won_Backflip | Player_B1 Lost_MC2 | Pl",
+    "335.1s [Between points] 4.0 s: point to A by BlockStuff (big: a block) | score SYDNEY RIPTIDE 1 3 - 3 0 BERLIN SAND QUEENS [BLOCK] | umpire: team to serve | Player_A1 Won_MC3 | Player_A2 Won_JumpForJoy | Player_B1 Lost_MC3 | Pl",
+    "348.1s [Between points] 3.0 s: point to B by AttackError | score SYDNEY RIPTIDE 1 3 - 4 0 BERLIN SAND QUEENS [ATTACK ERROR] | umpire: team to serve | high five: Player_B1 and Player_B2 | Player_A1 Lost_FeelDown | Player_A2 Lost",
+    "378.0s [Between points] 4.0 s: point to B by Kill (big: a diving save) | score SYDNEY RIPTIDE 1 3 - 5 0 BERLIN SAND QUEENS | umpire: team to serve | Player_B1 Won_MC3 | Player_B2 Won_Cheers | Player_A1 Lost_Angry | Player_A2 Lo",
+    "389.2s [Between points] 3.0 s: point to B by Kill | score SYDNEY RIPTIDE 1 3 - 6 0 BERLIN SAND QUEENS | umpire: team to serve | high five: Player_B2 and Player_B1 | Player_A1 Lost_MC1 | Player_A2 Lost_MC2 | close-up: Player_B2 ",
+    "401.5s [Between points] 3.0 s: point to A by AttackError | score SYDNEY RIPTIDE 1 4 - 6 0 BERLIN SAND QUEENS [ATTACK ERROR] | umpire: team to serve | Player_A1 Won_Cartwheel | Player_A2 Won_MC3 | Player_B1 Lost_MC3 | Player_B2 ",
+    "408.4s [Between points] 4.0 s: point to A by BlockStuff (big: a block) | score SYDNEY RIPTIDE 1 5 - 6 0 BERLIN SAND QUEENS [BLOCK] | umpire: team to serve | Player_A1 Won_ThumbsUp | Player_A2 Won_Cheers | Player_B1 Lost_MC3 | P",
+    "422.6s [Between points] 3.1 s: point to A by Kill | score SYDNEY RIPTIDE 1 6 - 6 0 BERLIN SAND QUEENS | umpire: team to serve | Player_A1 Won_MC3 | Player_A2 Won_MC2 | Player_B1 Lost_MC3 | Player_B2 Lost_MC2 | close-up: Player_",
+    "442.8s [Between points] 4.0 s: point to B by BlockStuff (big: a block) | score SYDNEY RIPTIDE 1 6 - 7 0 BERLIN SAND QUEENS [BLOCK] | umpire: team to serve | Player_B1 Won_Shout | Player_B2 Won_Yay | Player_A1 Lost_MC3 | Player_",
+    "451.9s [Between points] 3.1 s: point to A by Kill | score SYDNEY RIPTIDE 1 7 - 7 0 BERLIN SAND QUEENS | umpire: team to serve | high five: Player_A1 and Player_A2 | Player_B1 Lost_FeelDown | Player_B2 Lost_MC2 | close-up: Playe",
+    "461.9s [Between points] 4.0 s: point to A by Kill (big: a diving save) | score SYDNEY RIPTIDE 1 8 - 7 0 BERLIN SAND QUEENS | umpire: team to serve | Player_A1 Won_MC2 | Player_A2 Won_MC3 | Player_B1 Lost_Cry | Player_B2 Lost_MC",
+    "468.8s [Between points] 3.0 s: point to B by AttackError | score SYDNEY RIPTIDE 1 8 - 8 0 BERLIN SAND QUEENS [ATTACK ERROR] | umpire: team to serve | Player_B1 Won_Cheer | Player_B2 Won_Shout | Player_A1 Lost_FeelDown | Player_",
+    "473.6s [Between points] 4.0 s: point to B by Ace (big: an ace) | score SYDNEY RIPTIDE 1 8 - 9 0 BERLIN SAND QUEENS | umpire: team to serve | Player_B1 Won_Clap | Player_B2 Won_Backflip | Player_A1 Lost_MC3 | Player_A2 Lost_Angr",
+    "478.8s [Between points] 3.0 s: point to A by Kill | score SYDNEY RIPTIDE 1 9 - 9 0 BERLIN SAND QUEENS | umpire: team to serve | high five: Player_A2 and Player_A1 | Player_B1 Lost_MC1 | Player_B2 Lost_Angry | close-up: Player_A",
+    "486.7s [Between points] 4.0 s: point to A by Kill (big: a diving save) | score SYDNEY RIPTIDE 1 10 - 9 0 BERLIN SAND QUEENS | umpire: team to serve | Player_A1 Won_JumpForJoy | Player_A2 Won_MC2 | Player_B1 Lost_Angry | Player_",
+    "500.1s [Between points] 3.1 s: point to B by Kill | score SYDNEY RIPTIDE 1 10 - 10 0 BERLIN SAND QUEENS | umpire: team to serve | Player_B1 Won_MC2 | Player_B2 Won_ThumbsUp2 | Player_A1 Lost_MC3 | Player_A2 Lost_Angry | close-u",
+    "516.3s [Between points] 4.0 s: point to B by Kill (big: a diving save) | score SYDNEY RIPTIDE 1 10 - 11 0 BERLIN SAND QUEENS | umpire: team to serve | Player_B1 Won_Cheer | Player_B2 Won_Motivated | Player_A1 Lost_MC1 | Player_",
+    "526.0s [Between points] 3.0 s: point to B by Kill | score SYDNEY RIPTIDE 1 10 - 12 1 BERLIN SAND QUEENS | umpire: team to serve | Player_B1 Won_DoublePeace | Player_B2 Won_JumpForJoy | Player_A1 Lost_Angry | Player_A2 Lost_MC3 ",
+    "531.0s [Between points] 4.0 s: point to B by Ace (big: an ace) | score SYDNEY RIPTIDE 1 0 - 1 1 BERLIN SAND QUEENS | umpire: team to serve | Player_B1 Won_Yay | Player_B2 Won_MC3 | Player_A1 Lost_MC1 | Player_A2 Lost_Cry | clos",
+    "540.1s [Between points] 3.0 s: point to A by Kill | score SYDNEY RIPTIDE 1 1 - 1 1 BERLIN SAND QUEENS | umpire: team to serve | high five: Player_A2 and Player_A1 | Player_B1 Lost_Cry | Player_B2 Lost_MC2 | close-up: Player_A2 ",
+    "550.9s [Between points] 4.0 s: point to B by BlockStuff (big: a block) | score SYDNEY RIPTIDE 1 1 - 2 1 BERLIN SAND QUEENS [BLOCK] | umpire: team to serve | Player_B1 Won_MC2 | Player_B2 Won_JumpForJoy | Player_A1 Lost_MC1 | Pl",
+    "557.5s [Between points] 3.1 s: point to B by Kill | score SYDNEY RIPTIDE 1 1 - 3 1 BERLIN SAND QUEENS | umpire: team to serve | Player_B1 Won_DoublePeace | Player_B2 Won_ThumbsUp | Player_A1 Lost_MC2 | Player_A2 Lost_MC1 | clos",
+    "562.4s [Between points] 4.0 s: point to B by Ace (big: an ace) | score SYDNEY RIPTIDE 1 1 - 4 1 BERLIN SAND QUEENS | umpire: team to serve | Player_B1 Won_MC1 | Player_B2 Won_Cheers | Player_A1 Lost_MC1 | Player_A2 Lost_MC3 | c",
+    "573.4s [Between points] 3.0 s: point to A by Kill | score SYDNEY RIPTIDE 1 2 - 4 1 BERLIN SAND QUEENS | umpire: team to serve | Player_A1 Won_Cheers | Player_A2 Won_Motivated | Player_B1 Lost_Cry | Player_B2 Lost_Cry | close-up",
+    "583.6s [Between points] 4.0 s: point to B by Kill (big: a hard spike, 61 m/s) | score SYDNEY RIPTIDE 1 2 - 5 1 BERLIN SAND QUEENS | umpire: team to serve | Player_B1 Won_Motivated | Player_B2 Won_MC1 | Player_A1 Lost_MC1 | Play",
+    "592.8s [Between points] 3.0 s: point to B by Kill | score SYDNEY RIPTIDE 1 2 - 6 1 BERLIN SAND QUEENS | umpire: team to serve | Player_B1 Won_DoublePeace | Player_B2 Won_ThumbsUp2 | Player_A1 Lost_Angry | Player_A2 Lost_Angry |",
+    "597.6s [Between points] 4.0 s: point to B by Ace (big: an ace) | score SYDNEY RIPTIDE 1 2 - 7 1 BERLIN SAND QUEENS | umpire: team to serve | Player_B1 Won_Shout | Player_B2 Won_Cartwheel | Player_A1 Lost_MC3 | Player_A2 Lost_MC",
+    "603.3s [Between points] 3.1 s: point to A by Kill | score SYDNEY RIPTIDE 1 3 - 7 1 BERLIN SAND QUEENS | umpire: team to serve | Player_A1 Won_Shout | Player_A2 Won_ThumbsUp | Player_B1 Lost_FeelDown | Player_B2 Lost_MC1 | close",
+    "615.1s [Between points] 3.0 s: point to A by Kill | score SYDNEY RIPTIDE 1 4 - 7 1 BERLIN SAND QUEENS | umpire: team to serve | Player_A1 Won_Cartwheel | Player_A2 Won_Backflip | Player_B1 Lost_MC1 | Player_B2 Lost_FeelDown | c",
+    "632.3s [Between points] 4.0 s: point to A by Kill (big: a diving save) | score SYDNEY RIPTIDE 1 5 - 7 1 BERLIN SAND QUEENS | umpire: team to serve | Player_A1 Won_Clap | Player_A2 Won_Shout | Player_B1 Lost_MC2 | Player_B2 Lost",
+    "643.2s [Between points] 3.0 s: point to B by Kill | score SYDNEY RIPTIDE 1 5 - 8 1 BERLIN SAND QUEENS | umpire: team to serve | Player_B1 Won_DoublePeace | Player_B2 Won_Cheer | Player_A1 Lost_FeelDown | Player_A2 Lost_Angry | ",
+    "656.9s [Between points] 4.0 s: point to A by Kill (big: a diving save) | score SYDNEY RIPTIDE 1 6 - 8 1 BERLIN SAND QUEENS | umpire: team to serve | Player_A1 Won_ThumbsUp | Player_A2 Won_Cheer | Player_B1 Lost_MC2 | Player_B2 ",
+    "665.3s [Between points] 3.1 s: point to B by Kill | score SYDNEY RIPTIDE 1 6 - 9 1 BERLIN SAND QUEENS | umpire: team to serve | high five: Player_B2 and Player_B1 | Player_A1 Lost_MC1 | Player_A2 Lost_Angry | close-up: Player_B",
+    "679.5s [Between points] 4.0 s: point to A by Kill (big: a hard spike, 52 m/s) | score SYDNEY RIPTIDE 1 7 - 9 1 BERLIN SAND QUEENS | umpire: team to serve | Player_A1 Won_Cheer | Player_A2 Won_MC3 | Player_B1 Lost_Cry | Player_B",
+    "691.3s [Between points] 3.0 s: point to A by Kill | score SYDNEY RIPTIDE 1 8 - 9 1 BERLIN SAND QUEENS | umpire: team to serve | high five: Player_A1 and Player_A2 | Player_B1 Lost_FeelDown | Player_B2 Lost_MC2 | close-up: Playe",
+    "702.5s [Between points] 4.0 s: point to A by Kill (big: a diving save) | score SYDNEY RIPTIDE 1 9 - 9 1 BERLIN SAND QUEENS | umpire: team to serve | Player_A1 Won_MC2 | Player_A2 Won_Motivated | Player_B1 Lost_Cry | Player_B2 L",
+    "725.3s [Between points] 3.0 s: point to A by Kill | score SYDNEY RIPTIDE 1 10 - 9 1 BERLIN SAND QUEENS | umpire: team to serve | Player_A1 Won_ThumbsUp2 | Player_A2 Won_Backflip | Player_B1 Lost_MC1 | Player_B2 Lost_MC1 | close",
+    "746.1s [Between points] 4.0 s: point to B by Kill (big: a diving save) | score SYDNEY RIPTIDE 1 10 - 10 1 BERLIN SAND QUEENS | umpire: team to serve | Player_B1 Won_MC3 | Player_B2 Won_Backflip | Player_A1 Lost_MC2 | Player_A2 ",
+    "754.6s [Between points] 3.0 s: point to B by Kill | score SYDNEY RIPTIDE 1 10 - 11 1 BERLIN SAND QUEENS | umpire: team to serve | Player_B1 Won_Cheers | Player_B2 Won_Cartwheel | Player_A1 Lost_MC3 | Player_A2 Lost_Cry | close-",
+    "763.1s [Between points] 4.0 s: point to A by Kill (big: a diving save) | score SYDNEY RIPTIDE 1 11 - 11 1 BERLIN SAND QUEENS | umpire: team to serve | Player_A1 Won_Yay | Player_A2 Won_JumpForJoy | Player_B1 Lost_MC1 | Player_B",
+    "770.2s [Between points] 3.0 s: point to A by Kill | score SYDNEY RIPTIDE 1 12 - 11 1 BERLIN SAND QUEENS | umpire: team to serve | Player_A1 Won_Cartwheel | Player_A2 Won_Shout | Player_B1 Lost_MC1 | Player_B2 Lost_FeelDown | cl",
+    "783.4s [Between points] 4.0 s: point to A by Kill (big: a hard spike, 63 m/s) | score SYDNEY RIPTIDE 2 13 - 11 1 BERLIN SAND QUEENS | umpire: team to serve | Player_A1 Won_MC2 | Player_A2 Won_MC2 | Player_B1 Lost_Cry | Player_B",
+    "788.8s [Match moments] celebration took 5.0 s\n"
+  ],
+  "errors": []
+}

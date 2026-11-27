@@ -1,0 +1,3724 @@
+16.0s [UnityMemory] Configuration Parameters - Can be set up in boot.config
+
+16.0s     "memorysetup-allocator-temp-initial-block-size-main=262144"
+
+16.0s     "memorysetup-allocator-temp-initial-block-size-worker=262144"
+
+16.0s     "memorysetup-temp-allocator-size-audio-worker=65536"
+
+16.0s     "memorysetup-temp-allocator-size-background-worker=32768"
+
+16.0s     "memorysetup-bucket-allocator-granularity=16"
+
+16.0s     "memorysetup-bucket-allocator-bucket-count=8"
+
+16.0s     "memorysetup-bucket-allocator-block-size=4194304"
+
+16.0s     "memorysetup-bucket-allocator-block-count=1"
+
+16.0s     "memorysetup-main-allocator-block-size=16777216"
+
+16.0s     "memorysetup-thread-allocator-block-size=16777216"
+
+16.0s     "memorysetup-gfx-main-allocator-block-size=16777216"
+
+16.1s     "memorysetup-gfx-thread-allocator-block-size=16777216"
+
+16.1s     "memorysetup-cache-allocator-block-size=4194304"
+
+16.1s     "memorysetup-typetree-allocator-block-size=2097152"
+
+16.1s     "memorysetup-profiler-bucket-allocator-granularity=16"
+
+16.1s     "memorysetup-profiler-bucket-allocator-bucket-count=8"
+
+16.1s     "memorysetup-profiler-bucket-allocator-block-size=4194304"
+
+16.1s     "memorysetup-profiler-bucket-allocator-block-count=1"
+
+16.1s     "memorysetup-profiler-allocator-block-size=16777216"
+
+16.1s     "memorysetup-profiler-editor-allocator-block-size=1048576"
+
+16.1s     "memorysetup-temp-allocator-size-main=4194304"
+
+16.1s     "memorysetup-job-temp-allocator-block-size=2097152"
+
+16.1s     "memorysetup-job-temp-allocator-block-size-background=1048576"
+
+16.1s     "memorysetup-job-temp-allocator-reduction-small-platforms=262144"
+
+16.1s Input System module state changed to: Initialized.
+
+16.1s [Physics::Module] Initialized fallback backend.
+
+16.1s [Physics::Module] Id: 0xdecafbad
+
+16.1s Loading player data from data.unity3d
+
+16.1s Initialize engine version: 6000.3.16f1 (a56f230f6470)
+
+16.1s [Subsystems] Discovering subsystems at path UnitySubsystems
+
+16.1s Creating WebGL 2.0 context.
+16.1s Renderer: WebKit WebGL
+
+16.1s Vendor:   WebKit
+
+16.1s Version:  OpenGL ES 3.0 (WebGL 2.0 (OpenGL ES 3.0 Chromium))
+
+16.1s GLES:     3
+
+16.1s  EXT_clip_control EXT_color_buffer_float EXT_color_buffer_half_float EXT_conservative_depth EXT_depth_clamp EXT_disjoint_timer_query_webgl2 EXT_float_blend EXT_polygon_offset_clamp EXT_render_snorm EXT_texture_compression_bptc EXT_texture_compression_rgtc EXT_texture_filter_anisotropic EXT_texture_mirror_clamp_to_edge EXT_texture_norm16 KHR_parallel_shader_compile NV_shader_noperspective_interpolation OES_draw_buffers_indexed OES_sample_variables OES_shader_multisample_interpolation OES_texture_float_linear OVR_multiview2 WEBGL_blend_func_extended WEBGL_clip_cull_distance WEBGL_compressed_texture_s3tc WEBGL_compressed_texture_s3tc_srgb WEBGL_debug_renderer_info WEBGL_debug_shaders WEBGL_lose_context WEBGL_multi_draw WEBGL_polygon_mode WEBGL_provoking_vertex WEBGL_shader_pixel_local_storage WEBGL_stencil_texturing GL_EXT_clip_control GL_EXT_color_buffer_float GL_EXT_color_buffer_half_float GL_EXT_conservative_depth GL_EXT_depth_clamp GL_EXT_disjoint_timer_query_webgl2 GL_EXT_float_blend GL_EXT_polygon_offset_
+
+16.1s clamp GL_EXT_render_snorm GL_EXT_texture_compression_bptc GL_EXT_texture_compression_rgtc GL_EXT_texture_filter_anisotropic GL_EXT_texture_mirror_clamp_to_edge GL_EXT_texture_norm16 GL_KHR_parallel_shader_compile GL_NV_shader_noperspective_interpolation GL_OES_draw_buffers_indexed GL_OES_sample_variables GL_OES_shader_multisample_interpolation GL_OES_texture_float_linear GL_OVR_multiview2 GL_WEBGL_blend_func_extended GL_WEBGL_clip_cull_distance GL_WEBGL_compressed_texture_s3tc GL_WEBGL_compressed_texture_s3tc_srgb GL_WEBGL_debug_renderer_info GL_WEBGL_debug_shaders GL_WEBGL_lose_context GL_WEBGL_multi_draw GL_WEBGL_polygon_mode GL_WEBGL_provoking_vertex GL_WEBGL_shader_pixel_local_storage GL_WEBGL_stencil_texturing
+
+16.1s OPENGL LOG: Creating OpenGL ES 3.0 graphics device ; Context level  <OpenGL ES 3.0> ; Context handle 1
+
+16.1s [Physics::Module] Selected backend.
+
+16.1s [Physics::Module] Name: PhysX
+
+16.1s [Physics::Module] Id: 0xf2b8ea05
+
+16.1s [Physics::Module] SDK Version: 4.1.2
+
+16.1s [Physics::Module] Integration Version: 1.0.0
+
+16.1s [Physics::Module] Threading Mode: Single-Threaded
+
+16.2s ERROR: Shader 
+16.2s Hidden/CoreSRP/CoreCopy shader is not supported on this GPU (none of subshaders/fallbacks are suitable)
+
+16.2s ERROR: Shader 
+16.2s Hidden/Universal Render Pipeline/StencilDitherMaskSeed shader is not supported on this GPU (none of subshaders/fallbacks are suitable)
+
+16.2s ERROR: Shader 
+16.2s Hidden/Universal/HDRDebugView shader is not supported on this GPU (none of subshaders/fallbacks are suitable)
+
+16.2s <b>[App UI]</b> Unable to find an AppUISettings instance, creating a default one...
+
+16.2s Input System initialize...
+
+16.6s Couldn't create a Convex Mesh from source mesh, within the maximum polygons limit (256). The partial hull will be used. Consider simplifying your mesh. Source mesh name: SM_rack_balls_Volleyball_1
+
+17.3s UnloadTime: 1.000000 ms
+
+17.4s [CourtsideBoards] 18 boards dressed around the court: 9 Beach Volleyball Empire, 9 GB Sunglasses
+
+17.4s Audio context resumed after 1.266 seconds.
+17.4s [Sound] crowd volume 1.00
+
+17.4s [Sound] commentary volume 1.00
+
+17.4s [Camera] remembered looks from the page: played game:1, watched tv:1
+
+17.5s [Between points] from the page: skip to next serve off, skip replays off
+
+18.1s [UnityCache] 'http://localhost:4232/unity-build/Build/Volleyball_WebGL_Uncompressed_2.data' successfully downloaded and stored in the browser cache
+19.5s [BoostUIController] Created Polished Attack and Defence boost buttons.
+
+19.5s [MatchManager] AudioManager initialized.
+
+19.5s [UnityMatchDataLoader] careerSaveId 1 (from page URL)
+
+19.5s [UnityMatchDataLoader] GET /api/unity/match-state?careerSaveId=1&matchId=1
+
+19.5s WEATHER SUNNY
+
+19.5s Trying to get length of sound which is not loaded yet.
+19.5s Trying to get length of sound which is not loaded yet.
+19.5s [Director] Serve: beside the server
+
+19.6s The character with Unicode value \u2600 was not found in the [LiberationSans SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [WeatherText].
+
+20.2s [UnityMatchDataLoader] point chance for the home pair: 0.4875
+
+20.3s [UnityMatchDataLoader] game difficulty medium (a played match grades and plays at it)
+
+20.3s [UnityMatchDataLoader] event (null), kits (null), boards (null) '(null)', manual allowed
+
+20.3s [UnityMatchDataLoader] Player_A1: skin 'Light' resolved via band 'Light' -> #EEC9B8
+
+20.3s [UnityMatchDataLoader] Player_A1 <- Camila Santiago | team Sydney Riptide (home) | skinTone Light | kit #1e3a8a/#f59e0b | appearance controller found | applied ovr 80 pwr 85 spd 73 def 78 srv 74 blk 89 sta 79 mor 75 fit 100 fat 0 | (not applied: injured False)
+
+20.3s [UnityMatchDataLoader] Player_A2: skin 'Light' resolved via band 'Light' -> #EEC9B8
+
+20.3s [UnityMatchDataLoader] Player_A2 <- Nurul Ain | team Sydney Riptide (home) | skinTone Light | kit #1e3a8a/#f59e0b | appearance controller found | applied ovr 67 pwr 55 spd 74 def 70 srv 78 blk 52 sta 73 mor 75 fit 100 fat 0 | (not applied: injured False)
+
+20.3s [UnityMatchDataLoader] Player_B1: skin 'Medium' resolved via band 'Medium' -> #AA7339
+
+20.3s [UnityMatchDataLoader] Player_B1 <- Carmen Ruiz | team Barcelona Playa Elites (away) | skinTone Medium | kit #00A3AD/#0B2545 | appearance controller found | applied ovr 82 pwr 76 spd 86 def 86 srv 80 blk 78 sta 84 mor 68 fit 80 fat 0 | (not applied: injured False)
+
+20.3s [UnityMatchDataLoader] Player_B2: skin 'Medium Dark' resolved via band 'Medium Dark' -> #7A4626
+
+20.3s [UnityMatchDataLoader] Player_B2 <- María Alonso | team Barcelona Playa Elites (away) | skinTone Medium Dark | kit #00A3AD/#0B2545 | appearance controller found | applied ovr 81 pwr 78 spd 82 def 84 srv 84 blk 80 sta 80 mor 68 fit 80 fat 0 | (not applied: injured False)
+
+20.3s [UnityMatchDataLoader] team names: SYDNEY RIPTIDE (home) vs BARCELONA PLAYA ELITES (away)
+
+20.3s [UnityMatchDataLoader] applied 4 of 4 player(s)
+
+20.3s [MatchManager] match starts after 4.0s: match data applied; home point chance 0.4875
+
+20.3s [MatchManager] ratings in play Player_A1 (Camila Santiago): ovr 80 pwr 85 spd 73 def 78 srv 74 blk 89 sta 79 mor 75
+
+20.3s [MatchManager] ratings in play Player_A2 (Nurul Ain): ovr 67 pwr 55 spd 74 def 70 srv 78 blk 52 sta 73 mor 75
+
+20.3s [MatchManager] ratings in play Player_B1 (Carmen Ruiz): ovr 82 pwr 76 spd 86 def 86 srv 80 blk 78 sta 84 mor 68
+
+20.3s [MatchManager] ratings in play Player_B2 (María Alonso): ovr 81 pwr 78 spd 82 def 84 srv 84 blk 80 sta 80 mor 68
+
+20.3s [Director] cutaway: the walk-on (5.5 s)
+
+20.5s Trying to get length of sound which is not loaded yet.
+20.5s Trying to get length of sound which is not loaded yet.
+20.5s Trying to get length of sound which is not loaded yet.
+20.5s Trying to get length of sound which is not loaded yet.
+20.5s Trying to get length of sound which is not loaded yet.
+20.5s Trying to get length of sound which is not loaded yet.
+20.6s Trying to get length of sound which is not loaded yet.
+20.6s Trying to get length of sound which is not loaded yet.
+20.6s Trying to get length of sound which is not loaded yet.
+20.6s Trying to get length of sound which is not loaded yet.
+20.6s Trying to get length of sound which is not loaded yet.
+20.6s Trying to get length of sound which is not loaded yet.
+20.7s Trying to get length of sound which is not loaded yet.
+20.7s Trying to get length of sound which is not loaded yet.
+20.7s Trying to get length of sound which is not loaded yet.
+20.7s Trying to get length of sound which is not loaded yet.
+20.7s Trying to get length of sound which is not loaded yet.
+20.7s Trying to get length of sound which is not loaded yet.
+20.8s Trying to get length of sound which is not loaded yet.
+20.8s Trying to get length of sound which is not loaded yet.
+20.8s Trying to get length of sound which is not loaded yet.
+20.8s Trying to get length of sound which is not loaded yet.
+20.8s Trying to get length of sound which is not loaded yet.
+20.8s Trying to get length of sound which is not loaded yet.
+20.9s Trying to get length of sound which is not loaded yet.
+20.9s Trying to get length of sound which is not loaded yet.
+20.9s Trying to get length of sound which is not loaded yet.
+20.9s Trying to get length of sound which is not loaded yet.
+20.9s Trying to get length of sound which is not loaded yet.
+20.9s Trying to get length of sound which is not loaded yet.
+21.0s Trying to get length of sound which is not loaded yet.
+21.0s Trying to get length of sound which is not loaded yet.
+21.0s Trying to get length of sound which is not loaded yet.
+21.0s Trying to get length of sound which is not loaded yet.
+21.0s Trying to get length of sound which is not loaded yet.
+21.0s Trying to get length of sound which is not loaded yet.
+21.1s Trying to get length of sound which is not loaded yet.
+21.1s Trying to get length of sound which is not loaded yet.
+21.1s Trying to get length of sound which is not loaded yet.
+21.1s Trying to get length of sound which is not loaded yet.
+21.1s Trying to get length of sound which is not loaded yet.
+21.1s Trying to get length of sound which is not loaded yet.
+21.2s Trying to get length of sound which is not loaded yet.
+21.2s Trying to get length of sound which is not loaded yet.
+21.2s Trying to get length of sound which is not loaded yet.
+21.2s Trying to get length of sound which is not loaded yet.
+21.2s Trying to get length of sound which is not loaded yet.
+21.2s Trying to get length of sound which is not loaded yet.
+21.3s [Commentary] 48 of 90 clips loaded from http://localhost:4232/unity-build/StreamingAssets/commentary: the 48 its LINES.txt lists (48 recorded before 1.2; B4's 42 are Rob's to record)
+
+25.0s [Director] cutaway: the walk-on: Player_A1 (1.5 s)
+
+26.4s [Director] cutaway: the walk-on: Player_A2 (1.5 s)
+
+27.9s [Director] cutaway: the walk-on: Player_B1 (1.5 s)
+
+29.4s [Director] cutaway: the walk-on: Player_B2 (1.5 s)
+
+30.9s [Match moments] walk-on took 10.7 s
+
+31.0s [Director] Serve: low off the sand
+
+31.3s [Point] decided: BARCELONA PLAYA ELITES by Kill (server A, final attack by B after 2, chance 0.488)
+
+31.3s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+31.3s RATING CHECK: Player_A1 Serve 242 SpeedMult:2.11
+
+31.3s RALLY ACTION: TeamA Player_A1 1 Serve
+
+31.3s [MatchManager] jump heights: net top 2.24 m, spike lift 0.58 m, block lift 0.46 m
+
+31.6s [Director] Rally: end-on drift
+
+32.0s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+32.0s RATING CHECK: Player_B2 Dig 254 JitterMult:0.15
+
+32.0s RALLY ACTION: TeamB Player_B2 1 Dig
+
+32.3s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+32.3s RALLY ACTION: TeamB Player_B1 2 Set
+
+33.3s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+33.3s RATING CHECK: Player_A2 Block 158 Outcome:Touch
+
+33.3s BLOCK ATTEMPT: Player_A2
+
+33.3s RATING CHECK: Player_B2 Spike 247 SpeedMult:2.15
+
+33.3s RALLY ACTION: TeamB Player_B2 3 Spike
+
+33.3s BLOCK TOUCH: Player_A2
+
+33.3s [COMMENTARY] Touch! Player_A2 got a hand on the ball, slowing it down. The rally continues!
+
+33.5s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+33.5s RATING CHECK: Player_A1 Dig 238 JitterMult:0.15
+
+33.5s RALLY ACTION: TeamA Player_A1 1 Dig
+
+34.2s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+34.2s RALLY ACTION: TeamA Player_A2 2 Set
+
+34.7s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+34.7s RATING CHECK: Player_B1 Block 225 Outcome:Controlled
+
+34.7s BLOCK ATTEMPT: Player_B1
+
+34.7s RATING CHECK: Player_A1 Spike 252 SpeedMult:2.18
+
+34.7s RALLY ACTION: TeamA Player_A1 3 Spike
+
+34.8s BLOCK SUCCESS: Player_B1
+
+34.8s [COMMENTARY] Controlled block! Player_B1 rebounded the ball back to the attacker's side!
+
+35.8s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+35.8s RALLY ACTION: TeamA Player_A2 2 Set
+
+36.6s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+36.6s RATING CHECK: Player_B1 Block 225 Outcome:Touch
+
+36.6s BLOCK ATTEMPT: Player_B1
+
+36.6s RATING CHECK: Player_A1 Spike 252 SpeedMult:2.18
+
+36.6s RALLY ACTION: TeamA Player_A1 3 Spike
+
+36.7s BLOCK TOUCH: Player_B1
+
+36.7s [COMMENTARY] Touch! Player_B1 got a hand on the ball, slowing it down. The rally continues!
+
+36.8s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+36.8s RATING CHECK: Player_B2 Dig 254 JitterMult:0.15
+
+36.8s RALLY ACTION: TeamB Player_B2 1 Dig
+
+37.5s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+37.5s RALLY ACTION: TeamB Player_B1 2 Set
+
+38.4s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+38.4s RATING CHECK: Player_B2 Spike 247 SpeedMult:2.15
+
+38.4s RALLY ACTION: TeamB Player_B2 3 Spike
+
+38.6s [Point] awarded: BARCELONA PLAYA ELITES by Kill after 5 attack(s), 15 touches
+
+38.6s BARCELONA PLAYA ELITES point: set 1 0-1, sets 0-0
+
+38.6s Trying to get length of sound which is not loaded yet.
+38.6s Trying to get length of sound which is not loaded yet.
+38.6s Trying to get length of sound which is not loaded yet.
+38.6s [Director] Kill: swoop in close
+
+38.6s [Director] cutaway: the scorer, Player_B2 (1.1 s)
+
+38.6s [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":1,"matchId":1,"sets":[],"current":{"home":0,"away":1}}
+
+39.7s [Director] cutaway: the other side, Player_A1 (0.7 s)
+
+40.4s [Director] cutaway: replay (2.2 s)
+
+42.6s [Between points] 4.0 s: point to B by Kill (big: a diving save) | score SYDNEY RIPTIDE 0 0 - 1 0 BARCELONA PLAYA ELITES | umpire: team to serve | Player_B1 Won_MC2 | Player_B2 Won_ThumbsUp2 | Player_A1 Lost_MC1 | Player_A2 Lost_MC2 | close-up: Player_B2 | the other side: Player_A1 | replay 1.2 s at 0.6x (2.1 s)
+
+42.6s [Director] Serve: beside the server
+
+42.9s [Point] decided: BARCELONA PLAYA ELITES by AttackError (server B, final attack by A after 2, chance 0.488)
+
+42.9s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+42.9s RATING CHECK: Player_B2 Serve 238 SpeedMult:2.09
+
+42.9s RALLY ACTION: TeamB Player_B2 1 Serve
+
+43.2s [Director] Rally: high on the umpire's side
+
+43.4s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+43.4s RATING CHECK: Player_A1 Dig 238 JitterMult:0.15
+
+43.4s RALLY ACTION: TeamA Player_A1 1 Dig
+
+43.9s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+43.9s RALLY ACTION: TeamA Player_A2 2 Set
+
+44.7s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+44.7s RATING CHECK: Player_B1 Block 225 Outcome:Controlled
+
+44.7s BLOCK ATTEMPT: Player_B1
+
+44.7s RATING CHECK: Player_A1 Spike 252 SpeedMult:2.18
+
+44.7s RALLY ACTION: TeamA Player_A1 3 Spike
+
+44.8s BLOCK SUCCESS: Player_B1
+
+44.8s [COMMENTARY] Controlled block! Player_B1 rebounded the ball back to the attacker's side!
+
+45.8s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+45.8s RALLY ACTION: TeamA Player_A2 2 Set
+
+46.6s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+46.6s RATING CHECK: Player_A1 Spike 252 SpeedMult:2.18
+
+46.6s RALLY ACTION: TeamA Player_A1 3 Spike
+
+46.8s [Point] awarded: BARCELONA PLAYA ELITES by AttackError after 3 attack(s), 7 touches
+
+46.8s BARCELONA PLAYA ELITES point: set 1 0-2, sets 0-0
+
+46.8s Trying to get length of sound which is not loaded yet.
+46.8s [Director] Between: the crowd
+
+46.8s [Director] cutaway: the scorer, Player_B2 (1.7 s)
+
+46.8s [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":1,"matchId":1,"sets":[],"current":{"home":0,"away":2}}
+
+48.5s [Director] cutaway: the other side, Player_A1 (1.0 s)
+
+49.5s [Director] Serve: low off the sand
+
+49.9s [Between points] 3.0 s: point to B by AttackError | score SYDNEY RIPTIDE 0 0 - 2 0 BARCELONA PLAYA ELITES [ATTACK ERROR] | umpire: team to serve | Player_B1 Won_Yay | Player_B2 Won_Cheer | Player_A1 Lost_Angry | Player_A2 Lost_MC1 | close-up: Player_B2 | the other side: Player_A1
+
+50.2s [Point] decided: SYDNEY RIPTIDE by Kill (server B, final attack by A after 4, chance 0.488)
+
+50.2s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+50.2s RATING CHECK: Player_B1 Serve 232 SpeedMult:2.05
+
+50.2s RALLY ACTION: TeamB Player_B1 1 Serve
+
+50.2s [Director] Rally: end-on drift
+
+50.7s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+50.7s RATING CHECK: Player_A1 Dig 238 JitterMult:0.15
+
+50.7s RALLY ACTION: TeamA Player_A1 1 Dig
+
+51.2s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+51.2s RALLY ACTION: TeamA Player_A2 2 Set
+
+52.1s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+52.1s RATING CHECK: Player_B1 Block 225 Outcome:Touch
+
+52.1s BLOCK ATTEMPT: Player_B1
+
+52.1s RATING CHECK: Player_A1 Spike 252 SpeedMult:2.18
+
+52.1s RALLY ACTION: TeamA Player_A1 3 Spike
+
+52.1s BLOCK TOUCH: Player_B1
+
+52.2s [COMMENTARY] Touch! Player_B1 got a hand on the ball, slowing it down. The rally continues!
+
+52.2s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+52.2s RATING CHECK: Player_B1 Dig 264 JitterMult:0.15
+
+52.2s RALLY ACTION: TeamB Player_B1 1 Dig
+
+52.4s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+52.4s RALLY ACTION: TeamB Player_B2 2 Set
+
+53.3s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+53.3s RATING CHECK: Player_A1 Block 232 Outcome:Touch
+
+53.3s BLOCK ATTEMPT: Player_A1
+
+53.3s RATING CHECK: Player_B1 Spike 250 SpeedMult:2.17
+
+53.3s RALLY ACTION: TeamB Player_B1 3 Spike
+
+53.4s BLOCK TOUCH: Player_A1
+
+53.4s [COMMENTARY] Touch! Player_A1 got a hand on the ball, slowing it down. The rally continues!
+
+53.5s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+53.5s RATING CHECK: Player_A1 Dig 238 JitterMult:0.15
+
+53.5s RALLY ACTION: TeamA Player_A1 1 Dig
+
+54.1s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+54.1s RALLY ACTION: TeamA Player_A2 2 Set
+
+54.8s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+54.8s RATING CHECK: Player_B1 Block 225 Outcome:Touch
+
+54.8s BLOCK ATTEMPT: Player_B1
+
+54.8s RATING CHECK: Player_A1 Spike 252 SpeedMult:2.18
+
+54.8s RALLY ACTION: TeamA Player_A1 3 Spike
+
+55.0s BLOCK TOUCH: Player_B1
+
+55.0s [COMMENTARY] Touch! Player_B1 got a hand on the ball, slowing it down. The rally continues!
+
+55.1s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+55.2s RATING CHECK: Player_B1 Dig 264 JitterMult:0.15
+
+55.2s RALLY ACTION: TeamB Player_B1 1 Dig
+
+55.8s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+55.8s RALLY ACTION: TeamB Player_B2 2 Set
+
+56.6s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+56.6s RATING CHECK: Player_A1 Block 232 Outcome:Controlled
+
+56.6s BLOCK ATTEMPT: Player_A1
+
+56.6s RATING CHECK: Player_B1 Spike 250 SpeedMult:2.17
+
+56.6s RALLY ACTION: TeamB Player_B1 3 Spike
+
+56.7s BLOCK SUCCESS: Player_A1
+
+56.7s [COMMENTARY] Controlled block! Player_A1 rebounded the ball back to the attacker's side!
+
+57.7s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+57.7s RALLY ACTION: TeamB Player_B2 2 Set
+
+58.4s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+58.4s RATING CHECK: Player_A1 Block 232 Outcome:Touch
+
+58.4s BLOCK ATTEMPT: Player_A1
+
+58.4s RATING CHECK: Player_B1 Spike 250 SpeedMult:2.17
+
+58.4s RALLY ACTION: TeamB Player_B1 3 Spike
+
+58.5s BLOCK TOUCH: Player_A1
+
+58.5s [COMMENTARY] Touch! Player_A1 got a hand on the ball, slowing it down. The rally continues!
+
+58.7s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+58.7s RATING CHECK: Player_A1 Dig 238 JitterMult:0.15
+
+58.7s RALLY ACTION: TeamA Player_A1 1 Dig
+
+59.5s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+59.5s RALLY ACTION: TeamA Player_A2 2 Set
+
+60.3s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+60.4s RATING CHECK: Player_A1 Spike 252 SpeedMult:2.18
+
+60.4s RALLY ACTION: TeamA Player_A1 3 Spike
+
+60.7s [Point] awarded: SYDNEY RIPTIDE by Kill after 7 attack(s), 23 touches
+
+60.7s SYDNEY RIPTIDE point: set 1 1-2, sets 0-0
+
+60.7s Trying to get length of sound which is not loaded yet.
+60.7s Trying to get length of sound which is not loaded yet.
+60.7s [Director] Kill: cut close on the scorer
+
+60.7s [Director] cutaway: the scorer, Player_A1 (1.1 s)
+
+60.7s [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":1,"matchId":1,"sets":[],"current":{"home":1,"away":2}}
+
+61.8s [Director] cutaway: the other side, Player_B1 (0.7 s)
+
+62.5s [Director] cutaway: replay (2.3 s)
+
+64.7s [Between points] 4.0 s: point to A by Kill (big: a diving save) | score SYDNEY RIPTIDE 0 1 - 2 0 BARCELONA PLAYA ELITES | umpire: team to serve | Player_A1 Won_Cartwheel | Player_A2 Won_ThumbsUp | Player_B1 Lost_Cry | Player_B2 Lost_FeelDown | close-up: Player_A1 | the other side: Player_B1 | replay 1.2 s at 0.6x (2.2 s)
+
+64.7s [Director] Serve: beside the server
+
+65.0s [Point] decided: SYDNEY RIPTIDE by Kill (server A, final attack by A after 3, chance 0.488)
+
+65.0s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+65.0s RATING CHECK: Player_A2 Serve 214 SpeedMult:1.93
+
+65.0s RALLY ACTION: TeamA Player_A2 1 Serve
+
+65.3s [Director] Rally: broadcast-side orbit
+
+65.7s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+65.7s RATING CHECK: Player_B1 Dig 264 JitterMult:0.15
+
+65.7s RALLY ACTION: TeamB Player_B1 1 Dig
+
+66.2s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+66.2s RALLY ACTION: TeamB Player_B2 2 Set
+
+66.8s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+66.8s RATING CHECK: Player_A1 Block 232 Outcome:Controlled
+
+66.8s BLOCK ATTEMPT: Player_A1
+
+66.8s RATING CHECK: Player_B1 Spike 250 SpeedMult:2.17
+
+66.8s RALLY ACTION: TeamB Player_B1 3 Spike
+
+66.9s BLOCK SUCCESS: Player_A1
+
+66.9s [COMMENTARY] Controlled block! Player_A1 rebounded the ball back to the attacker's side!
+
+67.8s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+67.8s RALLY ACTION: TeamB Player_B2 2 Set
+
+68.7s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+68.7s RATING CHECK: Player_A1 Block 232 Outcome:Touch
+
+68.7s BLOCK ATTEMPT: Player_A1
+
+68.7s RATING CHECK: Player_B1 Spike 250 SpeedMult:2.17
+
+68.7s RALLY ACTION: TeamB Player_B1 3 Spike
+
+68.8s BLOCK TOUCH: Player_A1
+
+68.8s [COMMENTARY] Touch! Player_A1 got a hand on the ball, slowing it down. The rally continues!
+
+68.9s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+68.9s RATING CHECK: Player_A2 Dig 223 JitterMult:0.15
+
+68.9s RALLY ACTION: TeamA Player_A2 1 Dig
+
+69.5s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+69.5s RALLY ACTION: TeamA Player_A1 2 Set
+
+70.1s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+70.1s RATING CHECK: Player_A2 Spike 201 SpeedMult:1.84
+
+70.1s RALLY ACTION: TeamA Player_A2 3 Spike
+
+70.3s [Point] awarded: SYDNEY RIPTIDE by Kill after 4 attack(s), 11 touches
+
+70.3s SYDNEY RIPTIDE point: set 1 2-2, sets 0-0
+
+70.3s Trying to get length of sound which is not loaded yet.
+70.3s [Director] Kill: swoop in close
+
+70.3s [Director] cutaway: the scorer, Player_A2 (1.7 s)
+
+70.3s [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":1,"matchId":1,"sets":[],"current":{"home":2,"away":2}}
+
+72.0s [Director] cutaway: the other side, Player_B1 (1.0 s)
+
+73.0s [Director] Serve: push-in from behind the server
+
+73.3s [Between points] 3.1 s: point to A by Kill | score SYDNEY RIPTIDE 0 2 - 2 0 BARCELONA PLAYA ELITES | umpire: team to serve | high five: Player_A2 and Player_A1 | Player_B1 Lost_FeelDown | Player_B2 Lost_MC1 | close-up: Player_A2 | placed: Player_A1 at (0.20, 0.72) in Player_A2's frame, turned 145°, scales 1.00/1.00 | the other side: Player_B1
+
+73.7s [Point] decided: SYDNEY RIPTIDE by Kill (server A, final attack by A after 1, chance 0.488)
+
+73.7s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+73.7s RATING CHECK: Player_A2 Serve 214 SpeedMult:1.93
+
+73.7s RALLY ACTION: TeamA Player_A2 1 Serve
+
+73.7s [Director] Rally: high on the umpire's side
+
+74.4s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+74.4s RATING CHECK: Player_B1 Dig 264 JitterMult:0.15
+
+74.4s RALLY ACTION: TeamB Player_B1 1 Dig
+
+74.8s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+74.9s RALLY ACTION: TeamB Player_B2 2 Set
+
+75.8s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+75.8s RATING CHECK: Player_A1 Block 232 Outcome:Controlled
+
+75.8s BLOCK ATTEMPT: Player_A1
+
+75.8s RATING CHECK: Player_B1 Spike 250 SpeedMult:2.17
+
+75.8s RALLY ACTION: TeamB Player_B1 3 Spike
+
+75.9s BLOCK SUCCESS: Player_A1
+
+75.9s [COMMENTARY] Controlled block! Player_A1 rebounded the ball back to the attacker's side!
+
+76.8s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+76.8s RALLY ACTION: TeamB Player_B2 2 Set
+
+77.6s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+77.6s RATING CHECK: Player_A1 Block 232 Outcome:Touch
+
+77.6s BLOCK ATTEMPT: Player_A1
+
+77.6s RATING CHECK: Player_B1 Spike 250 SpeedMult:2.17
+
+77.6s RALLY ACTION: TeamB Player_B1 3 Spike
+
+77.7s BLOCK TOUCH: Player_A1
+
+77.7s [COMMENTARY] Touch! Player_A1 got a hand on the ball, slowing it down. The rally continues!
+
+77.8s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+77.8s RATING CHECK: Player_A2 Dig 223 JitterMult:0.15
+
+77.8s RALLY ACTION: TeamA Player_A2 1 Dig
+
+78.5s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+78.5s RALLY ACTION: TeamA Player_A1 2 Set
+
+78.9s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+78.9s RATING CHECK: Player_A2 Spike 201 SpeedMult:1.84
+
+78.9s RALLY ACTION: TeamA Player_A2 3 Spike
+
+79.1s [Point] awarded: SYDNEY RIPTIDE by Kill after 4 attack(s), 11 touches
+
+79.1s SYDNEY RIPTIDE point: set 1 3-2, sets 0-0
+
+79.1s Trying to get length of sound which is not loaded yet.
+79.1s Trying to get length of sound which is not loaded yet.
+79.1s [Director] Kill: cut close on the scorer
+
+79.1s [Director] cutaway: the scorer, Player_A2 (1.1 s)
+
+79.1s [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":1,"matchId":1,"sets":[],"current":{"home":3,"away":2}}
+
+80.2s [Director] cutaway: the other side, Player_B1 (0.7 s)
+
+80.9s [Director] cutaway: replay (2.2 s)
+
+83.1s [Between points] 4.0 s: point to A by Kill (big: a diving save) | score SYDNEY RIPTIDE 0 3 - 2 0 BARCELONA PLAYA ELITES | umpire: team to serve | Player_A1 Won_ArmsUp | Player_A2 Won_DoublePeace | Player_B1 Lost_Cry | Player_B2 Lost_Cry | close-up: Player_A2 | the other side: Player_B1 | replay 1.2 s at 0.6x (2.1 s)
+
+83.1s [Director] Serve: low off the sand
+
+83.4s [Point] decided: SYDNEY RIPTIDE by Kill (server A, final attack by A after 1, chance 0.488)
+
+83.4s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+83.4s RATING CHECK: Player_A1 Serve 242 SpeedMult:2.11
+
+83.4s RALLY ACTION: TeamA Player_A1 1 Serve
+
+83.7s [Director] Rally: broadcast-side orbit
+
+84.1s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+84.1s RATING CHECK: Player_B1 Dig 264 JitterMult:0.15
+
+84.1s RALLY ACTION: TeamB Player_B1 1 Dig
+
+84.5s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+84.5s RALLY ACTION: TeamB Player_B2 2 Set
+
+85.3s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+85.3s RATING CHECK: Player_A1 Block 232 Outcome:Controlled
+
+85.3s BLOCK ATTEMPT: Player_A1
+
+85.3s RATING CHECK: Player_B1 Spike 250 SpeedMult:2.17
+
+85.4s RALLY ACTION: TeamB Player_B1 3 Spike
+
+85.4s BLOCK SUCCESS: Player_A1
+
+85.4s [COMMENTARY] Controlled block! Player_A1 rebounded the ball back to the attacker's side!
+
+86.3s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+86.3s RALLY ACTION: TeamB Player_B2 2 Set
+
+87.0s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+87.0s RATING CHECK: Player_A1 Block 232 Outcome:Controlled
+
+87.1s BLOCK ATTEMPT: Player_A1
+
+87.1s RATING CHECK: Player_B1 Spike 250 SpeedMult:2.17
+
+87.1s RALLY ACTION: TeamB Player_B1 3 Spike
+
+87.1s BLOCK SUCCESS: Player_A1
+
+87.1s [COMMENTARY] Controlled block! Player_A1 rebounded the ball back to the attacker's side!
+
+87.6s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+87.6s RALLY ACTION: TeamB Player_B2 2 Set
+
+88.6s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+88.6s RATING CHECK: Player_A1 Block 232 Outcome:Controlled
+
+88.6s BLOCK ATTEMPT: Player_A1
+
+88.6s RATING CHECK: Player_B1 Spike 250 SpeedMult:2.17
+
+88.6s RALLY ACTION: TeamB Player_B1 3 Spike
+
+88.6s BLOCK SUCCESS: Player_A1
+
+88.6s [COMMENTARY] Controlled block! Player_A1 rebounded the ball back to the attacker's side!
+
+89.6s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+89.7s RALLY ACTION: TeamB Player_B2 2 Set
+
+90.4s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+90.4s RATING CHECK: Player_A1 Block 232 Outcome:Touch
+
+90.4s BLOCK ATTEMPT: Player_A1
+
+90.4s RATING CHECK: Player_B1 Spike 250 SpeedMult:2.17
+
+90.4s RALLY ACTION: TeamB Player_B1 3 Spike
+
+90.5s BLOCK TOUCH: Player_A1
+
+90.5s [COMMENTARY] Touch! Player_A1 got a hand on the ball, slowing it down. The rally continues!
+
+90.6s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+90.6s RATING CHECK: Player_A1 Dig 238 JitterMult:0.15
+
+90.6s RALLY ACTION: TeamA Player_A1 1 Dig
+
+91.4s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+91.4s RALLY ACTION: TeamA Player_A2 2 Set
+
+92.6s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+92.6s RATING CHECK: Player_A1 Spike 252 SpeedMult:2.18
+
+92.6s RALLY ACTION: TeamA Player_A1 3 Spike
+
+92.6s [Point] awarded: SYDNEY RIPTIDE by Kill after 6 attack(s), 17 touches
+
+92.6s SYDNEY RIPTIDE point: set 1 4-2, sets 0-0
+
+92.6s Trying to get length of sound which is not loaded yet.
+92.6s [Director] Kill: swoop in close
+
+92.6s [Director] cutaway: the scorer, Player_A1 (1.7 s)
+
+92.6s [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":1,"matchId":1,"sets":[],"current":{"home":4,"away":2}}
+
+94.3s [Director] cutaway: the other side, Player_B1 (1.0 s)
+
+95.3s [Director] Serve: push-in from behind the server
+
+95.6s [Between points] 3.0 s: point to A by Kill | score SYDNEY RIPTIDE 0 4 - 2 0 BARCELONA PLAYA ELITES | umpire: team to serve | Player_A1 Won_Taunt | Player_A2 Won_MC2 | Player_B1 Lost_MC3 | Player_B2 Lost_MC2 | close-up: Player_A1 | the other side: Player_B1
+
+95.9s [Point] decided: SYDNEY RIPTIDE by Kill (server A, final attack by A after 1, chance 0.488)
+
+95.9s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+95.9s RATING CHECK: Player_A1 Serve 242 SpeedMult:2.11
+
+95.9s RALLY ACTION: TeamA Player_A1 1 Serve
+
+95.9s [Director] Rally: high on the umpire's side
+
+96.5s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+96.5s RATING CHECK: Player_B2 Dig 254 JitterMult:0.15
+
+96.5s RALLY ACTION: TeamB Player_B2 1 Dig
+
+97.0s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+97.0s RALLY ACTION: TeamB Player_B1 2 Set
+
+98.0s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+98.0s RATING CHECK: Player_A2 Block 158 Outcome:Controlled
+
+98.0s BLOCK ATTEMPT: Player_A2
+
+98.0s RATING CHECK: Player_B2 Spike 247 SpeedMult:2.15
+
+98.0s RALLY ACTION: TeamB Player_B2 3 Spike
+
+98.0s BLOCK SUCCESS: Player_A2
+
+98.0s [COMMENTARY] Controlled block! Player_A2 rebounded the ball back to the attacker's side!
+
+98.0s [Camera] Game look, view 1 (Behind your baseline) (chosen)
+
+98.0s [CourtBridge] to the game page: unity-camera:watched:game:1
+
+99.0s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+99.0s RALLY ACTION: TeamB Player_B1 2 Set
+
+99.9s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+99.9s RATING CHECK: Player_A2 Block 158 Outcome:Controlled
+
+99.9s BLOCK ATTEMPT: Player_A2
+
+99.9s RATING CHECK: Player_B2 Spike 247 SpeedMult:2.15
+
+99.9s RALLY ACTION: TeamB Player_B2 3 Spike
+
+100.0s BLOCK SUCCESS: Player_A2
+
+100.0s [COMMENTARY] Controlled block! Player_A2 rebounded the ball back to the attacker's side!
+
+101.0s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+101.0s RALLY ACTION: TeamB Player_B1 2 Set
+
+101.7s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+101.7s RATING CHECK: Player_A2 Block 158 Outcome:Touch
+
+101.7s BLOCK ATTEMPT: Player_A2
+
+101.7s RATING CHECK: Player_B2 Spike 247 SpeedMult:2.15
+
+101.7s RALLY ACTION: TeamB Player_B2 3 Spike
+
+101.8s BLOCK TOUCH: Player_A2
+
+101.8s [COMMENTARY] Touch! Player_A2 got a hand on the ball, slowing it down. The rally continues!
+
+101.9s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+101.9s RATING CHECK: Player_A1 Dig 238 JitterMult:0.15
+
+101.9s RALLY ACTION: TeamA Player_A1 1 Dig
+
+102.6s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+102.6s RALLY ACTION: TeamA Player_A2 2 Set
+
+103.4s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+103.4s RATING CHECK: Player_A1 Spike 252 SpeedMult:2.18
+
+103.4s RALLY ACTION: TeamA Player_A1 3 Spike
+
+103.6s [Point] awarded: SYDNEY RIPTIDE by Kill after 5 attack(s), 14 touches
+
+103.6s SYDNEY RIPTIDE point: set 1 5-2, sets 0-0
+
+103.6s Trying to get length of sound which is not loaded yet.
+103.6s Trying to get length of sound which is not loaded yet.
+103.6s [Director] cutaway: the scorer, Player_A1 (1.1 s)
+
+103.6s [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":1,"matchId":1,"sets":[],"current":{"home":5,"away":2}}
+
+104.7s [Director] cutaway: the other side, Player_B2 (0.7 s)
+
+105.4s [Director] cutaway: replay (2.2 s)
+
+107.6s [Between points] 4.0 s: point to A by Kill (big: a diving save) | score SYDNEY RIPTIDE 0 5 - 2 0 BARCELONA PLAYA ELITES | umpire: team to serve | Player_A1 Won_DoublePeace | Player_A2 Won_JumpForJoy | Player_B1 Lost_MC1 | Player_B2 Lost_MC3 | close-up: Player_A1 | the other side: Player_B2 | replay 1.2 s at 0.6x (2.1 s)
+
+107.9s [Point] decided: SYDNEY RIPTIDE by BlockStuff (server A, final attack by B after 4, chance 0.488)
+
+107.9s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+107.9s RATING CHECK: Player_A2 Serve 214 SpeedMult:1.93
+
+107.9s RALLY ACTION: TeamA Player_A2 1 Serve
+
+108.6s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+108.6s RATING CHECK: Player_B2 Dig 254 JitterMult:0.15
+
+108.6s RALLY ACTION: TeamB Player_B2 1 Dig
+
+109.1s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+109.1s RALLY ACTION: TeamB Player_B1 2 Set
+
+110.0s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+110.0s RATING CHECK: Player_A2 Block 158 Outcome:Controlled
+
+110.0s BLOCK ATTEMPT: Player_A2
+
+110.0s RATING CHECK: Player_B2 Spike 247 SpeedMult:2.15
+
+110.0s RALLY ACTION: TeamB Player_B2 3 Spike
+
+110.0s BLOCK SUCCESS: Player_A2
+
+110.0s [COMMENTARY] Controlled block! Player_A2 rebounded the ball back to the attacker's side!
+
+110.8s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+110.8s RALLY ACTION: TeamB Player_B1 2 Set
+
+111.6s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+111.6s RATING CHECK: Player_A2 Block 158 Outcome:Touch
+
+111.6s BLOCK ATTEMPT: Player_A2
+
+111.6s RATING CHECK: Player_B2 Spike 247 SpeedMult:2.15
+
+111.6s RALLY ACTION: TeamB Player_B2 3 Spike
+
+111.7s BLOCK TOUCH: Player_A2
+
+111.7s [COMMENTARY] Touch! Player_A2 got a hand on the ball, slowing it down. The rally continues!
+
+111.8s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+111.8s RATING CHECK: Player_A2 Dig 223 JitterMult:0.15
+
+111.8s RALLY ACTION: TeamA Player_A2 1 Dig
+
+112.4s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+112.4s RALLY ACTION: TeamA Player_A1 2 Set
+
+113.1s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+113.1s RATING CHECK: Player_B2 Block 226 Outcome:Controlled
+
+113.1s BLOCK ATTEMPT: Player_B2
+
+113.1s RATING CHECK: Player_A2 Spike 201 SpeedMult:1.84
+
+113.1s RALLY ACTION: TeamA Player_A2 3 Spike
+
+113.2s BLOCK SUCCESS: Player_B2
+
+113.2s [COMMENTARY] Controlled block! Player_B2 rebounded the ball back to the attacker's side!
+
+114.1s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+114.1s RALLY ACTION: TeamA Player_A1 2 Set
+
+114.9s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+114.9s RATING CHECK: Player_B2 Block 226 Outcome:Touch
+
+114.9s BLOCK ATTEMPT: Player_B2
+
+114.9s RATING CHECK: Player_A2 Spike 201 SpeedMult:1.84
+
+114.9s RALLY ACTION: TeamA Player_A2 3 Spike
+
+115.0s BLOCK TOUCH: Player_B2
+
+115.0s [COMMENTARY] Touch! Player_B2 got a hand on the ball, slowing it down. The rally continues!
+
+115.2s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+115.2s RATING CHECK: Player_B2 Dig 254 JitterMult:0.15
+
+115.2s RALLY ACTION: TeamB Player_B2 1 Dig
+
+115.9s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+115.9s RALLY ACTION: TeamB Player_B1 2 Set
+
+116.8s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+116.8s RATING CHECK: Player_A2 Block 158 Outcome:Stuff
+
+116.8s BLOCK ATTEMPT: Player_A2
+
+116.8s RATING CHECK: Player_B2 Spike 247 SpeedMult:2.15
+
+116.8s RALLY ACTION: TeamB Player_B2 3 Spike
+
+116.9s BLOCK SUCCESS: Player_A2
+
+116.9s RALLY ACTION: TeamA Player_A2 1 Block
+
+116.9s [COMMENTARY] INCREDIBLE BLOCK WINNER! Player_A2 completely shut down the spike straight down!
+
+117.8s [Point] awarded: SYDNEY RIPTIDE by BlockStuff after 6 attack(s), 19 touches
+
+117.8s Trying to get length of sound which is not loaded yet.
+117.8s SYDNEY RIPTIDE point: set 1 6-2, sets 0-0
+
+117.8s [Director] cutaway: the scorer, Player_A2 (1.1 s)
+
+117.8s [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":1,"matchId":1,"sets":[],"current":{"home":6,"away":2}}
+
+118.9s [Director] cutaway: the other side, Player_B2 (0.7 s)
+
+119.6s [Director] cutaway: replay (2.2 s)
+
+121.8s [Between points] 4.0 s: point to A by BlockStuff (big: a block) | score SYDNEY RIPTIDE 0 6 - 2 0 BARCELONA PLAYA ELITES [BLOCK] | umpire: team to serve | Player_A1 Won_JumpForJoy | Player_A2 Won_Clap | Player_B1 Lost_Cry | Player_B2 Lost_MC1 | close-up: Player_A2 | the other side: Player_B2 | replay 1.2 s at 0.6x (2.1 s)
+
+122.1s [Point] decided: SYDNEY RIPTIDE by BlockStuff (server A, final attack by B after 1, chance 0.488)
+
+122.1s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+122.1s RATING CHECK: Player_A2 Serve 214 SpeedMult:1.93
+
+122.1s RALLY ACTION: TeamA Player_A2 1 Serve
+
+122.8s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+122.8s RATING CHECK: Player_B2 Dig 254 JitterMult:0.15
+
+122.8s RALLY ACTION: TeamB Player_B2 1 Dig
+
+123.3s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+123.3s RALLY ACTION: TeamB Player_B1 2 Set
+
+124.0s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+124.0s RATING CHECK: Player_A2 Block 158 Outcome:Stuff
+
+124.0s BLOCK ATTEMPT: Player_A2
+
+124.0s RATING CHECK: Player_B2 Spike 247 SpeedMult:2.15
+
+124.0s RALLY ACTION: TeamB Player_B2 3 Spike
+
+124.0s BLOCK SUCCESS: Player_A2
+
+124.0s RALLY ACTION: TeamA Player_A2 1 Block
+
+124.0s [COMMENTARY] INCREDIBLE BLOCK WINNER! Player_A2 completely shut down the spike straight down!
+
+124.6s [Point] awarded: SYDNEY RIPTIDE by BlockStuff after 2 attack(s), 5 touches
+
+124.6s SYDNEY RIPTIDE point: set 1 7-2, sets 0-0
+
+124.6s [Director] cutaway: the scorer, Player_A2 (1.1 s)
+
+124.6s [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":1,"matchId":1,"sets":[],"current":{"home":7,"away":2}}
+
+125.7s [Director] cutaway: the other side, Player_B2 (0.7 s)
+
+126.4s [Director] cutaway: replay (2.2 s)
+
+128.5s [Between points] 4.0 s: point to A by BlockStuff (big: a block) | score SYDNEY RIPTIDE 0 7 - 2 0 BARCELONA PLAYA ELITES [BLOCK] | umpire: team to serve | Player_A1 Won_Cheers | Player_A2 Won_Cartwheel | Player_B1 Lost_MC2 | Player_B2 Lost_MC2 | close-up: Player_A2 | the other side: Player_B2 | replay 1.2 s at 0.6x (2.1 s)
+
+128.9s [Point] decided: SYDNEY RIPTIDE by BlockStuff (server A, final attack by B after 2, chance 0.488)
+
+128.9s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+128.9s RATING CHECK: Player_A1 Serve 242 SpeedMult:2.11
+
+128.9s RALLY ACTION: TeamA Player_A1 1 Serve
+
+129.5s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+129.5s RATING CHECK: Player_B2 Dig 254 JitterMult:0.15
+
+129.5s RALLY ACTION: TeamB Player_B2 1 Dig
+
+129.9s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+129.9s RALLY ACTION: TeamB Player_B1 2 Set
+
+130.8s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+130.8s RATING CHECK: Player_A2 Block 158 Outcome:Controlled
+
+130.8s BLOCK ATTEMPT: Player_A2
+
+130.8s RATING CHECK: Player_B2 Spike 247 SpeedMult:2.15
+
+130.8s RALLY ACTION: TeamB Player_B2 3 Spike
+
+130.9s BLOCK SUCCESS: Player_A2
+
+130.9s [COMMENTARY] Controlled block! Player_A2 rebounded the ball back to the attacker's side!
+
+131.8s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+131.8s RALLY ACTION: TeamB Player_B1 2 Set
+
+132.6s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+132.6s RATING CHECK: Player_A2 Block 158 Outcome:Stuff
+
+132.6s BLOCK ATTEMPT: Player_A2
+
+132.6s RATING CHECK: Player_B2 Spike 247 SpeedMult:2.15
+
+132.6s RALLY ACTION: TeamB Player_B2 3 Spike
+
+132.7s BLOCK SUCCESS: Player_A2
+
+132.7s RALLY ACTION: TeamA Player_A2 1 Block
+
+132.7s [COMMENTARY] INCREDIBLE BLOCK WINNER! Player_A2 completely shut down the spike straight down!
+
+133.3s [Point] awarded: SYDNEY RIPTIDE by BlockStuff after 3 attack(s), 8 touches
+
+133.3s SYDNEY RIPTIDE point: set 1 8-2, sets 0-0
+
+133.4s [Director] cutaway: the scorer, Player_A2 (1.1 s)
+
+133.4s [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":1,"matchId":1,"sets":[],"current":{"home":8,"away":2}}
+
+134.5s [Director] cutaway: the other side, Player_B2 (0.7 s)
+
+135.2s [Director] cutaway: replay (2.2 s)
+
+137.3s [Between points] 4.0 s: point to A by BlockStuff (big: a block) | score SYDNEY RIPTIDE 0 8 - 2 0 BARCELONA PLAYA ELITES [BLOCK] | umpire: team to serve | Player_A1 Won_MC2 | Player_A2 Won_MC3 | Player_B1 Lost_MC2 | Player_B2 Lost_MC2 | close-up: Player_A2 | the other side: Player_B2 | replay 1.2 s at 0.6x (2.1 s)
+
+137.7s [Point] decided: BARCELONA PLAYA ELITES by AttackError (server A, final attack by A after 2, chance 0.488)
+
+137.7s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+137.7s RATING CHECK: Player_A1 Serve 242 SpeedMult:2.11
+
+137.7s RALLY ACTION: TeamA Player_A1 1 Serve
+
+138.3s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+138.3s RATING CHECK: Player_B1 Dig 264 JitterMult:0.15
+
+138.3s RALLY ACTION: TeamB Player_B1 1 Dig
+
+139.0s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+139.0s RALLY ACTION: TeamB Player_B2 2 Set
+
+139.9s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+139.9s RATING CHECK: Player_A1 Block 232 Outcome:Controlled
+
+139.9s BLOCK ATTEMPT: Player_A1
+
+139.9s RATING CHECK: Player_B1 Spike 250 SpeedMult:2.17
+
+139.9s RALLY ACTION: TeamB Player_B1 3 Spike
+
+140.0s BLOCK SUCCESS: Player_A1
+
+140.0s [COMMENTARY] Controlled block! Player_A1 rebounded the ball back to the attacker's side!
+
+141.0s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+141.0s RALLY ACTION: TeamB Player_B2 2 Set
+
+141.8s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+141.8s RATING CHECK: Player_A1 Block 232 Outcome:Touch
+
+141.8s BLOCK ATTEMPT: Player_A1
+
+141.8s RATING CHECK: Player_B1 Spike 250 SpeedMult:2.17
+
+141.8s RALLY ACTION: TeamB Player_B1 3 Spike
+
+141.9s BLOCK TOUCH: Player_A1
+
+141.9s [COMMENTARY] Touch! Player_A1 got a hand on the ball, slowing it down. The rally continues!
+
+142.0s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+142.0s RATING CHECK: Player_A1 Dig 238 JitterMult:0.15
+
+142.0s RALLY ACTION: TeamA Player_A1 1 Dig
+
+142.7s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+142.7s RALLY ACTION: TeamA Player_A2 2 Set
+
+143.6s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+143.6s RATING CHECK: Player_A1 Spike 252 SpeedMult:2.18
+
+143.6s RALLY ACTION: TeamA Player_A1 3 Spike
+
+143.8s [Point] awarded: BARCELONA PLAYA ELITES by AttackError after 4 attack(s), 11 touches
+
+143.8s BARCELONA PLAYA ELITES point: set 1 8-3, sets 0-0
+
+143.8s Trying to get length of sound which is not loaded yet.
+143.8s [Director] cutaway: the scorer, Player_B1 (1.7 s)
+
+143.9s [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":1,"matchId":1,"sets":[],"current":{"home":8,"away":3}}
+
+145.6s [Director] cutaway: the other side, Player_A1 (1.0 s)
+
+146.8s [Between points] 3.0 s: point to B by AttackError | score SYDNEY RIPTIDE 0 8 - 3 0 BARCELONA PLAYA ELITES [ATTACK ERROR] | umpire: team to serve | Player_B1 Won_DoublePeace | Player_B2 Won_ThumbsUp2 | Player_A1 Lost_Angry | Player_A2 Lost_MC1 | close-up: Player_B1 | the other side: Player_A1
+
+147.1s [Point] decided: BARCELONA PLAYA ELITES by Kill (server B, final attack by B after 1, chance 0.488)
+
+147.2s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+147.2s RATING CHECK: Player_B2 Serve 238 SpeedMult:2.09
+
+147.2s RALLY ACTION: TeamB Player_B2 1 Serve
+
+147.7s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+147.7s RATING CHECK: Player_A2 Dig 223 JitterMult:0.15
+
+147.7s RALLY ACTION: TeamA Player_A2 1 Dig
+
+148.2s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+148.2s RALLY ACTION: TeamA Player_A1 2 Set
+
+149.1s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+149.1s RATING CHECK: Player_B2 Block 226 Outcome:Touch
+
+149.1s BLOCK ATTEMPT: Player_B2
+
+149.1s RATING CHECK: Player_A2 Spike 201 SpeedMult:1.84
+
+149.1s RALLY ACTION: TeamA Player_A2 3 Spike
+
+149.2s BLOCK TOUCH: Player_B2
+
+149.2s [COMMENTARY] Touch! Player_B2 got a hand on the ball, slowing it down. The rally continues!
+
+149.3s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+149.3s RATING CHECK: Player_B2 Dig 254 JitterMult:0.15
+
+149.3s RALLY ACTION: TeamB Player_B2 1 Dig
+
+150.1s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+150.1s RALLY ACTION: TeamB Player_B1 2 Set
+
+151.1s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+151.1s RATING CHECK: Player_B2 Spike 247 SpeedMult:2.15
+
+151.1s RALLY ACTION: TeamB Player_B2 3 Spike
+
+151.2s [Point] awarded: BARCELONA PLAYA ELITES by Kill after 3 attack(s), 8 touches
+
+151.2s BARCELONA PLAYA ELITES point: set 1 8-4, sets 0-0
+
+151.3s [Director] cutaway: the scorer, Player_B2 (1.1 s)
+
+151.3s [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":1,"matchId":1,"sets":[],"current":{"home":8,"away":4}}
+
+152.4s [Director] cutaway: the other side, Player_A2 (0.7 s)
+
+153.1s [Director] cutaway: replay (2.3 s)
+
+155.2s [Between points] 4.0 s: point to B by Kill (big: a diving save) | score SYDNEY RIPTIDE 0 8 - 4 0 BARCELONA PLAYA ELITES | umpire: team to serve | Player_B1 Won_Cartwheel | Player_B2 Won_Yay | Player_A1 Lost_MC2 | Player_A2 Lost_MC1 | close-up: Player_B2 | the other side: Player_A2 | replay 1.2 s at 0.6x (2.2 s)
+
+155.5s [Point] decided: BARCELONA PLAYA ELITES by Kill (server B, final attack by B after 3, chance 0.488)
+
+155.5s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+155.5s RATING CHECK: Player_B1 Serve 232 SpeedMult:2.05
+
+155.5s RALLY ACTION: TeamB Player_B1 1 Serve
+
+156.1s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+156.1s RATING CHECK: Player_A1 Dig 238 JitterMult:0.15
+
+156.1s RALLY ACTION: TeamA Player_A1 1 Dig
+
+156.5s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+156.5s RALLY ACTION: TeamA Player_A2 2 Set
+
+157.3s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+157.3s RATING CHECK: Player_B1 Block 225 Outcome:Controlled
+
+157.3s BLOCK ATTEMPT: Player_B1
+
+157.3s RATING CHECK: Player_A1 Spike 252 SpeedMult:2.18
+
+157.3s RALLY ACTION: TeamA Player_A1 3 Spike
+
+157.4s BLOCK SUCCESS: Player_B1
+
+157.4s [COMMENTARY] Controlled block! Player_B1 rebounded the ball back to the attacker's side!
+
+158.3s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+158.3s RALLY ACTION: TeamA Player_A2 2 Set
+
+159.1s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+159.1s RATING CHECK: Player_B1 Block 225 Outcome:Touch
+
+159.1s BLOCK ATTEMPT: Player_B1
+
+159.1s RATING CHECK: Player_A1 Spike 252 SpeedMult:2.18
+
+159.1s RALLY ACTION: TeamA Player_A1 3 Spike
+
+159.2s BLOCK TOUCH: Player_B1
+
+159.2s [COMMENTARY] Touch! Player_B1 got a hand on the ball, slowing it down. The rally continues!
+
+159.3s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+159.4s RATING CHECK: Player_B1 Dig 264 JitterMult:0.15
+
+159.4s RALLY ACTION: TeamB Player_B1 1 Dig
+
+160.1s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+160.1s RALLY ACTION: TeamB Player_B2 2 Set
+
+160.9s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+160.9s RATING CHECK: Player_B1 Spike 250 SpeedMult:2.17
+
+160.9s RALLY ACTION: TeamB Player_B1 3 Spike
+
+161.1s [Point] awarded: BARCELONA PLAYA ELITES by Kill after 4 attack(s), 11 touches
+
+161.1s BARCELONA PLAYA ELITES point: set 1 8-5, sets 0-0
+
+161.1s [Director] cutaway: the scorer, Player_B1 (1.7 s)
+
+161.1s [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":1,"matchId":1,"sets":[],"current":{"home":8,"away":5}}
+
+162.8s [Director] cutaway: the other side, Player_A1 (1.0 s)
+
+164.1s [Between points] 3.0 s: point to B by Kill | score SYDNEY RIPTIDE 0 8 - 5 0 BARCELONA PLAYA ELITES | umpire: team to serve | high five: Player_B1 and Player_B2 | Player_A1 Lost_Angry | Player_A2 Lost_Angry | close-up: Player_B1 | placed: Player_B2 at (0.20, 0.72) in Player_B1's frame, turned 145°, scales 1.00/1.00 | the other side: Player_A1
+
+164.4s [Point] decided: BARCELONA PLAYA ELITES by Kill (server B, final attack by B after 2, chance 0.488)
+
+164.4s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+164.4s RATING CHECK: Player_B1 Serve 232 SpeedMult:2.05
+
+164.4s RALLY ACTION: TeamB Player_B1 1 Serve
+
+164.9s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+164.9s RATING CHECK: Player_A1 Dig 238 JitterMult:0.15
+
+164.9s RALLY ACTION: TeamA Player_A1 1 Dig
+
+165.4s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+165.4s RALLY ACTION: TeamA Player_A2 2 Set
+
+166.1s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+166.1s RATING CHECK: Player_B1 Block 225 Outcome:Controlled
+
+166.1s BLOCK ATTEMPT: Player_B1
+
+166.1s RATING CHECK: Player_A1 Spike 252 SpeedMult:2.18
+
+166.1s RALLY ACTION: TeamA Player_A1 3 Spike
+
+166.2s BLOCK SUCCESS: Player_B1
+
+166.2s [COMMENTARY] Controlled block! Player_B1 rebounded the ball back to the attacker's side!
+
+167.0s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+167.0s RALLY ACTION: TeamA Player_A2 2 Set
+
+167.8s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+167.8s RATING CHECK: Player_B1 Block 225 Outcome:Touch
+
+167.8s BLOCK ATTEMPT: Player_B1
+
+167.8s RATING CHECK: Player_A1 Spike 252 SpeedMult:2.18
+
+167.8s RALLY ACTION: TeamA Player_A1 3 Spike
+
+167.9s BLOCK TOUCH: Player_B1
+
+167.9s [COMMENTARY] Touch! Player_B1 got a hand on the ball, slowing it down. The rally continues!
+
+168.0s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+168.0s RATING CHECK: Player_B1 Dig 264 JitterMult:0.15
+
+168.0s RALLY ACTION: TeamB Player_B1 1 Dig
+
+168.7s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+168.7s RALLY ACTION: TeamB Player_B2 2 Set
+
+169.7s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+169.7s RATING CHECK: Player_B1 Spike 250 SpeedMult:2.17
+
+169.7s RALLY ACTION: TeamB Player_B1 3 Spike
+
+169.9s [Point] awarded: BARCELONA PLAYA ELITES by Kill after 4 attack(s), 11 touches
+
+169.9s BARCELONA PLAYA ELITES point: set 1 8-6, sets 0-0
+
+169.9s [Director] cutaway: the scorer, Player_B1 (1.1 s)
+
+169.9s [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":1,"matchId":1,"sets":[],"current":{"home":8,"away":6}}
+
+171.0s [Director] cutaway: the other side, Player_A1 (0.7 s)
+
+171.7s [Director] cutaway: replay (2.2 s)
+
+173.9s [Between points] 4.0 s: point to B by Kill (big: a diving save) | score SYDNEY RIPTIDE 0 8 - 6 0 BARCELONA PLAYA ELITES | umpire: team to serve | Player_B1 Won_Cheer | Player_B2 Won_Cartwheel | Player_A1 Lost_Cry | Player_A2 Lost_MC1 | close-up: Player_B1 | the other side: Player_A1 | replay 1.2 s at 0.6x (2.1 s)
+
+174.2s [Point] decided: SYDNEY RIPTIDE by Kill (server B, final attack by A after 2, chance 0.488)
+
+174.2s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+174.2s RATING CHECK: Player_B2 Serve 238 SpeedMult:2.09
+
+174.2s RALLY ACTION: TeamB Player_B2 1 Serve
+
+174.7s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+174.7s RATING CHECK: Player_A2 Dig 223 JitterMult:0.15
+
+174.7s RALLY ACTION: TeamA Player_A2 1 Dig
+
+175.2s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+175.2s RALLY ACTION: TeamA Player_A1 2 Set
+
+175.9s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+175.9s RATING CHECK: Player_B2 Block 226 Outcome:Touch
+
+175.9s BLOCK ATTEMPT: Player_B2
+
+175.9s RATING CHECK: Player_A2 Spike 201 SpeedMult:1.84
+
+175.9s RALLY ACTION: TeamA Player_A2 3 Spike
+
+176.0s BLOCK TOUCH: Player_B2
+
+176.0s [COMMENTARY] Touch! Player_B2 got a hand on the ball, slowing it down. The rally continues!
+
+176.2s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+176.2s RATING CHECK: Player_B2 Dig 254 JitterMult:0.15
+
+176.2s RALLY ACTION: TeamB Player_B2 1 Dig
+
+176.9s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+176.9s RALLY ACTION: TeamB Player_B1 2 Set
+
+177.8s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+177.8s RATING CHECK: Player_A2 Block 158 Outcome:Controlled
+
+177.8s BLOCK ATTEMPT: Player_A2
+
+177.8s RATING CHECK: Player_B2 Spike 247 SpeedMult:2.15
+
+177.8s RALLY ACTION: TeamB Player_B2 3 Spike
+
+177.9s BLOCK SUCCESS: Player_A2
+
+177.9s [COMMENTARY] Controlled block! Player_A2 rebounded the ball back to the attacker's side!
+
+178.9s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+178.9s RALLY ACTION: TeamB Player_B1 2 Set
+
+179.7s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+179.7s RATING CHECK: Player_A2 Block 158 Outcome:Touch
+
+179.7s BLOCK ATTEMPT: Player_A2
+
+179.7s RATING CHECK: Player_B2 Spike 247 SpeedMult:2.15
+
+179.7s RALLY ACTION: TeamB Player_B2 3 Spike
+
+179.8s BLOCK TOUCH: Player_A2
+
+179.8s [COMMENTARY] Touch! Player_A2 got a hand on the ball, slowing it down. The rally continues!
+
+179.8s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+179.8s RATING CHECK: Player_A2 Dig 223 JitterMult:0.15
+
+179.8s RALLY ACTION: TeamA Player_A2 1 Dig
+
+180.4s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+180.4s RALLY ACTION: TeamA Player_A1 2 Set
+
+181.3s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+181.3s RATING CHECK: Player_A2 Spike 201 SpeedMult:1.84
+
+181.3s RALLY ACTION: TeamA Player_A2 3 Spike
+
+181.6s [Point] awarded: SYDNEY RIPTIDE by Kill after 5 attack(s), 15 touches
+
+181.6s SYDNEY RIPTIDE point: set 1 9-6, sets 0-0
+
+181.6s [Director] cutaway: the scorer, Player_A2 (1.7 s)
+
+181.6s [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":1,"matchId":1,"sets":[],"current":{"home":9,"away":6}}
+
+183.3s [Director] cutaway: the other side, Player_B2 (1.0 s)
+
+184.6s [Between points] 3.0 s: point to A by Kill | score SYDNEY RIPTIDE 0 9 - 6 0 BARCELONA PLAYA ELITES | umpire: team to serve | Player_A1 Won_MC3 | Player_A2 Won_Cheer | Player_B1 Lost_MC3 | Player_B2 Lost_Angry | close-up: Player_A2 | the other side: Player_B2
+
+184.9s [Point] decided: BARCELONA PLAYA ELITES by Kill (server A, final attack by B after 4, chance 0.488)
+
+184.9s RATING CHECK: Player_B2 Movement 195 SpeedMult:2.46
+
+184.9s RATING CHECK: Player_A1 Serve 278 SpeedMult:2.36
+
+184.9s RALLY ACTION: TeamA Player_A1 1 Serve
+
+185.5s RATING CHECK: Player_B1 Movement 204 SpeedMult:2.55
+
+185.5s RATING CHECK: Player_B2 Dig 292 JitterMult:0.15
+
+185.5s RALLY ACTION: TeamB Player_B2 1 Dig
+
+185.9s RATING CHECK: Player_B2 Movement 195 SpeedMult:2.46
+
+185.9s RALLY ACTION: TeamB Player_B1 2 Set
+
+186.7s RATING CHECK: Player_A1 Movement 184 SpeedMult:2.34
+
+186.7s RATING CHECK: Player_A2 Block 182 Outcome:Controlled
+
+186.7s BLOCK ATTEMPT: Player_A2
+
+186.7s RATING CHECK: Player_B2 Spike 284 SpeedMult:2.39
+
+186.7s RALLY ACTION: TeamB Player_B2 3 Spike
+
+186.8s BLOCK SUCCESS: Player_A2
+
+186.8s [COMMENTARY] Controlled block! Player_A2 rebounded the ball back to the attacker's side!
+
+187.8s RATING CHECK: Player_B2 Movement 195 SpeedMult:2.46
+
+187.8s RALLY ACTION: TeamB Player_B1 2 Set
+
+188.8s RATING CHECK: Player_A1 Movement 184 SpeedMult:2.34
+
+188.9s RATING CHECK: Player_A2 Block 182 Outcome:Touch
+
+188.9s BLOCK ATTEMPT: Player_A2
+
+188.9s RATING CHECK: Player_B2 Spike 284 SpeedMult:2.39
+
+188.9s RALLY ACTION: TeamB Player_B2 3 Spike
+
+188.9s BLOCK TOUCH: Player_A2
+
+188.9s [COMMENTARY] Touch! Player_A2 got a hand on the ball, slowing it down. The rally continues!
+
+189.0s RATING CHECK: Player_A2 Movement 176 SpeedMult:2.27
+
+189.0s RATING CHECK: Player_A1 Dig 273 JitterMult:0.15
+
+189.0s RALLY ACTION: TeamA Player_A1 1 Dig
+
+189.6s RATING CHECK: Player_A1 Movement 184 SpeedMult:2.34
+
+189.6s RALLY ACTION: TeamA Player_A2 2 Set
+
+190.3s RATING CHECK: Player_B2 Movement 195 SpeedMult:2.46
+
+190.3s RATING CHECK: Player_B1 Block 259 Outcome:Controlled
+
+190.3s BLOCK ATTEMPT: Player_B1
+
+190.3s RATING CHECK: Player_A1 Spike 289 SpeedMult:2.43
+
+190.3s RALLY ACTION: TeamA Player_A1 3 Spike
+
+190.4s BLOCK SUCCESS: Player_B1
+
+190.4s [COMMENTARY] Controlled block! Player_B1 rebounded the ball back to the attacker's side!
+
+191.4s RATING CHECK: Player_A1 Movement 184 SpeedMult:2.34
+
+191.4s RALLY ACTION: TeamA Player_A2 2 Set
+
+192.4s RATING CHECK: Player_B2 Movement 195 SpeedMult:2.46
+
+192.4s RATING CHECK: Player_B1 Block 259 Outcome:Controlled
+
+192.4s BLOCK ATTEMPT: Player_B1
+
+192.4s RATING CHECK: Player_A1 Spike 289 SpeedMult:2.43
+
+192.4s RALLY ACTION: TeamA Player_A1 3 Spike
+
+192.5s BLOCK SUCCESS: Player_B1
+
+192.5s [COMMENTARY] Controlled block! Player_B1 rebounded the ball back to the attacker's side!
+
+193.5s RATING CHECK: Player_A1 Movement 184 SpeedMult:2.34
+
+193.5s RALLY ACTION: TeamA Player_A2 2 Set
+
+194.3s RATING CHECK: Player_B2 Movement 195 SpeedMult:2.46
+
+194.3s RATING CHECK: Player_B1 Block 259 Outcome:Controlled
+
+194.3s BLOCK ATTEMPT: Player_B1
+
+194.3s RATING CHECK: Player_A1 Spike 289 SpeedMult:2.43
+
+194.3s RALLY ACTION: TeamA Player_A1 3 Spike
+
+194.3s BLOCK SUCCESS: Player_B1
+
+194.3s [COMMENTARY] Controlled block! Player_B1 rebounded the ball back to the attacker's side!
+
+195.2s RATING CHECK: Player_A1 Movement 184 SpeedMult:2.34
+
+195.2s RALLY ACTION: TeamA Player_A2 2 Set
+
+196.0s RATING CHECK: Player_B2 Movement 195 SpeedMult:2.46
+
+196.0s RATING CHECK: Player_B1 Block 259 Outcome:Touch
+
+196.0s BLOCK ATTEMPT: Player_B1
+
+196.0s RATING CHECK: Player_A1 Spike 289 SpeedMult:2.43
+
+196.0s RALLY ACTION: TeamA Player_A1 3 Spike
+
+196.1s BLOCK TOUCH: Player_B1
+
+196.1s [COMMENTARY] Touch! Player_B1 got a hand on the ball, slowing it down. The rally continues!
+
+196.1s RATING CHECK: Player_B1 Movement 204 SpeedMult:2.55
+
+196.2s RATING CHECK: Player_B2 Dig 292 JitterMult:0.15
+
+196.2s RALLY ACTION: TeamB Player_B2 1 Dig
+
+196.8s RATING CHECK: Player_B2 Movement 195 SpeedMult:2.46
+
+196.8s RALLY ACTION: TeamB Player_B1 2 Set
+
+197.5s RATING CHECK: Player_A1 Movement 184 SpeedMult:2.34
+
+197.5s RATING CHECK: Player_B2 Spike 284 SpeedMult:2.39
+
+197.5s RALLY ACTION: TeamB Player_B2 3 Spike
+
+197.7s [Point] awarded: BARCELONA PLAYA ELITES by Kill after 8 attack(s), 24 touches
+
+197.7s BARCELONA PLAYA ELITES point: set 1 9-7, sets 0-0
+
+197.7s [Director] cutaway: the scorer, Player_B2 (1.1 s)
+
+197.7s [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":1,"matchId":1,"sets":[],"current":{"home":9,"away":7}}
+
+198.8s [Director] cutaway: the other side, Player_A1 (0.7 s)
+
+199.5s [Director] cutaway: replay (2.2 s)
+
+201.7s [Between points] 4.0 s: point to B by Kill (big: a diving save) | score SYDNEY RIPTIDE 0 9 - 7 0 BARCELONA PLAYA ELITES | umpire: team to serve | Player_B1 Won_DoublePeace | Player_B2 Won_ThumbsUp2 | Player_A1 Lost_MC2 | Player_A2 Lost_FeelDown | close-up: Player_B2 | the other side: Player_A1 | replay 1.2 s at 0.6x (2.1 s)
+
+201.9s [Point] decided: BARCELONA PLAYA ELITES by Kill (server B, final attack by B after 4, chance 0.488)
+
+202.0s RATING CHECK: Player_A2 Movement 176 SpeedMult:2.27
+
+202.0s RATING CHECK: Player_B2 Serve 273 SpeedMult:2.33
+
+202.0s RALLY ACTION: TeamB Player_B2 1 Serve
+
+202.4s RATING CHECK: Player_A1 Movement 184 SpeedMult:2.34
+
+202.4s RATING CHECK: Player_A2 Dig 257 JitterMult:0.15
+
+202.4s RALLY ACTION: TeamA Player_A2 1 Dig
+
+202.9s RATING CHECK: Player_A2 Movement 176 SpeedMult:2.27
+
+202.9s RALLY ACTION: TeamA Player_A1 2 Set
+
+203.6s RATING CHECK: Player_B2 Movement 195 SpeedMult:2.46
+
+203.7s RATING CHECK: Player_B2 Block 260 Outcome:Controlled
+
+203.7s BLOCK ATTEMPT: Player_B2
+
+203.7s RATING CHECK: Player_A2 Spike 231 SpeedMult:2.05
+
+203.7s RALLY ACTION: TeamA Player_A2 3 Spike
+
+203.7s BLOCK SUCCESS: Player_B2
+
+203.8s [COMMENTARY] Controlled block! Player_B2 rebounded the ball back to the attacker's side!
+
+204.7s RATING CHECK: Player_A2 Movement 176 SpeedMult:2.27
+
+204.7s RALLY ACTION: TeamA Player_A1 2 Set
+
+205.4s RATING CHECK: Player_B2 Movement 195 SpeedMult:2.46
+
+205.4s RATING CHECK: Player_B2 Block 260 Outcome:Controlled
+
+205.4s BLOCK ATTEMPT: Player_B2
+
+205.4s RATING CHECK: Player_A2 Spike 231 SpeedMult:2.05
+
+205.4s RALLY ACTION: TeamA Player_A2 3 Spike
+
+205.5s BLOCK SUCCESS: Player_B2
+
+205.5s [COMMENTARY] Controlled block! Player_B2 rebounded the ball back to the attacker's side!
+
+206.4s RATING CHECK: Player_A2 Movement 176 SpeedMult:2.27
+
+206.4s RALLY ACTION: TeamA Player_A1 2 Set
+
+207.3s RATING CHECK: Player_B2 Movement 195 SpeedMult:2.46
+
+207.3s RATING CHECK: Player_B2 Block 260 Outcome:Touch
+
+207.3s BLOCK ATTEMPT: Player_B2
+
+207.3s RATING CHECK: Player_A2 Spike 231 SpeedMult:2.05
+
+207.3s RALLY ACTION: TeamA Player_A2 3 Spike
+
+207.4s BLOCK TOUCH: Player_B2
+
+207.4s [COMMENTARY] Touch! Player_B2 got a hand on the ball, slowing it down. The rally continues!
+
+207.6s RATING CHECK: Player_B1 Movement 204 SpeedMult:2.55
+
+207.6s RATING CHECK: Player_B2 Dig 292 JitterMult:0.15
+
+207.6s RALLY ACTION: TeamB Player_B2 1 Dig
+
+208.2s RATING CHECK: Player_B2 Movement 195 SpeedMult:2.46
+
+208.2s RALLY ACTION: TeamB Player_B1 2 Set
+
+209.0s RATING CHECK: Player_A2 Movement 176 SpeedMult:2.27
+
+209.0s RATING CHECK: Player_B2 Spike 284 SpeedMult:2.39
+
+209.0s RALLY ACTION: TeamB Player_B2 3 Spike
+
+209.2s [Point] awarded: BARCELONA PLAYA ELITES by Kill after 5 attack(s), 14 touches
+
+209.2s BARCELONA PLAYA ELITES point: set 1 9-8, sets 0-0
+
+209.2s [Director] cutaway: the scorer, Player_B2 (1.7 s)
+
+209.2s [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":1,"matchId":1,"sets":[],"current":{"home":9,"away":8}}
+
+210.9s [Director] cutaway: the other side, Player_A2 (1.0 s)
+
+212.2s [Between points] 3.1 s: point to B by Kill | score SYDNEY RIPTIDE 0 9 - 8 0 BARCELONA PLAYA ELITES | umpire: team to serve | Player_B1 Won_Cheer | Player_B2 Won_Shout | Player_A1 Lost_Angry | Player_A2 Lost_MC3 | close-up: Player_B2 | the other side: Player_A2
+
+212.5s [Point] decided: SYDNEY RIPTIDE by BlockStuff (server B, final attack by B after 1, chance 0.488)
+
+212.5s RATING CHECK: Player_A2 Movement 176 SpeedMult:2.27
+
+212.5s RATING CHECK: Player_B1 Serve 267 SpeedMult:2.28
+
+212.5s RALLY ACTION: TeamB Player_B1 1 Serve
+
+213.0s RATING CHECK: Player_A1 Movement 184 SpeedMult:2.34
+
+213.0s RATING CHECK: Player_A2 Dig 257 JitterMult:0.15
+
+213.0s RALLY ACTION: TeamA Player_A2 1 Dig
+
+213.4s RATING CHECK: Player_A2 Movement 176 SpeedMult:2.27
+
+213.4s RALLY ACTION: TeamA Player_A1 2 Set
+
+214.3s RATING CHECK: Player_B1 Movement 204 SpeedMult:2.55
+
+214.3s RATING CHECK: Player_B2 Block 260 Outcome:Controlled
+
+214.3s BLOCK ATTEMPT: Player_B2
+
+214.3s RATING CHECK: Player_A2 Spike 231 SpeedMult:2.05
+
+214.3s RALLY ACTION: TeamA Player_A2 3 Spike
+
+214.4s BLOCK SUCCESS: Player_B2
+
+214.4s [COMMENTARY] Controlled block! Player_B2 rebounded the ball back to the attacker's side!
+
+215.2s RATING CHECK: Player_A2 Movement 176 SpeedMult:2.27
+
+215.3s RALLY ACTION: TeamA Player_A1 2 Set
+
+215.9s RATING CHECK: Player_B1 Movement 204 SpeedMult:2.55
+
+215.9s RATING CHECK: Player_B2 Block 260 Outcome:Touch
+
+215.9s BLOCK ATTEMPT: Player_B2
+
+215.9s RATING CHECK: Player_A2 Spike 231 SpeedMult:2.05
+
+215.9s RALLY ACTION: TeamA Player_A2 3 Spike
+
+216.0s BLOCK TOUCH: Player_B2
+
+216.0s [COMMENTARY] Touch! Player_B2 got a hand on the ball, slowing it down. The rally continues!
+
+216.2s RATING CHECK: Player_B2 Movement 195 SpeedMult:2.46
+
+216.2s RATING CHECK: Player_B1 Dig 303 JitterMult:0.15
+
+216.2s RALLY ACTION: TeamB Player_B1 1 Dig
+
+216.8s RATING CHECK: Player_B1 Movement 204 SpeedMult:2.55
+
+216.8s RALLY ACTION: TeamB Player_B2 2 Set
+
+217.2s RATING CHECK: Player_A2 Movement 176 SpeedMult:2.27
+
+217.2s RATING CHECK: Player_A1 Block 267 Outcome:Stuff
+
+217.2s BLOCK ATTEMPT: Player_A1
+
+217.2s RATING CHECK: Player_B1 Spike 287 SpeedMult:2.42
+
+217.2s RALLY ACTION: TeamB Player_B1 3 Spike
+
+217.3s BLOCK SUCCESS: Player_A1
+
+217.3s RALLY ACTION: TeamA Player_A1 1 Block
+
+217.3s [COMMENTARY] INCREDIBLE BLOCK WINNER! Player_A1 completely shut down the spike straight down!
+
+217.8s [Point] awarded: SYDNEY RIPTIDE by BlockStuff after 4 attack(s), 12 touches
+
+217.8s SYDNEY RIPTIDE point: set 1 10-8, sets 0-0
+
+217.8s [Director] cutaway: the scorer, Player_A1 (1.1 s)
+
+217.8s [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":1,"matchId":1,"sets":[],"current":{"home":10,"away":8}}
+
+218.9s [Director] cutaway: the other side, Player_B1 (0.7 s)
+
+219.6s [Director] cutaway: replay (2.2 s)
+
+221.8s [Between points] 4.0 s: point to A by BlockStuff (big: a block) | score SYDNEY RIPTIDE 0 10 - 8 0 BARCELONA PLAYA ELITES [BLOCK] | umpire: team to serve | Player_A1 Won_Yay | Player_A2 Won_Cartwheel | Player_B1 Lost_MC1 | Player_B2 Lost_Angry | close-up: Player_A1 | the other side: Player_B1 | replay 1.2 s at 0.6x (2.1 s)
+
+222.1s [Point] decided: BARCELONA PLAYA ELITES by Kill (server A, final attack by B after 1, chance 0.488)
+
+222.1s RATING CHECK: Player_B1 Movement 204 SpeedMult:2.55
+
+222.1s RATING CHECK: Player_A2 Serve 246 SpeedMult:2.15
+
+222.1s RALLY ACTION: TeamA Player_A2 1 Serve
+
+222.7s RATING CHECK: Player_B2 Movement 195 SpeedMult:2.46
+
+222.7s RATING CHECK: Player_B1 Dig 303 JitterMult:0.15
+
+222.7s RALLY ACTION: TeamB Player_B1 1 Dig
+
+223.1s RATING CHECK: Player_B1 Movement 204 SpeedMult:2.55
+
+223.2s RALLY ACTION: TeamB Player_B2 2 Set
+
+224.0s RATING CHECK: Player_A2 Movement 176 SpeedMult:2.27
+
+224.0s RATING CHECK: Player_B1 Spike 287 SpeedMult:2.42
+
+224.0s RALLY ACTION: TeamB Player_B1 3 Spike
+
+224.1s [Point] awarded: BARCELONA PLAYA ELITES by Kill after 2 attack(s), 4 touches
+
+224.1s BARCELONA PLAYA ELITES point: set 1 10-9, sets 0-0
+
+224.1s [Director] cutaway: the scorer, Player_B1 (1.7 s)
+
+224.1s [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":1,"matchId":1,"sets":[],"current":{"home":10,"away":9}}
+
+225.8s [Director] cutaway: the other side, Player_A2 (1.0 s)
+
+227.2s [Between points] 3.1 s: point to B by Kill | score SYDNEY RIPTIDE 0 10 - 9 0 BARCELONA PLAYA ELITES | umpire: team to serve | high five: Player_B1 and Player_B2 | Player_A1 Lost_FeelDown | Player_A2 Lost_Angry | close-up: Player_B1 | placed: Player_B2 at (0.20, 0.72) in Player_B1's frame, turned 145°, scales 1.00/1.00 | the other side: Player_A2
+
+227.5s [Point] decided: SYDNEY RIPTIDE by Kill (server B, final attack by A after 2, chance 0.488)
+
+227.5s RATING CHECK: Player_A2 Movement 176 SpeedMult:2.27
+
+227.5s RATING CHECK: Player_B2 Serve 273 SpeedMult:2.33
+
+227.5s RALLY ACTION: TeamB Player_B2 1 Serve
+
+228.0s RATING CHECK: Player_A1 Movement 184 SpeedMult:2.34
+
+228.0s RATING CHECK: Player_A2 Dig 257 JitterMult:0.15
+
+228.0s RALLY ACTION: TeamA Player_A2 1 Dig
+
+228.5s RATING CHECK: Player_A2 Movement 176 SpeedMult:2.27
+
+228.5s RALLY ACTION: TeamA Player_A1 2 Set
+
+229.3s RATING CHECK: Player_B2 Movement 195 SpeedMult:2.46
+
+229.3s RATING CHECK: Player_B2 Block 260 Outcome:Controlled
+
+229.3s BLOCK ATTEMPT: Player_B2
+
+229.3s RATING CHECK: Player_A2 Spike 231 SpeedMult:2.05
+
+229.3s RALLY ACTION: TeamA Player_A2 3 Spike
+
+229.3s BLOCK SUCCESS: Player_B2
+
+229.3s [COMMENTARY] Controlled block! Player_B2 rebounded the ball back to the attacker's side!
+
+229.8s RATING CHECK: Player_A2 Movement 176 SpeedMult:2.27
+
+229.8s RALLY ACTION: TeamA Player_A1 2 Set
+
+230.7s RATING CHECK: Player_B2 Movement 195 SpeedMult:2.46
+
+230.7s RATING CHECK: Player_A2 Spike 231 SpeedMult:2.05
+
+230.7s RALLY ACTION: TeamA Player_A2 3 Spike
+
+230.9s [Point] awarded: SYDNEY RIPTIDE by Kill after 3 attack(s), 7 touches
+
+230.9s SYDNEY RIPTIDE point: set 2 11-9, sets 1-0
+
+231.0s [Director] cutaway: the scorer, Player_A2 (1.1 s)
+
+231.0s [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":1,"matchId":1,"sets":[{"home":11,"away":9}],"current":{"home":0,"away":0}}
+
+232.1s [Director] cutaway: the other side, Player_B2 (0.7 s)
+
+232.8s [Director] cutaway: replay (2.2 s)
+
+234.9s [Between points] 4.0 s: point to A by Kill (big: a diving save) | score SYDNEY RIPTIDE 1 11 - 9 0 BARCELONA PLAYA ELITES | umpire: team to serve | Player_A1 Won_Motivated | Player_A2 Won_Shout | Player_B1 Lost_MC3 | Player_B2 Lost_FeelDown | close-up: Player_A2 | the other side: Player_B2 | replay 1.2 s at 0.6x (2.1 s)
+
+235.2s [Point] decided: BARCELONA PLAYA ELITES by Kill (server A, final attack by B after 3, chance 0.488)
+
+235.2s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+235.2s RATING CHECK: Player_A1 Serve 242 SpeedMult:2.11
+
+235.2s RALLY ACTION: TeamA Player_A1 1 Serve
+
+235.8s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+235.8s RATING CHECK: Player_B2 Dig 254 JitterMult:0.15
+
+235.8s RALLY ACTION: TeamB Player_B2 1 Dig
+
+236.3s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+236.3s RALLY ACTION: TeamB Player_B1 2 Set
+
+237.1s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+237.1s RATING CHECK: Player_A2 Block 158 Outcome:Touch
+
+237.1s BLOCK ATTEMPT: Player_A2
+
+237.1s RATING CHECK: Player_B2 Spike 247 SpeedMult:2.15
+
+237.1s RALLY ACTION: TeamB Player_B2 3 Spike
+
+237.2s BLOCK TOUCH: Player_A2
+
+237.2s [COMMENTARY] Touch! Player_A2 got a hand on the ball, slowing it down. The rally continues!
+
+237.3s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+237.3s RATING CHECK: Player_A1 Dig 238 JitterMult:0.15
+
+237.3s RALLY ACTION: TeamA Player_A1 1 Dig
+
+238.0s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+238.0s RALLY ACTION: TeamA Player_A2 2 Set
+
+238.8s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+238.8s RATING CHECK: Player_B1 Block 225 Outcome:Touch
+
+238.8s BLOCK ATTEMPT: Player_B1
+
+238.8s RATING CHECK: Player_A1 Spike 252 SpeedMult:2.18
+
+238.8s RALLY ACTION: TeamA Player_A1 3 Spike
+
+238.9s BLOCK TOUCH: Player_B1
+
+238.9s [COMMENTARY] Touch! Player_B1 got a hand on the ball, slowing it down. The rally continues!
+
+239.0s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+239.0s RATING CHECK: Player_B2 Dig 254 JitterMult:0.15
+
+239.0s RALLY ACTION: TeamB Player_B2 1 Dig
+
+239.6s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+239.6s RALLY ACTION: TeamB Player_B1 2 Set
+
+240.3s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+240.3s RATING CHECK: Player_B2 Spike 247 SpeedMult:2.15
+
+240.3s RALLY ACTION: TeamB Player_B2 3 Spike
+
+240.6s [Point] awarded: BARCELONA PLAYA ELITES by Kill after 4 attack(s), 12 touches
+
+240.6s BARCELONA PLAYA ELITES point: set 2 0-1, sets 1-0
+
+240.6s [Director] cutaway: the scorer, Player_B2 (1.7 s)
+
+240.6s [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":1,"matchId":1,"sets":[{"home":11,"away":9}],"current":{"home":0,"away":1}}
+
+242.3s [Director] cutaway: the other side, Player_A1 (1.0 s)
+
+243.6s [Between points] 3.0 s: point to B by Kill | score SYDNEY RIPTIDE 1 0 - 1 0 BARCELONA PLAYA ELITES | umpire: team to serve | Player_B1 Won_ThumbsUp2 | Player_B2 Won_Cheers | Player_A1 Lost_MC1 | Player_A2 Lost_MC2 | close-up: Player_B2 | the other side: Player_A1
+
+244.0s [Point] decided: SYDNEY RIPTIDE by Kill (server B, final attack by A after 3, chance 0.488)
+
+244.0s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+244.0s RATING CHECK: Player_B1 Serve 232 SpeedMult:2.05
+
+244.0s RALLY ACTION: TeamB Player_B1 1 Serve
+
+244.5s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+244.5s RATING CHECK: Player_A1 Dig 238 JitterMult:0.15
+
+244.5s RALLY ACTION: TeamA Player_A1 1 Dig
+
+245.0s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+245.0s RALLY ACTION: TeamA Player_A2 2 Set
+
+245.9s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+245.9s RATING CHECK: Player_B1 Block 225 Outcome:Touch
+
+245.9s BLOCK ATTEMPT: Player_B1
+
+245.9s RATING CHECK: Player_A1 Spike 252 SpeedMult:2.18
+
+245.9s RALLY ACTION: TeamA Player_A1 3 Spike
+
+246.0s BLOCK TOUCH: Player_B1
+
+246.0s [COMMENTARY] Touch! Player_B1 got a hand on the ball, slowing it down. The rally continues!
+
+246.1s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+246.1s RATING CHECK: Player_B1 Dig 264 JitterMult:0.15
+
+246.1s RALLY ACTION: TeamB Player_B1 1 Dig
+
+246.7s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+246.7s RALLY ACTION: TeamB Player_B2 2 Set
+
+247.4s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+247.4s RATING CHECK: Player_A1 Block 232 Outcome:Touch
+
+247.4s BLOCK ATTEMPT: Player_A1
+
+247.4s RATING CHECK: Player_B1 Spike 250 SpeedMult:2.17
+
+247.4s RALLY ACTION: TeamB Player_B1 3 Spike
+
+247.5s BLOCK TOUCH: Player_A1
+
+247.5s [COMMENTARY] Touch! Player_A1 got a hand on the ball, slowing it down. The rally continues!
+
+247.5s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+247.5s RATING CHECK: Player_A1 Dig 238 JitterMult:0.15
+
+247.5s RALLY ACTION: TeamA Player_A1 1 Dig
+
+247.9s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+247.9s RALLY ACTION: TeamA Player_A2 2 Set
+
+248.6s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+248.6s RATING CHECK: Player_A1 Spike 252 SpeedMult:2.18
+
+248.6s RALLY ACTION: TeamA Player_A1 3 Spike
+
+248.9s [Point] awarded: SYDNEY RIPTIDE by Kill after 4 attack(s), 12 touches
+
+248.9s SYDNEY RIPTIDE point: set 2 1-1, sets 1-0
+
+248.9s [Director] cutaway: the scorer, Player_A1 (1.7 s)
+
+248.9s [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":1,"matchId":1,"sets":[{"home":11,"away":9}],"current":{"home":1,"away":1}}
+
+250.6s [Director] cutaway: the other side, Player_B1 (1.0 s)
+
+251.9s [Between points] 3.0 s: point to A by Kill | score SYDNEY RIPTIDE 1 1 - 1 0 BARCELONA PLAYA ELITES | umpire: team to serve | Player_A1 Won_ThumbsUp2 | Player_A2 Won_DoublePeace | Player_B1 Lost_Cry | Player_B2 Lost_FeelDown | close-up: Player_A1 | the other side: Player_B1
+
+252.2s [Point] decided: BARCELONA PLAYA ELITES by Kill (server A, final attack by B after 2, chance 0.488)
+
+252.2s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+252.2s RATING CHECK: Player_A2 Serve 214 SpeedMult:1.93
+
+252.2s RALLY ACTION: TeamA Player_A2 1 Serve
+
+252.9s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+252.9s RATING CHECK: Player_B2 Dig 254 JitterMult:0.15
+
+252.9s RALLY ACTION: TeamB Player_B2 1 Dig
+
+253.3s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+253.3s RALLY ACTION: TeamB Player_B1 2 Set
+
+254.1s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+254.1s RATING CHECK: Player_A2 Block 158 Outcome:Controlled
+
+254.1s BLOCK ATTEMPT: Player_A2
+
+254.1s RATING CHECK: Player_B2 Spike 247 SpeedMult:2.15
+
+254.1s RALLY ACTION: TeamB Player_B2 3 Spike
+
+254.2s BLOCK SUCCESS: Player_A2
+
+254.2s [COMMENTARY] Controlled block! Player_A2 rebounded the ball back to the attacker's side!
+
+255.0s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+255.1s RALLY ACTION: TeamB Player_B1 2 Set
+
+256.0s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+256.0s RATING CHECK: Player_B2 Spike 247 SpeedMult:2.15
+
+256.0s RALLY ACTION: TeamB Player_B2 3 Spike
+
+256.2s [Point] awarded: BARCELONA PLAYA ELITES by Kill after 3 attack(s), 7 touches
+
+256.2s BARCELONA PLAYA ELITES point: set 2 1-2, sets 1-0
+
+256.2s [Director] cutaway: the scorer, Player_B2 (1.1 s)
+
+256.2s [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":1,"matchId":1,"sets":[{"home":11,"away":9}],"current":{"home":1,"away":2}}
+
+257.3s [Director] cutaway: the other side, Player_A2 (0.7 s)
+
+258.0s [Director] cutaway: replay (2.2 s)
+
+260.2s [Between points] 4.0 s: point to B by Kill (big: a diving save) | score SYDNEY RIPTIDE 1 1 - 2 0 BARCELONA PLAYA ELITES | umpire: team to serve | Player_B1 Won_ArmsUp | Player_B2 Won_MC1 | Player_A1 Lost_MC2 | Player_A2 Lost_Cry | close-up: Player_B2 | the other side: Player_A2 | replay 1.2 s at 0.6x (2.1 s)
+
+260.5s [Point] decided: BARCELONA PLAYA ELITES by AttackError (server B, final attack by A after 4, chance 0.488)
+
+260.5s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+260.5s RATING CHECK: Player_B2 Serve 238 SpeedMult:2.09
+
+260.5s RALLY ACTION: TeamB Player_B2 1 Serve
+
+261.0s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+261.0s RATING CHECK: Player_A1 Dig 238 JitterMult:0.15
+
+261.0s RALLY ACTION: TeamA Player_A1 1 Dig
+
+261.4s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+261.4s RALLY ACTION: TeamA Player_A2 2 Set
+
+262.3s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+262.3s RATING CHECK: Player_B1 Block 225 Outcome:Touch
+
+262.3s BLOCK ATTEMPT: Player_B1
+
+262.3s RATING CHECK: Player_A1 Spike 252 SpeedMult:2.18
+
+262.3s RALLY ACTION: TeamA Player_A1 3 Spike
+
+262.4s BLOCK TOUCH: Player_B1
+
+262.4s [COMMENTARY] Touch! Player_B1 got a hand on the ball, slowing it down. The rally continues!
+
+262.6s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+262.6s RATING CHECK: Player_B2 Dig 254 JitterMult:0.15
+
+262.6s RALLY ACTION: TeamB Player_B2 1 Dig
+
+263.3s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+263.3s RALLY ACTION: TeamB Player_B1 2 Set
+
+264.1s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+264.1s RATING CHECK: Player_A2 Block 158 Outcome:Controlled
+
+264.1s BLOCK ATTEMPT: Player_A2
+
+264.1s RATING CHECK: Player_B2 Spike 247 SpeedMult:2.15
+
+264.2s RALLY ACTION: TeamB Player_B2 3 Spike
+
+264.2s BLOCK SUCCESS: Player_A2
+
+264.2s [COMMENTARY] Controlled block! Player_A2 rebounded the ball back to the attacker's side!
+
+265.2s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+265.2s RALLY ACTION: TeamB Player_B1 2 Set
+
+266.1s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+266.1s RATING CHECK: Player_A2 Block 158 Outcome:Touch
+
+266.1s BLOCK ATTEMPT: Player_A2
+
+266.1s RATING CHECK: Player_B2 Spike 247 SpeedMult:2.15
+
+266.1s RALLY ACTION: TeamB Player_B2 3 Spike
+
+266.2s BLOCK TOUCH: Player_A2
+
+266.2s [COMMENTARY] Touch! Player_A2 got a hand on the ball, slowing it down. The rally continues!
+
+266.3s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+266.3s RATING CHECK: Player_A1 Dig 238 JitterMult:0.15
+
+266.3s RALLY ACTION: TeamA Player_A1 1 Dig
+
+267.0s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+267.0s RALLY ACTION: TeamA Player_A2 2 Set
+
+267.7s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+267.7s RATING CHECK: Player_A1 Spike 252 SpeedMult:2.18
+
+267.7s RALLY ACTION: TeamA Player_A1 3 Spike
+
+267.9s [Point] awarded: BARCELONA PLAYA ELITES by AttackError after 5 attack(s), 15 touches
+
+267.9s BARCELONA PLAYA ELITES point: set 2 1-3, sets 1-0
+
+267.9s [Director] cutaway: the scorer, Player_B2 (1.7 s)
+
+267.9s [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":1,"matchId":1,"sets":[{"home":11,"away":9}],"current":{"home":1,"away":3}}
+
+269.6s [Director] cutaway: the other side, Player_A1 (1.0 s)
+
+270.9s [Between points] 3.0 s: point to B by AttackError | score SYDNEY RIPTIDE 1 1 - 3 0 BARCELONA PLAYA ELITES [ATTACK ERROR] | umpire: team to serve | hug: Player_B2 and Player_B1 | Player_A1 Lost_MC1 | Player_A2 Lost_Angry | close-up: Player_B2 | placed: Player_B1 at (-0.08, 0.20) in Player_B2's frame, turned 180°, scales 1.00/1.00 | the other side: Player_A1
+
+271.2s [Point] decided: BARCELONA PLAYA ELITES by Kill (server B, final attack by B after 3, chance 0.488)
+
+271.2s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+271.2s RATING CHECK: Player_B1 Serve 232 SpeedMult:2.05
+
+271.2s RALLY ACTION: TeamB Player_B1 1 Serve
+
+271.7s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+271.7s RATING CHECK: Player_A2 Dig 223 JitterMult:0.15
+
+271.7s RALLY ACTION: TeamA Player_A2 1 Dig
+
+272.2s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+272.2s RALLY ACTION: TeamA Player_A1 2 Set
+
+273.2s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+273.2s RATING CHECK: Player_B2 Block 226 Outcome:Controlled
+
+273.2s BLOCK ATTEMPT: Player_B2
+
+273.2s RATING CHECK: Player_A2 Spike 201 SpeedMult:1.84
+
+273.2s RALLY ACTION: TeamA Player_A2 3 Spike
+
+273.3s BLOCK SUCCESS: Player_B2
+
+273.3s [COMMENTARY] Controlled block! Player_B2 rebounded the ball back to the attacker's side!
+
+274.3s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+274.3s RALLY ACTION: TeamA Player_A1 2 Set
+
+275.3s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+275.3s RATING CHECK: Player_B2 Block 226 Outcome:Controlled
+
+275.3s BLOCK ATTEMPT: Player_B2
+
+275.3s RATING CHECK: Player_A2 Spike 201 SpeedMult:1.84
+
+275.3s RALLY ACTION: TeamA Player_A2 3 Spike
+
+275.4s BLOCK SUCCESS: Player_B2
+
+275.4s [COMMENTARY] Controlled block! Player_B2 rebounded the ball back to the attacker's side!
+
+276.4s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+276.4s RALLY ACTION: TeamA Player_A1 2 Set
+
+277.4s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+277.4s RATING CHECK: Player_B2 Block 226 Outcome:Controlled
+
+277.4s BLOCK ATTEMPT: Player_B2
+
+277.4s RATING CHECK: Player_A2 Spike 201 SpeedMult:1.84
+
+277.4s RALLY ACTION: TeamA Player_A2 3 Spike
+
+277.6s BLOCK SUCCESS: Player_B2
+
+277.6s [COMMENTARY] Controlled block! Player_B2 rebounded the ball back to the attacker's side!
+
+278.6s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+278.6s RALLY ACTION: TeamA Player_A1 2 Set
+
+279.3s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+279.3s RATING CHECK: Player_B2 Block 226 Outcome:Controlled
+
+279.3s BLOCK ATTEMPT: Player_B2
+
+279.3s RATING CHECK: Player_A2 Spike 201 SpeedMult:1.84
+
+279.3s RALLY ACTION: TeamA Player_A2 3 Spike
+
+279.3s BLOCK SUCCESS: Player_B2
+
+279.3s [COMMENTARY] Controlled block! Player_B2 rebounded the ball back to the attacker's side!
+
+279.8s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+279.8s RALLY ACTION: TeamA Player_A1 2 Set
+
+280.8s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+280.8s RATING CHECK: Player_B2 Block 226 Outcome:Controlled
+
+280.8s BLOCK ATTEMPT: Player_B2
+
+280.8s RATING CHECK: Player_A2 Spike 201 SpeedMult:1.84
+
+280.8s RALLY ACTION: TeamA Player_A2 3 Spike
+
+280.9s BLOCK SUCCESS: Player_B2
+
+280.9s [COMMENTARY] Controlled block! Player_B2 rebounded the ball back to the attacker's side!
+
+281.9s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+281.9s RALLY ACTION: TeamA Player_A1 2 Set
+
+282.7s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+282.7s RATING CHECK: Player_B2 Block 226 Outcome:Controlled
+
+282.7s BLOCK ATTEMPT: Player_B2
+
+282.7s RATING CHECK: Player_A2 Spike 201 SpeedMult:1.84
+
+282.7s RALLY ACTION: TeamA Player_A2 3 Spike
+
+282.8s BLOCK SUCCESS: Player_B2
+
+282.8s [COMMENTARY] Controlled block! Player_B2 rebounded the ball back to the attacker's side!
+
+283.8s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+283.8s RALLY ACTION: TeamA Player_A1 2 Set
+
+284.5s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+284.5s RATING CHECK: Player_B2 Block 226 Outcome:Controlled
+
+284.5s BLOCK ATTEMPT: Player_B2
+
+284.5s RATING CHECK: Player_A2 Spike 201 SpeedMult:1.84
+
+284.5s RALLY ACTION: TeamA Player_A2 3 Spike
+
+284.6s BLOCK SUCCESS: Player_B2
+
+284.7s [COMMENTARY] Controlled block! Player_B2 rebounded the ball back to the attacker's side!
+
+285.6s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+285.6s RALLY ACTION: TeamA Player_A1 2 Set
+
+286.3s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+286.3s RATING CHECK: Player_B2 Block 226 Outcome:Controlled
+
+286.3s BLOCK ATTEMPT: Player_B2
+
+286.3s RATING CHECK: Player_A2 Spike 201 SpeedMult:1.84
+
+286.3s RALLY ACTION: TeamA Player_A2 3 Spike
+
+286.4s BLOCK SUCCESS: Player_B2
+
+286.4s [COMMENTARY] Controlled block! Player_B2 rebounded the ball back to the attacker's side!
+
+287.3s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+287.3s RALLY ACTION: TeamA Player_A1 2 Set
+
+288.3s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+288.3s RATING CHECK: Player_B2 Block 226 Outcome:Controlled
+
+288.3s BLOCK ATTEMPT: Player_B2
+
+288.3s RATING CHECK: Player_A2 Spike 201 SpeedMult:1.84
+
+288.3s RALLY ACTION: TeamA Player_A2 3 Spike
+
+288.4s BLOCK SUCCESS: Player_B2
+
+288.4s [COMMENTARY] Controlled block! Player_B2 rebounded the ball back to the attacker's side!
+
+289.4s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+289.4s RALLY ACTION: TeamA Player_A1 2 Set
+
+290.1s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+290.1s RATING CHECK: Player_B2 Block 226 Outcome:Touch
+
+290.1s BLOCK ATTEMPT: Player_B2
+
+290.1s RATING CHECK: Player_A2 Spike 201 SpeedMult:1.84
+
+290.1s RALLY ACTION: TeamA Player_A2 3 Spike
+
+290.2s BLOCK TOUCH: Player_B2
+
+290.2s [COMMENTARY] Touch! Player_B2 got a hand on the ball, slowing it down. The rally continues!
+
+290.3s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+290.3s RATING CHECK: Player_B1 Dig 264 JitterMult:0.15
+
+290.3s RALLY ACTION: TeamB Player_B1 1 Dig
+
+290.8s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+290.8s RALLY ACTION: TeamB Player_B2 2 Set
+
+291.5s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+291.5s RATING CHECK: Player_B1 Spike 250 SpeedMult:2.17
+
+291.5s RALLY ACTION: TeamB Player_B1 3 Spike
+
+291.7s [Point] awarded: BARCELONA PLAYA ELITES by Kill after 12 attack(s), 35 touches
+
+291.7s BARCELONA PLAYA ELITES point: set 2 1-4, sets 1-0
+
+291.7s [Director] cutaway: the scorer, Player_B1 (1.1 s)
+
+291.7s [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":1,"matchId":1,"sets":[{"home":11,"away":9}],"current":{"home":1,"away":4}}
+
+292.8s [Director] cutaway: the other side, Player_A2 (0.7 s)
+
+293.5s [Director] cutaway: replay (2.2 s)
+
+295.7s [Between points] 4.0 s: point to B by Kill (big: a hard spike, 61 m/s) | score SYDNEY RIPTIDE 1 1 - 4 0 BARCELONA PLAYA ELITES | umpire: team to serve | Player_B1 Won_Clap | Player_B2 Won_DoublePeace | Player_A1 Lost_MC2 | Player_A2 Lost_Cry | close-up: Player_B1 | the other side: Player_A2 | replay 1.2 s at 0.6x (2.1 s)
+
+296.0s [Point] decided: SYDNEY RIPTIDE by Kill (server B, final attack by A after 3, chance 0.488)
+
+296.0s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+296.0s RATING CHECK: Player_B1 Serve 232 SpeedMult:2.05
+
+296.0s RALLY ACTION: TeamB Player_B1 1 Serve
+
+296.5s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+296.5s RATING CHECK: Player_A2 Dig 223 JitterMult:0.15
+
+296.5s RALLY ACTION: TeamA Player_A2 1 Dig
+
+297.0s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+297.0s RALLY ACTION: TeamA Player_A1 2 Set
+
+297.9s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+297.9s RATING CHECK: Player_B2 Block 226 Outcome:Controlled
+
+297.9s BLOCK ATTEMPT: Player_B2
+
+297.9s RATING CHECK: Player_A2 Spike 201 SpeedMult:1.84
+
+297.9s RALLY ACTION: TeamA Player_A2 3 Spike
+
+298.0s BLOCK SUCCESS: Player_B2
+
+298.0s [COMMENTARY] Controlled block! Player_B2 rebounded the ball back to the attacker's side!
+
+298.9s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+298.9s RALLY ACTION: TeamA Player_A1 2 Set
+
+299.7s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+299.7s RATING CHECK: Player_B2 Block 226 Outcome:Controlled
+
+299.7s BLOCK ATTEMPT: Player_B2
+
+299.7s RATING CHECK: Player_A2 Spike 201 SpeedMult:1.84
+
+299.7s RALLY ACTION: TeamA Player_A2 3 Spike
+
+299.8s BLOCK SUCCESS: Player_B2
+
+299.8s [COMMENTARY] Controlled block! Player_B2 rebounded the ball back to the attacker's side!
+
+300.8s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+300.8s RALLY ACTION: TeamA Player_A1 2 Set
+
+301.7s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+301.7s RATING CHECK: Player_A2 Spike 201 SpeedMult:1.84
+
+301.7s RALLY ACTION: TeamA Player_A2 3 Spike
+
+301.9s [Point] awarded: SYDNEY RIPTIDE by Kill after 4 attack(s), 10 touches
+
+301.9s SYDNEY RIPTIDE point: set 2 2-4, sets 1-0
+
+301.9s [Director] cutaway: the scorer, Player_A2 (1.7 s)
+
+301.9s [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":1,"matchId":1,"sets":[{"home":11,"away":9}],"current":{"home":2,"away":4}}
+
+303.6s [Director] cutaway: the other side, Player_B1 (1.0 s)
+
+304.9s [Between points] 3.0 s: point to A by Kill | score SYDNEY RIPTIDE 1 2 - 4 0 BARCELONA PLAYA ELITES | umpire: team to serve | Player_A1 Won_Cheers | Player_A2 Won_MC2 | Player_B1 Lost_MC3 | Player_B2 Lost_MC2 | close-up: Player_A2 | the other side: Player_B1
+
+305.3s [Point] decided: SYDNEY RIPTIDE by Kill (server A, final attack by A after 2, chance 0.488)
+
+305.3s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+305.3s RATING CHECK: Player_A2 Serve 214 SpeedMult:1.93
+
+305.3s RALLY ACTION: TeamA Player_A2 1 Serve
+
+305.9s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+305.9s RATING CHECK: Player_B1 Dig 264 JitterMult:0.15
+
+305.9s RALLY ACTION: TeamB Player_B1 1 Dig
+
+306.4s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+306.4s RALLY ACTION: TeamB Player_B2 2 Set
+
+307.1s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+307.1s RATING CHECK: Player_A1 Block 232 Outcome:Controlled
+
+307.1s BLOCK ATTEMPT: Player_A1
+
+307.1s RATING CHECK: Player_B1 Spike 250 SpeedMult:2.17
+
+307.1s RALLY ACTION: TeamB Player_B1 3 Spike
+
+307.2s BLOCK SUCCESS: Player_A1
+
+307.2s [COMMENTARY] Controlled block! Player_A1 rebounded the ball back to the attacker's side!
+
+308.1s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+308.1s RALLY ACTION: TeamB Player_B2 2 Set
+
+308.9s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+308.9s RATING CHECK: Player_A1 Block 232 Outcome:Controlled
+
+308.9s BLOCK ATTEMPT: Player_A1
+
+308.9s RATING CHECK: Player_B1 Spike 250 SpeedMult:2.17
+
+308.9s RALLY ACTION: TeamB Player_B1 3 Spike
+
+309.0s BLOCK SUCCESS: Player_A1
+
+309.0s [COMMENTARY] Controlled block! Player_A1 rebounded the ball back to the attacker's side!
+
+309.9s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+309.9s RALLY ACTION: TeamB Player_B2 2 Set
+
+310.8s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+310.8s RATING CHECK: Player_A1 Block 232 Outcome:Controlled
+
+310.8s BLOCK ATTEMPT: Player_A1
+
+310.8s RATING CHECK: Player_B1 Spike 250 SpeedMult:2.17
+
+310.8s RALLY ACTION: TeamB Player_B1 3 Spike
+
+310.9s BLOCK SUCCESS: Player_A1
+
+310.9s [COMMENTARY] Controlled block! Player_A1 rebounded the ball back to the attacker's side!
+
+311.9s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+311.9s RALLY ACTION: TeamB Player_B2 2 Set
+
+312.6s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+312.6s RATING CHECK: Player_A1 Block 232 Outcome:Touch
+
+312.6s BLOCK ATTEMPT: Player_A1
+
+312.6s RATING CHECK: Player_B1 Spike 250 SpeedMult:2.17
+
+312.6s RALLY ACTION: TeamB Player_B1 3 Spike
+
+312.7s BLOCK TOUCH: Player_A1
+
+312.7s [COMMENTARY] Touch! Player_A1 got a hand on the ball, slowing it down. The rally continues!
+
+312.8s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+312.8s RATING CHECK: Player_A2 Dig 223 JitterMult:0.15
+
+312.8s RALLY ACTION: TeamA Player_A2 1 Dig
+
+313.4s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+313.4s RALLY ACTION: TeamA Player_A1 2 Set
+
+313.9s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+313.9s RATING CHECK: Player_A2 Spike 201 SpeedMult:1.84
+
+313.9s RALLY ACTION: TeamA Player_A2 3 Spike
+
+314.1s [Point] awarded: SYDNEY RIPTIDE by Kill after 6 attack(s), 17 touches
+
+314.1s SYDNEY RIPTIDE point: set 2 3-4, sets 1-0
+
+314.1s [Director] cutaway: the scorer, Player_A2 (1.1 s)
+
+314.1s [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":1,"matchId":1,"sets":[{"home":11,"away":9}],"current":{"home":3,"away":4}}
+
+315.2s [Director] cutaway: the other side, Player_B1 (0.7 s)
+
+315.9s [Director] cutaway: replay (2.2 s)
+
+318.1s [Between points] 4.0 s: point to A by Kill (big: a diving save) | score SYDNEY RIPTIDE 1 3 - 4 0 BARCELONA PLAYA ELITES | umpire: team to serve | Player_A1 Won_Backflip | Player_A2 Won_Yay | Player_B1 Lost_FeelDown | Player_B2 Lost_Cry | close-up: Player_A2 | the other side: Player_B1 | replay 1.2 s at 0.6x (2.1 s)
+
+318.4s [Point] decided: SYDNEY RIPTIDE by Kill (server A, final attack by A after 2, chance 0.488)
+
+318.5s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+318.5s RATING CHECK: Player_A1 Serve 242 SpeedMult:2.11
+
+318.5s RALLY ACTION: TeamA Player_A1 1 Serve
+
+319.1s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+319.1s RATING CHECK: Player_B1 Dig 264 JitterMult:0.15
+
+319.1s RALLY ACTION: TeamB Player_B1 1 Dig
+
+319.5s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+319.5s RALLY ACTION: TeamB Player_B2 2 Set
+
+320.3s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+320.3s RATING CHECK: Player_A1 Block 232 Outcome:Controlled
+
+320.3s BLOCK ATTEMPT: Player_A1
+
+320.3s RATING CHECK: Player_B1 Spike 250 SpeedMult:2.17
+
+320.3s RALLY ACTION: TeamB Player_B1 3 Spike
+
+320.4s BLOCK SUCCESS: Player_A1
+
+320.4s [COMMENTARY] Controlled block! Player_A1 rebounded the ball back to the attacker's side!
+
+321.4s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+321.4s RALLY ACTION: TeamB Player_B2 2 Set
+
+322.2s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+322.2s RATING CHECK: Player_A1 Block 232 Outcome:Touch
+
+322.2s BLOCK ATTEMPT: Player_A1
+
+322.2s RATING CHECK: Player_B1 Spike 250 SpeedMult:2.17
+
+322.2s RALLY ACTION: TeamB Player_B1 3 Spike
+
+322.3s BLOCK TOUCH: Player_A1
+
+322.3s [COMMENTARY] Touch! Player_A1 got a hand on the ball, slowing it down. The rally continues!
+
+322.3s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+322.3s RATING CHECK: Player_A1 Dig 238 JitterMult:0.15
+
+322.3s RALLY ACTION: TeamA Player_A1 1 Dig
+
+322.7s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+322.7s RALLY ACTION: TeamA Player_A2 2 Set
+
+323.6s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+323.6s RATING CHECK: Player_A1 Spike 252 SpeedMult:2.18
+
+323.6s RALLY ACTION: TeamA Player_A1 3 Spike
+
+323.7s [Point] awarded: SYDNEY RIPTIDE by Kill after 4 attack(s), 11 touches
+
+323.7s SYDNEY RIPTIDE point: set 2 4-4, sets 1-0
+
+323.8s [Director] cutaway: the scorer, Player_A1 (1.7 s)
+
+323.8s [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":1,"matchId":1,"sets":[{"home":11,"away":9}],"current":{"home":4,"away":4}}
+
+325.5s [Director] cutaway: the other side, Player_B1 (1.0 s)
+
+326.8s [Between points] 3.0 s: point to A by Kill | score SYDNEY RIPTIDE 1 4 - 4 0 BARCELONA PLAYA ELITES | umpire: team to serve | Player_A1 Won_JumpForJoy | Player_A2 Won_MC3 | Player_B1 Lost_MC1 | Player_B2 Lost_FeelDown | close-up: Player_A1 | the other side: Player_B1
+
+327.1s [Point] decided: SYDNEY RIPTIDE by Kill (server A, final attack by A after 4, chance 0.488)
+
+327.1s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+327.1s RATING CHECK: Player_A1 Serve 242 SpeedMult:2.11
+
+327.1s RALLY ACTION: TeamA Player_A1 1 Serve
+
+327.7s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+327.7s RATING CHECK: Player_B2 Dig 254 JitterMult:0.15
+
+327.7s RALLY ACTION: TeamB Player_B2 1 Dig
+
+328.4s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+328.4s RALLY ACTION: TeamB Player_B1 2 Set
+
+329.2s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+329.2s RATING CHECK: Player_A2 Block 158 Outcome:Touch
+
+329.2s BLOCK ATTEMPT: Player_A2
+
+329.3s RATING CHECK: Player_B2 Spike 247 SpeedMult:2.15
+
+329.3s RALLY ACTION: TeamB Player_B2 3 Spike
+
+329.3s BLOCK TOUCH: Player_A2
+
+329.3s [COMMENTARY] Touch! Player_A2 got a hand on the ball, slowing it down. The rally continues!
+
+329.4s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+329.4s RATING CHECK: Player_A1 Dig 238 JitterMult:0.15
+
+329.4s RALLY ACTION: TeamA Player_A1 1 Dig
+
+330.1s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+330.1s RALLY ACTION: TeamA Player_A2 2 Set
+
+330.8s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+330.8s RATING CHECK: Player_B1 Block 225 Outcome:Controlled
+
+330.8s BLOCK ATTEMPT: Player_B1
+
+330.8s RATING CHECK: Player_A1 Spike 252 SpeedMult:2.18
+
+330.8s RALLY ACTION: TeamA Player_A1 3 Spike
+
+330.9s BLOCK SUCCESS: Player_B1
+
+330.9s [COMMENTARY] Controlled block! Player_B1 rebounded the ball back to the attacker's side!
+
+331.9s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+331.9s RALLY ACTION: TeamA Player_A2 2 Set
+
+332.6s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+332.6s RATING CHECK: Player_B1 Block 225 Outcome:Controlled
+
+332.6s BLOCK ATTEMPT: Player_B1
+
+332.6s RATING CHECK: Player_A1 Spike 252 SpeedMult:2.18
+
+332.6s RALLY ACTION: TeamA Player_A1 3 Spike
+
+332.7s BLOCK SUCCESS: Player_B1
+
+332.7s [COMMENTARY] Controlled block! Player_B1 rebounded the ball back to the attacker's side!
+
+333.7s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+333.7s RALLY ACTION: TeamA Player_A2 2 Set
+
+334.4s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+334.5s RATING CHECK: Player_A1 Spike 252 SpeedMult:2.18
+
+334.5s RALLY ACTION: TeamA Player_A1 3 Spike
+
+334.6s [Point] awarded: SYDNEY RIPTIDE by Kill after 5 attack(s), 14 touches
+
+334.6s SYDNEY RIPTIDE point: set 2 5-4, sets 1-0
+
+334.6s [Director] cutaway: the scorer, Player_A1 (1.1 s)
+
+334.6s [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":1,"matchId":1,"sets":[{"home":11,"away":9}],"current":{"home":5,"away":4}}
+
+335.7s [Director] cutaway: the other side, Player_B2 (0.7 s)
+
+336.4s [Director] cutaway: replay (2.2 s)
+
+338.6s [Between points] 4.0 s: point to A by Kill (big: a diving save) | score SYDNEY RIPTIDE 1 5 - 4 0 BARCELONA PLAYA ELITES | umpire: team to serve | Player_A1 Won_Motivated | Player_A2 Won_Shout | Player_B1 Lost_Cry | Player_B2 Lost_FeelDown | close-up: Player_A1 | the other side: Player_B2 | replay 1.2 s at 0.6x (2.1 s)
+
+338.9s [Point] decided: SYDNEY RIPTIDE by Kill (server A, final attack by A after 2, chance 0.488)
+
+338.9s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+338.9s RATING CHECK: Player_A1 Serve 242 SpeedMult:2.11
+
+338.9s RALLY ACTION: TeamA Player_A1 1 Serve
+
+339.5s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+339.5s RATING CHECK: Player_B2 Dig 254 JitterMult:0.15
+
+339.5s RALLY ACTION: TeamB Player_B2 1 Dig
+
+340.0s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+340.0s RALLY ACTION: TeamB Player_B1 2 Set
+
+340.9s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+340.9s RATING CHECK: Player_A2 Block 158 Outcome:Controlled
+
+340.9s BLOCK ATTEMPT: Player_A2
+
+340.9s RATING CHECK: Player_B2 Spike 247 SpeedMult:2.15
+
+340.9s RALLY ACTION: TeamB Player_B2 3 Spike
+
+341.0s BLOCK SUCCESS: Player_A2
+
+341.0s [COMMENTARY] Controlled block! Player_A2 rebounded the ball back to the attacker's side!
+
+341.9s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+341.9s RALLY ACTION: TeamB Player_B1 2 Set
+
+342.7s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+342.7s RATING CHECK: Player_A2 Block 158 Outcome:Controlled
+
+342.7s BLOCK ATTEMPT: Player_A2
+
+342.7s RATING CHECK: Player_B2 Spike 247 SpeedMult:2.15
+
+342.7s RALLY ACTION: TeamB Player_B2 3 Spike
+
+342.7s BLOCK SUCCESS: Player_A2
+
+342.7s [COMMENTARY] Controlled block! Player_A2 rebounded the ball back to the attacker's side!
+
+343.7s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+343.7s RALLY ACTION: TeamB Player_B1 2 Set
+
+344.4s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+344.4s RATING CHECK: Player_A2 Block 158 Outcome:Controlled
+
+344.4s BLOCK ATTEMPT: Player_A2
+
+344.4s RATING CHECK: Player_B2 Spike 247 SpeedMult:2.15
+
+344.4s RALLY ACTION: TeamB Player_B2 3 Spike
+
+344.5s BLOCK SUCCESS: Player_A2
+
+344.5s [COMMENTARY] Controlled block! Player_A2 rebounded the ball back to the attacker's side!
+
+344.9s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+344.9s RALLY ACTION: TeamB Player_B1 2 Set
+
+345.8s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+345.8s RATING CHECK: Player_A2 Block 158 Outcome:Controlled
+
+345.8s BLOCK ATTEMPT: Player_A2
+
+345.8s RATING CHECK: Player_B2 Spike 247 SpeedMult:2.15
+
+345.8s RALLY ACTION: TeamB Player_B2 3 Spike
+
+345.9s BLOCK SUCCESS: Player_A2
+
+345.9s [COMMENTARY] Controlled block! Player_A2 rebounded the ball back to the attacker's side!
+
+346.9s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+346.9s RALLY ACTION: TeamB Player_B1 2 Set
+
+347.8s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+347.8s RATING CHECK: Player_A2 Block 158 Outcome:Controlled
+
+347.8s BLOCK ATTEMPT: Player_A2
+
+347.8s RATING CHECK: Player_B2 Spike 247 SpeedMult:2.15
+
+347.8s RALLY ACTION: TeamB Player_B2 3 Spike
+
+347.9s BLOCK SUCCESS: Player_A2
+
+347.9s [COMMENTARY] Controlled block! Player_A2 rebounded the ball back to the attacker's side!
+
+348.9s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+348.9s RALLY ACTION: TeamB Player_B1 2 Set
+
+349.7s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+349.7s RATING CHECK: Player_A2 Block 158 Outcome:Controlled
+
+349.7s BLOCK ATTEMPT: Player_A2
+
+349.7s RATING CHECK: Player_B2 Spike 247 SpeedMult:2.15
+
+349.7s RALLY ACTION: TeamB Player_B2 3 Spike
+
+349.8s BLOCK SUCCESS: Player_A2
+
+349.8s [COMMENTARY] Controlled block! Player_A2 rebounded the ball back to the attacker's side!
+
+350.7s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+350.7s RALLY ACTION: TeamB Player_B1 2 Set
+
+351.7s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+351.7s RATING CHECK: Player_A2 Block 158 Outcome:Touch
+
+351.7s BLOCK ATTEMPT: Player_A2
+
+351.7s RATING CHECK: Player_B2 Spike 247 SpeedMult:2.15
+
+351.7s RALLY ACTION: TeamB Player_B2 3 Spike
+
+351.8s BLOCK TOUCH: Player_A2
+
+351.8s [COMMENTARY] Touch! Player_A2 got a hand on the ball, slowing it down. The rally continues!
+
+351.9s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+351.9s RATING CHECK: Player_A1 Dig 238 JitterMult:0.15
+
+351.9s RALLY ACTION: TeamA Player_A1 1 Dig
+
+352.5s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+352.5s RALLY ACTION: TeamA Player_A2 2 Set
+
+353.3s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+353.3s RATING CHECK: Player_A1 Spike 252 SpeedMult:2.18
+
+353.3s RALLY ACTION: TeamA Player_A1 3 Spike
+
+353.5s [Point] awarded: SYDNEY RIPTIDE by Kill after 9 attack(s), 26 touches
+
+353.5s SYDNEY RIPTIDE point: set 2 6-4, sets 1-0
+
+353.5s [Director] cutaway: the scorer, Player_A1 (1.7 s)
+
+353.6s [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":1,"matchId":1,"sets":[{"home":11,"away":9}],"current":{"home":6,"away":4}}
+
+355.3s [Director] cutaway: the other side, Player_B2 (1.0 s)
+
+356.6s [Between points] 3.0 s: point to A by Kill | score SYDNEY RIPTIDE 1 6 - 4 0 BARCELONA PLAYA ELITES | umpire: team to serve | Player_A1 Won_MC3 | Player_A2 Won_JumpForJoy | Player_B1 Lost_MC2 | Player_B2 Lost_Cry | close-up: Player_A1 | the other side: Player_B2
+
+356.9s [Point] decided: SYDNEY RIPTIDE by AttackError (server A, final attack by B after 3, chance 0.488)
+
+356.9s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+356.9s RATING CHECK: Player_A1 Serve 242 SpeedMult:2.11
+
+356.9s RALLY ACTION: TeamA Player_A1 1 Serve
+
+357.5s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+357.5s RATING CHECK: Player_B2 Dig 254 JitterMult:0.15
+
+357.5s RALLY ACTION: TeamB Player_B2 1 Dig
+
+358.0s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+358.0s RALLY ACTION: TeamB Player_B1 2 Set
+
+358.8s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+358.8s RATING CHECK: Player_A2 Block 158 Outcome:Controlled
+
+358.8s BLOCK ATTEMPT: Player_A2
+
+358.8s RATING CHECK: Player_B2 Spike 247 SpeedMult:2.15
+
+358.8s RALLY ACTION: TeamB Player_B2 3 Spike
+
+358.9s BLOCK SUCCESS: Player_A2
+
+358.9s [COMMENTARY] Controlled block! Player_A2 rebounded the ball back to the attacker's side!
+
+359.9s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+359.9s RALLY ACTION: TeamB Player_B1 2 Set
+
+360.6s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+360.6s RATING CHECK: Player_A2 Block 158 Outcome:Touch
+
+360.6s BLOCK ATTEMPT: Player_A2
+
+360.6s RATING CHECK: Player_B2 Spike 247 SpeedMult:2.15
+
+360.6s RALLY ACTION: TeamB Player_B2 3 Spike
+
+360.7s BLOCK TOUCH: Player_A2
+
+360.7s [COMMENTARY] Touch! Player_A2 got a hand on the ball, slowing it down. The rally continues!
+
+360.8s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+360.8s RATING CHECK: Player_A1 Dig 238 JitterMult:0.15
+
+360.8s RALLY ACTION: TeamA Player_A1 1 Dig
+
+361.6s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+361.6s RALLY ACTION: TeamA Player_A2 2 Set
+
+362.1s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+362.1s RATING CHECK: Player_B1 Block 225 Outcome:Controlled
+
+362.1s BLOCK ATTEMPT: Player_B1
+
+362.1s RATING CHECK: Player_A1 Spike 252 SpeedMult:2.18
+
+362.1s RALLY ACTION: TeamA Player_A1 3 Spike
+
+362.2s BLOCK SUCCESS: Player_B1
+
+362.2s [COMMENTARY] Controlled block! Player_B1 rebounded the ball back to the attacker's side!
+
+363.1s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+363.1s RALLY ACTION: TeamA Player_A2 2 Set
+
+363.8s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+363.8s RATING CHECK: Player_B1 Block 225 Outcome:Touch
+
+363.8s BLOCK ATTEMPT: Player_B1
+
+363.8s RATING CHECK: Player_A1 Spike 252 SpeedMult:2.18
+
+363.8s RALLY ACTION: TeamA Player_A1 3 Spike
+
+363.9s BLOCK TOUCH: Player_B1
+
+363.9s [COMMENTARY] Touch! Player_B1 got a hand on the ball, slowing it down. The rally continues!
+
+364.0s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+364.0s RATING CHECK: Player_B2 Dig 254 JitterMult:0.15
+
+364.0s RALLY ACTION: TeamB Player_B2 1 Dig
+
+364.6s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+364.6s RALLY ACTION: TeamB Player_B1 2 Set
+
+365.0s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+365.0s RATING CHECK: Player_B2 Spike 247 SpeedMult:2.15
+
+365.0s RALLY ACTION: TeamB Player_B2 3 Spike
+
+365.2s [Point] awarded: SYDNEY RIPTIDE by AttackError after 6 attack(s), 18 touches
+
+365.2s SYDNEY RIPTIDE point: set 2 7-4, sets 1-0
+
+365.3s [Director] cutaway: the scorer, Player_A1 (1.7 s)
+
+365.3s [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":1,"matchId":1,"sets":[{"home":11,"away":9}],"current":{"home":7,"away":4}}
+
+367.0s [Director] cutaway: the other side, Player_B2 (1.0 s)
+
+368.3s [Between points] 3.1 s: point to A by AttackError | score SYDNEY RIPTIDE 1 7 - 4 0 BARCELONA PLAYA ELITES [ATTACK ERROR] | umpire: team to serve | Player_A1 Won_MC1 | Player_A2 Won_Yay | Player_B1 Lost_FeelDown | Player_B2 Lost_FeelDown | close-up: Player_A1 | the other side: Player_B2
+
+368.7s [Point] decided: SYDNEY RIPTIDE by Kill (server A, final attack by A after 3, chance 0.488)
+
+368.7s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+368.7s RATING CHECK: Player_A2 Serve 214 SpeedMult:1.93
+
+368.7s RALLY ACTION: TeamA Player_A2 1 Serve
+
+369.3s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+369.3s RATING CHECK: Player_B1 Dig 264 JitterMult:0.15
+
+369.3s RALLY ACTION: TeamB Player_B1 1 Dig
+
+369.8s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+369.8s RALLY ACTION: TeamB Player_B2 2 Set
+
+370.7s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+370.7s RATING CHECK: Player_A1 Block 232 Outcome:Controlled
+
+370.7s BLOCK ATTEMPT: Player_A1
+
+370.7s RATING CHECK: Player_B1 Spike 250 SpeedMult:2.17
+
+370.7s RALLY ACTION: TeamB Player_B1 3 Spike
+
+370.8s BLOCK SUCCESS: Player_A1
+
+370.8s [COMMENTARY] Controlled block! Player_A1 rebounded the ball back to the attacker's side!
+
+371.8s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+371.8s RALLY ACTION: TeamB Player_B2 2 Set
+
+372.8s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+372.8s RATING CHECK: Player_A1 Block 232 Outcome:Controlled
+
+372.8s BLOCK ATTEMPT: Player_A1
+
+372.8s RATING CHECK: Player_B1 Spike 250 SpeedMult:2.17
+
+372.8s RALLY ACTION: TeamB Player_B1 3 Spike
+
+372.9s BLOCK SUCCESS: Player_A1
+
+372.9s [COMMENTARY] Controlled block! Player_A1 rebounded the ball back to the attacker's side!
+
+373.9s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+373.9s RALLY ACTION: TeamB Player_B2 2 Set
+
+374.9s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+374.9s RATING CHECK: Player_A1 Block 232 Outcome:Touch
+
+374.9s BLOCK ATTEMPT: Player_A1
+
+374.9s RATING CHECK: Player_B1 Spike 250 SpeedMult:2.17
+
+374.9s RALLY ACTION: TeamB Player_B1 3 Spike
+
+375.0s BLOCK TOUCH: Player_A1
+
+375.0s [COMMENTARY] Touch! Player_A1 got a hand on the ball, slowing it down. The rally continues!
+
+375.1s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+375.1s RATING CHECK: Player_A2 Dig 223 JitterMult:0.15
+
+375.1s RALLY ACTION: TeamA Player_A2 1 Dig
+
+375.8s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+375.8s RALLY ACTION: TeamA Player_A1 2 Set
+
+376.4s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+376.4s RATING CHECK: Player_A2 Spike 201 SpeedMult:1.84
+
+376.5s RALLY ACTION: TeamA Player_A2 3 Spike
+
+376.7s [Point] awarded: SYDNEY RIPTIDE by Kill after 5 attack(s), 14 touches
+
+376.7s SYDNEY RIPTIDE point: set 2 8-4, sets 1-0
+
+376.7s [Director] cutaway: the scorer, Player_A2 (1.1 s)
+
+376.7s [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":1,"matchId":1,"sets":[{"home":11,"away":9}],"current":{"home":8,"away":4}}
+
+377.8s [Director] cutaway: the other side, Player_B1 (0.7 s)
+
+378.5s [Director] cutaway: replay (2.2 s)
+
+380.7s [Between points] 4.0 s: point to A by Kill (big: a diving save) | score SYDNEY RIPTIDE 1 8 - 4 0 BARCELONA PLAYA ELITES | umpire: team to serve | Player_A1 Won_Clap | Player_A2 Won_Cheers | Player_B1 Lost_Angry | Player_B2 Lost_Cry | close-up: Player_A2 | the other side: Player_B1 | replay 1.2 s at 0.6x (2.1 s)
+
+381.0s [Point] decided: SYDNEY RIPTIDE by Ace (server A, final attack by A after 0, chance 0.488)
+
+381.0s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+381.0s RATING CHECK: Player_A1 Serve 242 SpeedMult:2.11
+
+381.0s RALLY ACTION: TeamA Player_A1 1 Serve
+
+381.6s [Point] awarded: SYDNEY RIPTIDE by Ace after 1 attack(s), 1 touches
+
+381.6s SYDNEY RIPTIDE point: set 2 9-4, sets 1-0
+
+381.7s [Director] cutaway: the scorer, Player_A1 (1.1 s)
+
+381.7s [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":1,"matchId":1,"sets":[{"home":11,"away":9}],"current":{"home":9,"away":4}}
+
+382.8s [Director] cutaway: the other side, Player_B2 (0.7 s)
+
+383.5s [Director] cutaway: replay (2.3 s)
+
+385.6s [Between points] 4.0 s: point to A by Ace (big: an ace) | score SYDNEY RIPTIDE 1 9 - 4 0 BARCELONA PLAYA ELITES | umpire: team to serve | Player_A1 Won_JumpForJoy | Player_A2 Won_Backflip | Player_B1 Lost_MC2 | Player_B2 stays down (her dive) | close-up: Player_A1 | the other side: Player_B2 | replay 1.2 s at 0.6x (2.2 s)
+
+386.0s [Point] decided: SYDNEY RIPTIDE by BlockStuff (server A, final attack by B after 1, chance 0.488)
+
+386.0s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+386.0s RATING CHECK: Player_A2 Serve 214 SpeedMult:1.93
+
+386.0s RALLY ACTION: TeamA Player_A2 1 Serve
+
+386.6s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+386.6s RATING CHECK: Player_B2 Dig 254 JitterMult:0.15
+
+386.6s RALLY ACTION: TeamB Player_B2 1 Dig
+
+387.3s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+387.3s RALLY ACTION: TeamB Player_B1 2 Set
+
+388.0s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+388.0s RATING CHECK: Player_A2 Block 158 Outcome:Stuff
+
+388.0s BLOCK ATTEMPT: Player_A2
+
+388.0s RATING CHECK: Player_B2 Spike 247 SpeedMult:2.15
+
+388.0s RALLY ACTION: TeamB Player_B2 3 Spike
+
+388.1s BLOCK SUCCESS: Player_A2
+
+388.1s RALLY ACTION: TeamA Player_A2 1 Block
+
+388.1s [COMMENTARY] INCREDIBLE BLOCK WINNER! Player_A2 completely shut down the spike straight down!
+
+388.6s [Point] awarded: SYDNEY RIPTIDE by BlockStuff after 2 attack(s), 5 touches
+
+388.6s SYDNEY RIPTIDE point: set 2 10-4, sets 1-0
+
+388.6s [Director] cutaway: the scorer, Player_A2 (1.1 s)
+
+388.6s [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":1,"matchId":1,"sets":[{"home":11,"away":9}],"current":{"home":10,"away":4}}
+
+389.7s [Director] cutaway: the other side, Player_B2 (0.7 s)
+
+390.4s [Director] cutaway: replay (2.2 s)
+
+392.6s [Between points] 4.0 s: point to A by BlockStuff (big: a block) | score SYDNEY RIPTIDE 1 10 - 4 0 BARCELONA PLAYA ELITES [BLOCK] | umpire: team to serve | Player_A1 Won_ArmsUp | Player_A2 Won_MC1 | Player_B1 Lost_MC2 | Player_B2 Lost_MC3 | close-up: Player_A2 | the other side: Player_B2 | replay 1.2 s at 0.6x (2.1 s)
+
+392.9s [Point] decided: BARCELONA PLAYA ELITES by AttackError (server A, final attack by A after 3, chance 0.488)
+
+392.9s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+392.9s RATING CHECK: Player_A2 Serve 214 SpeedMult:1.93
+
+392.9s RALLY ACTION: TeamA Player_A2 1 Serve
+
+393.6s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+393.6s RATING CHECK: Player_B1 Dig 264 JitterMult:0.15
+
+393.6s RALLY ACTION: TeamB Player_B1 1 Dig
+
+394.1s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+394.1s RALLY ACTION: TeamB Player_B2 2 Set
+
+394.8s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+394.8s RATING CHECK: Player_A1 Block 232 Outcome:Controlled
+
+394.8s BLOCK ATTEMPT: Player_A1
+
+394.8s RATING CHECK: Player_B1 Spike 250 SpeedMult:2.17
+
+394.8s RALLY ACTION: TeamB Player_B1 3 Spike
+
+394.9s BLOCK SUCCESS: Player_A1
+
+394.9s [COMMENTARY] Controlled block! Player_A1 rebounded the ball back to the attacker's side!
+
+395.9s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+395.9s RALLY ACTION: TeamB Player_B2 2 Set
+
+396.7s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+396.7s RATING CHECK: Player_A1 Block 232 Outcome:Controlled
+
+396.7s BLOCK ATTEMPT: Player_A1
+
+396.7s RATING CHECK: Player_B1 Spike 250 SpeedMult:2.17
+
+396.7s RALLY ACTION: TeamB Player_B1 3 Spike
+
+396.8s BLOCK SUCCESS: Player_A1
+
+396.8s [COMMENTARY] Controlled block! Player_A1 rebounded the ball back to the attacker's side!
+
+397.7s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+397.7s RALLY ACTION: TeamB Player_B2 2 Set
+
+398.7s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+398.7s RATING CHECK: Player_A1 Block 232 Outcome:Controlled
+
+398.7s BLOCK ATTEMPT: Player_A1
+
+398.7s RATING CHECK: Player_B1 Spike 250 SpeedMult:2.17
+
+398.7s RALLY ACTION: TeamB Player_B1 3 Spike
+
+398.8s BLOCK SUCCESS: Player_A1
+
+398.8s [COMMENTARY] Controlled block! Player_A1 rebounded the ball back to the attacker's side!
+
+399.8s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+399.8s RALLY ACTION: TeamB Player_B2 2 Set
+
+400.6s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+400.6s RATING CHECK: Player_A1 Block 232 Outcome:Controlled
+
+400.6s BLOCK ATTEMPT: Player_A1
+
+400.6s RATING CHECK: Player_B1 Spike 250 SpeedMult:2.17
+
+400.6s RALLY ACTION: TeamB Player_B1 3 Spike
+
+400.7s BLOCK SUCCESS: Player_A1
+
+400.7s [COMMENTARY] Controlled block! Player_A1 rebounded the ball back to the attacker's side!
+
+401.6s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+401.6s RALLY ACTION: TeamB Player_B2 2 Set
+
+402.3s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+402.3s RATING CHECK: Player_A1 Block 232 Outcome:Controlled
+
+402.3s BLOCK ATTEMPT: Player_A1
+
+402.3s RATING CHECK: Player_B1 Spike 250 SpeedMult:2.17
+
+402.3s RALLY ACTION: TeamB Player_B1 3 Spike
+
+402.4s BLOCK SUCCESS: Player_A1
+
+402.4s [COMMENTARY] Controlled block! Player_A1 rebounded the ball back to the attacker's side!
+
+403.3s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+403.3s RALLY ACTION: TeamB Player_B2 2 Set
+
+404.2s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+404.2s RATING CHECK: Player_A1 Block 232 Outcome:Touch
+
+404.2s BLOCK ATTEMPT: Player_A1
+
+404.2s RATING CHECK: Player_B1 Spike 250 SpeedMult:2.17
+
+404.2s RALLY ACTION: TeamB Player_B1 3 Spike
+
+404.3s BLOCK TOUCH: Player_A1
+
+404.3s [COMMENTARY] Touch! Player_A1 got a hand on the ball, slowing it down. The rally continues!
+
+404.4s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+404.4s RATING CHECK: Player_A2 Dig 223 JitterMult:0.15
+
+404.4s RALLY ACTION: TeamA Player_A2 1 Dig
+
+405.1s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+405.1s RALLY ACTION: TeamA Player_A1 2 Set
+
+406.1s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+406.1s RATING CHECK: Player_A2 Spike 201 SpeedMult:1.84
+
+406.1s RALLY ACTION: TeamA Player_A2 3 Spike
+
+406.3s [Point] awarded: BARCELONA PLAYA ELITES by AttackError after 8 attack(s), 23 touches
+
+406.3s BARCELONA PLAYA ELITES point: set 2 10-5, sets 1-0
+
+406.4s [Director] cutaway: the scorer, Player_B1 (1.7 s)
+
+406.4s [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":1,"matchId":1,"sets":[{"home":11,"away":9}],"current":{"home":10,"away":5}}
+
+408.1s [Director] cutaway: the other side, Player_A2 (1.0 s)
+
+409.4s [Between points] 3.0 s: point to B by AttackError | score SYDNEY RIPTIDE 1 10 - 5 0 BARCELONA PLAYA ELITES [ATTACK ERROR] | umpire: team to serve | Player_B1 Won_ThumbsUp | Player_B2 Won_Cheers | Player_A1 Lost_MC3 | Player_A2 Lost_Angry | close-up: Player_B1 | the other side: Player_A2
+
+409.7s [Point] decided: SYDNEY RIPTIDE by AttackError (server B, final attack by B after 4, chance 0.488)
+
+409.7s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+409.7s RATING CHECK: Player_B1 Serve 232 SpeedMult:2.05
+
+409.7s RALLY ACTION: TeamB Player_B1 1 Serve
+
+410.2s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+410.2s RATING CHECK: Player_A1 Dig 238 JitterMult:0.15
+
+410.2s RALLY ACTION: TeamA Player_A1 1 Dig
+
+410.7s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+410.7s RALLY ACTION: TeamA Player_A2 2 Set
+
+411.6s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+411.6s RATING CHECK: Player_B1 Block 225 Outcome:Touch
+
+411.6s BLOCK ATTEMPT: Player_B1
+
+411.6s RATING CHECK: Player_A1 Spike 252 SpeedMult:2.18
+
+411.6s RALLY ACTION: TeamA Player_A1 3 Spike
+
+411.7s BLOCK TOUCH: Player_B1
+
+411.7s [COMMENTARY] Touch! Player_B1 got a hand on the ball, slowing it down. The rally continues!
+
+411.8s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+411.8s RATING CHECK: Player_B1 Dig 264 JitterMult:0.15
+
+411.8s RALLY ACTION: TeamB Player_B1 1 Dig
+
+412.4s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+412.4s RALLY ACTION: TeamB Player_B2 2 Set
+
+413.4s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+413.4s RATING CHECK: Player_A1 Block 232 Outcome:Controlled
+
+413.4s BLOCK ATTEMPT: Player_A1
+
+413.4s RATING CHECK: Player_B1 Spike 250 SpeedMult:2.17
+
+413.4s RALLY ACTION: TeamB Player_B1 3 Spike
+
+413.4s BLOCK SUCCESS: Player_A1
+
+413.5s [COMMENTARY] Controlled block! Player_A1 rebounded the ball back to the attacker's side!
+
+414.4s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+414.4s RALLY ACTION: TeamB Player_B2 2 Set
+
+415.4s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+415.4s RATING CHECK: Player_A1 Block 232 Outcome:Touch
+
+415.4s BLOCK ATTEMPT: Player_A1
+
+415.4s RATING CHECK: Player_B1 Spike 250 SpeedMult:2.17
+
+415.4s RALLY ACTION: TeamB Player_B1 3 Spike
+
+415.5s BLOCK TOUCH: Player_A1
+
+415.5s [COMMENTARY] Touch! Player_A1 got a hand on the ball, slowing it down. The rally continues!
+
+415.6s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+415.6s RATING CHECK: Player_A1 Dig 238 JitterMult:0.15
+
+415.6s RALLY ACTION: TeamA Player_A1 1 Dig
+
+416.2s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+416.2s RALLY ACTION: TeamA Player_A2 2 Set
+
+417.0s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+417.0s RATING CHECK: Player_B1 Block 225 Outcome:Controlled
+
+417.0s BLOCK ATTEMPT: Player_B1
+
+417.0s RATING CHECK: Player_A1 Spike 252 SpeedMult:2.18
+
+417.0s RALLY ACTION: TeamA Player_A1 3 Spike
+
+417.1s BLOCK SUCCESS: Player_B1
+
+417.1s [COMMENTARY] Controlled block! Player_B1 rebounded the ball back to the attacker's side!
+
+418.0s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+418.0s RALLY ACTION: TeamA Player_A2 2 Set
+
+418.9s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+418.9s RATING CHECK: Player_B1 Block 225 Outcome:Touch
+
+418.9s BLOCK ATTEMPT: Player_B1
+
+418.9s RATING CHECK: Player_A1 Spike 252 SpeedMult:2.18
+
+418.9s RALLY ACTION: TeamA Player_A1 3 Spike
+
+419.0s BLOCK TOUCH: Player_B1
+
+419.0s [COMMENTARY] Touch! Player_B1 got a hand on the ball, slowing it down. The rally continues!
+
+419.1s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+419.1s RATING CHECK: Player_B1 Dig 264 JitterMult:0.15
+
+419.1s RALLY ACTION: TeamB Player_B1 1 Dig
+
+419.4s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+419.4s RALLY ACTION: TeamB Player_B2 2 Set
+
+420.2s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+420.2s RATING CHECK: Player_B1 Spike 250 SpeedMult:2.17
+
+420.2s RALLY ACTION: TeamB Player_B1 3 Spike
+
+420.5s [Point] awarded: SYDNEY RIPTIDE by AttackError after 7 attack(s), 22 touches
+
+420.5s SYDNEY RIPTIDE point: set 2 11-5, sets 2-0
+
+420.5s [Director] cutaway: the scorer, Player_A1 (1.1 s)
+
+420.6s [MatchReporter] POST /api/unity/match-result ok: {"careerSaveId":1,"matchId":1,"sets":[{"home":11,"away":9},{"home":11,"away":5}]}
+
+421.6s [Director] cutaway: the other side, Player_B1 (0.7 s)
+
+422.3s [Director] cutaway: replay (2.2 s)
+
+424.5s [Between points] 4.0 s: point to A by AttackError (big: a diving save) | score SYDNEY RIPTIDE 2 11 - 5 0 BARCELONA PLAYA ELITES [ATTACK ERROR] | umpire: team to serve | Player_A1 Won_Motivated | Player_A2 Won_MC3 | Player_B1 Lost_MC2 | Player_B2 Lost_MC3 | close-up: Player_A1 | the other side: Player_B1 | replay 1.2 s at 0.6x (2.1 s)
+
+424.8s [Director] cutaway: the winners' celebration (5.0 s)
+
+429.8s [Match moments] celebration took 5.0 s
+

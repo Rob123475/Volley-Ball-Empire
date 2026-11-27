@@ -275,10 +275,11 @@ try {
   check("Continue on the result box goes back to the dashboard", !!back);
   check("the dashboard's Recent Results shows this match, with its WIN or LOSS", /\b(WIN|LOSS)\b/.test(row), `row: "${row}"; recorded ${recorded?.score} v ${opp}`);
   const won = teamAfter.wins === teamBefore.wins + 1, lost = teamAfter.losses === teamBefore.losses + 1;
-  check(`it pays out: the ${won ? "win" : "loss"} counted, its prize on the ledger and in the balance`,
-    (won || lost) && prize.length === 1 && prize[0].amount > 0 && teamAfter.budget - teamBefore.budget >= prize[0].amount - 1e-6 &&
-    prize[0].description.includes(opp),
-    `wins ${teamBefore.wins}->${teamAfter.wins}, losses ${teamBefore.losses}->${teamAfter.losses}; ${prize.map((t) => `${t.description} $${t.amount}`).join("; ")}; balance ${teamBefore.budget} -> ${teamAfter.budget}`);
+  // Next match passes days too (wages, running costs, sponsors): the balance moves by exactly the new ledger rows, the prize among them.
+  const moved = newRows.reduce((a, t) => a + (t.type === "income" ? t.amount : -t.amount), 0);
+  check(`it pays out: the ${won ? "win" : "loss"} counted, its prize on the ledger, and the balance moved by exactly the new ledger rows`,
+    (won || lost) && prize.length === 1 && prize[0].amount > 0 && prize[0].description.includes(opp) && Math.abs(teamAfter.budget - teamBefore.budget - moved) < 1e-6,
+    `wins ${teamBefore.wins}->${teamAfter.wins}, losses ${teamBefore.losses}->${teamAfter.losses}; ${prize.map((t) => `${t.description} $${t.amount}`).join("; ")}; balance ${teamBefore.budget} -> ${teamAfter.budget} (${moved >= 0 ? "+" : ""}${moved}: ${newRows.map((t) => `${t.type === "income" ? "+" : "-"}${t.amount} ${t.category}`).join(", ")})`);
   check("quit from the page (Exit game)", await quit(c, "copy of the live save"));
 
   // 6. After.

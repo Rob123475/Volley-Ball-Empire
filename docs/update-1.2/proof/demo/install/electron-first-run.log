@@ -1,0 +1,46 @@
+
+
+DevTools listening on ws://127.0.0.1:9339/devtools/browser/47a7356b-5642-4cce-ad04-096b06466c27
+[steam] off in Beach Volleyball Empire 1.2 Demo
+[server] [static-debug] PUBLIC_DIR=C:\Users\rbonn\AppData\Local\Programs\Beach Volleyball Empire 1.2 Demo\resources\public staticDir=C:\Users\rbonn\AppData\Local\Programs\Beach Volleyball Empire 1.2 Demo\resources\public exists=true
+
+[server] {"level":30,"time":1795740878325,"pid":3624,"hostname":"Beast","tablesChecked":70,"columnsChecked":899,"msg":"schema check: save is up to date, 0 missing columns"}
+
+[server] [migrate] could not drop players.outfit_id: Failed to run the query 'ALTER TABLE players DROP COLUMN outfit_id'
+
+[server] [migrate] could not drop staff.team_id: Failed to run the query 'ALTER TABLE staff DROP COLUMN team_id'
+
+[server] {"level":30,"time":1795740878353,"pid":3624,"hostname":"Beast","starterDbPath":"C:\\Users\\rbonn\\AppData\\Roaming\\Beach Volleyball Empire 1.2 Demo\\starter-reference.db","msg":"reference data check: save is up to date, 0 rows missing, 0 rows stale"}
+{"level":30,"time":1795740878361,"pid":3624,"hostname":"Beast","rowsChanged":6,"byColumn":{"staff.specialty":2,"staff.special_trait":4},"msg":"stored Olympic text renamed to the Empire Nations Cup"}
+{"level":30,"time":1795740878377,"pid":3624,"hostname":"Beast","profiled":276,"msg":"players given a development profile or peak shift"}
+{"level":30,"time":1795740878389,"pid":3624,"hostname":"Beast","port":4174,"msg":"Server listening"}
+
+[server] {"level":30,"time":1795740878654,"pid":3624,"hostname":"Beast","req":{"id":1,"method":"GET","url":"/api/healthz"},"res":{"statusCode":200},"responseTime":4,"msg":"request completed"}
+
+[server] {"level":30,"time":1795740878751,"pid":3624,"hostname":"Beast","req":{"id":2,"method":"GET","url":"/"},"res":{"statusCode":200},"responseTime":7,"msg":"request completed"}
+
+[server] {"level":30,"time":1795740878766,"pid":3624,"hostname":"Beast","req":{"id":3,"method":"GET","url":"/assets/index-BvyyjGjI.css"},"res":{"statusCode":200},"responseTime":5,"msg":"request completed"}
+
+[server] {"level":30,"time":1795740878795,"pid":3624,"hostname":"Beast","req":{"id":4,"method":"GET","url":"/assets/index-CsOjyxmi.js"},"res":{"statusCode":200},"responseTime":33,"msg":"request completed"}
+
+[server] {"level":30,"time":1795740878874,"pid":3624,"hostname":"Beast","req":{"id":5,"method":"GET","url":"/"},"res":{"statusCode":304},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1795740878880,"pid":3624,"hostname":"Beast","req":{"id":6,"method":"GET","url":"/assets/index-CsOjyxmi.js"},"res":{"statusCode":304},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1795740878880,"pid":3624,"hostname":"Beast","req":{"id":7,"method":"GET","url":"/assets/index-BvyyjGjI.css"},"res":{"statusCode":304},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1795740879052,"pid":3624,"hostname":"Beast","req":{"id":8,"method":"GET","url":"/api/auth/user"},"res":{"statusCode":401},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1795740879055,"pid":3624,"hostname":"Beast","req":{"id":9,"method":"GET","url":"/api/seasons/current"},"res":{"statusCode":200},"responseTime":3,"msg":"request completed"}
+
+[server] {"level":30,"time":1795740879063,"pid":3624,"hostname":"Beast","req":{"id":10,"method":"GET","url":"/images/brand/bve-title-large.png"},"res":{"statusCode":200},"responseTime":8,"msg":"request completed"}
+
+[server] {"level":30,"time":1795740879081,"pid":3624,"hostname":"Beast","req":{"id":12,"method":"GET","url":"/api/profiles"},"res":{"statusCode":200},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1795740879086,"pid":3624,"hostname":"Beast","req":{"id":11,"method":"GET","url":"/audio/music/beach-volleyball-empire.mp3"},"res":{"statusCode":206},"responseTime":20,"msg":"request completed"}
+
+[server] {"level":30,"time":1795740882966,"pid":3624,"hostname":"Beast","req":{"id":13,"method":"GET","url":"/api/profiles"},"res":{"statusCode":304},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1795740882982,"pid":3624,"hostname":"Beast","msg":"WAL checkpointed and database closed for shutdown"}
+
+[shutdown] server child exited, quitting

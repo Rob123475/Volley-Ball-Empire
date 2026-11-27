@@ -24,7 +24,8 @@
  *   between  0.6 s into the scorer's close-up ("[Director] cutaway: the scorer")
  *   replay   0.8 s into a replay ("[Director] cutaway: replay")
  * and at the end, in the second look, the winners' celebration and the result box.
- * With --fps N, the frame rate is measured for N seconds in the TV look: every
+ * With --fps N, the frame rate is measured for N seconds in the TV look, after
+ * its pictures (late pictures are dropped, never taken off their moment): every
  * requestAnimationFrame of the court's own frame (Unity draws on those).
  *
  * Usage: node scripts/webgl-proof/demo-1.2-proof.mjs <outDir> --mode auto|manual [--gpu] [--size 1920x1080] [--fps 60]
@@ -223,13 +224,16 @@ try {
     for (const p of pending2.filter((x) => x.at <= now)) {
       pending2.splice(pending2.indexOf(p), 1);
       if (done.has(p.name)) continue;
+      // A picture more than a second late is not of its moment: dropped, the next such moment is waited for.
+      if (now - p.at > 1000) continue;
       // The rally picture only while that point is still being played.
       if (p.serve && seen(pointRe, p.serve)) continue;
       if (await shot(`${MODE}-${p.name}.png`, p.name)) done.add(p.name);
       if (p.last) finished = true;
     }
     if (finished) break;
-    if (!fpsDone && look === "TV" && done.has("TV-serve")) {
+    // Measured once the TV look's pictures are on file, so the measuring never holds a picture up.
+    if (!fpsDone && look === "TV" && lookDone()) {
       summary.fps = await measureFps();
       fpsDone = true;
       console.error(`  fps ${JSON.stringify(summary.fps)}`);

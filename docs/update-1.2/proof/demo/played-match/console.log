@@ -1,0 +1,1062 @@
+16.4s [UnityMemory] Configuration Parameters - Can be set up in boot.config
+
+16.4s     "memorysetup-allocator-temp-initial-block-size-main=262144"
+
+16.4s     "memorysetup-allocator-temp-initial-block-size-worker=262144"
+
+16.4s     "memorysetup-temp-allocator-size-audio-worker=65536"
+
+16.4s     "memorysetup-temp-allocator-size-background-worker=32768"
+
+16.4s     "memorysetup-bucket-allocator-granularity=16"
+
+16.4s     "memorysetup-bucket-allocator-bucket-count=8"
+
+16.4s     "memorysetup-bucket-allocator-block-size=4194304"
+
+16.4s     "memorysetup-bucket-allocator-block-count=1"
+
+16.4s     "memorysetup-main-allocator-block-size=16777216"
+
+16.4s     "memorysetup-thread-allocator-block-size=16777216"
+
+16.4s     "memorysetup-gfx-main-allocator-block-size=16777216"
+
+16.4s     "memorysetup-gfx-thread-allocator-block-size=16777216"
+
+16.4s     "memorysetup-cache-allocator-block-size=4194304"
+
+16.4s     "memorysetup-typetree-allocator-block-size=2097152"
+
+16.4s     "memorysetup-profiler-bucket-allocator-granularity=16"
+
+16.4s     "memorysetup-profiler-bucket-allocator-bucket-count=8"
+
+16.4s     "memorysetup-profiler-bucket-allocator-block-size=4194304"
+
+16.4s     "memorysetup-profiler-bucket-allocator-block-count=1"
+
+16.4s     "memorysetup-profiler-allocator-block-size=16777216"
+
+16.4s     "memorysetup-profiler-editor-allocator-block-size=1048576"
+
+16.4s     "memorysetup-temp-allocator-size-main=4194304"
+
+16.4s     "memorysetup-job-temp-allocator-block-size=2097152"
+
+16.4s     "memorysetup-job-temp-allocator-block-size-background=1048576"
+
+16.4s     "memorysetup-job-temp-allocator-reduction-small-platforms=262144"
+
+16.4s Input System module state changed to: Initialized.
+
+16.4s [Physics::Module] Initialized fallback backend.
+
+16.4s [Physics::Module] Id: 0xdecafbad
+
+16.4s Loading player data from data.unity3d
+
+16.4s Initialize engine version: 6000.3.16f1 (a56f230f6470)
+
+16.4s [Subsystems] Discovering subsystems at path UnitySubsystems
+
+16.4s Creating WebGL 2.0 context.
+16.4s Renderer: WebKit WebGL
+
+16.4s Vendor:   WebKit
+
+16.5s Version:  OpenGL ES 3.0 (WebGL 2.0 (OpenGL ES 3.0 Chromium))
+
+16.5s GLES:     3
+
+16.5s  EXT_clip_control EXT_color_buffer_float EXT_color_buffer_half_float EXT_conservative_depth EXT_depth_clamp EXT_disjoint_timer_query_webgl2 EXT_float_blend EXT_polygon_offset_clamp EXT_render_snorm EXT_texture_compression_bptc EXT_texture_compression_rgtc EXT_texture_filter_anisotropic EXT_texture_mirror_clamp_to_edge EXT_texture_norm16 KHR_parallel_shader_compile NV_shader_noperspective_interpolation OES_draw_buffers_indexed OES_sample_variables OES_shader_multisample_interpolation OES_texture_float_linear OVR_multiview2 WEBGL_blend_func_extended WEBGL_clip_cull_distance WEBGL_compressed_texture_s3tc WEBGL_compressed_texture_s3tc_srgb WEBGL_debug_renderer_info WEBGL_debug_shaders WEBGL_lose_context WEBGL_multi_draw WEBGL_polygon_mode WEBGL_provoking_vertex WEBGL_shader_pixel_local_storage WEBGL_stencil_texturing GL_EXT_clip_control GL_EXT_color_buffer_float GL_EXT_color_buffer_half_float GL_EXT_conservative_depth GL_EXT_depth_clamp GL_EXT_disjoint_timer_query_webgl2 GL_EXT_float_blend GL_EXT_polygon_offset_
+
+16.5s clamp GL_EXT_render_snorm GL_EXT_texture_compression_bptc GL_EXT_texture_compression_rgtc GL_EXT_texture_filter_anisotropic GL_EXT_texture_mirror_clamp_to_edge GL_EXT_texture_norm16 GL_KHR_parallel_shader_compile GL_NV_shader_noperspective_interpolation GL_OES_draw_buffers_indexed GL_OES_sample_variables GL_OES_shader_multisample_interpolation GL_OES_texture_float_linear GL_OVR_multiview2 GL_WEBGL_blend_func_extended GL_WEBGL_clip_cull_distance GL_WEBGL_compressed_texture_s3tc GL_WEBGL_compressed_texture_s3tc_srgb GL_WEBGL_debug_renderer_info GL_WEBGL_debug_shaders GL_WEBGL_lose_context GL_WEBGL_multi_draw GL_WEBGL_polygon_mode GL_WEBGL_provoking_vertex GL_WEBGL_shader_pixel_local_storage GL_WEBGL_stencil_texturing
+
+16.5s OPENGL LOG: Creating OpenGL ES 3.0 graphics device ; Context level  <OpenGL ES 3.0> ; Context handle 1
+
+16.5s [Physics::Module] Selected backend.
+
+16.5s [Physics::Module] Name: PhysX
+
+16.5s [Physics::Module] Id: 0xf2b8ea05
+
+16.5s [Physics::Module] SDK Version: 4.1.2
+
+16.5s [Physics::Module] Integration Version: 1.0.0
+
+16.5s [Physics::Module] Threading Mode: Single-Threaded
+
+16.6s ERROR: Shader 
+16.6s Hidden/CoreSRP/CoreCopy shader is not supported on this GPU (none of subshaders/fallbacks are suitable)
+
+16.6s ERROR: Shader 
+16.6s Hidden/Universal Render Pipeline/StencilDitherMaskSeed shader is not supported on this GPU (none of subshaders/fallbacks are suitable)
+
+16.6s ERROR: Shader 
+16.6s Hidden/Universal/HDRDebugView shader is not supported on this GPU (none of subshaders/fallbacks are suitable)
+
+16.6s <b>[App UI]</b> Unable to find an AppUISettings instance, creating a default one...
+
+16.6s Input System initialize...
+
+17.0s Couldn't create a Convex Mesh from source mesh, within the maximum polygons limit (256). The partial hull will be used. Consider simplifying your mesh. Source mesh name: SM_rack_balls_Volleyball_1
+
+17.9s UnloadTime: 1.500000 ms
+
+18.0s [CourtsideBoards] 18 boards dressed around the court: 9 Beach Volleyball Empire, 9 GB Sunglasses
+
+18.0s Audio context resumed after 1.511 seconds.
+18.0s [Sound] crowd volume 1.00
+
+18.0s [Sound] commentary volume 1.00
+
+18.0s [Camera] remembered looks from the page: played game:1, watched tv:1
+
+18.0s [Between points] from the page: skip to next serve off, skip replays off
+
+18.7s [UnityCache] 'http://localhost:4231/unity-build/Build/Volleyball_WebGL_Uncompressed_2.data' successfully downloaded and stored in the browser cache
+20.1s [BoostUIController] Created Polished Attack and Defence boost buttons.
+
+20.1s [MatchManager] AudioManager initialized.
+
+20.1s [UnityMatchDataLoader] careerSaveId 1 (from page URL)
+
+20.1s [UnityMatchDataLoader] GET /api/unity/match-state?careerSaveId=1&matchId=1
+
+20.1s WEATHER SUNNY
+
+20.1s Trying to get length of sound which is not loaded yet.
+20.1s Trying to get length of sound which is not loaded yet.
+20.1s [Manual] mode Manual (page): a played match from the next serve
+
+20.1s [CourtBridge] to the game page: unity-control-mode:manual
+
+20.1s [Camera] Game look, view 1 (Behind your baseline)
+
+20.2s The character with Unicode value \u2600 was not found in the [LiberationSans SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [WeatherText].
+
+21.2s [UnityMatchDataLoader] point chance for the home pair: 0.5028
+
+21.2s [UnityMatchDataLoader] game difficulty medium (a played match grades and plays at it)
+
+21.2s [UnityMatchDataLoader] event (null), kits (null), boards (null) '(null)', manual allowed
+
+21.2s [UnityMatchDataLoader] Player_A1: skin 'Light' resolved via band 'Light' -> #EEC9B8
+
+21.2s [UnityMatchDataLoader] Player_A1 <- Camila Santiago | team Sydney Riptide (home) | skinTone Light | kit #1e3a8a/#f59e0b | appearance controller found | applied ovr 80 pwr 85 spd 73 def 78 srv 74 blk 89 sta 79 mor 75 fit 100 fat 0 | (not applied: injured False)
+
+21.2s [UnityMatchDataLoader] Player_A2: skin 'Light' resolved via band 'Light' -> #EEC9B8
+
+21.2s [UnityMatchDataLoader] Player_A2 <- Nurul Ain | team Sydney Riptide (home) | skinTone Light | kit #1e3a8a/#f59e0b | appearance controller found | applied ovr 67 pwr 55 spd 74 def 70 srv 78 blk 52 sta 73 mor 75 fit 100 fat 0 | (not applied: injured False)
+
+21.2s [UnityMatchDataLoader] Player_B1: skin 'Medium' resolved via band 'Medium' -> #AA7339
+
+21.2s [UnityMatchDataLoader] Player_B1 <- Eleni Papadaki | team Athens Aegean Stars (away) | skinTone Medium | kit #7CB518/#0B2545 | appearance controller found | applied ovr 74 pwr 71 spd 76 def 74 srv 72 blk 74 sta 74 mor 52 fit 80 fat 0 | (not applied: injured False)
+
+21.2s [UnityMatchDataLoader] Player_B2: skin 'Dark' resolved via band 'Dark' -> #3B2219
+
+21.2s [UnityMatchDataLoader] Player_B2 <- Mariyam Zoya | team Athens Aegean Stars (away) | skinTone Dark | kit #7CB518/#0B2545 | appearance controller found | applied ovr 73 pwr 83 spd 79 def 63 srv 71 blk 66 sta 76 mor 52 fit 80 fat 0 | (not applied: injured False)
+
+21.2s [UnityMatchDataLoader] team names: SYDNEY RIPTIDE (home) vs ATHENS AEGEAN STARS (away)
+
+21.2s [UnityMatchDataLoader] applied 4 of 4 player(s)
+
+21.2s [MatchManager] match starts after 4.6s: match data applied; home point chance 0.5028
+
+21.2s [MatchManager] ratings in play Player_A1 (Camila Santiago): ovr 80 pwr 85 spd 73 def 78 srv 74 blk 89 sta 79 mor 75
+
+21.2s [MatchManager] ratings in play Player_A2 (Nurul Ain): ovr 67 pwr 55 spd 74 def 70 srv 78 blk 52 sta 73 mor 75
+
+21.2s [MatchManager] ratings in play Player_B1 (Eleni Papadaki): ovr 74 pwr 71 spd 76 def 74 srv 72 blk 74 sta 74 mor 52
+
+21.2s [MatchManager] ratings in play Player_B2 (Mariyam Zoya): ovr 73 pwr 83 spd 79 def 63 srv 71 blk 66 sta 76 mor 52
+
+21.2s [Director] cutaway: the walk-on (5.5 s)
+
+21.2s Trying to get length of sound which is not loaded yet.
+21.2s Trying to get length of sound which is not loaded yet.
+21.3s Trying to get length of sound which is not loaded yet.
+21.3s Trying to get length of sound which is not loaded yet.
+21.3s Trying to get length of sound which is not loaded yet.
+21.4s Trying to get length of sound which is not loaded yet.
+21.4s Trying to get length of sound which is not loaded yet.
+21.4s Trying to get length of sound which is not loaded yet.
+21.4s Trying to get length of sound which is not loaded yet.
+21.4s Trying to get length of sound which is not loaded yet.
+21.5s Trying to get length of sound which is not loaded yet.
+21.5s Trying to get length of sound which is not loaded yet.
+21.5s Trying to get length of sound which is not loaded yet.
+21.5s Trying to get length of sound which is not loaded yet.
+21.5s Trying to get length of sound which is not loaded yet.
+21.6s Trying to get length of sound which is not loaded yet.
+21.6s Trying to get length of sound which is not loaded yet.
+21.6s Trying to get length of sound which is not loaded yet.
+21.6s Trying to get length of sound which is not loaded yet.
+21.6s Trying to get length of sound which is not loaded yet.
+21.6s Trying to get length of sound which is not loaded yet.
+21.7s Trying to get length of sound which is not loaded yet.
+21.7s Trying to get length of sound which is not loaded yet.
+21.7s Trying to get length of sound which is not loaded yet.
+21.7s Trying to get length of sound which is not loaded yet.
+21.7s Trying to get length of sound which is not loaded yet.
+21.8s Trying to get length of sound which is not loaded yet.
+21.8s Trying to get length of sound which is not loaded yet.
+21.8s Trying to get length of sound which is not loaded yet.
+21.8s Trying to get length of sound which is not loaded yet.
+21.8s Trying to get length of sound which is not loaded yet.
+21.9s Trying to get length of sound which is not loaded yet.
+21.9s Trying to get length of sound which is not loaded yet.
+21.9s Trying to get length of sound which is not loaded yet.
+21.9s Trying to get length of sound which is not loaded yet.
+21.9s Trying to get length of sound which is not loaded yet.
+22.0s Trying to get length of sound which is not loaded yet.
+22.0s Trying to get length of sound which is not loaded yet.
+22.0s Trying to get length of sound which is not loaded yet.
+22.0s Trying to get length of sound which is not loaded yet.
+22.0s Trying to get length of sound which is not loaded yet.
+22.0s Trying to get length of sound which is not loaded yet.
+22.1s Trying to get length of sound which is not loaded yet.
+22.1s Trying to get length of sound which is not loaded yet.
+22.1s Trying to get length of sound which is not loaded yet.
+22.1s Trying to get length of sound which is not loaded yet.
+22.2s Trying to get length of sound which is not loaded yet.
+22.2s Trying to get length of sound which is not loaded yet.
+22.2s [Commentary] 48 of 90 clips loaded from http://localhost:4231/unity-build/StreamingAssets/commentary: the 48 its LINES.txt lists (48 recorded before 1.2; B4's 42 are Rob's to record)
+
+25.9s [Director] cutaway: the walk-on: Player_A1 (1.5 s)
+
+27.4s [Director] cutaway: the walk-on: Player_A2 (1.5 s)
+
+28.9s [Director] cutaway: the walk-on: Player_B1 (1.5 s)
+
+30.4s [Director] cutaway: the walk-on: Player_B2 (1.5 s)
+
+31.9s [Match moments] walk-on took 10.7 s
+
+32.2s [Played] a played match from this serve: Medium, server Player_A1, you control Player_A1; partner AI timing sd 105 ms, reaction 268 ms, placing ±0.33 m, soft 16 %; opponents AI timing sd 105 ms, reaction 268 ms, placing ±0.33 m, soft 16 %; seed 639313361733400000
+
+32.8s [Played] serve by Player_A1: Serve Late (late) +349 ms, Balanced 0.00 m, skill 0.64, condition 1.00 -> quality 0.29 (meter 22%); from (-2.00, 2.86, -8.45) at 12.8 m/s to (1.98, 0.11, 4.65) (meant (0.00, 0.11, 5.00), error up to 2.21 m); clears the tape by 0.10 m (wanted -0.05)
+
+32.9s [Played] Player_A1 missed the Dig: the ball is not coming to her for that touch (Dig Miss +0 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+33.2s [Played] Player_A1 missed the Set: the ball is not coming to her for that touch (Set Miss +0 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+33.4s [Played] Player_A1 missed the Spike: her own side's serve (Spike Miss +118 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+33.8s [Played] Dig by Player_B2: Dig Good +67 ms, Balanced 0.28 m, skill 0.59, condition 0.92 -> quality 0.67; from (1.65, 0.80, 3.55) at 8.9 m/s to (0.68, 0.11, 1.89) (meant (0.58, 0.11, 1.70), error up to 0.95 m)
+
+34.0s [Played] Player_A1 missed the Dig: the ball is not coming to her for that touch (Dig Miss +0 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+34.1s [Played] Player_A1 missed the Set: the ball is not coming to her for that touch (Set Miss +0 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+34.4s [Played] Player_A1 missed the Dig: the ball is not coming to her for that touch (Dig Miss +0 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+34.6s [Played] Player_A1 missed the Set: the ball is not coming to her for that touch (Set Miss +0 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+34.9s [Played] Player_A1 missed the Dig: the ball is not coming to her for that touch (Dig Miss +0 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+35.1s [Played] Player_A1 missed the Set: the ball is not coming to her for that touch (Set Miss +0 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+35.4s [Played] Player_A1 missed the Dig: the ball is not coming to her for that touch (Dig Miss +0 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+35.4s [Played] Set by Player_B1: Set Good -73 ms, Balanced 0.22 m, skill 0.63, condition 0.92 -> quality 0.68; from (0.81, 2.10, 2.10) at 6.9 m/s to (1.45, 2.90, 0.98) (meant (1.37, 2.90, 1.10), error up to 0.59 m)
+
+35.5s [Played] Player_A1 missed the Set: the ball is not coming to her for that touch (Set Miss +0 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+35.8s [Played] Player_A1 missed the Dig: the ball is not coming to her for that touch (Dig Miss +0 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+35.9s [Played] Player_A1 missed the Set: the ball is not coming to her for that touch (Set Miss +0 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+36.2s [Played] Player_A1 missed the Dig: the ball is not coming to her for that touch (Dig Miss +0 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+36.4s [Played] Player_A1 missed the Set: the ball is not coming to her for that touch (Set Miss +0 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+36.7s [Played] Player_A1 missed the Dig: the ball is not coming to her for that touch (Dig Miss +0 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+36.7s [Played] Spike by Player_B2: Spike Perfect -40 ms, Balanced 0.28 m, skill 0.66, condition 0.92 -> quality 0.80; from (1.46, 2.89, 0.98) at 16.4 m/s to (1.87, 0.11, -5.70) (meant (2.44, 0.11, -5.50), error up to 0.78 m); clears the tape by 0.25 m (wanted 0.17)
+
+36.9s [Played] Player_A2 missed the Set: out of reach (1.14 m) (Set Good +90 ms, OutOfReach 1.14 m, skill 0.60, condition 1.00 -> quality 0.00)
+
+37.1s [Played] point to TeamB by Kill (4 touches)
+
+37.1s ATHENS AEGEAN STARS point (played, Kill): set 1 0-1, sets 0-0
+
+37.1s Trying to get length of sound which is not loaded yet.
+37.1s Trying to get length of sound which is not loaded yet.
+37.2s [Director] cutaway: the scorer, Player_B2 (1.1 s)
+
+37.2s [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":1,"matchId":1,"sets":[],"current":{"home":0,"away":1}}
+
+38.3s [Director] cutaway: the other side, Player_A1 (0.7 s)
+
+39.0s [Director] cutaway: replay (2.2 s)
+
+40.1s [Camera] TV look (chosen)
+
+40.1s [CourtBridge] to the game page: unity-camera:played:tv:1
+
+41.1s [Between points] 4.0 s: point to B by Kill (big: a hard spike, 19 m/s) | score SYDNEY RIPTIDE 0 0 - 1 0 ATHENS AEGEAN STARS | umpire: team to serve | Player_B1 Won_MC2 | Player_B2 Won_ThumbsUp2 | Player_A1 Lost_MC1 | Player_A2 Lost_MC2 | close-up: Player_B2 | the other side: Player_A1 | replay 1.2 s at 0.6x (2.1 s)
+
+41.1s [Director] Serve: beside the server
+
+45.8s [Played] serve by Player_B2: Serve Perfect +0 ms, Balanced 0.00 m, skill 0.62, condition 0.92 -> quality 0.79 (meter 96%); from (2.01, 2.72, 8.45) at 12.7 m/s to (1.79, 0.11, -5.70) (meant (1.63, 0.11, -6.19), error up to 0.70 m); clears the tape by 0.40 m (wanted 0.30)
+
+45.8s [Director] Rally: end-on drift
+
+45.9s [Played] Player_A2 missed the Dig: far too early (Dig Miss -890 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+46.4s [Played] Player_A2 missed the Dig: far too early (Dig Miss -365 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+46.9s [Played] Dig by Player_A2: Dig Good +85 ms, Stretching 1.04 m, skill 0.61, condition 1.00 -> quality 0.50; from (1.81, 0.79, -4.58) at 8.4 m/s to (1.45, 0.11, -0.37) (meant (0.63, 0.11, -1.70), error up to 1.65 m)
+
+47.0s [Played] Player_A1 missed the Set: far too early (Set Miss -1207 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+47.4s [Played] Player_A1 missed the Set: far too early (Set Miss -740 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+47.8s [Played] Player_A1 missed the Dig: far too early (Dig Miss -567 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+48.5s [Played] Player_A1 missed the Dig: out of reach (1.56 m) (Dig Late (early) -150 ms, OutOfReach 1.56 m, skill 0.64, condition 1.00 -> quality 0.00)
+
+48.6s [Played] point to TeamB by Ace (2 touches)
+
+48.6s Trying to get length of sound which is not loaded yet.
+48.6s Trying to get length of sound which is not loaded yet.
+48.6s ATHENS AEGEAN STARS point (played, Ace): set 1 0-2, sets 0-0
+
+48.6s Trying to get length of sound which is not loaded yet.
+48.6s Trying to get length of sound which is not loaded yet.
+48.6s [Director] Kill: swoop in close
+
+48.6s [Director] cutaway: the scorer, Player_B1 (1.1 s)
+
+48.6s [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":1,"matchId":1,"sets":[],"current":{"home":0,"away":2}}
+
+49.7s [Director] Between: crane on the scorer
+
+49.7s [Director] cutaway: the other side, Player_A1 (0.7 s)
+
+50.4s [Director] Serve: low off the sand
+
+50.4s [Director] cutaway: replay (2.3 s)
+
+52.6s [Between points] 4.0 s: point to B by Ace (big: an ace) | score SYDNEY RIPTIDE 0 0 - 2 0 ATHENS AEGEAN STARS | umpire: team to serve | Player_B1 Won_Backflip | Player_B2 Won_Yay | Player_A1 Lost_FeelDown | Player_A2 Lost_Angry | close-up: Player_B1 | the other side: Player_A1 | replay 1.2 s at 0.6x (2.2 s)
+
+52.6s [Director] Serve: beside the server
+
+58.9s [Played] serve by Player_B2: Serve Good +33 ms, Balanced 0.00 m, skill 0.62, condition 0.92 -> quality 0.65 (meter 85%); from (2.01, 2.72, 8.45) at 13.9 m/s to (1.75, 0.11, -6.08) (meant (1.11, 0.11, -6.79), error up to 1.07 m); clears the tape by 0.22 m (wanted 0.21)
+
+58.9s [Director] Rally: high on the umpire's side
+
+59.1s [Played] Player_A2 missed the Set: far too early (Set Miss -503 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+59.4s [Played] Player_A2 missed the Dig: far too early (Dig Miss -399 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+59.8s [Played] Player_A2 missed the Spike: the ball is not coming to her for that touch (Spike Miss +0 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+59.9s [Played] Dig by Player_A2: Dig Perfect +59 ms, Stretching 0.85 m, skill 0.61, condition 1.00 -> quality 0.66; from (1.78, 0.80, -4.78) at 8.8 m/s to (0.23, 0.11, -2.40) (meant (0.62, 0.11, -1.70), error up to 1.01 m)
+
+60.0s [Played] Player_A1 missed the Set: far too early (Set Miss -1358 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+60.3s [Played] Player_A1 missed the Dig: far too early (Dig Miss -1231 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+60.8s [Played] Player_A1 missed the Dig: far too early (Dig Miss -781 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+61.2s [Played] Player_A1 missed the Dig: far too early (Dig Miss -315 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+61.7s [Played] Player_A1 missed the Dig: out of reach (1.53 m) (Dig Good +135 ms, OutOfReach 1.53 m, skill 0.64, condition 1.00 -> quality 0.00)
+
+61.7s [Played] point to TeamB by Ace (2 touches)
+
+61.7s Trying to get length of sound which is not loaded yet.
+61.7s ATHENS AEGEAN STARS point (played, Ace): set 1 0-3, sets 0-0
+
+61.7s [Director] Kill: cut close on the scorer
+
+61.7s [Director] cutaway: the scorer, Player_B1 (1.1 s)
+
+61.7s [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":1,"matchId":1,"sets":[],"current":{"home":0,"away":3}}
+
+62.8s [Director] cutaway: the other side, Player_A1 (0.7 s)
+
+63.5s [Director] Serve: low off the sand
+
+63.6s [Director] cutaway: replay (2.2 s)
+
+65.7s [Between points] 4.0 s: point to B by Ace (big: an ace) | score SYDNEY RIPTIDE 0 0 - 3 0 ATHENS AEGEAN STARS | umpire: team to serve | Player_B1 Won_Cartwheel | Player_B2 Won_MC1 | Player_A1 stays down (her dive) | Player_A2 Lost_Angry | close-up: Player_B1 | the other side: Player_A1 | replay 1.2 s at 0.6x (2.1 s)
+
+65.7s [Director] Serve: beside the server
+
+69.8s [Played] serve by Player_B2: Serve Perfect +0 ms, Balanced 0.00 m, skill 0.62, condition 0.92 -> quality 0.79 (meter 98%); from (1.99, 2.72, 8.45) at 15.1 m/s to (-1.29, 0.11, -7.10) (meant (-0.86, 0.11, -6.81), error up to 0.70 m); clears the tape by 0.34 m (wanted 0.30)
+
+69.8s [Director] Rally: end-on drift
+
+70.1s [Played] Player_A1 missed the Dig: far too early (Dig Miss -606 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+70.8s [Played] Dig by Player_A1: Dig Late (early) -156 ms, Stretching 1.01 m, skill 0.64, condition 1.00 -> quality 0.31; from (-1.00, 0.78, -5.73) at 8.0 m/s to (0.37, 0.11, -3.35) (meant (-0.35, 0.11, -1.70), error up to 2.55 m)
+
+70.9s [Played] Player_A2 missed the Spike: far too early (Spike Miss -1179 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+71.4s [Played] Player_A2 missed the Dig: far too early (Dig Miss -876 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+71.8s [Played] Player_A2 missed the Dig: far too early (Dig Miss -443 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+72.4s [Played] Player_A2 missed the Dig: out of reach (1.83 m) (Dig Perfect +7 ms, OutOfReach 1.83 m, skill 0.61, condition 1.00 -> quality 0.00)
+
+72.4s [Played] point to TeamB by Ace (2 touches)
+
+72.4s ATHENS AEGEAN STARS point (played, Ace): set 1 0-4, sets 0-0
+
+72.4s [Director] Kill: swoop in close
+
+72.4s [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":1,"matchId":1,"sets":[],"current":{"home":0,"away":4}}
+
+72.4s [Director] cutaway: the scorer, Player_B1 (1.1 s)
+
+73.5s [Director] cutaway: the other side, Player_A2 (0.7 s)
+
+74.2s [Director] cutaway: replay (2.2 s)
+
+76.4s [Between points] 4.0 s: point to B by Ace (big: an ace) | score SYDNEY RIPTIDE 0 0 - 4 0 ATHENS AEGEAN STARS | umpire: team to serve | Player_B1 Won_JumpForJoy | Player_B2 Won_Yay | Player_A1 Lost_FeelDown | Player_A2 Lost_FeelDown | close-up: Player_B1 | the other side: Player_A2 | replay 1.2 s at 0.6x (2.1 s)
+
+76.4s [Director] Serve: low off the sand
+
+80.4s [Played] serve by Player_B2: Serve Perfect +0 ms, Balanced 0.00 m, skill 0.62, condition 0.92 -> quality 0.79 (meter 95%); from (1.98, 2.72, 8.45) at 12.7 m/s to (-2.70, 0.11, -5.04) (meant (-2.55, 0.11, -5.23), error up to 0.70 m); clears the tape by 0.30 m (wanted 0.30)
+
+80.5s [Director] Rally: broadcast-side orbit
+
+80.5s [Played] Player_A1 missed the Set: far too early (Set Miss -716 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+80.9s [Played] Player_A1 missed the Set: far too early (Set Miss -266 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+81.3s [Played] Player_A1 missed the Set: out of reach (3.78 m) (Set Late (late) +167 ms, OutOfReach 3.78 m, skill 0.64, condition 1.00 -> quality 0.00)
+
+81.6s [Played] point to TeamB by Ace (1 touches)
+
+81.6s ATHENS AEGEAN STARS point (played, Ace): set 1 0-5, sets 0-0
+
+81.6s [Director] Kill: cut close on the scorer
+
+81.6s [Director] cutaway: the scorer, Player_B1 (1.1 s)
+
+81.7s [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":1,"matchId":1,"sets":[],"current":{"home":0,"away":5}}
+
+82.7s [Director] cutaway: the other side, Player_A1 (0.7 s)
+
+83.4s [Director] cutaway: replay (2.2 s)
+
+85.6s [Between points] 4.0 s: point to B by Ace (big: an ace) | score SYDNEY RIPTIDE 0 0 - 5 0 ATHENS AEGEAN STARS | umpire: team to serve | Player_B1 Won_Backflip | Player_B2 Won_ArmsUp | Player_A1 Lost_Angry | Player_A2 Lost_Cry | close-up: Player_B1 | the other side: Player_A1 | replay 1.2 s at 0.6x (2.1 s)
+
+85.6s [Director] Serve: beside the server
+
+91.9s [Played] serve by Player_B2: Serve Good +5 ms, Balanced 0.00 m, skill 0.62, condition 0.92 -> quality 0.69 (meter 91%); from (1.99, 2.72, 8.45) at 14.7 m/s to (-0.11, 0.11, -6.76) (meant (-0.95, 0.11, -6.37), error up to 0.97 m); clears the tape by 0.30 m (wanted 0.23)
+
+91.9s [Director] Rally: high on the umpire's side
+
+92.1s [Played] Player_A2 missed the Dig: far too early (Dig Miss -736 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+92.6s [Played] Player_A2 missed the Dig: far too early (Dig Miss -261 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+93.0s [Played] Player_A2 missed the Dig: out of reach (2.34 m) (Dig Late (late) +189 ms, OutOfReach 2.34 m, skill 0.61, condition 1.00 -> quality 0.00)
+
+93.0s [Played] point to TeamB by Ace (1 touches)
+
+93.0s Trying to get length of sound which is not loaded yet.
+93.0s ATHENS AEGEAN STARS point (played, Ace): set 1 0-6, sets 0-0
+
+93.0s Trying to get length of sound which is not loaded yet.
+93.0s [Director] Kill: swoop in close
+
+93.0s [Director] cutaway: the scorer, Player_B1 (1.1 s)
+
+93.0s [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":1,"matchId":1,"sets":[],"current":{"home":0,"away":6}}
+
+94.1s [Director] Between: the crowd
+
+94.1s [Director] cutaway: the other side, Player_A2 (0.7 s)
+
+94.8s [Director] cutaway: replay (2.2 s)
+
+97.0s [Between points] 4.0 s: point to B by Ace (big: an ace) | score SYDNEY RIPTIDE 0 0 - 6 0 ATHENS AEGEAN STARS | umpire: team to serve | Player_B1 Won_JumpForJoy | Player_B2 Won_DoublePeace | Player_A1 Lost_MC1 | Player_A2 Lost_MC2 | close-up: Player_B1 | the other side: Player_A2 | replay 1.2 s at 0.6x (2.1 s)
+
+97.0s [Director] Serve: push-in from behind the server
+
+100.7s [Played] serve by Player_B2: Serve Good +26 ms, Balanced 0.00 m, skill 0.62, condition 0.92 -> quality 0.66 (meter 87%); from (2.01, 2.72, 8.45) at 14.5 m/s to (0.36, 0.11, -6.64) (meant (0.84, 0.11, -6.10), error up to 1.04 m); clears the tape by 0.29 m (wanted 0.21)
+
+100.8s [Director] Rally: end-on drift
+
+100.9s [Played] Player_A2 missed the Dig: far too early (Dig Miss -707 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+101.7s [Played] Player_A1 missed the Dig: out of reach (3.31 m) (Dig Perfect +35 ms, OutOfReach 3.31 m, skill 0.64, condition 1.00 -> quality 0.00)
+
+101.7s [Played] Player_A2 missed the Dig: out of reach (1.52 m) (Dig Late (early) -257 ms, OutOfReach 1.52 m, skill 0.61, condition 1.00 -> quality 0.00)
+
+101.8s [Played] point to TeamB by Ace (1 touches)
+
+101.8s ATHENS AEGEAN STARS point (played, Ace): set 1 0-7, sets 0-0
+
+101.8s [Director] Kill: cut close on the scorer
+
+101.8s [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":1,"matchId":1,"sets":[],"current":{"home":0,"away":7}}
+
+101.8s [Director] cutaway: the scorer, Player_B1 (1.1 s)
+
+102.9s [Director] cutaway: the other side, Player_A2 (0.7 s)
+
+103.7s [Director] cutaway: replay (2.2 s)
+
+105.8s [Between points] 4.0 s: point to B by Ace (big: an ace) | score SYDNEY RIPTIDE 0 0 - 7 0 ATHENS AEGEAN STARS | umpire: team to serve | Player_B1 Won_Clap | Player_B2 Won_MC2 | Player_A1 Lost_MC1 | Player_A2 Lost_Cry | close-up: Player_B1 | the other side: Player_A2 | replay 1.2 s at 0.6x (2.1 s)
+
+105.8s [Director] Serve: beside the server
+
+112.0s [Played] serve by Player_B2: Serve Good +9 ms, Balanced 0.00 m, skill 0.62, condition 0.92 -> quality 0.68 (meter 90%); from (2.00, 2.72, 8.45) at 10.9 m/s to (-0.01, 0.11, -4.14) (meant (-0.35, 0.11, -4.29), error up to 0.98 m); clears the tape by 0.35 m (wanted 0.23)
+
+112.0s [Director] Rally: high on the umpire's side
+
+112.2s [Played] Player_A2 missed the Set: far too early (Set Miss -739 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+112.5s [Played] Player_A1 missed the Dig: far too early (Dig Miss -616 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+113.1s [Played] Player_A2 missed the Set: out of reach (1.59 m) (Set Late (late) +178 ms, OutOfReach 1.59 m, skill 0.60, condition 1.00 -> quality 0.00)
+
+113.2s [Played] Player_A1 missed the Dig: out of reach (1.73 m) (Dig Late (early) -166 ms, OutOfReach 1.73 m, skill 0.64, condition 1.00 -> quality 0.00)
+
+113.3s [Played] point to TeamB by Ace (1 touches)
+
+113.3s ATHENS AEGEAN STARS point (played, Ace): set 1 0-8, sets 0-0
+
+113.3s [Director] Kill: swoop in close
+
+113.3s [Director] cutaway: the scorer, Player_B1 (1.1 s)
+
+113.3s [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":1,"matchId":1,"sets":[],"current":{"home":0,"away":8}}
+
+114.4s [Director] cutaway: the other side, Player_A2 (0.7 s)
+
+115.1s [Director] cutaway: replay (2.2 s)
+
+117.3s [Between points] 4.0 s: point to B by Ace (big: an ace) | score SYDNEY RIPTIDE 0 0 - 8 0 ATHENS AEGEAN STARS | umpire: team to serve | Player_B1 Won_Backflip | Player_B2 Won_MC3 | Player_A1 Lost_Cry | Player_A2 Lost_MC3 | close-up: Player_B1 | the other side: Player_A2 | replay 1.2 s at 0.6x (2.1 s)
+
+117.3s [Director] Serve: low off the sand
+
+120.9s [Played] serve by Player_B2: Serve Good +68 ms, Balanced 0.00 m, skill 0.62, condition 0.92 -> quality 0.61 (meter 78%); from (2.01, 2.72, 8.45) at 14.6 m/s to (1.27, 0.11, -6.64) (meant (1.30, 0.11, -6.21), error up to 1.20 m); clears the tape by 0.26 m (wanted 0.17)
+
+120.9s [Director] Rally: end-on drift
+
+121.0s [Played] Player_A2 missed the Dig: far too early (Dig Miss -751 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+121.4s [Played] Player_A2 missed the Dig: far too early (Dig Miss -317 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+121.9s [Played] Dig by Player_A2: Dig Good +116 ms, Balanced 0.69 m, skill 0.61, condition 1.00 -> quality 0.60; from (1.32, 0.69, -5.49) at 8.8 m/s to (-0.38, 0.11, -1.09) (meant (0.46, 0.11, -1.70), error up to 1.23 m)
+
+122.0s [Played] Player_A1 missed the Set: far too early (Set Miss -1247 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+122.5s [Played] Player_A1 missed the Set: far too early (Set Miss -797 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+122.9s [Played] Player_A1 missed the Set: far too early (Set Miss -380 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+123.4s [Played] Set by Player_A1: Set Perfect +53 ms, Balanced 0.49 m, skill 0.64, condition 1.00 -> quality 0.82; from (-0.12, 2.24, -1.78) at 6.7 m/s to (1.71, 2.75, -1.23) (meant (1.60, 2.75, -1.10), error up to 0.33 m)
+
+123.5s [Played] Player_A2 missed the Spike: far too early (Spike Miss -1105 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+124.0s [Played] Player_A2 missed the Dig: far too early (Dig Miss -764 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+124.5s [Played] Player_A2 missed the Dig: far too early (Dig Miss -306 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+124.9s [Played] Player_A2 missed the Spike: out of reach (2.19 m) (Spike Late (late) +245 ms, OutOfReach 2.19 m, skill 0.54, condition 1.00 -> quality 0.00)
+
+125.0s [Played] point to TeamB by Dropped (3 touches)
+
+125.0s ATHENS AEGEAN STARS point (played, Dropped): set 1 0-9, sets 0-0
+
+125.0s Trying to get length of sound which is not loaded yet.
+125.0s [Director] Between: the venue
+
+125.0s [Director] cutaway: the scorer, Player_B1 (1.7 s)
+
+125.0s [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":1,"matchId":1,"sets":[],"current":{"home":0,"away":9}}
+
+126.7s [Director] cutaway: the other side, Player_A2 (1.0 s)
+
+127.7s [Director] Serve: push-in from behind the server
+
+128.0s [Between points] 3.0 s: point to B by Dropped | score SYDNEY RIPTIDE 0 0 - 9 0 ATHENS AEGEAN STARS [DOWN] | umpire: team to serve | high five: Player_B1 and Player_B2 | Player_A1 Lost_MC1 | Player_A2 Lost_FeelDown | close-up: Player_B1 | placed: Player_B2 at (0.20, 0.72) in Player_B1's frame, turned 145°, scales 1.00/1.00 | the other side: Player_A2
+
+132.0s [Played] serve by Player_B2: Serve Good +16 ms, Balanced 0.00 m, skill 0.62, condition 0.92 -> quality 0.67 (meter 89%); from (2.00, 2.72, 8.45) at 13.5 m/s to (1.02, 0.11, -5.91) (meant (0.12, 0.11, -6.29), error up to 1.00 m); clears the tape by 0.24 m (wanted 0.22)
+
+132.0s [Director] Rally: high on the umpire's side
+
+132.2s [Played] Player_A2 missed the Dig: far too early (Dig Miss -710 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+133.0s [Played] Dig by Player_A2: Dig Late (early) -210 ms, Stretching 1.24 m, skill 0.61, condition 1.00 -> quality 0.19; from (1.10, 0.76, -4.74) at 7.8 m/s to (-0.52, 0.11, -1.84) (meant (0.39, 0.11, -1.70), error up to 3.32 m, WILD); shanked
+
+133.2s [Played] Player_A1 missed the Dig: far too early (Dig Miss -1297 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+133.6s [Played] Player_A1 missed the Dig: far too early (Dig Miss -855 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+134.1s [Played] Player_A1 missed the Spike: out of reach (0.96 m) (Spike Late (early) -175 ms, OutOfReach 0.96 m, skill 0.67, condition 1.00 -> quality 0.00)
+
+134.2s [Played] Player_A2 missed the Spike: out of reach (2.39 m) (Spike Late (early) -254 ms, OutOfReach 2.39 m, skill 0.54, condition 1.00 -> quality 0.00)
+
+134.6s [Played] Dig by Player_A1: Dig Perfect +45 ms, Balanced 0.73 m, skill 0.64, condition 1.00 -> quality 0.82; from (-0.43, 0.78, -1.99) at 8.6 m/s to (1.53, 2.75, -1.04) (meant (1.60, 2.75, -1.10), error up to 0.33 m)
+
+134.7s [Played] Player_A2 missed the Set: far too early (Set Miss -1368 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+135.0s [Played] Player_A2 missed the Dig: far too early (Dig Miss -1223 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+135.3s [Played] Player_A2 missed the Spike: far too early (Spike Miss -674 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+135.9s [Played] Player_A2 missed the Dig: far too early (Dig Miss -323 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+136.2s [Played] Player_A2 missed the Spike: out of reach (2.38 m) (Spike Late (late) +226 ms, OutOfReach 2.38 m, skill 0.54, condition 1.00 -> quality 0.00)
+
+136.4s [Played] point to TeamB by Dropped (3 touches)
+
+136.4s ATHENS AEGEAN STARS point (played, Dropped): set 1 0-10, sets 0-0
+
+136.4s Trying to get length of sound which is not loaded yet.
+136.4s [Director] Between: crane on the scorer
+
+136.4s [Director] cutaway: the scorer, Player_B1 (1.7 s)
+
+136.4s [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":1,"matchId":1,"sets":[],"current":{"home":0,"away":10}}
+
+138.1s [Director] cutaway: the other side, Player_A2 (1.0 s)
+
+139.1s [Director] Serve: beside the server
+
+139.4s [Between points] 3.0 s: point to B by Dropped | score SYDNEY RIPTIDE 0 0 - 10 0 ATHENS AEGEAN STARS [DOWN] | umpire: team to serve | Player_B1 Won_MC2 | Player_B2 Won_Cartwheel | Player_A1 Lost_MC2 | Player_A2 Lost_MC3 | close-up: Player_B1 | the other side: Player_A2
+
+145.8s [Played] serve by Player_B2: Serve Perfect +0 ms, Balanced 0.00 m, skill 0.62, condition 0.92 -> quality 0.79 (meter 94%); from (2.00, 2.72, 8.45) at 14.1 m/s to (-0.56, 0.11, -6.51) (meant (-0.53, 0.11, -6.14), error up to 0.70 m); clears the tape by 0.37 m (wanted 0.30)
+
+145.8s [Director] Rally: end-on drift
+
+146.0s [Played] Player_A1 missed the Set: far too early (Set Miss -512 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+146.6s [Played] Player_A1 missed the Set: out of reach (4.50 m) (Set Perfect -62 ms, OutOfReach 4.50 m, skill 0.64, condition 1.00 -> quality 0.00)
+
+146.8s [Played] Player_A1 missed the Dig: out of reach (1.66 m) (Dig Perfect -26 ms, OutOfReach 1.66 m, skill 0.64, condition 1.00 -> quality 0.00)
+
+146.9s [Played] point to TeamB by Ace (1 touches)
+
+146.9s ATHENS AEGEAN STARS point (played, Ace): set 2 0-11, sets 0-1
+
+146.9s Trying to get length of sound which is not loaded yet.
+146.9s [Director] Kill: cut close on the scorer
+
+146.9s [Director] cutaway: the scorer, Player_B1 (1.1 s)
+
+146.9s [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":1,"matchId":1,"sets":[{"home":0,"away":11}],"current":{"home":0,"away":0}}
+
+148.0s [Director] cutaway: the other side, Player_A1 (0.7 s)
+
+148.8s [Director] cutaway: replay (2.2 s)
+
+150.9s [Between points] 4.0 s: point to B by Ace (big: an ace) | score SYDNEY RIPTIDE 0 0 - 11 1 ATHENS AEGEAN STARS | umpire: team to serve | Player_B1 Won_Backflip | Player_B2 Won_MC2 | Player_A1 Lost_Angry | Player_A2 Lost_Angry | close-up: Player_B1 | the other side: Player_A1 | replay 1.2 s at 0.6x (2.1 s)
+
+150.9s [Director] Serve: push-in from behind the server
+
+158.4s [Played] serve by Player_B2: Serve Good +36 ms, Balanced 0.00 m, skill 0.62, condition 0.92 -> quality 0.65 (meter 85%); from (1.99, 2.72, 8.45) at 15.4 m/s to (-1.05, 0.11, -7.09) (meant (-1.65, 0.11, -6.30), error up to 1.08 m); clears the tape by 0.27 m (wanted 0.20)
+
+158.5s [Director] Rally: high on the umpire's side
+
+158.7s [Played] Player_A1 missed the Dig: far too early (Dig Miss -584 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+159.4s [Played] Player_A2 missed the Dig: out of reach (2.69 m) (Dig Good -117 ms, OutOfReach 2.69 m, skill 0.61, condition 1.00 -> quality 0.00)
+
+159.5s [Played] point to TeamB by Ace (1 touches)
+
+159.5s ATHENS AEGEAN STARS point (played, Ace): set 2 0-1, sets 0-1
+
+159.5s [Director] Kill: swoop in close
+
+159.5s [Director] cutaway: the scorer, Player_B1 (1.1 s)
+
+159.5s [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":1,"matchId":1,"sets":[{"home":0,"away":11}],"current":{"home":0,"away":1}}
+
+160.6s [Director] cutaway: the other side, Player_A1 (0.7 s)
+
+161.3s [Director] cutaway: replay (2.2 s)
+
+163.5s [Between points] 4.0 s: point to B by Ace (big: an ace) | score SYDNEY RIPTIDE 0 0 - 1 1 ATHENS AEGEAN STARS | umpire: team to serve | Player_B1 Won_ThumbsUp | Player_B2 Won_Motivated | Player_A1 Lost_MC1 | Player_A2 Lost_MC1 | close-up: Player_B1 | the other side: Player_A1 | replay 1.2 s at 0.6x (2.1 s)
+
+163.5s [Director] Serve: beside the server
+
+169.7s [Played] serve by Player_B2: Serve Perfect +0 ms, Balanced 0.00 m, skill 0.62, condition 0.92 -> quality 0.79 (meter 97%); from (2.00, 2.72, 8.45) at 14.6 m/s to (-1.06, 0.11, -6.66) (meant (-0.50, 0.11, -6.36), error up to 0.70 m); clears the tape by 0.32 m (wanted 0.30)
+
+169.7s [Director] Rally: end-on drift
+
+169.7s [Played] Player_A1 missed the Dig: far too early (Dig Miss -857 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+170.2s [Played] Player_A1 missed the Dig: far too early (Dig Miss -382 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+170.6s [Played] Dig by Player_A1: Dig Perfect +51 ms, Stretching 1.24 m, skill 0.64, condition 1.00 -> quality 0.55; from (-0.79, 0.79, -5.33) at 8.6 m/s to (-0.36, 0.11, -1.12) (meant (-0.28, 0.11, -1.70), error up to 1.40 m)
+
+170.7s [Played] Player_A2 missed the Set: far too early (Set Miss -1313 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+171.2s [Played] Player_A2 missed the Set: far too early (Set Miss -880 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+171.5s [Played] Player_A2 missed the Dig: far too early (Dig Miss -749 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+171.9s [Played] Player_A2 missed the Dig: far too early (Dig Miss -332 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+172.3s [Played] Spike by Player_A2: Spike Late (late) +220 ms, Balanced 0.38 m, skill 0.54, condition 1.00 -> quality 0.25; from (-0.40, 1.32, -1.47) at 7.7 m/s to (-0.17, 0.11, 5.51) (meant (0.00, 0.11, 5.00), error up to 2.16 m); clears the tape by 0.20 m (wanted 0.15)
+
+172.7s [Played] Player_A2 missed the Dig: the ball is not coming to her for that touch (Dig Miss +0 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+172.9s [Played] Player_A2 missed the Set: the ball is not coming to her for that touch (Set Miss +0 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+173.2s [Played] Player_A2 missed the Dig: the ball is not coming to her for that touch (Dig Miss +0 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+173.3s [Played] Player_A2 missed the Set: the ball is not coming to her for that touch (Set Miss +0 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+173.5s [Played] Dig by Player_B2: Dig Good +108 ms, Balanced 0.02 m, skill 0.59, condition 0.92 -> quality 0.59; from (-0.18, 0.75, 5.04) at 8.9 m/s to (0.28, 0.11, 1.08) (meant (-0.06, 0.11, 1.70), error up to 1.26 m)
+
+173.6s [Played] Player_A2 missed the Dig: the ball is not coming to her for that touch (Dig Miss +0 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+173.8s [Played] Player_A2 missed the Set: the ball is not coming to her for that touch (Set Miss +0 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+174.1s [Played] Player_A2 missed the Dig: the ball is not coming to her for that touch (Dig Miss +0 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+174.2s [Played] Player_A2 missed the Set: the ball is not coming to her for that touch (Set Miss +0 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+174.5s [Played] Player_A2 missed the Dig: the ball is not coming to her for that touch (Dig Miss +0 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+174.7s [Played] Player_A2 missed the Set: the ball is not coming to her for that touch (Set Miss +0 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+175.0s [Played] Player_A2 missed the Dig: the ball is not coming to her for that touch (Dig Miss +0 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+175.1s [Played] Player_A2 missed the Set: the ball is not coming to her for that touch (Set Miss +0 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+175.1s [Played] Set by Player_B1: Set Good +117 ms, Balanced 0.28 m, skill 0.63, condition 0.92 -> quality 0.58; from (0.22, 2.00, 1.58) at 6.8 m/s to (1.30, 2.90, 1.53) (meant (1.79, 2.90, 1.10), error up to 0.79 m)
+
+175.4s [Played] Player_A2 missed the Dig: the ball is not coming to her for that touch (Dig Miss +0 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+175.5s [Played] Player_A2 missed the Set: the ball is not coming to her for that touch (Set Miss +0 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+175.8s [Played] Player_A2 missed the Dig: the ball is not coming to her for that touch (Dig Miss +0 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+176.0s [Played] Player_A2 missed the Set: the ball is not coming to her for that touch (Set Miss +0 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+176.3s [Played] Player_A2 missed the Dig: the ball is not coming to her for that touch (Dig Miss +0 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+176.4s [Played] Spike by Player_B2: Spike Good +88 ms, Balanced 0.16 m, skill 0.66, condition 0.92 -> quality 0.66; from (1.38, 2.40, 1.53) at 12.3 m/s to (3.35, 0.11, -6.04) (meant (2.63, 0.11, -6.80), error up to 1.18 m); clears the tape by -0.09 m (wanted -0.09)
+
+176.7s [Played] Player_A2 missed the Dig: far too early (Dig Miss -312 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+177.2s [Played] Player_A1 missed the Dig: out of reach (3.38 m) (Dig Perfect -3 ms, OutOfReach 3.38 m, skill 0.64, condition 1.00 -> quality 0.00)
+
+177.3s [Played] point to TeamB by Kill (6 touches)
+
+177.3s ATHENS AEGEAN STARS point (played, Kill): set 2 0-2, sets 0-1
+
+177.3s [Director] Kill: cut close on the scorer
+
+177.3s [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":1,"matchId":1,"sets":[{"home":0,"away":11}],"current":{"home":0,"away":2}}
+
+177.3s [Director] cutaway: the scorer, Player_B2 (1.7 s)
+
+179.0s [Director] cutaway: the other side, Player_A2 (1.0 s)
+
+180.0s [Director] Serve: low off the sand
+
+180.3s [Between points] 3.0 s: point to B by Kill | score SYDNEY RIPTIDE 0 0 - 2 1 ATHENS AEGEAN STARS | umpire: team to serve | high five: Player_B2 and Player_B1 | Player_A1 Lost_MC2 | Player_A2 Lost_MC1 | close-up: Player_B2 | placed: Player_B1 at (0.20, 0.72) in Player_B2's frame, turned 145°, scales 1.00/1.00 | the other side: Player_A2
+
+186.8s [Played] serve by Player_B2: Serve Perfect +0 ms, Balanced 0.00 m, skill 0.62, condition 0.92 -> quality 0.79 (meter 100%); from (2.02, 2.72, 8.45) at 11.5 m/s to (2.23, 0.11, -4.73) (meant (2.09, 0.11, -4.47), error up to 0.70 m); clears the tape by 0.36 m (wanted 0.30)
+
+186.9s [Director] Rally: high on the umpire's side
+
+187.0s [Played] Player_A2 missed the Set: far too early (Set Miss -705 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+187.3s [Played] Player_A2 missed the Dig: far too early (Dig Miss -598 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+188.0s [Played] Player_A2 missed the Dig: out of reach (1.84 m) (Dig Good -140 ms, OutOfReach 1.84 m, skill 0.61, condition 1.00 -> quality 0.00)
+
+188.0s [Played] Player_A1 missed the Dig: out of reach (3.10 m) (Dig Late (late) +169 ms, OutOfReach 3.10 m, skill 0.64, condition 1.00 -> quality 0.00)
+
+188.1s [Played] point to TeamB by Ace (1 touches)
+
+188.1s ATHENS AEGEAN STARS point (played, Ace): set 2 0-3, sets 0-1
+
+188.1s [Director] Kill: swoop in close
+
+188.1s [Director] cutaway: the scorer, Player_B2 (1.1 s)
+
+188.1s [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":1,"matchId":1,"sets":[{"home":0,"away":11}],"current":{"home":0,"away":3}}
+
+189.2s [Director] cutaway: the other side, Player_A2 (0.7 s)
+
+189.9s [Director] cutaway: replay (2.2 s)
+
+192.0s [Between points] 4.0 s: point to B by Ace (big: an ace) | score SYDNEY RIPTIDE 0 0 - 3 1 ATHENS AEGEAN STARS | umpire: team to serve | Player_B1 Won_JumpForJoy | Player_B2 Won_ThumbsUp2 | Player_A1 Lost_Angry | Player_A2 Lost_FeelDown | close-up: Player_B2 | the other side: Player_A2 | replay 1.2 s at 0.6x (2.1 s)
+
+192.1s [Director] Serve: push-in from behind the server
+
+196.0s [Played] serve by Player_B2: Serve Perfect +0 ms, Balanced 0.00 m, skill 0.62, condition 0.92 -> quality 0.79 (meter 93%); from (2.02, 2.72, 8.45) at 14.1 m/s to (3.12, 0.11, -6.64) (meant (2.68, 0.11, -6.72), error up to 0.70 m); clears the tape by 0.37 m (wanted 0.30)
+
+196.0s [Director] Rally: broadcast-side orbit
+
+196.2s [Played] Player_A2 missed the Dig: far too early (Dig Miss -689 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+196.6s [Played] Player_A2 missed the Dig: far too early (Dig Miss -272 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+197.0s [Played] Player_A1 missed the Dig: out of reach (3.92 m) (Dig Perfect +53 ms, OutOfReach 3.92 m, skill 0.64, condition 1.00 -> quality 0.00)
+
+197.1s [Played] point to TeamB by Ace (1 touches)
+
+197.1s ATHENS AEGEAN STARS point (played, Ace): set 2 0-4, sets 0-1
+
+197.1s [Director] Kill: cut close on the scorer
+
+197.1s [Director] cutaway: the scorer, Player_B2 (1.1 s)
+
+197.1s [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":1,"matchId":1,"sets":[{"home":0,"away":11}],"current":{"home":0,"away":4}}
+
+198.2s [Director] cutaway: the other side, Player_A2 (0.7 s)
+
+198.9s [Director] cutaway: replay (2.3 s)
+
+201.1s [Between points] 4.0 s: point to B by Ace (big: an ace) | score SYDNEY RIPTIDE 0 0 - 4 1 ATHENS AEGEAN STARS | umpire: team to serve | Player_B1 Won_Cartwheel | Player_B2 Won_Shout | Player_A1 Lost_MC1 | Player_A2 Lost_MC1 | close-up: Player_B2 | the other side: Player_A2 | replay 1.2 s at 0.6x (2.2 s)
+
+201.1s [Director] Serve: beside the server
+
+207.4s [Played] serve by Player_B2: Serve Perfect +0 ms, Balanced 0.00 m, skill 0.62, condition 0.92 -> quality 0.79 (meter 97%); from (2.02, 2.72, 8.45) at 12.3 m/s to (1.90, 0.11, -5.26) (meant (2.43, 0.11, -5.30), error up to 0.70 m); clears the tape by 0.34 m (wanted 0.30)
+
+207.4s [Director] Rally: high on the umpire's side
+
+207.6s [Played] Player_A2 missed the Set: far too early (Set Miss -651 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+208.3s [Played] Player_A2 missed the Set: out of reach (3.77 m) (Set Late (early) -192 ms, OutOfReach 3.77 m, skill 0.60, condition 1.00 -> quality 0.00)
+
+208.5s [Played] Player_A2 missed the Dig: out of reach (1.42 m) (Dig Good -91 ms, OutOfReach 1.42 m, skill 0.61, condition 1.00 -> quality 0.00)
+
+208.6s [Played] point to TeamB by Ace (1 touches)
+
+208.6s ATHENS AEGEAN STARS point (played, Ace): set 2 0-5, sets 0-1
+
+208.6s [Director] Kill: swoop in close
+
+208.6s [Director] cutaway: the scorer, Player_B2 (1.1 s)
+
+208.6s [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":1,"matchId":1,"sets":[{"home":0,"away":11}],"current":{"home":0,"away":5}}
+
+209.7s [Director] Between: the crowd
+
+209.7s [Director] cutaway: the other side, Player_A2 (0.7 s)
+
+210.4s [Director] cutaway: replay (2.2 s)
+
+212.6s [Between points] 4.0 s: point to B by Ace (big: an ace) | score SYDNEY RIPTIDE 0 0 - 5 1 ATHENS AEGEAN STARS | umpire: team to serve | Player_B1 Won_MC3 | Player_B2 Won_Cheer | Player_A1 Lost_MC3 | Player_A2 Lost_Angry | close-up: Player_B2 | the other side: Player_A2 | replay 1.2 s at 0.6x (2.1 s)
+
+212.6s [Director] Serve: low off the sand
+
+216.3s [Played] serve by Player_B2: Serve Good +64 ms, Balanced 0.00 m, skill 0.62, condition 0.92 -> quality 0.61 (meter 79%); from (2.02, 2.72, 8.45) at 14.6 m/s to (1.84, 0.11, -6.44) (meant (1.77, 0.11, -5.53), error up to 1.18 m); clears the tape by 0.19 m (wanted 0.18)
+
+216.4s [Director] Rally: broadcast-side orbit
+
+216.4s [Played] Player_A2 missed the Set: far too early (Set Miss -590 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+216.7s [Played] Player_A2 missed the Dig: far too early (Dig Miss -515 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+217.3s [Played] Dig by Player_A2: Dig Good -115 ms, Balanced 0.56 m, skill 0.61, condition 1.00 -> quality 0.60; from (1.86, 0.79, -5.06) at 8.7 m/s to (0.48, 0.11, -2.09) (meant (0.65, 0.11, -1.70), error up to 1.22 m)
+
+217.5s [Played] Player_A1 missed the Spike: far too early (Spike Miss -1237 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+218.0s [Played] Player_A1 missed the Dig: far too early (Dig Miss -917 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+218.4s [Played] Player_A1 missed the Spike: far too early (Spike Miss -321 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+219.0s [Played] Dig by Player_A1: Dig Perfect -34 ms, Balanced 0.35 m, skill 0.64, condition 1.00 -> quality 0.82; from (0.54, 0.73, -2.20) at 8.8 m/s to (1.50, 2.75, -1.03) (meant (1.60, 2.75, -1.10), error up to 0.34 m)
+
+219.2s [Played] Player_A2 missed the Spike: far too early (Spike Miss -1330 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+219.8s [Played] Player_A2 missed the Dig: far too early (Dig Miss -943 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+220.2s [Played] Player_A2 missed the Spike: far too early (Spike Miss -405 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+220.8s [Played] Player_A2 missed the Dig: out of reach (2.45 m) (Dig Perfect -43 ms, OutOfReach 2.45 m, skill 0.61, condition 1.00 -> quality 0.00)
+
+220.9s [Played] point to TeamB by Dropped (3 touches)
+
+220.9s ATHENS AEGEAN STARS point (played, Dropped): set 2 0-6, sets 0-1
+
+220.9s [Director] Between: the venue
+
+220.9s [Director] cutaway: the scorer, Player_B1 (1.7 s)
+
+221.0s [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":1,"matchId":1,"sets":[{"home":0,"away":11}],"current":{"home":0,"away":6}}
+
+222.6s [Director] Serve: beside the server
+
+222.6s [Director] cutaway: the other side, Player_A2 (1.0 s)
+
+223.6s [Director] Serve: push-in from behind the server
+
+223.9s [Between points] 3.1 s: point to B by Dropped | score SYDNEY RIPTIDE 0 0 - 6 1 ATHENS AEGEAN STARS [DOWN] | umpire: team to serve | Player_B1 Won_ThumbsUp2 | Player_B2 Won_MC2 | Player_A1 Lost_FeelDown | Player_A2 Lost_MC1 | close-up: Player_B1 | the other side: Player_A2
+
+228.0s [Played] serve by Player_B2: Serve Perfect +0 ms, Balanced 0.00 m, skill 0.62, condition 0.92 -> quality 0.79 (meter 98%); from (2.02, 2.72, 8.45) at 11.9 m/s to (2.78, 0.11, -5.15) (meant (2.74, 0.11, -4.54), error up to 0.70 m); clears the tape by 0.43 m (wanted 0.30)
+
+228.0s [Director] Rally: high on the umpire's side
+
+228.1s [Played] Player_A2 missed the Set: far too early (Set Miss -754 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+228.5s [Played] Player_A2 missed the Set: far too early (Set Miss -304 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+229.1s [Played] Player_A2 missed the Dig: out of reach (1.62 m) (Dig Late (early) -198 ms, OutOfReach 1.62 m, skill 0.61, condition 1.00 -> quality 0.00)
+
+229.1s [Played] Player_A1 missed the Dig: out of reach (3.11 m) (Dig Good +119 ms, OutOfReach 3.11 m, skill 0.64, condition 1.00 -> quality 0.00)
+
+229.2s [Played] point to TeamB by Ace (1 touches)
+
+229.2s ATHENS AEGEAN STARS point (played, Ace): set 2 0-7, sets 0-1
+
+229.2s [Director] Kill: cut close on the scorer
+
+229.2s [Director] cutaway: the scorer, Player_B2 (1.1 s)
+
+229.2s [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":1,"matchId":1,"sets":[{"home":0,"away":11}],"current":{"home":0,"away":7}}
+
+230.3s [Director] cutaway: the other side, Player_A2 (0.7 s)
+
+231.0s [Director] cutaway: replay (2.2 s)
+
+233.2s [Between points] 4.0 s: point to B by Ace (big: an ace) | score SYDNEY RIPTIDE 0 0 - 7 1 ATHENS AEGEAN STARS | umpire: team to serve | Player_B1 Won_Cheer | Player_B2 Won_Shout | Player_A1 Lost_Angry | Player_A2 Lost_MC3 | close-up: Player_B2 | the other side: Player_A2 | replay 1.2 s at 0.6x (2.1 s)
+
+233.2s [Director] Serve: beside the server
+
+239.6s [Played] serve by Player_B2: Serve Perfect +0 ms, Balanced 0.00 m, skill 0.62, condition 0.92 -> quality 0.79 (meter 97%); from (2.02, 2.72, 8.45) at 11.9 m/s to (2.71, 0.11, -5.14) (meant (2.58, 0.11, -5.40), error up to 0.70 m); clears the tape by 0.42 m (wanted 0.30)
+
+239.6s [Director] Rally: end-on drift
+
+239.7s [Played] Player_A2 missed the Dig: far too early (Dig Miss -921 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+240.1s [Played] Player_A2 missed the Dig: far too early (Dig Miss -488 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+240.7s [Played] Player_A2 missed the Dig: out of reach (1.59 m) (Dig Perfect -55 ms, OutOfReach 1.59 m, skill 0.61, condition 1.00 -> quality 0.00)
+
+240.8s [Played] point to TeamB by Ace (1 touches)
+
+240.8s ATHENS AEGEAN STARS point (played, Ace): set 2 0-8, sets 0-1
+
+240.8s [Director] Kill: swoop in close
+
+240.8s [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":1,"matchId":1,"sets":[{"home":0,"away":11}],"current":{"home":0,"away":8}}
+
+240.8s [Director] cutaway: the scorer, Player_B2 (1.1 s)
+
+241.9s [Director] cutaway: the other side, Player_A2 (0.7 s)
+
+242.6s [Director] cutaway: replay (2.3 s)
+
+244.8s [Between points] 4.0 s: point to B by Ace (big: an ace) | score SYDNEY RIPTIDE 0 0 - 8 1 ATHENS AEGEAN STARS | umpire: team to serve | Player_B1 Won_JumpForJoy | Player_B2 Won_Cartwheel | Player_A1 Lost_MC1 | Player_A2 Lost_Angry | close-up: Player_B2 | the other side: Player_A2 | replay 1.2 s at 0.6x (2.2 s)
+
+244.8s [Director] Serve: low off the sand
+
+251.2s [Played] serve by Player_B2: Serve Perfect +0 ms, Balanced 0.00 m, skill 0.62, condition 0.92 -> quality 0.79 (meter 98%); from (2.01, 2.72, 8.45) at 10.6 m/s to (1.05, 0.11, -3.91) (meant (0.89, 0.11, -4.14), error up to 0.70 m); clears the tape by 0.33 m (wanted 0.30)
+
+251.3s [Director] Rally: high on the umpire's side
+
+251.4s [Played] Player_A2 missed the Dig: far too early (Dig Miss -979 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+251.8s [Played] Player_A2 missed the Dig: far too early (Dig Miss -529 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+252.2s [Played] Player_A1 missed the Set: out of reach (2.79 m) (Set Late (early) -148 ms, OutOfReach 2.79 m, skill 0.64, condition 1.00 -> quality 0.00)
+
+252.5s [Played] Player_A1 missed the Dig: out of reach (1.56 m) (Dig Good -79 ms, OutOfReach 1.56 m, skill 0.64, condition 1.00 -> quality 0.00)
+
+252.5s [Played] point to TeamB by Ace (1 touches)
+
+252.6s ATHENS AEGEAN STARS point (played, Ace): set 2 0-9, sets 0-1
+
+252.6s [Director] Kill: cut close on the scorer
+
+252.6s [Director] cutaway: the scorer, Player_B2 (1.1 s)
+
+252.6s [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":1,"matchId":1,"sets":[{"home":0,"away":11}],"current":{"home":0,"away":9}}
+
+253.7s [Director] cutaway: the other side, Player_A2 (0.7 s)
+
+254.4s [Director] Serve: push-in from behind the server
+
+254.4s [Director] cutaway: replay (2.2 s)
+
+256.5s [Between points] 4.0 s: point to B by Ace (big: an ace) | score SYDNEY RIPTIDE 0 0 - 9 1 ATHENS AEGEAN STARS | umpire: team to serve | Player_B1 Won_Cheers | Player_B2 Won_Cheer | Player_A1 Lost_Angry | Player_A2 Lost_Angry | close-up: Player_B2 | the other side: Player_A2 | replay 1.2 s at 0.6x (2.1 s)
+
+256.6s [Director] Serve: low off the sand
+
+262.8s [Played] serve by Player_B2: Serve Perfect +0 ms, Balanced 0.00 m, skill 0.62, condition 0.92 -> quality 0.79 (meter 99%); from (2.01, 2.72, 8.45) at 11.9 m/s to (1.11, 0.11, -4.97) (meant (0.69, 0.11, -5.31), error up to 0.70 m); clears the tape by 0.35 m (wanted 0.30)
+
+262.8s [Director] Rally: broadcast-side orbit
+
+262.8s [Played] Player_A2 missed the Dig: far too early (Dig Miss -990 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+263.3s [Played] Player_A2 missed the Dig: far too early (Dig Miss -540 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+263.9s [Played] Player_A2 missed the Dig: out of reach (1.84 m) (Dig Good -65 ms, OutOfReach 1.84 m, skill 0.61, condition 1.00 -> quality 0.00)
+
+264.0s [Played] point to TeamB by Ace (1 touches)
+
+264.0s ATHENS AEGEAN STARS point (played, Ace): set 2 0-10, sets 0-1
+
+264.0s [Director] Kill: swoop in close
+
+264.0s [Director] cutaway: the scorer, Player_B2 (1.1 s)
+
+264.0s [MatchReporter] POST /api/unity/match-progress ok: {"careerSaveId":1,"matchId":1,"sets":[{"home":0,"away":11}],"current":{"home":0,"away":10}}
+
+265.1s [Director] cutaway: the other side, Player_A2 (0.7 s)
+
+265.8s [Director] cutaway: replay (2.2 s)
+
+268.0s [Between points] 4.0 s: point to B by Ace (big: an ace) | score SYDNEY RIPTIDE 0 0 - 10 1 ATHENS AEGEAN STARS | umpire: team to serve | Player_B1 Won_ThumbsUp | Player_B2 Won_Clap | Player_A1 Lost_FeelDown | Player_A2 Lost_MC3 | close-up: Player_B2 | the other side: Player_A2 | replay 1.2 s at 0.6x (2.1 s)
+
+268.0s [Director] Serve: beside the server
+
+271.8s [Played] serve by Player_B2: Serve Good +12 ms, Balanced 0.00 m, skill 0.62, condition 0.92 -> quality 0.68 (meter 90%); from (1.98, 2.72, 8.45) at 14.1 m/s to (-1.62, 0.11, -6.13) (meant (-2.04, 0.11, -5.95), error up to 0.99 m); clears the tape by 0.28 m (wanted 0.22)
+
+271.8s [Director] Rally: high on the umpire's side
+
+271.9s [Played] Player_A1 missed the Set: far too early (Set Miss -553 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+272.2s [Played] Player_A1 missed the Dig: far too early (Dig Miss -511 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+272.6s [Played] Player_A1 missed the Spike: the ball is not coming to her for that touch (Spike Miss +0 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+272.8s [Played] Dig by Player_A1: Dig Perfect -36 ms, Stretching 0.96 m, skill 0.64, condition 1.00 -> quality 0.64; from (-1.32, 0.76, -4.93) at 8.6 m/s to (0.07, 0.11, -0.77) (meant (-0.46, 0.11, -1.70), error up to 1.08 m)
+
+272.8s [Played] Player_A2 missed the Set: far too early (Set Miss -1396 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+273.2s [Played] Player_A2 missed the Dig: far too early (Dig Miss -1249 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+273.6s [Played] Player_A2 missed the Dig: far too early (Dig Miss -816 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+274.0s [Played] Player_A2 missed the Dig: far too early (Dig Miss -366 ms, Balanced 0.00 m, skill 0.00, condition 0.00 -> quality 0.00)
+
+274.5s [Played] Player_A2 missed the Dig: out of reach (3.24 m) (Dig Good +84 ms, OutOfReach 3.24 m, skill 0.61, condition 1.00 -> quality 0.00)
+
+274.6s [Played] point to TeamB by Ace (2 touches)
+
+274.6s ATHENS AEGEAN STARS point (played, Ace): set 2 0-11, sets 0-2
+
+274.6s [Director] Kill: cut close on the scorer
+
+274.6s [Director] cutaway: the scorer, Player_B1 (1.1 s)
+
+274.6s [MatchReporter] POST /api/unity/match-result ok: {"careerSaveId":1,"matchId":1,"sets":[{"home":0,"away":11},{"home":0,"away":11}]}
+
+275.7s [Director] Between: the crowd
+
+275.7s [Director] cutaway: the other side, Player_A1 (0.7 s)
+
+276.4s [Director] cutaway: replay (2.3 s)
+
+278.6s [Between points] 4.0 s: point to B by Ace (big: an ace) | score SYDNEY RIPTIDE 0 0 - 11 2 ATHENS AEGEAN STARS | umpire: team to serve | Player_B1 Won_ThumbsUp2 | Player_B2 Won_Cheers | Player_A1 Lost_MC1 | Player_A2 stays down (her dive) | close-up: Player_B1 | the other side: Player_A1 | replay 1.2 s at 0.6x (2.2 s)
+
+278.6s [Director] cutaway: the winners' celebration (5.0 s)
+
+281.8s [Played] match over: 0-2
+
+283.6s [Match moments] celebration took 5.0 s
+
+283.6s [Director] Over: slow orbit of the venue
+
