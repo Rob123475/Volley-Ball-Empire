@@ -39,13 +39,13 @@ const STORAGE_KEY = "bve.music";
 const DEFAULT_VOLUME = 0.4;
 
 /**
- * Unity brief item 9 (Rob, 29 Sep): the soundtrack does not play under the 3D
- * match. The court has its own crowd sound, so on /court the music fades out
- * over COURT_FADE_MS and stops; when the player leaves the court, the
- * soundtrack carries on with the next song at the normal volume. This replaced
- * a duck to a third of the volume.
+ * 1.2 6e (Rob, 27 Nov), replacing Unity brief item 9 (29 Sep: the music faded out
+ * under the 3D match): the soundtrack plays on through the match, from the band's
+ * stage. The court tells the page how loud the stage is where its camera is
+ * (pages/court.tsx, "vbe-stage-audio:G", 0.1-1), and on /court the song plays at
+ * the player's volume times that. Skip, pause, the volume and the three fade-outs
+ * work as everywhere else; the songs themselves are never changed or trimmed.
  */
-const COURT_FADE_MS = 1500;
 
 /**
  * Rob, 2 Oct: the only songs that fade out, over their last FADE_OUT_SECONDS.
@@ -163,6 +163,8 @@ export type MusicState = {
   setVolume: (v: number) => void;
   toggleMute: () => void;
   skip: () => void;
+  /** 1.2 6e: how loud the band's stage is where the court's camera is (0.1-1), on /court only. */
+  setStageGain: (g: number) => void;
   /** Rob, 2 Oct: paused by the player (Pause holds the song; Play carries on). */
   paused: boolean;
   togglePause: () => void;
@@ -220,6 +222,14 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
 
   const [location] = useLocation();
   const onCourt = location === COURT_PATH;
+  const onCourtRef = useRef(onCourt);
+  onCourtRef.current = onCourt;
+  const levelRef = useRef(level);
+  levelRef.current = level;
+  /** 1.2 6e: the stage's loudness from the court (1 until it says, and off the court). */
+  const stageGainRef = useRef(1);
+  /** What the song plays at, before any fade-out: the level, times the stage's loudness on /court. */
+  const base = () => levelRef.current * (onCourtRef.current ? stageGainRef.current : 1);
 
   // ── The element ───────────────────────────────────────────────────────────
   // Created once. Everything below reaches it through the ref.
@@ -377,14 +387,24 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
   // ── Volume and mute ───────────────────────────────────────────────────────
   //
   // Mute uses the element's own flag rather than volume 0, so unmuting comes
-  // back at exactly the level the player set. On /court the fade below owns
-  // the volume instead.
+  // back at exactly the level the player set. On /court the stage's loudness
+  // scales it (1.2 6e).
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
     audio.muted = muted;
-    if (!onCourt) audio.volume = level;
+    audio.volume = base();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [level, muted, onCourt]);
+
+  const setStageGain = useCallback((g: number) => {
+    stageGainRef.current = Math.min(1, Math.max(0, g));
+    const audio = audioRef.current;
+    const track = trackIndex === null ? null : MUSIC_TRACKS[trackIndex];
+    // A fading song is set by its own timer below, which reads the new loudness.
+    if (audio && onCourtRef.current && !(track && FADE_OUT_FILES.has(track.file))) audio.volume = base();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [trackIndex]);
 
   // ── Three songs fade out over their last seconds (Rob, 2 Oct) ─────────────
   //
@@ -397,46 +417,26 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const audio = audioRef.current;
     const track = trackIndex === null ? null : MUSIC_TRACKS[trackIndex];
-    if (!audio || onCourt || !track || !FADE_OUT_FILES.has(track.file)) return undefined;
+    if (!audio || !track || !FADE_OUT_FILES.has(track.file)) return undefined;
     // A timer, not animation frames: the fade must run with the window hidden too.
     const timer = window.setInterval(() => {
       const left = audio.duration - audio.currentTime;
       if (!Number.isFinite(left)) return;
-      audio.volume = left < FADE_OUT_SECONDS ? level * Math.max(0, left / FADE_OUT_SECONDS) : level;
+      audio.volume = left < FADE_OUT_SECONDS ? base() * Math.max(0, left / FADE_OUT_SECONDS) : base();
     }, 50);
     return () => {
       window.clearInterval(timer);
-      if (!wasOnCourt.current) audio.volume = level;
+      audio.volume = base();
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [trackIndex, level, onCourt]);
 
-  // ── The 3D match: fade out, then the next song after it (item 9) ──────────
-  const wasOnCourt = useRef(onCourt);
+  // ── The 3D match (1.2 6e): the song carries on, at the stage's loudness ────
+  // Leaving the court, the court's loudness no longer applies.
   useEffect(() => {
+    if (!onCourt) stageGainRef.current = 1;
     const audio = audioRef.current;
-    if (!audio) return;
-    const was = wasOnCourt.current;
-    wasOnCourt.current = onCourt;
-
-    if (onCourt && !was) {
-      const from = audio.volume;
-      const started = performance.now();
-      let raf = 0;
-      const step = () => {
-        const t = Math.min(1, (performance.now() - started) / COURT_FADE_MS);
-        audio.volume = from * (1 - t);
-        if (t < 1) raf = requestAnimationFrame(step);
-        else audio.pause();
-      };
-      raf = requestAnimationFrame(step);
-      return () => cancelAnimationFrame(raf);
-    }
-    if (!onCourt && was) {
-      audio.volume = level;
-      failuresRef.current = 0;
-      advance();
-    }
-    return undefined;
+    if (audio) audio.volume = base();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onCourt]);
 
@@ -471,13 +471,14 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
       setVolume,
       toggleMute,
       skip,
+      setStageGain,
       paused,
       togglePause,
       tracks: MUSIC_TRACKS,
       playTrack,
       trackIndex,
     }),
-    [trackIndex, playing, volume, muted, blocked, setVolume, toggleMute, skip, paused, togglePause, playTrack],
+    [trackIndex, playing, volume, muted, blocked, setVolume, toggleMute, skip, setStageGain, paused, togglePause, playTrack],
   );
 
   return <MusicContext.Provider value={value}>{children}</MusicContext.Provider>;

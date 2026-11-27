@@ -5,6 +5,7 @@ import { ControlsSettings } from "@/components/controls-settings";
 import { CameraSettings } from "@/components/camera-settings";
 import { SkipSettings } from "@/components/skip-settings";
 import { ExitGame } from "@/components/exit-game";
+import { useMusic } from "@/components/music/music-provider";
 import { useLocation } from "wouter";
 import { useQueryClient } from "@tanstack/react-query";
 import { Monitor, UploadCloud, Loader2, LogOut, Settings as SettingsIcon, X, Pause, Play } from "lucide-react";
@@ -110,6 +111,28 @@ export default function ThreeDCourt() {
   // by itself), then says "unity-match-finished": the result is already
   // recorded, so this goes straight back to the dashboard, with every screen's
   // data refreshed.
+  // 1.2 6e: the soundtrack plays from the band's stage. The court says how loud the stage is where
+  // its camera is ("vbe-stage-audio:G"); the player plays the song at its volume times G. The court
+  // is told whether a song is playing, so the band plays or stands idle.
+  const music = useMusic();
+  const setStageGain = music?.setStageGain;
+  const musicSounding = !!music && music.playing && !music.muted && music.volume > 0;
+  const soundingRef = useRef(musicSounding);
+  soundingRef.current = musicSounding;
+  function sendMusic(on: boolean = soundingRef.current) {
+    iframeRef.current?.contentWindow?.postMessage({ type: "vbe-music", playing: on }, "*");
+  }
+  useEffect(() => { sendMusic(musicSounding); }, [musicSounding]);
+  useEffect(() => {
+    function onStage(e: MessageEvent) {
+      if (typeof e.data !== "string" || !e.data.startsWith("vbe-stage-audio:")) return;
+      const g = Number(e.data.slice("vbe-stage-audio:".length));
+      if (Number.isFinite(g)) setStageGain?.(g);
+    }
+    window.addEventListener("message", onStage);
+    return () => window.removeEventListener("message", onStage);
+  }, [setStageGain]);
+
   useEffect(() => {
     function handleMessage(e: MessageEvent) {
       if (e.data === "unity-loaded") {
@@ -117,6 +140,7 @@ export default function ThreeDCourt() {
         sendMatchVolume();
         sendCamera();
         sendSkips();
+        sendMusic();
         // Part C: the keyboard goes to the court, so WASD, Tab and the rest work at once.
         iframeRef.current?.focus();
         iframeRef.current?.contentWindow?.focus();

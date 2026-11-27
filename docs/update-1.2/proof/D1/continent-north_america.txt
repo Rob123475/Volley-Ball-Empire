@@ -1,0 +1,6 @@
+   19,940 tris  2.43 x 4.00 x 3.14 m  Assets/my assets/Environment/Reduced/lifeguard-tower.prefab
+    8,354 tris  3.50 x 2.20 x 1.00 m  Assets/my assets/Environment/Reduced/surfboard-rack.prefab
+   17,948 tris  0.52 x 2.00 x 0.41 m  Assets/my assets/Environment/Reduced/surfboard-upright.prefab
+   15,540 tris  1.97 x 4.68 x 2.44 m  Assets/BeachyPropsPack_V1/Prefabs/Lifeguard_Chair_With_Umbrella.prefab
+   15,084 tris  1.97 x 2.49 x 1.97 m  Assets/BeachyPropsPack_V1/Prefabs/Vending_Cart_With_Drinks.prefab
+   18,198 tris  0.98 x 0.10 x 0.30 m  Assets/my assets/Environment/dock/tripo_convert_5fc5e5a6-d595-4cea-b5fd-d5b800a0b523.fbx

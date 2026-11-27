@@ -141,6 +141,15 @@
         try { window.__vbeUnity.SendMessage("PointPresenter", "SetSkips", d.prefs); }
         catch (err) { console.warn(err); }
       });
+
+      // 1.2 6e: whether a song is playing in the game's player, so the band at the venue plays
+      // or stands idle (VenueLoader.SetMusicPlaying -> BandStage).
+      window.addEventListener("message", function (e) {
+        var d = e.data;
+        if (!d || d.type !== "vbe-music" || typeof d.playing !== "boolean" || !window.__vbeUnity) return;
+        try { window.__vbeUnity.SendMessage("VenueLoader", "SetMusicPlaying", d.playing ? "1" : "0"); }
+        catch (err) { console.warn(err); }
+      });
     </script>
   </body>
 </html>

@@ -1,0 +1,16 @@
+A VENUE IN PICTURES (d1-band), V19 IN PLAY MODE (batch), A WATCHED MATCH
+  log: [Venue] 'asia' is waiting on Rob; playing at oceania
+  log: [Venue] oceania (Island Beach) in after 0.7s, 0.0 MB; features on 7, off 0
+  log: [Camera] keep-out rebuilt for the venue: 442 boxes, 414 of them props
+  the match's continent: asia; venue loaded: oceania (Island Beach), 0.7 s
+  features: foodStand on, commentaryStand on, juiceBar on, kiosk on, lifeguardTower on, gulls on, band on
+  the venue's triangles, every level of every LOD counted: 37,201,517
+  keep-out: 442 boxes, 414 props
+  -> d1-band-tv.png
+  the band: playing; the stage's loudness last sent to the page from the TV camera: 0.36
+  -> d1-band-band-close.png
+     the stage from there: 1.00 loud; the band playing
+  -> d1-band-band-above.png
+     the stage from there: 1.00 loud; the band playing
+  -> d1-band-band-match-distance.png
+     the stage from there: 0.52 loud; the band playing

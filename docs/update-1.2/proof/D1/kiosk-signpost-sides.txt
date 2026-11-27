@@ -1,0 +1,8 @@
+    8,285 tris  5.14 x 3.00 x 4.12 m  Assets/my assets/Environment/Reduced/kiosk.prefab
+    8,285 tris  4.12 x 3.00 x 5.14 m  Assets/my assets/Environment/Reduced/kiosk.prefab
+    8,285 tris  5.14 x 3.00 x 4.12 m  Assets/my assets/Environment/Reduced/kiosk.prefab
+    8,285 tris  4.12 x 3.00 x 5.14 m  Assets/my assets/Environment/Reduced/kiosk.prefab
+   18,924 tris  1.08 x 2.50 x 1.07 m  Assets/my assets/Environment/Reduced/signpost.prefab
+   18,924 tris  1.07 x 2.50 x 1.08 m  Assets/my assets/Environment/Reduced/signpost.prefab
+   18,924 tris  1.08 x 2.50 x 1.07 m  Assets/my assets/Environment/Reduced/signpost.prefab
+   18,924 tris  1.07 x 2.50 x 1.08 m  Assets/my assets/Environment/Reduced/signpost.prefab

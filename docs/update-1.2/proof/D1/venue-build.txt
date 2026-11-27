@@ -1,0 +1,13 @@
+D1: V19'S SURROUNDINGS INTO THE OCEANIA VENUE
+  the sand stays in the scene (the court stands on it)
+  moved into the venue: 95 top-level objects (BeachVolleyballVenue, tripo_dee4a94e x13, tripo_2629a417 x13, tripo_1f969517 x5, tripo_3f8c16ef x5, tripo_a5a391af x4, tripo_54222dbd, tripo_696a4cae, tripo_1d5161d4, tripo_61c66501, tripo_b5df6070, tripo_062e2141, tripo_1fbd7ae5, tripo_7aab40df x7, tripo_18789716, tripo_5fc5e5a6, tripo_a4727f45 x8, tripo_7bcd0727 x11, tripo_250a9b7e x8, IslandRoad_DockToHotel, IslandPath_HotelToCourt, towel1, tripo_4169123c x8)
+  palms: 890 given the light meshes; at their nearest level 1,706,333,502 triangles in all before, 26,551,596 after
+  sat on the sand: clothing store (tripo_696a4cae), lifted 1.55 m
+  sat on the sand: scaffolding+tower+3d+model (tripo_1d5161d4), lifted 0.46 m
+  sat on the sand: viptent (tripo_61c66501), lifted 2.16 m
+  sat on the sand: signpost (tripo_b5df6070), lifted 0.96 m
+  sat on the sand: towel 1 (tripo_250a9b7e), lifted 0.10 m
+  sat on the sand: towel 1 (tripo_250a9b7e), lifted 0.46 m
+  sat on the sand: towel 1 (tripo_250a9b7e), lifted 0.40 m
+  real-time shadows turned off on 892 venue renderers
+  saved Assets/Venues/oceania/Venue_oceania.prefab and the scene, with a VenueLoader

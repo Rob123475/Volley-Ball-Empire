@@ -1,0 +1,267 @@
+6G: WEARABLES AND PROPS ALREADY OWNED (every prefab and model in Assets whose name says what it is)
+  Not for use (Rob's rule: no alcohol, cigarettes or real brands in a player's hand) is marked; brands were checked by eye on the sheet.
+
+  IN SHORT
+    hat          162: Assets Storms 2, BeachyPropsPack_V1 4, Cowboy_Hat 4, DenysAlmaral 2, Food Pack Mixed 2, Hats Collection 40, IdaFaber 7, Santa_hat_Pack+100 101
+    sunglasses     9: BeachyPropsPack_V1 7, DenysAlmaral 1, IdaFaber 1
+    towel         15: BeachyPropsPack_V1 14, Venues 1
+    bag            8: Beach Pack 4, BeachyPropsPack_V1 4
+    jewellery      7: IdaFaber 7
+    drink         27: BeachyPropsPack_V1 11, Food Pack Mixed 6, my assets/Environment 4, Volleyball_Set_1 4, YGS Beach Party & Fun Pack 2
+    umbrella      20: Beach Pack 4, BeachyPropsPack_V1 9, Volleyball_Set_1 6, YGS Beach Party & Fun Pack 1
+
+  HAT (162)
+    Assets Storms                  hat.                                                      680 tris  own object
+    Assets Storms                  hat.                                                      680 tris  own object
+    BeachyPropsPack_V1             SM_Straw_Hat                                            2,042 tris  own object
+    BeachyPropsPack_V1             SM_Women_Beach_Hat                                      1,290 tris  own object
+    BeachyPropsPack_V1             Straw_Hat                                               2,042 tris  own object
+    BeachyPropsPack_V1             Women_Beach_Hat                                         1,290 tris  own object
+    Cowboy_Hat                     Hat_1                                                   3,043 tris  own object
+    Cowboy_Hat                     Hat_2                                                   1,249 tris  own object
+    Cowboy_Hat                     SK_Hat_1                                                3,043 tris  own object
+    Cowboy_Hat                     SK_Hat_2                                                1,249 tris  own object
+    DenysAlmaral                   xmas_santa_hat                                            282 tris  own object
+    DenysAlmaral                   xmas_santa_hat                                            282 tris  own object
+    Food Pack Mixed                Capsicum                                                2,751 tris  own object
+    Food Pack Mixed                Capsicums                                               2,751 tris  own object
+    Hats Collection                Hat 1                                                     932 tris  own object
+    Hats Collection                Hat 1                                                     932 tris  own object
+    Hats Collection                Hat 10                                                    972 tris  own object
+    Hats Collection                Hat 10                                                    972 tris  own object
+    Hats Collection                Hat 11                                                    948 tris  own object
+    Hats Collection                Hat 11                                                    948 tris  own object
+    Hats Collection                Hat 12                                                    824 tris  own object
+    Hats Collection                Hat 12                                                    824 tris  own object
+    Hats Collection                Hat 13                                                    256 tris  own object
+    Hats Collection                Hat 13                                                    256 tris  own object
+    Hats Collection                Hat 14                                                  1,348 tris  own object
+    Hats Collection                Hat 14                                                  1,348 tris  own object
+    Hats Collection                Hat 15                                                    846 tris  own object
+    Hats Collection                Hat 15                                                    846 tris  own object
+    Hats Collection                Hat 16                                                  1,079 tris  own object
+    Hats Collection                Hat 16                                                  1,079 tris  own object
+    Hats Collection                Hat 17                                                    596 tris  own object
+    Hats Collection                Hat 17                                                    596 tris  own object
+    Hats Collection                Hat 18                                                  1,680 tris  own object
+    Hats Collection                Hat 18                                                  1,680 tris  own object
+    Hats Collection                Hat 19                                                    590 tris  own object
+    Hats Collection                Hat 19                                                    590 tris  own object
+    Hats Collection                Hat 2                                                     498 tris  own object
+    Hats Collection                Hat 2                                                     498 tris  own object
+    Hats Collection                Hat 20                                                    262 tris  own object
+    Hats Collection                Hat 20                                                    262 tris  own object
+    Hats Collection                Hat 3                                                     338 tris  own object
+    Hats Collection                Hat 3                                                     338 tris  own object
+    Hats Collection                Hat 4                                                     914 tris  own object
+    Hats Collection                Hat 4                                                     914 tris  own object
+    Hats Collection                Hat 5                                                     778 tris  own object
+    Hats Collection                Hat 5                                                     778 tris  own object
+    Hats Collection                Hat 6                                                     586 tris  own object
+    Hats Collection                Hat 6                                                     586 tris  own object
+    Hats Collection                Hat 7                                                     862 tris  own object
+    Hats Collection                Hat 7                                                     862 tris  own object
+    Hats Collection                Hat 8                                                   1,021 tris  own object
+    Hats Collection                Hat 8                                                   1,021 tris  own object
+    Hats Collection                Hat 9                                                     682 tris  own object
+    Hats Collection                Hat 9                                                     682 tris  own object
+    IdaFaber                       SK_BG_HAIR_BANGS_01_for_hat (in SK_BeachGirl_AllPartsTogether)    1,580 tris  part of a character (skinned to its body; shown or hidden)
+    IdaFaber                       SK_BG_HAIR_BANGS_02_for_hat (in SK_BeachGirl_AllPartsTogether)    1,120 tris  part of a character (skinned to its body; shown or hidden)
+    IdaFaber                       SK_BG_HAIR_LOOSE_for_hat (in SK_BeachGirl_AllPartsTogether)   11,836 tris  part of a character (skinned to its body; shown or hidden)
+    IdaFaber                       SK_BG_HAIR_PONYTAIL_for_hat (in SK_BeachGirl_AllPartsTogether)    3,958 tris  part of a character (skinned to its body; shown or hidden)
+    IdaFaber                       SK_BG_HAIR_SCALP_for_hat (in SK_BeachGirl_AllPartsTogether)    6,400 tris  part of a character (skinned to its body; shown or hidden)
+    IdaFaber                       SK_BG_HAIR_TWINTAILS_for_hat (in SK_BeachGirl_AllPartsTogether)   20,160 tris  part of a character (skinned to its body; shown or hidden)
+    IdaFaber                       SK_BG_HAT (in SK_BeachGirl_AllPartsTogether)            1,260 tris  part of a character (skinned to its body; shown or hidden)
+    Santa_hat_Pack+100             santa_hats                                                751 tris  own object
+    Santa_hat_Pack+100             santa_hats                                                751 tris  own object
+    Santa_hat_Pack+100             santa_hats (1)                                            751 tris  own object
+    Santa_hat_Pack+100             santa_hats (10)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (11)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (12)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (13)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (14)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (15)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (16)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (17)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (18)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (19)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (2)                                            751 tris  own object
+    Santa_hat_Pack+100             santa_hats (20)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (21)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (22)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (23)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (24)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (25)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (26)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (27)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (28)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (29)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (3)                                            751 tris  own object
+    Santa_hat_Pack+100             santa_hats (30)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (31)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (32)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (33)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (34)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (35)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (36)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (37)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (38)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (39)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (4)                                            751 tris  own object
+    Santa_hat_Pack+100             santa_hats (40)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (41)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (42)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (43)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (44)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (45)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (46)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (47)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (48)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (49)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (5)                                            751 tris  own object
+    Santa_hat_Pack+100             santa_hats (50)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (51)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (52)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (53)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (54)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (55)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (56)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (57)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (58)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (59)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (6)                                            751 tris  own object
+    Santa_hat_Pack+100             santa_hats (60)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (61)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (62)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (63)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (64)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (65)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (66)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (67)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (68)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (69)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (7)                                            751 tris  own object
+    Santa_hat_Pack+100             santa_hats (70)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (71)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (72)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (73)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (74)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (75)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (76)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (77)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (78)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (79)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (8)                                            751 tris  own object
+    Santa_hat_Pack+100             santa_hats (80)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (81)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (82)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (83)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (84)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (85)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (86)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (87)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (88)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (89)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (9)                                            751 tris  own object
+    Santa_hat_Pack+100             santa_hats (90)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (91)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (92)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (93)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (94)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (95)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (96)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (97)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (98)                                           751 tris  own object
+    Santa_hat_Pack+100             santa_hats (99)                                           751 tris  own object
+  SUNGLASSES (9)
+    BeachyPropsPack_V1             Flamingo_Buoy_With_Glasses_01                           3,742 tris  own object
+    BeachyPropsPack_V1             Flamingo_Buoy_With_Glasses_02                           4,494 tris  own object
+    BeachyPropsPack_V1             SM_Sunglasses                                             950 tris  own object
+    BeachyPropsPack_V1             Sunglasses_01                                             950 tris  own object
+    BeachyPropsPack_V1             Sunglasses_02                                             950 tris  own object
+    BeachyPropsPack_V1             Sunglasses_03                                             950 tris  own object
+    BeachyPropsPack_V1             Sunglasses_04                                             950 tris  own object
+    DenysAlmaral                   acc_intelect_glasses (in casual_Male_K)                   212 tris  part of a character (skinned to its body; shown or hidden)
+    IdaFaber                       SK_BG_SUNGLASSES (in SK_BeachGirl_01)                   7,512 tris  part of a character (skinned to its body; shown or hidden)
+  TOWEL (15)
+    BeachyPropsPack_V1             SM_Towel_01                                               260 tris  own object
+    BeachyPropsPack_V1             SM_Towel_02                                               276 tris  own object
+    BeachyPropsPack_V1             Towel_01_01                                               260 tris  own object
+    BeachyPropsPack_V1             Towel_01_02                                               260 tris  own object
+    BeachyPropsPack_V1             Towel_01_03                                               260 tris  own object
+    BeachyPropsPack_V1             Towel_01_04                                               260 tris  own object
+    BeachyPropsPack_V1             Towel_01_05                                               260 tris  own object
+    BeachyPropsPack_V1             Towel_02_01                                               276 tris  own object
+    BeachyPropsPack_V1             Towel_02_02                                               276 tris  own object
+    BeachyPropsPack_V1             Towel_02_03                                               276 tris  own object
+    BeachyPropsPack_V1             Towel_02_04                                               276 tris  own object
+    BeachyPropsPack_V1             Towel_02_05                                               276 tris  own object
+    BeachyPropsPack_V1             Towel_With_Items_01                                     6,008 tris  own object
+    BeachyPropsPack_V1             Towel_With_Items_02                                     5,588 tris  own object
+    Venues                         towel1 (in Venue_oceania)                              18,674 tris  part of a character (on a bone)
+  BAG (8)
+    Beach Pack                     Beach_Bag                                               1,548 tris  own object
+    Beach Pack                     Beach_Bag_Blue                                          1,548 tris  own object
+    Beach Pack                     Beach_Bag_Red                                           1,548 tris  own object
+    Beach Pack                     Beach_Bag_Yellow                                        1,548 tris  own object
+    BeachyPropsPack_V1             Beach_Bag_01                                            1,396 tris  own object
+    BeachyPropsPack_V1             Beach_Bag_02                                            1,396 tris  own object
+    BeachyPropsPack_V1             Beach_Bag_03                                            1,396 tris  own object
+    BeachyPropsPack_V1             SM_Beach_Bag                                            1,396 tris  own object
+  JEWELLERY (7)
+    IdaFaber                       SK_BG_BRACELET_01 (in SK_BeachGirl_02)                  4,960 tris  part of a character (skinned to its body; shown or hidden)
+    IdaFaber                       SK_BG_BRACELET_02 (in SK_BeachGirl_01)                  6,550 tris  part of a character (skinned to its body; shown or hidden)
+    IdaFaber                       SK_BG_EARRINGS (in SK_BeachGirl_02)                     1,024 tris  part of a character (skinned to its body; shown or hidden)
+    IdaFaber                       SK_BG_NECKLACE_01 (in SK_BeachGirl_01)                 11,144 tris  part of a character (skinned to its body; shown or hidden)
+    IdaFaber                       SK_BG_NECKLACE_02 (in SK_BeachGirl_02)                  7,936 tris  part of a character (skinned to its body; shown or hidden)
+    IdaFaber                       SK_BG_SWIMSUIT_03_chain_01 (in SK_BeachGirl_03)         3,368 tris  part of a character (skinned to its body; shown or hidden)
+    IdaFaber                       SK_BG_SWIMSUIT_03_chain_02 (in SK_BeachGirl_03)         7,032 tris  part of a character (skinned to its body; shown or hidden)
+  DRINK (27)
+    BeachyPropsPack_V1             Beer_Bottle                                             1,734 tris  own object  NOT FOR USE (alcohol)
+    BeachyPropsPack_V1             Canned_Drink_01                                         1,372 tris  own object
+    BeachyPropsPack_V1             Canned_Drink_02                                         1,372 tris  own object
+    BeachyPropsPack_V1             Coconut                                                 1,424 tris  own object
+    BeachyPropsPack_V1             SM_Beer_Bottle                                          1,734 tris  own object  NOT FOR USE (alcohol)
+    BeachyPropsPack_V1             SM_Canned_Drink                                         1,372 tris  own object
+    BeachyPropsPack_V1             SM_Coconut                                              1,424 tris  own object
+    BeachyPropsPack_V1             SM_Water_Bottle                                         1,000 tris  own object
+    BeachyPropsPack_V1             SM_Water_Bottle                                         1,000 tris  own object
+    BeachyPropsPack_V1             Vending_Cart_With_Drinks                               15,084 tris  own object
+    BeachyPropsPack_V1             Water_Bottle                                            1,000 tris  own object
+    Food Pack Mixed                BeerBottle                                              2,004 tris  own object  NOT FOR USE (alcohol)
+    Food Pack Mixed                BeerBottle                                              2,004 tris  own object  NOT FOR USE (alcohol)
+    Food Pack Mixed                EnergyDrink                                             1,020 tris  own object
+    Food Pack Mixed                EnergyDrink                                             1,020 tris  own object
+    Food Pack Mixed                JuicePack                                               1,850 tris  own object
+    Food Pack Mixed                JuicePack                                               1,850 tris  own object
+    my assets/Environment          drink-bottle                                            1,400 tris  own object
+    my assets/Environment          drink-cup                                               1,900 tris  own object
+    my assets/Environment          drink-jug                                               1,900 tris  own object
+    my assets/Environment          drink-three                                             1,900 tris  own object
+    Volleyball_Set_1               SM__glass_juice_1                                         856 tris  own object
+    Volleyball_Set_1               SM__glass_juice_1                                         856 tris  own object
+    Volleyball_Set_1               SM_bottle_sp_1                                          2,408 tris  own object
+    Volleyball_Set_1               SM_bottle_sp_1                                          2,408 tris  own object
+    YGS Beach Party & Fun Pack     Coconut Juice                                             293 tris  own object
+    YGS Beach Party & Fun Pack     coconut_juice                                             293 tris  own object
+  UMBRELLA (20)
+    Beach Pack                     Beach_Umbrella                                            824 tris  own object
+    Beach Pack                     Beach_Umbrella_Blue                                       824 tris  own object
+    Beach Pack                     Beach_Umbrella_Red                                        824 tris  own object
+    Beach Pack                     Beach_Umbrella_Yellow                                     824 tris  own object
+    BeachyPropsPack_V1             Chair_With_Umbrella_01                                 11,688 tris  own object
+    BeachyPropsPack_V1             Chair_With_Umbrella_02                                  5,398 tris  own object
+    BeachyPropsPack_V1             Chair_With_Umbrella_03                                 15,990 tris  own object
+    BeachyPropsPack_V1             Lifeguard_Chair_With_Umbrella                          15,540 tris  own object
+    BeachyPropsPack_V1             SM_Umbrella_Beach                                       2,912 tris  own object
+    BeachyPropsPack_V1             Umbrella_Beach_01                                       2,912 tris  own object
+    BeachyPropsPack_V1             Umbrella_Beach_02                                       2,912 tris  own object
+    BeachyPropsPack_V1             Umbrella_Beach_03                                       2,912 tris  own object
+    BeachyPropsPack_V1             Umbrella_Beach_04                                       2,912 tris  own object
+    Volleyball_Set_1               SM_beach_umbrella_vb_1                                 15,591 tris  own object
+    Volleyball_Set_1               SM_beach_umbrella_vb_1                                 15,591 tris  own object
+    Volleyball_Set_1               SM_beach_umbrella_vb_2                                 15,591 tris  own object
+    Volleyball_Set_1               SM_beach_umbrella_vb_2                                 15,591 tris  own object
+    Volleyball_Set_1               SM_beach_umbrella_vb_3                                 15,591 tris  own object
+    Volleyball_Set_1               SM_beach_umbrella_vb_3                                 15,591 tris  own object
+    YGS Beach Party & Fun Pack     beach_umbrella                                            458 tris  own object

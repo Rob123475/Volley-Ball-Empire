@@ -135,6 +135,15 @@ Brief: `docs/update-1.2/UNITY-REBUILD-BRIEF.md`. Plan: `docs/update-1.2/PLAYABLE
 36. **`APP_UI_EDITOR_ONLY` and batch Play-mode proofs.**
     - **What happens:** the App UI package puts the define back on WebGL whenever the editor enters Play mode (`AppUIManager`, on `delayCall`). With the line reverted for the WebGL build, the next Play-mode proof recompiled every script in the middle of its match, and the match broke with a NullReferenceException at every serve.
     - **So:** the line stays as App UI writes it for Play-mode proofs, as it did all through Parts A and B, and is reverted right before each WebGL build (decision 2). Both demo exports were built with it reverted. The Unity repo is left without it, as committed; App UI adds it again the next time the editor plays.
+37. **The soundtrack now plays through the match, from the band's stage (6e, Rob 27 Nov).** This replaces Unity brief item 9 (Rob, 29 Sep), under which the music faded out on the court.
+    - The songs stay in the game page's own player, so its queue, skip, pause, volume and the three fade-outs work as they do everywhere else. Unity never plays, trims or fades a song.
+    - The court tells the page how loud the stage is where its camera is. The page plays the song at the player's volume times that.
+    - A venue with no band plays the songs at the player's volume.
+38. **Loudness only, no left and right.** Panning the song needs the page's music to go through Web Audio. A Web Audio context that the browser holds suspended plays silence until it is woken, and that risks the soundtrack everywhere in the game. So the stage gets louder and quieter as the camera moves, but not left and right. Rob can ask for panning; it is a change to the page's player alone.
+39. **A continent waiting on Rob's assets plays at the island beach.** Each continent has its line in `Resources/venues.json`, with its look and what is missing. Its status is "waiting on Rob" until its venue is built. Until then, a match there plays at the fallback (oceania, the island beach) and the log says so.
+40. **The scenery's light is not baked.** D2 moves the sun through four times of day. A baked set would be right for one of them and wrong for the other three, and four sets per venue would multiply the download. So the scenery is lit by the real sun and sky, and casts no real-time shadow (section 2's rule: only the players and the ball do). Rob can ask for a baked set per time of day; each would add to the venue's download.
+41. **Each musician carries the instrument on Musical Motions' own skeleton.** Musical Motions hangs its instruments on bones of its own (Guitar, DrumStick_L/R). A Humanoid clip played on another skeleton, Citizens Pro's here, does not carry those bones. So the pack's own rig stands in each musician's spot, scaled to their height, with its body hidden. It plays the same clip in step and holds the instrument where the pack's animator put it.
+
 
 ## Items
 
@@ -1326,3 +1335,159 @@ Rob: "they look shit against our players." He wants them to move, and not all dr
   - **The Uninstall entry:** demo 2 replaces demo 1, with the same app id and so the same Uninstall entry. The check expected a new one.
   - **"No folder":** the demo's save folder existed, empty, when the test began (left by demo 1's uninstaller). Every file the test then moved aside dates from its own run, so none was Rob's.
 - **Demo 2 is installed on this PC**, its save folder moved aside after the test, so its next start is a first run.
+
+### D1: six venues, one per continent, with sections 2, 3 and 6 (28 Nov 2026)
+
+**Where it stands.**
+- The venue system is built: one data file, `Resources/venues.json`, holds the six continents and what each venue has.
+- One venue is built: the island beach, which is oceania.
+- The other five are waiting on Rob's packs (decision 39). Their looks and what each is missing are below and in the data file.
+- The frame rate and the main download's size are measured in D2's WebGL build, at every time of day (section 2). That build is still to come.
+
+**The continents come from the game.**
+- `CONTINENT_KEYS` (`lib/db/src/schema/continents.ts`): north_america, south_america, europe, asia, africa_middle_east, oceania.
+- Every match already carries its continent. `/api/unity/match-state` now sends it as `continent` (`artifacts/api-server/src/routes/unity.ts`; null for a Nations Cup match).
+- The court reads it (`UnityMatchDataLoader.Continent`).
+- In the proof's career, Sydney Riptide's first match is in Asia. Asia is waiting, so the match played at the island beach, and the log says so.
+
+**How a venue loads** (`VenueLoader`, `VenueBundles`):
+- **What is the venue and what is not:**
+  - The court, players, cameras, stands, crowd, boards and match logic stay in the scene.
+  - The venue is everything round them, kept as its own prefab (`Assets/Venues/KEY/Venue_KEY.prefab`).
+- **In a build:** each venue is an AssetBundle of its own in `StreamingAssets/Venues`, fetched only when a match is there. So the download does not grow six times.
+  - `WebBuild.Step7` builds the bundles first and hands their manifest to the player build, so code stripping keeps what the venues use.
+- **In the Editor:** the prefab is loaded straight from Assets.
+- **The match waits for the venue.** Once it is in, the cameras' keep-out is built again round its props, and its palms are handed to the weather's sway.
+- **Size:** the island beach's bundle is **75.2 MB**. Until now all of it was inside the main download.
+
+**What was in V19** (`proof/D1/venue-survey.txt`, `v19-map-120m.png`, `v19-map-400m.png`):
+- A wide sand flat with the court in the middle and the two stands on its west side.
+- A pond west of the stands; palm groves 75 to 280 m out to the east and west.
+- A seaside hotel 96 m north and a dock 146 m south.
+- Rob's Tripo props round the court.
+
+**The palms (6a).**
+- **There were 890, not 24.** That counts 13 + 13 near the court (19 to 70 m) and 877 in the island's groves.
+- **Each was 1.9 million triangles** (1,944,095 and 1,886,199), so 1.7 billion in all at their nearest level. A 5% screen-size cut-off was all that kept them drawable.
+- **They now use light copies of Rob's own two palms** (`MeshReduce`, with meshoptimizer through `scripts/mesh-reduce.mjs`, which keeps the texture's seams):
+  - 30,000 triangles near the camera, and 10,000 once a palm is under 20% of the screen's height;
+  - shape error 0.9% and 1.2% near, 3.8% and 5.9% far (`proof/D1/palms-light.png`).
+- **The total at the nearest level is 26.6 million**, down from 1.7 billion. A third, 2,500-triangle level fell apart (shape error 99%) and was not used.
+- **What they cost in frame rate:** measured in D2's build, against demo 2's 56.0 fps.
+
+**Half-buried props (6a): sat on the sand** (`proof/D1/venue-build.txt`):
+
+| Prop | Lifted by |
+|---|---|
+| T-shirt shop | 1.55 m |
+| VIP tent | 2.16 m |
+| signpost | 0.96 m |
+| scaffolding tower | 0.46 m |
+| three towels | 0.10, 0.40 and 0.46 m |
+
+**No venue shadows (section 2).** Nothing in the venue casts a real-time shadow; only the players and the ball do (decision 40).
+
+**The audit, per continent** (rough renders: `proof/D1/continent-*.png`, the pieces owned for each):
+
+| Continent | Look | Owned now | Missing (Rob's packs that would fill it) | State |
+|---|---|---|---|---|
+| oceania | tropical island: palms, seaside hotel, dock | everything in V19 | none | **built** (Island Beach) |
+| north_america | city surf beach: lifeguard towers, surf racks, a pier, beach houses | yellow lifeguard tower, surf rack and boards, BeachyProps lifeguard chair and carts, the dock | beach houses (Hawaii Beach House, or Beach - resort by Mixall), a pier | waiting on Rob |
+| south_america | city beach under high-rise hotels, green hills, headlands | the seaside hotel (glass towers), helicopter | headlands and hills (Rock and Boulders 2, Free Island Collection), more towers, a promenade | waiting on Rob |
+| europe | Mediterranean cove: red-roofed villas on a headland, stone promenade, an old ship in the bay | the luxury hotel (red roofs), umbrellas | cliffs and rocks (Rock and Boulders 2), a pavilion (Pavilion), the ship (Colonial Ship), clear water (URP Stylized Water Shader) | waiting on Rob |
+| asia | resort lagoon: over-water bungalows, limestone islets | the over-water bungalow (but its mesh is broken), luxury hotel | a working bungalow, islets (Island Assets by Lylek, Free Island Collection), lagoon water (URP Stylized Water Shader) | waiting on Rob |
+| africa_middle_east | desert coast: dunes, sandstone rocks, shade sails, a low white resort | VIP tent, kiosk | sandstone rocks (Rock and Boulders 2), shade (Pavilion), a low resort (Beach - resort) | waiting on Rob |
+
+- **Every venue wants ambience** (Free General Ambience Sounds).
+- **No continent is faked** with the same props recoloured.
+- **The owned packs:**
+  - Beach Pack and YGS are cartoon-styled, so they are kept away from the court (section 2: one realistic style).
+  - BeachyPropsPack's 80 materials were HDRP and drew magenta. They now draw in URP (`proof/D1/beachyprops-urp.txt`).
+  - Abandoned World and the Supercyan forest sample have nothing for a beach.
+
+#### For Rob to regenerate (6a)
+Pictures: `proof/D1/6a-rob-models-close.png` (close) and `proof/D1/6a-match-distance.png` (each as the TV camera sees it at 1080p, real size on screen).
+
+| Model | Triangles | In V19 | Verdict |
+|---|---|---|---|
+| T-shirt shop ("clothing store") | 16,635 | 1, 15 m | **too rough up close**: torn, smeared texture. Regenerate |
+| VIP tent | 17,963 | 1, 13 m | **too rough up close**: blotchy white, crude poles. Fine at 30 m or more |
+| scaffolding tower | 15,714 | 1, 15 m | use (it is the commentary stand, 6b); flat panels close up |
+| food van | 16,177 | 1, 14 m | use (the food stand, 6c) |
+| signpost (the old one) | 18,924 | 1, 19 m | use |
+| umbrella | 18,998 | 1, 16 m | use |
+| beach chairs (textured) | 18,598 | 8 | use |
+| `beach chairs.fbx` | 18,598 | 0 | untextured copy of the one above; not used |
+| two towels | 18,674 / 19,173 | 9 / 8 | use |
+| flag on the beach | 19,100 | 11 | use; `flag.fbx` is an untextured copy |
+| three surfboards | 17,533 to 18,688 | 14 | use at distance |
+| umbrella and chair | 17,942 | 7, 72 m+ | use at distance |
+| seaside hotel | 17,634 | 1, 96 m | use at distance; smeared close up |
+| dock | 18,198 | 1, 146 m | use at distance |
+| the two palms | 1,944,095 / 1,886,199 | 890 | **too heavy**: replaced by light copies of themselves (above) |
+| umpire's chair | 17,230 | 1 | use |
+| `media tower.fbx` | 15,226 | 0 | **no texture** (all white). Regenerate if it is to be the commentary stand |
+| ice-cream cart (`tripo_convert_f95a6fa8`) | 17,119 | 0 | **no texture**. Regenerate |
+| luxury hotel (red roofs) | 17,280 | 0 | a far backdrop only (Europe); rough under 100 m |
+| over-water bungalow | 18,684 | 0 | **broken**: its mesh is a heap of spikes. Regenerate (Asia needs it) |
+| helicopter | 18,726 | 0 | use (a parked prop) |
+| national flags, flags on poles | 17,025 / 15,988 | 0 | use |
+| stadium and bleachers | 1,921,625 | 0 | **too heavy, and untextured** |
+| colourful beach umbrella | 1,169,419 | 0 | **too heavy**; `MeshReduce` can make a light copy if wanted |
+| the old lifeguard tower (zip) | | 0 | not unzipped: the 1.2 yellow tower is used |
+
+The people standing round the venue were treated under fix 1b.
+
+**Rob's 1.2 Tripo props (section 3)** (`proof/D1/props-beside-player.png`, each beside a player at real size):
+- **Imported** into `Assets/my assets/Props 1.2` (zips unzipped).
+- **Textures capped:** scenery at 1024, the gull and drinks at 512. All of `my assets/Environment` is now capped at 1024 too.
+- **Placed** at real size, static, facing the court, 19 to 33 m from its centre (`proof/D1/venue-dress.txt`). Clear of the run-off, and in the keep-out.
+- **Triangles cut:**
+  - the lifeguard tower from 61,958 to 19,940;
+  - the pink bottle from 8,956 to 1,400;
+  - the handled bottle from 64,500 to 1,900, the cup with straw from 64,446 to 1,900, and the three bottles from 8,830 to 1,900;
+  - shape errors 0.7% to 1.8%.
+- **Verdicts:**
+  - Kiosk, surf rack, lying board, signpost, beach chair and lifeguard tower look good.
+  - **The tiki bar** (its skirt) and **the upright board** are smeared and blotchy up close and fine at match distance. Rob may want them remade.
+  - The gull reads as a gull.
+  - The beach chair comes with its own umbrella, so it stands 1.9 m to the umbrella's top (the chair itself is about 0.9 m).
+- **Drinks:** four kinds in five colours each (the original and four hue turns). Eight line the tiki bar's counter.
+  - The kiosk is an open gazebo with no counter, so a table inside its front holds five drinks.
+- **The kiosk's sign:** the AI-mashed "BEACH VOLLEBALL EMPIRE" banner under its front eave is covered by a panel with the game's wordmark and nothing else.
+  - Found by rays on the model: 2.37 × 0.58 m, 1.40 m up.
+  - The wordmark came from `Downloads/bve-library-logo-1280x720.png`: the repo path in the additions file does not exist.
+  - Pictures: `oceania-dressed-map-kiosk-sign-close.png`, `-kiosk.png`, `-kiosk-match-distance.png`.
+- **The signpost:** the surfboard board reading "SAND & SURP" is covered on both faces by a board-shaped panel reading "SAND & SURF", in its colours. The other boards are untouched (`oceania-dressed-map-signpost-close.png`, `-signpost-back.png`).
+- **A gull in shot:** `d1-oceania-gull.png`. One venue is built, so there is one picture.
+
+**The venue features (6b to 6e)** (each switched on or off per venue by one line in `venues.json`):
+- **6b, the commentary stand:** the scaffolding tower beside the court, with a desk and three seats on its platform, 2.13 m up, facing the court. There are no commentators yet.
+  - The TV camera can cut to it between points: "the commentary booth" is a new shot (`d1-oceania-booth.png`).
+  - The media tower was the other candidate. It is untextured, so the tower was used. Both are in the 6a pictures for Rob to choose.
+- **6c, the food stand:** the food van.
+- **6d, the juice bar:** the tiki bar with its drinks, 25 m from the court (`d1-oceania-juice-bar.png`).
+- **6e, the band** (`d1-band-band-close.png`, `d1-band-band-match-distance.png`):
+  - **The stage:** Loafbrr's Modular Stage (Stage_Built_B, arched truss over a deck 1 m up), 40 m north-east of the court, in view from it.
+    - The other choices are on `6e-stage-packs.png`: Stage_Built_A's materials are broken (pink), and OlegWER is arena lights and speakers.
+  - **The musicians:** Citizens Pro people in summer clothes on drums, guitar, bass and keyboard, plus a singer at Musical Instruments Pack's microphone on its stand.
+    - **Their clips:** Musical Motions' Drumming_A01 (with the kit's own DrumSet_A01), Guitarist_A, Bassist_A and Keyboard_A01; the Lounge Singer's Sing_Upbeat01.
+    - **Idle:** each instrument's own idle. Bass has none, so the guitarist's strap idle is used.
+    - **The instruments are on the pack's own rig** (decision 41).
+  - **The music:** they play while a song plays, and stand idle between songs, when the music is paused or skipped, and when it is muted or at zero. The soundtrack comes from the stage (decisions 37, 38).
+    - **Loudness:** full within 20 m, falling with distance beyond that, never below a tenth. In the proof's shots it was 0.35 from the TV camera, 0.54 from the court's centre and 1.0 beside the stage.
+    - The TV camera has a new between-points shot, "the band".
+  - **In motion** (`d1-band-band-close.png`): the guitar and bass sit on their players' straps, the hands on the necks. The drummer is at the kit, though his sticks are too small to see at that distance. The keyboard player is at the keys. The singer is at the microphone.
+  - **What it costs:** 284,982 triangles at its nearest, mostly the five Citizens Pro people, who come only in high detail. The frame rate is measured with the rest in D2.
+  - **Pack contents:** `MusicalInstrumentsPack` has electric, acoustic and bass guitars, drums, synth and piano, violin, trombone, xylophone, chimes, a djembe, maracas, mic and stand, a guitar stack and monitors. Musical Motions animates guitar, bass, double bass, drums, keyboard, sax, trumpet and violin.
+    - No player was faked with an unrelated clip, and no instrument stands unplayed.
+    - Not used: sax, trumpet, violin and double bass, all owned and animated, to keep the beach band small. Rob can ask for any.
+- **6f, the stands:** pictures only (`proof/1b/stand-styles.png`); unchanged.
+- **6g, wearables and props:** `proof/D1/6g-wearables-and-props.txt` and `.png`.
+  - **The count:** 162 hats (101 Santa, 40 Hats Collection, 7 IdaFaber, 4 cowboy, 4 BeachyProps, 2 fun hats from Assets Storms, plus 4 more), 9 sunglasses, 15 towels, 8 bags, 7 pieces of jewellery (IdaFaber's bracelets, earrings, necklaces, swimsuit chains, all parts of the girls' bodies), 27 drinks and 20 umbrellas.
+  - **Not for use:** four beer bottles (BeachyProps, Food Pack).
+
+**The proof in a match** (`proof/D1/d1-oceania.txt`, real match data through `harness/unity-on-server.mjs`):
+- The venue was in 0.7 s after the match data.
+- All seven features were on. The cameras' keep-out took 442 boxes, 414 of them props.
+- Pictures: the TV look, the band close and at match distance, the booth, the juice bar, the kiosk, a gull, the lifeguard tower, and the surf rack and signpost.

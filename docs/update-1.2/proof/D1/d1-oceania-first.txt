@@ -1,0 +1,12 @@
+A VENUE IN PICTURES (d1-oceania-first), V19 IN PLAY MODE (batch), A WATCHED MATCH
+  log: [Venue] 'asia' is waiting on Rob; playing at oceania
+  log: [Venue] oceania (Island Beach) in after 0.7s, 0.0 MB; features on 0, off 0
+  log: [Camera] keep-out rebuilt for the venue: 408 boxes, 380 of them props
+  the match's continent: asia; venue loaded: oceania (Island Beach), 0.7 s
+  features: 
+  the venue's triangles, every level of every LOD counted: 36,856,824
+  keep-out: 408 boxes, 380 props
+  -> d1-oceania-first-tv.png
+  -> d1-oceania-first-east-wide.png
+  -> d1-oceania-first-north-high.png
+  -> d1-oceania-first-aerial.png

@@ -1,0 +1,49 @@
+D1 / SECTIONS 3 AND 6: THE OCEANIA VENUE DRESSED
+  Booth: Wooden_Beach_Table at (61.7, 20.0), 14.6 m from the court
+  Booth: Seat at (62.4, 19.4), 15.4 m from the court
+  Booth: Seat at (62.5, 20.0), 15.4 m from the court
+  Booth: Seat at (62.5, 20.6), 15.4 m from the court
+  commentary booth: a desk and three seats on the tower's platform, 2.13 m up, facing the court (no commentators: Rob confirms the team first)
+  drinks: 4 kinds in 5 colours each (the original and 4 hue turns), Assets/Textures/Venue/Drinks
+  Feature_juiceBar: tiki-bar at (69.0, 32.0), 24.9 m from the court
+  Feature_juiceBar: drink-bottle at (68.8, 32.9), 25.2 m from the court
+  Feature_juiceBar: drink-jug at (68.8, 32.6), 25.1 m from the court
+  Feature_juiceBar: drink-cup at (68.8, 32.3), 24.9 m from the court
+  Feature_juiceBar: drink-three at (68.8, 32.0), 24.8 m from the court
+  Feature_juiceBar: drink-bottle at (68.8, 31.7), 24.6 m from the court
+  Feature_juiceBar: drink-jug at (69.4, 31.9), 25.2 m from the court
+  Feature_juiceBar: drink-cup at (69.0, 31.4), 24.6 m from the court
+  Feature_juiceBar: drink-three at (69.2, 31.1), 24.6 m from the court
+  the tiki bar's counter: 8 drinks on a surface 1.31 m up
+  Feature_kiosk: kiosk at (66.0, 6.0), 23.6 m from the court
+  kiosk sign: found 2.37 x 0.58 m, 1.40 m up, 1.73 m in front of the kiosk's middle; covered by the game's wordmark
+  Feature_kiosk: Wooden_Beach_Table at (65.3, 6.5), 22.7 m from the court
+  Feature_kiosk: drink-bottle at (65.1, 6.3), 22.7 m from the court
+  Feature_kiosk: drink-jug at (65.0, 6.6), 22.5 m from the court
+  Feature_kiosk: drink-cup at (65.1, 6.7), 22.5 m from the court
+  Feature_kiosk: drink-three at (65.2, 6.7), 22.5 m from the court
+  Feature_kiosk: drink-bottle at (65.4, 6.7), 22.7 m from the court
+  the table in the kiosk: 5 drinks on a surface 0.57 m up
+  Feature_lifeguardTower: lifeguard-tower at (23.0, 37.0), 29.4 m from the court
+  Feature_gulls: seagull at (56.0, 3.0), 19.3 m from the court
+  Feature_gulls: seagull at (57.5, 1.8), 21.0 m from the court
+  Feature_gulls: seagull at (34.0, 45.0), 28.1 m from the court
+  Feature_gulls: seagull at (73.0, 41.0), 33.3 m from the court
+  Feature_gulls: seagull at (27.0, 3.0), 26.4 m from the court
+  Feature_gulls: seagull at (61.0, 43.0), 26.8 m from the court
+  Always: surfboard-rack at (31.0, 41.0), 26.4 m from the court
+  Always: surfboard-upright at (34.2, 41.5), 25.0 m from the court
+  Always: surfboard-lying at (28.5, 43.5), 29.9 m from the court
+  Always: signpost at (38.5, 38.0), 19.9 m from the court
+  signpost: the board at 1.52 m faces 2 degrees from the post's front (1.00 square on)
+  signpost: the SAND & SURP board found, 0.96 x 0.26 m, 1.57 m up; covered by SAND & SURF on both faces
+  Always: beach-chair at (74.0, 36.0), 31.2 m from the court
+  Always: beach-chair at (75.0, 30.0), 29.6 m from the court
+  Always: beach-chair at (73.0, 25.0), 26.4 m from the court
+  Always: beach-chair at (71.0, 1.5), 30.3 m from the court
+  Always: beach-chair at (62.0, -0.5), 25.4 m from the court
+  band: stage Stage_Built_B, 8.5 x 8.5 m, 5.1 m tall, deck 1.03 m up, 39 m from the court's centre
+  band: drums (casual18_m_highpoly, the rig carries SM_DrumStick, rig scaled 1.04), guitar (casual12_m_highpoly, the rig carries SM_Guitar, rig scaled 1.05), bass (casual22_m_highpoly, the rig carries SM_BassGuitar, rig scaled 1.04), keyboard (casual09_f_highpoly, rig scaled 0.98), singer at a microphone; 10 animators switched by the music (BandStage)
+  band: 284,982 triangles drawn at its nearest
+  real-time shadows off on 5 more renderers (the new props)
+  saved Assets/Venues/oceania/Venue_oceania.prefab

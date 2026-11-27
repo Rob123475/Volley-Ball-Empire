@@ -1,0 +1,4 @@
+   17,634 tris  0.86 x 0.55 x 0.98 m  Assets/my assets/Environment/seaside+hotel+3d+model 1/tripo_convert_18789716-4b6e-4ef4-ad0f-778a5b76dc78.fbx
+   18,726 tris  0.81 x 0.34 x 0.98 m  Assets/my assets/Environment/helicopter+3d+model/tripo_convert_3645e5d8-32f5-4f61-923a-ae618411c9ba.fbx
+   15,990 tris  3.33 x 2.91 x 3.05 m  Assets/BeachyPropsPack_V1/Prefabs/Chair_With_Umbrella_03.prefab
+    2,158 tris  0.62 x 0.58 x 0.40 m  Assets/BeachyPropsPack_V1/Prefabs/Cooler_Box_01.prefab
