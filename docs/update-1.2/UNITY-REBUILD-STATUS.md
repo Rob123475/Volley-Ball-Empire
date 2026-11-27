@@ -153,9 +153,10 @@ Brief: `docs/update-1.2/UNITY-REBUILD-BRIEF.md`. Plan: `docs/update-1.2/PLAYABLE
 
 | Item | State | Proof | Commit |
 |---|---|---|---|
-| D6 Exhibition and online scaffold (28 Nov) | Done, PASS: the pick screen, up to four people, custom swimwear in two colours and eight prints (the leopard print poor: Rob to supply art), nothing in a career; RemoteSeat, recording, two engines agree | `proof/D6/` (`d6-exhibition-court.txt`, `d6-prints.png`), `proof/pages/`; `harness/exhibition.mjs` 23/23, `harness/online-scaffold.mjs` 6/6; `ONLINE-SCAFFOLD.md` | Unity `ac3a9af1` and after |
-| D5 Crowd banners (28 Nov) | Done, PASS: ten slogans and the player's own | `proof/D5/` | Unity `ac3a9af1` and after |
-| D4 Store and wallet (28 Nov) | Done, PASS, shipped closed: the wallet and four hooks from one settings file, items from a data file, the page, both ways proven | `harness/store.mjs` 25/25, `proof/pages/` | Unity `ac3a9af1` and after |
+| D4-D6 Full harness (28 Nov) | **ALL HARNESSES PASSED** on run 3 of the 3 allowed (144 suites; season rollover 2,266 s). Run 1 stopped at check-starter-db; run 2 failed four source suites only | `pnpm run build`; see "Full harness, Part D" below | game `07503f05`, `bdbaef5a` |
+| D6 Exhibition and online scaffold (28 Nov) | Done, PASS: the pick screen, up to four people, custom swimwear in two colours and eight prints (the leopard print poor: Rob to supply art), nothing in a career; RemoteSeat, recording, two engines agree | `proof/D6/` (`d6-exhibition-court.txt`, `d6-prints.png`), `proof/pages/`; `harness/exhibition.mjs` 23/23, `harness/online-scaffold.mjs` 6/6; `ONLINE-SCAFFOLD.md` | Unity `ac3a9af1`, game `80ad1d5f` |
+| D5 Crowd banners (28 Nov) | Done, PASS: ten slogans and the player's own | `proof/D5/` | Unity `ac3a9af1`, game `80ad1d5f` |
+| D4 Store and wallet (28 Nov) | Done, PASS, shipped closed: the wallet and four hooks from one settings file, items from a data file, the page, both ways proven | `harness/store.mjs` 25/25, `proof/pages/` | Unity `ac3a9af1`, game `80ad1d5f` |
 | Section 4 Drinks break (28 Nov) | Done, PASS: 6 s, both teams, a shot of each, Enter skips, bottles away before the serve; B5 4/4 | `proof/section4/`, `proof/B5/b5-skip.txt` | Unity `a6aae18c` and after |
 | D2 Time of day, D3 Weather (28 Nov) | Done, PASS: four times and four weathers in every venue; the weather is what you see, not on the ball | `proof/D2/`, `proof/D3/`; frame rate `proof/D2/fps/` | Unity `a6aae18c` |
 | D1 Venues, sections 2, 3, 6 (28 Nov) | Built: the venue system and the island beach (oceania); five continents waiting on Rob's packs; palms 1.9 million to 30,000 triangles; Rob's props, the band, booth, juice bar, kiosk | `proof/D1/`; frame rate 56.8 fps lowest (headless Chrome's own ceiling is 56.3) | Unity `47348863`, `09fd34c7` |
@@ -1729,3 +1730,16 @@ Change them, rebuild, no code.
 - one press taken out of the file changes the first point.
 
 **Not built (Rob's instruction):** section 5's commentary team. Its make-up isn't confirmed, so the booth has no commentators.
+
+### Full harness, Part D (28 Nov 2026): three runs, the cap
+
+| Run | Result | What failed | Fixed in |
+|---|---|---|---|
+| 1 | Stopped in its first seconds | `check-starter-db`: the store's two tables (`store_wallets`, `store_owned`) were in the model but not in the shipped starter database | `07503f05`: added by the server's own `ensureSchema` on a copy; only the two tables and their indexes changed, no table's row count moved |
+| 2 | Every long suite passed (season rollover 2,280 s, ai market, nations cup, ceremonies, store, online scaffold, exhibition...) | Four source suites still pinned the old rules: music playlist and settings (6e: the song plays on through the match, at the band's loudness, replacing item 9's fade-out), court finish (an exhibition leaves to the pick screen), presentation (the engine also waits through the drinks break) | `bdbaef5a` |
+| 3 | **ALL HARNESSES PASSED** (144 suites) | | |
+
+**A real bug found by run 2, fixed in `bdbaef5a`:** the music counted only `/court` as the court, so in an exhibition (`/exhibition/court`) the songs ignored the band's stage and played at full volume. The ceremony pop-up also stayed off only `/court`, so a career ceremony could have opened over an exhibition match. Both now treat the exhibition court as the court.
+- These two fixes are in the pages' source and the harness. They are not in a WebGL or desktop proof of their own: the court itself did not change.
+
+**Final commits (28 Nov):** Unity `ac3a9af1` (branch `update-1.2`); game `80ad1d5f` (D4-D6 and the final WebGL export), `07503f05`, `bdbaef5a`, and this status commit.
