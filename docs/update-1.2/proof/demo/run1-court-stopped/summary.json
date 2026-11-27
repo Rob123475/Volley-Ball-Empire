@@ -1,0 +1,35 @@
+{
+  "mode": "auto",
+  "size": "1920x1080",
+  "gpu": true,
+  "checks": [
+    {
+      "label": "(set-up) a new career, its draft done, on its first match day",
+      "pass": true,
+      "detail": "match 1"
+    },
+    {
+      "label": "CONTINUE on the title screen, then Watch Match on the match day box",
+      "pass": true,
+      "detail": "/"
+    },
+    {
+      "label": "the court opens in Auto (the remembered choice)",
+      "pass": true,
+      "detail": "/unity-build/index.html?careerSaveId=1&matchId=1"
+    },
+    {
+      "label": "the court loaded and the match started",
+      "pass": true,
+      "detail": "[MatchManager] match starts after 4.1s: match data applied; home point chance 0.4866\n"
+    }
+  ],
+  "shots": [],
+  "fps": null,
+  "match": null,
+  "bot": null,
+  "console": [],
+  "errors": [
+    "Error: the court has logged nothing for 3 minutes; its last line: Invoking error handler due to\nEncodingError: Unable to decode audio data\n\n    at file:///C:/Users/rbonn/Documents/Volley-Ball-Empire/scripts/webgl-proof/demo-1.2-proof.mjs:208:13"
+  ]
+}

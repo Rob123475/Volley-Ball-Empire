@@ -61,7 +61,13 @@ if (process.env.NODE_ENV === "production") {
     app.use(precompressedUnityAssets(staticDir));
     app.use(express.static(staticDir));
 
-    app.get(/^(?!\/api).*/, (_req, res) => {
+    // The page's own routes (/court, /settings/rules) get the page. A file that
+    // is not there (a last path segment with an extension) is a 404, never the
+    // page: 1.2 demo, 27 Nov, the court asked for commentary clips not yet
+    // recorded, got index.html with a 200, and the browser's failed decode of it
+    // as audio stopped the court (CommentaryManager now asks only for its list).
+    app.get(/^(?!\/api).*/, (req, res) => {
+      if (/\.[A-Za-z0-9]+$/.test(req.path)) { res.status(404).end(); return; }
       res.sendFile(path.join(staticDir, "index.html"));
     });
   }

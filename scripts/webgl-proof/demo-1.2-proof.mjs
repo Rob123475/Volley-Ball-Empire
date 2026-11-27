@@ -3,9 +3,11 @@
  * WebGL build in headless Chrome (real GPU with --gpu), on the built game.
  *
  * Boots the built api-server in production mode on a COPY of the starter DB,
- * makes a new Sydney Riptide career, and opens its first match as Rob does
- * (the remembered Auto/Manual choice, Next match, Watch Match). Then, to the
- * end of the match:
+ * makes a new Sydney Riptide career as the harness does (its Day 1 draft
+ * picked and closed, harness-club.mjs startCareer), advances it to its first
+ * match day, and opens that match as Rob does (the remembered Auto/Manual
+ * choice, CONTINUE on the title screen, Watch Match). Then, to the end of the
+ * match:
  *   --mode auto    a watched match. It opens on the TV look (the default for a
  *                  watched match); once the moments below are on file, V
  *                  switches to the Game look for the rest.
@@ -32,6 +34,7 @@ import { fork, spawn } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { startCareer } from "../../harness/harness-club.mjs";
 
 const REPO = path.resolve(import.meta.dirname, "..", "..");
 const args = process.argv.slice(2);
@@ -72,16 +75,28 @@ const secs = () => ((Date.now() - t0) / 1000).toFixed(1);
 try {
   for (let i = 0; i < 120; i++) { try { if ((await fetch(`${BASE}/api/healthz`)).ok) break; } catch { /* booting */ } await sleep(500); }
   let cookie = "";
-  const api = async (m, p, b) => {
+  const call = async (m, p, b) => {
     const r = await fetch(BASE + "/api" + p, { method: m, headers: { "content-type": "application/json", ...(cookie ? { cookie } : {}) }, body: b === undefined ? undefined : JSON.stringify(b) });
     const sc = r.headers.get("set-cookie"); if (sc) cookie = sc.split(";")[0];
-    const t = await r.text(); try { return JSON.parse(t); } catch { return t; }
+    const t = await r.text(); let data; try { data = JSON.parse(t); } catch { data = t; }
+    return { status: r.status, data };
   };
+  const api = async (m, p, b) => (await call(m, p, b)).data;
   const prof = await api("POST", "/profiles", { name: "Demo Proof" });
   await api("POST", `/profiles/${prof.id}/select`);
   const club = (await api("GET", "/club-templates")).clubs.find((c) => c.name === "Sydney Riptide");
-  await api("POST", "/careers", { slotNumber: 1, managerName: "Rob Bonner", managerNationality: "Australia", clubName: club.name, originalClubName: club.name,
+  // A new career as the harness makes one: the Day 1 draft picked and closed (harness-club.mjs startCareer).
+  await startCareer(call, { managerFaceId: 8, slotNumber: 1, managerName: "Rob Bonner", managerNationality: "Australia", clubName: club.name, originalClubName: club.name,
     budget: club.startingBudget, difficulty: "established", primaryColor: "#1e3a8a", secondaryColor: "#f59e0b", crestShapeIndex: 0 });
+  // Days pass to the first match day.
+  let firstMatchId = null;
+  for (let i = 0; i < 200 && firstMatchId == null; i++) {
+    const adv = await call("POST", "/calendar/advance", {});
+    if (adv.status >= 400) break;
+    firstMatchId = adv.data?.matchDay?.matchId ?? (adv.data?.blocked === "pending_match" ? adv.data.pendingMatchId : null);
+  }
+  check("(set-up) a new career, its draft done, on its first match day", firstMatchId != null, `match ${firstMatchId}`);
+  if (firstMatchId == null) throw new Error("no match day");
 
   const profile = fs.mkdtempSync(path.join(os.tmpdir(), "demo-proof-chrome-"));
   const gl = GPU ? ["--use-angle=d3d11", "--enable-gpu", "--ignore-gpu-blocklist"] : ["--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"];
@@ -98,10 +113,18 @@ try {
   ws.onmessage = (ev) => {
     const m = JSON.parse(ev.data);
     if (m.id && pending.has(m.id)) { pending.get(m.id)(m); pending.delete(m.id); return; }
-    if (m.method === "Runtime.consoleAPICalled") lines.push({ at: Date.now(), text: (m.params.args ?? []).map((a) => a.value ?? a.description ?? "").join(" ") });
+    if (m.method === "Runtime.consoleAPICalled") {
+      const l = { at: Date.now(), text: (m.params.args ?? []).map((a) => a.value ?? a.description ?? "").join(" ") };
+      lines.push(l);
+      // Every line of the page and the court, as it comes (console.log in outDir).
+      fs.appendFileSync(path.join(outDir, "console.log"), `${((l.at - t0) / 1000).toFixed(1)}s ${l.text}
+`);
+    }
     if (m.method === "Runtime.exceptionThrown") summary.errors.push(m.params.exceptionDetails?.exception?.description ?? m.params.exceptionDetails?.text);
   };
-  const send = (method, params = {}) => { const id = nextId++; ws.send(JSON.stringify({ id, method, params })); return new Promise((r) => pending.set(id, r)); };
+  // A page that stops drawing never answers a screenshot: every call gives up after 20 s.
+  const send = (method, params = {}, ms = 20000) => { const id = nextId++; ws.send(JSON.stringify({ id, method, params }));
+    return new Promise((r) => { const t = setTimeout(() => { pending.delete(id); r({}); }, ms); pending.set(id, (m) => { clearTimeout(t); r(m); }); }); };
   const js = async (expr) => (await send("Runtime.evaluate", { expression: expr, returnByValue: true, awaitPromise: true })).result?.result?.value;
   await send("Runtime.enable"); await send("Page.enable");
   const [cn, cv] = cookie.split("=");
@@ -129,23 +152,22 @@ try {
   await js(`localStorage.setItem("vbe-court-control-mode", "${MODE}"); localStorage.removeItem("vbe-court-camera"); localStorage.removeItem("vbe-court-skips")`);
   await send("Page.reload");
   await sleep(2500);
-  for (let i = 0; i < 40 && !(await js(`[...document.querySelectorAll("button")].some(b => /Next match/.test(b.textContent))`)); i++) {
-    await js(`[...document.querySelectorAll("button")].find(b => /^ *continue *$/i.test(b.textContent.trim()))?.click()`);
-    await sleep(400);
-  }
-  await js(`[...document.querySelectorAll("button")].find(x => /Next match/.test(x.textContent))?.click()`);
+  // The title screen's CONTINUE, then the match day box's Watch Match.
   let watched = false;
-  for (let i = 0; i < 60 && !watched; i++) {
+  for (let i = 0; i < 80 && !watched; i++) {
+    await js(`(() => { const b = [...document.querySelectorAll("button")].find(b => /^ *continue *$/i.test(b.textContent.trim())); if (b) b.click(); })()`);
     await sleep(500);
     watched = await js(`(() => { const b = [...document.querySelectorAll('[data-testid="match-day-box"] button')].find(x => /Watch/i.test(x.textContent)); if (b && !b.disabled) { b.click(); return true; } return false; })()`);
   }
-  check("Next match, then Watch Match", watched);
+  check("CONTINUE on the title screen, then Watch Match on the match day box", watched, await js(`location.pathname`));
+  if (!watched) throw new Error("never reached Watch Match");
   let src = null;
   for (let i = 0; i < 40 && !src; i++) { await sleep(500); src = await js(`document.querySelector("iframe")?.getAttribute("src") ?? null`); }
   const matchId = /matchId=(\d+)/.exec(src ?? "")?.[1] ?? null;
   check(`the court opens in ${MODE === "manual" ? "Manual" : "Auto"} (the remembered choice)`, MODE === "manual" ? /mode=manual/.test(src ?? "") : !/mode=manual/.test(src ?? ""), src);
   const started = await waitFor(/match starts/, 300000);
   check("the court loaded and the match started", started, lines.find((l) => /match starts/.test(l.text))?.text.slice(0, 160) ?? "");
+  if (!started) throw new Error("the court never started the match");
   await js(`document.querySelector("iframe")?.focus()`);
 
   // The keyboard bot (Manual): J, K, L in turn, 120 ms apart, all match.
@@ -180,6 +202,11 @@ try {
   const deadline = Date.now() + 60 * 60 * 1000;
   const lookDone = () => MOMENTS.every((m) => done.has(`${look}-${m}`));
   while (Date.now() < deadline) {
+    // The court logs every serve, point and shot: three minutes of silence means it has stopped.
+    if (Date.now() - lines[lines.length - 1].at > 180000) {
+      await shot(`${MODE}-stopped.png`, "the court went silent");
+      throw new Error(`the court has logged nothing for 3 minutes; its last line: ${lines[lines.length - 1].text.slice(0, 200)}`);
+    }
     for (; cursor < lines.length; cursor++) {
       const l = lines[cursor];
       if (serveRe.test(l.text)) {

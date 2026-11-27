@@ -1,0 +1,201 @@
+15.4s [UnityMemory] Configuration Parameters - Can be set up in boot.config
+
+15.4s     "memorysetup-allocator-temp-initial-block-size-main=262144"
+
+15.4s     "memorysetup-allocator-temp-initial-block-size-worker=262144"
+
+15.4s     "memorysetup-temp-allocator-size-audio-worker=65536"
+
+15.4s     "memorysetup-temp-allocator-size-background-worker=32768"
+
+15.4s     "memorysetup-bucket-allocator-granularity=16"
+
+15.4s     "memorysetup-bucket-allocator-bucket-count=8"
+
+15.5s     "memorysetup-bucket-allocator-block-size=4194304"
+
+15.5s     "memorysetup-bucket-allocator-block-count=1"
+
+15.5s     "memorysetup-main-allocator-block-size=16777216"
+
+15.5s     "memorysetup-thread-allocator-block-size=16777216"
+
+15.5s     "memorysetup-gfx-main-allocator-block-size=16777216"
+
+15.5s     "memorysetup-gfx-thread-allocator-block-size=16777216"
+
+15.5s     "memorysetup-cache-allocator-block-size=4194304"
+
+15.5s     "memorysetup-typetree-allocator-block-size=2097152"
+
+15.5s     "memorysetup-profiler-bucket-allocator-granularity=16"
+
+15.5s     "memorysetup-profiler-bucket-allocator-bucket-count=8"
+
+15.5s     "memorysetup-profiler-bucket-allocator-block-size=4194304"
+
+15.5s     "memorysetup-profiler-bucket-allocator-block-count=1"
+
+15.5s     "memorysetup-profiler-allocator-block-size=16777216"
+
+15.5s     "memorysetup-profiler-editor-allocator-block-size=1048576"
+
+15.5s     "memorysetup-temp-allocator-size-main=4194304"
+
+15.5s     "memorysetup-job-temp-allocator-block-size=2097152"
+
+15.5s     "memorysetup-job-temp-allocator-block-size-background=1048576"
+
+15.5s     "memorysetup-job-temp-allocator-reduction-small-platforms=262144"
+
+15.5s Input System module state changed to: Initialized.
+
+15.5s [Physics::Module] Initialized fallback backend.
+
+15.5s [Physics::Module] Id: 0xdecafbad
+
+15.5s Loading player data from data.unity3d
+
+15.5s Initialize engine version: 6000.3.16f1 (a56f230f6470)
+
+15.5s [Subsystems] Discovering subsystems at path UnitySubsystems
+
+15.5s Creating WebGL 2.0 context.
+15.5s Renderer: WebKit WebGL
+
+15.5s Vendor:   WebKit
+
+15.5s Version:  OpenGL ES 3.0 (WebGL 2.0 (OpenGL ES 3.0 Chromium))
+
+15.5s GLES:     3
+
+15.5s  EXT_clip_control EXT_color_buffer_float EXT_color_buffer_half_float EXT_conservative_depth EXT_depth_clamp EXT_disjoint_timer_query_webgl2 EXT_float_blend EXT_polygon_offset_clamp EXT_render_snorm EXT_texture_compression_bptc EXT_texture_compression_rgtc EXT_texture_filter_anisotropic EXT_texture_mirror_clamp_to_edge EXT_texture_norm16 KHR_parallel_shader_compile NV_shader_noperspective_interpolation OES_draw_buffers_indexed OES_sample_variables OES_shader_multisample_interpolation OES_texture_float_linear OVR_multiview2 WEBGL_blend_func_extended WEBGL_clip_cull_distance WEBGL_compressed_texture_s3tc WEBGL_compressed_texture_s3tc_srgb WEBGL_debug_renderer_info WEBGL_debug_shaders WEBGL_lose_context WEBGL_multi_draw WEBGL_polygon_mode WEBGL_provoking_vertex WEBGL_shader_pixel_local_storage WEBGL_stencil_texturing GL_EXT_clip_control GL_EXT_color_buffer_float GL_EXT_color_buffer_half_float GL_EXT_conservative_depth GL_EXT_depth_clamp GL_EXT_disjoint_timer_query_webgl2 GL_EXT_float_blend GL_EXT_polygon_offset_
+
+15.5s clamp GL_EXT_render_snorm GL_EXT_texture_compression_bptc GL_EXT_texture_compression_rgtc GL_EXT_texture_filter_anisotropic GL_EXT_texture_mirror_clamp_to_edge GL_EXT_texture_norm16 GL_KHR_parallel_shader_compile GL_NV_shader_noperspective_interpolation GL_OES_draw_buffers_indexed GL_OES_sample_variables GL_OES_shader_multisample_interpolation GL_OES_texture_float_linear GL_OVR_multiview2 GL_WEBGL_blend_func_extended GL_WEBGL_clip_cull_distance GL_WEBGL_compressed_texture_s3tc GL_WEBGL_compressed_texture_s3tc_srgb GL_WEBGL_debug_renderer_info GL_WEBGL_debug_shaders GL_WEBGL_lose_context GL_WEBGL_multi_draw GL_WEBGL_polygon_mode GL_WEBGL_provoking_vertex GL_WEBGL_shader_pixel_local_storage GL_WEBGL_stencil_texturing
+
+15.5s OPENGL LOG: Creating OpenGL ES 3.0 graphics device ; Context level  <OpenGL ES 3.0> ; Context handle 1
+
+15.5s [Physics::Module] Selected backend.
+
+15.5s [Physics::Module] Name: PhysX
+
+15.5s [Physics::Module] Id: 0xf2b8ea05
+
+15.5s [Physics::Module] SDK Version: 4.1.2
+
+15.5s [Physics::Module] Integration Version: 1.0.0
+
+15.5s [Physics::Module] Threading Mode: Single-Threaded
+
+15.6s ERROR: Shader 
+15.6s Hidden/CoreSRP/CoreCopy shader is not supported on this GPU (none of subshaders/fallbacks are suitable)
+
+15.6s ERROR: Shader 
+15.6s Hidden/Universal Render Pipeline/StencilDitherMaskSeed shader is not supported on this GPU (none of subshaders/fallbacks are suitable)
+
+15.6s ERROR: Shader 
+15.6s Hidden/Universal/HDRDebugView shader is not supported on this GPU (none of subshaders/fallbacks are suitable)
+
+15.6s <b>[App UI]</b> Unable to find an AppUISettings instance, creating a default one...
+
+15.6s Input System initialize...
+
+16.0s Couldn't create a Convex Mesh from source mesh, within the maximum polygons limit (256). The partial hull will be used. Consider simplifying your mesh. Source mesh name: SM_rack_balls_Volleyball_1
+
+16.8s UnloadTime: 1.000000 ms
+
+16.8s [CourtsideBoards] 18 boards dressed around the court: 9 Beach Volleyball Empire, 9 GB Sunglasses
+
+16.9s Audio context resumed after 1.342 seconds.
+17.0s [Sound] crowd volume 1.00
+
+17.0s [Sound] commentary volume 1.00
+
+17.0s [Camera] remembered looks from the page: played game:1, watched tv:1
+
+17.0s [Between points] from the page: skip to next serve off, skip replays off
+
+17.6s [UnityCache] 'http://localhost:4232/unity-build/Build/Volleyball_WebGL_Uncompressed_2.data' successfully downloaded and stored in the browser cache
+19.0s [BoostUIController] Created Polished Attack and Defence boost buttons.
+
+19.0s [MatchManager] AudioManager initialized.
+
+19.0s [UnityMatchDataLoader] careerSaveId 1 (from page URL)
+
+19.0s [UnityMatchDataLoader] GET /api/unity/match-state?careerSaveId=1&matchId=1
+
+19.0s WEATHER SUNNY
+
+19.0s Trying to get length of sound which is not loaded yet.
+19.0s Trying to get length of sound which is not loaded yet.
+19.1s [Director] Serve: beside the server
+
+19.1s The character with Unicode value \u2600 was not found in the [LiberationSans SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [WeatherText].
+
+19.8s [UnityMatchDataLoader] point chance for the home pair: 0.4866
+
+19.8s [UnityMatchDataLoader] game difficulty medium (a played match grades and plays at it)
+
+19.8s [UnityMatchDataLoader] event (null), kits (null), boards (null) '(null)', manual allowed
+
+19.8s [UnityMatchDataLoader] Player_A1: skin 'Light' resolved via band 'Light' -> #EEC9B8
+
+19.8s [UnityMatchDataLoader] Player_A1 <- Camila Santiago | team Sydney Riptide (home) | skinTone Light | kit #1e3a8a/#f59e0b | appearance controller found | applied ovr 80 pwr 85 spd 73 def 78 srv 74 blk 89 sta 79 mor 75 fit 100 fat 0 | (not applied: injured False)
+
+19.8s [UnityMatchDataLoader] Player_A2: skin 'Light' resolved via band 'Light' -> #EEC9B8
+
+19.8s [UnityMatchDataLoader] Player_A2 <- Nurul Ain | team Sydney Riptide (home) | skinTone Light | kit #1e3a8a/#f59e0b | appearance controller found | applied ovr 67 pwr 55 spd 74 def 70 srv 78 blk 52 sta 73 mor 75 fit 100 fat 0 | (not applied: injured False)
+
+19.8s [UnityMatchDataLoader] Player_B1: skin 'Medium' resolved via band 'Medium' -> #AA7339
+
+19.8s [UnityMatchDataLoader] Player_B1 <- Carmen Ruiz | team Barcelona Playa Elites (away) | skinTone Medium | kit #00A3AD/#0B2545 | appearance controller found | applied ovr 82 pwr 77 spd 86 def 86 srv 80 blk 78 sta 84 mor 68 fit 80 fat 0 | (not applied: injured False)
+
+19.8s [UnityMatchDataLoader] Player_B2: skin 'Medium Dark' resolved via band 'Medium Dark' -> #7A4626
+
+19.8s [UnityMatchDataLoader] Player_B2 <- María Alonso | team Barcelona Playa Elites (away) | skinTone Medium Dark | kit #00A3AD/#0B2545 | appearance controller found | applied ovr 81 pwr 78 spd 82 def 84 srv 84 blk 80 sta 80 mor 68 fit 80 fat 0 | (not applied: injured False)
+
+19.8s [UnityMatchDataLoader] team names: SYDNEY RIPTIDE (home) vs BARCELONA PLAYA ELITES (away)
+
+19.8s [UnityMatchDataLoader] applied 4 of 4 player(s)
+
+19.8s Trying to get length of sound which is not loaded yet.
+19.8s [MatchManager] match starts after 4.1s: match data applied; home point chance 0.4866
+
+19.8s [MatchManager] ratings in play Player_A1 (Camila Santiago): ovr 80 pwr 85 spd 73 def 78 srv 74 blk 89 sta 79 mor 75
+
+19.8s [MatchManager] ratings in play Player_A2 (Nurul Ain): ovr 67 pwr 55 spd 74 def 70 srv 78 blk 52 sta 73 mor 75
+
+19.8s [MatchManager] ratings in play Player_B1 (Carmen Ruiz): ovr 82 pwr 77 spd 86 def 86 srv 80 blk 78 sta 84 mor 68
+
+19.8s [MatchManager] ratings in play Player_B2 (María Alonso): ovr 81 pwr 78 spd 82 def 84 srv 84 blk 80 sta 80 mor 68
+
+19.8s [Director] cutaway: the walk-on (5.5 s)
+
+19.9s Trying to get length of sound which is not loaded yet.
+19.9s Trying to get length of sound which is not loaded yet.
+20.0s Trying to get length of sound which is not loaded yet.
+20.0s Trying to get length of sound which is not loaded yet.
+20.0s Trying to get length of sound which is not loaded yet.
+20.0s Trying to get length of sound which is not loaded yet.
+20.0s Trying to get length of sound which is not loaded yet.
+20.0s Trying to get length of sound which is not loaded yet.
+20.1s Trying to get length of sound which is not loaded yet.
+20.1s Trying to get length of sound which is not loaded yet.
+20.1s Trying to get length of sound which is not loaded yet.
+20.1s Trying to get length of sound which is not loaded yet.
+20.1s Trying to get length of sound which is not loaded yet.
+20.1s Trying to get length of sound which is not loaded yet.
+20.2s Trying to get length of sound which is not loaded yet.
+20.2s Trying to get length of sound which is not loaded yet.
+20.2s Trying to get length of sound which is not loaded yet.
+20.2s Trying to get length of sound which is not loaded yet.
+20.2s Trying to get length of sound which is not loaded yet.
+20.2s Trying to get length of sound which is not loaded yet.
+20.3s Trying to get length of sound which is not loaded yet.
+20.3s Trying to get length of sound which is not loaded yet.
+20.3s Trying to get length of sound which is not loaded yet.
+20.3s Trying to get length of sound which is not loaded yet.
+20.3s Decode error: EncodingError: Unable to decode audio data
+20.3s Invoking error handler due to
+EncodingError: Unable to decode audio data
+
