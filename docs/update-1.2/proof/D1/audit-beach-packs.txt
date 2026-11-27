@@ -1,0 +1,40 @@
+    1,548 tris  0.32 x 0.35 x 0.12 m  Assets/Beach Pack/Prefabs/Beach_Bag_Blue.prefab
+    1,548 tris  0.32 x 0.35 x 0.12 m  Assets/Beach Pack/Prefabs/Beach_Bag_Red.prefab
+    1,548 tris  0.32 x 0.35 x 0.12 m  Assets/Beach Pack/Prefabs/Beach_Bag_Yellow.prefab
+      768 tris  0.33 x 0.33 x 0.33 m  Assets/Beach Pack/Prefabs/Beach_Ball.prefab
+    1,196 tris  0.65 x 0.87 x 0.96 m  Assets/Beach Pack/Prefabs/Beach_Chair_Blue.prefab
+    1,196 tris  0.65 x 0.87 x 0.96 m  Assets/Beach Pack/Prefabs/Beach_Chair_Red.prefab
+    1,196 tris  0.65 x 0.87 x 0.96 m  Assets/Beach Pack/Prefabs/Beach_Chair_Yellow.prefab
+      848 tris  0.62 x 0.50 x 0.62 m  Assets/Beach Pack/Prefabs/Beach_Table.prefab
+      824 tris  2.77 x 2.50 x 2.77 m  Assets/Beach Pack/Prefabs/Beach_Umbrella_Blue.prefab
+      824 tris  2.77 x 2.50 x 2.77 m  Assets/Beach Pack/Prefabs/Beach_Umbrella_Red.prefab
+      824 tris  2.77 x 2.50 x 2.77 m  Assets/Beach Pack/Prefabs/Beach_Umbrella_Yellow.prefab
+      976 tris  0.23 x 0.33 x 0.21 m  Assets/Beach Pack/Prefabs/Bucket_Blue.prefab
+      976 tris  0.23 x 0.33 x 0.21 m  Assets/Beach Pack/Prefabs/Bucket_Red.prefab
+      976 tris  0.23 x 0.33 x 0.21 m  Assets/Beach Pack/Prefabs/Bucket_Yellow.prefab
+      516 tris  0.11 x 0.32 x 0.04 m  Assets/Beach Pack/Prefabs/Rake_Blue.prefab
+      516 tris  0.11 x 0.32 x 0.04 m  Assets/Beach Pack/Prefabs/Rake_Red.prefab
+      516 tris  0.11 x 0.32 x 0.04 m  Assets/Beach Pack/Prefabs/Rake_Yellow.prefab
+    3,055 tris  1.09 x 0.99 x 1.09 m  Assets/Beach Pack/Prefabs/Sand_Castle.prefab
+      420 tris  0.11 x 0.32 x 0.04 m  Assets/Beach Pack/Prefabs/Shovel_Blue.prefab
+      420 tris  0.11 x 0.32 x 0.04 m  Assets/Beach Pack/Prefabs/Shovel_Red.prefab
+      420 tris  0.11 x 0.32 x 0.04 m  Assets/Beach Pack/Prefabs/Shovel_Yellow.prefab
+    1,408 tris  1.00 x 0.35 x 1.00 m  Assets/Beach Pack/Prefabs/Swim_Ring_Blue.prefab
+    1,408 tris  1.00 x 0.35 x 1.00 m  Assets/Beach Pack/Prefabs/Swim_Ring_Red.prefab
+    1,408 tris  1.00 x 0.35 x 1.00 m  Assets/Beach Pack/Prefabs/Swim_Ring_Yellow.prefab
+      612 tris  0.71 x 0.71 x 0.70 m  Assets/YGS Beach Party & Fun Pack/Prefabs/Beach Ball.prefab
+      268 tris  0.91 x 1.00 x 1.47 m  Assets/YGS Beach Party & Fun Pack/Prefabs/Beach Chair.prefab
+      458 tris  2.10 x 1.87 x 2.07 m  Assets/YGS Beach Party & Fun Pack/Prefabs/Beach Umbella.prefab
+      293 tris  0.17 x 0.23 x 0.17 m  Assets/YGS Beach Party & Fun Pack/Prefabs/Coconut Juice.prefab
+      352 tris  0.33 x 0.06 x 0.35 m  Assets/YGS Beach Party & Fun Pack/Prefabs/Flip Flops.prefab
+      436 tris  0.40 x 0.38 x 0.39 m  Assets/YGS Beach Party & Fun Pack/Prefabs/Plastic Bucket.prefab
+      236 tris  0.16 x 0.04 x 0.50 m  Assets/YGS Beach Party & Fun Pack/Prefabs/Plastic Fork.prefab
+      188 tris  0.16 x 0.04 x 0.50 m  Assets/YGS Beach Party & Fun Pack/Prefabs/Plastic Shovel.prefab
+      436 tris  0.62 x 0.41 x 0.62 m  Assets/YGS Beach Party & Fun Pack/Prefabs/Sand Castle 1.prefab
+      436 tris  0.62 x 0.41 x 0.62 m  Assets/YGS Beach Party & Fun Pack/Prefabs/Sand Castle.prefab
+      114 tris  0.17 x 0.18 x 0.31 m  Assets/YGS Beach Party & Fun Pack/Prefabs/Sea Shell 0.prefab
+      148 tris  0.30 x 0.04 x 0.24 m  Assets/YGS Beach Party & Fun Pack/Prefabs/Sea Shell 1.prefab
+      220 tris  0.47 x 0.08 x 0.44 m  Assets/YGS Beach Party & Fun Pack/Prefabs/Sea Star.prefab
+      606 tris  0.59 x 0.15 x 1.99 m  Assets/YGS Beach Party & Fun Pack/Prefabs/Surfboard.prefab
+   40,922 tris  1.15 x 1.88 x 0.41 m  Assets/Abandoned World/Base Humans - Man and Woman/Prefabs/SK_Man.prefab
+   29,826 tris  1.07 x 1.90 x 1.03 m  Assets/Abandoned World/Base Humans - Man and Woman/Prefabs/SK_Woman.prefab

@@ -1,0 +1,37 @@
+camera at (64.00, 8.50, 20.10), 40 degrees, 1920x1080
+clothing store: in V19 x1, nearest 15 m from the court; 12 m from the camera, about 785 of 1080 px tall
+viptent: in V19 x1, nearest 13 m from the court; 22 m from the camera, about 852 of 1080 px tall
+scaffolding+tower+3d+model: in V19 x1, nearest 15 m from the court; 7 m from the camera, about 910 of 1080 px tall
+food van: in V19 x1, nearest 14 m from the court; 10 m from the camera, about 816 of 1080 px tall
+signpost: in V19 x1, nearest 19 m from the court; 17 m from the camera, about 405 of 1080 px tall
+umbrella: in V19 x1, nearest 16 m from the court; 30 m from the camera, about 185 of 1080 px tall
+beach+chair+3d+model (1): in V19 x8, nearest 9 m from the court; 12 m from the camera, about 126 of 1080 px tall
+beach+towel+3d+model (1): in V19 x9, nearest 12 m from the court; 11 m from the camera, about 107 of 1080 px tall
+towel 1: in V19 x8, nearest 10 m from the court; 14 m from the camera, about 88 of 1080 px tall
+flag+on+beach+3d+model (1): in V19 x11, nearest 9 m from the court; 23 m from the camera, about 104 of 1080 px tall
+surfboard 2: in V19 x5, nearest 24 m from the court; 41 m from the camera, about 37 of 1080 px tall
+surfboard 3: in V19 x4, nearest 67 m from the court; 84 m from the camera, about 4 of 1080 px tall
+surfboard+3d+model: in V19 x5, nearest 27 m from the court; 44 m from the camera, about 34 of 1080 px tall
+umbrella +chair: in V19 x7, nearest 72 m from the court; 70 m from the camera, about 66 of 1080 px tall
+seaside+hotel+3d+model 1: in V19 x1, nearest 96 m from the court; 100 m from the camera, about 294 of 1080 px tall
+dock: in V19 x1, nearest 146 m from the court; 149 m from the camera, about 55 of 1080 px tall
+palm1: in V19 x13, nearest 19 m from the court; 11 m from the camera, about 651 of 1080 px tall
+palm22: in V19 x413, nearest 18 m from the court; 15 m from the camera, about 896 of 1080 px tall
+ref chair2: in V19 x1, nearest 6 m from the court; 13 m from the camera, about 553 of 1080 px tall
+media tower: not in V19; stood 5 m from the court's centre for this; 18 m from the camera, about 772 of 1080 px tall
+tripo_convert_f95a6fa8-f207-424c-9cc6-a11b6dd11d53: not in V19; stood 5 m from the court's centre for this; 19 m from the camera, about 224 of 1080 px tall
+luxury+hotel+3d+model (1): not in V19; stood 5 m from the court's centre for this; 18 m from the camera, about 1080 of 1080 px tall
+overwater+bungalow+3d+model: not in V19; stood 5 m from the court's centre for this; 19 m from the camera, about 1080 of 1080 px tall
+helicopter+3d+model: not in V19; stood 5 m from the court's centre for this; 19 m from the camera, about 717 of 1080 px tall
+national+flags+3d+model: not in V19; stood 5 m from the court's centre for this; 18 m from the camera, about 550 of 1080 px tall
+flags+on+poles+3d+model: not in V19; stood 5 m from the court's centre for this; 18 m from the camera, about 551 of 1080 px tall
+stadium+bleachers+3d+model: not in V19; stood 5 m from the court's centre for this; 19 m from the camera, about 854 of 1080 px tall
+colorful+beach+umbrella+3d+model: not in V19; stood 5 m from the court's centre for this; 19 m from the camera, about 303 of 1080 px tall
+beach chairs: not in V19; stood 5 m from the court's centre for this; 19 m from the camera, about 124 of 1080 px tall
+tiki-bar: not in V19; stood 5 m from the court's centre for this; 19 m from the camera, about 301 of 1080 px tall
+kiosk: not in V19; stood 5 m from the court's centre for this; 19 m from the camera, about 400 of 1080 px tall
+lifeguard-tower: not in V19; stood 5 m from the court's centre for this; 19 m from the camera, about 385 of 1080 px tall
+surfboard-rack: not in V19; stood 5 m from the court's centre for this; 19 m from the camera, about 268 of 1080 px tall
+signpost: not in V19; stood 5 m from the court's centre for this; 19 m from the camera, about 220 of 1080 px tall
+beach-chair: not in V19; stood 5 m from the court's centre for this; 19 m from the camera, about 211 of 1080 px tall
+seagull: not in V19; stood 5 m from the court's centre for this; 19 m from the camera, about 54 of 1080 px tall

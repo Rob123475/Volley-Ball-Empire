@@ -170,6 +170,9 @@ importers:
       electron-builder:
         specifier: ^25.0.0
         version: 25.1.8(bluebird@3.7.2)(supports-color@7.2.0)
+      meshoptimizer:
+        specifier: 1.1.1
+        version: 1.1.1
       node-gyp:
         specifier: 12.3.0
         version: 12.3.0

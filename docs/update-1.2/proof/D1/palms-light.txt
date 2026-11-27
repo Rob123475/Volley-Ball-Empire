@@ -1,0 +1,6 @@
+1,944,095 tris  0.64 x 0.99 x 0.67 m  Assets/my assets/Environment/palm11/palm tree 2.fbx
+   29,772 tris  0.63 x 0.98 x 0.67 m  Assets/my assets/Environment/Reduced/palm11.prefab
+    9,930 tris  0.62 x 0.97 x 0.66 m  Assets/my assets/Environment/Reduced/palm11.prefab
+1,886,199 tris  0.58 x 0.98 x 0.61 m  Assets/my assets/Environment/palm22/tripo_convert_dee4a94e-b98e-42b6-9390-3da254d687dd.fbx
+   29,904 tris  0.57 x 0.98 x 0.61 m  Assets/my assets/Environment/Reduced/palm22.prefab
+    9,992 tris  0.57 x 0.98 x 0.60 m  Assets/my assets/Environment/Reduced/palm22.prefab

@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { awayKit } from "../utils/kits.js";
 import {
-  db, matchesTable, locationsTable, playersTable, teamsTable, matchLiveStateTable, careerSavesTable,
+  db, isContinentKey, matchesTable, locationsTable, playersTable, teamsTable, matchLiveStateTable, careerSavesTable,
   worldTourFixturesTable, competitorsTable, continentalPoolTeamsTable, continentalPoolPlayersTable,
 } from "@workspace/db";
 import { eq, desc, inArray, or, and, isNull, notInArray, sql } from "drizzle-orm";
@@ -415,6 +415,9 @@ router.get("/unity/match-state", async (req, res): Promise<void> => {
   res.json({
     matchId:              match.id,
     venue:                venueName,
+    // 1.2 D1: the continent the match is played on (one of the six keys), so the court
+    // dresses the venue for it; null when the match has none.
+    continent:            isContinentKey(match.continent) ? match.continent : null,
     homeTeam:             match.homeTeamName ?? null,
     awayTeam:             match.awayTeamName ?? null,
     // Sets won — the score that decides the match. Falls back to the raw
@@ -629,6 +632,8 @@ function nationsMatchState(careerSaveId: number, id: number) {
       nationsMatchId: f.id,
       event: "nations_cup",
       venue: `Empire Nations Cup ${f.seasonYear} · ${label}`,
+      // 1.2 D1: the Nations Cup has no host continent in the game's data: the court's default venue.
+      continent: null,
       homeTeam: homeNation,
       awayTeam: awayNation,
       sidesSwapped: swap,

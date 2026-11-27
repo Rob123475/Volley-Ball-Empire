@@ -1,0 +1,210 @@
+D1 / 6a: V19 ROUND THE COURT (read-only survey)
+  court centre (47.10, 0.00, 20.10)
+    4 x         0 tris  (scene object) StateText
+          nearest 4.4 m, farthest 4.5 m from the court; lowest point 2.34 m; active 4; under VolleyballPlayers
+    1 x       570 tris  (scene object) Swimwear_Female_YoungAdult
+          nearest 6.0 m, farthest 6.0 m from the court; lowest point 2.54 m; active 1; under Umpire chair
+    1 x         0 tris  (scene object) tripo_convert_062e2141-647c-411f-bfc0-00a25f8acdf4
+          nearest 25.3 m, farthest 25.3 m from the court; lowest point 0.00 m; active 1; under tripo_convert_062e2141-647c-411f-bfc0-00a25f8acdf4
+    1 x       824 tris  Assets/Beach Pack/Prefabs/Beach_Umbrella_Yellow.prefab
+          nearest 15.5 m, farthest 15.5 m from the court; lowest point 0.00 m; active 1; under Beach_Umbrella_Yellow
+    4 x    90,476 tris  Assets/IdaFaber/Meshes/Girl/SK_BeachGirl_05.fbx
+          nearest 4.5 m, farthest 4.5 m from the court; lowest point -0.01 m; active 4; under VolleyballPlayers
+    1 x       250 tris  Assets/Meshes/IslandPath_HotelToCourtMesh.asset
+          nearest 51.2 m, farthest 51.2 m from the court; lowest point 0.02 m; active 1; under IslandPath_HotelToCourt
+    1 x       240 tris  Assets/Meshes/IslandRoad_DockToHotelMesh.asset
+          nearest 50.9 m, farthest 50.9 m from the court; lowest point 0.02 m; active 1; under IslandRoad_DockToHotel
+    2 x 828,391,392 tris  Assets/Models/TropicalIslandMesh.asset
+          nearest 20.6 m, farthest 22.1 m from the court; lowest point -12.03 m; active 2; under BeachVolleyballVenue
+    6 x         8 tris  Assets/my assets/Environment/advertising+banner+3d+model/tripo_convert_ba3ddaef-4225-498b-b493-60094b22776f.fbx
+          nearest 5.9 m, farthest 8.7 m from the court; lowest point -0.06 m; active 6; under VenueGroup
+    1 x    19,370 tris  Assets/my assets/Environment/ball/tripo_convert_12743fa7-8708-4a36-9a84-3f527b047c88.fbx
+          nearest 0.4 m, farthest 0.4 m from the court; lowest point 0.12 m; active 1; under Volleyball
+    6 x         8 tris  Assets/my assets/Environment/Banner 1/tripo_convert_adbc24c3-e8d7-4779-bea4-6dcf0e3974d6.fbx
+          nearest 5.7 m, farthest 8.6 m from the court; lowest point -0.10 m; active 6; under VenueGroup
+    8 x    18,598 tris  Assets/my assets/Environment/beach+chair+3d+model (1)/tripo_convert_a4727f45-9796-4e7b-aa52-c70a0355b235.fbx
+          nearest 9.0 m, farthest 27.3 m from the court; lowest point -0.06 m; active 8; under tripo_convert_a4727f45-9796-4e7b-aa52-c70a0355b235 (1), tripo_convert_a4727f45-9796-4e7b-aa52-c70a0355b235, tripo_convert_a4727f45-9796-4e7b-aa52-c70a0355b235 (4)
+    9 x    18,674 tris  Assets/my assets/Environment/beach+towel+3d+model (1)/tripo_convert_4169123c-00d7-4b73-9913-a941c60d9674.fbx
+          nearest 12.0 m, farthest 124.7 m from the court; lowest point 0.00 m; active 9; under tripo_convert_4169123c-00d7-4b73-9913-a941c60d9674 (8), tripo_convert_4169123c-00d7-4b73-9913-a941c60d9674 (6), towel1
+    1 x    16,635 tris  Assets/my assets/Environment/clothing store/tripo_convert_696a4cae-b45a-464d-a1f8-cbdf1c73e93d.fbx
+          nearest 14.7 m, farthest 14.7 m from the court; lowest point -1.55 m; active 1; under tripo_convert_696a4cae-b45a-464d-a1f8-cbdf1c73e93d
+    1 x    18,198 tris  Assets/my assets/Environment/dock/tripo_convert_5fc5e5a6-d595-4cea-b5fd-d5b800a0b523.fbx
+          nearest 146.0 m, farthest 146.0 m from the court; lowest point 0.00 m; active 1; under tripo_convert_5fc5e5a6-d595-4cea-b5fd-d5b800a0b523
+   11 x    19,100 tris  Assets/my assets/Environment/flag+on+beach+3d+model (1)/tripo_convert_7bcd0727-5d6b-43d3-a43f-eda8cac69891.fbx
+          nearest 8.7 m, farthest 130.9 m from the court; lowest point 0.00 m; active 11; under tripo_convert_7bcd0727-5d6b-43d3-a43f-eda8cac69891 (3), tripo_convert_7bcd0727-5d6b-43d3-a43f-eda8cac69891 (7), tripo_convert_7bcd0727-5d6b-43d3-a43f-eda8cac69891 (4)
+    1 x    16,177 tris  Assets/my assets/Environment/food van/tripo_convert_54222dbd-c0fa-4475-9f26-65f5c97272e7.fbx
+          nearest 14.4 m, farthest 14.4 m from the court; lowest point 0.00 m; active 1; under tripo_convert_54222dbd-c0fa-4475-9f26-65f5c97272e7
+   13 x 1,944,095 tris  Assets/my assets/Environment/palm1/tripo_convert_2629a417-d0a0-4be5-9804-774838909636.fbx
+          nearest 19.5 m, farthest 70.1 m from the court; lowest point -0.49 m; active 13; under tripo_convert_2629a417-d0a0-4be5-9804-774838909636 (3), tripo_convert_2629a417-d0a0-4be5-9804-774838909636 (7), tripo_convert_2629a417-d0a0-4be5-9804-774838909636 (4)
+  464 x 1,944,095 tris  Assets/my assets/Environment/palm11/palm tree 2.fbx
+          nearest 75.1 m, farthest 280.1 m from the court; lowest point -8.27 m; active 464; under BeachVolleyballVenue
+  413 x 1,886,199 tris  Assets/my assets/Environment/palm22/tripo_convert_dee4a94e-b98e-42b6-9390-3da254d687dd.fbx
+          nearest 18.4 m, farthest 271.2 m from the court; lowest point -1.32 m; active 413; under BeachVolleyballVenue, tripo_convert_dee4a94e-b98e-42b6-9390-3da254d687dd, tripo_convert_dee4a94e-b98e-42b6-9390-3da254d687dd (9)
+    1 x    17,800 tris  Assets/my assets/Environment/ref chair2/tripo_convert_09f5a182-4238-42f3-96e5-e68822fb3ecb.fbx
+          nearest 6.0 m, farthest 6.0 m from the court; lowest point 0.00 m; active 1; under Umpire chair
+    1 x    15,714 tris  Assets/my assets/Environment/scaffolding+tower+3d+model/tripo_convert_1d5161d4-eae0-4492-a0df-1c3fe6f45afe.fbx
+          nearest 14.9 m, farthest 14.9 m from the court; lowest point -0.46 m; active 1; under tripo_convert_1d5161d4-eae0-4492-a0df-1c3fe6f45afe
+    1 x    17,634 tris  Assets/my assets/Environment/seaside+hotel+3d+model 1/tripo_convert_18789716-4b6e-4ef4-ad0f-778a5b76dc78.fbx
+          nearest 95.6 m, farthest 95.6 m from the court; lowest point -0.01 m; active 1; under tripo_convert_18789716-4b6e-4ef4-ad0f-778a5b76dc78
+    1 x    18,924 tris  Assets/my assets/Environment/signpost/tripo_convert_b5df6070-8056-4e38-9e75-bf2ee7ac4dfb.fbx
+          nearest 19.2 m, farthest 19.2 m from the court; lowest point -0.96 m; active 1; under tripo_convert_b5df6070-8056-4e38-9e75-bf2ee7ac4dfb
+    5 x    17,948 tris  Assets/my assets/Environment/surfboard 2/tripo_convert_3f8c16ef-3311-4b5a-8258-be4a2e4c92e1.fbx
+          nearest 24.4 m, farthest 122.3 m from the court; lowest point 0.00 m; active 5; under tripo_convert_3f8c16ef-3311-4b5a-8258-be4a2e4c92e1 (3), tripo_convert_3f8c16ef-3311-4b5a-8258-be4a2e4c92e1, tripo_convert_3f8c16ef-3311-4b5a-8258-be4a2e4c92e1 (1)
+    4 x    18,688 tris  Assets/my assets/Environment/surfboard 3/tripo_convert_a5a391af-cf00-4c90-81d8-fedae86cd176.fbx
+          nearest 66.7 m, farthest 124.0 m from the court; lowest point 0.00 m; active 4; under tripo_convert_a5a391af-cf00-4c90-81d8-fedae86cd176 (2), tripo_convert_a5a391af-cf00-4c90-81d8-fedae86cd176 (3), tripo_convert_a5a391af-cf00-4c90-81d8-fedae86cd176 (1)
+    5 x    17,533 tris  Assets/my assets/Environment/surfboard+3d+model/tripo_convert_1f969517-4466-4c36-9084-6584bf11fa71.fbx
+          nearest 27.0 m, farthest 123.1 m from the court; lowest point 0.00 m; active 5; under tripo_convert_1f969517-4466-4c36-9084-6584bf11fa71 (3), tripo_convert_1f969517-4466-4c36-9084-6584bf11fa71 (1), tripo_convert_1f969517-4466-4c36-9084-6584bf11fa71
+    6 x         8 tris  Assets/my assets/Environment/timex+watch+banner+3d+model/tripo_convert_f1a8c817-d12a-43b5-8589-5efd4d9dcbb7.fbx
+          nearest 8.9 m, farthest 9.6 m from the court; lowest point -0.03 m; active 6; under VenueGroup
+    8 x    19,173 tris  Assets/my assets/Environment/towel 1/tripo_convert_250a9b7e-9be4-4b28-8130-e3d0822ab054.fbx
+          nearest 9.8 m, farthest 123.9 m from the court; lowest point -0.46 m; active 8; under tripo_convert_250a9b7e-9be4-4b28-8130-e3d0822ab054 (4), tripo_convert_250a9b7e-9be4-4b28-8130-e3d0822ab054 (3), tripo_convert_250a9b7e-9be4-4b28-8130-e3d0822ab054 (2)
+    7 x    17,942 tris  Assets/my assets/Environment/umbrella +chair/tripo_convert_7aab40df-54fb-4cb1-93c5-13afe3afc222.fbx
+          nearest 71.8 m, farthest 125.2 m from the court; lowest point -0.09 m; active 7; under tripo_convert_7aab40df-54fb-4cb1-93c5-13afe3afc222 (3), tripo_convert_7aab40df-54fb-4cb1-93c5-13afe3afc222 (1), tripo_convert_7aab40df-54fb-4cb1-93c5-13afe3afc222 (6)
+    1 x    18,998 tris  Assets/my assets/Environment/umbrella/tripo_convert_1fbd7ae5-f6aa-4b87-b705-f5cd0085339d.fbx
+          nearest 16.3 m, farthest 16.3 m from the court; lowest point 0.00 m; active 1; under tripo_convert_1fbd7ae5-f6aa-4b87-b705-f5cd0085339d
+    1 x    17,963 tris  Assets/my assets/Environment/viptent/tripo_convert_61c66501-2421-43ee-a757-cd6f4b0e9f79.fbx
+          nearest 13.0 m, farthest 13.0 m from the court; lowest point -2.16 m; active 1; under tripo_convert_61c66501-2421-43ee-a757-cd6f4b0e9f79
+   28 x         8 tris  Assets/Stadium Crowd Generator/Models/Beam Set.fbx
+          nearest 7.3 m, farthest 15.8 m from the court; lowest point 0.10 m; active 28; under StadiumGrandstand (1), StadiumGrandstand
+   12 x        12 tris  Assets/Stadium Crowd Generator/Models/Plank.fbx
+          nearest 10.1 m, farthest 14.1 m from the court; lowest point 0.10 m; active 12; under StadiumGrandstand, StadiumGrandstand (1)
+   52 x        72 tris  Assets/Stadium Crowd Generator/Models/Rail.fbx
+          nearest 7.7 m, farthest 19.0 m from the court; lowest point 0.60 m; active 52; under StadiumGrandstand, StadiumGrandstand (1)
+  204 x        66 tris  Assets/Stadium Crowd Generator/Models/Seat.fbx
+          nearest 7.4 m, farthest 17.6 m from the court; lowest point 0.60 m; active 204; under StadiumGrandstand, StadiumGrandstand (1)
+   24 x         8 tris  Assets/Stadium Crowd Generator/Models/Step.fbx
+          nearest 7.7 m, farthest 18.6 m from the court; lowest point 0.60 m; active 24; under StadiumGrandstand, StadiumGrandstand (1)
+    1 x     2,076 tris  Assets/Volleyball_Set_1/Mesh/SM_basket_balls_2.FBX
+          nearest 4.9 m, farthest 4.9 m from the court; lowest point 0.00 m; active 1; under SM_basket_balls_2
+    1 x    72,636 tris  Assets/Volleyball_Set_1/Mesh/SM_basket_balls_volleyball_2.FBX
+          nearest 4.8 m, farthest 4.8 m from the court; lowest point 0.00 m; active 1; under SM_basket_balls_volleyball_2
+    1 x     3,372 tris  Assets/Volleyball_Set_1/Prefabs/SM_rack_balls_1.prefab
+          nearest 5.4 m, farthest 5.4 m from the court; lowest point 0.00 m; active 1; under SM_rack_balls_1
+    1 x    26,052 tris  Assets/Volleyball_Set_1/Prefabs/SM_rack_balls_Volleyball_1.prefab
+          nearest 5.2 m, farthest 5.2 m from the court; lowest point 0.00 m; active 1; under SM_rack_balls_Volleyball_1
+  654 x        12 tris  Library/unity default resources
+          nearest 0.0 m, farthest 381.8 m from the court; lowest point -12.03 m; active 654; under VenueGroup, BeachVolleyballVenue, VolleyballPlayers
+
+  TOP-LEVEL OBJECTS
+  1,656,782,984 tris  BeachVolleyballVenue  children 4
+    1,944,095 tris  tripo_convert_2629a417-d0a0-4be5-9804-774838909636  children 0
+    1,944,095 tris  tripo_convert_2629a417-d0a0-4be5-9804-774838909636 (1)  children 0
+    1,944,095 tris  tripo_convert_2629a417-d0a0-4be5-9804-774838909636 (2)  children 0
+    1,944,095 tris  tripo_convert_2629a417-d0a0-4be5-9804-774838909636 (3)  children 0
+    1,944,095 tris  tripo_convert_2629a417-d0a0-4be5-9804-774838909636 (4)  children 0
+    1,944,095 tris  tripo_convert_2629a417-d0a0-4be5-9804-774838909636 (5)  children 0
+    1,944,095 tris  tripo_convert_2629a417-d0a0-4be5-9804-774838909636 (6)  children 0
+    1,944,095 tris  tripo_convert_2629a417-d0a0-4be5-9804-774838909636 (7)  children 0
+    1,944,095 tris  tripo_convert_2629a417-d0a0-4be5-9804-774838909636 (8)  children 0
+    1,944,095 tris  tripo_convert_2629a417-d0a0-4be5-9804-774838909636 (9)  children 0
+    1,944,095 tris  tripo_convert_2629a417-d0a0-4be5-9804-774838909636 (10)  children 0
+    1,944,095 tris  tripo_convert_2629a417-d0a0-4be5-9804-774838909636 (11)  children 0
+    1,944,095 tris  tripo_convert_2629a417-d0a0-4be5-9804-774838909636 (12)  children 0
+    1,886,199 tris  tripo_convert_dee4a94e-b98e-42b6-9390-3da254d687dd  children 0
+    1,886,199 tris  tripo_convert_dee4a94e-b98e-42b6-9390-3da254d687dd (1)  children 0
+    1,886,199 tris  tripo_convert_dee4a94e-b98e-42b6-9390-3da254d687dd (2)  children 0
+    1,886,199 tris  tripo_convert_dee4a94e-b98e-42b6-9390-3da254d687dd (3)  children 0
+    1,886,199 tris  tripo_convert_dee4a94e-b98e-42b6-9390-3da254d687dd (4)  children 0
+    1,886,199 tris  tripo_convert_dee4a94e-b98e-42b6-9390-3da254d687dd (5)  children 0
+    1,886,199 tris  tripo_convert_dee4a94e-b98e-42b6-9390-3da254d687dd (6)  children 0
+    1,886,199 tris  tripo_convert_dee4a94e-b98e-42b6-9390-3da254d687dd (7)  children 0
+    1,886,199 tris  tripo_convert_dee4a94e-b98e-42b6-9390-3da254d687dd (8)  children 0
+    1,886,199 tris  tripo_convert_dee4a94e-b98e-42b6-9390-3da254d687dd (9)  children 0
+    1,886,199 tris  tripo_convert_dee4a94e-b98e-42b6-9390-3da254d687dd (10)  children 0
+    1,886,199 tris  tripo_convert_dee4a94e-b98e-42b6-9390-3da254d687dd (11)  children 0
+    1,886,199 tris  tripo_convert_dee4a94e-b98e-42b6-9390-3da254d687dd (12)  children 0
+      365,232 tris  VolleyballPlayers  children 4
+       72,636 tris  SM_basket_balls_volleyball_2  children 0
+       26,052 tris  SM_rack_balls_Volleyball_1  children 0
+       19,370 tris  Volleyball  children 0
+       19,173 tris  tripo_convert_250a9b7e-9be4-4b28-8130-e3d0822ab054  children 0
+       19,173 tris  tripo_convert_250a9b7e-9be4-4b28-8130-e3d0822ab054 (1)  children 0
+       19,173 tris  tripo_convert_250a9b7e-9be4-4b28-8130-e3d0822ab054 (2)  children 0
+       19,173 tris  tripo_convert_250a9b7e-9be4-4b28-8130-e3d0822ab054 (3)  children 0
+       19,173 tris  tripo_convert_250a9b7e-9be4-4b28-8130-e3d0822ab054 (4)  children 0
+       19,173 tris  tripo_convert_250a9b7e-9be4-4b28-8130-e3d0822ab054 (5)  children 0
+       19,173 tris  tripo_convert_250a9b7e-9be4-4b28-8130-e3d0822ab054 (6)  children 0
+       19,173 tris  tripo_convert_250a9b7e-9be4-4b28-8130-e3d0822ab054 (7)  children 0
+       19,100 tris  tripo_convert_7bcd0727-5d6b-43d3-a43f-eda8cac69891  children 0
+       19,100 tris  tripo_convert_7bcd0727-5d6b-43d3-a43f-eda8cac69891 (1)  children 0
+       19,100 tris  tripo_convert_7bcd0727-5d6b-43d3-a43f-eda8cac69891 (2)  children 0
+       19,100 tris  tripo_convert_7bcd0727-5d6b-43d3-a43f-eda8cac69891 (3)  children 0
+       19,100 tris  tripo_convert_7bcd0727-5d6b-43d3-a43f-eda8cac69891 (4)  children 0
+       19,100 tris  tripo_convert_7bcd0727-5d6b-43d3-a43f-eda8cac69891 (5)  children 0
+       19,100 tris  tripo_convert_7bcd0727-5d6b-43d3-a43f-eda8cac69891 (6)  children 0
+       19,100 tris  tripo_convert_7bcd0727-5d6b-43d3-a43f-eda8cac69891 (7)  children 0
+       19,100 tris  tripo_convert_7bcd0727-5d6b-43d3-a43f-eda8cac69891 (8)  children 0
+       19,100 tris  tripo_convert_7bcd0727-5d6b-43d3-a43f-eda8cac69891 (9)  children 0
+       19,100 tris  tripo_convert_7bcd0727-5d6b-43d3-a43f-eda8cac69891 (10)  children 0
+       18,998 tris  tripo_convert_1fbd7ae5-f6aa-4b87-b705-f5cd0085339d  children 0
+       18,924 tris  tripo_convert_b5df6070-8056-4e38-9e75-bf2ee7ac4dfb  children 0
+       18,688 tris  tripo_convert_a5a391af-cf00-4c90-81d8-fedae86cd176  children 0
+       18,688 tris  tripo_convert_a5a391af-cf00-4c90-81d8-fedae86cd176 (1)  children 0
+       18,688 tris  tripo_convert_a5a391af-cf00-4c90-81d8-fedae86cd176 (2)  children 0
+       18,688 tris  tripo_convert_a5a391af-cf00-4c90-81d8-fedae86cd176 (3)  children 0
+       18,674 tris  towel1  children 0
+       18,674 tris  tripo_convert_4169123c-00d7-4b73-9913-a941c60d9674 (1)  children 0
+       18,674 tris  tripo_convert_4169123c-00d7-4b73-9913-a941c60d9674 (2)  children 0
+       18,674 tris  tripo_convert_4169123c-00d7-4b73-9913-a941c60d9674 (3)  children 0
+       18,674 tris  tripo_convert_4169123c-00d7-4b73-9913-a941c60d9674 (4)  children 0
+       18,674 tris  tripo_convert_4169123c-00d7-4b73-9913-a941c60d9674 (5)  children 0
+       18,674 tris  tripo_convert_4169123c-00d7-4b73-9913-a941c60d9674 (6)  children 0
+       18,674 tris  tripo_convert_4169123c-00d7-4b73-9913-a941c60d9674 (7)  children 0
+       18,674 tris  tripo_convert_4169123c-00d7-4b73-9913-a941c60d9674 (8)  children 0
+       18,598 tris  tripo_convert_a4727f45-9796-4e7b-aa52-c70a0355b235  children 0
+       18,598 tris  tripo_convert_a4727f45-9796-4e7b-aa52-c70a0355b235 (1)  children 0
+       18,598 tris  tripo_convert_a4727f45-9796-4e7b-aa52-c70a0355b235 (2)  children 0
+       18,598 tris  tripo_convert_a4727f45-9796-4e7b-aa52-c70a0355b235 (3)  children 0
+       18,598 tris  tripo_convert_a4727f45-9796-4e7b-aa52-c70a0355b235 (4)  children 0
+       18,598 tris  tripo_convert_a4727f45-9796-4e7b-aa52-c70a0355b235 (5)  children 0
+       18,598 tris  tripo_convert_a4727f45-9796-4e7b-aa52-c70a0355b235 (6)  children 0
+       18,598 tris  tripo_convert_a4727f45-9796-4e7b-aa52-c70a0355b235 (7)  children 0
+       18,198 tris  tripo_convert_5fc5e5a6-d595-4cea-b5fd-d5b800a0b523  children 0
+       17,963 tris  tripo_convert_61c66501-2421-43ee-a757-cd6f4b0e9f79  children 0
+       17,948 tris  tripo_convert_3f8c16ef-3311-4b5a-8258-be4a2e4c92e1  children 0
+       17,948 tris  tripo_convert_3f8c16ef-3311-4b5a-8258-be4a2e4c92e1 (1)  children 0
+       17,948 tris  tripo_convert_3f8c16ef-3311-4b5a-8258-be4a2e4c92e1 (2)  children 0
+       17,948 tris  tripo_convert_3f8c16ef-3311-4b5a-8258-be4a2e4c92e1 (3)  children 0
+       17,948 tris  tripo_convert_3f8c16ef-3311-4b5a-8258-be4a2e4c92e1 (4)  children 0
+       17,942 tris  tripo_convert_7aab40df-54fb-4cb1-93c5-13afe3afc222  children 0
+       17,942 tris  tripo_convert_7aab40df-54fb-4cb1-93c5-13afe3afc222 (1)  children 0
+       17,942 tris  tripo_convert_7aab40df-54fb-4cb1-93c5-13afe3afc222 (2)  children 0
+       17,942 tris  tripo_convert_7aab40df-54fb-4cb1-93c5-13afe3afc222 (3)  children 0
+       17,942 tris  tripo_convert_7aab40df-54fb-4cb1-93c5-13afe3afc222 (4)  children 0
+       17,942 tris  tripo_convert_7aab40df-54fb-4cb1-93c5-13afe3afc222 (5)  children 0
+       17,942 tris  tripo_convert_7aab40df-54fb-4cb1-93c5-13afe3afc222 (6)  children 0
+       17,800 tris  Umpire chair  children 1
+       17,634 tris  tripo_convert_18789716-4b6e-4ef4-ad0f-778a5b76dc78  children 0
+       17,533 tris  tripo_convert_1f969517-4466-4c36-9084-6584bf11fa71  children 0
+       17,533 tris  tripo_convert_1f969517-4466-4c36-9084-6584bf11fa71 (1)  children 0
+       17,533 tris  tripo_convert_1f969517-4466-4c36-9084-6584bf11fa71 (2)  children 0
+       17,533 tris  tripo_convert_1f969517-4466-4c36-9084-6584bf11fa71 (3)  children 0
+       17,533 tris  tripo_convert_1f969517-4466-4c36-9084-6584bf11fa71 (4)  children 0
+       16,635 tris  tripo_convert_696a4cae-b45a-464d-a1f8-cbdf1c73e93d  children 0
+       16,177 tris  tripo_convert_54222dbd-c0fa-4475-9f26-65f5c97272e7  children 0
+       15,714 tris  tripo_convert_1d5161d4-eae0-4492-a0df-1c3fe6f45afe  children 0
+        8,884 tris  StadiumGrandstand  children 160
+        8,884 tris  StadiumGrandstand (1)  children 160
+        6,928 tris  VenueGroup  children 19
+        3,372 tris  SM_rack_balls_1  children 0
+        2,076 tris  SM_basket_balls_2  children 0
+          824 tris  Beach_Umbrella_Yellow  children 0
+          250 tris  IslandPath_HotelToCourt  children 0
+          240 tris  IslandRoad_DockToHotel  children 0
+          200 tris  Ocean  children 0
+            0 tris  Camera_Gameplay_Close  children 0
+            0 tris  Directional Light  children 0
+            0 tris  Global Volume  children 0
+            0 tris  MatchManager  children 0
+            0 tris  ServingPoint_A  children 0
+            0 tris  ServingPoint_B  children 0
+            0 tris  EventSystem  children 0
+            0 tris  CommentaryManager  children 0
+            0 tris  tripo_convert_062e2141-647c-411f-bfc0-00a25f8acdf4  children 0
+            0 tris  FixedMatchCameraAnchor  children 0
+            0 tris  CommentaryCanvas  children 1
+            0 tris  Camera_Wide_Overhead  children 0
+            0 tris  Camera_TopDown_Test  children 0
+            0 tris  WeatherManager  children 0
+            0 tris  MatchDataLoader  children 0
+            0 tris  Crowd  children 0

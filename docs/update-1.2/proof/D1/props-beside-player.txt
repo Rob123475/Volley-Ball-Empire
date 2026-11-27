@@ -1,0 +1,13 @@
+    8,812 tris  0.38 x 0.54 x 0.60 m  Assets/my assets/Environment/Reduced/seagull.prefab
+    8,520 tris  2.56 x 3.00 x 1.46 m  Assets/my assets/Environment/Reduced/tiki-bar.prefab
+    8,285 tris  5.14 x 3.00 x 4.12 m  Assets/my assets/Environment/Reduced/kiosk.prefab
+    8,354 tris  3.50 x 2.20 x 1.00 m  Assets/my assets/Environment/Reduced/surfboard-rack.prefab
+   17,948 tris  0.52 x 2.00 x 0.41 m  Assets/my assets/Environment/Reduced/surfboard-upright.prefab
+   18,688 tris  2.00 x 0.38 x 0.99 m  Assets/my assets/Environment/Reduced/surfboard-lying.prefab
+   18,924 tris  1.08 x 2.50 x 1.07 m  Assets/my assets/Environment/Reduced/signpost.prefab
+   17,942 tris  0.95 x 0.90 x 0.95 m  Assets/my assets/Environment/Reduced/beach-chair.prefab
+   19,940 tris  2.43 x 4.00 x 3.14 m  Assets/my assets/Environment/Reduced/lifeguard-tower.prefab
+    1,400 tris  0.09 x 0.25 x 0.08 m  Assets/my assets/Environment/Reduced/drink-bottle.prefab
+    1,900 tris  0.08 x 0.25 x 0.07 m  Assets/my assets/Environment/Reduced/drink-jug.prefab
+    1,900 tris  0.08 x 0.18 x 0.08 m  Assets/my assets/Environment/Reduced/drink-cup.prefab
+    1,900 tris  0.29 x 0.25 x 0.08 m  Assets/my assets/Environment/Reduced/drink-three.prefab

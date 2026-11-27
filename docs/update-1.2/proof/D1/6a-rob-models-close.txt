@@ -1,0 +1,36 @@
+        8 tris  0.22 x 0.26 x 0.99 m  Assets/my assets/Environment/Banner 1/tripo_convert_adbc24c3-e8d7-4779-bea4-6dcf0e3974d6.fbx
+   18,428 tris  0.36 x 0.33 x 0.98 m  Assets/my assets/Environment/advertising 4/tripo_convert_18a906f0-840f-4213-8cbb-cabc8f007676.fbx
+        8 tris  0.18 x 0.22 x 0.98 m  Assets/my assets/Environment/advertising+banner+3d+model/tripo_convert_ba3ddaef-4225-498b-b493-60094b22776f.fbx
+   19,370 tris  0.97 x 0.98 x 0.98 m  Assets/my assets/Environment/ball/tripo_convert_12743fa7-8708-4a36-9a84-3f527b047c88.fbx
+   18,598 tris  0.65 x 0.52 x 0.98 m  Assets/my assets/Environment/beach chairs.fbx
+   18,598 tris  0.65 x 0.52 x 0.98 m  Assets/my assets/Environment/beach+chair+3d+model (1)/tripo_convert_a4727f45-9796-4e7b-aa52-c70a0355b235.fbx
+   18,674 tris  0.46 x 0.08 x 0.98 m  Assets/my assets/Environment/beach+towel+3d+model (1)/tripo_convert_4169123c-00d7-4b73-9913-a941c60d9674.fbx
+   16,635 tris  0.73 x 0.62 x 0.97 m  Assets/my assets/Environment/clothing store/tripo_convert_696a4cae-b45a-464d-a1f8-cbdf1c73e93d.fbx
+1,169,419 tris  0.94 x 0.72 x 0.98 m  Assets/my assets/Environment/colorful+beach+umbrella+3d+model/tripo_convert_14d4adb9-9e9e-4f7a-867b-d7a21e54985a.fbx
+   18,198 tris  0.98 x 0.10 x 0.30 m  Assets/my assets/Environment/dock/tripo_convert_5fc5e5a6-d595-4cea-b5fd-d5b800a0b523.fbx
+   19,100 tris  0.47 x 0.98 x 0.24 m  Assets/my assets/Environment/flag+on+beach+3d+model (1)/tripo_convert_7bcd0727-5d6b-43d3-a43f-eda8cac69891.fbx
+   19,100 tris  0.47 x 0.98 x 0.24 m  Assets/my assets/Environment/flag.fbx
+   15,988 tris  0.04 x 0.50 x 0.98 m  Assets/my assets/Environment/flags+on+poles+3d+model/tripo_convert_62b0d42b-eecb-4799-a865-00b1c5dc0d8b.fbx
+   16,177 tris  0.56 x 0.60 x 0.98 m  Assets/my assets/Environment/food van/tripo_convert_54222dbd-c0fa-4475-9f26-65f5c97272e7.fbx
+   19,370 tris  0.98 x 0.98 x 0.98 m  Assets/my assets/Environment/fvolleyball.fbx
+   18,726 tris  0.81 x 0.34 x 0.98 m  Assets/my assets/Environment/helicopter+3d+model/tripo_convert_3645e5d8-32f5-4f61-923a-ae618411c9ba.fbx
+   17,280 tris  0.98 x 0.27 x 0.55 m  Assets/my assets/Environment/luxury+hotel+3d+model (1)/tripo_convert_eb5ff1ae-6ccf-4377-84a3-e6f53708e979.fbx
+   15,226 tris  0.80 x 0.81 x 0.98 m  Assets/my assets/Environment/media tower.fbx
+   17,025 tris  0.04 x 0.52 x 0.98 m  Assets/my assets/Environment/national+flags+3d+model/tripo_convert_5f0114e9-4130-4c61-adb6-0c4611758ebe.fbx
+   18,684 tris  0.96 x 0.07 x 0.75 m  Assets/my assets/Environment/overwater+bungalow+3d+model/tripo_convert_3f964517-7885-4815-be1f-d8a1a5dd16c1.fbx
+1,944,095 tris  0.64 x 0.99 x 0.67 m  Assets/my assets/Environment/palm11/palm tree 2.fbx
+1,886,199 tris  0.58 x 0.98 x 0.61 m  Assets/my assets/Environment/palm22/tripo_convert_dee4a94e-b98e-42b6-9390-3da254d687dd.fbx
+   17,230 tris  0.45 x 0.98 x 0.39 m  Assets/my assets/Environment/ref chair2/tripo_convert_09f5a182-4238-42f3-96e5-e68822fb3ecb.fbx
+   15,714 tris  0.57 x 0.98 x 0.72 m  Assets/my assets/Environment/scaffolding+tower+3d+model/tripo_convert_1d5161d4-eae0-4492-a0df-1c3fe6f45afe.fbx
+   17,634 tris  0.86 x 0.55 x 0.98 m  Assets/my assets/Environment/seaside+hotel+3d+model 1/tripo_convert_18789716-4b6e-4ef4-ad0f-778a5b76dc78.fbx
+   18,924 tris  0.42 x 0.98 x 0.42 m  Assets/my assets/Environment/signpost/tripo_convert_b5df6070-8056-4e38-9e75-bf2ee7ac4dfb.fbx
+1,921,625 tris  0.98 x 0.26 x 0.45 m  Assets/my assets/Environment/stadium+bleachers+3d+model/tripo_convert_3c099160-6923-416d-8512-7a141fda5825.fbx
+   17,948 tris  0.20 x 0.98 x 0.26 m  Assets/my assets/Environment/surfboard 2/tripo_convert_3f8c16ef-3311-4b5a-8258-be4a2e4c92e1.fbx
+   18,688 tris  0.49 x 0.19 x 0.98 m  Assets/my assets/Environment/surfboard 3/tripo_convert_a5a391af-cf00-4c90-81d8-fedae86cd176.fbx
+   17,533 tris  0.09 x 0.98 x 0.45 m  Assets/my assets/Environment/surfboard+3d+model/tripo_convert_1f969517-4466-4c36-9084-6584bf11fa71.fbx
+        8 tris  0.35 x 0.32 x 0.98 m  Assets/my assets/Environment/timex+watch+banner+3d+model/tripo_convert_f1a8c817-d12a-43b5-8589-5efd4d9dcbb7.fbx
+   19,173 tris  0.98 x 0.10 x 0.80 m  Assets/my assets/Environment/towel 1/tripo_convert_250a9b7e-9be4-4b28-8130-e3d0822ab054.fbx
+   17,119 tris  0.90 x 0.98 x 0.44 m  Assets/my assets/Environment/tripo_convert_f95a6fa8-f207-424c-9cc6-a11b6dd11d53.fbx
+   17,942 tris  0.99 x 0.93 x 0.98 m  Assets/my assets/Environment/umbrella +chair/tripo_convert_7aab40df-54fb-4cb1-93c5-13afe3afc222.fbx
+   18,998 tris  0.97 x 0.71 x 0.98 m  Assets/my assets/Environment/umbrella/tripo_convert_1fbd7ae5-f6aa-4b87-b705-f5cd0085339d.fbx
+   17,963 tris  0.49 x 0.46 x 0.98 m  Assets/my assets/Environment/viptent/tripo_convert_61c66501-2421-43ee-a757-cd6f4b0e9f79.fbx
