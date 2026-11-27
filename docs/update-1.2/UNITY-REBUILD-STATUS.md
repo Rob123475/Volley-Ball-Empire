@@ -1179,3 +1179,59 @@ What these have in common: nothing in the game's code failed twice. The real fau
   - **Changed:** `electron/main.js` (the edition's name, port, Steam and saves), `electron/preload.js` (`vbeApp.name`, `vbeApp.version`), `pages/profile-picker.tsx` (the version line) and `api-server/src/app.ts` (the 404).
 - **Unity:** `CommentaryManager.cs` (`LINES.txt`).
 - **Nothing deleted.**
+
+## Part D and Rob's additions of 27 Nov (`PART-D-ADDITIONS-2026-11-27.md`)
+
+Rob's instruction (28 Nov): section 0, then section 1 (the ball, then the crowd, and the demo rebuild), then Part D in order D1 to D6, applying the additions' sections 2, 3, 4 and 6 along the way. Not built: section 5's commentary team (not confirmed), any change to the crowd stands beyond pictures (6f), and anything in section 7. The win rates, the live save, Steam and `main` are untouched; full harness runs are capped at 3.
+
+### Section 0: the editor freeze and the packs (28 Nov 2026)
+
+**Why the editor froze** (`proof/section0/why-it-froze.txt`). The Stadium Crowd Generator's `GrandstandCreator` rebuilt its whole stand from `OnValidate`. It queued the rebuild on `EditorApplication.delayCall` whenever `GUI.changed` was set, and `GUI.changed` is a global that stays set after a button click.
+- **The trigger:** importing a package loads the grandstand prefab asset (`SkinnedMesh Grandstand.prefab`) while the Import button has left `GUI.changed` set. So the asset queued a rebuild of itself.
+- **Why it never ended:** the rebuild's clear is `while (childCount > 0) DestroyImmediate(child)`, and Unity never destroys an asset's child ("Destroying assets is not permitted to avoid data loss").
+- **Reproduced** in batch on the prefab asset: 1,773,018 refusals in 92 s, memory up about 30 MB a second, the log up 17 MB a second. At that rate 20 GB is about ten minutes; Rob's editor reached 20 GB in 28 minutes.
+- **Not the cause:** the same trigger on a stand in V19 (a prefab instance) rebuilt once, in 0.0 s, both in batch and in the real editor. The log of Rob's frozen session no longer exists: he opened the coffee game twice afterwards, and each run overwrote the editor log.
+
+**The fix** (Unity, in the pack's own script):
+- `OnValidate` is gone, so a stand is rebuilt only when asked: the inspector's new "Rebuild grandstand" button, or the component's menu.
+- A rebuild is refused in Play mode, on a prefab asset and on a prefab instance.
+- The clear stops if a child cannot be removed.
+- The crowd itself is unchanged: the two stands in V19 are as they were.
+
+**Proof in the real editor, not batch mode** (`proof/section0/editor-open.txt`, 9/9):
+- **Opening V19:** it settles 26.0 s after the editor starts, holding 4.1 GB (working set; 5.4 GB committed).
+- **A forced recompile** of the script: settled again in 14.3 s, both stands with every child (262 each).
+- **The real trigger,** a package import (Rob's `fun hat`) with the stands loaded: settled in 10.4 s. The stands and the prefab asset kept every child, and the working set peaked at 3.8 GB.
+- **The refusals:** a rebuild is refused on the prefab asset and on a stand in the scene. The old clear, capped at 20 goes on the asset, removed nothing, so it could never have ended.
+- **Where a rebuild is allowed:** an unpacked copy in a throwaway scene rebuilt in 0.0 s.
+
+**The project after the forced close.**
+- **Git:** `git status` showed only `Citizens PRO` and `Hats Collection` new, plus the uncommitted `APP_UI_EDITOR_ONLY` line (decision 36).
+- **Nothing half-imported:** every one of Citizens Pro's 1,123 paths and Hats Collection's 124 was on disk. A batch start then imported nothing more (21 s).
+
+**The packs.** All of Rob's 27 Nov downloads are in the Asset Store cache and complete (`gzip -t` on each, `proof/section0/download-check.txt`). Each was imported in batch, one at a time (`imports.txt`), with no compile errors or exceptions. Their built-in Standard materials were converted to URP Lit with URP's own upgrader, in these folders only (`urp-convert.txt`). A contact sheet of each pack drawn in URP is in `proof/section0/sheets/`, and the full inventory in `packs.txt`.
+
+| Pack (folder in `Assets`) | Made in Unity | Draws in URP | Use |
+|---|---|---|---|
+| Citizens Pro 2024 (`Citizens PRO`) | 6000.0.40f1 | after conversion, 175/175 | people: bystanders, front rows, musicians (5,100 to 6,000 triangles each, 110 clips) |
+| Hats Collection | 6000.0.56f1 | after conversion, 27/27 | the store (D4) |
+| fun hat (`Assets Storms`) | **6000.4.4f1, newer than this project's 6000.3.16f1**; imported and compiled without a fault | yes | the store |
+| Santa Hat Pack +100 (`Santa_hat_Pack+100`) | 2021.3.11f1 | after conversion, 96/96 | the store |
+| Cowboy Hat_1 (`Cowboy_Hat`) | 2021.3.28f1 | yes (URP Lit and Complex Lit) | the store; its 2048 textures are 49 to 65 MB TGAs (capped at import) |
+| Musical Motions (`UrsaAssets`) | 2021.3.45f1 | yes | the band (6e) |
+| Female Lounge Singer | 2020.3.38f1 | after conversion, 8/8 | the band's singer (6e) |
+| Musical Instruments Pack (NOT_Lonely, `MusicalInstrumentsPack`) | **5.0.1f1 (2015)** | after conversion, 30/30 | the band: guitars, bass, drum kit, microphone and stand, guitar stack, monitors |
+| Modular Stage (`LoafbrrAssets`) | 2022.3.54f1 | yes (Shader Graph) | the band's stage (6e) |
+| Arena Stage Venue (`OlegWER`) | 2022.3.62f3 | after conversion, 51/51 | stage trusses and lighting (6e) |
+| Food Pack Mixed | 2017.3.0f3 | after conversion, 97/98 (one demo plane) | the food stand (6c) |
+| Turnstile Fare Gate (`NY_Subway`) | 6000.3.2f1 | **no: its 15 materials are HDRP** (their shaders are missing in URP) | not used yet; converting HDRP by hand is only worth it if it is used |
+
+**Missing for Rob:** the second pack whose name starts "Musical Instrument" is not in the Asset Store cache, only NOT_Lonely's Musical Instruments Pack is. Pavilion, Beach - resort and Mia Lock are also in the cache (downloaded on 27 Nov through the coffee game); they are dealt with where section 2 and fix 1b need them.
+
+**The coffee game cleaned.** `C:\Users\rbonn\Game_Dev\CoffeeGame` is not a git repository, so `git status` could not tell what was new.
+- **What I removed:** the 15 folders in its `Assets` that were made on 27 Nov between 9:11 and 9:36 pm, with their `.meta` files. Each is exactly the root folder of one of that day's packages (read from each `.unitypackage`): `Hats Collection`, `Santa_hat_Pack+100`, `NY_Subway`, `Food Pack Mixed`, `LoafbrrAssets`, `OlegWER`, `Assets Storms`, `Cowboy_Hat`, `Mia Bikini`, `Beach - resort`, `UrsaAssets`, `Female_Lounge_Singer`, `IGBlocks`, `Citizens PRO` and `MusicalInstrumentsPack`.
+- **Nothing older was touched:** its own folders all date from 23 Oct to 23 Nov.
+- **Moved, not deleted:** the permission check refused deleting them, so they were moved, unchanged, to `C:\Users\rbonn\Game_Dev\CoffeeGame-removed-2026-11-27\Assets\`. Delete that folder when you're happy; the packs are all in the Asset Store cache.
+- **One thing to know:** the coffee game's Library still holds their imported copies until Unity next opens the project.
+
+**Commits:** Unity `10a2d06`.

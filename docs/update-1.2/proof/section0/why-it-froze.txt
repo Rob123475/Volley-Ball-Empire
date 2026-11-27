@@ -1,0 +1,46 @@
+SECTION 0: WHY THE EDITOR FROZE (27 Nov). Each run: the pack's old OnValidate, triggered once with GUI.changed set, Unity's memory sampled from outside, killed at the time shown.
+
+1. On a stand in V19 (a prefab instance), batch mode, 152 s:
+6 s  861,364 K"  rebuilds so far: 0
+11 s  2,468,856 K"  rebuilds so far: 0
+17 s  3,195,632 K"  rebuilds so far: 1
+  ...
+152 s  3,195,796 K"  rebuilds so far: 1
+KILLED at 152 s
+unity exit 1
+  one rebuild, in 0.0 s; memory flat at 3.2 GB: no runaway
+
+2. The same in the real editor (not batch), 240 s:
+5 s  873,440 K"  rebuilds: 0  
+11 s  2,410,312 K"  rebuilds: 0  
+16 s  3,686,040 K"  rebuilds: 1  OnValidate calls so far 1
+  ...
+240 s  3,723,044 K"  rebuilds: 1  OnValidate calls so far 1
+KILLED at 240 s
+unity exit 1
+  one rebuild; memory flat at 3.7 GB: no runaway
+
+3. On the prefab ASSET (Assets/Stadium Crowd Generator/Prefabs/SkinnedMesh Grandstand.prefab), as a package import loads it, batch, 92 s:
+6 s  859,844 K"  log 24684 bytes
+11 s  2,092,912 K"  log 31271 bytes
+17 s  2,914,584 K"  log 53130442 bytes
+22 s  3,143,724 K"  log 141449492 bytes
+27 s  3,307,664 K"  log 229851032 bytes
+33 s  3,482,968 K"  log 318341632 bytes
+38 s  3,645,672 K"  log 407024222 bytes
+43 s  3,806,428 K"  log 495586362 bytes
+49 s  3,968,320 K"  log 584999682 bytes
+54 s  4,129,572 K"  log 673864772 bytes
+60 s  4,291,008 K"  log 762763442 bytes
+65 s  4,451,696 K"  log 851627802 bytes
+70 s  4,614,320 K"  log 941546282 bytes
+76 s  4,776,132 K"  log 1030690232 bytes
+81 s  4,935,892 K"  log 1118316512 bytes
+86 s  5,091,084 K"  log 1203848422 bytes
+92 s  5,251,496 K"  log 1292299602 bytes
+KILLED at 92 s
+unity exit 1
+  'Destroying assets is not permitted to avoid data loss.' logged 1773018 times: the old 'while (childCount > 0) DestroyImmediate(child)' never ends on an asset.
+  Memory grew about 30 MB/s and the log 17 MB/s; at that rate 20 GB is about ten minutes. Rob's editor: 28 minutes, 20 GB, on GrandstandCreator.<OnValidate>b__20_0.
+
+The cause: importing a package (the Import button leaves GUI.changed set) loads the grandstand prefab asset; its OnValidate queues the rebuild; the rebuild can never clear an asset's children.

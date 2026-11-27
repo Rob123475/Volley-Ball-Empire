@@ -1,0 +1,1 @@
+   10,836 tris  1.19 x 1.74 x 0.37 m  Assets/Female_Lounge_Singer/Prefabs/Android.prefab

@@ -1,0 +1,506 @@
+== Assets/Citizens PRO
+  materials 175: 0 draw in URP, 175 do not
+     175  Standard   <- not URP
+  models 234
+           0 tris  rig Generic   clips  1  Animations/Child Girl/cheer-child girl.FBX
+           0 tris  rig Generic   clips  1  Animations/Child Girl/ClapHands-child girl.FBX
+           0 tris  rig Generic   clips  1  Animations/Child Girl/Dance.FBX
+           0 tris  rig Generic   clips  1  Animations/Child Girl/eatsitting_f.FBX
+           0 tris  rig Generic   clips  1  Animations/Child Girl/idle1-child girl.FBX
+           0 tris  rig Generic   clips  1  Animations/Child Girl/idle2-child girl.FBX
+           0 tris  rig Generic   clips  1  Animations/Child Girl/lierelaxed1_f.FBX
+           0 tris  rig Generic   clips  1  Animations/Child Girl/lierelaxed2_f.FBX
+           0 tris  rig Generic   clips  1  Animations/Child Girl/Listen-child girl.FBX
+           0 tris  rig Generic   clips  1  Animations/Child Girl/lookaround_f.FBX
+           0 tris  rig Generic   clips  1  Animations/Child Girl/Run-child girl.FBX
+           0 tris  rig Generic   clips  1  Animations/Child Girl/shout_f.FBX
+           0 tris  rig Generic   clips  1  Animations/Child Girl/sitground_f.FBX
+           0 tris  rig Generic   clips  1  Animations/Child Girl/sitidle_f.FBX
+           0 tris  rig Generic   clips  1  Animations/Child Girl/Talk1-child girl.FBX
+           0 tris  rig Generic   clips  1  Animations/Child Girl/Talk2-child girl.FBX
+           0 tris  rig Generic   clips  1  Animations/Child Girl/Walk-child girl.FBX
+           0 tris  rig Generic   clips  1  Animations/Child Man/cheer-child boy.FBX
+           0 tris  rig Generic   clips  1  Animations/Child Man/claphands-child boy.FBX
+           0 tris  rig Generic   clips  1  Animations/Child Man/Dance.FBX
+           0 tris  rig Generic   clips  1  Animations/Child Man/eatsitting.FBX
+           0 tris  rig Generic   clips  1  Animations/Child Man/idle1-child boy.FBX
+           0 tris  rig Generic   clips  1  Animations/Child Man/idle2-child boy.FBX
+           0 tris  rig Generic   clips  1  Animations/Child Man/lierelaxed1.FBX
+           0 tris  rig Generic   clips  1  Animations/Child Man/lierelaxed2.FBX
+           0 tris  rig Generic   clips  1  Animations/Child Man/listen-child boy.FBX
+           0 tris  rig Generic   clips  1  Animations/Child Man/lookaround.FBX
+           0 tris  rig Generic   clips  1  Animations/Child Man/Run-child boy.FBX
+           0 tris  rig Generic   clips  1  Animations/Child Man/Shout.FBX
+           0 tris  rig Generic   clips  1  Animations/Child Man/sitground.FBX
+           0 tris  rig Generic   clips  1  Animations/Child Man/sitidle.FBX
+           0 tris  rig Generic   clips  1  Animations/Child Man/Talk1-child boy.FBX
+           0 tris  rig Generic   clips  1  Animations/Child Man/Talk2-child boy.FBX
+           0 tris  rig Generic   clips  1  Animations/Child Man/Walk-child boy.FBX
+           0 tris  rig Generic   clips  1  Animations/Girl no Heel/cheer_f.FBX
+           0 tris  rig Generic   clips  1  Animations/Girl no Heel/claphands_f.FBX
+           0 tris  rig Generic   clips  1  Animations/Girl no Heel/dance_f.FBX
+           0 tris  rig Generic   clips  1  Animations/Girl no Heel/drivecar_f.FBX
+           0 tris  rig Generic   clips  1  Animations/Girl no Heel/drown_f.FBX
+           0 tris  rig Generic   clips  1  Animations/Girl no Heel/eatsitting_f.FBX
+           0 tris  rig Generic   clips  1  Animations/Girl no Heel/idle1_f.FBX
+           0 tris  rig Generic   clips  1  Animations/Girl no Heel/idle2_f.FBX
+           0 tris  rig Generic   clips  1  Animations/Girl no Heel/idledrunk_f.FBX
+           0 tris  rig Generic   clips  1  Animations/Girl no Heel/idlewall_f.FBX
+           0 tris  rig Generic   clips  1  Animations/Girl no Heel/lierelaxed1_f.FBX
+           0 tris  rig Generic   clips  1  Animations/Girl no Heel/lierelaxed2_f.FBX
+           0 tris  rig Generic   clips  1  Animations/Girl no Heel/listen_f.FBX
+           0 tris  rig Generic   clips  1  Animations/Girl no Heel/lookaround_f.FBX
+           0 tris  rig Generic   clips  1  Animations/Girl no Heel/run_f.FBX
+           0 tris  rig Generic   clips  1  Animations/Girl no Heel/shout_f.FBX
+           0 tris  rig Generic   clips  1  Animations/Girl no Heel/sitground_f.FBX
+           0 tris  rig Generic   clips  1  Animations/Girl no Heel/sitidle_f.FBX
+           0 tris  rig Generic   clips  1  Animations/Girl no Heel/swim_f.FBX
+           0 tris  rig Generic   clips  1  Animations/Girl no Heel/talk1_f.FBX
+           0 tris  rig Generic   clips  1  Animations/Girl no Heel/talk2_f.FBX
+           0 tris  rig Generic   clips  1  Animations/Girl no Heel/walk_f.FBX
+           0 tris  rig Generic   clips  1  Animations/Girl no Heel/walkcarry1_f.FBX
+           0 tris  rig Generic   clips  1  Animations/Girl no Heel/walkdrunk_f.FBX
+           0 tris  rig Generic   clips  1  Animations/Girl no Heel/work_assembly_f.FBX
+           0 tris  rig Generic   clips  1  Animations/Girl no Heel/work_computer_f.FBX
+           0 tris  rig Generic   clips  1  Animations/Girl with Heel/cheer_f.FBX
+           0 tris  rig Generic   clips  1  Animations/Girl with Heel/claphands_f.FBX
+           0 tris  rig Generic   clips  1  Animations/Girl with Heel/Dance_woman.FBX
+           0 tris  rig Generic   clips  1  Animations/Girl with Heel/drivecar_f.FBX
+           0 tris  rig Generic   clips  1  Animations/Girl with Heel/drown_f.FBX
+           0 tris  rig Generic   clips  1  Animations/Girl with Heel/eatsitting_f.FBX
+           0 tris  rig Generic   clips  1  Animations/Girl with Heel/idle1_f.FBX
+           0 tris  rig Generic   clips  1  Animations/Girl with Heel/idle2_f.FBX
+           0 tris  rig Generic   clips  1  Animations/Girl with Heel/idledrunk_f.FBX
+           0 tris  rig Generic   clips  1  Animations/Girl with Heel/idlewall_f.FBX
+           0 tris  rig Generic   clips  1  Animations/Girl with Heel/lierelaxed1_f.FBX
+           0 tris  rig Generic   clips  1  Animations/Girl with Heel/lierelaxed2_f.FBX
+           0 tris  rig Generic   clips  1  Animations/Girl with Heel/listen_f.FBX
+           0 tris  rig Generic   clips  1  Animations/Girl with Heel/lookaround_f.FBX
+           0 tris  rig Generic   clips  1  Animations/Girl with Heel/manipulate_f.FBX
+           0 tris  rig Generic   clips  1  Animations/Girl with Heel/run_f.FBX
+           0 tris  rig Generic   clips  1  Animations/Girl with Heel/shout_f.FBX
+           0 tris  rig Generic   clips  1  Animations/Girl with Heel/sitground_f.FBX
+           0 tris  rig Generic   clips  1  Animations/Girl with Heel/swim_f.FBX
+           0 tris  rig Generic   clips  1  Animations/Girl with Heel/talk1_f.FBX
+           0 tris  rig Generic   clips  1  Animations/Girl with Heel/talk2_f.FBX
+           0 tris  rig Generic   clips  1  Animations/Girl with Heel/walk_f.FBX
+           0 tris  rig Generic   clips  1  Animations/Girl with Heel/walkcarry1_f.FBX
+           0 tris  rig Generic   clips  1  Animations/Girl with Heel/walkdrunk_f.FBX
+           0 tris  rig Generic   clips  1  Animations/Girl with Heel/work_assembly_f.FBX
+           0 tris  rig Generic   clips  1  Animations/Girl with Heel/work_computer_f.FBX
+           0 tris  rig Generic   clips  1  Animations/Man/cheer.FBX
+           0 tris  rig Generic   clips  1  Animations/Man/claphands.FBX
+           0 tris  rig Generic   clips  1  Animations/Man/Dance_man.FBX
+           0 tris  rig Generic   clips  1  Animations/Man/drivecar.FBX
+           0 tris  rig Generic   clips  1  Animations/Man/drown.FBX
+           0 tris  rig Generic   clips  1  Animations/Man/eatsitting.FBX
+           0 tris  rig Generic   clips  1  Animations/Man/idle1.FBX
+           0 tris  rig Generic   clips  1  Animations/Man/idle2.FBX
+           0 tris  rig Generic   clips  1  Animations/Man/idledrunk.FBX
+           0 tris  rig Generic   clips  1  Animations/Man/lierelaxed1.FBX
+           0 tris  rig Generic   clips  1  Animations/Man/lierelaxed2.FBX
+           0 tris  rig Generic   clips  1  Animations/Man/listen.FBX
+           0 tris  rig Generic   clips  1  Animations/Man/lookaround.FBX
+           0 tris  rig Generic   clips  1  Animations/Man/run.FBX
+           0 tris  rig Generic   clips  1  Animations/Man/shout.FBX
+           0 tris  rig Generic   clips  1  Animations/Man/sitground.FBX
+           0 tris  rig Generic   clips  1  Animations/Man/sitidle.FBX
+           0 tris  rig Generic   clips  1  Animations/Man/swim.FBX
+           0 tris  rig Generic   clips  1  Animations/Man/talk1.FBX
+           0 tris  rig Generic   clips  1  Animations/Man/talk2.FBX
+           0 tris  rig Generic   clips  1  Animations/Man/walk.FBX
+           0 tris  rig Generic   clips  1  Animations/Man/walkcarry1.FBX
+           0 tris  rig Generic   clips  1  Animations/Man/walkdrunk.FBX
+           0 tris  rig Generic   clips  1  Animations/Man/work_computer.FBX
+          34 tris  rig None      clips  0  Models/Circle.FBX
+        5406 tris  rig Generic   clips  0  Models/People 1.0/Female/Girl_11.FBX
+        5406 tris  rig Generic   clips  0  Models/People 1.0/Female/Girl_22.FBX
+        5406 tris  rig Generic   clips  0  Models/People 1.0/Female/Girl_33.FBX
+        5272 tris  rig Generic   clips  0  Models/People 1.0/Female/Girl_44.FBX
+        5272 tris  rig Generic   clips  0  Models/People 1.0/Female/Girl_55.FBX
+        5272 tris  rig Generic   clips  0  Models/People 1.0/Female/Girl_66.FBX
+        5272 tris  rig Generic   clips  0  Models/People 1.0/Female/Girl_77.FBX
+        5206 tris  rig Generic   clips  0  Models/People 1.0/Male/Man_11.FBX
+        5206 tris  rig Generic   clips  0  Models/People 1.0/Male/Man_22.FBX
+        4930 tris  rig Generic   clips  0  Models/People 1.0/Male/Man_33.FBX
+        4930 tris  rig Generic   clips  0  Models/People 1.0/Male/Man_44.FBX
+        4930 tris  rig Generic   clips  0  Models/People 1.0/Male/Man_55.FBX
+        4930 tris  rig Generic   clips  0  Models/People 1.0/Male/Man_66.FBX
+        4672 tris  rig Generic   clips  0  Models/People 1.0/Male/Man_77.FBX
+        4930 tris  rig Generic   clips  0  Models/People 1.0/Male/Man_88.FBX
+        4930 tris  rig Generic   clips  0  Models/People 1.0/Male/Man_99.FBX
+        3202 tris  rig Generic   clips  0  Models/People 1.0/Male/Man_111.FBX
+        5221 tris  rig Generic   clips  0  Models/People 2.0/Female/business01_f/business01_f.FBX
+        5138 tris  rig Generic   clips  0  Models/People 2.0/Female/business02_f/business02_f.FBX
+        5138 tris  rig Generic   clips  0  Models/People 2.0/Female/business03_f/business03_f.FBX
+        6007 tris  rig Generic   clips  0  Models/People 2.0/Female/business04_f/business04_f.FBX
+        6036 tris  rig Generic   clips  0  Models/People 2.0/Female/business05_f/business05_f.FBX
+        5498 tris  rig Generic   clips  0  Models/People 2.0/Female/casual01_f/casual01_f.FBX
+        5290 tris  rig Generic   clips  0  Models/People 2.0/Female/casual02_f/casual02_f.FBX
+        5548 tris  rig Generic   clips  0  Models/People 2.0/Female/casual03_f/casual03_f.FBX
+        5290 tris  rig Generic   clips  0  Models/People 2.0/Female/casual04_f/casual04_f.FBX
+        5335 tris  rig Generic   clips  0  Models/People 2.0/Female/casual05_f/casual05_f.FBX
+        5592 tris  rig Generic   clips  0  Models/People 2.0/Female/casual06_f/casual06_f.FBX
+        5122 tris  rig Generic   clips  0  Models/People 2.0/Female/casual07_f/casual07_f.FBX
+        5214 tris  rig Generic   clips  0  Models/People 2.0/Female/casual08_f/casual08_f.FBX
+        5618 tris  rig Generic   clips  0  Models/People 2.0/Female/casual09_f/casual09_f.FBX
+        5592 tris  rig Generic   clips  0  Models/People 2.0/Female/casual10_f/casual10_f.FBX
+        5592 tris  rig Generic   clips  0  Models/People 2.0/Female/casual11_f/casual11_f.FBX
+        5697 tris  rig Generic   clips  0  Models/People 2.0/Female/casual12_f/casual12_f.FBX
+        5209 tris  rig Generic   clips  0  Models/People 2.0/Female/casual13_f+/casual13_f.FBX
+        5206 tris  rig Generic   clips  0  Models/People 2.0/Female/casual14_f+/casual14_f.FBX
+        5290 tris  rig Generic   clips  0  Models/People 2.0/Female/casual15_f+/casual15_f.FBX
+        5198 tris  rig Generic   clips  0  Models/People 2.0/Female/casual16_f/casual16_f.FBX
+        5210 tris  rig Generic   clips  0  Models/People 2.0/Female/casual17_f/casual17_f.FBX
+        5148 tris  rig Generic   clips  0  Models/People 2.0/Female/casual18_f/casual18_f.FBX
+        5412 tris  rig Generic   clips  0  Models/People 2.0/Female/casual19_f/casual19_f.FBX
+        5356 tris  rig Generic   clips  0  Models/People 2.0/Female/casual20_f+/casual20_f.FBX
+        5274 tris  rig Generic   clips  0  Models/People 2.0/Female/casual21_f+/casual21_f.FBX
+        5272 tris  rig Generic   clips  0  Models/People 2.0/Female/casual22_f+/casual22_f.FBX
+        5386 tris  rig Generic   clips  0  Models/People 2.0/Female/casual23_f/casual23_f.FBX
+        5600 tris  rig Generic   clips  0  Models/People 2.0/Female/casual24_f/casual24_f.FBX
+        5386 tris  rig Generic   clips  0  Models/People 2.0/Female/casual25_f/casual25_f.FBX
+        5386 tris  rig Generic   clips  0  Models/People 2.0/Female/casual26_f/casual26_f.FBX
+        4694 tris  rig Generic   clips  0  Models/People 2.0/Female/child01_f/child girl 01.FBX
+        4760 tris  rig Generic   clips  0  Models/People 2.0/Female/child02_f/child girl 02.FBX
+        5238 tris  rig Generic   clips  0  Models/People 2.0/Female/granny01/granny01.FBX
+        5144 tris  rig Generic   clips  0  Models/People 2.0/Female/granny02/granny02.FBX
+        5260 tris  rig Generic   clips  0  Models/People 2.0/Female/nude01_f/nude01_f.FBX
+        5582 tris  rig Generic   clips  0  Models/People 2.0/Female/nude02_f/nude02_f.FBX
+        5334 tris  rig Generic   clips  0  Models/People 2.0/Female/nude03_f/nude03_f.FBX
+        5337 tris  rig Generic   clips  0  Models/People 2.0/Female/nude04_f/nude04_f.FBX
+        5472 tris  rig Generic   clips  0  Models/People 2.0/Female/sportive01_f/sportive01_f.FBX
+        5406 tris  rig Generic   clips  0  Models/People 2.0/Female/sportive02_f/sportive02_f.FBX
+        5212 tris  rig Generic   clips  0  Models/People 2.0/Female/sportive03_f/sportive03_f.FBX
+        5005 tris  rig Generic   clips  0  Models/People 2.0/Female/sportive04_f/sportive04_f.FBX
+        5048 tris  rig Generic   clips  0  Models/People 2.0/Female/sportive05_f/sportive05_f.FBX
+        4928 tris  rig Generic   clips  0  Models/People 2.0/Female/sportive06_f/sportive06_f.FBX
+        4968 tris  rig Generic   clips  0  Models/People 2.0/Female/sportive07_f/sportive07_f.FBX
+        5078 tris  rig Generic   clips  0  Models/People 2.0/Male/business01_m/business01_m.FBX
+        5082 tris  rig Generic   clips  0  Models/People 2.0/Male/business02_m/business02_m.FBX
+        5138 tris  rig Generic   clips  0  Models/People 2.0/Male/business03_m/business03_m.FBX
+        5082 tris  rig Generic   clips  0  Models/People 2.0/Male/business04_m/business04_m.FBX
+        5134 tris  rig Generic   clips  0  Models/People 2.0/Male/business05_m/business05_m.FBX
+        5138 tris  rig Generic   clips  0  Models/People 2.0/Male/business06_m/business06_m_highpoly.FBX
+        5078 tris  rig Generic   clips  0  Models/People 2.0/Male/business07_m/business07_m.FBX
+        4568 tris  rig Generic   clips  0  Models/People 2.0/Male/casual01_m/casual01_m.FBX
+        4568 tris  rig Generic   clips  0  Models/People 2.0/Male/casual02_m/casual02_m.FBX
+        4568 tris  rig Generic   clips  0  Models/People 2.0/Male/casual03_m/casual03_m.FBX
+        4638 tris  rig Generic   clips  0  Models/People 2.0/Male/casual04_m/casual04_m.FBX
+        5420 tris  rig Generic   clips  0  Models/People 2.0/Male/casual05_m/casual05_m.FBX
+        5244 tris  rig Generic   clips  0  Models/People 2.0/Male/casual06_m/casual06_m.FBX
+        4830 tris  rig Generic   clips  0  Models/People 2.0/Male/casual07_m/casual07_m.FBX
+        5420 tris  rig Generic   clips  0  Models/People 2.0/Male/casual08_m/casual08_m.FBX
+        4954 tris  rig Generic   clips  0  Models/People 2.0/Male/casual09_m/casual09_m_highpoly.FBX
+        4662 tris  rig Generic   clips  0  Models/People 2.0/Male/casual10_m/casual10_m_highpoly.FBX
+        5454 tris  rig Generic   clips  0  Models/People 2.0/Male/casual11_m/casual11_m.FBX
+        4898 tris  rig Generic   clips  0  Models/People 2.0/Male/casual12_m/casual12_m.FBX
+        4642 tris  rig Generic   clips  0  Models/People 2.0/Male/casual13_m/casual13_m.FBX
+        4632 tris  rig Generic   clips  0  Models/People 2.0/Male/casual14_m/casual14_m.FBX
+        4890 tris  rig Generic   clips  0  Models/People 2.0/Male/casual15_m/casual15_m.FBX
+        4582 tris  rig Generic   clips  0  Models/People 2.0/Male/casual16_m/casual16_m.FBX
+        4894 tris  rig Generic   clips  0  Models/People 2.0/Male/casual17_m/casual17_m.FBX
+        4958 tris  rig Generic   clips  0  Models/People 2.0/Male/casual18_m/casual18_m.FBX
+        4578 tris  rig Generic   clips  0  Models/People 2.0/Male/casual19_m/casual19_m.FBX
+        4578 tris  rig Generic   clips  0  Models/People 2.0/Male/casual20_m/casual20_m.FBX
+        4628 tris  rig Generic   clips  0  Models/People 2.0/Male/casual21_m/casual21_m.FBX
+        4894 tris  rig Generic   clips  0  Models/People 2.0/Male/casual22_m/casual22_m.FBX
+        4962 tris  rig Generic   clips  0  Models/People 2.0/Male/casual23_m/casual23_m.FBX
+        4890 tris  rig Generic   clips  0  Models/People 2.0/Male/casual24_m/casual24_m.FBX
+        4628 tris  rig Generic   clips  0  Models/People 2.0/Male/casual25_m/casual25_m.FBX
+        5416 tris  rig Generic   clips  0  Models/People 2.0/Male/casual26_m/casual26_m.FBX
+        4642 tris  rig Generic   clips  0  Models/People 2.0/Male/casual27_m/casual27_m_highpoly.FBX
+        4958 tris  rig Generic   clips  0  Models/People 2.0/Male/casual28_m/casual28_m.FBX
+        4958 tris  rig Generic   clips  0  Models/People 2.0/Male/casual29_m/casual29_m.FBX
+        5344 tris  rig Generic   clips  0  Models/People 2.0/Male/casual30_m/casual30_m.FBX
+        4906 tris  rig Generic   clips  0  Models/People 2.0/Male/casual31_m/casual31_m.FBX
+        5314 tris  rig Generic   clips  0  Models/People 2.0/Male/casual32_m/casual32_m.FBX
+        4906 tris  rig Generic   clips  0  Models/People 2.0/Male/child01_m/child01_m_highpoly.FBX
+        4906 tris  rig Generic   clips  0  Models/People 2.0/Male/child02_m/child02_m.FBX
+        4274 tris  rig Generic   clips  0  Models/People 2.0/Male/nude01_m/nude01_m.FBX
+        4508 tris  rig Generic   clips  0  Models/People 2.0/Male/nude02_m/nude02_m.FBX
+        4240 tris  rig Generic   clips  0  Models/People 2.0/Male/nude03_m/nude03_m.FBX
+        4504 tris  rig Generic   clips  0  Models/People 2.0/Male/nude04_m/nude04_m.FBX
+        4236 tris  rig Generic   clips  0  Models/People 2.0/Male/nude08_m/nude08_m.FBX
+        4240 tris  rig Generic   clips  0  Models/People 2.0/Male/nude09_m/nude09_m.FBX
+        4508 tris  rig Generic   clips  0  Models/People 2.0/Male/nude10_m/nude10_m.FBX
+        4702 tris  rig Generic   clips  0  Models/People 2.0/Male/player_m/soccerplayer01_m.FBX
+        4572 tris  rig Generic   clips  0  Models/People 2.0/Male/sportive01_m/sportive01_m.FBX
+        4694 tris  rig Generic   clips  0  Models/People 2.0/Male/sportive03_m/sportive03_m.FBX
+        4702 tris  rig Generic   clips  0  Models/People 2.0/Male/sportive04_m/sportive04_m.FBX
+        4698 tris  rig Generic   clips  0  Models/People 2.0/Male/sportive05_m/sportive05_m.FBX
+        5218 tris  rig Generic   clips  0  Models/People 2.0/Male/sportive07_m/sportive07_m.FBX
+        4576 tris  rig Generic   clips  0  Models/People 2.0/Male/sportive08_m/sportive08_m.FBX
+        4642 tris  rig Generic   clips  0  Models/People 2.0/Male/sportive09_m/sportive09_m.FBX
+        4828 tris  rig Generic   clips  0  Models/People 2.0/Male/sportive10_m/sportive10_m.FBX
+        5206 tris  rig Generic   clips  0  Models/People 2.0/Male/sportive11_m/sportive11_m.FBX
+           2 tris  rig None      clips  0  Models/Plane.FBX
+         180 tris  rig None      clips  0  Models/Stair.FBX
+  animation clips (in models and .anim files): 110 assets
+  prefabs 123, scenes 8, scripts 22: AudiencePathEditor.cs, MenuEditor.cs, NewPathEditor.cs, PeopleWalkPathEditor.cs, PopulationSystemManagerEditor.cs, StandingPeopleConcertEditor.cs, StandingPeopleStreetEditor.cs, CamMouseOrbit.cs, MouseLookAdvanced.cs, AudiencePath.cs, MovePath.cs, NewPath.cs, PathType.cs, PeopleWalkPath.cs, WalkPath.cs, Rotateobject.cs, PeopleController.cs, PopulationSystemManager.cs, StandingPeopleConcert.cs, StandingPeopleStreet.cs, CommonUtils.cs, ShfuffleExtension.cs
+  textures 297; largest: Girl_11.png 2048x2048, Girl_22.png 2048x2048, Girl_33.png 2048x2048, Girl_44.png 2048x2048
+== Assets/Hats Collection
+  materials 27: 0 draw in URP, 27 do not
+      27  Standard   <- not URP
+  models 20
+         932 tris  rig None      clips  0  Models/Hat 1.FBX
+         498 tris  rig None      clips  0  Models/Hat 2.FBX
+         338 tris  rig None      clips  0  Models/Hat 3.FBX
+         914 tris  rig None      clips  0  Models/Hat 4.FBX
+         778 tris  rig None      clips  0  Models/Hat 5.FBX
+         586 tris  rig None      clips  0  Models/Hat 6.FBX
+         862 tris  rig None      clips  0  Models/Hat 7.FBX
+        1021 tris  rig None      clips  0  Models/Hat 8.FBX
+         682 tris  rig None      clips  0  Models/Hat 9.FBX
+         972 tris  rig None      clips  0  Models/Hat 10.FBX
+         948 tris  rig None      clips  0  Models/Hat 11.FBX
+         824 tris  rig None      clips  0  Models/Hat 12.FBX
+         256 tris  rig None      clips  0  Models/Hat 13.FBX
+        1348 tris  rig None      clips  0  Models/Hat 14.FBX
+         846 tris  rig None      clips  0  Models/Hat 15.FBX
+        1079 tris  rig None      clips  0  Models/Hat 16.FBX
+         596 tris  rig None      clips  0  Models/Hat 17.FBX
+        1680 tris  rig Generic   clips  0  Models/Hat 18.fbx
+         590 tris  rig Generic   clips  0  Models/Hat 19.fbx
+         262 tris  rig Generic   clips  0  Models/Hat 20.fbx
+  animation clips (in models and .anim files): 0 assets
+  prefabs 20, scenes 2, scripts 1: RotateMoveCamera_InputSystem.cs
+  textures 41; largest: fabric 17 N.png 2048x2048, fabric 17.png 2048x2048, fabric 19 N.png 2048x2048, fabric 19.png 2048x2048
+== Assets/Assets Storms
+  materials 2: 2 draw in URP, 0 do not
+       2  Universal Render Pipeline/Lit
+  models 1
+         680 tris  rig Generic   clips  0  models/hat..fbx
+  animation clips (in models and .anim files): 0 assets
+  prefabs 1, scenes 1, scripts 0: 
+  textures 1; largest: cartola .png 1024x1024
+== Assets/Santa_hat_Pack+100
+  materials 96: 1 draw in URP, 95 do not
+      95  Standard   <- not URP
+       1  Universal Render Pipeline/Lit
+  models 1
+         751 tris  rig Generic   clips  0  fbx/santa_hats.fbx
+  animation clips (in models and .anim files): 0 assets
+  prefabs 100, scenes 2, scripts 0: 
+  textures 100; largest: basecolor_1.png 512x512, basecolor_1_1.png 512x512, basecolor_1_2.png 512x512, basecolor_1_3.png 512x512
+== Assets/Cowboy_Hat
+  materials 4: 4 draw in URP, 0 do not
+       2  Universal Render Pipeline/Lit
+       2  Universal Render Pipeline/Complex Lit
+  models 2
+        3043 tris  rig Generic   clips  0  Mesh/Hat_1.fbx
+        1249 tris  rig Generic   clips  0  Mesh/Hat_2.fbx
+  animation clips (in models and .anim files): 0 assets
+  prefabs 2, scenes 1, scripts 0: 
+  textures 8; largest: T_Hat_1_Albedo 1.tga 2048x2048, T_Hat_1_Metallic 1.tga 2048x2048, T_Hat_1_Normal.tga 2048x2048, T_Hat_1_Occlusion.tga 2048x2048
+== Assets/UrsaAssets
+  materials 17: 17 draw in URP, 0 do not
+      17  Universal Render Pipeline/Lit
+  models 54
+           0 tris  rig Human     clips  1  MusicalBandAnimPack/Animations/Contrabass_Violin/ANIM_Contrabass_A.fbx
+           0 tris  rig Human     clips  1  MusicalBandAnimPack/Animations/Contrabass_Violin/ANIM_Contrabass_B.fbx
+           0 tris  rig Human     clips  1  MusicalBandAnimPack/Animations/Contrabass_Violin/ANIM_Contrabass_idle.fbx
+           0 tris  rig Human     clips  1  MusicalBandAnimPack/Animations/Contrabass_Violin/ANIM_Violin_A.fbx
+           0 tris  rig Human     clips  1  MusicalBandAnimPack/Animations/Contrabass_Violin/ANIM_Violin_idle.fbx
+           0 tris  rig Human     clips  1  MusicalBandAnimPack/Animations/Drummer/ANIM_Drumming_A01.fbx
+           0 tris  rig Human     clips  1  MusicalBandAnimPack/Animations/Drummer/ANIM_Drumming_A02.fbx
+           0 tris  rig Human     clips  1  MusicalBandAnimPack/Animations/Drummer/ANIM_Drumming_A03.fbx
+           0 tris  rig Human     clips  1  MusicalBandAnimPack/Animations/Drummer/ANIM_Drumming_B01.fbx
+           0 tris  rig Human     clips  1  MusicalBandAnimPack/Animations/Drummer/ANIM_Drumming_B02.fbx
+           0 tris  rig Human     clips  1  MusicalBandAnimPack/Animations/Drummer/ANIM_Drumming_B03.fbx
+           0 tris  rig Human     clips  1  MusicalBandAnimPack/Animations/Drummer/ANIM_Drumming_idle.fbx
+           0 tris  rig Human     clips  1  MusicalBandAnimPack/Animations/Guitarist/ANIM_Bassist_A.fbx
+           0 tris  rig Human     clips  1  MusicalBandAnimPack/Animations/Guitarist/ANIM_Bassist_B.fbx
+           0 tris  rig Human     clips  1  MusicalBandAnimPack/Animations/Guitarist/ANIM_Bassist_Transition_A_to_B.fbx
+           0 tris  rig Human     clips  1  MusicalBandAnimPack/Animations/Guitarist/ANIM_Bassist_Transition_B_to_A.fbx
+           0 tris  rig Human     clips  1  MusicalBandAnimPack/Animations/Guitarist/ANIM_Guitarist_A.fbx
+           0 tris  rig Human     clips  1  MusicalBandAnimPack/Animations/Guitarist/ANIM_Guitarist_B.fbx
+           0 tris  rig Human     clips  1  MusicalBandAnimPack/Animations/Guitarist/ANIM_Guitarist_C.fbx
+           0 tris  rig Human     clips  1  MusicalBandAnimPack/Animations/Guitarist/ANIM_Guitarist_idle.fbx
+           0 tris  rig Human     clips  1  MusicalBandAnimPack/Animations/Guitarist/ANIM_Guitarist_Transition_A_to_B.fbx
+           0 tris  rig Human     clips  1  MusicalBandAnimPack/Animations/Guitarist/ANIM_Guitarist_Transition_B_to_A.fbx
+           0 tris  rig Human     clips  1  MusicalBandAnimPack/Animations/Keyboards/ANIM_Keyboard_A01.fbx
+           0 tris  rig Human     clips  1  MusicalBandAnimPack/Animations/Keyboards/ANIM_Keyboard_A02.fbx
+           0 tris  rig Human     clips  1  MusicalBandAnimPack/Animations/Keyboards/ANIM_Keyboard_B01.fbx
+           0 tris  rig Human     clips  1  MusicalBandAnimPack/Animations/Keyboards/ANIM_Keyboard_B02.fbx
+           0 tris  rig Human     clips  1  MusicalBandAnimPack/Animations/Keyboards/ANIM_Keyboard_idle_A.fbx
+           0 tris  rig Human     clips  1  MusicalBandAnimPack/Animations/Keyboards/ANIM_Keyboard_idle_B.fbx
+           0 tris  rig Human     clips  1  MusicalBandAnimPack/Animations/Sax/ANIM_Sax_A.fbx
+           0 tris  rig Human     clips  1  MusicalBandAnimPack/Animations/Sax/ANIM_Sax_B.fbx
+           0 tris  rig Human     clips  1  MusicalBandAnimPack/Animations/Sax/ANIM_Sax_C.fbx
+           0 tris  rig Human     clips  1  MusicalBandAnimPack/Animations/Sax/ANIM_Sax_idle.fbx
+           0 tris  rig Human     clips  1  MusicalBandAnimPack/Animations/Trumpet/ANIM_Trumpet_A.fbx
+           0 tris  rig Human     clips  1  MusicalBandAnimPack/Animations/Trumpet/ANIM_Trumpet_B.fbx
+           0 tris  rig Human     clips  1  MusicalBandAnimPack/Animations/Trumpet/ANIM_Trumpet_C.fbx
+           0 tris  rig Human     clips  1  MusicalBandAnimPack/Animations/Trumpet/ANIM_Trumpet_idle.fbx
+       47884 tris  rig Human     clips  0  MusicalBandAnimPack/Character/Armature.fbx
+           0 tris  rig Generic   clips  1  MusicalBandAnimPack/Props/Animations/ANIM_DrumSet_A01.fbx
+           0 tris  rig Generic   clips  1  MusicalBandAnimPack/Props/Animations/ANIM_DrumSet_A02.fbx
+           0 tris  rig Generic   clips  1  MusicalBandAnimPack/Props/Animations/ANIM_DrumSet_A03.fbx
+           0 tris  rig Generic   clips  1  MusicalBandAnimPack/Props/Animations/ANIM_DrumSet_B01.fbx
+           0 tris  rig Generic   clips  1  MusicalBandAnimPack/Props/Animations/ANIM_DrumSet_B02.fbx
+           0 tris  rig Generic   clips  1  MusicalBandAnimPack/Props/Animations/ANIM_DrumSet_B03.fbx
+           0 tris  rig Generic   clips  1  MusicalBandAnimPack/Props/Animations/ANIM_DrumSet_idle.fbx
+      178198 tris  rig Generic   clips  0  MusicalBandAnimPack/Props/SKM_DrumSet.fbx
+        3928 tris  rig Generic   clips  0  MusicalBandAnimPack/Props/SM_BassGuitar.fbx
+         164 tris  rig Generic   clips  0  MusicalBandAnimPack/Props/SM_Bow.fbx
+        6888 tris  rig Generic   clips  0  MusicalBandAnimPack/Props/SM_Contrabass.fbx
+         236 tris  rig Generic   clips  0  MusicalBandAnimPack/Props/SM_DrumStick.fbx
+        4082 tris  rig Generic   clips  0  MusicalBandAnimPack/Props/SM_Guitar.fbx
+        3920 tris  rig Generic   clips  0  MusicalBandAnimPack/Props/SM_Keyboard.fbx
+        3994 tris  rig Generic   clips  0  MusicalBandAnimPack/Props/SM_Sax.fbx
+        2516 tris  rig Generic   clips  0  MusicalBandAnimPack/Props/SM_Trumpet.fbx
+        6868 tris  rig Generic   clips  0  MusicalBandAnimPack/Props/SM_Violin.fbx
+  animation clips (in models and .anim files): 43 assets
+  prefabs 27, scenes 2, scripts 0: 
+  textures 12; largest: Armature_Arms_AlbedoTransparency.tif 2048x2048, Armature_Arms_MetallicSmoothness.tif 2048x2048, Armature_Arms_Normal.tif 2048x2048, Armature_Arms_RGB.tif 2048x2048
+== Assets/Female_Lounge_Singer
+  materials 8: 2 draw in URP, 6 do not
+       6  Standard   <- not URP
+       1  Skybox/Procedural
+       1  Universal Render Pipeline/Lit
+  models 32
+           0 tris  rig Human     clips  1  Art/Animations/Android_Female_TPose.fbx
+           0 tris  rig Human     clips  1  Art/Animations/Female_Idle_Base.fbx
+           0 tris  rig Human     clips  1  Art/Animations/Female_LoungeSinger_Idle_Sing_Base.fbx
+           0 tris  rig Human     clips  1  Art/Animations/Female_LoungeSinger_Idle_Waiting.fbx
+           0 tris  rig Human     clips  1  Art/Animations/Female_LoungeSinger_Sing_Ballad01.fbx
+           0 tris  rig Human     clips  1  Art/Animations/Female_LoungeSinger_Sing_Ballad02.fbx
+           0 tris  rig Human     clips  1  Art/Animations/Female_LoungeSinger_Sing_Ballad03.fbx
+           0 tris  rig Human     clips  1  Art/Animations/Female_LoungeSinger_Sing_Ballad04.fbx
+           0 tris  rig Human     clips  1  Art/Animations/Female_LoungeSinger_Sing_Ballad05.fbx
+           0 tris  rig Human     clips  1  Art/Animations/Female_LoungeSinger_Sing_Finisher01.fbx
+           0 tris  rig Human     clips  1  Art/Animations/Female_LoungeSinger_Sing_Finisher02.fbx
+           0 tris  rig Human     clips  1  Art/Animations/Female_LoungeSinger_Sing_Finisher03.fbx
+           0 tris  rig Human     clips  1  Art/Animations/Female_LoungeSinger_Sing_Goodbye01.fbx
+           0 tris  rig Human     clips  1  Art/Animations/Female_LoungeSinger_Sing_Goodbye02.fbx
+           0 tris  rig Human     clips  1  Art/Animations/Female_LoungeSinger_Sing_Goodbye03.fbx
+           0 tris  rig Human     clips  1  Art/Animations/Female_LoungeSinger_Sing_Goodbye04.fbx
+           0 tris  rig Human     clips  1  Art/Animations/Female_LoungeSinger_Sing_Goodbye05.fbx
+           0 tris  rig Human     clips  1  Art/Animations/Female_LoungeSinger_Sing_Subtle01.fbx
+           0 tris  rig Human     clips  1  Art/Animations/Female_LoungeSinger_Sing_Subtle02.fbx
+           0 tris  rig Human     clips  1  Art/Animations/Female_LoungeSinger_Sing_Upbeat01.fbx
+           0 tris  rig Human     clips  1  Art/Animations/Female_LoungeSinger_Sing_Upbeat02.fbx
+           0 tris  rig Human     clips  1  Art/Animations/Female_LoungeSinger_Sing_Upbeat03.fbx
+           0 tris  rig Human     clips  1  Art/Animations/Female_LoungeSinger_Sing_Upbeat04.fbx
+           0 tris  rig Human     clips  1  Art/Animations/Female_LoungeSinger_Sing_Upbeat05.fbx
+           0 tris  rig Human     clips  1  Art/Animations/Female_LoungeSinger_Sing_Upbeat06.fbx
+           0 tris  rig Human     clips  1  Art/Animations/Female_LoungeSinger_Sing_Upbeat07.fbx
+           0 tris  rig Human     clips  1  Art/Animations/Female_LoungeSinger_Sing_Upbeat08.fbx
+           0 tris  rig Human     clips  1  Art/Animations/Female_LoungeSinger_Sing_Upbeat09.fbx
+           0 tris  rig Human     clips  1  Art/Animations/Female_LoungeSinger_Sing_Upbeat10.fbx
+           0 tris  rig Human     clips  1  Art/Animations/Female_LoungeSinger_Transition_IdleBase_to_IdleSing.fbx
+           0 tris  rig Human     clips  1  Art/Animations/Female_LoungeSinger_Transition_IdleSing_to_IdleBase.fbx
+       10836 tris  rig Human     clips  0  Art/Models/Android_Female_SkeletalMesh.fbx
+  animation clips (in models and .anim files): 31 assets
+  prefabs 1, scenes 1, scripts 1: SimpleCameraController.cs
+  textures 0; largest: 
+== Assets/MusicalInstrumentsPack
+  materials 30: 2 draw in URP, 28 do not
+      26  Standard (Specular setup)   <- not URP
+       2  Standard   <- not URP
+       2  Universal Render Pipeline/Lit
+  models 23
+        1949 tris  rig None      clips  0  ModelsAndTextures/BassGuitar/BassGuitar.FBX
+         704 tris  rig None      clips  0  ModelsAndTextures/Chimes/Chimes.FBX
+        1164 tris  rig None      clips  0  ModelsAndTextures/Combo/Combo.FBX
+       11914 tris  rig None      clips  0  ModelsAndTextures/Drums/Drums_separate.FBX
+       11914 tris  rig None      clips  0  ModelsAndTextures/Drums/Drums_solid.FBX
+         176 tris  rig None      clips  0  ModelsAndTextures/Fork/Fork.FBX
+        1580 tris  rig None      clips  0  ModelsAndTextures/GuitarA/GuitarA.FBX
+        2078 tris  rig None      clips  0  ModelsAndTextures/GuitarE/GuitarE.FBX
+        3892 tris  rig None      clips  0  ModelsAndTextures/GuitarStack/GuitarStack.FBX
+         358 tris  rig None      clips  0  ModelsAndTextures/Jambe/Jambe.FBX
+         176 tris  rig None      clips  0  ModelsAndTextures/Maracas/Maracas.FBX
+         228 tris  rig Legacy    clips  1  ModelsAndTextures/Metronome/Metronome.FBX
+         356 tris  rig None      clips  0  ModelsAndTextures/Mic/Mic.FBX
+         612 tris  rig None      clips  0  ModelsAndTextures/Monitor/Monitor.FBX
+         898 tris  rig None      clips  0  ModelsAndTextures/PianoE/PianoElectro.FBX
+        1256 tris  rig None      clips  0  ModelsAndTextures/Stands/GuitarStand.FBX
+         792 tris  rig None      clips  0  ModelsAndTextures/Stands/MicStand.FBX
+        2304 tris  rig None      clips  0  ModelsAndTextures/Stands/MusicStand.FBX
+         980 tris  rig None      clips  0  ModelsAndTextures/Stands/SynthStand.FBX
+         824 tris  rig None      clips  0  ModelsAndTextures/Synth/Synth.FBX
+        1842 tris  rig None      clips  0  ModelsAndTextures/Trombone/Trombone.FBX
+        1730 tris  rig None      clips  0  ModelsAndTextures/Violin/Violin.FBX
+         464 tris  rig None      clips  0  ModelsAndTextures/Xylophone/Xylophone.FBX
+  animation clips (in models and .anim files): 1 assets
+  prefabs 35, scenes 1, scripts 2: ActivatingDemo01.cs, ActivatingDemo02.cs
+  textures 76; largest: BassGuitar_D.tga 2048x2048, BassGuitar_N.tga 2048x2048, BassGuitar_S_R.tga 2048x2048, Combo_D.tga 2048x2048
+== Assets/LoafbrrAssets
+  materials 2: 2 draw in URP, 0 do not
+       2  Shader Graphs/ORM_Shader 1
+  models 1
+      256542 tris  rig Generic   clips  0  Modular Stage/fbx/ModularStage.fbx
+  animation clips (in models and .anim files): 0 assets
+  prefabs 50, scenes 1, scripts 0: 
+  textures 12; largest: StageTrim_Ambient Occlusion_2K.png 2048x2048, StageTrim_Diffuse_2K.png 2048x2048, StageTrim_Metalness_2K.png 2048x2048, StageTrim_Normal_2K.png 2048x2048
+== Assets/OlegWER
+  materials 51: 0 draw in URP, 51 do not
+      49  Standard   <- not URP
+       2  Particles/Standard Surface   <- not URP
+  models 1
+     1132271 tris  rig Generic   clips  0  SceneProps/FBX/fbx.fbx
+  animation clips (in models and .anim files): 0 assets
+  prefabs 63, scenes 1, scripts 0: 
+  textures 31; largest: Mi_003_SM_10_ClearCoatRoughness.png 1024x1024, Mi_013_SM_12_ClearCoatRoughness.png 1024x1024, Mi_013_SM_18_ClearCoatRoughness.png 1024x1024, Mi_013_SM_19_ClearCoatRoughness.png 1024x1024
+== Assets/Food Pack Mixed
+  materials 98: 34 draw in URP, 64 do not
+      62  Standard   <- not URP
+      34  Universal Render Pipeline/Lit
+       1  Standard (Specular setup)   <- not URP
+       1  Unlit/Color   <- not URP
+  models 35
+        1050 tris  rig Generic   clips  0  Meshes/Almonds.fbx
+        1055 tris  rig Generic   clips  0  Meshes/Banana.fbx
+        2004 tris  rig Generic   clips  0  Meshes/BeerBottle.fbx
+        8231 tris  rig Generic   clips  0  Meshes/BlueBerries.fbx
+         584 tris  rig Generic   clips  0  Meshes/Bowl.fbx
+         456 tris  rig Generic   clips  0  Meshes/Butter.fbx
+         470 tris  rig Generic   clips  0  Meshes/ButterPlate.fbx
+        2751 tris  rig Generic   clips  0  Meshes/Capsicums.fbx
+        2850 tris  rig Generic   clips  0  Meshes/Carrots.fbx
+        1460 tris  rig Generic   clips  0  Meshes/CerealBox.fbx
+         394 tris  rig Generic   clips  0  Meshes/Cheese.fbx
+       23483 tris  rig Generic   clips  0  Meshes/Cherries.fbx
+         654 tris  rig Generic   clips  0  Meshes/Chips.fbx
+        3004 tris  rig Generic   clips  0  Meshes/Coffee Beans.fbx
+        1572 tris  rig Generic   clips  0  Meshes/egg.fbx
+        1020 tris  rig Generic   clips  0  Meshes/EnergyDrink.fbx
+         697 tris  rig Generic   clips  0  Meshes/Flour.fbx
+        2508 tris  rig Generic   clips  0  Meshes/garlic.fbx
+        1334 tris  rig Generic   clips  0  Meshes/GarlicCloves.fbx
+        1850 tris  rig Generic   clips  0  Meshes/JuicePack.fbx
+        2100 tris  rig Generic   clips  0  Meshes/Lemons.fbx
+         290 tris  rig Generic   clips  0  Meshes/Meat.fbx
+        2040 tris  rig Generic   clips  0  Meshes/Milk.fbx
+        2220 tris  rig Generic   clips  0  Meshes/MincedBeef.fbx
+        1924 tris  rig Generic   clips  0  Meshes/Mushrooms.fbx
+         761 tris  rig Generic   clips  0  Meshes/OliveOil.fbx
+        1204 tris  rig Generic   clips  0  Meshes/Onion.fbx
+        4440 tris  rig Generic   clips  0  Meshes/Peanuts.fbx
+        5040 tris  rig Generic   clips  0  Meshes/plate.fbx
+         870 tris  rig Generic   clips  0  Meshes/Potato.fbx
+          41 tris  rig Generic   clips  0  Meshes/Puree.fbx
+        1552 tris  rig Generic   clips  0  Meshes/Skinned_Chicken.fbx
+        1952 tris  rig Generic   clips  0  Meshes/SodaCan.fbx
+        1827 tris  rig Generic   clips  0  Meshes/Tomato.fbx
+         394 tris  rig Generic   clips  0  Meshes/TomatoSoup.fbx
+  animation clips (in models and .anim files): 0 assets
+  prefabs 43, scenes 1, scripts 0: 
+  textures 50; largest: AlmondKernel.png 2048x2048, Carrot.png 2048x2048, Garlic.png 2048x2048, Onion.png 2048x2048
+== Assets/NY_Subway
+  materials 15: 0 draw in URP, 15 do not
+      15  Hidden/InternalErrorShader   <- not URP
+  models 8
+         724 tris  rig None      clips  0  Base/Models/SM_RSG_Subway_Charging_01.fbx
+         290 tris  rig None      clips  0  Base/Models/SM_RSG_Subway_Help_Point_01.fbx
+         876 tris  rig None      clips  0  Base/Models/SM_RSG_Subway_Information_Stand_01.fbx
+         112 tris  rig None      clips  0  Base/Models/SM_RSG_Subway_Lightbox_01.fbx
+        1049 tris  rig None      clips  0  Base/Models/SM_RSG_Subway_Ticket_Vending_01.fbx
+        2979 tris  rig None      clips  0  Base/Models/SM_RSG_Subway_Turnstile_Separate_01.fbx
+       32716 tris  rig None      clips  0  Base/Models/SM_RSG_Subway_Vending_Machine_Snacks.fbx
+       36076 tris  rig None      clips  0  Base/Models/SM_RSG_Subway_Vending_Machine_Water.fbx
+  animation clips (in models and .anim files): 0 assets
+  prefabs 8, scenes 1, scripts 0: 
+  textures 35; largest: T_RSG_Subway_Charging_01_AOR.tga 2048x2048, T_RSG_Subway_Charging_01_BC.tga 2048x2048, T_RSG_Subway_Charging_01_E.tga 2048x2048, T_RSG_Subway_Charging_01_N.tga 2048x2048

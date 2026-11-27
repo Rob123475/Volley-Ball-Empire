@@ -1,0 +1,19 @@
+SECTION 0: THE EDITOR OPENS V19 AND SETTLES (the real editor, not batch mode)
+  Unity 6000.3.16f1; editor process started 14.3 s ago when this ran
+  V19 opened in 0.6 s; working set 3150 MB (peak 3151 MB), committed 3928 MB, managed heap 891 MB
+  settled 26.0 s after the editor started; working set 4144 MB (peak 4144 MB), committed 5404 MB, managed heap 942 MB; highest working set seen while settling 4144 MB
+  CHECK the editor opens V19 and settles in under 5 minutes, holding under 8 GB: PASS  26.0 s, 4144 MB
+  the stands: 2; children 262,262
+  reimporting GrandstandCreator.cs (a recompile and a domain reload)
+  CHECK after the reimport the editor settles again, and the stands keep every child: PASS  14.3 s; children 262,262 (were 262,262); highest working set 3824 MB
+  CHECK GrandstandCreator has no OnValidate (it never rebuilds itself): PASS  
+  CHECK Rebuild on a stand in the scene (a prefab instance) is refused and changes nothing: PASS  StadiumGrandstand: 262 -> 262 children
+  CHECK Rebuild on the prefab asset is refused and changes nothing: PASS  262 -> 262 children
+  CHECK the old clear on the prefab asset removes nothing: `while (childCount > 0)` could never have ended there (capped here at 20 goes): PASS  20 goes, 0 removed, 262 children left
+  CHECK Rebuild on an unpacked copy, in a throwaway scene, builds the stand: PASS  262 -> 262 children, 102 seats, 0.0 s
+  CHECK V19 is not changed: PASS  
+  working set 3828 MB (peak 4166 MB), committed 5051 MB, managed heap 1101 MB
+  importing fun hat.unitypackage with the stands loaded
+  CHECK after the package import the editor settles, and the stands and the prefab asset keep every child: PASS  10.4 s; stands 262,262, asset 262; highest working set 3846 MB
+  working set 3846 MB (peak 4166 MB), committed 5072 MB, managed heap 1114 MB
+RESULT: PASS

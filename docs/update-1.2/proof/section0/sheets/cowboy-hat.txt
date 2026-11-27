@@ -1,0 +1,2 @@
+    3,043 tris  0.34 x 0.15 x 0.41 m  Assets/Cowboy_Hat/Prefab/SK_Hat_1.prefab
+    1,249 tris  0.31 x 0.16 x 0.38 m  Assets/Cowboy_Hat/Prefab/SK_Hat_2.prefab

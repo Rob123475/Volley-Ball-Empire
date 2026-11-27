@@ -1,0 +1,8 @@
+      724 tris  0.90 x 2.90 x 0.31 m  Assets/NY_Subway/HDRP/Prefabs/P_HDRP_RSG_Subway_Charging_01.prefab
+      290 tris  0.20 x 1.55 x 0.26 m  Assets/NY_Subway/HDRP/Prefabs/P_HDRP_RSG_Subway_Help_Point_01.prefab
+      876 tris  2.27 x 2.44 x 0.54 m  Assets/NY_Subway/HDRP/Prefabs/P_HDRP_RSG_Subway_Information_Stand_01.prefab
+      112 tris  0.96 x 1.76 x 0.16 m  Assets/NY_Subway/HDRP/Prefabs/P_HDRP_RSG_Subway_Lightbox_01.prefab
+    1,049 tris  1.12 x 2.00 x 0.65 m  Assets/NY_Subway/HDRP/Prefabs/P_HDRP_RSG_Subway_Ticket_Vending_01.prefab
+    2,979 tris  4.14 x 2.55 x 1.83 m  Assets/NY_Subway/HDRP/Prefabs/P_HDRP_RSG_Subway_Turnstile_Separate_01.prefab
+   32,716 tris  1.21 x 1.94 x 0.88 m  Assets/NY_Subway/HDRP/Prefabs/P_HDRP_RSG_Subway_Vending_Machine_Snacks.prefab
+   36,076 tris  1.24 x 2.36 x 0.98 m  Assets/NY_Subway/HDRP/Prefabs/P_HDRP_RSG_Subway_Vending_Machine_Water.prefab

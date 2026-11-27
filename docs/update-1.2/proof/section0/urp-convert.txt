@@ -1,0 +1,9 @@
+URP material upgraders available: 63
+== Assets/Citizens PRO: 175 materials; drew in URP before 0; converted 175; now 175; not converted 0
+== Assets/Hats Collection: 27 materials; drew in URP before 0; converted 27; now 27; not converted 0
+== Assets/Santa_hat_Pack+100: 96 materials; drew in URP before 1; converted 95; now 96; not converted 0
+== Assets/Female_Lounge_Singer: 8 materials; drew in URP before 2; converted 6; now 8; not converted 0
+== Assets/MusicalInstrumentsPack: 30 materials; drew in URP before 2; converted 28; now 30; not converted 0
+== Assets/OlegWER: 51 materials; drew in URP before 0; converted 51; now 51; not converted 0
+== Assets/Food Pack Mixed: 98 materials; drew in URP before 34; converted 63; now 97; not converted 1
+    not converted: PlaneMat.mat (Unlit/Color -> Unlit/Color)

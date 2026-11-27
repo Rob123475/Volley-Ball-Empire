@@ -1,0 +1,12 @@
+      751 tris  0.15 x 0.16 x 0.24 m  Assets/Santa_hat_Pack+100/prefabs/santa_hats (1).prefab
+      751 tris  0.15 x 0.16 x 0.24 m  Assets/Santa_hat_Pack+100/prefabs/santa_hats (10).prefab
+      751 tris  0.15 x 0.16 x 0.24 m  Assets/Santa_hat_Pack+100/prefabs/santa_hats (11).prefab
+      751 tris  0.15 x 0.16 x 0.24 m  Assets/Santa_hat_Pack+100/prefabs/santa_hats (12).prefab
+      751 tris  0.15 x 0.16 x 0.24 m  Assets/Santa_hat_Pack+100/prefabs/santa_hats (13).prefab
+      751 tris  0.15 x 0.16 x 0.24 m  Assets/Santa_hat_Pack+100/prefabs/santa_hats (14).prefab
+      751 tris  0.15 x 0.16 x 0.24 m  Assets/Santa_hat_Pack+100/prefabs/santa_hats (15).prefab
+      751 tris  0.15 x 0.16 x 0.24 m  Assets/Santa_hat_Pack+100/prefabs/santa_hats (16).prefab
+      751 tris  0.15 x 0.16 x 0.24 m  Assets/Santa_hat_Pack+100/prefabs/santa_hats (17).prefab
+      751 tris  0.15 x 0.16 x 0.24 m  Assets/Santa_hat_Pack+100/prefabs/santa_hats (18).prefab
+      751 tris  0.15 x 0.16 x 0.24 m  Assets/Santa_hat_Pack+100/prefabs/santa_hats (19).prefab
+      751 tris  0.15 x 0.16 x 0.24 m  Assets/Santa_hat_Pack+100/prefabs/santa_hats (2).prefab
