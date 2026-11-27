@@ -55,6 +55,8 @@ import LeagueLadders      from "@/pages/league-ladders";
 import Leaderboard        from "@/pages/leaderboard";
 import Rules from "@/pages/rules";
 import SettingsPage from "@/pages/settings";
+import StorePage from "@/pages/store";
+import ExhibitionPage from "@/pages/exhibition";
 
 // Competition pages — Continental
 import RegionalOverview    from "@/pages/competition/regional-overview";
@@ -166,6 +168,13 @@ function Router() {
           </div>
         </div>
       </Route>
+      {/* 1.2 D6: the exhibition game, from the title screen: no career needed, and nothing in one changes. */}
+      <Route path="/exhibition" component={ExhibitionPage} />
+      <Route path="/exhibition/court">
+        <div style={{ position: "fixed", inset: 0, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+          <ThreeDCourt />
+        </div>
+      </Route>
       {/* Court page rendered outside Shell — full viewport, no sidebar */}
       <Route path="/court">
         <AuthGuard>
@@ -194,6 +203,7 @@ function Router() {
               <Route path="/olympics"    component={OlympicsHub}  />
               <Route path="/club"        component={ClubHub}      />
               <Route path="/finances"    component={Finances}     />
+              <Route path="/store"       component={StorePage}    />
               <Route path="/clubs"       component={ClubsPage}    />
               <Route path="/clubs/:id"   component={ClubDetailPage} />
               <Route path="/career"      component={CareerHub}    />

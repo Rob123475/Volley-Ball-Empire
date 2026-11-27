@@ -8,7 +8,7 @@ import {
   getGetCurrentSeasonQueryKey,
 } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
-import { Activity, Loader2, Play } from "lucide-react";
+import { Activity, Loader2, Play, Users } from "lucide-react";
 import CareerManagement from "@/pages/career-management";
 import { careerSlotStatus } from "@/lib/career-slot-status";
 import { useLocation } from "wouter";
@@ -172,6 +172,16 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
                 {teamFailed ? "RETRY" : hasTeam || seekingClub ? "CONTINUE" : "START NEW CAREER"}
                 <div className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors" />
               </Button>
+              {/* 1.2 D6: the exhibition game, beside the career. */}
+              {user && (
+                <Button size="lg" variant="outline"
+                  className="border-white/30 bg-white/10 text-white font-black text-lg px-8 py-6 rounded-xl backdrop-blur hover:bg-white/20 hover:text-white"
+                  onClick={() => { setShowTitle(false); navigate("/exhibition"); }}
+                  data-testid="button-exhibition">
+                  <Users className="mr-2 h-5 w-5" />
+                  EXHIBITION GAME
+                </Button>
+              )}
             </div>
 
             <p className="mt-6 text-white/30 text-xs">

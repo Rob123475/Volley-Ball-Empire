@@ -1,0 +1,88 @@
+{
+  "size": "1920x1080",
+  "gpu": true,
+  "seconds": 60,
+  "runs": [
+    {
+      "time": "morning",
+      "matchId": 6,
+      "continent": "asia",
+      "weather": "hot",
+      "venue": [
+        "[Venue] 'asia' is waiting on Rob; playing at oceania\n",
+        "[Venue] oceania (Island Beach) in after 1.2s, 74.9 MB; features on 7, off 0\n",
+        "[TimeOfDay] Midday in Sunny: sun 50 degrees up, intensity 2.00, shadows 1.00; floodlights off\n",
+        "[TimeOfDay] Morning in Sunny: sun 22 degrees up, intensity 1.60, shadows 0.85; floodlights off\n"
+      ],
+      "seconds": 60,
+      "frames": 3411,
+      "fps": 56.8,
+      "p50ms": 17.6,
+      "p95ms": 18.2,
+      "worstMs": 104.6,
+      "over33ms": 3,
+      "over50ms": 2
+    },
+    {
+      "time": "midday",
+      "matchId": 4,
+      "continent": "asia",
+      "weather": "sunny",
+      "venue": [
+        "[Venue] 'asia' is waiting on Rob; playing at oceania\n",
+        "[Venue] oceania (Island Beach) in after 0.7s, 74.9 MB; features on 7, off 0\n",
+        "[TimeOfDay] Midday in Sunny: sun 50 degrees up, intensity 2.00, shadows 1.00; floodlights off\n",
+        "[TimeOfDay] Midday in Sunny: sun 50 degrees up, intensity 2.00, shadows 1.00; floodlights off\n"
+      ],
+      "seconds": 60,
+      "frames": 3426,
+      "fps": 57.1,
+      "p50ms": 17.5,
+      "p95ms": 18.1,
+      "worstMs": 87.6,
+      "over33ms": 1,
+      "over50ms": 1
+    },
+    {
+      "time": "sunset",
+      "matchId": 2,
+      "continent": "asia",
+      "weather": "sunny",
+      "venue": [
+        "[Venue] 'asia' is waiting on Rob; playing at oceania\n",
+        "[Venue] oceania (Island Beach) in after 0.7s, 74.9 MB; features on 7, off 0\n",
+        "[TimeOfDay] Midday in Sunny: sun 50 degrees up, intensity 2.00, shadows 1.00; floodlights off\n",
+        "[TimeOfDay] Sunset in Sunny: sun 7 degrees up, intensity 1.50, shadows 0.80; floodlights off\n"
+      ],
+      "seconds": 60,
+      "frames": 3426,
+      "fps": 57.1,
+      "p50ms": 17.5,
+      "p95ms": 18.2,
+      "worstMs": 35,
+      "over33ms": 1,
+      "over50ms": 0
+    },
+    {
+      "time": "night",
+      "matchId": 1,
+      "continent": "asia",
+      "weather": "rain",
+      "venue": [
+        "[Venue] 'asia' is waiting on Rob; playing at oceania\n",
+        "[Venue] oceania (Island Beach) in after 0.7s, 74.9 MB; features on 7, off 0\n",
+        "[TimeOfDay] Midday in LightRain: sun 50 degrees up, intensity 0.60, shadows 0.30; floodlights off\n",
+        "[TimeOfDay] Night in LightRain: sun 40 degrees up, intensity 0.02, shadows 0.17; floodlights on\n"
+      ],
+      "seconds": 60,
+      "frames": 3413,
+      "fps": 56.9,
+      "p50ms": 17.6,
+      "p95ms": 18.2,
+      "worstMs": 36.2,
+      "over33ms": 4,
+      "over50ms": 0
+    }
+  ],
+  "errors": []
+}

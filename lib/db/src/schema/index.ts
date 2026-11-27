@@ -16,3 +16,4 @@ export * from "./transfers";
 export * from "./staff-budget";
 export * from "./national-coach";
 export * from "./national-kits";
+export * from "./store";

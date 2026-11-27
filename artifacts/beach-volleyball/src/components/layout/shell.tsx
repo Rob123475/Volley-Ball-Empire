@@ -24,7 +24,9 @@ import {
   Settings as SettingsIcon,
   Shield,
   Award,
+  ShoppingBag,
 } from "lucide-react";
+import { useStore } from "@/pages/store";
 import { useNationalCoach } from "@/components/national-coach";
 import { CeremonyDialog } from "@/components/ceremony-dialog";
 import { GameplayHeader } from "@/components/gameplay-header";
@@ -129,6 +131,8 @@ const NAV_GROUPS: NavGroup[] = [
   // 1.1.1, Part 1: every club, the player's included.
   { id: "clubs",    label: "Other Clubs",  icon: Shield,      href: "/clubs"            },
   { id: "career",   label: "Career",   icon: FolderOpen, href: "/career"   },
+  // 1.2 D4: shown only while the store is open (data/store-settings.json).
+  { id: "store",    label: "Store",    icon: ShoppingBag, href: "/store"   },
   // Update 1, overnight part 8: the gear.
   { id: "settings", label: "Settings", icon: SettingsIcon, href: "/settings" },
 ];
@@ -150,6 +154,7 @@ export function Sidebar() {
   const [location] = useLocation();
   // 1.1.3 (A4c): the National Team page is in the menu while he coaches a nation.
   const coaching = !!useNationalCoach().data?.job;
+  const storeOpen = useStore().data?.open === true;
 
   const { data: user } = useGetCurrentAuthUser({
     query: { queryKey: getGetCurrentAuthUserQueryKey() },
@@ -204,6 +209,7 @@ export function Sidebar() {
             const isOpen = openGroups.has(group.id);
 
             // ── Direct link (Dashboard) ──
+            if (group.id === "store" && !storeOpen) return null;
             if (group.href) {
               return (
                 <Link

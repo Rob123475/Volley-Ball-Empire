@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { readControlMode, saveControlMode, courtVolumes, MATCH_VOLUME_EVENT, MATCH_VOLUME_KEY, type ControlMode, readCourtCamera, saveCourtCamera, cameraPrefs, cameraFromCourt, type CourtCamera, readCourtSkips, saveCourtSkips, skipsPrefs, type CourtSkips } from "@/lib/court-settings";
+import { readControlMode, saveControlMode, courtVolumes, MATCH_VOLUME_EVENT, MATCH_VOLUME_KEY, type ControlMode, readCourtCamera, saveCourtCamera, cameraPrefs, cameraFromCourt, type CourtCamera, readCourtSkips, saveCourtSkips, skipsPrefs, type CourtSkips, readCourtBanner } from "@/lib/court-settings";
 import { SoundSettings } from "@/components/sound-settings";
 import { ControlsSettings } from "@/components/controls-settings";
 import { CameraSettings } from "@/components/camera-settings";
@@ -52,7 +52,11 @@ export default function ThreeDCourt() {
   // Overnight brief 30 Sep, item 23: leaving a match in play asks first.
   const [confirmLeave, setConfirmLeave] = useState(false);
   // Part C: the mode the court opened with (in its URL, so set once).
-  const [openingMode] = useState<ControlMode>(readControlMode);
+  // 1.2 D6: an exhibition game (the pick screen's id). Played (Manual) when a person plays in it; it reports nothing to a career, and it ends back at the pick screen.
+  const exhibitionId = new URLSearchParams(window.location.search).get("exhibitionId");
+  const exhibitionPlayed = new URLSearchParams(window.location.search).get("played") === "1";
+  const leaveTo = exhibitionId ? "/exhibition" : "/";
+  const [openingMode] = useState<ControlMode>(() => (exhibitionId ? (exhibitionPlayed ? "manual" : "auto") : readControlMode()));
   // The mode now: the opening one, then the court's own switches and the settings over the match.
   const [mode, setMode] = useState<ControlMode>(openingMode);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -91,6 +95,7 @@ export default function ThreeDCourt() {
     if (careerSaveId != null) p.set("careerSaveId", String(careerSaveId));
     if (matchId) p.set("matchId", matchId);
     if (nationsMatchId) p.set("nationsMatchId", nationsMatchId);
+    if (exhibitionId) p.set("exhibitionId", exhibitionId);
     if (openingMode === "manual" && manualAllowed) p.set("mode", "manual");
     const qs = p.toString();
     return qs ? `?${qs}` : "";
@@ -141,6 +146,8 @@ export default function ThreeDCourt() {
         sendCamera();
         sendSkips();
         sendMusic();
+        // 1.2 D5: the player's own banner for the crowd to hold up.
+        iframeRef.current?.contentWindow?.postMessage({ type: "vbe-banner", text: readCourtBanner() }, "*");
         // Part C: the keyboard goes to the court, so WASD, Tab and the rest work at once.
         iframeRef.current?.focus();
         iframeRef.current?.contentWindow?.focus();
@@ -160,12 +167,12 @@ export default function ThreeDCourt() {
       // A Nations Cup match too (1.1.3 rebuild C1: Rob's rule is the dashboard, where the day's other Cup matches have their Watch buttons).
       if (e.data === "unity-match-finished") {
         queryClient.invalidateQueries();
-        navigate("/");
+        navigate(leaveTo);
       }
     }
     window.addEventListener("message", handleMessage);
     return () => window.removeEventListener("message", handleMessage);
-  }, [navigate, queryClient]);
+  }, [navigate, queryClient, leaveTo]);
 
   // Update 1, O-5: the match sound's volumes (Settings > Sound) go to the
   // court when it has loaded and whenever they change, the way the control
@@ -234,7 +241,7 @@ export default function ThreeDCourt() {
       }
       queryClient.invalidateQueries();
       // A Nations Cup match left part-way is finished by the engine at the end of its day, from its last score.
-      navigate("/");
+      navigate(leaveTo);
     } catch (err) {
       setLeaveError(err instanceof Error ? err.message : String(err));
       setLeaving(false);

@@ -1,0 +1,9 @@
+{
+  "_about": "1.2 D4: the Store's switch and its wallet's numbers (Rob, 23 Nov). Change these, rebuild, no code. 'open': false ships the store closed: no Store pill in the side menu and nothing can be bought. The wallet is the profile's own and never touches a career's money.",
+  "open": false,
+  "currency": "coins",
+  "startingBalance": 1000,
+  "winReward": 100,
+  "lossPenalty": 25,
+  "income": { "amount": 20, "everyHours": 24 }
+}

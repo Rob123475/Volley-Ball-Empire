@@ -5,6 +5,8 @@ using Played;
 // 1.2 Part A: the played-match engine's checks, run by dotnet on the Unity repo's own files.
 // Usage: dotnet run -c Release -- <section> [<section> ...]   (sections: A1, A2, ...)
 //        dotnet run -c Release -- sim <matches> <difficulty> <ratingA> <ratingB>   (AI v AI, for looking)
+//        dotnet run -c Release -- record <file> <seed>   (1.2 D6: an AI v AI match, its inputs saved; prints every point)
+//        dotnet run -c Release -- replay <file>          (1.2 D6: the match played again from the file by four remote seats; prints every point)
 // Exit code 0 only when every check in every section asked for passed.
 public static class Program
 {
@@ -13,6 +15,8 @@ public static class Program
         if (args.Length > 0 && args[0] == "sim") return Sim(args);
         if (args.Length > 0 && args[0] == "trace") return Trace(args);
         if (args.Length > 0 && args[0] == "tune") return Tune(args);
+        if (args.Length > 0 && args[0] == "record") return Record(args);
+        if (args.Length > 0 && args[0] == "replay") return Replay(args);
         if (args.Length == 0) args = new[] { "A1" };
         int failed = 0, passed = 0;
         foreach (string section in args)
@@ -25,6 +29,50 @@ public static class Program
         }
         Console.WriteLine($"RESULT: {(failed == 0 && passed > 0 ? "PASS" : "FAIL")} ({passed} passed, {failed} failed)");
         return failed == 0 && passed > 0 ? 0 : 1;
+    }
+
+    // ── 1.2 D6: the online scaffold's two-engine proof (harness/online-scaffold.mjs runs these in two processes) ──
+    private static int Record(string[] a)
+    {
+        ulong seed = ulong.Parse(a[2]);
+        var d = Difficulty.Medium;
+        var rec = new InputRecording
+        {
+            Seed = seed, Difficulty = d, ServingTeam = (int)(seed % 2), FirstServer = (int)(seed % 2) * 2,
+            Ratings = new[] { Ratings.All(66, 1.80), Ratings.All(58, 1.74), Ratings.All(63, 1.84), Ratings.All(61, 1.77) },
+        };
+        var e = rec.NewEngine();
+        for (int i = 0; i < 4; i++) e.Seats[i] = rec.Record(new AiSeat(AiLevel.For(d, i >= 2), seed * 31 + (ulong)i + 1), i);
+        PrintPoints(e);
+        System.IO.File.WriteAllText(a[1], rec.Save());
+        Console.WriteLine($"recorded {rec.Inputs.Count} inputs over {e.Steps} steps to {a[1]}");
+        return 0;
+    }
+
+    private static int Replay(string[] a)
+    {
+        var rec = InputRecording.Load(System.IO.File.ReadAllText(a[1]));
+        var e = rec.NewEngine();
+        var remotes = rec.Remotes();
+        for (int i = 0; i < 4; i++) e.Seats[i] = remotes[i];
+        PrintPoints(e);
+        Console.WriteLine($"replayed {rec.Inputs.Count} inputs over {e.Steps} steps; {remotes.Sum(r => r.Waiting)} left unplayed");
+        return 0;
+    }
+
+    /// <summary>Plays the engine to the end of its match, printing each point as it is decided (the score after it).</summary>
+    private static void PrintPoints(PlayedEngine e)
+    {
+        int n = 0;
+        while (e.Phase != Phase.MatchOver && e.Time < 3600)
+        {
+            e.Tick();
+            foreach (var ev in e.Events)
+                if (ev.type == EngineEventType.Point)
+                    Console.WriteLine($"point {++n}: team {ev.winner} by {ev.how} at {ev.time:F3}s; now {e.Score.HomePoints}-{e.Score.AwayPoints}, sets {e.Score.HomeSets}-{e.Score.AwaySets}");
+            e.Events.Clear();
+        }
+        Console.WriteLine($"match over: sets {e.Score.HomeSets}-{e.Score.AwaySets} ({string.Join(", ", e.Score.FinishedSets.Select(s => s[0] + "-" + s[1]))})");
     }
 
     // Quick look for tuning: the average player on one difficulty, a few match-ups, N matches each.

@@ -1,0 +1,3464 @@
+12.5s [UnityMemory] Configuration Parameters - Can be set up in boot.config
+
+12.5s     "memorysetup-allocator-temp-initial-block-size-main=262144"
+
+12.5s     "memorysetup-allocator-temp-initial-block-size-worker=262144"
+
+12.5s     "memorysetup-temp-allocator-size-audio-worker=65536"
+
+12.5s     "memorysetup-temp-allocator-size-background-worker=32768"
+
+12.5s     "memorysetup-bucket-allocator-granularity=16"
+
+12.5s     "memorysetup-bucket-allocator-bucket-count=8"
+
+12.5s     "memorysetup-bucket-allocator-block-size=4194304"
+
+12.5s     "memorysetup-bucket-allocator-block-count=1"
+
+12.5s     "memorysetup-main-allocator-block-size=16777216"
+
+12.5s     "memorysetup-thread-allocator-block-size=16777216"
+
+12.5s     "memorysetup-gfx-main-allocator-block-size=16777216"
+
+12.5s     "memorysetup-gfx-thread-allocator-block-size=16777216"
+
+12.5s     "memorysetup-cache-allocator-block-size=4194304"
+
+12.5s     "memorysetup-typetree-allocator-block-size=2097152"
+
+12.5s     "memorysetup-profiler-bucket-allocator-granularity=16"
+
+12.5s     "memorysetup-profiler-bucket-allocator-bucket-count=8"
+
+12.5s     "memorysetup-profiler-bucket-allocator-block-size=4194304"
+
+12.5s     "memorysetup-profiler-bucket-allocator-block-count=1"
+
+12.5s     "memorysetup-profiler-allocator-block-size=16777216"
+
+12.5s     "memorysetup-profiler-editor-allocator-block-size=1048576"
+
+12.5s     "memorysetup-temp-allocator-size-main=4194304"
+
+12.5s     "memorysetup-job-temp-allocator-block-size=2097152"
+
+12.5s     "memorysetup-job-temp-allocator-block-size-background=1048576"
+
+12.5s     "memorysetup-job-temp-allocator-reduction-small-platforms=262144"
+
+12.6s Input System module state changed to: Initialized.
+
+12.6s [Physics::Module] Initialized fallback backend.
+
+12.6s [Physics::Module] Id: 0xdecafbad
+
+12.6s Loading player data from data.unity3d
+
+12.6s Initialize engine version: 6000.3.16f1 (a56f230f6470)
+
+12.6s [Subsystems] Discovering subsystems at path UnitySubsystems
+
+12.6s Creating WebGL 2.0 context.
+12.6s Renderer: WebKit WebGL
+
+12.6s Vendor:   WebKit
+
+12.6s Version:  OpenGL ES 3.0 (WebGL 2.0 (OpenGL ES 3.0 Chromium))
+
+12.6s GLES:     3
+
+12.6s  EXT_clip_control EXT_color_buffer_float EXT_color_buffer_half_float EXT_conservative_depth EXT_depth_clamp EXT_disjoint_timer_query_webgl2 EXT_float_blend EXT_polygon_offset_clamp EXT_render_snorm EXT_texture_compression_bptc EXT_texture_compression_rgtc EXT_texture_filter_anisotropic EXT_texture_mirror_clamp_to_edge EXT_texture_norm16 KHR_parallel_shader_compile NV_shader_noperspective_interpolation OES_draw_buffers_indexed OES_sample_variables OES_shader_multisample_interpolation OES_texture_float_linear OVR_multiview2 WEBGL_blend_func_extended WEBGL_clip_cull_distance WEBGL_compressed_texture_s3tc WEBGL_compressed_texture_s3tc_srgb WEBGL_debug_renderer_info WEBGL_debug_shaders WEBGL_lose_context WEBGL_multi_draw WEBGL_polygon_mode WEBGL_provoking_vertex WEBGL_shader_pixel_local_storage WEBGL_stencil_texturing GL_EXT_clip_control GL_EXT_color_buffer_float GL_EXT_color_buffer_half_float GL_EXT_conservative_depth GL_EXT_depth_clamp GL_EXT_disjoint_timer_query_webgl2 GL_EXT_float_blend GL_EXT_polygon_offset_
+
+12.6s clamp GL_EXT_render_snorm GL_EXT_texture_compression_bptc GL_EXT_texture_compression_rgtc GL_EXT_texture_filter_anisotropic GL_EXT_texture_mirror_clamp_to_edge GL_EXT_texture_norm16 GL_KHR_parallel_shader_compile GL_NV_shader_noperspective_interpolation GL_OES_draw_buffers_indexed GL_OES_sample_variables GL_OES_shader_multisample_interpolation GL_OES_texture_float_linear GL_OVR_multiview2 GL_WEBGL_blend_func_extended GL_WEBGL_clip_cull_distance GL_WEBGL_compressed_texture_s3tc GL_WEBGL_compressed_texture_s3tc_srgb GL_WEBGL_debug_renderer_info GL_WEBGL_debug_shaders GL_WEBGL_lose_context GL_WEBGL_multi_draw GL_WEBGL_polygon_mode GL_WEBGL_provoking_vertex GL_WEBGL_shader_pixel_local_storage GL_WEBGL_stencil_texturing
+
+12.6s OPENGL LOG: Creating OpenGL ES 3.0 graphics device ; Context level  <OpenGL ES 3.0> ; Context handle 1
+
+12.6s [Physics::Module] Selected backend.
+
+12.6s [Physics::Module] Name: PhysX
+
+12.6s [Physics::Module] Id: 0xf2b8ea05
+
+12.6s [Physics::Module] SDK Version: 4.1.2
+
+12.6s [Physics::Module] Integration Version: 1.0.0
+
+12.6s [Physics::Module] Threading Mode: Single-Threaded
+
+12.7s ERROR: Shader 
+12.7s Hidden/CoreSRP/CoreCopy shader is not supported on this GPU (none of subshaders/fallbacks are suitable)
+
+12.7s ERROR: Shader 
+12.7s Hidden/Universal Render Pipeline/StencilDitherMaskSeed shader is not supported on this GPU (none of subshaders/fallbacks are suitable)
+
+12.7s ERROR: Shader 
+12.7s Hidden/Universal/HDRDebugView shader is not supported on this GPU (none of subshaders/fallbacks are suitable)
+
+12.7s <b>[App UI]</b> Unable to find an AppUISettings instance, creating a default one...
+
+12.7s Input System initialize...
+
+12.9s Couldn't create a Convex Mesh from source mesh, within the maximum polygons limit (256). The partial hull will be used. Consider simplifying your mesh. Source mesh name: SM_rack_balls_Volleyball_1
+
+13.3s UnloadTime: 1.100000 ms
+
+13.3s [CourtsideBoards] 18 boards dressed around the court: 9 Beach Volleyball Empire, 9 GB Sunglasses
+
+13.3s Audio context resumed after 0.757 seconds.
+13.4s [Sound] crowd volume 1.00
+
+13.4s [Sound] commentary volume 1.00
+
+13.4s [Camera] remembered looks from the page: played game:1, watched tv:1
+
+13.4s [Between points] from the page: skip to next serve off, skip replays off
+
+13.7s [UnityCache] 'http://localhost:4956/unity-build/Build/Volleyball_WebGL_Uncompressed_2.data' successfully downloaded and stored in the browser cache
+15.4s [BoostUIController] Created Polished Attack and Defence boost buttons.
+
+15.4s [MatchManager] AudioManager initialized.
+
+15.5s [UnityMatchDataLoader] careerSaveId 1 (from page URL)
+
+15.5s [UnityMatchDataLoader] GET /api/unity/match-state?careerSaveId=1&matchId=6
+
+15.5s WEATHER SUNNY
+
+15.5s Trying to get length of sound which is not loaded yet.
+15.5s Trying to get length of sound which is not loaded yet.
+15.5s [Director] Serve: beside the server
+
+15.5s The character with Unicode value \u2600 was not found in the [LiberationSans SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [WeatherText].
+
+16.1s [UnityMatchDataLoader] point chance for the home pair: 0.5086
+
+16.1s [UnityMatchDataLoader] continent asia, time of day morning, weather hot
+
+16.1s [UnityMatchDataLoader] game difficulty medium (a played match grades and plays at it)
+
+16.1s [UnityMatchDataLoader] event (null), kits (null), boards (null) '(null)', manual allowed
+
+16.1s [UnityMatchDataLoader] Player_A1: skin 'Light' resolved via band 'Light' -> #EEC9B8
+
+16.1s [UnityMatchDataLoader] Player_A1 <- Camila Santiago | team Sydney Riptide (home) | skinTone Light | kit #1e3a8a/#f59e0b | appearance controller found | applied ovr 80 pwr 85 spd 73 def 78 srv 74 blk 89 sta 79 mor 75 fit 100 fat 0 | (not applied: injured False)
+
+16.1s [UnityMatchDataLoader] Player_A2: skin 'Light' resolved via band 'Light' -> #EEC9B8
+
+16.1s [UnityMatchDataLoader] Player_A2 <- Nurul Ain | team Sydney Riptide (home) | skinTone Light | kit #1e3a8a/#f59e0b | appearance controller found | applied ovr 67 pwr 55 spd 74 def 70 srv 78 blk 52 sta 73 mor 75 fit 100 fat 0 | (not applied: injured False)
+
+16.1s [UnityMatchDataLoader] Player_B1: skin 'Medium Dark' resolved via band 'Medium Dark' -> #7A4626
+
+16.1s [UnityMatchDataLoader] Player_B1 <- Sina Faleolo | team Samoa Southern Swells (away) | skinTone Medium Dark | kit #B3122E/#B8BCC0 | appearance controller found | applied ovr 72 pwr 69 spd 76 def 70 srv 70 blk 70 sta 74 mor 50 fit 80 fat 0 | (not applied: injured False)
+
+16.1s [UnityMatchDataLoader] Player_B2: skin 'Medium Dark' resolved via band 'Medium Dark' -> #7A4626
+
+16.1s [UnityMatchDataLoader] Player_B2 <- Losa Tuilagi | team Samoa Southern Swells (away) | skinTone Medium Dark | kit #B3122E/#B8BCC0 | appearance controller found | applied ovr 69 pwr 66 spd 74 def 68 srv 68 blk 68 sta 72 mor 50 fit 80 fat 0 | (not applied: injured False)
+
+16.1s [UnityMatchDataLoader] team names: SYDNEY RIPTIDE (home) vs SAMOA SOUTHERN SWELLS (away)
+
+16.1s [UnityMatchDataLoader] applied 4 of 4 player(s)
+
+16.1s [Venue] 'asia' is waiting on Rob; playing at oceania
+
+16.1s Trying to get length of sound which is not loaded yet.
+16.1s Trying to get length of sound which is not loaded yet.
+16.1s Trying to get length of sound which is not loaded yet.
+16.1s Trying to get length of sound which is not loaded yet.
+16.2s Trying to get length of sound which is not loaded yet.
+16.2s Trying to get length of sound which is not loaded yet.
+16.2s Trying to get length of sound which is not loaded yet.
+16.2s Trying to get length of sound which is not loaded yet.
+16.3s Trying to get length of sound which is not loaded yet.
+16.3s Trying to get length of sound which is not loaded yet.
+16.3s Trying to get length of sound which is not loaded yet.
+16.3s Trying to get length of sound which is not loaded yet.
+16.3s Trying to get length of sound which is not loaded yet.
+16.3s Trying to get length of sound which is not loaded yet.
+16.4s Trying to get length of sound which is not loaded yet.
+16.4s Trying to get length of sound which is not loaded yet.
+16.4s Trying to get length of sound which is not loaded yet.
+16.5s Trying to get length of sound which is not loaded yet.
+16.6s Trying to get length of sound which is not loaded yet.
+16.6s Trying to get length of sound which is not loaded yet.
+16.6s Trying to get length of sound which is not loaded yet.
+16.6s Trying to get length of sound which is not loaded yet.
+16.7s [Venue] oceania (Island Beach) in after 1.2s, 74.9 MB; features on 7, off 0
+
+16.7s WEATHER SUNNY
+
+16.7s [TimeOfDay] Midday in Sunny: sun 50 degrees up, intensity 2.00, shadows 1.00; floodlights off
+
+16.7s [TimeOfDay] Morning in Sunny: sun 22 degrees up, intensity 1.60, shadows 0.85; floodlights off
+
+16.7s [Camera] keep-out rebuilt for the venue: 442 boxes, 414 of them props
+
+16.7s [MatchManager] match starts after 3.9s: match data applied; home point chance 0.5086
+
+16.7s [MatchManager] ratings in play Player_A1 (Camila Santiago): ovr 80 pwr 85 spd 73 def 78 srv 74 blk 89 sta 79 mor 75
+
+16.7s [MatchManager] ratings in play Player_A2 (Nurul Ain): ovr 67 pwr 55 spd 74 def 70 srv 78 blk 52 sta 73 mor 75
+
+16.7s [MatchManager] ratings in play Player_B1 (Sina Faleolo): ovr 72 pwr 69 spd 76 def 70 srv 70 blk 70 sta 74 mor 50
+
+16.7s [MatchManager] ratings in play Player_B2 (Losa Tuilagi): ovr 69 pwr 66 spd 74 def 68 srv 68 blk 68 sta 72 mor 50
+
+16.7s [Director] cutaway: the walk-on (5.5 s)
+
+17.3s [Crowd] 34 real people in the front 1 row(s), 170 cards behind, 24 bystanders; 64 team fans (A #1E3A8A, B #B3122E); 44 different people; cards baked in 201 ms
+
+17.4s Trying to get length of sound which is not loaded yet.
+17.4s Trying to get length of sound which is not loaded yet.
+17.4s Trying to get length of sound which is not loaded yet.
+17.5s Trying to get length of sound which is not loaded yet.
+17.5s Trying to get length of sound which is not loaded yet.
+17.6s Trying to get length of sound which is not loaded yet.
+17.6s Trying to get length of sound which is not loaded yet.
+17.6s Trying to get length of sound which is not loaded yet.
+17.6s Trying to get length of sound which is not loaded yet.
+17.6s Trying to get length of sound which is not loaded yet.
+17.6s Trying to get length of sound which is not loaded yet.
+17.7s Trying to get length of sound which is not loaded yet.
+17.7s Trying to get length of sound which is not loaded yet.
+17.7s Trying to get length of sound which is not loaded yet.
+17.7s Trying to get length of sound which is not loaded yet.
+17.7s Trying to get length of sound which is not loaded yet.
+17.7s Trying to get length of sound which is not loaded yet.
+17.8s Trying to get length of sound which is not loaded yet.
+17.8s Trying to get length of sound which is not loaded yet.
+17.8s Trying to get length of sound which is not loaded yet.
+17.8s Trying to get length of sound which is not loaded yet.
+17.8s Trying to get length of sound which is not loaded yet.
+17.9s Trying to get length of sound which is not loaded yet.
+17.9s Trying to get length of sound which is not loaded yet.
+17.9s Trying to get length of sound which is not loaded yet.
+17.9s Trying to get length of sound which is not loaded yet.
+17.9s [Commentary] 48 of 90 clips loaded from http://localhost:4956/unity-build/StreamingAssets/commentary: the 48 its LINES.txt lists (48 recorded before 1.2; B4's 42 are Rob's to record)
+
+18.2s [UnityCache] 'http://localhost:4956/unity-build/StreamingAssets/Venues/venue-oceania.bundle' successfully downloaded and stored in the browser cache
+21.5s [Director] cutaway: the walk-on: Player_A1 (1.5 s)
+
+23.0s [Director] cutaway: the walk-on: Player_A2 (1.5 s)
+
+24.5s [Director] cutaway: the walk-on: Player_B1 (1.5 s)
+
+26.0s [Director] cutaway: the walk-on: Player_B2 (1.5 s)
+
+27.5s [Match moments] walk-on took 10.7 s
+
+27.5s [Director] Serve: low off the sand
+
+27.8s [Point] decided: SYDNEY RIPTIDE by Kill (server A, final attack by A after 1, chance 0.509)
+
+27.8s RATING CHECK: Player_B1 Movement 157 SpeedMult:2.07
+
+27.8s RATING CHECK: Player_A1 Serve 242 SpeedMult:2.11
+
+27.8s RALLY ACTION: TeamA Player_A1 1 Serve
+
+27.8s [MatchManager] jump heights: net top 2.24 m, spike lift 0.58 m, block lift 0.46 m
+
+28.1s [Director] Rally: end-on drift
+
+28.4s RATING CHECK: Player_B2 Movement 152 SpeedMult:2.03
+
+28.4s RATING CHECK: Player_B1 Dig 227 JitterMult:0.15
+
+28.4s RALLY ACTION: TeamB Player_B1 1 Dig
+
+28.9s RATING CHECK: Player_B1 Movement 157 SpeedMult:2.07
+
+28.9s RALLY ACTION: TeamB Player_B2 2 Set
+
+29.9s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+29.9s RATING CHECK: Player_A1 Block 232 Outcome:Controlled
+
+29.9s BLOCK ATTEMPT: Player_A1
+
+29.9s RATING CHECK: Player_B1 Spike 222 SpeedMult:1.98
+
+29.9s RALLY ACTION: TeamB Player_B1 3 Spike
+
+30.0s BLOCK SUCCESS: Player_A1
+
+30.0s [COMMENTARY] Controlled block! Player_A1 rebounded the ball back to the attacker's side!
+
+30.9s RATING CHECK: Player_B1 Movement 157 SpeedMult:2.07
+
+31.0s RALLY ACTION: TeamB Player_B2 2 Set
+
+31.8s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+31.8s RATING CHECK: Player_A1 Block 232 Outcome:Controlled
+
+31.8s BLOCK ATTEMPT: Player_A1
+
+31.8s RATING CHECK: Player_B1 Spike 222 SpeedMult:1.98
+
+31.8s RALLY ACTION: TeamB Player_B1 3 Spike
+
+31.8s BLOCK SUCCESS: Player_A1
+
+31.9s [COMMENTARY] Controlled block! Player_A1 rebounded the ball back to the attacker's side!
+
+32.8s RATING CHECK: Player_B1 Movement 157 SpeedMult:2.07
+
+32.8s RALLY ACTION: TeamB Player_B2 2 Set
+
+33.7s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+33.7s RATING CHECK: Player_A1 Block 232 Outcome:Touch
+
+33.7s BLOCK ATTEMPT: Player_A1
+
+33.7s RATING CHECK: Player_B1 Spike 222 SpeedMult:1.98
+
+33.7s RALLY ACTION: TeamB Player_B1 3 Spike
+
+33.8s BLOCK TOUCH: Player_A1
+
+33.8s [COMMENTARY] Touch! Player_A1 got a hand on the ball, slowing it down. The rally continues!
+
+33.9s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+33.9s RATING CHECK: Player_A1 Dig 238 JitterMult:0.15
+
+33.9s RALLY ACTION: TeamA Player_A1 1 Dig
+
+34.5s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+34.5s RALLY ACTION: TeamA Player_A2 2 Set
+
+35.5s RATING CHECK: Player_B1 Movement 157 SpeedMult:2.07
+
+35.5s RATING CHECK: Player_A1 Spike 252 SpeedMult:2.18
+
+35.5s RALLY ACTION: TeamA Player_A1 3 Spike
+
+35.6s [Point] awarded: SYDNEY RIPTIDE by Kill after 5 attack(s), 14 touches
+
+35.7s SYDNEY RIPTIDE point: set 1 1-0, sets 0-0
+
+35.7s Trying to get length of sound which is not loaded yet.
+35.7s Trying to get length of sound which is not loaded yet.
+35.7s [Director] Kill: swoop in close
+
+35.7s [Director] cutaway: the scorer, Player_A1 (1.1 s)
+
+35.7s [MatchReporter] POST /api/unity/match-progress failed (attempt 1/1): 409 HTTP/1.1 409 Conflict {"error":"This match is not being watched."}
+
+36.8s [Director] cutaway: the other side, Player_B1 (0.7 s)
+
+37.5s [Director] cutaway: replay (2.2 s)
+
+39.6s [Between points] 4.0 s: point to A by Kill (big: a diving save) | score SYDNEY RIPTIDE 0 1 - 0 0 SAMOA SOUTHERN SWELLS | umpire: team to serve | Player_A1 Won_MC2 | Player_A2 Won_ThumbsUp2 | Player_B1 Lost_MC1 | Player_B2 Lost_MC2 | close-up: Player_A1 | the other side: Player_B1 | replay 1.2 s at 0.6x (2.1 s)
+
+39.6s [Director] Serve: beside the server
+
+39.9s [Point] decided: SYDNEY RIPTIDE by Kill (server A, final attack by A after 2, chance 0.509)
+
+39.9s RATING CHECK: Player_B2 Movement 152 SpeedMult:2.03
+
+40.0s RATING CHECK: Player_A1 Serve 242 SpeedMult:2.11
+
+40.0s RALLY ACTION: TeamA Player_A1 1 Serve
+
+40.2s [Director] Rally: high on the umpire's side
+
+40.5s RATING CHECK: Player_B1 Movement 157 SpeedMult:2.07
+
+40.6s RATING CHECK: Player_B2 Dig 220 JitterMult:0.15
+
+40.6s RALLY ACTION: TeamB Player_B2 1 Dig
+
+41.0s RATING CHECK: Player_B2 Movement 152 SpeedMult:2.03
+
+41.0s RALLY ACTION: TeamB Player_B1 2 Set
+
+41.7s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+41.7s RATING CHECK: Player_A2 Block 158 Outcome:Controlled
+
+41.7s BLOCK ATTEMPT: Player_A2
+
+41.7s RATING CHECK: Player_B2 Spike 213 SpeedMult:1.93
+
+41.7s RALLY ACTION: TeamB Player_B2 3 Spike
+
+41.8s BLOCK SUCCESS: Player_A2
+
+41.8s [COMMENTARY] Controlled block! Player_A2 rebounded the ball back to the attacker's side!
+
+42.6s RATING CHECK: Player_B2 Movement 152 SpeedMult:2.03
+
+42.6s RALLY ACTION: TeamB Player_B1 2 Set
+
+43.4s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+43.4s RATING CHECK: Player_A2 Block 158 Outcome:Controlled
+
+43.4s BLOCK ATTEMPT: Player_A2
+
+43.4s RATING CHECK: Player_B2 Spike 213 SpeedMult:1.93
+
+43.4s RALLY ACTION: TeamB Player_B2 3 Spike
+
+43.5s BLOCK SUCCESS: Player_A2
+
+43.5s [COMMENTARY] Controlled block! Player_A2 rebounded the ball back to the attacker's side!
+
+44.4s RATING CHECK: Player_B2 Movement 152 SpeedMult:2.03
+
+44.4s RALLY ACTION: TeamB Player_B1 2 Set
+
+45.2s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+45.2s RATING CHECK: Player_A2 Block 158 Outcome:Touch
+
+45.2s BLOCK ATTEMPT: Player_A2
+
+45.2s RATING CHECK: Player_B2 Spike 213 SpeedMult:1.93
+
+45.2s RALLY ACTION: TeamB Player_B2 3 Spike
+
+45.2s BLOCK TOUCH: Player_A2
+
+45.2s [COMMENTARY] Touch! Player_A2 got a hand on the ball, slowing it down. The rally continues!
+
+45.4s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+45.4s RATING CHECK: Player_A1 Dig 238 JitterMult:0.15
+
+45.4s RALLY ACTION: TeamA Player_A1 1 Dig
+
+46.0s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+46.0s RALLY ACTION: TeamA Player_A2 2 Set
+
+46.6s RATING CHECK: Player_B2 Movement 152 SpeedMult:2.03
+
+46.6s RATING CHECK: Player_A1 Spike 252 SpeedMult:2.18
+
+46.6s RALLY ACTION: TeamA Player_A1 3 Spike
+
+46.8s [Point] awarded: SYDNEY RIPTIDE by Kill after 5 attack(s), 14 touches
+
+46.8s SYDNEY RIPTIDE point: set 1 2-0, sets 0-0
+
+46.8s Trying to get length of sound which is not loaded yet.
+46.8s Trying to get length of sound which is not loaded yet.
+46.8s [Director] Kill: cut close on the scorer
+
+46.9s [Director] cutaway: the scorer, Player_A1 (1.7 s)
+
+46.9s [MatchReporter] POST /api/unity/match-progress failed (attempt 1/1): 409 HTTP/1.1 409 Conflict {"error":"This match is not being watched."}
+
+48.5s [Director] Serve: low off the sand
+
+48.6s [Director] cutaway: the other side, Player_B2 (1.0 s)
+
+49.6s [Director] Serve: beside the server
+
+49.9s [Between points] 3.1 s: point to A by Kill | score SYDNEY RIPTIDE 0 2 - 0 0 SAMOA SOUTHERN SWELLS | umpire: team to serve | Player_A1 Won_Yay | Player_A2 Won_Cheer | Player_B1 Lost_Angry | Player_B2 Lost_MC1 | close-up: Player_A1 | the other side: Player_B2
+
+50.2s [Point] decided: SAMOA SOUTHERN SWELLS by Kill (server A, final attack by B after 4, chance 0.509)
+
+50.3s RATING CHECK: Player_B1 Movement 157 SpeedMult:2.07
+
+50.3s RATING CHECK: Player_A2 Serve 214 SpeedMult:1.93
+
+50.3s RALLY ACTION: TeamA Player_A2 1 Serve
+
+50.3s [Director] Rally: end-on drift
+
+50.9s RATING CHECK: Player_B2 Movement 152 SpeedMult:2.03
+
+50.9s RATING CHECK: Player_B1 Dig 227 JitterMult:0.15
+
+50.9s RALLY ACTION: TeamB Player_B1 1 Dig
+
+51.4s RATING CHECK: Player_B1 Movement 157 SpeedMult:2.07
+
+51.4s RALLY ACTION: TeamB Player_B2 2 Set
+
+52.1s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+52.1s RATING CHECK: Player_A1 Block 232 Outcome:Controlled
+
+52.1s BLOCK ATTEMPT: Player_A1
+
+52.1s RATING CHECK: Player_B1 Spike 222 SpeedMult:1.98
+
+52.2s RALLY ACTION: TeamB Player_B1 3 Spike
+
+52.2s BLOCK SUCCESS: Player_A1
+
+52.2s [COMMENTARY] Controlled block! Player_A1 rebounded the ball back to the attacker's side!
+
+53.1s RATING CHECK: Player_B1 Movement 157 SpeedMult:2.07
+
+53.1s RALLY ACTION: TeamB Player_B2 2 Set
+
+53.9s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+53.9s RATING CHECK: Player_A1 Block 232 Outcome:Touch
+
+53.9s BLOCK ATTEMPT: Player_A1
+
+54.0s RATING CHECK: Player_B1 Spike 222 SpeedMult:1.98
+
+54.0s RALLY ACTION: TeamB Player_B1 3 Spike
+
+54.0s BLOCK TOUCH: Player_A1
+
+54.0s [COMMENTARY] Touch! Player_A1 got a hand on the ball, slowing it down. The rally continues!
+
+54.2s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+54.2s RATING CHECK: Player_A2 Dig 223 JitterMult:0.15
+
+54.2s RALLY ACTION: TeamA Player_A2 1 Dig
+
+54.9s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+54.9s RALLY ACTION: TeamA Player_A1 2 Set
+
+55.4s RATING CHECK: Player_B1 Movement 157 SpeedMult:2.07
+
+55.4s RATING CHECK: Player_B2 Block 201 Outcome:Controlled
+
+55.5s BLOCK ATTEMPT: Player_B2
+
+55.5s RATING CHECK: Player_A2 Spike 201 SpeedMult:1.84
+
+55.5s RALLY ACTION: TeamA Player_A2 3 Spike
+
+55.5s BLOCK SUCCESS: Player_B2
+
+55.6s [COMMENTARY] Controlled block! Player_B2 rebounded the ball back to the attacker's side!
+
+56.5s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+56.5s RALLY ACTION: TeamA Player_A1 2 Set
+
+57.3s RATING CHECK: Player_B1 Movement 157 SpeedMult:2.07
+
+57.3s RATING CHECK: Player_B2 Block 201 Outcome:Controlled
+
+57.3s BLOCK ATTEMPT: Player_B2
+
+57.3s RATING CHECK: Player_A2 Spike 201 SpeedMult:1.84
+
+57.3s RALLY ACTION: TeamA Player_A2 3 Spike
+
+57.4s BLOCK SUCCESS: Player_B2
+
+57.4s [COMMENTARY] Controlled block! Player_B2 rebounded the ball back to the attacker's side!
+
+57.9s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+57.9s RALLY ACTION: TeamA Player_A1 2 Set
+
+58.8s RATING CHECK: Player_B1 Movement 157 SpeedMult:2.07
+
+58.8s RATING CHECK: Player_B2 Block 201 Outcome:Controlled
+
+58.8s BLOCK ATTEMPT: Player_B2
+
+58.8s RATING CHECK: Player_A2 Spike 201 SpeedMult:1.84
+
+58.8s RALLY ACTION: TeamA Player_A2 3 Spike
+
+58.9s BLOCK SUCCESS: Player_B2
+
+58.9s [COMMENTARY] Controlled block! Player_B2 rebounded the ball back to the attacker's side!
+
+59.4s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+59.4s RALLY ACTION: TeamA Player_A1 2 Set
+
+60.5s RATING CHECK: Player_B1 Movement 157 SpeedMult:2.07
+
+60.5s RATING CHECK: Player_B2 Block 201 Outcome:Touch
+
+60.5s BLOCK ATTEMPT: Player_B2
+
+60.5s RATING CHECK: Player_A2 Spike 201 SpeedMult:1.84
+
+60.5s RALLY ACTION: TeamA Player_A2 3 Spike
+
+60.6s BLOCK TOUCH: Player_B2
+
+60.6s [COMMENTARY] Touch! Player_B2 got a hand on the ball, slowing it down. The rally continues!
+
+60.7s RATING CHECK: Player_B2 Movement 152 SpeedMult:2.03
+
+60.7s RATING CHECK: Player_B1 Dig 227 JitterMult:0.15
+
+60.7s RALLY ACTION: TeamB Player_B1 1 Dig
+
+61.2s RATING CHECK: Player_B1 Movement 157 SpeedMult:2.07
+
+61.2s RALLY ACTION: TeamB Player_B2 2 Set
+
+62.2s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+62.2s RATING CHECK: Player_B1 Spike 222 SpeedMult:1.98
+
+62.3s RALLY ACTION: TeamB Player_B1 3 Spike
+
+62.4s [Point] awarded: SAMOA SOUTHERN SWELLS by Kill after 8 attack(s), 24 touches
+
+62.4s SAMOA SOUTHERN SWELLS point: set 1 2-1, sets 0-0
+
+62.4s Trying to get length of sound which is not loaded yet.
+62.4s [Director] Kill: swoop in close
+
+62.4s [Director] cutaway: the scorer, Player_B1 (1.1 s)
+
+62.5s [MatchReporter] POST /api/unity/match-progress failed (attempt 1/1): 409 HTTP/1.1 409 Conflict {"error":"This match is not being watched."}
+
+63.5s [Director] Between: the crowd
+
+63.6s [Director] cutaway: the other side, Player_A2 (0.7 s)
+
+64.3s [Director] cutaway: replay (2.2 s)
+
+66.4s [Between points] 4.0 s: point to B by Kill (big: a diving save) | score SYDNEY RIPTIDE 0 2 - 1 0 SAMOA SOUTHERN SWELLS | umpire: team to serve | Player_B1 Won_Cartwheel | Player_B2 Won_ThumbsUp | Player_A1 Lost_Cry | Player_A2 Lost_FeelDown | close-up: Player_B1 | the other side: Player_A2 | replay 1.2 s at 0.6x (2.1 s)
+
+66.4s [Director] Serve: low off the sand
+
+66.8s [Point] decided: SYDNEY RIPTIDE by Kill (server B, final attack by A after 3, chance 0.509)
+
+66.8s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+66.8s RATING CHECK: Player_B2 Serve 190 SpeedMult:1.77
+
+66.8s RALLY ACTION: TeamB Player_B2 1 Serve
+
+67.0s [Director] Rally: broadcast-side orbit
+
+67.4s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+67.4s RATING CHECK: Player_A1 Dig 238 JitterMult:0.15
+
+67.4s RALLY ACTION: TeamA Player_A1 1 Dig
+
+67.9s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+67.9s RALLY ACTION: TeamA Player_A2 2 Set
+
+68.7s RATING CHECK: Player_B2 Movement 152 SpeedMult:2.03
+
+68.7s RATING CHECK: Player_B1 Block 206 Outcome:Controlled
+
+68.7s BLOCK ATTEMPT: Player_B1
+
+68.7s RATING CHECK: Player_A1 Spike 252 SpeedMult:2.18
+
+68.7s RALLY ACTION: TeamA Player_A1 3 Spike
+
+68.8s BLOCK SUCCESS: Player_B1
+
+68.8s [COMMENTARY] Controlled block! Player_B1 rebounded the ball back to the attacker's side!
+
+69.7s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+69.7s RALLY ACTION: TeamA Player_A2 2 Set
+
+70.6s RATING CHECK: Player_B2 Movement 152 SpeedMult:2.03
+
+70.6s RATING CHECK: Player_B1 Block 206 Outcome:Touch
+
+70.6s BLOCK ATTEMPT: Player_B1
+
+70.6s RATING CHECK: Player_A1 Spike 252 SpeedMult:2.18
+
+70.6s RALLY ACTION: TeamA Player_A1 3 Spike
+
+70.7s BLOCK TOUCH: Player_B1
+
+70.7s [COMMENTARY] Touch! Player_B1 got a hand on the ball, slowing it down. The rally continues!
+
+70.9s RATING CHECK: Player_B1 Movement 157 SpeedMult:2.07
+
+70.9s RATING CHECK: Player_B2 Dig 220 JitterMult:0.15
+
+70.9s RALLY ACTION: TeamB Player_B2 1 Dig
+
+71.5s RATING CHECK: Player_B2 Movement 152 SpeedMult:2.03
+
+71.5s RALLY ACTION: TeamB Player_B1 2 Set
+
+72.4s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+72.4s RATING CHECK: Player_A2 Block 158 Outcome:Controlled
+
+72.4s BLOCK ATTEMPT: Player_A2
+
+72.4s RATING CHECK: Player_B2 Spike 213 SpeedMult:1.93
+
+72.4s RALLY ACTION: TeamB Player_B2 3 Spike
+
+72.5s BLOCK SUCCESS: Player_A2
+
+72.5s [COMMENTARY] Controlled block! Player_A2 rebounded the ball back to the attacker's side!
+
+73.5s RATING CHECK: Player_B2 Movement 152 SpeedMult:2.03
+
+73.5s RALLY ACTION: TeamB Player_B1 2 Set
+
+74.5s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+74.5s RATING CHECK: Player_A2 Block 158 Outcome:Touch
+
+74.5s BLOCK ATTEMPT: Player_A2
+
+74.5s RATING CHECK: Player_B2 Spike 213 SpeedMult:1.93
+
+74.5s RALLY ACTION: TeamB Player_B2 3 Spike
+
+74.6s BLOCK TOUCH: Player_A2
+
+74.6s [COMMENTARY] Touch! Player_A2 got a hand on the ball, slowing it down. The rally continues!
+
+74.7s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+74.7s RATING CHECK: Player_A1 Dig 238 JitterMult:0.15
+
+74.7s RALLY ACTION: TeamA Player_A1 1 Dig
+
+75.4s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+75.4s RALLY ACTION: TeamA Player_A2 2 Set
+
+76.1s RATING CHECK: Player_B2 Movement 152 SpeedMult:2.03
+
+76.1s RATING CHECK: Player_A1 Spike 252 SpeedMult:2.18
+
+76.1s RALLY ACTION: TeamA Player_A1 3 Spike
+
+76.4s [Point] awarded: SYDNEY RIPTIDE by Kill after 6 attack(s), 18 touches
+
+76.4s SYDNEY RIPTIDE point: set 1 3-1, sets 0-0
+
+76.4s Trying to get length of sound which is not loaded yet.
+76.4s [Director] Kill: cut close on the scorer
+
+76.4s [Director] cutaway: the scorer, Player_A1 (1.7 s)
+
+76.4s [MatchReporter] POST /api/unity/match-progress failed (attempt 1/1): 409 HTTP/1.1 409 Conflict {"error":"This match is not being watched."}
+
+78.1s [Director] cutaway: the other side, Player_B2 (1.0 s)
+
+79.1s [Director] Serve: beside the server
+
+79.4s [Between points] 3.1 s: point to A by Kill | score SYDNEY RIPTIDE 0 3 - 1 0 SAMOA SOUTHERN SWELLS | umpire: team to serve | high five: Player_A1 and Player_A2 | Player_B1 Lost_FeelDown | Player_B2 Lost_MC1 | close-up: Player_A1 | placed: Player_A2 at (0.20, 0.72) in Player_A1's frame, turned 145°, scales 1.00/1.00 | the other side: Player_B2
+
+79.8s [Point] decided: SAMOA SOUTHERN SWELLS by Kill (server A, final attack by B after 2, chance 0.509)
+
+79.8s RATING CHECK: Player_B2 Movement 152 SpeedMult:2.03
+
+79.8s RATING CHECK: Player_A2 Serve 214 SpeedMult:1.93
+
+79.8s RALLY ACTION: TeamA Player_A2 1 Serve
+
+79.8s [Director] Rally: high on the umpire's side
+
+80.5s RATING CHECK: Player_B1 Movement 157 SpeedMult:2.07
+
+80.5s RATING CHECK: Player_B2 Dig 220 JitterMult:0.15
+
+80.5s RALLY ACTION: TeamB Player_B2 1 Dig
+
+80.9s RATING CHECK: Player_B2 Movement 152 SpeedMult:2.03
+
+80.9s RALLY ACTION: TeamB Player_B1 2 Set
+
+81.8s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+81.8s RATING CHECK: Player_A2 Block 158 Outcome:Controlled
+
+81.8s BLOCK ATTEMPT: Player_A2
+
+81.8s RATING CHECK: Player_B2 Spike 213 SpeedMult:1.93
+
+81.8s RALLY ACTION: TeamB Player_B2 3 Spike
+
+81.9s BLOCK SUCCESS: Player_A2
+
+81.9s [COMMENTARY] Controlled block! Player_A2 rebounded the ball back to the attacker's side!
+
+82.9s RATING CHECK: Player_B2 Movement 152 SpeedMult:2.03
+
+82.9s RALLY ACTION: TeamB Player_B1 2 Set
+
+83.6s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+83.6s RATING CHECK: Player_B2 Spike 213 SpeedMult:1.93
+
+83.6s RALLY ACTION: TeamB Player_B2 3 Spike
+
+83.7s [Point] awarded: SAMOA SOUTHERN SWELLS by Kill after 3 attack(s), 7 touches
+
+83.8s SAMOA SOUTHERN SWELLS point: set 1 3-2, sets 0-0
+
+83.8s Trying to get length of sound which is not loaded yet.
+83.8s [Director] Kill: swoop in close
+
+83.8s [MatchReporter] POST /api/unity/match-progress failed (attempt 1/1): 409 HTTP/1.1 409 Conflict {"error":"This match is not being watched."}
+
+83.8s [Director] cutaway: the scorer, Player_B2 (1.1 s)
+
+84.9s [Director] cutaway: the other side, Player_A2 (0.7 s)
+
+85.6s [Director] cutaway: replay (2.2 s)
+
+87.8s [Between points] 4.0 s: point to B by Kill (big: a diving save) | score SYDNEY RIPTIDE 0 3 - 2 0 SAMOA SOUTHERN SWELLS | umpire: team to serve | Player_B1 Won_ArmsUp | Player_B2 Won_DoublePeace | Player_A1 Lost_Cry | Player_A2 Lost_Cry | close-up: Player_B2 | the other side: Player_A2 | replay 1.2 s at 0.6x (2.1 s)
+
+87.8s [Director] Serve: low off the sand
+
+88.1s [Point] decided: SAMOA SOUTHERN SWELLS by Kill (server B, final attack by B after 3, chance 0.509)
+
+88.1s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+88.1s RATING CHECK: Player_B2 Serve 190 SpeedMult:1.77
+
+88.1s RALLY ACTION: TeamB Player_B2 1 Serve
+
+88.4s [Director] Rally: broadcast-side orbit
+
+88.7s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+88.7s RATING CHECK: Player_A2 Dig 223 JitterMult:0.15
+
+88.7s RALLY ACTION: TeamA Player_A2 1 Dig
+
+89.2s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+89.2s RALLY ACTION: TeamA Player_A1 2 Set
+
+90.1s RATING CHECK: Player_B2 Movement 152 SpeedMult:2.03
+
+90.1s RATING CHECK: Player_B2 Block 201 Outcome:Touch
+
+90.1s BLOCK ATTEMPT: Player_B2
+
+90.1s RATING CHECK: Player_A2 Spike 201 SpeedMult:1.84
+
+90.1s RALLY ACTION: TeamA Player_A2 3 Spike
+
+90.2s BLOCK TOUCH: Player_B2
+
+90.2s [COMMENTARY] Touch! Player_B2 got a hand on the ball, slowing it down. The rally continues!
+
+90.4s RATING CHECK: Player_B1 Movement 157 SpeedMult:2.07
+
+90.4s RATING CHECK: Player_B2 Dig 220 JitterMult:0.15
+
+90.4s RALLY ACTION: TeamB Player_B2 1 Dig
+
+91.2s RATING CHECK: Player_B2 Movement 152 SpeedMult:2.03
+
+91.2s RALLY ACTION: TeamB Player_B1 2 Set
+
+92.7s [UnityMemory] Configuration Parameters - Can be set up in boot.config
+
+92.7s     "memorysetup-allocator-temp-initial-block-size-main=262144"
+
+92.7s     "memorysetup-allocator-temp-initial-block-size-worker=262144"
+
+92.7s     "memorysetup-temp-allocator-size-audio-worker=65536"
+
+92.7s     "memorysetup-temp-allocator-size-background-worker=32768"
+
+92.7s     "memorysetup-bucket-allocator-granularity=16"
+
+92.7s     "memorysetup-bucket-allocator-bucket-count=8"
+
+92.7s     "memorysetup-bucket-allocator-block-size=4194304"
+
+92.7s     "memorysetup-bucket-allocator-block-count=1"
+
+92.7s     "memorysetup-main-allocator-block-size=16777216"
+
+92.7s     "memorysetup-thread-allocator-block-size=16777216"
+
+92.7s     "memorysetup-gfx-main-allocator-block-size=16777216"
+
+92.7s     "memorysetup-gfx-thread-allocator-block-size=16777216"
+
+92.7s     "memorysetup-cache-allocator-block-size=4194304"
+
+92.7s     "memorysetup-typetree-allocator-block-size=2097152"
+
+92.7s     "memorysetup-profiler-bucket-allocator-granularity=16"
+
+92.7s     "memorysetup-profiler-bucket-allocator-bucket-count=8"
+
+92.7s     "memorysetup-profiler-bucket-allocator-block-size=4194304"
+
+92.7s     "memorysetup-profiler-bucket-allocator-block-count=1"
+
+92.7s     "memorysetup-profiler-allocator-block-size=16777216"
+
+92.7s     "memorysetup-profiler-editor-allocator-block-size=1048576"
+
+92.7s     "memorysetup-temp-allocator-size-main=4194304"
+
+92.7s     "memorysetup-job-temp-allocator-block-size=2097152"
+
+92.7s     "memorysetup-job-temp-allocator-block-size-background=1048576"
+
+92.7s     "memorysetup-job-temp-allocator-reduction-small-platforms=262144"
+
+92.7s Input System module state changed to: Initialized.
+
+92.7s [Physics::Module] Initialized fallback backend.
+
+92.7s [Physics::Module] Id: 0xdecafbad
+
+92.7s Loading player data from data.unity3d
+
+92.7s Initialize engine version: 6000.3.16f1 (a56f230f6470)
+
+92.7s [Subsystems] Discovering subsystems at path UnitySubsystems
+
+92.7s Creating WebGL 2.0 context.
+92.7s Renderer: WebKit WebGL
+
+92.7s Vendor:   WebKit
+
+92.7s Version:  OpenGL ES 3.0 (WebGL 2.0 (OpenGL ES 3.0 Chromium))
+
+92.7s GLES:     3
+
+92.7s  EXT_clip_control EXT_color_buffer_float EXT_color_buffer_half_float EXT_conservative_depth EXT_depth_clamp EXT_disjoint_timer_query_webgl2 EXT_float_blend EXT_polygon_offset_clamp EXT_render_snorm EXT_texture_compression_bptc EXT_texture_compression_rgtc EXT_texture_filter_anisotropic EXT_texture_mirror_clamp_to_edge EXT_texture_norm16 KHR_parallel_shader_compile NV_shader_noperspective_interpolation OES_draw_buffers_indexed OES_sample_variables OES_shader_multisample_interpolation OES_texture_float_linear OVR_multiview2 WEBGL_blend_func_extended WEBGL_clip_cull_distance WEBGL_compressed_texture_s3tc WEBGL_compressed_texture_s3tc_srgb WEBGL_debug_renderer_info WEBGL_debug_shaders WEBGL_lose_context WEBGL_multi_draw WEBGL_polygon_mode WEBGL_provoking_vertex WEBGL_shader_pixel_local_storage WEBGL_stencil_texturing GL_EXT_clip_control GL_EXT_color_buffer_float GL_EXT_color_buffer_half_float GL_EXT_conservative_depth GL_EXT_depth_clamp GL_EXT_disjoint_timer_query_webgl2 GL_EXT_float_blend GL_EXT_polygon_offset_
+
+92.7s clamp GL_EXT_render_snorm GL_EXT_texture_compression_bptc GL_EXT_texture_compression_rgtc GL_EXT_texture_filter_anisotropic GL_EXT_texture_mirror_clamp_to_edge GL_EXT_texture_norm16 GL_KHR_parallel_shader_compile GL_NV_shader_noperspective_interpolation GL_OES_draw_buffers_indexed GL_OES_sample_variables GL_OES_shader_multisample_interpolation GL_OES_texture_float_linear GL_OVR_multiview2 GL_WEBGL_blend_func_extended GL_WEBGL_clip_cull_distance GL_WEBGL_compressed_texture_s3tc GL_WEBGL_compressed_texture_s3tc_srgb GL_WEBGL_debug_renderer_info GL_WEBGL_debug_shaders GL_WEBGL_lose_context GL_WEBGL_multi_draw GL_WEBGL_polygon_mode GL_WEBGL_provoking_vertex GL_WEBGL_shader_pixel_local_storage GL_WEBGL_stencil_texturing
+
+92.7s OPENGL LOG: Creating OpenGL ES 3.0 graphics device ; Context level  <OpenGL ES 3.0> ; Context handle 1
+
+92.7s [Physics::Module] Selected backend.
+
+92.7s [Physics::Module] Name: PhysX
+
+92.7s [Physics::Module] Id: 0xf2b8ea05
+
+92.7s [Physics::Module] SDK Version: 4.1.2
+
+92.7s [Physics::Module] Integration Version: 1.0.0
+
+92.7s [Physics::Module] Threading Mode: Single-Threaded
+
+92.8s ERROR: Shader 
+92.8s Hidden/CoreSRP/CoreCopy shader is not supported on this GPU (none of subshaders/fallbacks are suitable)
+
+92.8s ERROR: Shader 
+92.8s Hidden/Universal Render Pipeline/StencilDitherMaskSeed shader is not supported on this GPU (none of subshaders/fallbacks are suitable)
+
+92.8s ERROR: Shader 
+92.8s Hidden/Universal/HDRDebugView shader is not supported on this GPU (none of subshaders/fallbacks are suitable)
+
+92.8s <b>[App UI]</b> Unable to find an AppUISettings instance, creating a default one...
+
+92.8s Input System initialize...
+
+92.9s Couldn't create a Convex Mesh from source mesh, within the maximum polygons limit (256). The partial hull will be used. Consider simplifying your mesh. Source mesh name: SM_rack_balls_Volleyball_1
+
+93.3s UnloadTime: 0.200000 ms
+
+93.3s [CourtsideBoards] 18 boards dressed around the court: 9 Beach Volleyball Empire, 9 GB Sunglasses
+
+93.3s Audio context resumed after 0.569 seconds.
+93.3s [Sound] crowd volume 1.00
+
+93.3s [Sound] commentary volume 1.00
+
+93.3s [Camera] remembered looks from the page: played game:1, watched tv:1
+
+93.3s [Between points] from the page: skip to next serve off, skip replays off
+
+93.7s [UnityCache] 'http://localhost:4956/unity-build/Build/Volleyball_WebGL_Uncompressed_2.data' successfully downloaded and stored in the browser cache
+95.3s [BoostUIController] Created Polished Attack and Defence boost buttons.
+
+95.3s [MatchManager] AudioManager initialized.
+
+95.3s [UnityMatchDataLoader] careerSaveId 1 (from page URL)
+
+95.3s [UnityMatchDataLoader] GET /api/unity/match-state?careerSaveId=1&matchId=4
+
+95.3s WEATHER SUNNY
+
+95.3s Trying to get length of sound which is not loaded yet.
+95.3s Trying to get length of sound which is not loaded yet.
+95.3s [Director] Serve: beside the server
+
+95.3s The character with Unicode value \u2600 was not found in the [LiberationSans SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [WeatherText].
+
+95.5s [UnityMatchDataLoader] point chance for the home pair: 0.4920
+
+95.5s [UnityMatchDataLoader] continent asia, time of day midday, weather sunny
+
+95.5s [UnityMatchDataLoader] game difficulty medium (a played match grades and plays at it)
+
+95.5s [UnityMatchDataLoader] event (null), kits (null), boards (null) '(null)', manual allowed
+
+95.5s [UnityMatchDataLoader] Player_A1: skin 'Light' resolved via band 'Light' -> #EEC9B8
+
+95.5s [UnityMatchDataLoader] Player_A1 <- Camila Santiago | team Sydney Riptide (home) | skinTone Light | kit #1e3a8a/#f59e0b | appearance controller found | applied ovr 80 pwr 85 spd 73 def 78 srv 74 blk 89 sta 79 mor 75 fit 100 fat 0 | (not applied: injured False)
+
+95.5s [UnityMatchDataLoader] Player_A2: skin 'Light' resolved via band 'Light' -> #EEC9B8
+
+95.5s [UnityMatchDataLoader] Player_A2 <- Nurul Ain | team Sydney Riptide (home) | skinTone Light | kit #1e3a8a/#f59e0b | appearance controller found | applied ovr 67 pwr 55 spd 74 def 70 srv 78 blk 52 sta 73 mor 75 fit 100 fat 0 | (not applied: injured False)
+
+95.5s [UnityMatchDataLoader] Player_B1: skin 'Medium Light' resolved via band 'Medium Light' -> #D8A68C
+
+95.5s [UnityMatchDataLoader] Player_B1 <- Lisandra Pérez | team Havana Salsa Spikers (away) | skinTone Medium Light | kit #7CB518/#1E4D2B | appearance controller found | applied ovr 80 pwr 76 spd 82 def 80 srv 80 blk 82 sta 78 mor 62 fit 80 fat 0 | (not applied: injured False)
+
+95.5s [UnityMatchDataLoader] Player_B2: skin 'Dark' resolved via band 'Dark' -> #3B2219
+
+95.5s [UnityMatchDataLoader] Player_B2 <- Yoanna Fuentes | team Havana Salsa Spikers (away) | skinTone Dark | kit #7CB518/#1E4D2B | appearance controller found | applied ovr 78 pwr 74 spd 80 def 78 srv 78 blk 80 sta 76 mor 62 fit 80 fat 0 | (not applied: injured False)
+
+95.5s [UnityMatchDataLoader] team names: SYDNEY RIPTIDE (home) vs HAVANA SALSA SPIKERS (away)
+
+95.5s [UnityMatchDataLoader] applied 4 of 4 player(s)
+
+95.5s [Venue] 'asia' is waiting on Rob; playing at oceania
+
+95.5s Trying to get length of sound which is not loaded yet.
+95.5s Trying to get length of sound which is not loaded yet.
+95.5s Trying to get length of sound which is not loaded yet.
+95.5s Trying to get length of sound which is not loaded yet.
+95.6s Trying to get length of sound which is not loaded yet.
+95.6s Trying to get length of sound which is not loaded yet.
+95.6s Trying to get length of sound which is not loaded yet.
+95.6s Trying to get length of sound which is not loaded yet.
+95.6s Trying to get length of sound which is not loaded yet.
+95.6s Trying to get length of sound which is not loaded yet.
+95.7s Trying to get length of sound which is not loaded yet.
+95.8s Trying to get length of sound which is not loaded yet.
+95.8s Trying to get length of sound which is not loaded yet.
+95.9s Trying to get length of sound which is not loaded yet.
+95.9s Trying to get length of sound which is not loaded yet.
+95.9s Trying to get length of sound which is not loaded yet.
+96.0s [Venue] oceania (Island Beach) in after 0.7s, 74.9 MB; features on 7, off 0
+
+96.0s WEATHER SUNNY
+
+96.0s [TimeOfDay] Midday in Sunny: sun 50 degrees up, intensity 2.00, shadows 1.00; floodlights off
+
+96.0s [TimeOfDay] Midday in Sunny: sun 50 degrees up, intensity 2.00, shadows 1.00; floodlights off
+
+96.0s [Camera] keep-out rebuilt for the venue: 442 boxes, 414 of them props
+
+96.0s [MatchManager] match starts after 3.2s: match data applied; home point chance 0.4920
+
+96.0s [MatchManager] ratings in play Player_A1 (Camila Santiago): ovr 80 pwr 85 spd 73 def 78 srv 74 blk 89 sta 79 mor 75
+
+96.0s [MatchManager] ratings in play Player_A2 (Nurul Ain): ovr 67 pwr 55 spd 74 def 70 srv 78 blk 52 sta 73 mor 75
+
+96.0s [MatchManager] ratings in play Player_B1 (Lisandra Pérez): ovr 80 pwr 76 spd 82 def 80 srv 80 blk 82 sta 78 mor 62
+
+96.0s [MatchManager] ratings in play Player_B2 (Yoanna Fuentes): ovr 78 pwr 74 spd 80 def 78 srv 78 blk 80 sta 76 mor 62
+
+96.0s [Director] cutaway: the walk-on (5.5 s)
+
+96.2s [Crowd] 34 real people in the front 1 row(s), 170 cards behind, 24 bystanders; 64 team fans (A #1E3A8A, B #7CB518); 45 different people; cards baked in 110 ms
+
+96.2s Trying to get length of sound which is not loaded yet.
+96.2s Trying to get length of sound which is not loaded yet.
+96.3s Trying to get length of sound which is not loaded yet.
+96.3s Trying to get length of sound which is not loaded yet.
+96.3s Trying to get length of sound which is not loaded yet.
+96.3s Trying to get length of sound which is not loaded yet.
+96.4s Trying to get length of sound which is not loaded yet.
+96.4s Trying to get length of sound which is not loaded yet.
+96.4s Trying to get length of sound which is not loaded yet.
+96.5s Trying to get length of sound which is not loaded yet.
+96.5s Trying to get length of sound which is not loaded yet.
+96.6s Trying to get length of sound which is not loaded yet.
+96.6s Trying to get length of sound which is not loaded yet.
+96.6s Trying to get length of sound which is not loaded yet.
+96.7s Trying to get length of sound which is not loaded yet.
+96.7s Trying to get length of sound which is not loaded yet.
+96.7s Trying to get length of sound which is not loaded yet.
+96.8s Trying to get length of sound which is not loaded yet.
+96.8s Trying to get length of sound which is not loaded yet.
+96.8s Trying to get length of sound which is not loaded yet.
+96.8s Trying to get length of sound which is not loaded yet.
+96.9s Trying to get length of sound which is not loaded yet.
+96.9s Trying to get length of sound which is not loaded yet.
+96.9s Trying to get length of sound which is not loaded yet.
+96.9s Trying to get length of sound which is not loaded yet.
+97.0s Trying to get length of sound which is not loaded yet.
+97.0s Trying to get length of sound which is not loaded yet.
+97.0s Trying to get length of sound which is not loaded yet.
+97.0s Trying to get length of sound which is not loaded yet.
+97.0s Trying to get length of sound which is not loaded yet.
+97.0s Trying to get length of sound which is not loaded yet.
+97.1s Trying to get length of sound which is not loaded yet.
+97.1s [Commentary] 48 of 90 clips loaded from http://localhost:4956/unity-build/StreamingAssets/commentary: the 48 its LINES.txt lists (48 recorded before 1.2; B4's 42 are Rob's to record)
+
+97.4s [UnityCache] 'http://localhost:4956/unity-build/StreamingAssets/Venues/venue-oceania.bundle' successfully downloaded and stored in the browser cache
+100.6s [Director] cutaway: the walk-on: Player_A1 (1.5 s)
+
+102.1s [Director] cutaway: the walk-on: Player_A2 (1.5 s)
+
+103.6s [Director] cutaway: the walk-on: Player_B1 (1.5 s)
+
+105.1s [Director] cutaway: the walk-on: Player_B2 (1.5 s)
+
+106.6s [Match moments] walk-on took 10.7 s
+
+106.6s [Director] Serve: low off the sand
+
+107.0s [Point] decided: SYDNEY RIPTIDE by Kill (server A, final attack by A after 2, chance 0.492)
+
+107.0s RATING CHECK: Player_B2 Movement 163 SpeedMult:2.14
+
+107.0s RATING CHECK: Player_A2 Serve 214 SpeedMult:1.93
+
+107.0s RALLY ACTION: TeamA Player_A2 1 Serve
+
+107.0s [MatchManager] jump heights: net top 2.24 m, spike lift 0.58 m, block lift 0.46 m
+
+107.3s [Director] Rally: end-on drift
+
+107.6s RATING CHECK: Player_B1 Movement 168 SpeedMult:2.18
+
+107.6s RATING CHECK: Player_B2 Dig 241 JitterMult:0.15
+
+107.7s RALLY ACTION: TeamB Player_B2 1 Dig
+
+108.0s RATING CHECK: Player_B2 Movement 163 SpeedMult:2.14
+
+108.0s RALLY ACTION: TeamB Player_B1 2 Set
+
+109.0s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+109.0s RATING CHECK: Player_A2 Block 158 Outcome:Controlled
+
+109.0s BLOCK ATTEMPT: Player_A2
+
+109.0s RATING CHECK: Player_B2 Spike 235 SpeedMult:2.07
+
+109.0s RALLY ACTION: TeamB Player_B2 3 Spike
+
+109.1s BLOCK SUCCESS: Player_A2
+
+109.1s [COMMENTARY] Controlled block! Player_A2 rebounded the ball back to the attacker's side!
+
+110.0s RATING CHECK: Player_B2 Movement 163 SpeedMult:2.14
+
+110.1s RALLY ACTION: TeamB Player_B1 2 Set
+
+110.9s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+110.9s RATING CHECK: Player_A2 Block 158 Outcome:Touch
+
+110.9s BLOCK ATTEMPT: Player_A2
+
+110.9s RATING CHECK: Player_B2 Spike 235 SpeedMult:2.07
+
+110.9s RALLY ACTION: TeamB Player_B2 3 Spike
+
+111.0s BLOCK TOUCH: Player_A2
+
+111.0s [COMMENTARY] Touch! Player_A2 got a hand on the ball, slowing it down. The rally continues!
+
+111.1s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+111.2s RATING CHECK: Player_A2 Dig 223 JitterMult:0.15
+
+111.2s RALLY ACTION: TeamA Player_A2 1 Dig
+
+111.9s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+111.9s RALLY ACTION: TeamA Player_A1 2 Set
+
+112.6s RATING CHECK: Player_B2 Movement 163 SpeedMult:2.14
+
+112.6s RATING CHECK: Player_A2 Spike 201 SpeedMult:1.84
+
+112.6s RALLY ACTION: TeamA Player_A2 3 Spike
+
+112.8s [Point] awarded: SYDNEY RIPTIDE by Kill after 4 attack(s), 11 touches
+
+112.8s SYDNEY RIPTIDE point: set 1 1-0, sets 0-0
+
+112.8s Trying to get length of sound which is not loaded yet.
+112.8s Trying to get length of sound which is not loaded yet.
+112.8s [Director] Kill: swoop in close
+
+112.8s [Director] cutaway: the scorer, Player_A2 (1.1 s)
+
+112.8s [MatchReporter] POST /api/unity/match-progress failed (attempt 1/1): 409 HTTP/1.1 409 Conflict {"error":"This match is not being watched."}
+
+113.9s [Director] cutaway: the other side, Player_B2 (0.7 s)
+
+114.6s [Director] cutaway: replay (2.2 s)
+
+116.8s [Between points] 4.0 s: point to A by Kill (big: a diving save) | score SYDNEY RIPTIDE 0 1 - 0 0 HAVANA SALSA SPIKERS | umpire: team to serve | Player_A1 Won_MC2 | Player_A2 Won_ThumbsUp2 | Player_B1 Lost_MC1 | Player_B2 Lost_MC2 | close-up: Player_A2 | the other side: Player_B2 | replay 1.2 s at 0.6x (2.1 s)
+
+116.8s [Director] Serve: beside the server
+
+117.1s [Point] decided: SYDNEY RIPTIDE by Kill (server A, final attack by A after 4, chance 0.492)
+
+117.1s RATING CHECK: Player_B2 Movement 163 SpeedMult:2.14
+
+117.1s RATING CHECK: Player_A1 Serve 242 SpeedMult:2.11
+
+117.1s RALLY ACTION: TeamA Player_A1 1 Serve
+
+117.4s [Director] Rally: high on the umpire's side
+
+117.7s RATING CHECK: Player_B1 Movement 168 SpeedMult:2.18
+
+117.7s RATING CHECK: Player_B2 Dig 241 JitterMult:0.15
+
+117.7s RALLY ACTION: TeamB Player_B2 1 Dig
+
+118.2s RATING CHECK: Player_B2 Movement 163 SpeedMult:2.14
+
+118.2s RALLY ACTION: TeamB Player_B1 2 Set
+
+119.2s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+119.2s RATING CHECK: Player_A2 Block 158 Outcome:Controlled
+
+119.3s BLOCK ATTEMPT: Player_A2
+
+119.3s RATING CHECK: Player_B2 Spike 235 SpeedMult:2.07
+
+119.3s RALLY ACTION: TeamB Player_B2 3 Spike
+
+119.3s BLOCK SUCCESS: Player_A2
+
+119.3s [COMMENTARY] Controlled block! Player_A2 rebounded the ball back to the attacker's side!
+
+120.3s RATING CHECK: Player_B2 Movement 163 SpeedMult:2.14
+
+120.3s RALLY ACTION: TeamB Player_B1 2 Set
+
+121.4s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+121.4s RATING CHECK: Player_A2 Block 158 Outcome:Controlled
+
+121.4s BLOCK ATTEMPT: Player_A2
+
+121.4s RATING CHECK: Player_B2 Spike 235 SpeedMult:2.07
+
+121.4s RALLY ACTION: TeamB Player_B2 3 Spike
+
+121.4s BLOCK SUCCESS: Player_A2
+
+121.4s [COMMENTARY] Controlled block! Player_A2 rebounded the ball back to the attacker's side!
+
+122.4s RATING CHECK: Player_B2 Movement 163 SpeedMult:2.14
+
+122.4s RALLY ACTION: TeamB Player_B1 2 Set
+
+123.3s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+123.3s RATING CHECK: Player_A2 Block 158 Outcome:Touch
+
+123.4s BLOCK ATTEMPT: Player_A2
+
+123.4s RATING CHECK: Player_B2 Spike 235 SpeedMult:2.07
+
+123.4s RALLY ACTION: TeamB Player_B2 3 Spike
+
+123.4s BLOCK TOUCH: Player_A2
+
+123.4s [COMMENTARY] Touch! Player_A2 got a hand on the ball, slowing it down. The rally continues!
+
+123.6s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+123.6s RATING CHECK: Player_A1 Dig 238 JitterMult:0.15
+
+123.6s RALLY ACTION: TeamA Player_A1 1 Dig
+
+124.3s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+124.3s RALLY ACTION: TeamA Player_A2 2 Set
+
+125.2s RATING CHECK: Player_B2 Movement 163 SpeedMult:2.14
+
+125.2s RATING CHECK: Player_A1 Spike 252 SpeedMult:2.18
+
+125.2s RALLY ACTION: TeamA Player_A1 3 Spike
+
+125.4s [Point] awarded: SYDNEY RIPTIDE by Kill after 5 attack(s), 14 touches
+
+125.4s SYDNEY RIPTIDE point: set 1 2-0, sets 0-0
+
+125.4s Trying to get length of sound which is not loaded yet.
+125.4s Trying to get length of sound which is not loaded yet.
+125.4s Trying to get length of sound which is not loaded yet.
+125.4s [Director] Kill: cut close on the scorer
+
+125.4s [Director] cutaway: the scorer, Player_A1 (1.7 s)
+
+125.4s [MatchReporter] POST /api/unity/match-progress failed (attempt 1/1): 409 HTTP/1.1 409 Conflict {"error":"This match is not being watched."}
+
+127.1s [Director] cutaway: the other side, Player_B2 (1.0 s)
+
+128.1s [Director] Serve: low off the sand
+
+128.4s [Between points] 3.0 s: point to A by Kill | score SYDNEY RIPTIDE 0 2 - 0 0 HAVANA SALSA SPIKERS | umpire: team to serve | Player_A1 Won_Yay | Player_A2 Won_Cheer | Player_B1 Lost_Angry | Player_B2 Lost_MC1 | close-up: Player_A1 | the other side: Player_B2
+
+128.7s [Point] decided: HAVANA SALSA SPIKERS by Kill (server A, final attack by B after 1, chance 0.492)
+
+128.7s RATING CHECK: Player_B1 Movement 168 SpeedMult:2.18
+
+128.7s RATING CHECK: Player_A1 Serve 242 SpeedMult:2.11
+
+128.7s RALLY ACTION: TeamA Player_A1 1 Serve
+
+128.7s [Director] Rally: end-on drift
+
+129.3s RATING CHECK: Player_B2 Movement 163 SpeedMult:2.14
+
+129.3s RATING CHECK: Player_B1 Dig 248 JitterMult:0.15
+
+129.3s RALLY ACTION: TeamB Player_B1 1 Dig
+
+130.0s RATING CHECK: Player_B1 Movement 168 SpeedMult:2.18
+
+130.0s RALLY ACTION: TeamB Player_B2 2 Set
+
+130.7s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+130.7s RATING CHECK: Player_B1 Spike 242 SpeedMult:2.11
+
+130.7s RALLY ACTION: TeamB Player_B1 3 Spike
+
+130.9s [Point] awarded: HAVANA SALSA SPIKERS by Kill after 2 attack(s), 4 touches
+
+130.9s HAVANA SALSA SPIKERS point: set 1 2-1, sets 0-0
+
+130.9s Trying to get length of sound which is not loaded yet.
+130.9s [Director] Kill: swoop in close
+
+130.9s [MatchReporter] POST /api/unity/match-progress failed (attempt 1/1): 409 HTTP/1.1 409 Conflict {"error":"This match is not being watched."}
+
+130.9s [Director] cutaway: the scorer, Player_B1 (1.1 s)
+
+132.0s [Director] cutaway: the other side, Player_A1 (0.7 s)
+
+132.7s [Director] cutaway: replay (2.2 s)
+
+134.9s [Between points] 4.0 s: point to B by Kill (big: a hard spike, 71 m/s) | score SYDNEY RIPTIDE 0 2 - 1 0 HAVANA SALSA SPIKERS | umpire: team to serve | Player_B1 Won_Cartwheel | Player_B2 Won_ThumbsUp | Player_A1 Lost_Cry | Player_A2 Lost_FeelDown | close-up: Player_B1 | the other side: Player_A1 | replay 1.2 s at 0.6x (2.1 s)
+
+134.9s [Director] Serve: beside the server
+
+135.2s [Point] decided: HAVANA SALSA SPIKERS by Ace (server B, final attack by B after 0, chance 0.492)
+
+135.2s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+135.2s RATING CHECK: Player_B1 Serve 226 SpeedMult:2.01
+
+135.2s RALLY ACTION: TeamB Player_B1 1 Serve
+
+135.5s [Director] Rally: broadcast-side orbit
+
+135.7s [Point] awarded: HAVANA SALSA SPIKERS by Ace after 1 attack(s), 1 touches
+
+135.7s Trying to get length of sound which is not loaded yet.
+135.8s Trying to get length of sound which is not loaded yet.
+135.8s HAVANA SALSA SPIKERS point: set 1 2-2, sets 0-0
+
+135.8s Trying to get length of sound which is not loaded yet.
+135.8s [Director] Kill: cut close on the scorer
+
+135.8s [Director] cutaway: the scorer, Player_B1 (1.1 s)
+
+135.8s [MatchReporter] POST /api/unity/match-progress failed (attempt 1/1): 409 HTTP/1.1 409 Conflict {"error":"This match is not being watched."}
+
+136.9s [Director] cutaway: the other side, Player_A1 (0.7 s)
+
+137.6s [Director] cutaway: replay (2.2 s)
+
+139.7s [Between points] 4.0 s: point to B by Ace (big: an ace) | score SYDNEY RIPTIDE 0 2 - 2 0 HAVANA SALSA SPIKERS | umpire: team to serve | Player_B1 Won_Cheers | Player_B2 Won_Yay | Player_A1 Lost_MC1 | Player_A2 Lost_MC3 | close-up: Player_B1 | the other side: Player_A1 | replay 1.2 s at 0.6x (2.1 s)
+
+139.7s [Director] Serve: push-in from behind the server
+
+140.0s [Point] decided: HAVANA SALSA SPIKERS by Kill (server B, final attack by B after 2, chance 0.492)
+
+140.0s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+140.0s RATING CHECK: Player_B1 Serve 226 SpeedMult:2.01
+
+140.0s RALLY ACTION: TeamB Player_B1 1 Serve
+
+140.3s [Director] Rally: high on the umpire's side
+
+140.6s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+140.6s RATING CHECK: Player_A1 Dig 238 JitterMult:0.15
+
+140.6s RALLY ACTION: TeamA Player_A1 1 Dig
+
+141.1s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+141.1s RALLY ACTION: TeamA Player_A2 2 Set
+
+141.9s RATING CHECK: Player_B1 Movement 168 SpeedMult:2.18
+
+141.9s RATING CHECK: Player_B1 Block 227 Outcome:Touch
+
+141.9s BLOCK ATTEMPT: Player_B1
+
+141.9s RATING CHECK: Player_A1 Spike 252 SpeedMult:2.18
+
+141.9s RALLY ACTION: TeamA Player_A1 3 Spike
+
+142.0s BLOCK TOUCH: Player_B1
+
+142.0s [COMMENTARY] Touch! Player_B1 got a hand on the ball, slowing it down. The rally continues!
+
+142.0s RATING CHECK: Player_B2 Movement 163 SpeedMult:2.14
+
+142.1s RATING CHECK: Player_B1 Dig 248 JitterMult:0.15
+
+142.1s RALLY ACTION: TeamB Player_B1 1 Dig
+
+142.4s RATING CHECK: Player_B1 Movement 168 SpeedMult:2.18
+
+142.4s RALLY ACTION: TeamB Player_B2 2 Set
+
+143.1s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+143.2s RATING CHECK: Player_B1 Spike 242 SpeedMult:2.11
+
+143.2s RALLY ACTION: TeamB Player_B1 3 Spike
+
+143.3s [Point] awarded: HAVANA SALSA SPIKERS by Kill after 3 attack(s), 8 touches
+
+143.3s HAVANA SALSA SPIKERS point: set 1 2-3, sets 0-0
+
+143.3s [Director] Kill: swoop in close
+
+143.3s [MatchReporter] POST /api/unity/match-progress failed (attempt 1/1): 409 HTTP/1.1 409 Conflict {"error":"This match is not being watched."}
+
+143.3s [Director] cutaway: the scorer, Player_B1 (1.7 s)
+
+145.1s [Director] cutaway: the other side, Player_A1 (1.0 s)
+
+146.1s [Director] Serve: low off the sand
+
+146.4s [Between points] 3.0 s: point to B by Kill | score SYDNEY RIPTIDE 0 2 - 3 0 HAVANA SALSA SPIKERS | umpire: team to serve | Player_B1 Won_JumpForJoy | Player_B2 Won_Shout | Player_A1 Lost_MC1 | Player_A2 Lost_MC1 | close-up: Player_B1 | the other side: Player_A1
+
+146.7s [Point] decided: SYDNEY RIPTIDE by ServeError (server B, final attack by B after 0, chance 0.492)
+
+146.7s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+146.7s RATING CHECK: Player_B2 Serve 221 SpeedMult:1.98
+
+146.7s RALLY ACTION: TeamB Player_B2 1 Serve
+
+146.7s [Director] Rally: broadcast-side orbit
+
+147.3s [Point] awarded: SYDNEY RIPTIDE by ServeError after 1 attack(s), 1 touches
+
+147.3s SYDNEY RIPTIDE point: set 1 3-3, sets 0-0
+
+147.3s Trying to get length of sound which is not loaded yet.
+147.3s [Director] Between: the venue
+
+147.3s [Director] cutaway: the scorer, Player_A2 (1.7 s)
+
+147.3s [MatchReporter] POST /api/unity/match-progress failed (attempt 1/1): 409 HTTP/1.1 409 Conflict {"error":"This match is not being watched."}
+
+149.0s [Director] cutaway: the other side, Player_B2 (1.0 s)
+
+150.0s [Director] Serve: push-in from behind the server
+
+150.3s [Between points] 3.1 s: point to A by ServeError | score SYDNEY RIPTIDE 0 3 - 3 0 HAVANA SALSA SPIKERS [SERVICE ERROR] | umpire: team to serve | Player_A1 Won_Clap | Player_A2 Won_MC2 | Player_B1 Lost_MC1 | Player_B2 Lost_Cry | close-up: Player_A2 | the other side: Player_B2
+
+150.4s [Point] decided: HAVANA SALSA SPIKERS by Kill (server A, final attack by B after 3, chance 0.492)
+
+150.4s RATING CHECK: Player_B2 Movement 163 SpeedMult:2.14
+
+150.4s RATING CHECK: Player_A2 Serve 214 SpeedMult:1.93
+
+150.4s RALLY ACTION: TeamA Player_A2 1 Serve
+
+150.6s [Director] Rally: high on the umpire's side
+
+151.1s RATING CHECK: Player_B1 Movement 168 SpeedMult:2.18
+
+151.1s RATING CHECK: Player_B2 Dig 241 JitterMult:0.15
+
+151.1s RALLY ACTION: TeamB Player_B2 1 Dig
+
+151.8s RATING CHECK: Player_B2 Movement 163 SpeedMult:2.14
+
+151.8s RALLY ACTION: TeamB Player_B1 2 Set
+
+152.5s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+152.5s RATING CHECK: Player_A2 Block 158 Outcome:Touch
+
+152.5s BLOCK ATTEMPT: Player_A2
+
+152.5s RATING CHECK: Player_B2 Spike 235 SpeedMult:2.07
+
+152.5s RALLY ACTION: TeamB Player_B2 3 Spike
+
+152.6s BLOCK TOUCH: Player_A2
+
+152.6s [COMMENTARY] Touch! Player_A2 got a hand on the ball, slowing it down. The rally continues!
+
+152.7s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+152.7s RATING CHECK: Player_A2 Dig 223 JitterMult:0.15
+
+152.7s RALLY ACTION: TeamA Player_A2 1 Dig
+
+153.4s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+153.4s RALLY ACTION: TeamA Player_A1 2 Set
+
+154.2s RATING CHECK: Player_B2 Movement 163 SpeedMult:2.14
+
+154.2s RATING CHECK: Player_B2 Block 222 Outcome:Touch
+
+154.2s BLOCK ATTEMPT: Player_B2
+
+154.2s RATING CHECK: Player_A2 Spike 201 SpeedMult:1.84
+
+154.2s RALLY ACTION: TeamA Player_A2 3 Spike
+
+154.4s BLOCK TOUCH: Player_B2
+
+154.4s [COMMENTARY] Touch! Player_B2 got a hand on the ball, slowing it down. The rally continues!
+
+154.5s RATING CHECK: Player_B1 Movement 168 SpeedMult:2.18
+
+154.5s RATING CHECK: Player_B2 Dig 241 JitterMult:0.15
+
+154.5s RALLY ACTION: TeamB Player_B2 1 Dig
+
+155.2s RATING CHECK: Player_B2 Movement 163 SpeedMult:2.14
+
+155.2s RALLY ACTION: TeamB Player_B1 2 Set
+
+156.1s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+156.1s RATING CHECK: Player_B2 Spike 235 SpeedMult:2.07
+
+156.1s RALLY ACTION: TeamB Player_B2 3 Spike
+
+156.3s [Point] awarded: HAVANA SALSA SPIKERS by Kill after 4 attack(s), 12 touches
+
+156.3s HAVANA SALSA SPIKERS point: set 1 3-4, sets 0-0
+
+156.3s Trying to get length of sound which is not loaded yet.
+156.3s Trying to get length of sound which is not loaded yet.
+156.3s [Director] Kill: cut close on the scorer
+
+156.3s [MatchReporter] POST /api/unity/match-progress failed (attempt 1/1): 409 HTTP/1.1 409 Conflict {"error":"This match is not being watched."}
+
+156.3s [Director] cutaway: the scorer, Player_B2 (1.1 s)
+
+157.4s [Director] cutaway: the other side, Player_A2 (0.7 s)
+
+158.1s [Director] cutaway: replay (2.2 s)
+
+160.3s [Between points] 4.0 s: point to B by Kill (big: a diving save) | score SYDNEY RIPTIDE 0 3 - 4 0 HAVANA SALSA SPIKERS | umpire: team to serve | Player_B1 Won_Cartwheel | Player_B2 Won_MC3 | Player_A1 Lost_Cry | Player_A2 Lost_MC3 | close-up: Player_B2 | the other side: Player_A2 | replay 1.2 s at 0.6x (2.1 s)
+
+160.3s [Director] Serve: beside the server
+
+160.6s [Point] decided: SYDNEY RIPTIDE by Kill (server B, final attack by A after 2, chance 0.492)
+
+160.6s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+160.6s RATING CHECK: Player_B2 Serve 221 SpeedMult:1.98
+
+160.6s RALLY ACTION: TeamB Player_B2 1 Serve
+
+160.9s [Director] Rally: end-on drift
+
+161.2s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+161.2s RATING CHECK: Player_A1 Dig 238 JitterMult:0.15
+
+161.2s RALLY ACTION: TeamA Player_A1 1 Dig
+
+161.6s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+161.6s RALLY ACTION: TeamA Player_A2 2 Set
+
+162.4s RATING CHECK: Player_B2 Movement 163 SpeedMult:2.14
+
+162.4s RATING CHECK: Player_B1 Block 227 Outcome:Controlled
+
+162.4s BLOCK ATTEMPT: Player_B1
+
+162.4s RATING CHECK: Player_A1 Spike 252 SpeedMult:2.18
+
+162.4s RALLY ACTION: TeamA Player_A1 3 Spike
+
+162.4s BLOCK SUCCESS: Player_B1
+
+162.4s [COMMENTARY] Controlled block! Player_B1 rebounded the ball back to the attacker's side!
+
+162.9s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+162.9s RALLY ACTION: TeamA Player_A2 2 Set
+
+163.7s RATING CHECK: Player_B2 Movement 163 SpeedMult:2.14
+
+163.7s RATING CHECK: Player_A1 Spike 252 SpeedMult:2.18
+
+163.7s RALLY ACTION: TeamA Player_A1 3 Spike
+
+163.9s [Point] awarded: SYDNEY RIPTIDE by Kill after 3 attack(s), 7 touches
+
+163.9s SYDNEY RIPTIDE point: set 1 4-4, sets 0-0
+
+163.9s [Director] Kill: swoop in close
+
+163.9s [MatchReporter] POST /api/unity/match-progress failed (attempt 1/1): 409 HTTP/1.1 409 Conflict {"error":"This match is not being watched."}
+
+163.9s [Director] cutaway: the scorer, Player_A1 (1.7 s)
+
+165.6s [Director] cutaway: the other side, Player_B2 (1.0 s)
+
+166.7s [Director] Serve: low off the sand
+
+167.0s [Between points] 3.1 s: point to A by Kill | score SYDNEY RIPTIDE 0 4 - 4 0 HAVANA SALSA SPIKERS | umpire: team to serve | high five: Player_A1 and Player_A2 | Player_B1 Lost_MC1 | Player_B2 Lost_FeelDown | close-up: Player_A1 | placed: Player_A2 at (0.20, 0.72) in Player_A1's frame, turned 145°, scales 1.00/1.00 | the other side: Player_B2
+
+167.3s [Point] decided: HAVANA SALSA SPIKERS by Kill (server A, final attack by B after 2, chance 0.492)
+
+167.3s RATING CHECK: Player_B2 Movement 163 SpeedMult:2.14
+
+167.3s RATING CHECK: Player_A1 Serve 242 SpeedMult:2.11
+
+167.3s RALLY ACTION: TeamA Player_A1 1 Serve
+
+167.3s [Director] Rally: high on the umpire's side
+
+167.9s RATING CHECK: Player_B1 Movement 168 SpeedMult:2.18
+
+167.9s RATING CHECK: Player_B2 Dig 241 JitterMult:0.15
+
+167.9s RALLY ACTION: TeamB Player_B2 1 Dig
+
+168.4s RATING CHECK: Player_B2 Movement 163 SpeedMult:2.14
+
+168.4s RALLY ACTION: TeamB Player_B1 2 Set
+
+169.3s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+169.3s RATING CHECK: Player_A2 Block 158 Outcome:Touch
+
+169.3s BLOCK ATTEMPT: Player_A2
+
+169.3s RATING CHECK: Player_B2 Spike 235 SpeedMult:2.07
+
+169.3s RALLY ACTION: TeamB Player_B2 3 Spike
+
+169.3s BLOCK TOUCH: Player_A2
+
+169.3s [COMMENTARY] Touch! Player_A2 got a hand on the ball, slowing it down. The rally continues!
+
+169.5s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+169.5s RATING CHECK: Player_A1 Dig 238 JitterMult:0.15
+
+169.5s RALLY ACTION: TeamA Player_A1 1 Dig
+
+170.2s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+170.2s RALLY ACTION: TeamA Player_A2 2 Set
+
+172.0s [UnityMemory] Configuration Parameters - Can be set up in boot.config
+
+172.0s     "memorysetup-allocator-temp-initial-block-size-main=262144"
+
+172.0s     "memorysetup-allocator-temp-initial-block-size-worker=262144"
+
+172.0s     "memorysetup-temp-allocator-size-audio-worker=65536"
+
+172.0s     "memorysetup-temp-allocator-size-background-worker=32768"
+
+172.0s     "memorysetup-bucket-allocator-granularity=16"
+
+172.0s     "memorysetup-bucket-allocator-bucket-count=8"
+
+172.0s     "memorysetup-bucket-allocator-block-size=4194304"
+
+172.0s     "memorysetup-bucket-allocator-block-count=1"
+
+172.0s     "memorysetup-main-allocator-block-size=16777216"
+
+172.0s     "memorysetup-thread-allocator-block-size=16777216"
+
+172.0s     "memorysetup-gfx-main-allocator-block-size=16777216"
+
+172.0s     "memorysetup-gfx-thread-allocator-block-size=16777216"
+
+172.0s     "memorysetup-cache-allocator-block-size=4194304"
+
+172.1s     "memorysetup-typetree-allocator-block-size=2097152"
+
+172.1s     "memorysetup-profiler-bucket-allocator-granularity=16"
+
+172.1s     "memorysetup-profiler-bucket-allocator-bucket-count=8"
+
+172.1s     "memorysetup-profiler-bucket-allocator-block-size=4194304"
+
+172.1s     "memorysetup-profiler-bucket-allocator-block-count=1"
+
+172.1s     "memorysetup-profiler-allocator-block-size=16777216"
+
+172.1s     "memorysetup-profiler-editor-allocator-block-size=1048576"
+
+172.1s     "memorysetup-temp-allocator-size-main=4194304"
+
+172.1s     "memorysetup-job-temp-allocator-block-size=2097152"
+
+172.1s     "memorysetup-job-temp-allocator-block-size-background=1048576"
+
+172.1s     "memorysetup-job-temp-allocator-reduction-small-platforms=262144"
+
+172.1s Input System module state changed to: Initialized.
+
+172.1s [Physics::Module] Initialized fallback backend.
+
+172.1s [Physics::Module] Id: 0xdecafbad
+
+172.1s Loading player data from data.unity3d
+
+172.1s Initialize engine version: 6000.3.16f1 (a56f230f6470)
+
+172.1s [Subsystems] Discovering subsystems at path UnitySubsystems
+
+172.1s Creating WebGL 2.0 context.
+172.1s Renderer: WebKit WebGL
+
+172.1s Vendor:   WebKit
+
+172.1s Version:  OpenGL ES 3.0 (WebGL 2.0 (OpenGL ES 3.0 Chromium))
+
+172.1s GLES:     3
+
+172.1s  EXT_clip_control EXT_color_buffer_float EXT_color_buffer_half_float EXT_conservative_depth EXT_depth_clamp EXT_disjoint_timer_query_webgl2 EXT_float_blend EXT_polygon_offset_clamp EXT_render_snorm EXT_texture_compression_bptc EXT_texture_compression_rgtc EXT_texture_filter_anisotropic EXT_texture_mirror_clamp_to_edge EXT_texture_norm16 KHR_parallel_shader_compile NV_shader_noperspective_interpolation OES_draw_buffers_indexed OES_sample_variables OES_shader_multisample_interpolation OES_texture_float_linear OVR_multiview2 WEBGL_blend_func_extended WEBGL_clip_cull_distance WEBGL_compressed_texture_s3tc WEBGL_compressed_texture_s3tc_srgb WEBGL_debug_renderer_info WEBGL_debug_shaders WEBGL_lose_context WEBGL_multi_draw WEBGL_polygon_mode WEBGL_provoking_vertex WEBGL_shader_pixel_local_storage WEBGL_stencil_texturing GL_EXT_clip_control GL_EXT_color_buffer_float GL_EXT_color_buffer_half_float GL_EXT_conservative_depth GL_EXT_depth_clamp GL_EXT_disjoint_timer_query_webgl2 GL_EXT_float_blend GL_EXT_polygon_offset_
+
+172.1s clamp GL_EXT_render_snorm GL_EXT_texture_compression_bptc GL_EXT_texture_compression_rgtc GL_EXT_texture_filter_anisotropic GL_EXT_texture_mirror_clamp_to_edge GL_EXT_texture_norm16 GL_KHR_parallel_shader_compile GL_NV_shader_noperspective_interpolation GL_OES_draw_buffers_indexed GL_OES_sample_variables GL_OES_shader_multisample_interpolation GL_OES_texture_float_linear GL_OVR_multiview2 GL_WEBGL_blend_func_extended GL_WEBGL_clip_cull_distance GL_WEBGL_compressed_texture_s3tc GL_WEBGL_compressed_texture_s3tc_srgb GL_WEBGL_debug_renderer_info GL_WEBGL_debug_shaders GL_WEBGL_lose_context GL_WEBGL_multi_draw GL_WEBGL_polygon_mode GL_WEBGL_provoking_vertex GL_WEBGL_shader_pixel_local_storage GL_WEBGL_stencil_texturing
+
+172.1s OPENGL LOG: Creating OpenGL ES 3.0 graphics device ; Context level  <OpenGL ES 3.0> ; Context handle 1
+
+172.1s [Physics::Module] Selected backend.
+
+172.1s [Physics::Module] Name: PhysX
+
+172.1s [Physics::Module] Id: 0xf2b8ea05
+
+172.1s [Physics::Module] SDK Version: 4.1.2
+
+172.1s [Physics::Module] Integration Version: 1.0.0
+
+172.1s [Physics::Module] Threading Mode: Single-Threaded
+
+172.1s ERROR: Shader 
+172.1s Hidden/CoreSRP/CoreCopy shader is not supported on this GPU (none of subshaders/fallbacks are suitable)
+
+172.1s ERROR: Shader 
+172.1s Hidden/Universal Render Pipeline/StencilDitherMaskSeed shader is not supported on this GPU (none of subshaders/fallbacks are suitable)
+
+172.1s ERROR: Shader 
+172.1s Hidden/Universal/HDRDebugView shader is not supported on this GPU (none of subshaders/fallbacks are suitable)
+
+172.1s <b>[App UI]</b> Unable to find an AppUISettings instance, creating a default one...
+
+172.1s Input System initialize...
+
+172.3s Couldn't create a Convex Mesh from source mesh, within the maximum polygons limit (256). The partial hull will be used. Consider simplifying your mesh. Source mesh name: SM_rack_balls_Volleyball_1
+
+172.7s UnloadTime: 0.200000 ms
+
+172.7s [CourtsideBoards] 18 boards dressed around the court: 9 Beach Volleyball Empire, 9 GB Sunglasses
+
+172.7s Audio context resumed after 0.595 seconds.
+172.7s [Sound] crowd volume 1.00
+
+172.7s [Sound] commentary volume 1.00
+
+172.7s [Camera] remembered looks from the page: played game:1, watched tv:1
+
+172.7s [Between points] from the page: skip to next serve off, skip replays off
+
+173.1s [UnityCache] 'http://localhost:4956/unity-build/Build/Volleyball_WebGL_Uncompressed_2.data' successfully downloaded and stored in the browser cache
+174.7s [BoostUIController] Created Polished Attack and Defence boost buttons.
+
+174.7s [MatchManager] AudioManager initialized.
+
+174.7s [UnityMatchDataLoader] careerSaveId 1 (from page URL)
+
+174.7s [UnityMatchDataLoader] GET /api/unity/match-state?careerSaveId=1&matchId=2
+
+174.7s WEATHER SUNNY
+
+174.7s Trying to get length of sound which is not loaded yet.
+174.7s Trying to get length of sound which is not loaded yet.
+174.7s [Director] Serve: beside the server
+
+174.7s The character with Unicode value \u2600 was not found in the [LiberationSans SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [WeatherText].
+
+174.9s [UnityMatchDataLoader] point chance for the home pair: 0.4896
+
+174.9s [UnityMatchDataLoader] continent asia, time of day sunset, weather sunny
+
+174.9s [UnityMatchDataLoader] game difficulty medium (a played match grades and plays at it)
+
+174.9s [UnityMatchDataLoader] event (null), kits (null), boards (null) '(null)', manual allowed
+
+174.9s [UnityMatchDataLoader] Player_A1: skin 'Light' resolved via band 'Light' -> #EEC9B8
+
+174.9s [UnityMatchDataLoader] Player_A1 <- Camila Santiago | team Sydney Riptide (home) | skinTone Light | kit #1e3a8a/#f59e0b | appearance controller found | applied ovr 80 pwr 85 spd 73 def 78 srv 74 blk 89 sta 79 mor 75 fit 100 fat 0 | (not applied: injured False)
+
+174.9s [UnityMatchDataLoader] Player_A2: skin 'Light' resolved via band 'Light' -> #EEC9B8
+
+174.9s [UnityMatchDataLoader] Player_A2 <- Nurul Ain | team Sydney Riptide (home) | skinTone Light | kit #1e3a8a/#f59e0b | appearance controller found | applied ovr 67 pwr 55 spd 74 def 70 srv 78 blk 52 sta 73 mor 75 fit 100 fat 0 | (not applied: injured False)
+
+174.9s [UnityMatchDataLoader] Player_B1: skin 'Medium' resolved via band 'Medium' -> #AA7339
+
+174.9s [UnityMatchDataLoader] Player_B1 <- Valentina Torres | team Cancún Coral Storm (away) | skinTone Medium | kit #C2185B/#6CC5F0 | appearance controller found | applied ovr 81 pwr 79 spd 84 def 82 srv 82 blk 80 sta 80 mor 66 fit 80 fat 0 | (not applied: injured False)
+
+174.9s [UnityMatchDataLoader] Player_B2: skin 'Medium Light' resolved via band 'Medium Light' -> #D8A68C
+
+174.9s [UnityMatchDataLoader] Player_B2 <- Sofía Herrera | team Cancún Coral Storm (away) | skinTone Medium Light | kit #C2185B/#6CC5F0 | appearance controller found | applied ovr 79 pwr 76 spd 82 def 80 srv 80 blk 78 sta 78 mor 66 fit 80 fat 0 | (not applied: injured False)
+
+174.9s [UnityMatchDataLoader] team names: SYDNEY RIPTIDE (home) vs CANCÚN CORAL STORM (away)
+
+174.9s [UnityMatchDataLoader] applied 4 of 4 player(s)
+
+174.9s [Venue] 'asia' is waiting on Rob; playing at oceania
+
+174.9s Trying to get length of sound which is not loaded yet.
+174.9s Trying to get length of sound which is not loaded yet.
+175.0s Trying to get length of sound which is not loaded yet.
+175.0s Trying to get length of sound which is not loaded yet.
+175.0s Trying to get length of sound which is not loaded yet.
+175.0s Trying to get length of sound which is not loaded yet.
+175.0s Trying to get length of sound which is not loaded yet.
+175.0s Trying to get length of sound which is not loaded yet.
+175.1s Trying to get length of sound which is not loaded yet.
+175.1s Trying to get length of sound which is not loaded yet.
+175.1s Trying to get length of sound which is not loaded yet.
+175.1s Trying to get length of sound which is not loaded yet.
+175.2s Trying to get length of sound which is not loaded yet.
+175.3s Trying to get length of sound which is not loaded yet.
+175.3s Trying to get length of sound which is not loaded yet.
+175.3s Trying to get length of sound which is not loaded yet.
+175.4s Trying to get length of sound which is not loaded yet.
+175.4s [Venue] oceania (Island Beach) in after 0.7s, 74.9 MB; features on 7, off 0
+
+175.4s WEATHER SUNNY
+
+175.4s [TimeOfDay] Midday in Sunny: sun 50 degrees up, intensity 2.00, shadows 1.00; floodlights off
+
+175.4s [TimeOfDay] Sunset in Sunny: sun 7 degrees up, intensity 1.50, shadows 0.80; floodlights off
+
+175.4s [Camera] keep-out rebuilt for the venue: 442 boxes, 414 of them props
+
+175.4s [MatchManager] match starts after 3.2s: match data applied; home point chance 0.4896
+
+175.4s [MatchManager] ratings in play Player_A1 (Camila Santiago): ovr 80 pwr 85 spd 73 def 78 srv 74 blk 89 sta 79 mor 75
+
+175.4s [MatchManager] ratings in play Player_A2 (Nurul Ain): ovr 67 pwr 55 spd 74 def 70 srv 78 blk 52 sta 73 mor 75
+
+175.4s [MatchManager] ratings in play Player_B1 (Valentina Torres): ovr 81 pwr 79 spd 84 def 82 srv 82 blk 80 sta 80 mor 66
+
+175.4s [MatchManager] ratings in play Player_B2 (Sofía Herrera): ovr 79 pwr 76 spd 82 def 80 srv 80 blk 78 sta 78 mor 66
+
+175.4s [Director] cutaway: the walk-on (5.5 s)
+
+175.6s [Crowd] 34 real people in the front 1 row(s), 170 cards behind, 24 bystanders; 64 team fans (A #1E3A8A, B #C2185B); 45 different people; cards baked in 112 ms
+
+175.6s Trying to get length of sound which is not loaded yet.
+175.6s Trying to get length of sound which is not loaded yet.
+175.7s Trying to get length of sound which is not loaded yet.
+175.7s Trying to get length of sound which is not loaded yet.
+175.7s Trying to get length of sound which is not loaded yet.
+175.7s Trying to get length of sound which is not loaded yet.
+175.8s Trying to get length of sound which is not loaded yet.
+175.8s Trying to get length of sound which is not loaded yet.
+175.8s Trying to get length of sound which is not loaded yet.
+175.8s Trying to get length of sound which is not loaded yet.
+175.8s Trying to get length of sound which is not loaded yet.
+175.8s Trying to get length of sound which is not loaded yet.
+175.9s Trying to get length of sound which is not loaded yet.
+175.9s Trying to get length of sound which is not loaded yet.
+175.9s Trying to get length of sound which is not loaded yet.
+175.9s Trying to get length of sound which is not loaded yet.
+175.9s Trying to get length of sound which is not loaded yet.
+176.0s Trying to get length of sound which is not loaded yet.
+176.0s Trying to get length of sound which is not loaded yet.
+176.0s Trying to get length of sound which is not loaded yet.
+176.0s Trying to get length of sound which is not loaded yet.
+176.0s Trying to get length of sound which is not loaded yet.
+176.1s Trying to get length of sound which is not loaded yet.
+176.1s Trying to get length of sound which is not loaded yet.
+176.1s Trying to get length of sound which is not loaded yet.
+176.1s Trying to get length of sound which is not loaded yet.
+176.1s Trying to get length of sound which is not loaded yet.
+176.2s Trying to get length of sound which is not loaded yet.
+176.2s Trying to get length of sound which is not loaded yet.
+176.2s Trying to get length of sound which is not loaded yet.
+176.2s Trying to get length of sound which is not loaded yet.
+176.2s [Commentary] 48 of 90 clips loaded from http://localhost:4956/unity-build/StreamingAssets/commentary: the 48 its LINES.txt lists (48 recorded before 1.2; B4's 42 are Rob's to record)
+
+176.4s [UnityCache] 'http://localhost:4956/unity-build/StreamingAssets/Venues/venue-oceania.bundle' successfully downloaded and stored in the browser cache
+180.0s [Director] cutaway: the walk-on: Player_A1 (1.5 s)
+
+181.6s [Director] cutaway: the walk-on: Player_A2 (1.5 s)
+
+183.1s [Director] cutaway: the walk-on: Player_B1 (1.5 s)
+
+184.6s [Director] cutaway: the walk-on: Player_B2 (1.5 s)
+
+186.1s [Match moments] walk-on took 10.7 s
+
+186.1s [Director] Serve: low off the sand
+
+186.4s [Point] decided: CANCÚN CORAL STORM by Kill (server A, final attack by B after 4, chance 0.490)
+
+186.4s RATING CHECK: Player_B1 Movement 172 SpeedMult:2.22
+
+186.4s RATING CHECK: Player_A2 Serve 214 SpeedMult:1.93
+
+186.4s RALLY ACTION: TeamA Player_A2 1 Serve
+
+186.4s [MatchManager] jump heights: net top 2.24 m, spike lift 0.58 m, block lift 0.46 m
+
+186.7s [Director] Rally: end-on drift
+
+187.1s RATING CHECK: Player_B2 Movement 167 SpeedMult:2.18
+
+187.1s RATING CHECK: Player_B1 Dig 254 JitterMult:0.15
+
+187.1s RALLY ACTION: TeamB Player_B1 1 Dig
+
+187.4s RATING CHECK: Player_B1 Movement 172 SpeedMult:2.22
+
+187.4s RALLY ACTION: TeamB Player_B2 2 Set
+
+188.3s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+188.3s RATING CHECK: Player_A1 Block 232 Outcome:Touch
+
+188.4s BLOCK ATTEMPT: Player_A1
+
+188.4s RATING CHECK: Player_B1 Spike 248 SpeedMult:2.15
+
+188.4s RALLY ACTION: TeamB Player_B1 3 Spike
+
+188.4s BLOCK TOUCH: Player_A1
+
+188.4s [COMMENTARY] Touch! Player_A1 got a hand on the ball, slowing it down. The rally continues!
+
+188.5s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+188.5s RATING CHECK: Player_A2 Dig 223 JitterMult:0.15
+
+188.5s RALLY ACTION: TeamA Player_A2 1 Dig
+
+189.1s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+189.1s RALLY ACTION: TeamA Player_A1 2 Set
+
+190.0s RATING CHECK: Player_B1 Movement 172 SpeedMult:2.22
+
+190.0s RATING CHECK: Player_B2 Block 222 Outcome:Controlled
+
+190.0s BLOCK ATTEMPT: Player_B2
+
+190.0s RATING CHECK: Player_A2 Spike 201 SpeedMult:1.84
+
+190.0s RALLY ACTION: TeamA Player_A2 3 Spike
+
+190.1s BLOCK SUCCESS: Player_B2
+
+190.1s [COMMENTARY] Controlled block! Player_B2 rebounded the ball back to the attacker's side!
+
+191.0s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+191.0s RALLY ACTION: TeamA Player_A1 2 Set
+
+191.9s RATING CHECK: Player_B1 Movement 172 SpeedMult:2.22
+
+191.9s RATING CHECK: Player_B2 Block 222 Outcome:Touch
+
+191.9s BLOCK ATTEMPT: Player_B2
+
+191.9s RATING CHECK: Player_A2 Spike 201 SpeedMult:1.84
+
+191.9s RALLY ACTION: TeamA Player_A2 3 Spike
+
+192.0s BLOCK TOUCH: Player_B2
+
+192.0s [COMMENTARY] Touch! Player_B2 got a hand on the ball, slowing it down. The rally continues!
+
+192.2s RATING CHECK: Player_B2 Movement 167 SpeedMult:2.18
+
+192.2s RATING CHECK: Player_B1 Dig 254 JitterMult:0.15
+
+192.2s RALLY ACTION: TeamB Player_B1 1 Dig
+
+192.8s RATING CHECK: Player_B1 Movement 172 SpeedMult:2.22
+
+192.8s RALLY ACTION: TeamB Player_B2 2 Set
+
+193.4s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+193.5s RATING CHECK: Player_B1 Spike 248 SpeedMult:2.15
+
+193.5s RALLY ACTION: TeamB Player_B1 3 Spike
+
+193.6s [Point] awarded: CANCÚN CORAL STORM by Kill after 5 attack(s), 15 touches
+
+193.6s CANCÚN CORAL STORM point: set 1 0-1, sets 0-0
+
+193.6s Trying to get length of sound which is not loaded yet.
+193.6s Trying to get length of sound which is not loaded yet.
+193.6s Trying to get length of sound which is not loaded yet.
+193.6s [Director] Kill: swoop in close
+
+193.6s [Director] cutaway: the scorer, Player_B1 (1.1 s)
+
+193.6s [MatchReporter] POST /api/unity/match-progress failed (attempt 1/1): 409 HTTP/1.1 409 Conflict {"error":"This match is not being watched."}
+
+194.7s [Director] cutaway: the other side, Player_A2 (0.7 s)
+
+195.4s [Director] cutaway: replay (2.2 s)
+
+197.6s [Between points] 4.0 s: point to B by Kill (big: a diving save) | score SYDNEY RIPTIDE 0 0 - 1 0 CANCÚN CORAL STORM | umpire: team to serve | Player_B1 Won_MC2 | Player_B2 Won_ThumbsUp2 | Player_A1 Lost_MC1 | Player_A2 Lost_MC2 | close-up: Player_B1 | the other side: Player_A2 | replay 1.2 s at 0.6x (2.1 s)
+
+197.6s [Director] Serve: beside the server
+
+197.9s [Point] decided: CANCÚN CORAL STORM by Kill (server B, final attack by B after 3, chance 0.490)
+
+197.9s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+197.9s RATING CHECK: Player_B1 Serve 235 SpeedMult:2.07
+
+197.9s RALLY ACTION: TeamB Player_B1 1 Serve
+
+198.2s [Director] Rally: high on the umpire's side
+
+198.4s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+198.4s RATING CHECK: Player_A1 Dig 238 JitterMult:0.15
+
+198.4s RALLY ACTION: TeamA Player_A1 1 Dig
+
+199.1s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+199.1s RALLY ACTION: TeamA Player_A2 2 Set
+
+199.8s RATING CHECK: Player_B1 Movement 172 SpeedMult:2.22
+
+199.8s RATING CHECK: Player_B1 Block 226 Outcome:Controlled
+
+199.8s BLOCK ATTEMPT: Player_B1
+
+199.8s RATING CHECK: Player_A1 Spike 252 SpeedMult:2.18
+
+199.8s RALLY ACTION: TeamA Player_A1 3 Spike
+
+199.9s BLOCK SUCCESS: Player_B1
+
+199.9s [COMMENTARY] Controlled block! Player_B1 rebounded the ball back to the attacker's side!
+
+200.8s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+200.8s RALLY ACTION: TeamA Player_A2 2 Set
+
+201.7s RATING CHECK: Player_B1 Movement 172 SpeedMult:2.22
+
+201.7s RATING CHECK: Player_B1 Block 226 Outcome:Controlled
+
+201.7s BLOCK ATTEMPT: Player_B1
+
+201.7s RATING CHECK: Player_A1 Spike 252 SpeedMult:2.18
+
+201.7s RALLY ACTION: TeamA Player_A1 3 Spike
+
+201.8s BLOCK SUCCESS: Player_B1
+
+201.8s [COMMENTARY] Controlled block! Player_B1 rebounded the ball back to the attacker's side!
+
+202.7s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+202.7s RALLY ACTION: TeamA Player_A2 2 Set
+
+203.7s RATING CHECK: Player_B1 Movement 172 SpeedMult:2.22
+
+203.7s RATING CHECK: Player_B1 Block 226 Outcome:Controlled
+
+203.7s BLOCK ATTEMPT: Player_B1
+
+203.7s RATING CHECK: Player_A1 Spike 252 SpeedMult:2.18
+
+203.7s RALLY ACTION: TeamA Player_A1 3 Spike
+
+203.7s BLOCK SUCCESS: Player_B1
+
+203.7s [COMMENTARY] Controlled block! Player_B1 rebounded the ball back to the attacker's side!
+
+204.7s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+204.7s RALLY ACTION: TeamA Player_A2 2 Set
+
+205.7s RATING CHECK: Player_B1 Movement 172 SpeedMult:2.22
+
+205.7s RATING CHECK: Player_B1 Block 226 Outcome:Controlled
+
+205.7s BLOCK ATTEMPT: Player_B1
+
+205.7s RATING CHECK: Player_A1 Spike 252 SpeedMult:2.18
+
+205.7s RALLY ACTION: TeamA Player_A1 3 Spike
+
+205.8s BLOCK SUCCESS: Player_B1
+
+205.8s [COMMENTARY] Controlled block! Player_B1 rebounded the ball back to the attacker's side!
+
+206.7s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+206.8s RALLY ACTION: TeamA Player_A2 2 Set
+
+207.6s RATING CHECK: Player_B1 Movement 172 SpeedMult:2.22
+
+207.6s RATING CHECK: Player_B1 Block 226 Outcome:Touch
+
+207.6s BLOCK ATTEMPT: Player_B1
+
+207.6s RATING CHECK: Player_A1 Spike 252 SpeedMult:2.18
+
+207.6s RALLY ACTION: TeamA Player_A1 3 Spike
+
+207.7s BLOCK TOUCH: Player_B1
+
+207.7s [COMMENTARY] Touch! Player_B1 got a hand on the ball, slowing it down. The rally continues!
+
+207.8s RATING CHECK: Player_B2 Movement 167 SpeedMult:2.18
+
+207.8s RATING CHECK: Player_B1 Dig 254 JitterMult:0.15
+
+207.8s RALLY ACTION: TeamB Player_B1 1 Dig
+
+208.5s RATING CHECK: Player_B1 Movement 172 SpeedMult:2.22
+
+208.5s RALLY ACTION: TeamB Player_B2 2 Set
+
+209.4s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+209.4s RATING CHECK: Player_B1 Spike 248 SpeedMult:2.15
+
+209.5s RALLY ACTION: TeamB Player_B1 3 Spike
+
+209.6s [Point] awarded: CANCÚN CORAL STORM by Kill after 7 attack(s), 20 touches
+
+209.6s CANCÚN CORAL STORM point: set 1 0-2, sets 0-0
+
+209.6s Trying to get length of sound which is not loaded yet.
+209.6s Trying to get length of sound which is not loaded yet.
+209.6s [Director] Kill: cut close on the scorer
+
+209.6s [Director] cutaway: the scorer, Player_B1 (1.7 s)
+
+209.6s [MatchReporter] POST /api/unity/match-progress failed (attempt 1/1): 409 HTTP/1.1 409 Conflict {"error":"This match is not being watched."}
+
+211.3s [Director] cutaway: the other side, Player_A1 (1.0 s)
+
+212.3s [Director] Serve: low off the sand
+
+212.7s [Between points] 3.1 s: point to B by Kill | score SYDNEY RIPTIDE 0 0 - 2 0 CANCÚN CORAL STORM | umpire: team to serve | Player_B1 Won_Yay | Player_B2 Won_Cheer | Player_A1 Lost_Angry | Player_A2 Lost_MC1 | close-up: Player_B1 | the other side: Player_A1
+
+213.0s [Point] decided: SYDNEY RIPTIDE by Kill (server B, final attack by A after 3, chance 0.490)
+
+213.0s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+213.0s RATING CHECK: Player_B1 Serve 235 SpeedMult:2.07
+
+213.0s RALLY ACTION: TeamB Player_B1 1 Serve
+
+213.0s [Director] Rally: end-on drift
+
+213.5s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+213.5s RATING CHECK: Player_A1 Dig 238 JitterMult:0.15
+
+213.5s RALLY ACTION: TeamA Player_A1 1 Dig
+
+214.0s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+214.0s RALLY ACTION: TeamA Player_A2 2 Set
+
+214.8s RATING CHECK: Player_B1 Movement 172 SpeedMult:2.22
+
+214.8s RATING CHECK: Player_B1 Block 226 Outcome:Touch
+
+214.8s BLOCK ATTEMPT: Player_B1
+
+214.8s RATING CHECK: Player_A1 Spike 252 SpeedMult:2.18
+
+214.8s RALLY ACTION: TeamA Player_A1 3 Spike
+
+214.9s BLOCK TOUCH: Player_B1
+
+214.9s [COMMENTARY] Touch! Player_B1 got a hand on the ball, slowing it down. The rally continues!
+
+215.0s RATING CHECK: Player_B2 Movement 167 SpeedMult:2.18
+
+215.0s RATING CHECK: Player_B1 Dig 254 JitterMult:0.15
+
+215.0s RALLY ACTION: TeamB Player_B1 1 Dig
+
+215.8s RATING CHECK: Player_B1 Movement 172 SpeedMult:2.22
+
+215.8s RALLY ACTION: TeamB Player_B2 2 Set
+
+216.5s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+216.5s RATING CHECK: Player_A1 Block 232 Outcome:Controlled
+
+216.5s BLOCK ATTEMPT: Player_A1
+
+216.5s RATING CHECK: Player_B1 Spike 248 SpeedMult:2.15
+
+216.5s RALLY ACTION: TeamB Player_B1 3 Spike
+
+216.6s BLOCK SUCCESS: Player_A1
+
+216.6s [COMMENTARY] Controlled block! Player_A1 rebounded the ball back to the attacker's side!
+
+217.5s RATING CHECK: Player_B1 Movement 172 SpeedMult:2.22
+
+217.6s RALLY ACTION: TeamB Player_B2 2 Set
+
+218.4s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+218.4s RATING CHECK: Player_A1 Block 232 Outcome:Controlled
+
+218.4s BLOCK ATTEMPT: Player_A1
+
+218.4s RATING CHECK: Player_B1 Spike 248 SpeedMult:2.15
+
+218.4s RALLY ACTION: TeamB Player_B1 3 Spike
+
+218.5s BLOCK SUCCESS: Player_A1
+
+218.5s [COMMENTARY] Controlled block! Player_A1 rebounded the ball back to the attacker's side!
+
+219.5s RATING CHECK: Player_B1 Movement 172 SpeedMult:2.22
+
+219.5s RALLY ACTION: TeamB Player_B2 2 Set
+
+220.4s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+220.4s RATING CHECK: Player_A1 Block 232 Outcome:Controlled
+
+220.4s BLOCK ATTEMPT: Player_A1
+
+220.4s RATING CHECK: Player_B1 Spike 248 SpeedMult:2.15
+
+220.4s RALLY ACTION: TeamB Player_B1 3 Spike
+
+220.4s BLOCK SUCCESS: Player_A1
+
+220.4s [COMMENTARY] Controlled block! Player_A1 rebounded the ball back to the attacker's side!
+
+220.9s RATING CHECK: Player_B1 Movement 172 SpeedMult:2.22
+
+220.9s RALLY ACTION: TeamB Player_B2 2 Set
+
+221.8s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+221.8s RATING CHECK: Player_A1 Block 232 Outcome:Controlled
+
+221.8s BLOCK ATTEMPT: Player_A1
+
+221.8s RATING CHECK: Player_B1 Spike 248 SpeedMult:2.15
+
+221.8s RALLY ACTION: TeamB Player_B1 3 Spike
+
+221.9s BLOCK SUCCESS: Player_A1
+
+221.9s [COMMENTARY] Controlled block! Player_A1 rebounded the ball back to the attacker's side!
+
+222.9s RATING CHECK: Player_B1 Movement 172 SpeedMult:2.22
+
+222.9s RALLY ACTION: TeamB Player_B2 2 Set
+
+223.9s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+223.9s RATING CHECK: Player_A1 Block 232 Outcome:Controlled
+
+223.9s BLOCK ATTEMPT: Player_A1
+
+223.9s RATING CHECK: Player_B1 Spike 248 SpeedMult:2.15
+
+223.9s RALLY ACTION: TeamB Player_B1 3 Spike
+
+223.9s BLOCK SUCCESS: Player_A1
+
+224.0s [COMMENTARY] Controlled block! Player_A1 rebounded the ball back to the attacker's side!
+
+225.0s RATING CHECK: Player_B1 Movement 172 SpeedMult:2.22
+
+225.0s RALLY ACTION: TeamB Player_B2 2 Set
+
+225.8s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+225.8s RATING CHECK: Player_A1 Block 232 Outcome:Controlled
+
+225.8s BLOCK ATTEMPT: Player_A1
+
+225.8s RATING CHECK: Player_B1 Spike 248 SpeedMult:2.15
+
+225.8s RALLY ACTION: TeamB Player_B1 3 Spike
+
+225.9s BLOCK SUCCESS: Player_A1
+
+225.9s [COMMENTARY] Controlled block! Player_A1 rebounded the ball back to the attacker's side!
+
+226.8s RATING CHECK: Player_B1 Movement 172 SpeedMult:2.22
+
+226.8s RALLY ACTION: TeamB Player_B2 2 Set
+
+227.6s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+227.6s RATING CHECK: Player_A1 Block 232 Outcome:Touch
+
+227.6s BLOCK ATTEMPT: Player_A1
+
+227.6s RATING CHECK: Player_B1 Spike 248 SpeedMult:2.15
+
+227.6s RALLY ACTION: TeamB Player_B1 3 Spike
+
+227.7s BLOCK TOUCH: Player_A1
+
+227.7s [COMMENTARY] Touch! Player_A1 got a hand on the ball, slowing it down. The rally continues!
+
+227.8s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+227.8s RATING CHECK: Player_A1 Dig 238 JitterMult:0.15
+
+227.9s RALLY ACTION: TeamA Player_A1 1 Dig
+
+228.5s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+228.5s RALLY ACTION: TeamA Player_A2 2 Set
+
+229.2s RATING CHECK: Player_B1 Movement 172 SpeedMult:2.22
+
+229.2s RATING CHECK: Player_A1 Spike 252 SpeedMult:2.18
+
+229.2s RALLY ACTION: TeamA Player_A1 3 Spike
+
+229.5s [Point] awarded: SYDNEY RIPTIDE by Kill after 10 attack(s), 30 touches
+
+229.5s SYDNEY RIPTIDE point: set 1 1-2, sets 0-0
+
+229.5s Trying to get length of sound which is not loaded yet.
+229.5s [Director] Kill: swoop in close
+
+229.5s [Director] cutaway: the scorer, Player_A1 (1.1 s)
+
+229.5s [MatchReporter] POST /api/unity/match-progress failed (attempt 1/1): 409 HTTP/1.1 409 Conflict {"error":"This match is not being watched."}
+
+230.6s [Director] Between: the venue
+
+230.6s [Director] cutaway: the other side, Player_B1 (0.7 s)
+
+231.3s [Director] cutaway: replay (2.2 s)
+
+233.5s [Between points] 4.0 s: point to A by Kill (big: a diving save) | score SYDNEY RIPTIDE 0 1 - 2 0 CANCÚN CORAL STORM | umpire: team to serve | Player_A1 Won_Cartwheel | Player_A2 Won_ThumbsUp | Player_B1 Lost_Cry | Player_B2 Lost_FeelDown | close-up: Player_A1 | the other side: Player_B1 | replay 1.2 s at 0.6x (2.1 s)
+
+233.5s [Director] Serve: push-in from behind the server
+
+233.8s [Point] decided: CANCÚN CORAL STORM by Kill (server A, final attack by B after 3, chance 0.490)
+
+233.8s RATING CHECK: Player_B1 Movement 172 SpeedMult:2.22
+
+233.8s RATING CHECK: Player_A2 Serve 214 SpeedMult:1.93
+
+233.8s RALLY ACTION: TeamA Player_A2 1 Serve
+
+234.1s [Director] Rally: high on the umpire's side
+
+234.5s RATING CHECK: Player_B2 Movement 167 SpeedMult:2.18
+
+234.5s RATING CHECK: Player_B1 Dig 254 JitterMult:0.15
+
+234.5s RALLY ACTION: TeamB Player_B1 1 Dig
+
+235.2s RATING CHECK: Player_B1 Movement 172 SpeedMult:2.22
+
+235.2s RALLY ACTION: TeamB Player_B2 2 Set
+
+236.1s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+236.1s RATING CHECK: Player_A1 Block 232 Outcome:Touch
+
+236.1s BLOCK ATTEMPT: Player_A1
+
+236.1s RATING CHECK: Player_B1 Spike 248 SpeedMult:2.15
+
+236.1s RALLY ACTION: TeamB Player_B1 3 Spike
+
+236.2s BLOCK TOUCH: Player_A1
+
+236.2s [COMMENTARY] Touch! Player_A1 got a hand on the ball, slowing it down. The rally continues!
+
+236.3s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+236.3s RATING CHECK: Player_A2 Dig 223 JitterMult:0.15
+
+236.3s RALLY ACTION: TeamA Player_A2 1 Dig
+
+237.0s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+237.0s RALLY ACTION: TeamA Player_A1 2 Set
+
+237.9s RATING CHECK: Player_B1 Movement 172 SpeedMult:2.22
+
+237.9s RATING CHECK: Player_B2 Block 222 Outcome:Controlled
+
+237.9s BLOCK ATTEMPT: Player_B2
+
+237.9s RATING CHECK: Player_A2 Spike 201 SpeedMult:1.84
+
+237.9s RALLY ACTION: TeamA Player_A2 3 Spike
+
+238.0s BLOCK SUCCESS: Player_B2
+
+238.0s [COMMENTARY] Controlled block! Player_B2 rebounded the ball back to the attacker's side!
+
+238.9s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+238.9s RALLY ACTION: TeamA Player_A1 2 Set
+
+239.9s RATING CHECK: Player_B1 Movement 172 SpeedMult:2.22
+
+239.9s RATING CHECK: Player_B2 Block 222 Outcome:Controlled
+
+239.9s BLOCK ATTEMPT: Player_B2
+
+239.9s RATING CHECK: Player_A2 Spike 201 SpeedMult:1.84
+
+239.9s RALLY ACTION: TeamA Player_A2 3 Spike
+
+240.0s BLOCK SUCCESS: Player_B2
+
+240.0s [COMMENTARY] Controlled block! Player_B2 rebounded the ball back to the attacker's side!
+
+240.9s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+240.9s RALLY ACTION: TeamA Player_A1 2 Set
+
+241.7s RATING CHECK: Player_B1 Movement 172 SpeedMult:2.22
+
+241.7s RATING CHECK: Player_B2 Block 222 Outcome:Controlled
+
+241.7s BLOCK ATTEMPT: Player_B2
+
+241.7s RATING CHECK: Player_A2 Spike 201 SpeedMult:1.84
+
+241.7s RALLY ACTION: TeamA Player_A2 3 Spike
+
+241.9s BLOCK SUCCESS: Player_B2
+
+241.9s [COMMENTARY] Controlled block! Player_B2 rebounded the ball back to the attacker's side!
+
+242.9s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+242.9s RALLY ACTION: TeamA Player_A1 2 Set
+
+243.8s RATING CHECK: Player_B1 Movement 172 SpeedMult:2.22
+
+243.8s RATING CHECK: Player_B2 Block 222 Outcome:Controlled
+
+243.8s BLOCK ATTEMPT: Player_B2
+
+243.8s RATING CHECK: Player_A2 Spike 201 SpeedMult:1.84
+
+243.8s RALLY ACTION: TeamA Player_A2 3 Spike
+
+243.9s BLOCK SUCCESS: Player_B2
+
+243.9s [COMMENTARY] Controlled block! Player_B2 rebounded the ball back to the attacker's side!
+
+244.8s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+244.8s RALLY ACTION: TeamA Player_A1 2 Set
+
+245.5s RATING CHECK: Player_B1 Movement 172 SpeedMult:2.22
+
+245.5s RATING CHECK: Player_B2 Block 222 Outcome:Controlled
+
+245.5s BLOCK ATTEMPT: Player_B2
+
+245.5s RATING CHECK: Player_A2 Spike 201 SpeedMult:1.84
+
+245.5s RALLY ACTION: TeamA Player_A2 3 Spike
+
+245.6s BLOCK SUCCESS: Player_B2
+
+245.6s [COMMENTARY] Controlled block! Player_B2 rebounded the ball back to the attacker's side!
+
+246.4s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+246.5s RALLY ACTION: TeamA Player_A1 2 Set
+
+247.3s RATING CHECK: Player_B1 Movement 172 SpeedMult:2.22
+
+247.3s RATING CHECK: Player_B2 Block 222 Outcome:Controlled
+
+247.3s BLOCK ATTEMPT: Player_B2
+
+247.3s RATING CHECK: Player_A2 Spike 201 SpeedMult:1.84
+
+247.3s RALLY ACTION: TeamA Player_A2 3 Spike
+
+247.4s BLOCK SUCCESS: Player_B2
+
+247.4s [COMMENTARY] Controlled block! Player_B2 rebounded the ball back to the attacker's side!
+
+248.3s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+248.3s RALLY ACTION: TeamA Player_A1 2 Set
+
+249.3s RATING CHECK: Player_B1 Movement 172 SpeedMult:2.22
+
+249.3s RATING CHECK: Player_B2 Block 222 Outcome:Controlled
+
+249.3s BLOCK ATTEMPT: Player_B2
+
+249.3s RATING CHECK: Player_A2 Spike 201 SpeedMult:1.84
+
+249.3s RALLY ACTION: TeamA Player_A2 3 Spike
+
+249.4s BLOCK SUCCESS: Player_B2
+
+249.4s [COMMENTARY] Controlled block! Player_B2 rebounded the ball back to the attacker's side!
+
+251.2s [UnityMemory] Configuration Parameters - Can be set up in boot.config
+
+251.2s     "memorysetup-allocator-temp-initial-block-size-main=262144"
+
+251.2s     "memorysetup-allocator-temp-initial-block-size-worker=262144"
+
+251.2s     "memorysetup-temp-allocator-size-audio-worker=65536"
+
+251.2s     "memorysetup-temp-allocator-size-background-worker=32768"
+
+251.2s     "memorysetup-bucket-allocator-granularity=16"
+
+251.3s     "memorysetup-bucket-allocator-bucket-count=8"
+
+251.3s     "memorysetup-bucket-allocator-block-size=4194304"
+
+251.3s     "memorysetup-bucket-allocator-block-count=1"
+
+251.3s     "memorysetup-main-allocator-block-size=16777216"
+
+251.3s     "memorysetup-thread-allocator-block-size=16777216"
+
+251.3s     "memorysetup-gfx-main-allocator-block-size=16777216"
+
+251.3s     "memorysetup-gfx-thread-allocator-block-size=16777216"
+
+251.3s     "memorysetup-cache-allocator-block-size=4194304"
+
+251.3s     "memorysetup-typetree-allocator-block-size=2097152"
+
+251.3s     "memorysetup-profiler-bucket-allocator-granularity=16"
+
+251.3s     "memorysetup-profiler-bucket-allocator-bucket-count=8"
+
+251.3s     "memorysetup-profiler-bucket-allocator-block-size=4194304"
+
+251.3s     "memorysetup-profiler-bucket-allocator-block-count=1"
+
+251.3s     "memorysetup-profiler-allocator-block-size=16777216"
+
+251.3s     "memorysetup-profiler-editor-allocator-block-size=1048576"
+
+251.3s     "memorysetup-temp-allocator-size-main=4194304"
+
+251.3s     "memorysetup-job-temp-allocator-block-size=2097152"
+
+251.3s     "memorysetup-job-temp-allocator-block-size-background=1048576"
+
+251.3s     "memorysetup-job-temp-allocator-reduction-small-platforms=262144"
+
+251.3s Input System module state changed to: Initialized.
+
+251.3s [Physics::Module] Initialized fallback backend.
+
+251.3s [Physics::Module] Id: 0xdecafbad
+
+251.3s Loading player data from data.unity3d
+
+251.3s Initialize engine version: 6000.3.16f1 (a56f230f6470)
+
+251.3s [Subsystems] Discovering subsystems at path UnitySubsystems
+
+251.3s Creating WebGL 2.0 context.
+251.3s Renderer: WebKit WebGL
+
+251.3s Vendor:   WebKit
+
+251.3s Version:  OpenGL ES 3.0 (WebGL 2.0 (OpenGL ES 3.0 Chromium))
+
+251.3s GLES:     3
+
+251.3s  EXT_clip_control EXT_color_buffer_float EXT_color_buffer_half_float EXT_conservative_depth EXT_depth_clamp EXT_disjoint_timer_query_webgl2 EXT_float_blend EXT_polygon_offset_clamp EXT_render_snorm EXT_texture_compression_bptc EXT_texture_compression_rgtc EXT_texture_filter_anisotropic EXT_texture_mirror_clamp_to_edge EXT_texture_norm16 KHR_parallel_shader_compile NV_shader_noperspective_interpolation OES_draw_buffers_indexed OES_sample_variables OES_shader_multisample_interpolation OES_texture_float_linear OVR_multiview2 WEBGL_blend_func_extended WEBGL_clip_cull_distance WEBGL_compressed_texture_s3tc WEBGL_compressed_texture_s3tc_srgb WEBGL_debug_renderer_info WEBGL_debug_shaders WEBGL_lose_context WEBGL_multi_draw WEBGL_polygon_mode WEBGL_provoking_vertex WEBGL_shader_pixel_local_storage WEBGL_stencil_texturing GL_EXT_clip_control GL_EXT_color_buffer_float GL_EXT_color_buffer_half_float GL_EXT_conservative_depth GL_EXT_depth_clamp GL_EXT_disjoint_timer_query_webgl2 GL_EXT_float_blend GL_EXT_polygon_offset_
+
+251.3s clamp GL_EXT_render_snorm GL_EXT_texture_compression_bptc GL_EXT_texture_compression_rgtc GL_EXT_texture_filter_anisotropic GL_EXT_texture_mirror_clamp_to_edge GL_EXT_texture_norm16 GL_KHR_parallel_shader_compile GL_NV_shader_noperspective_interpolation GL_OES_draw_buffers_indexed GL_OES_sample_variables GL_OES_shader_multisample_interpolation GL_OES_texture_float_linear GL_OVR_multiview2 GL_WEBGL_blend_func_extended GL_WEBGL_clip_cull_distance GL_WEBGL_compressed_texture_s3tc GL_WEBGL_compressed_texture_s3tc_srgb GL_WEBGL_debug_renderer_info GL_WEBGL_debug_shaders GL_WEBGL_lose_context GL_WEBGL_multi_draw GL_WEBGL_polygon_mode GL_WEBGL_provoking_vertex GL_WEBGL_shader_pixel_local_storage GL_WEBGL_stencil_texturing
+
+251.3s OPENGL LOG: Creating OpenGL ES 3.0 graphics device ; Context level  <OpenGL ES 3.0> ; Context handle 1
+
+251.3s [Physics::Module] Selected backend.
+
+251.3s [Physics::Module] Name: PhysX
+
+251.3s [Physics::Module] Id: 0xf2b8ea05
+
+251.3s [Physics::Module] SDK Version: 4.1.2
+
+251.3s [Physics::Module] Integration Version: 1.0.0
+
+251.3s [Physics::Module] Threading Mode: Single-Threaded
+
+251.3s ERROR: Shader 
+251.3s Hidden/CoreSRP/CoreCopy shader is not supported on this GPU (none of subshaders/fallbacks are suitable)
+
+251.3s ERROR: Shader 
+251.3s Hidden/Universal Render Pipeline/StencilDitherMaskSeed shader is not supported on this GPU (none of subshaders/fallbacks are suitable)
+
+251.3s ERROR: Shader 
+251.3s Hidden/Universal/HDRDebugView shader is not supported on this GPU (none of subshaders/fallbacks are suitable)
+
+251.3s <b>[App UI]</b> Unable to find an AppUISettings instance, creating a default one...
+
+251.3s Input System initialize...
+
+251.5s Couldn't create a Convex Mesh from source mesh, within the maximum polygons limit (256). The partial hull will be used. Consider simplifying your mesh. Source mesh name: SM_rack_balls_Volleyball_1
+
+251.9s UnloadTime: 0.300000 ms
+
+251.9s [CourtsideBoards] 18 boards dressed around the court: 9 Beach Volleyball Empire, 9 GB Sunglasses
+
+251.9s Audio context resumed after 0.608 seconds.
+251.9s [Sound] crowd volume 1.00
+
+251.9s [Sound] commentary volume 1.00
+
+251.9s [Camera] remembered looks from the page: played game:1, watched tv:1
+
+252.0s [Between points] from the page: skip to next serve off, skip replays off
+
+252.3s [UnityCache] 'http://localhost:4956/unity-build/Build/Volleyball_WebGL_Uncompressed_2.data' successfully downloaded and stored in the browser cache
+254.0s [BoostUIController] Created Polished Attack and Defence boost buttons.
+
+254.0s [MatchManager] AudioManager initialized.
+
+254.0s [UnityMatchDataLoader] careerSaveId 1 (from page URL)
+
+254.0s [UnityMatchDataLoader] GET /api/unity/match-state?careerSaveId=1&matchId=1
+
+254.0s WEATHER SUNNY
+
+254.0s Trying to get length of sound which is not loaded yet.
+254.0s Trying to get length of sound which is not loaded yet.
+254.0s [Director] Serve: beside the server
+
+254.0s The character with Unicode value \u2600 was not found in the [LiberationSans SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [WeatherText].
+
+254.1s [UnityMatchDataLoader] point chance for the home pair: 0.4886
+
+254.1s [UnityMatchDataLoader] continent asia, time of day night, weather rain
+
+254.1s [UnityMatchDataLoader] game difficulty medium (a played match grades and plays at it)
+
+254.1s [UnityMatchDataLoader] event (null), kits (null), boards (null) '(null)', manual allowed
+
+254.1s [UnityMatchDataLoader] Player_A1: skin 'Light' resolved via band 'Light' -> #EEC9B8
+
+254.1s [UnityMatchDataLoader] Player_A1 <- Camila Santiago | team Sydney Riptide (home) | skinTone Light | kit #1e3a8a/#f59e0b | appearance controller found | applied ovr 80 pwr 85 spd 73 def 78 srv 74 blk 89 sta 79 mor 75 fit 100 fat 0 | (not applied: injured False)
+
+254.1s [UnityMatchDataLoader] Player_A2: skin 'Light' resolved via band 'Light' -> #EEC9B8
+
+254.1s [UnityMatchDataLoader] Player_A2 <- Nurul Ain | team Sydney Riptide (home) | skinTone Light | kit #1e3a8a/#f59e0b | appearance controller found | applied ovr 67 pwr 55 spd 74 def 70 srv 78 blk 52 sta 73 mor 75 fit 100 fat 0 | (not applied: injured False)
+
+254.1s [UnityMatchDataLoader] Player_B1: skin 'Medium' resolved via band 'Medium' -> #AA7339
+
+254.1s [UnityMatchDataLoader] Player_B1 <- Carmen Ruiz | team Barcelona Playa Elites (away) | skinTone Medium | kit #00A3AD/#0B2545 | appearance controller found | applied ovr 82 pwr 76 spd 86 def 86 srv 80 blk 78 sta 84 mor 68 fit 80 fat 0 | (not applied: injured False)
+
+254.1s [UnityMatchDataLoader] Player_B2: skin 'Medium Dark' resolved via band 'Medium Dark' -> #7A4626
+
+254.1s [UnityMatchDataLoader] Player_B2 <- María Alonso | team Barcelona Playa Elites (away) | skinTone Medium Dark | kit #00A3AD/#0B2545 | appearance controller found | applied ovr 81 pwr 78 spd 82 def 84 srv 84 blk 80 sta 80 mor 68 fit 80 fat 0 | (not applied: injured False)
+
+254.1s [UnityMatchDataLoader] team names: SYDNEY RIPTIDE (home) vs BARCELONA PLAYA ELITES (away)
+
+254.1s [UnityMatchDataLoader] applied 4 of 4 player(s)
+
+254.1s [Venue] 'asia' is waiting on Rob; playing at oceania
+
+254.2s Trying to get length of sound which is not loaded yet.
+254.2s Trying to get length of sound which is not loaded yet.
+254.2s Trying to get length of sound which is not loaded yet.
+254.2s Trying to get length of sound which is not loaded yet.
+254.2s Trying to get length of sound which is not loaded yet.
+254.2s Trying to get length of sound which is not loaded yet.
+254.2s Trying to get length of sound which is not loaded yet.
+254.3s Trying to get length of sound which is not loaded yet.
+254.3s Trying to get length of sound which is not loaded yet.
+254.3s Trying to get length of sound which is not loaded yet.
+254.3s Trying to get length of sound which is not loaded yet.
+254.3s Trying to get length of sound which is not loaded yet.
+254.5s Trying to get length of sound which is not loaded yet.
+254.5s Trying to get length of sound which is not loaded yet.
+254.6s Trying to get length of sound which is not loaded yet.
+254.6s Trying to get length of sound which is not loaded yet.
+254.6s [Venue] oceania (Island Beach) in after 0.7s, 74.9 MB; features on 7, off 0
+
+254.6s WEATHER LIGHT RAIN
+
+254.6s [TimeOfDay] Midday in LightRain: sun 50 degrees up, intensity 0.60, shadows 0.30; floodlights off
+
+254.6s [TimeOfDay] Night in LightRain: sun 40 degrees up, intensity 0.02, shadows 0.17; floodlights on
+
+254.6s [Camera] keep-out rebuilt for the venue: 454 boxes, 426 of them props
+
+254.6s [MatchManager] match starts after 3.2s: match data applied; home point chance 0.4886
+
+254.6s [MatchManager] ratings in play Player_A1 (Camila Santiago): ovr 80 pwr 85 spd 73 def 78 srv 74 blk 89 sta 79 mor 75
+
+254.6s [MatchManager] ratings in play Player_A2 (Nurul Ain): ovr 67 pwr 55 spd 74 def 70 srv 78 blk 52 sta 73 mor 75
+
+254.6s [MatchManager] ratings in play Player_B1 (Carmen Ruiz): ovr 82 pwr 76 spd 86 def 86 srv 80 blk 78 sta 84 mor 68
+
+254.6s [MatchManager] ratings in play Player_B2 (María Alonso): ovr 81 pwr 78 spd 82 def 84 srv 84 blk 80 sta 80 mor 68
+
+254.6s [Director] cutaway: the walk-on (5.5 s)
+
+254.6s The character with Unicode value \U0001F327 was not found in the [LiberationSans SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [WeatherText].
+
+254.7s Trying to get length of sound which is not loaded yet.
+254.9s [Crowd] 34 real people in the front 1 row(s), 170 cards behind, 24 bystanders; 64 team fans (A #1E3A8A, B #00A3AD); 44 different people; cards baked in 108 ms
+
+254.9s Trying to get length of sound which is not loaded yet.
+254.9s Trying to get length of sound which is not loaded yet.
+255.0s Trying to get length of sound which is not loaded yet.
+255.0s Trying to get length of sound which is not loaded yet.
+255.1s Trying to get length of sound which is not loaded yet.
+255.1s Trying to get length of sound which is not loaded yet.
+255.1s Trying to get length of sound which is not loaded yet.
+255.2s Trying to get length of sound which is not loaded yet.
+255.2s Trying to get length of sound which is not loaded yet.
+255.2s Trying to get length of sound which is not loaded yet.
+255.3s Trying to get length of sound which is not loaded yet.
+255.3s Trying to get length of sound which is not loaded yet.
+255.3s Trying to get length of sound which is not loaded yet.
+255.3s Trying to get length of sound which is not loaded yet.
+255.4s Trying to get length of sound which is not loaded yet.
+255.4s Trying to get length of sound which is not loaded yet.
+255.4s Trying to get length of sound which is not loaded yet.
+255.5s Trying to get length of sound which is not loaded yet.
+255.5s Trying to get length of sound which is not loaded yet.
+255.5s Trying to get length of sound which is not loaded yet.
+255.5s Trying to get length of sound which is not loaded yet.
+255.5s Trying to get length of sound which is not loaded yet.
+255.6s Trying to get length of sound which is not loaded yet.
+255.6s Trying to get length of sound which is not loaded yet.
+255.6s Trying to get length of sound which is not loaded yet.
+255.6s Trying to get length of sound which is not loaded yet.
+255.7s Trying to get length of sound which is not loaded yet.
+255.7s Trying to get length of sound which is not loaded yet.
+255.7s Trying to get length of sound which is not loaded yet.
+255.7s Trying to get length of sound which is not loaded yet.
+255.7s Trying to get length of sound which is not loaded yet.
+255.8s [Commentary] 48 of 90 clips loaded from http://localhost:4956/unity-build/StreamingAssets/commentary: the 48 its LINES.txt lists (48 recorded before 1.2; B4's 42 are Rob's to record)
+
+256.2s [UnityCache] 'http://localhost:4956/unity-build/StreamingAssets/Venues/venue-oceania.bundle' successfully downloaded and stored in the browser cache
+259.3s [Director] cutaway: the walk-on: Player_A1 (1.5 s)
+
+260.8s [Director] cutaway: the walk-on: Player_A2 (1.5 s)
+
+262.3s [Director] cutaway: the walk-on: Player_B1 (1.5 s)
+
+263.8s [Director] cutaway: the walk-on: Player_B2 (1.5 s)
+
+265.3s [Match moments] walk-on took 10.7 s
+
+265.3s [Director] Serve: low off the sand
+
+265.5s [Weather] Player_A1 slipped slightly on the wet court!
+
+265.5s [Weather] Player_A2 slipped slightly on the wet court!
+
+265.7s [Point] decided: SYDNEY RIPTIDE by AttackError (server A, final attack by B after 4, chance 0.489)
+
+265.7s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+265.7s RATING CHECK: Player_A1 Serve 242 SpeedMult:2.11
+
+265.7s RALLY ACTION: TeamA Player_A1 1 Serve
+
+265.7s [MatchManager] jump heights: net top 2.24 m, spike lift 0.58 m, block lift 0.46 m
+
+265.8s [Weather] Player_A1 slipped slightly on the wet court!
+
+265.9s [Director] Rally: end-on drift
+
+266.3s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+266.3s RATING CHECK: Player_B1 Dig 264 JitterMult:0.15
+
+266.3s RALLY ACTION: TeamB Player_B1 1 Dig
+
+266.8s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+266.8s RALLY ACTION: TeamB Player_B2 2 Set
+
+267.6s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+267.6s RATING CHECK: Player_A1 Block 232 Outcome:Controlled
+
+267.6s BLOCK ATTEMPT: Player_A1
+
+267.6s RATING CHECK: Player_B1 Spike 250 SpeedMult:2.17
+
+267.6s RALLY ACTION: TeamB Player_B1 3 Spike
+
+267.7s BLOCK SUCCESS: Player_A1
+
+267.7s [COMMENTARY] Controlled block! Player_A1 rebounded the ball back to the attacker's side!
+
+268.6s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+268.7s RALLY ACTION: TeamB Player_B2 2 Set
+
+269.5s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+269.5s RATING CHECK: Player_A1 Block 232 Outcome:Touch
+
+269.5s BLOCK ATTEMPT: Player_A1
+
+269.5s RATING CHECK: Player_B1 Spike 250 SpeedMult:2.17
+
+269.6s RALLY ACTION: TeamB Player_B1 3 Spike
+
+269.6s BLOCK TOUCH: Player_A1
+
+269.6s [COMMENTARY] Touch! Player_A1 got a hand on the ball, slowing it down. The rally continues!
+
+269.6s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+269.6s RATING CHECK: Player_A1 Dig 238 JitterMult:0.15
+
+269.7s RALLY ACTION: TeamA Player_A1 1 Dig
+
+269.7s [Weather] Player_A2 slipped slightly on the wet court!
+
+270.1s [Weather] Player_B2 slipped slightly on the wet court!
+
+270.2s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+270.2s RALLY ACTION: TeamA Player_A2 2 Set
+
+271.1s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+271.1s RATING CHECK: Player_B1 Block 225 Outcome:Controlled
+
+271.1s BLOCK ATTEMPT: Player_B1
+
+271.1s RATING CHECK: Player_A1 Spike 252 SpeedMult:2.18
+
+271.1s RALLY ACTION: TeamA Player_A1 3 Spike
+
+271.2s BLOCK SUCCESS: Player_B1
+
+271.2s [COMMENTARY] Controlled block! Player_B1 rebounded the ball back to the attacker's side!
+
+272.1s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+272.1s RALLY ACTION: TeamA Player_A2 2 Set
+
+272.8s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+272.8s RATING CHECK: Player_B1 Block 225 Outcome:Touch
+
+272.8s BLOCK ATTEMPT: Player_B1
+
+272.8s RATING CHECK: Player_A1 Spike 252 SpeedMult:2.18
+
+272.8s RALLY ACTION: TeamA Player_A1 3 Spike
+
+272.9s BLOCK TOUCH: Player_B1
+
+272.9s [COMMENTARY] Touch! Player_B1 got a hand on the ball, slowing it down. The rally continues!
+
+273.0s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+273.0s RATING CHECK: Player_B1 Dig 264 JitterMult:0.15
+
+273.0s RALLY ACTION: TeamB Player_B1 1 Dig
+
+273.1s [Weather] Player_A2 slipped slightly on the wet court!
+
+273.6s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+273.6s RALLY ACTION: TeamB Player_B2 2 Set
+
+274.5s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+274.5s RATING CHECK: Player_B1 Spike 250 SpeedMult:2.17
+
+274.5s RALLY ACTION: TeamB Player_B1 3 Spike
+
+274.8s [Point] awarded: SYDNEY RIPTIDE by AttackError after 6 attack(s), 18 touches
+
+274.8s SYDNEY RIPTIDE point: set 1 1-0, sets 0-0
+
+274.8s Trying to get length of sound which is not loaded yet.
+274.8s Trying to get length of sound which is not loaded yet.
+274.8s [Director] Between: crane on the scorer
+
+274.8s [Director] cutaway: the scorer, Player_A1 (1.7 s)
+
+274.8s [MatchReporter] POST /api/unity/match-progress failed (attempt 1/1): 409 HTTP/1.1 409 Conflict {"error":"This match is not being watched."}
+
+276.5s [Director] cutaway: the other side, Player_B1 (1.0 s)
+
+277.5s [Director] Serve: beside the server
+
+277.9s [Between points] 3.1 s: point to A by AttackError | score SYDNEY RIPTIDE 0 1 - 0 0 BARCELONA PLAYA ELITES [ATTACK ERROR] | umpire: team to serve | Player_A1 Won_ThumbsUp2 | Player_A2 Won_DoublePeace | Player_B1 Lost_MC2 | Player_B2 Lost_MC1 | close-up: Player_A1 | the other side: Player_B1
+
+278.2s [Point] decided: BARCELONA PLAYA ELITES by Kill (server A, final attack by B after 1, chance 0.489)
+
+278.3s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+278.3s RATING CHECK: Player_A2 Serve 214 SpeedMult:1.93
+
+278.3s RALLY ACTION: TeamA Player_A2 1 Serve
+
+278.3s [Director] Rally: high on the umpire's side
+
+278.9s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+278.9s RATING CHECK: Player_B2 Dig 254 JitterMult:0.15
+
+278.9s RALLY ACTION: TeamB Player_B2 1 Dig
+
+278.9s [Weather] Player_A2 slipped slightly on the wet court!
+
+279.4s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+279.4s RALLY ACTION: TeamB Player_B1 2 Set
+
+280.2s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+280.2s RATING CHECK: Player_B2 Spike 247 SpeedMult:2.15
+
+280.3s RALLY ACTION: TeamB Player_B2 3 Spike
+
+280.4s [Point] awarded: BARCELONA PLAYA ELITES by Kill after 2 attack(s), 4 touches
+
+280.4s BARCELONA PLAYA ELITES point: set 1 1-1, sets 0-0
+
+280.4s Trying to get length of sound which is not loaded yet.
+280.4s [Director] Kill: swoop in close
+
+280.4s [Director] cutaway: the scorer, Player_B2 (1.1 s)
+
+280.5s [MatchReporter] POST /api/unity/match-progress failed (attempt 1/1): 409 HTTP/1.1 409 Conflict {"error":"This match is not being watched."}
+
+281.5s [Director] cutaway: the other side, Player_A2 (0.7 s)
+
+282.3s [Director] cutaway: replay (2.2 s)
+
+284.4s [Between points] 4.0 s: point to B by Kill (big: a hard spike, 60 m/s) | score SYDNEY RIPTIDE 0 1 - 1 0 BARCELONA PLAYA ELITES | umpire: team to serve | Player_B1 Won_Yay | Player_B2 Won_Cheer | Player_A1 Lost_Angry | Player_A2 Lost_MC1 | close-up: Player_B2 | the other side: Player_A2 | replay 1.2 s at 0.6x (2.1 s)
+
+284.4s [Director] Serve: low off the sand
+
+284.8s [Point] decided: SYDNEY RIPTIDE by Kill (server B, final attack by A after 3, chance 0.489)
+
+284.8s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+284.8s RATING CHECK: Player_B1 Serve 232 SpeedMult:2.05
+
+284.8s RALLY ACTION: TeamB Player_B1 1 Serve
+
+285.0s [Director] Rally: end-on drift
+
+285.3s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+285.3s RATING CHECK: Player_A1 Dig 238 JitterMult:0.15
+
+285.3s RALLY ACTION: TeamA Player_A1 1 Dig
+
+285.8s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+285.8s RALLY ACTION: TeamA Player_A2 2 Set
+
+286.0s [Weather] Player_A1 slipped slightly on the wet court!
+
+286.1s [Weather] Player_B2 slipped slightly on the wet court!
+
+286.5s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+286.5s RATING CHECK: Player_B1 Block 225 Outcome:Touch
+
+286.6s BLOCK ATTEMPT: Player_B1
+
+286.6s RATING CHECK: Player_A1 Spike 252 SpeedMult:2.18
+
+286.6s RALLY ACTION: TeamA Player_A1 3 Spike
+
+286.6s BLOCK TOUCH: Player_B1
+
+286.6s [COMMENTARY] Touch! Player_B1 got a hand on the ball, slowing it down. The rally continues!
+
+286.8s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+286.8s RATING CHECK: Player_B1 Dig 264 JitterMult:0.15
+
+286.8s RALLY ACTION: TeamB Player_B1 1 Dig
+
+287.6s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+287.6s RALLY ACTION: TeamB Player_B2 2 Set
+
+288.4s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+288.4s RATING CHECK: Player_A1 Block 232 Outcome:Controlled
+
+288.4s BLOCK ATTEMPT: Player_A1
+
+288.4s RATING CHECK: Player_B1 Spike 250 SpeedMult:2.17
+
+288.4s RALLY ACTION: TeamB Player_B1 3 Spike
+
+288.5s BLOCK SUCCESS: Player_A1
+
+288.5s [COMMENTARY] Controlled block! Player_A1 rebounded the ball back to the attacker's side!
+
+289.4s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+289.4s RALLY ACTION: TeamB Player_B2 2 Set
+
+290.3s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+290.4s RATING CHECK: Player_A1 Block 232 Outcome:Touch
+
+290.4s BLOCK ATTEMPT: Player_A1
+
+290.4s RATING CHECK: Player_B1 Spike 250 SpeedMult:2.17
+
+290.4s RALLY ACTION: TeamB Player_B1 3 Spike
+
+290.4s BLOCK TOUCH: Player_A1
+
+290.4s [COMMENTARY] Touch! Player_A1 got a hand on the ball, slowing it down. The rally continues!
+
+290.5s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+290.5s RATING CHECK: Player_A1 Dig 238 JitterMult:0.15
+
+290.5s RALLY ACTION: TeamA Player_A1 1 Dig
+
+291.2s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+291.3s RALLY ACTION: TeamA Player_A2 2 Set
+
+291.5s [Weather] Player_B1 slipped slightly on the wet court!
+
+292.2s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+292.2s RATING CHECK: Player_A1 Spike 252 SpeedMult:2.18
+
+292.2s RALLY ACTION: TeamA Player_A1 3 Spike
+
+292.4s [Weather] Player_B2 slipped slightly on the wet court!
+
+292.4s [Point] awarded: SYDNEY RIPTIDE by Kill after 5 attack(s), 15 touches
+
+292.4s SYDNEY RIPTIDE point: set 1 2-1, sets 0-0
+
+292.4s Trying to get length of sound which is not loaded yet.
+292.4s Trying to get length of sound which is not loaded yet.
+292.5s [Director] Kill: cut close on the scorer
+
+292.5s [MatchReporter] POST /api/unity/match-progress failed (attempt 1/1): 409 HTTP/1.1 409 Conflict {"error":"This match is not being watched."}
+
+292.5s [Director] cutaway: the scorer, Player_A1 (1.7 s)
+
+294.2s [Director] cutaway: the other side, Player_B1 (1.0 s)
+
+295.2s [Director] Serve: beside the server
+
+295.5s [Between points] 3.1 s: point to A by Kill | score SYDNEY RIPTIDE 0 2 - 1 0 BARCELONA PLAYA ELITES | umpire: team to serve | Player_A1 Won_ThumbsUp | Player_A2 Won_JumpForJoy | Player_B1 Lost_FeelDown | Player_B2 Lost_FeelDown | close-up: Player_A1 | the other side: Player_B1
+
+295.9s [Point] decided: SYDNEY RIPTIDE by Kill (server A, final attack by A after 2, chance 0.489)
+
+295.9s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+295.9s RATING CHECK: Player_A2 Serve 214 SpeedMult:1.93
+
+295.9s RALLY ACTION: TeamA Player_A2 1 Serve
+
+295.9s [Director] Rally: broadcast-side orbit
+
+296.6s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+296.6s RATING CHECK: Player_B1 Dig 264 JitterMult:0.15
+
+296.6s RALLY ACTION: TeamB Player_B1 1 Dig
+
+297.2s [Weather] Player_B2 slipped slightly on the wet court!
+
+297.2s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+297.2s RALLY ACTION: TeamB Player_B2 2 Set
+
+297.3s [Weather] Player_A1 slipped slightly on the wet court!
+
+298.0s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+298.0s RATING CHECK: Player_A1 Block 232 Outcome:Controlled
+
+298.0s BLOCK ATTEMPT: Player_A1
+
+298.0s RATING CHECK: Player_B1 Spike 250 SpeedMult:2.17
+
+298.0s RALLY ACTION: TeamB Player_B1 3 Spike
+
+298.0s BLOCK SUCCESS: Player_A1
+
+298.0s [COMMENTARY] Controlled block! Player_A1 rebounded the ball back to the attacker's side!
+
+298.6s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+298.6s RALLY ACTION: TeamB Player_B2 2 Set
+
+299.4s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+299.4s RATING CHECK: Player_A1 Block 232 Outcome:Controlled
+
+299.4s BLOCK ATTEMPT: Player_A1
+
+299.4s RATING CHECK: Player_B1 Spike 250 SpeedMult:2.17
+
+299.4s RALLY ACTION: TeamB Player_B1 3 Spike
+
+299.5s BLOCK SUCCESS: Player_A1
+
+299.5s [COMMENTARY] Controlled block! Player_A1 rebounded the ball back to the attacker's side!
+
+300.5s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+300.5s RALLY ACTION: TeamB Player_B2 2 Set
+
+300.6s [Weather] Player_B2 slipped slightly on the wet court!
+
+301.5s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+301.5s RATING CHECK: Player_A1 Block 232 Outcome:Controlled
+
+301.5s BLOCK ATTEMPT: Player_A1
+
+301.5s RATING CHECK: Player_B1 Spike 250 SpeedMult:2.17
+
+301.5s RALLY ACTION: TeamB Player_B1 3 Spike
+
+301.6s BLOCK SUCCESS: Player_A1
+
+301.6s [COMMENTARY] Controlled block! Player_A1 rebounded the ball back to the attacker's side!
+
+301.9s [Weather] Player_B1 slipped slightly on the wet court!
+
+302.6s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+302.6s RALLY ACTION: TeamB Player_B2 2 Set
+
+303.3s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+303.3s RATING CHECK: Player_A1 Block 232 Outcome:Controlled
+
+303.3s BLOCK ATTEMPT: Player_A1
+
+303.3s RATING CHECK: Player_B1 Spike 250 SpeedMult:2.17
+
+303.3s RALLY ACTION: TeamB Player_B1 3 Spike
+
+303.4s BLOCK SUCCESS: Player_A1
+
+303.4s [COMMENTARY] Controlled block! Player_A1 rebounded the ball back to the attacker's side!
+
+304.3s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+304.3s RALLY ACTION: TeamB Player_B2 2 Set
+
+304.9s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+304.9s RATING CHECK: Player_A1 Block 232 Outcome:Controlled
+
+304.9s BLOCK ATTEMPT: Player_A1
+
+305.0s RATING CHECK: Player_B1 Spike 250 SpeedMult:2.17
+
+305.0s RALLY ACTION: TeamB Player_B1 3 Spike
+
+305.0s BLOCK SUCCESS: Player_A1
+
+305.0s [COMMENTARY] Controlled block! Player_A1 rebounded the ball back to the attacker's side!
+
+305.1s [Weather] Player_B2 slipped slightly on the wet court!
+
+305.9s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+306.0s RALLY ACTION: TeamB Player_B2 2 Set
+
+306.7s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+306.7s RATING CHECK: Player_A1 Block 232 Outcome:Controlled
+
+306.7s BLOCK ATTEMPT: Player_A1
+
+306.7s RATING CHECK: Player_B1 Spike 250 SpeedMult:2.17
+
+306.8s RALLY ACTION: TeamB Player_B1 3 Spike
+
+306.8s BLOCK SUCCESS: Player_A1
+
+306.8s [COMMENTARY] Controlled block! Player_A1 rebounded the ball back to the attacker's side!
+
+307.8s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+307.8s RALLY ACTION: TeamB Player_B2 2 Set
+
+308.6s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+308.6s RATING CHECK: Player_A1 Block 232 Outcome:Touch
+
+308.6s BLOCK ATTEMPT: Player_A1
+
+308.6s RATING CHECK: Player_B1 Spike 250 SpeedMult:2.17
+
+308.6s RALLY ACTION: TeamB Player_B1 3 Spike
+
+308.7s BLOCK TOUCH: Player_A1
+
+308.7s [COMMENTARY] Touch! Player_A1 got a hand on the ball, slowing it down. The rally continues!
+
+308.8s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+308.8s RATING CHECK: Player_A2 Dig 223 JitterMult:0.15
+
+308.8s RALLY ACTION: TeamA Player_A2 1 Dig
+
+309.6s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+309.6s RALLY ACTION: TeamA Player_A1 2 Set
+
+310.3s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+310.3s RATING CHECK: Player_A2 Spike 201 SpeedMult:1.84
+
+310.3s RALLY ACTION: TeamA Player_A2 3 Spike
+
+310.4s [Point] awarded: SYDNEY RIPTIDE by Kill after 9 attack(s), 26 touches
+
+310.4s SYDNEY RIPTIDE point: set 1 3-1, sets 0-0
+
+310.4s Trying to get length of sound which is not loaded yet.
+310.4s Trying to get length of sound which is not loaded yet.
+310.4s Trying to get length of sound which is not loaded yet.
+310.4s [Director] Kill: swoop in close
+
+310.4s [Director] cutaway: the scorer, Player_A2 (1.1 s)
+
+310.4s [MatchReporter] POST /api/unity/match-progress failed (attempt 1/1): 409 HTTP/1.1 409 Conflict {"error":"This match is not being watched."}
+
+311.5s [Director] cutaway: the other side, Player_B1 (0.7 s)
+
+312.2s [Director] cutaway: replay (2.2 s)
+
+314.4s [Between points] 4.0 s: point to A by Kill (big: a diving save) | score SYDNEY RIPTIDE 0 3 - 1 0 BARCELONA PLAYA ELITES | umpire: team to serve | Player_A1 Won_Yay | Player_A2 Won_Backflip | Player_B1 Lost_MC3 | Player_B2 Lost_Angry | close-up: Player_A2 | the other side: Player_B1 | replay 1.2 s at 0.6x (2.1 s)
+
+314.4s [Director] Serve: push-in from behind the server
+
+314.9s [Point] decided: BARCELONA PLAYA ELITES by ServeError (server A, final attack by A after 0, chance 0.489)
+
+314.9s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+314.9s RATING CHECK: Player_A2 Serve 214 SpeedMult:1.93
+
+314.9s RALLY ACTION: TeamA Player_A2 1 Serve
+
+315.0s [Director] Rally: high on the umpire's side
+
+315.4s [Point] awarded: BARCELONA PLAYA ELITES by ServeError after 1 attack(s), 1 touches
+
+315.4s BARCELONA PLAYA ELITES point: set 1 3-2, sets 0-0
+
+315.4s Trying to get length of sound which is not loaded yet.
+315.4s [Director] Between: the band
+
+315.4s [Director] cutaway: the scorer, Player_B2 (1.7 s)
+
+315.4s [MatchReporter] POST /api/unity/match-progress failed (attempt 1/1): 409 HTTP/1.1 409 Conflict {"error":"This match is not being watched."}
+
+317.1s [Director] cutaway: the other side, Player_A2 (1.0 s)
+
+318.1s [Director] Serve: low off the sand
+
+318.4s [Between points] 3.0 s: point to B by ServeError | score SYDNEY RIPTIDE 0 3 - 2 0 BARCELONA PLAYA ELITES [SERVICE ERROR] | umpire: team to serve | high five: Player_B2 and Player_B1 | Player_A1 Lost_Cry | Player_A2 Lost_MC1 | close-up: Player_B2 | placed: Player_B1 at (0.20, 0.72) in Player_B2's frame, turned 145°, scales 1.00/1.00 | the other side: Player_A2
+
+318.9s [Point] decided: SYDNEY RIPTIDE by Kill (server B, final attack by A after 4, chance 0.489)
+
+318.9s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+318.9s RATING CHECK: Player_B1 Serve 232 SpeedMult:2.05
+
+318.9s RALLY ACTION: TeamB Player_B1 1 Serve
+
+318.9s [Director] Rally: broadcast-side orbit
+
+319.0s [Weather] Player_A1 slipped slightly on the wet court!
+
+319.5s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+
+319.5s RATING CHECK: Player_A1 Dig 238 JitterMult:0.15
+
+319.5s RALLY ACTION: TeamA Player_A1 1 Dig
+
+319.9s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+319.9s RALLY ACTION: TeamA Player_A2 2 Set
+
+320.8s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+320.8s RATING CHECK: Player_B1 Block 225 Outcome:Touch
+
+320.8s BLOCK ATTEMPT: Player_B1
+
+320.8s RATING CHECK: Player_A1 Spike 252 SpeedMult:2.18
+
+320.8s RALLY ACTION: TeamA Player_A1 3 Spike
+
+320.9s BLOCK TOUCH: Player_B1
+
+320.9s [COMMENTARY] Touch! Player_B1 got a hand on the ball, slowing it down. The rally continues!
+
+320.9s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+
+320.9s RATING CHECK: Player_B1 Dig 264 JitterMult:0.15
+
+320.9s RALLY ACTION: TeamB Player_B1 1 Dig
+
+321.4s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+321.4s RALLY ACTION: TeamB Player_B2 2 Set
+
+322.3s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+322.3s RATING CHECK: Player_A1 Block 232 Outcome:Controlled
+
+322.3s BLOCK ATTEMPT: Player_A1
+
+322.3s RATING CHECK: Player_B1 Spike 250 SpeedMult:2.17
+
+322.3s RALLY ACTION: TeamB Player_B1 3 Spike
+
+322.4s BLOCK SUCCESS: Player_A1
+
+322.4s [COMMENTARY] Controlled block! Player_A1 rebounded the ball back to the attacker's side!
+
+323.0s [Weather] Player_A2 slipped slightly on the wet court!
+
+323.2s [Weather] Player_B2 slipped slightly on the wet court!
+
+323.4s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+323.4s RALLY ACTION: TeamB Player_B2 2 Set
+
+324.0s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+324.0s RATING CHECK: Player_A1 Block 232 Outcome:Controlled
+
+324.0s BLOCK ATTEMPT: Player_A1
+
+324.0s RATING CHECK: Player_B1 Spike 250 SpeedMult:2.17
+
+324.1s RALLY ACTION: TeamB Player_B1 3 Spike
+
+324.1s BLOCK SUCCESS: Player_A1
+
+324.1s [COMMENTARY] Controlled block! Player_A1 rebounded the ball back to the attacker's side!
+
+324.6s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+324.6s RALLY ACTION: TeamB Player_B2 2 Set
+
+324.9s [Weather] Player_B1 slipped slightly on the wet court!
+
+325.3s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+325.3s RATING CHECK: Player_A1 Block 232 Outcome:Controlled
+
+325.3s BLOCK ATTEMPT: Player_A1
+
+325.3s RATING CHECK: Player_B1 Spike 250 SpeedMult:2.17
+
+325.3s RALLY ACTION: TeamB Player_B1 3 Spike
+
+325.4s BLOCK SUCCESS: Player_A1
+
+325.4s [COMMENTARY] Controlled block! Player_A1 rebounded the ball back to the attacker's side!
+
+325.5s [Weather] Player_B1 slipped slightly on the wet court!
+
+326.3s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+326.3s RALLY ACTION: TeamB Player_B2 2 Set
+
+326.4s [Weather] Player_A2 slipped slightly on the wet court!
+
+326.6s [Weather] Player_B2 slipped slightly on the wet court!
+
+326.9s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+326.9s RATING CHECK: Player_A1 Block 232 Outcome:Controlled
+
+327.0s BLOCK ATTEMPT: Player_A1
+
+327.0s RATING CHECK: Player_B1 Spike 250 SpeedMult:2.17
+
+327.0s RALLY ACTION: TeamB Player_B1 3 Spike
+
+327.0s BLOCK SUCCESS: Player_A1
+
+327.0s [COMMENTARY] Controlled block! Player_A1 rebounded the ball back to the attacker's side!
+
+328.0s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+
+328.0s RALLY ACTION: TeamB Player_B2 2 Set
+
+329.3s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+
+329.3s RATING CHECK: Player_A1 Block 232 Outcome:Controlled
+

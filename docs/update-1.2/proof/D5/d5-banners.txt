@@ -1,0 +1,18 @@
+A VENUE IN PICTURES (d5-banners), V19 IN PLAY MODE (batch), A WATCHED MATCH
+  log: [Venue] 'asia' is waiting on Rob; playing at oceania
+  log: [Venue] oceania (Island Beach) in after 0.7s, 0.0 MB; features on 7, off 0
+  log: [Camera] keep-out rebuilt for the venue: 442 boxes, 414 of them props
+  the match's continent: asia; venue loaded: oceania (Island Beach), 0.7 s
+  features: foodStand on, commentaryStand on, juiceBar on, kiosk on, lifeguardTower on, gulls on, band on
+  the venue's triangles, every level of every LOD counted: 37,201,517
+  keep-out: 442 boxes, 414 props
+  time of day: Midday (the game sent night, the proof asked midday); sun 50 degrees up, 1.00; floodlights 0 on
+  banners: GO SYDNEY RIPTIDE! | GO PARIS SABLES ROYALES! | ACE IT! | BLOCK PARTY | DIG DEEP | SET. SPIKE. SCORE. | SUN'S OUT, SPIKES OUT | NO SAND, NO GLORY | SIDE OUT! | BEACH VOLLEYBALL FOREVER; the player's: WE LOVE THE RIPTIDE
+  -> d5-banners-tv.png
+  the band: idle; the stage's loudness last sent to the page from the TV camera: 0.34
+  -> d5-banners-stand-north.png
+     the stage from there: 0.55 loud; the band idle
+  -> d5-banners-stand-south.png
+     the stage from there: 0.49 loud; the band idle
+  -> d5-banners-stands-wide.png
+     the stage from there: 0.62 loud; the band idle

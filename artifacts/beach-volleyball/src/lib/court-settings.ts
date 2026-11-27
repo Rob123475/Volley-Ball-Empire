@@ -173,3 +173,15 @@ export const COURT_OTHER_CONTROLS: ReadonlyArray<{ action: string; how: string }
   { action: "Skip", how: "Enter (R3 on a pad) skips what is playing between points: the close-ups, the replay, the walk-on, the celebration" },
   { action: "Boosts", how: "Auto: the A and D keys. Manual: click the boost buttons with the mouse" },
 ];
+
+// ── 1.2 D5: the player's own banner in the crowd ─────────────────────────────
+// Typed in Settings > Match presentation, remembered on this PC, sent to the court when it has
+// loaded (pages/court.tsx "vbe-banner" -> CrowdBanners.SetCustomBanner). Empty: no banner of his.
+export const COURT_BANNER_KEY = "vbe-court-banner";
+export const BANNER_MAX = 28;
+export function readCourtBanner(): string {
+  try { return (localStorage.getItem(COURT_BANNER_KEY) ?? "").slice(0, BANNER_MAX); } catch { return ""; }
+}
+export function saveCourtBanner(text: string): void {
+  try { localStorage.setItem(COURT_BANNER_KEY, text.slice(0, BANNER_MAX)); } catch { /* not remembered */ }
+}

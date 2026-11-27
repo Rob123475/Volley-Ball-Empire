@@ -35,7 +35,9 @@
  */
 import { Router } from "express";
 import { rollInjuryType, treatmentFactor, startInjuryTx } from "../utils/injuries.js";
-import { injuryInfo, db } from "@workspace/db";
+import { injuryInfo, db, storeWalletsTable } from "@workspace/db";
+import { eq } from "drizzle-orm";
+import { storeOpen, setStoreOpenOverride, walletFor, walletResult } from "../utils/store.js";
 import { loadPlayer, requireCareerSaveId, withCareerStateTx } from "../lib/playerDto.js";
 import { getGameDate } from "../utils/gameDate.js";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
@@ -57,6 +59,28 @@ const router = Router();
  * rollover and the monthly check call. harness/board-review.mjs asserts every
  * row of docs/r53-design.md §5 with it. Reads and writes nothing.
  */
+/**
+ * 1.2 D4: the store's switch and wallet hooks, for harness/store.mjs. The switch is the settings
+ * file's in a shipped build; here the suite proves the store both ways without a rebuild, and
+ * drives the two hooks online play will call (a win, a loss) and the income dribble.
+ */
+router.post("/dev/store/open", (req, res) => {
+  const { open } = (req.body ?? {}) as { open?: boolean | null };
+  setStoreOpenOverride(typeof open === "boolean" ? open : null);
+  res.json({ open: storeOpen() });
+});
+router.post("/dev/store/result", (req, res) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
+  res.json({ balance: walletResult(req.user.id, (req.body ?? {}).won === true).balance });
+});
+router.post("/dev/store/income-back", (req, res) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const hours = Number((req.body ?? {}).hours ?? 0);
+  const w = walletFor(req.user.id);
+  db.update(storeWalletsTable).set({ incomeAt: new Date(Date.parse(w.incomeAt) - hours * 3600_000).toISOString() }).where(eq(storeWalletsTable.userId, req.user.id)).run();
+  res.json({ balance: walletFor(req.user.id).balance });
+});
+
 router.post("/dev/board/review-table", (req, res) => {
   const body = req.body as { careers?: BoardTableCareer[]; projections?: BoardProjectionInput[] };
   if (!Array.isArray(body?.careers) && !Array.isArray(body?.projections)) {

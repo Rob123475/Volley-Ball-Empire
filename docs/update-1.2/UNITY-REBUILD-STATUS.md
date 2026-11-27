@@ -153,6 +153,12 @@ Brief: `docs/update-1.2/UNITY-REBUILD-BRIEF.md`. Plan: `docs/update-1.2/PLAYABLE
 
 | Item | State | Proof | Commit |
 |---|---|---|---|
+| D6 Exhibition and online scaffold (28 Nov) | Done, PASS: the pick screen, up to four people, custom swimwear in two colours and eight prints (the leopard print poor: Rob to supply art), nothing in a career; RemoteSeat, recording, two engines agree | `proof/D6/` (`d6-exhibition-court.txt`, `d6-prints.png`), `proof/pages/`; `harness/exhibition.mjs` 23/23, `harness/online-scaffold.mjs` 6/6; `ONLINE-SCAFFOLD.md` | Unity `ac3a9af1` and after |
+| D5 Crowd banners (28 Nov) | Done, PASS: ten slogans and the player's own | `proof/D5/` | Unity `ac3a9af1` and after |
+| D4 Store and wallet (28 Nov) | Done, PASS, shipped closed: the wallet and four hooks from one settings file, items from a data file, the page, both ways proven | `harness/store.mjs` 25/25, `proof/pages/` | Unity `ac3a9af1` and after |
+| Section 4 Drinks break (28 Nov) | Done, PASS: 6 s, both teams, a shot of each, Enter skips, bottles away before the serve; B5 4/4 | `proof/section4/`, `proof/B5/b5-skip.txt` | Unity `a6aae18c` and after |
+| D2 Time of day, D3 Weather (28 Nov) | Done, PASS: four times and four weathers in every venue; the weather is what you see, not on the ball | `proof/D2/`, `proof/D3/`; frame rate `proof/D2/fps/` | Unity `a6aae18c` |
+| D1 Venues, sections 2, 3, 6 (28 Nov) | Built: the venue system and the island beach (oceania); five continents waiting on Rob's packs; palms 1.9 million to 30,000 triangles; Rob's props, the band, booth, juice bar, kiosk | `proof/D1/`; frame rate 56.8 fps lowest (headless Chrome's own ceiling is 56.3) | Unity `47348863`, `09fd34c7` |
 | Demo build (27 Nov) | Done: steps 1 to 6 PASS; step 7, the full harness, run 2: 139/140, the one failure a chance rate that passed alone. See "Demo build" at the end | `docs/update-1.2/proof/demo/`; `DEMO-CHECKLIST.md`; package `C:\build\vbe-1.2-demo-2026-11-27\` | game `fd7301a0`, `4849bcd9`, `7f7ba5c1`, `8e7f8996`, `6f5d2a65`; Unity `8bbf267` |
 | 0 Baseline | Done, PASS | `docs/update-1.2/proof/baseline/` (`results.txt`, plus the full `compile.log`, `RallyPlanProof.log` and `ManualControlsProof.log`) | game repo `dffed753`; Unity repo: `update-1.2` at `dd0a4875` (no file changes) |
 | Packs | Committed through LFS | `git lfs ls-files` lists all 672 pack FBX files | Unity `3c0e0f4` |
@@ -1577,3 +1583,149 @@ The people standing round the venue were treated under fix 1b.
 - **B5's skip check still passes:** 4/4 (`proof/B5/b5-skip.txt`, rerun with the break in).
 
 Unity `eac671df`.
+
+### Section 2: frame rate and download size, every time of day (28 Nov 2026)
+
+**Measured in the WebGL build** (D1 to D3 in it), with headless Chrome on the beast's GPU at 1920×1080, the roaming TV camera on, for 60 s after the walk-on of a real match (`scripts/webgl-proof/venue-fps.mjs`, `proof/D2/fps/`). The game chose each match's time.
+
+| Venue | Morning | Midday | Sunset | Night under lights | Lowest |
+|---|---|---|---|---|---|
+| oceania (Island Beach) | 56.8 | 57.1 | 57.1 | 56.9 | **56.8 fps** |
+
+- Every run had a median frame of 17.5 to 17.6 ms and a 95th percentile of 18.1 to 18.2 ms; 0 to 2 frames in a minute went over 50 ms.
+- Demo 2 measured 56.0 fps, before the palms were cut and the venue split off.
+- **Below 60, but not because of the scene.** An empty page in the same headless Chrome, measured the same way, gets **56.3 fps** (`proof/D2/fps/blank-page-fps.json`, `scripts/webgl-proof/blank-fps.mjs`).
+  - So the figure is the browser's own frame pacing on this PC, and the court reaches it at every time of day.
+  - Nothing was cut, because nothing in the scene was holding it back.
+  - The installed demo measures in the desktop app (demo 2: 56.4); that is the next place to look at 60.
+- **The five venues waiting on Rob** play at the island beach, so these are their figures until they are built.
+
+**Download:**
+
+| Piece | Uncompressed | As served (Brotli) |
+|---|---|---|
+| main data, after D3 (demo 2: 316.6 MB) | 173.5 MB | 137.5 MB (demo 2: 247.1 MB) |
+| main data, final build with D4 to D6 | **208.9 MB** | **160.1 MB** |
+| the island beach venue (its own download) | 74.9 MB | (LZ4 inside the bundle) |
+
+- The main download fell because the venue left it: the 1.9-million-triangle palms alone had been about 166 MB of mesh.
+- **D4 to D6 put 35 MB back.** The six swimwear cuts and the accessories bring IdaFaber's own 2048 normal and mask maps (5.3 MB each) into the build.
+  - The next cut, not made: cap the IdaFaber swimwear and accessory maps at 1024 (`TextureCap`); and ten "OLD" ball-pack maps (`Volleyball_Set_1/Textures/Decor/*_OLD_*`, 53 MB), still reached by the courtside ball rack.
+- Each venue to come is a download of its own, so the main one does not grow with them.
+- Textures are capped:
+  - `my assets/Environment` and Rob's 1.2 props at 1024;
+  - the gull and the drinks at 512;
+  - Citizens Pro at 512 (fix 1b).
+
+### D4: the Store and its own money, built and closed (28 Nov 2026)
+
+**Separate from the career.**
+- The wallet and what is bought live in two tables of their own (`store_wallets`, `store_owned`), keyed by the profile, never by a career or a club.
+- Nothing in the store reads or writes a club's bank balance or any other career money. `harness/store.mjs` checks the career's and the club's money before and after everything; they don't move.
+
+**The switch and the numbers are one settings file,** `artifacts/api-server/src/data/store-settings.json`:
+- `"open": false` (shipped closed);
+- the currency (coins);
+- a starting balance of 1,000;
+- a win reward of 100 and a loss penalty of 25;
+- an income of 20 every 24 hours.
+
+Change them, rebuild, no code.
+
+**Rob's four wallet hooks** (`artifacts/api-server/src/utils/store.ts`):
+1. **The starting balance**, paid when a profile's wallet first opens.
+2. **A win's reward** and 3. **a loss's penalty** (never below zero). Online play will call these; nothing does yet.
+4. **The income dribble**, paid for each whole period since the last.
+
+**The items come from a data file,** `artifacts/api-server/src/data/store-items.json`.
+- **At launch:** a sun hat, sunglasses, sandals, beach shoes, a bangle, a charm bracelet, earrings, a chain necklace, a pendant, an ankle chain, a leg band, and D6's eight prints.
+- **Colour:** every item's colour is the buyer's to choose; a print has two.
+- **The pack's sunglasses are frames with clear lenses** (IdaFaber's own); they are sold as sunglasses.
+
+**Adding an item from a new pack (Santa hats and so on):**
+1. Import the pack in Unity.
+2. Put its part on the players' model: add the part's name to `Wardrobe.Parts` and run `WardrobeSetup` (`Unity -batchmode ... -executeMethod WardrobeSetup.Run -quit`).
+3. Render its picture (`StoreThumbs`, which writes it to `public/store`).
+4. Add one line to `store-items.json`.
+
+**The players start with no accessories.** Every piece on their model (IdaFaber's hat, sunglasses, shoes, bracelets, earrings, necklaces, leg pieces) is switched off.
+- The model already had all five of its pieces off; the others were added off.
+- Each piece draws with a material of its own over a grey copy of the pack's texture, so the chosen colour comes out true. The pack's own shader has no colour input that works.
+- **The hat** swaps her scalp and fringe for the pack's hat-fitting ones.
+
+**The Store page** (`pages/store.tsx`), behind its own Store pill in the side menu:
+- the wallet's balance;
+- a card per item, lined up in a grid with no dead space, each with a picture of the item worn on a player, its slot, its price, the colour (or two), and Buy;
+- once bought, Wear, one item per slot at a time.
+
+**Proven both ways:**
+- `harness/store.mjs`, 25/25: closed as shipped; opened; buying; refusals; wearing; the four hooks; the career's money still.
+- `scripts/webgl-proof/pages-d4-d6.mjs` (`proof/pages/`), on the built pages:
+  - **Closed:** no Store pill, and `/store` goes back to the dashboard (`d4-closed-menu.png`).
+  - **Opened:** the pill, and the store page (`d4-store-page.png`). The sun hat bought in red and worn, the wallet 1,000 down to 850 coins (`d4-store-bought.png`).
+  - **"See it on a player":** what is worn goes on the home team's first player in an exhibition (`d6-pick-screen.png`), and D6's court proof shows a hat on a player.
+
+### D5: banners in the crowd (28 Nov 2026)
+
+- **Ten slogans** are in `Resources/banners.json`, for Rob to change: "GO {HOME}!", "GO {AWAY}!", ACE IT!, BLOCK PARTY, DIG DEEP, SET. SPIKE. SCORE., SUN'S OUT, SPIKES OUT, NO SAND, NO GLORY, SIDE OUT!, BEACH VOLLEYBALL FOREVER.
+  - The two team banners carry the teams' names and are in their kit colours.
+  - No real brands.
+- **The eleventh is the player's own words.** They are typed in Settings > Match presentation (up to 28 letters) and sent to the court when it loads (`d5-banner-setting.png`).
+- **How they are made:** each is painted at run time by the courtside boards' `BannerPainter`, on a board held up on two poles above a seat in the stands' second to fifth rows.
+  - They face the court, sway a little and go up after every point.
+- **Proof** (`proof/D5/`, a real match): all eleven are up, the player's "WE LOVE THE RIPTIDE" with them (`d5-banners-stand-north.png`, `-stand-south.png`, `-stands-wide.png`).
+- **Fixed on the way:** the sway reset each banner's facing, so every banner stood edge-on to the cameras.
+- **Said plainly:** the boards are held up on poles; no person's hands hold them.
+
+### D6: the exhibition game and the online scaffold (28 Nov 2026)
+
+**The pill and the pick screen** (`pages/exhibition.tsx`; `d6-title-pill.png`, `d6-pick-screen.png`).
+- "EXHIBITION GAME" sits beside CONTINUE on the title screen. It needs a profile, not a career.
+- **The two teams:** any of the game's 60 continental clubs, or a custom team, with team and player names changed at will.
+- **For each player:** who plays her (the AI, or person 1 on the keyboard, or persons 2 to 4 on pads 1 to 3), and her accessories in any colour.
+- **A custom team's swimwear:** the cut (three bikini sets, three swimsuits), plain or a print, and both colours.
+- **The game:** the venue (any of the six), time of day, weather and difficulty.
+- Everything is open and free.
+
+**On the court:**
+- **The game** reaches the court from the server (`GET /api/unity/exhibition-state`, held in memory only) in the same shape as a career match. That covers the venue, time and weather, the players and their kit or swimwear and accessories, the game's own odds, and the seats.
+- **People and devices:** up to four people play on one PC, each on her own device (`PersonInput`).
+  - Control follows the ball only for someone who has a whole team to herself.
+  - A person playing the far half has her stick turned round in the TV look.
+- **Nothing reaches a career.** The court reports nothing (`MatchReporter`), and the match ends back at the pick screen.
+
+**In the final WebGL build** (`scripts/webgl-proof/pages-d4-d6.mjs`, 12/12, `proof/pages/d6-webgl-court.png`): Play on the pick screen opens `/exhibition/court?exhibitionId=...`; the court reads the game, puts the sun hat picked for Annika Bauer on her (`SK_BG_HAT`), seats person 1 on her and the AI on the other three, and the match starts.
+
+**Proof:** `harness/exhibition.mjs --unity`, 23/23 (`proof/D6/`, `d6-exhibition-court.txt`).
+- Every option is there; six kinds of bad game are refused; a good one is made.
+- **Not one row in any of the 71 tables of the save changed.**
+- **On the court:**
+  - a custom team in a hibiscus swimsuit (blue with pink flowers) with a sun hat and sunglasses, and a zebra bikini with a bangle; a club team in its kit, one player with earrings;
+  - sunset in cloud;
+  - **three people seated** (two pads and the keyboard; the proof plugs in virtual pads), each player's engine seat a `LocalSeat`, and the AI on the fourth;
+  - nothing reported.
+
+**The two-colour swimwear** is a new material (`BVE/Swimwear2`, `Swimwear`, `SwimwearSetup`).
+- The cut's own texture gives the fabric its folds and seams; a print mask mixes the two colours.
+- **Eight prints at launch:** leopard, hibiscus, stripes, polka dots, palm leaves, camouflage, tie-dye and zebra. They are drawn by code as tiling masks (`Assets/Textures/Prints`).
+- **Proof sheet** (`proof/D6/d6-prints.png`): every print in its own colours on a swimsuit and in a second colourway on a bikini.
+- **Said plainly:**
+  - **The leopard print looks poor:** speckled, not rosettes. Rob should supply art for it, a mask of the same name.
+  - **Palm leaves and hibiscus** read but are simple.
+  - **Stripes, polka dots, zebra, camouflage and tie-dye** look right.
+- **Seen on the way:** in the serve hold the ball rests at her head, so a player in the sun hat looks as if the ball sits on the hat (`d6-player_a1.png`).
+
+**Ready for online play later** (`docs/update-1.2/ONLINE-SCAFFOLD.md`):
+- every player is a seat;
+- seats send only inputs;
+- the engine is plain C# on fixed steps;
+- the set-up is one small block of data;
+- `RemoteSeat` is built;
+- every match's inputs can be recorded to a file and played back.
+
+**The two-engine proof** (`harness/online-scaffold.mjs`, 6/6, in the full harness):
+- one process plays and records a match;
+- two more processes play it again from the file alone, and agree with it point by point, to the millisecond;
+- one press taken out of the file changes the first point.
+
+**Not built (Rob's instruction):** section 5's commentary team. Its make-up isn't confirmed, so the booth has no commentators.

@@ -717,6 +717,19 @@ runSuite("ai market", path.join(REPO, "harness", "ai-market.mjs"));
 console.log("\n########## 98zzb/100  ONE SQUAD POLICY FOR THE AI CLUBS (1.1.3 SQUAD ITEM A) ##########");
 runSuite("squad policy", path.join(REPO, "harness", "squad-policy.mjs"));
 
+// 1.2 D4 (28 Nov): the Store, closed as shipped, its own wallet and four hooks, never a career's money. Own DB and server (4958).
+console.log("\n########## 98zzc/100  THE STORE AND ITS OWN MONEY (1.2 D4) ##########");
+runSuite("store", path.join(REPO, "harness", "store.mjs"));
+
+// 1.2 D6 (28 Nov): the online scaffold: one recorded match played again by remote seats in two other processes, point by point. No server.
+console.log("\n########## 98zzd/100  THE ONLINE SCAFFOLD: TWO ENGINES, ONE RECORDING (1.2 D6) ##########");
+runSuite("online scaffold", path.join(REPO, "harness", "online-scaffold.mjs"));
+
+// 1.2 D6 (28 Nov): the exhibition game: the pick screen's options, a game that does not add up refused,
+// the court's view of a good one, and no table in the save changed. Own DB and server (4955).
+console.log("\n########## 98zze/100  THE EXHIBITION GAME (1.2 D6) ##########");
+runSuite("exhibition", path.join(REPO, "harness", "exhibition.mjs"));
+
 // ── Smoke needs a server; boot one on a throwaway copy of the shipped DB ─────
 console.log("\n########## 99/100  GAMEPLAY SMOKE ##########");
 {

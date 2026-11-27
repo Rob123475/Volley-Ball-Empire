@@ -1,0 +1,89 @@
+{
+  "checks": [
+    {
+      "label": "the title screen has the EXHIBITION GAME pill",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "closed as shipped: no Store pill in the side menu",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "closed: /store goes back to the dashboard",
+      "pass": true,
+      "detail": "/"
+    },
+    {
+      "label": "opened: the Store pill is in the side menu",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "bought: the wallet down by the hat's price",
+      "pass": true,
+      "detail": "1000 coins -> 850 coins"
+    },
+    {
+      "label": "the exhibition's pick screen: the worn hat on the home team's first player",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "Settings: the player's banner is remembered",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "Play: the court opens the exhibition",
+      "pass": true,
+      "detail": "/exhibition/court?exhibitionId=5f419850-673e-48db-863e-889982a06070&played=1"
+    },
+    {
+      "label": "the court's view of the game: the first player's worn hat",
+      "pass": true,
+      "detail": "[{\"part\":\"SK_BG_HAT\",\"colour\":\"#e8d8b0\"}]"
+    },
+    {
+      "label": "the WebGL court put the hat on the first player",
+      "pass": true,
+      "detail": "[UnityMatchDataLoader] exhibition: Player_A1 (Annika Bauer) seat person 1; wears  + SK_BG_HAT"
+    },
+    {
+      "label": "and started the match",
+      "pass": true,
+      "detail": "[MatchManager] match starts after 4.2s: match data applied; home point chance 0.5041\n"
+    }
+  ],
+  "shots": [
+    {
+      "name": "d6-title-pill.png",
+      "why": "the title screen"
+    },
+    {
+      "name": "d4-closed-menu.png",
+      "why": "the side menu with the store closed"
+    },
+    {
+      "name": "d4-store-page.png",
+      "why": "the store page"
+    },
+    {
+      "name": "d4-store-bought.png",
+      "why": "the hat bought in red and worn"
+    },
+    {
+      "name": "d6-pick-screen.png",
+      "why": "the exhibition pick screen"
+    },
+    {
+      "name": "d5-banner-setting.png",
+      "why": "Settings > Match presentation, the banner"
+    },
+    {
+      "name": "d6-webgl-court.png",
+      "why": "the exhibition in the WebGL court"
+    }
+  ]
+}
