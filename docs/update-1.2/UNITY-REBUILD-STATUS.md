@@ -153,6 +153,7 @@ Brief: `docs/update-1.2/UNITY-REBUILD-BRIEF.md`. Plan: `docs/update-1.2/PLAYABLE
 
 | Item | State | Proof | Commit |
 |---|---|---|---|
+| 9b Rob's swimwear prints (29 Nov) | Done, PASS: his 23 swatches as 20 prints (paisley 4 ways), 11 the player recolours by Rob's rule, 9 as painted; a new print is a picture and a line; 42 MB to 3.0 MB; seams cut to whole repeats or mirrored; the palette of brights and pastels | `proof/9b/9b-prints-sheet.png`; store 30/30, exhibition --unity 30/30 | Unity `ace36fd0` |
 | 9a Tinted sunglasses (29 Nov) | Done, PASS: five lens tints beside the frame colour, in the store and on the pick screen; eyes faint behind them; the floodlights light them | `proof/9a/9a-lenses-sheet.png`; store 27/27, exhibition 21/21 | Unity `a7575042` |
 | D4-D6 Full harness (28 Nov) | **ALL HARNESSES PASSED** on run 3 of the 3 allowed (144 suites; season rollover 2,266 s). Run 1 stopped at check-starter-db; run 2 failed four source suites only | `pnpm run build`; see "Full harness, Part D" below | game `07503f05`, `bdbaef5a` |
 | D6 Exhibition and online scaffold (28 Nov) | Done, PASS: the pick screen, up to four people, custom swimwear in two colours and eight prints (the leopard print poor: Rob to supply art), nothing in a career; RemoteSeat, recording, two engines agree | `proof/D6/` (`d6-exhibition-court.txt`, `d6-prints.png`), `proof/pages/`; `harness/exhibition.mjs` 23/23, `harness/online-scaffold.mjs` 6/6; `ONLINE-SCAFFOLD.md` | Unity `ac3a9af1`, game `80ad1d5f` |
@@ -1785,3 +1786,86 @@ Rob's order: section 9, then demo 3 (section 8), then section 5, then section 10
 - `harness/exhibition.mjs` 21/21: the five tints offered; amber lenses reach the court; a lens they don't come in refused.
 
 **Said plainly:** in the night pictures her head is bowed, so the camera looks down on the glasses; the eyes show through the amber and rose lenses.
+
+### 9b: Rob's swimwear prints (29 Nov 2026)
+
+**Rob's 23 swatches are the prints, as 20 choices.** Paisley is one print in his four colourways.
+- His art replaces the eight prints drawn by code for D6. The code that drew them is gone (`SwimwearSetup`), and so are their masks (`Assets/Textures/Prints`) and the store's pictures of them.
+- **Nothing was repainted;** the swatches were only cropped and scaled.
+
+**A new print is one picture and one line, with no code change and no new build.**
+- The pictures are served by the game (`artifacts/beach-volleyball/public/prints`, at `/prints/`).
+- The court loads a print by name when a player wears it (`PrintLibrary`), with mipmaps so it doesn't shimmer at a distance.
+- So the main download doesn't grow; only the prints worn are fetched.
+- The data file, `artifacts/api-server/src/data/prints.json`, holds each print's:
+  - name and picture;
+  - colours (Rob's defaults);
+  - colourways;
+  - how it repeats;
+  - scale.
+- `scripts/prepare-prints.mjs` turns Rob's swatches into the game's pictures (below). A new swatch can also be dropped in as it is.
+
+**The size cap:** 42 MB of swatches became **3.0 MB**.
+- Each is capped at 1024 wide.
+- Prints of 3 colours or fewer are stored as PNG, so their edges stay clean for the colour change; full-colour prints as JPEG at quality 90.
+
+**Rob's rule, and the counts.** A print of three colours or fewer has a colour picker per colour (his colours are the defaults); a print of more is shown exactly as painted.
+- **Changeable (11):**
+  - 2 colours: both hibiscus, stripes, pinstripe, polka dots, houndstooth, zebra, tiger stripes, cow, palm leaves;
+  - 3 colours: gingham (red, pink, white).
+- **As painted (9):** camouflage, leopard, tiger, snakeskin, tropical hibiscus, ditsy floral, retro floral, tie-dye, and paisley in his four colourways.
+- **Counted from the pictures** (pixel clusters, blends between two colours not counted): every count agrees with Rob's.
+  - **Camouflage:** a first coarse count merged its olive green into the brown. It has 4: dark brown, mid brown, olive and tan.
+  - **Paisley green and orange:** each has 3 main colours plus shading between them, so they stay as painted, as Rob said.
+
+**The colour change** is in the swimwear shader (`BVE/Swimwear2`).
+- Each pixel of Rob's picture is read as a mix of the print's own 2 or 3 colours and drawn as the same mix of the player's.
+- So the soft edges he drew stay clean in any colours (`proof/9b`, "a second colourway" column: hot pink and sky; gingham in navy, baby blue and white).
+- The shader now also takes the night floodlights (the D6 one took only the sun or moon).
+
+**Seams, measured edge to edge** (each edge's mismatch against the picture's own pixel-to-pixel change):
+- **Regular patterns:** cut to a whole number of their repeats, measured from the picture, then tiled. No seam shows:
+  - gingham 16 x 8 repeats (110.8 px);
+  - houndstooth 16 x 8 (110.6 x 105.7 px);
+  - polka dots 10 x 5 (164.6 x 167.9 px);
+  - stripes 4 repeats down (189.4 px).
+- **Already joining:** tiled as they are. That is camouflage, leopard and tropical hibiscus. Pinstripe joins across and is mirrored down; tiger joins across and is mirrored down.
+- **Not joining:** mirrored at every repeat, so the edges always meet. That is cow, zebra, tiger stripes, both two-colour hibiscus, palm leaves, snakeskin, ditsy floral, retro floral and the paisleys.
+  - **Said plainly:** a mirror has no hard join, but where four repeats meet the pattern turns symmetrical. The sheet's "join" column shows each one at full size.
+  - At the scale chosen, one repeat covers about the width of the swimwear's whole texture, so on a player the turn is mostly off the fabric or at its edges.
+- **Tie-dye** is one spiral, not repeated (Rob's instruction). It is placed once across the swimwear's texture at half scale, so the spiral covers the garment; the cut decides how much of it shows on the front.
+
+**Scale: 1 for every print** (one picture across the width of the swimwear's texture), and 0.5 for the tie-dye.
+- By eye in the pictures:
+  - leopard: about 3 to 4 spots across a bikini cup;
+  - two-colour hibiscus: about one flower across a cup;
+  - ditsy floral: small, as on real fabric.
+- Every print uses the same scale, so Rob can change any one in its line.
+
+**The colour picker** (`components/colour-picker.tsx`), for plain swimwear, every changeable print and the store's items:
+- 12 brights: red, orange, yellow, lime, green, teal, cyan, blue, navy, purple, magenta, hot pink;
+- their 12 pastels;
+- white, grey and black;
+- any other colour by hand.
+- The sheet shows the palette at its top.
+
+**On the pick screen and in the store:**
+- the print's picture beside its colour pickers;
+- a colourway choice for paisley;
+- "As Rob painted it" for the fixed prints.
+- The store sells every print from the data file at one price (`printPrice` in `store-items.json`).
+
+**Proof:**
+- `proof/9b/9b-prints-sheet.png` (`PrintsProof` then `scripts/prints-sheet.mjs`). Every print gets:
+  - a swimsuit, close;
+  - a bikini top, close;
+  - match distance (16 m, the TV lens, enlarged 2x);
+  - its second colourway or its colourways;
+  - its join.
+- `harness/store.mjs` 30/30: every print sold and pictured; gingham in three colours; leopard as painted and refused in a colour; paisley in a colourway, and refused in one Rob didn't paint.
+- `harness/exhibition.mjs --unity` 30/30:
+  - the 20 prints offered with their pictures;
+  - Rob's rule (11 changeable, 9 as painted, paisley 4 ways);
+  - a wrong colour count, colours on a fixed print, and a wrong colourway all refused;
+  - on the court, the hibiscus in blue and pink and the paisley in pink, loaded from the game's server (`proof/D6/d6-player_a1.png`, `d6-player_a2.png`).
+- The exhibition suite's server now runs as the game's does (production, the built pages), so the court loads the prints from it.

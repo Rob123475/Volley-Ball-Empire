@@ -1,0 +1,32 @@
+ROB'S PRINTS ON A PLAYER (PrintsProof)
+  hibiscus-white-on-red: second colourway #FF2D8A,#A5E6F2
+  hibiscus-white-on-red: bikini-1 hibiscus-white-on-red #FF2D8A,#A5E6F2; repeats mirror/mirror, scale 1
+  hibiscus-red-on-white: second colourway #FF2D8A,#A5E6F2
+  hibiscus-red-on-white: bikini-1 hibiscus-red-on-white #FF2D8A,#A5E6F2; repeats mirror/mirror, scale 1
+  stripes: second colourway #FF2D8A,#A5E6F2
+  stripes: bikini-1 stripes #FF2D8A,#A5E6F2; repeats repeat/repeat, scale 1
+  pinstripe: second colourway #FF2D8A,#A5E6F2
+  pinstripe: bikini-1 pinstripe #FF2D8A,#A5E6F2; repeats repeat/mirror, scale 1
+  polka-dots: second colourway #FF2D8A,#A5E6F2
+  polka-dots: bikini-1 polka-dots #FF2D8A,#A5E6F2; repeats repeat/repeat, scale 1
+  houndstooth: second colourway #FF2D8A,#A5E6F2
+  houndstooth: bikini-1 houndstooth #FF2D8A,#A5E6F2; repeats repeat/repeat, scale 1
+  zebra: second colourway #FF2D8A,#A5E6F2
+  zebra: bikini-1 zebra #FF2D8A,#A5E6F2; repeats mirror/mirror, scale 1
+  tiger-flat: second colourway #FF2D8A,#A5E6F2
+  tiger-flat: bikini-1 tiger-flat #FF2D8A,#A5E6F2; repeats mirror/mirror, scale 1
+  cow: second colourway #FF2D8A,#A5E6F2
+  cow: bikini-1 cow #FF2D8A,#A5E6F2; repeats mirror/mirror, scale 1
+  palm-leaves: second colourway #FF2D8A,#A5E6F2
+  palm-leaves: bikini-1 palm-leaves #FF2D8A,#A5E6F2; repeats mirror/mirror, scale 1
+  gingham: second colourway #1E2A78,#A9C4F7,#FFFFFF
+  gingham: bikini-1 gingham #1E2A78,#A9C4F7,#FFFFFF; repeats repeat/repeat, scale 1
+  camouflage: swimsuit-1 camouflage as painted; repeats repeat/repeat, scale 1
+  leopard: swimsuit-1 leopard as painted; repeats repeat/repeat, scale 1
+  tiger: swimsuit-1 tiger as painted; repeats repeat/mirror, scale 1
+  snakeskin: swimsuit-1 snakeskin as painted; repeats mirror/mirror, scale 1
+  tropical-hibiscus: swimsuit-1 tropical-hibiscus as painted; repeats repeat/repeat, scale 1
+  ditsy-floral: swimsuit-1 ditsy-floral as painted; repeats mirror/mirror, scale 1
+  retro-floral: swimsuit-1 retro-floral as painted; repeats mirror/mirror, scale 1
+  tie-dye: swimsuit-1 tie-dye as painted; repeats single/single, scale 0.5
+  paisley: swimsuit-1 paisley as painted; repeats mirror/mirror, scale 1

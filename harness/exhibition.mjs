@@ -51,7 +51,9 @@ console.log("=".repeat(72));
 fs.copyFileSync(SHIPPED, DB);
 const out = fs.openSync(path.join(WORK, "server.log"), "w");
 const child = forkServer({ server: SERVER, electron: ELECTRON, out,
-  env: { ...process.env, ELECTRON_RUN_AS_NODE: "1", DB_PATH: DB, PORT: String(PORT), NODE_ENV: "development", SESSION_SECRET: "exhibition", STARTER_DB_PATH: SHIPPED } });
+  env: { ...process.env, ELECTRON_RUN_AS_NODE: "1", DB_PATH: DB, PORT: String(PORT), NODE_ENV: "production", SESSION_SECRET: "exhibition", STARTER_DB_PATH: SHIPPED,
+    // the built pages too, as the game serves them: the court loads Rob's prints from /prints (1.2 9b)
+    PUBLIC_DIR: path.join(REPO, "artifacts", "api-server", "dist", "public") } });
 let cookie = "";
 async function call(method, p, body) {
   const r = await fetch(BASE + p, { method, headers: { "content-type": "application/json", ...(cookie ? { cookie } : {}) }, body: body === undefined ? undefined : JSON.stringify(body) });
@@ -79,15 +81,18 @@ try {
   const o = (await call("GET", "/exhibition/options")).data;
   check("the options: 60 clubs, 120 players", o.teams?.length === 60 && o.players?.length === 120, `${o.teams?.length} clubs, ${o.players?.length} players`);
   check("six venues, four times, four weathers, three difficulties", o.venues?.length === 6 && o.times?.length === 4 && o.weathers?.length === 4 && o.difficulties?.length === 3, o.venues?.map((v) => v.key).join(", "));
-  check("six cuts and eight prints", o.cuts?.length === 6 && o.prints?.length === 8, o.prints?.join(", "));
+  check("six cuts and Rob's 20 prints (9b), each with its picture", o.cuts?.length === 6 && o.prints?.length === 20 && o.prints.every((p) => fs.existsSync(path.join(REPO, "artifacts/beach-volleyball/public", p.picture))), o.prints?.map((p) => p.id).join(", "));
+  check("9b: Rob's rule: 11 prints the player recolours (2 or 3 colours), 9 as painted, paisley in 4 colourways",
+    o.prints.filter((p) => p.colours.length >= 2 && p.colours.length <= 3).length === 11 && o.prints.filter((p) => p.colours.length === 0).length === 9 && o.prints.find((p) => p.id === "paisley")?.colourways?.length === 4,
+    o.prints.map((p) => `${p.id} ${p.colourways ? p.colourways.length + " ways" : p.colours.length}`).join(", "));
   check("the accessories, all free here", o.items?.length === 11, `${o.items?.length} items`);
 
   const [t1, t2] = [o.teams[0], o.teams[7]];
   const pl = (id) => o.players.find((p) => p.id === id);
   const game = {
     home: { poolTeamId: null, name: "Sunset Sirens", primary: "#ff7a00", secondary: "#ffffff", players: [
-      { poolPlayerId: t1.players[0], name: "Kira Sands", swimwear: { cut: "swimsuit-1", print: "hibiscus", colourA: "#1f5fbf", colourB: "#f26aa3" }, wear: [{ itemId: "sun-hat", colour: "#f4e3c1" }, { itemId: "sunglasses", colour: "#222222", lens: "amber" }] },
-      { poolPlayerId: t1.players[1], name: pl(t1.players[1]).name, swimwear: { cut: "bikini-3", print: "zebra", colourA: "#ffffff", colourB: "#111111" }, wear: [{ itemId: "bangle", colour: "#d4af37" }] },
+      { poolPlayerId: t1.players[0], name: "Kira Sands", swimwear: { cut: "swimsuit-1", print: "hibiscus-white-on-red", colours: ["#1f5fbf", "#f26aa3"] }, wear: [{ itemId: "sun-hat", colour: "#f4e3c1" }, { itemId: "sunglasses", colour: "#222222", lens: "amber" }] },
+      { poolPlayerId: t1.players[1], name: pl(t1.players[1]).name, swimwear: { cut: "bikini-3", print: "paisley", colours: [], colourway: "pink" }, wear: [{ itemId: "bangle", colour: "#d4af37" }] },
     ] },
     away: { poolTeamId: t2.id, name: t2.name, primary: t2.primary, secondary: t2.secondary, players: [
       { poolPlayerId: t2.players[0], name: pl(t2.players[0]).name, wear: [] },
@@ -100,6 +105,9 @@ try {
     ["the same player twice", { ...game, away: { ...game.away, players: [game.away.players[0], { ...game.home.players[0] }] } }],
     ["a colour that is not a colour", { ...game, home: { ...game.home, primary: "orange" } }],
     ["a print that does not exist", { ...game, home: { ...game.home, players: [{ ...game.home.players[0], swimwear: { ...game.home.players[0].swimwear, print: "tartan" } }, game.home.players[1]] } }],
+    ["a two-colour print in three colours (9b)", { ...game, home: { ...game.home, players: [{ ...game.home.players[0], swimwear: { ...game.home.players[0].swimwear, colours: ["#111111", "#222222", "#333333"] } }, game.home.players[1]] } }],
+    ["a print shown as painted, given colours (9b)", { ...game, home: { ...game.home, players: [{ ...game.home.players[0], swimwear: { cut: "swimsuit-1", print: "leopard", colours: ["#111111"] } }, game.home.players[1]] } }],
+    ["paisley in a colourway it does not come in (9b)", { ...game, home: { ...game.home, players: [game.home.players[0], { ...game.home.players[1], swimwear: { cut: "bikini-3", print: "paisley", colours: [], colourway: "purple" } }] } }],
     ["a person 3 with no person 2", { ...game, seats: [0, 2, -1, -1] }],
     ["a venue that is not one of the six", { ...game, venue: "antarctica" }],
     ["sunglasses with a lens they do not come in (9a)", { ...game, home: { ...game.home, players: [{ ...game.home.players[0], wear: [{ itemId: "sunglasses", colour: "#222222", lens: "purple" }] }, game.home.players[1]] } }],
@@ -112,7 +120,9 @@ try {
   const st = (await call("GET", `/unity/exhibition-state?id=${made.data.id}`)).data;
   check("the court's view: an exhibition, the two teams' names", st.exhibition === true && st.homeTeam === "Sunset Sirens" && st.awayTeam === t2.name, `${st.homeTeam} v ${st.awayTeam}`);
   check("the names as changed", st.players[0].name === "Kira Sands", st.players.map((p) => p.name).join(", "));
-  check("the custom team's swimwear; a club team keeps its kit", st.players[0].swimwear?.print === "hibiscus" && st.players[1].swimwear?.cut === "bikini-3" && st.players[2].swimwear === null,
+  check("the custom team's swimwear (9b: Rob's picture, its own colours and the player's); a club team keeps its kit",
+    st.players[0].swimwear?.printFile === "hibiscus-white-on-red.png" && st.players[0].swimwear.palette.join() === "#cd0205,#fdfdfc" && st.players[0].swimwear.colours.join() === "#1f5fbf,#f26aa3"
+    && st.players[1].swimwear?.cut === "bikini-3" && st.players[1].swimwear.printFile === "paisley-pink.jpg" && st.players[1].swimwear.colours.length === 0 && st.players[2].swimwear === null,
     `${JSON.stringify(st.players[0].swimwear)}; away ${st.players[2].primaryColor}/${st.players[2].secondaryColor}`);
   check("the accessories, as model parts and colours", st.players[0].wear.map((w) => w.part).join(",") === "SK_BG_HAT,SK_BG_SUNGLASSES" && st.players[3].wear[0]?.part === "SK_BG_EARRINGS", JSON.stringify(st.players[0].wear));
   check("9a: the sunglasses with their lens tint", st.players[0].wear[1]?.lens === "amber" && st.players[0].wear[0]?.lens === null, JSON.stringify(st.players[0].wear));
@@ -130,7 +140,9 @@ try {
     const text = fs.existsSync(path.join(PROOF, "D6", "d6-exhibition-court.txt")) ? fs.readFileSync(path.join(PROOF, "D6", "d6-exhibition-court.txt"), "utf8") : "";
     check("the court ran it", r.status === 0 && text.length > 0, `exit ${r.status}`);
     check("its venue, time and weather", /time Sunset; weather Cloudy/.test(text), text.split("\n").find((l) => l.includes("the game:")));
-    check("the custom team's swimwear and accessories on the players", /Player_A1: Kira Sands; swimwear swimsuit-1 hibiscus/.test(text) && /SK_BG_HAT/.test(text), text.split("\n").find((l) => l.includes("Player_A1:")));
+    check("the custom team's swimwear (Rob's prints, loaded from the game) and accessories on the players",
+      /Player_A1: Kira Sands; swimwear swimsuit-1 hibiscus-white-on-red #1F5FBF,#F26AA3/.test(text) && /Player_A2: .*swimwear bikini-3 paisley-pink as painted/.test(text) && /SK_BG_HAT/.test(text),
+      text.split("\n").filter((l) => /Player_A[12]:/.test(l)).join(" | "));
     check("three people here, each on her own seat, and the AI on the fourth", /played: 3 people here/.test(text) && /Player_B2 AiSeat/.test(text), text.split("\n").find((l) => l.includes("engine's seats")));
     check("nothing reported to a career", /reported to a career: nothing/.test(text));
     console.log(text.split("\n").map((l) => "    " + l).join("\n"));

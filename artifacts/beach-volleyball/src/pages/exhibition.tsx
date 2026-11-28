@@ -4,7 +4,8 @@
  * Two teams (any of the game's 60 continental clubs, or a custom team) and their two players each,
  * names changed at will; who plays each player (the AI, or person 1-4 on this PC: the keyboard and
  * up to three pads); the venue, time of day, weather and difficulty. A custom team has no club's
- * colours, so its swimwear is free: a cut, plain or a print, and both of the print's colours. Every
+ * colours, so its swimwear is free: a cut, plain in a colour, or one of Rob's prints (1.2 9b) in
+ * colours of the player's own (a print of three colours or fewer) or as he painted it. Every
  * venue, item, cut and print is open and free here. What the profile bought in the Store and wears
  * goes on the home team's first player to start with.
  *
@@ -19,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, Play, Users } from "lucide-react";
+import { ColourPicker } from "@/components/colour-picker";
 
 type Player = { id: number; name: string; nationality: string; skinTone: string; imageUrl: string | null; overall: number };
 type Team = { id: number; name: string; continent: string; primary: string; secondary: string; players: number[] };
@@ -27,22 +29,24 @@ type Item = { id: string; name: string; slot: string; picture: string; colour: s
 type Worn = { itemId: string; colour: string; lens?: string };
 type Options = {
   teams: Team[]; players: Player[]; venues: { key: string; label: string }[];
-  times: string[]; weathers: string[]; difficulties: string[]; cuts: string[]; prints: string[]; items: Item[];
+  times: string[]; weathers: string[]; difficulties: string[]; cuts: string[]; prints: PrintOpt[]; items: Item[];
   worn: (Worn & { lens: string | null })[];
 };
-type Swim = { cut: string; print: string; colourA: string; colourB: string };
+/** 1.2 9b: one of Rob's prints: its own colours (the player's to change; none: as painted), or its colourways. */
+type PrintOpt = { id: string; name: string; picture: string; colours: string[]; colourways?: { id: string; name: string; picture: string }[] };
+/** A custom team's swimwear: plain in one colour, or a print in its colours (or a colourway). */
+type Swim = { cut: string; print: string; colours: string[]; colourway?: string };
 type PickPlayer = { poolPlayerId: number; name: string; seat: number; swimwear: Swim; wear: Worn[] };
 type PickTeam = { poolTeamId: number | null; name: string; primary: string; secondary: string; players: [PickPlayer, PickPlayer] };
 
 const SEATS = [{ v: -1, label: "AI" }, { v: 0, label: "Person 1 (keyboard)" }, { v: 1, label: "Person 2 (pad 1)" }, { v: 2, label: "Person 3 (pad 2)" }, { v: 3, label: "Person 4 (pad 3)" }];
 const CUT_LABEL: Record<string, string> = { "bikini-1": "Bikini 1 (with wrap)", "bikini-2": "Bikini 2", "bikini-3": "Bikini 3", "swimsuit-1": "Swimsuit 1", "swimsuit-2": "Swimsuit 2", "swimsuit-3": "Swimsuit 3" };
-const PRINT_LABEL: Record<string, string> = { plain: "Plain", leopard: "Leopard", hibiscus: "Hibiscus", stripes: "Stripes", polkadots: "Polka dots", palmleaves: "Palm leaves", camouflage: "Camouflage", tiedye: "Tie-dye", zebra: "Zebra" };
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 const LENS_LABEL: Record<string, string> = { black: "Black lenses", brown: "Brown lenses", "blue-mirror": "Blue mirror", amber: "Amber lenses", rose: "Rose lenses" };
 const selectClass = "h-9 w-full rounded-md border border-input bg-background px-2 text-sm";
 
 function playerFor(p: Player, seat: number): PickPlayer {
-  return { poolPlayerId: p.id, name: p.name, seat, swimwear: { cut: "bikini-2", print: "plain", colourA: "#1e3a8a", colourB: "#ffffff" }, wear: [] };
+  return { poolPlayerId: p.id, name: p.name, seat, swimwear: { cut: "bikini-2", print: "plain", colours: ["#1e2a78"] }, wear: [] };
 }
 function teamFrom(t: Team, players: Player[], seats: [number, number]): PickTeam {
   const [a, b] = t.players.map((id) => players.find((p) => p.id === id)!);
@@ -60,6 +64,13 @@ function PlayerPicker({ o, team, idx, onChange, taken }: { o: Options; team: Pic
     onChange({ ...p, wear: item ? [...rest, { itemId, colour: colour ?? item.colour, ...(item.lenses ? { lens: lens ?? item.lens ?? item.lenses[0] } : {}) }] : rest });
   };
   const pl = o.players.find((x) => x.id === p.poolPlayerId);
+  const print = o.prints.find((x) => x.id === p.swimwear.print);
+  const pickPrint = (id: string) => {
+    const np = o.prints.find((x) => x.id === id);
+    onChange({ ...p, swimwear: np ? { cut: p.swimwear.cut, print: id, colours: [...np.colours], ...(np.colourways ? { colourway: np.colourways[0].id } : {}) }
+                                  : { cut: p.swimwear.cut, print: "plain", colours: [p.swimwear.colours[0] ?? "#1e2a78"] } });
+  };
+  const setColour = (i: number, hex: string) => onChange({ ...p, swimwear: { ...p.swimwear, colours: p.swimwear.colours.map((c, j) => (j === i ? hex : c)) } });
   return (
     <div className="space-y-2 rounded-lg border p-3" data-testid={`ex-player-${idx}`}>
       <div className="flex items-center gap-3">
@@ -76,15 +87,26 @@ function PlayerPicker({ o, team, idx, onChange, taken }: { o: Options; team: Pic
       </div>
       <Input value={p.name} maxLength={30} aria-label="Her name" onChange={(e) => onChange({ ...p, name: e.target.value })} />
       {custom && (
-        <div className="grid grid-cols-[1fr_1fr_auto_auto] items-center gap-2">
-          <select className={selectClass} value={p.swimwear.cut} aria-label="Cut" onChange={(e) => onChange({ ...p, swimwear: { ...p.swimwear, cut: e.target.value } })}>
-            {o.cuts.map((c) => <option key={c} value={c}>{CUT_LABEL[c] ?? c}</option>)}
-          </select>
-          <select className={selectClass} value={p.swimwear.print} aria-label="Print" onChange={(e) => onChange({ ...p, swimwear: { ...p.swimwear, print: e.target.value } })}>
-            {["plain", ...o.prints].map((c) => <option key={c} value={c}>{PRINT_LABEL[c] ?? c}</option>)}
-          </select>
-          <input type="color" aria-label="Colour A" value={p.swimwear.colourA} onChange={(e) => onChange({ ...p, swimwear: { ...p.swimwear, colourA: e.target.value } })} className="h-9 w-10 rounded border" />
-          <input type="color" aria-label="Colour B" disabled={p.swimwear.print === "plain"} value={p.swimwear.colourB} onChange={(e) => onChange({ ...p, swimwear: { ...p.swimwear, colourB: e.target.value } })} className="h-9 w-10 rounded border disabled:opacity-30" />
+        <div className="space-y-2">
+          <div className="grid grid-cols-2 gap-2">
+            <select className={selectClass} value={p.swimwear.cut} aria-label="Cut" onChange={(e) => onChange({ ...p, swimwear: { ...p.swimwear, cut: e.target.value } })}>
+              {o.cuts.map((c) => <option key={c} value={c}>{CUT_LABEL[c] ?? c}</option>)}
+            </select>
+            <select className={selectClass} value={p.swimwear.print} aria-label="Print" onChange={(e) => pickPrint(e.target.value)}>
+              <option value="plain">Plain</option>
+              {o.prints.map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}
+            </select>
+          </div>
+          <div className="flex items-center gap-2" data-testid={`ex-swim-colours-${idx}`}>
+            {print && <img src={print.colourways?.find((c) => c.id === p.swimwear.colourway)?.picture ?? print.picture} alt={print.name} className="h-9 w-16 rounded border object-cover" />}
+            {p.swimwear.colours.map((c, i) => <ColourPicker key={i} value={c} label={`Swimwear colour ${i + 1}`} onChange={(hex) => setColour(i, hex)} />)}
+            {print?.colourways && (
+              <select className={`${selectClass} w-auto`} value={p.swimwear.colourway} aria-label="Colourway" onChange={(e) => onChange({ ...p, swimwear: { ...p.swimwear, colourway: e.target.value } })}>
+                {print.colourways.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+              </select>
+            )}
+            {print && print.colours.length === 0 && !print.colourways && <span className="text-xs text-muted-foreground">As Rob painted it</span>}
+          </div>
         </div>
       )}
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -96,7 +118,7 @@ function PlayerPicker({ o, team, idx, onChange, taken }: { o: Options; team: Pic
                 <option value="">{cap(slot === "legpiece" ? "leg piece" : slot)}: none</option>
                 {items.map((i) => <option key={i.id} value={i.id}>{i.name}</option>)}
               </select>
-              {w && <input type="color" aria-label={`${slot} colour`} value={w.colour} onChange={(e) => setWear(slot, w.itemId, e.target.value, w.lens)} className="h-9 w-9 shrink-0 rounded border" />}
+              {w && <ColourPicker value={w.colour} label={`${slot} colour`} onChange={(hex) => setWear(slot, w.itemId, hex, w.lens)} />}
               {w?.lens && (
                 <select className={`${selectClass} w-auto shrink-0`} value={w.lens} aria-label={`${slot} lenses`} onChange={(e) => setWear(slot, w.itemId, w.colour, e.target.value)}>
                   {(o.items.find((i) => i.id === w.itemId)?.lenses ?? []).map((l) => <option key={l} value={l}>{LENS_LABEL[l] ?? l}</option>)}

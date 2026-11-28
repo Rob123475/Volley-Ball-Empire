@@ -17,6 +17,7 @@ import { randomUUID } from "node:crypto";
 import { db, continentalPoolTeamsTable, continentalPoolPlayersTable, CONTINENTS, isContinentKey } from "@workspace/db";
 import { pointProbability, sideRating } from "../utils/matchEngine.js";
 import { STORE_ITEMS, storeOpen, wornFor, splitLens } from "../utils/store.js";
+import { PRINTS, printOption, swimProblem, courtSwimwear, type SwimChoice } from "../utils/prints.js";
 
 const router = Router();
 
@@ -24,13 +25,12 @@ const TIMES = ["morning", "midday", "sunset", "night"] as const;
 const WEATHERS = ["sunny", "windy", "cloudy", "rain"] as const;
 const DIFFICULTIES = ["easy", "medium", "hard"] as const;
 const CUTS = ["bikini-1", "bikini-2", "bikini-3", "swimsuit-1", "swimsuit-2", "swimsuit-3"] as const;
-const PRINTS = ["leopard", "hibiscus", "stripes", "polkadots", "palmleaves", "camouflage", "tiedye", "zebra"] as const;
 const HEX = /^#[0-9a-fA-F]{6}$/;
 
 type SetupPlayer = {
   poolPlayerId: number; name: string;
-  /** A custom team's swimwear: the cut, a print or none ("plain"), and the two colours. */
-  swimwear?: { cut: string; print: string; colourA: string; colourB: string };
+  /** A custom team's swimwear: the cut, plain in one colour or a print (1.2 9b: Rob's) in its colours or colourway. */
+  swimwear?: SwimChoice;
   /** Accessories: store items (all free here) in the colour chosen, and for the sunglasses their lens (9a). */
   wear?: { itemId: string; colour: string; lens?: string }[];
 };
@@ -63,7 +63,7 @@ router.get("/exhibition/options", (req, res) => {
       overall: Math.round((p.speed + p.power + p.defense + p.serve + p.block + p.stamina) / 6),
     })),
     venues: CONTINENTS.map((c) => ({ key: c.key, label: c.label })),
-    times: TIMES, weathers: WEATHERS, difficulties: DIFFICULTIES, cuts: CUTS, prints: PRINTS,
+    times: TIMES, weathers: WEATHERS, difficulties: DIFFICULTIES, cuts: CUTS, prints: PRINTS.map(printOption),
     items: STORE_ITEMS.filter((i) => i.slot !== "print").map((i) => ({ id: i.id, name: i.name, slot: i.slot, picture: i.picture, ...splitLens(i.colour), lenses: i.lenses })),
     // D4: what the profile bought and wears goes on its first player (when the store is open).
     worn: req.isAuthenticated() && storeOpen()
@@ -81,7 +81,7 @@ function invalid(s: ExhibitionSetup, ids: Set<number>): string | null {
     for (const p of t.players) {
       if (!ids.has(p.poolPlayerId)) return "No such player.";
       if (typeof p.name !== "string" || !p.name.trim() || p.name.length > 30) return "A player needs a name (up to 30 letters).";
-      if (p.swimwear && (!CUTS.includes(p.swimwear.cut as never) || !(p.swimwear.print === "plain" || PRINTS.includes(p.swimwear.print as never)) || !HEX.test(p.swimwear.colourA) || !HEX.test(p.swimwear.colourB))) return "Swimwear is a cut, plain or a print, and two colours.";
+      if (p.swimwear) { const why = swimProblem(p.swimwear, CUTS); if (why) return why; }
       for (const w of p.wear ?? []) {
         const item = STORE_ITEMS.find((i) => i.id === w.itemId && i.slot !== "print");
         if (!item || !HEX.test(w.colour)) return "An accessory is an item and a colour.";
@@ -122,7 +122,7 @@ router.get("/unity/exhibition-state", (req, res) => {
       overall: Math.round((p.speed + p.power + p.defense + p.serve + p.block + p.stamina) / 6),
       morale: 75, fatigue: 0, fitness: 100, injured: false, injuryStatus: null, age: p.baseAge, height: 0,
       primaryColor: t.primary, secondaryColor: t.secondary, skinTone: p.skinTone,
-      swimwear: sp.swimwear && t.poolTeamId == null ? sp.swimwear : null,
+      swimwear: sp.swimwear && t.poolTeamId == null ? courtSwimwear(sp.swimwear) : null,
       wear: (sp.wear ?? []).map((w) => ({ part: STORE_ITEMS.find((i) => i.id === w.itemId)!.unity, colour: w.colour, lens: w.lens ?? null })),
     };
   };

@@ -17,17 +17,20 @@ import { db, storeWalletsTable, storeOwnedTable, type StoreWallet } from "@works
 import { and, eq } from "drizzle-orm";
 import settings from "../data/store-settings.json";
 import itemsFile from "../data/store-items.json";
+import { PRINTS, printById, printOption, cleanPrintColour } from "./prints.js";
 
 export type StoreSlot = "hat" | "sunglasses" | "shoes" | "bracelet" | "earrings" | "necklace" | "legpiece" | "print";
 export type StoreItem = {
   id: string; name: string; slot: StoreSlot; price: number;
-  /** What the court shows for it: a part of the players' model (IdaFaber's SK_BG_*), or a print's mask. */
+  /** What the court shows for it: a part of the players' model (IdaFaber's SK_BG_*), or "print:ID" (data/prints.json). */
   unity: string;
   picture: string;
-  /** The colour it comes in ("#rrggbb"; a print has two, "#rrggbb,#rrggbb"; with lenses, "#rrggbb;tint"). */
+  /** The colour it comes in ("#rrggbb"; with lenses "#rrggbb;tint"; a print its colours, a colourway's id, or "" as painted). */
   colour: string;
   /** 1.2 9a: the lens tints it comes in (the sunglasses), chosen beside the frame colour. */
   lenses?: string[];
+  /** 1.2 9b, a print: its colours (each the buyer's to change) and its colourways. */
+  print?: ReturnType<typeof printOption>;
 };
 
 export const STORE_SETTINGS = settings as {
@@ -41,7 +44,15 @@ export const STORE_SETTINGS = settings as {
 let openOverride: boolean | null = null;
 export const storeOpen = () => openOverride ?? STORE_SETTINGS.open;
 export const setStoreOpenOverride = (open: boolean | null) => { openOverride = open; };
-export const STORE_ITEMS: readonly StoreItem[] = (itemsFile as { items: StoreItem[] }).items;
+/** The accessories from their file, then every print (1.2 9b: Rob's, from data/prints.json). */
+export const STORE_ITEMS: readonly StoreItem[] = [
+  ...(itemsFile as { items: StoreItem[] }).items,
+  ...PRINTS.map((p): StoreItem => {
+    const o = printOption(p);
+    return { id: `print-${p.id}`, name: p.name, slot: "print", price: (itemsFile as { printPrice: number }).printPrice, unity: `print:${p.id}`, picture: o.picture,
+      colour: p.colourways ? p.colourways[0].id : p.colours.join(","), print: o };
+  }),
+];
 export const storeItem = (id: string) => STORE_ITEMS.find((i) => i.id === id) ?? null;
 
 const HEX = /^#[0-9a-fA-F]{6}$/;
@@ -51,17 +62,15 @@ export function splitLens(colour: string): { colour: string; lens: string | null
   return { colour: c, lens: lens ?? null };
 }
 
-/** A colour as the item takes it: one "#rrggbb", two for a print, and a lens for the sunglasses. Null if it does not fit. */
+/** A colour as the item takes it: one "#rrggbb", a lens too for the sunglasses, a print's own. Null if it does not fit. */
 export function cleanColour(item: StoreItem, colour: unknown): string | null {
   if (typeof colour !== "string") return null;
   if (item.lenses) {
     const { colour: c, lens } = splitLens(colour);
     return HEX.test(c.trim()) && lens !== null && item.lenses.includes(lens) ? `${c.trim().toLowerCase()};${lens}` : null;
   }
-  const parts = colour.split(",").map((c) => c.trim());
-  const want = item.slot === "print" ? 2 : 1;
-  if (parts.length !== want || !parts.every((c) => HEX.test(c))) return null;
-  return parts.map((c) => c.toLowerCase()).join(",");
+  if (item.slot === "print") { const p = printById(item.unity.slice("print:".length)); return p ? cleanPrintColour(p, colour) : null; }
+  return HEX.test(colour.trim()) ? colour.trim().toLowerCase() : null;
 }
 
 /** The profile's wallet, opened with the starting balance the first time, and the income dribble paid up to now. */
@@ -102,7 +111,7 @@ export function buy(userId: string, itemId: string, colour: unknown): BuyResult 
   const item = storeItem(itemId);
   if (!item) return { ok: false, status: 404, error: "No such item." };
   const c = cleanColour(item, colour ?? item.colour);
-  if (!c) return { ok: false, status: 400, error: item.slot === "print" ? "A print takes two colours, #rrggbb,#rrggbb." : item.lenses ? `A frame colour and a lens, #rrggbb;${item.lenses.join("|")}.` : "A colour is #rrggbb." };
+  if (c === null) return { ok: false, status: 400, error: item.slot === "print" ? `${item.name} takes ${item.print?.colourways ? "one of its colourways" : item.print?.colours.length ? `${item.print.colours.length} colours, #rrggbb,...` : "no colours: it is shown as painted"}.` : item.lenses ? `A frame colour and a lens, #rrggbb;${item.lenses.join("|")}.` : "A colour is #rrggbb." };
   const w = walletFor(userId);
   if (w.balance < item.price) return { ok: false, status: 409, error: `Not enough ${STORE_SETTINGS.currency}.` };
   const balance = w.balance - item.price;

@@ -19,7 +19,7 @@ router.get("/store", (req, res) => {
     open: true,
     currency: STORE_SETTINGS.currency,
     balance: wallet.balance,
-    items: STORE_ITEMS.map((i) => ({ id: i.id, name: i.name, slot: i.slot, price: i.price, picture: i.picture, colour: i.colour, lenses: i.lenses })),
+    items: STORE_ITEMS.map((i) => ({ id: i.id, name: i.name, slot: i.slot, price: i.price, picture: i.picture, colour: i.colour, lenses: i.lenses, print: i.print })),
     owned: owned.map((o) => ({ id: o.id, itemId: o.itemId, colour: o.colour, worn: o.worn })),
   });
 });

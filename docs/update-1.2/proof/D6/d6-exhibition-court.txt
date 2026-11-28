@@ -1,8 +1,8 @@
 D6: AN EXHIBITION GAME ON THE COURT, V19 IN PLAY MODE (batch)
   plugged in: 3 pads and the keyboard
   the game: exhibition True; SUNSET SIRENS v STOCKHOLM NORTHERN LIGHTS; venue asked europe, loaded oceania; time Sunset; weather Cloudy; difficulty hard
-  Player_A1: Kira Sands; swimwear swimsuit-1 hibiscus #1F5FBF,#F26AA3; accessories SK_BG_HAT, SK_BG_SUNGLASSES
-  Player_A2: Sophie Müller; swimwear bikini-3 zebra #FFFFFF,#111111; accessories SK_BG_BRACELET_01
+  Player_A1: Kira Sands; swimwear swimsuit-1 hibiscus-white-on-red #1F5FBF,#F26AA3; accessories SK_BG_HAT, SK_BG_SUNGLASSES (amber lenses)
+  Player_A2: Sophie Müller; swimwear bikini-3 paisley-pink as painted; accessories SK_BG_BRACELET_01
   Player_B1: Ingrid Larsson; swimwear the club's kit; accessories none
   Player_B2: Astrid Eriksson; swimwear the club's kit; accessories SK_BG_EARRINGS
   played: 3 people here; seats asked person 1, person 2, person 3, AI

@@ -5,8 +5,9 @@
  *     closed, and nothing can be bought or worn;
  *   - opened (the dev switch stands in for flipping the file): the wallet opens with the starting
  *     balance, every item from data/store-items.json is listed with a picture that exists;
- *   - buying: the price comes off the wallet; a colour that does not fit is refused, a print needs
- *     two; not enough money is refused; wearing one item of a slot takes the other off;
+ *   - buying: the price comes off the wallet; a colour that does not fit is refused; 1.2 9b: Rob's
+ *     prints from data/prints.json, each in its own colours (two or three, the buyer's), a colourway,
+ *     or as painted; not enough money is refused; wearing one item of a slot takes the other off;
  *   - Rob's four hooks: the starting balance, a win's reward, a loss's penalty (never below zero),
  *     the income dribble for each whole period;
  *   - separate from the career: no team's or career's money moves through any of it;
@@ -30,6 +31,7 @@ const ELECTRON = requireElectronBinary(REPO);
 const SETTINGS = JSON.parse(fs.readFileSync(path.join(REPO, "artifacts", "api-server", "src", "data", "store-settings.json"), "utf8"));
 const ITEMS = JSON.parse(fs.readFileSync(path.join(REPO, "artifacts", "api-server", "src", "data", "store-items.json"), "utf8")).items;
 const PUBLIC = path.join(REPO, "artifacts", "beach-volleyball", "public");
+const PRINTS = JSON.parse(fs.readFileSync(path.join(REPO, "artifacts", "api-server", "src", "data", "prints.json"), "utf8")).prints;
 const WORK = fs.mkdtempSync(path.join(os.tmpdir(), "vbe-store-"));
 const DB = path.join(WORK, "save.sqlite");
 const PORT = 4958;
@@ -88,11 +90,10 @@ try {
   await call("POST", "/dev/store/open", { open: true });
   s = await call("GET", "/store");
   check("the wallet opens with the starting balance", s.data.open === true && s.data.balance === SETTINGS.startingBalance, `${s.data.balance} ${s.data.currency}`);
-  check("every item in the data file is listed", s.data.items?.length === ITEMS.length, `${s.data.items?.length} of ${ITEMS.length}`);
-  const pictured = ITEMS.filter((i) => !i.unity.startsWith("print:"));
-  const missing = pictured.filter((i) => !fs.existsSync(path.join(PUBLIC, i.picture)));
-  check("every accessory has its picture in public/store", missing.length === 0, missing.length ? missing.map((i) => i.picture).join(", ") : `${pictured.length} pictures`);
-  const hat = ITEMS.find((i) => i.slot === "hat"), print = ITEMS.find((i) => i.slot === "print");
+  check("every item in the data file is listed, and every print in prints.json (9b)", s.data.items?.length === ITEMS.length + PRINTS.length, `${s.data.items?.length} of ${ITEMS.length} + ${PRINTS.length}`);
+  const missing = s.data.items.filter((i) => !fs.existsSync(path.join(PUBLIC, i.picture)));
+  check("every item has its picture (the accessories in public/store, Rob's prints in public/prints)", missing.length === 0, missing.length ? missing.map((i) => i.picture).join(", ") : `${s.data.items.length} pictures`);
+  const hat = ITEMS.find((i) => i.slot === "hat"), print = s.data.items.find((i) => i.id === "print-hibiscus-white-on-red");
   b = await call("POST", "/store/buy", { itemId: hat.id, colour: "#FF0000" });
   check("buying takes the price off the wallet", b.status === 200 && b.data.balance === SETTINGS.startingBalance - hat.price, `${b.status}; ${SETTINGS.startingBalance} - ${hat.price} = ${b.data.balance}`);
   check("the item is owned in the colour chosen", b.data.owned?.length === 1 && b.data.owned[0].colour === "#ff0000" && b.data.owned[0].worn === false, JSON.stringify(b.data.owned));
@@ -100,6 +101,13 @@ try {
   check("a print with one colour is refused", (await call("POST", "/store/buy", { itemId: print.id, colour: "#ffffff" })).status === 400);
   b = await call("POST", "/store/buy", { itemId: print.id, colour: "#112233,#ddeeff" });
   check("a print in two colours is bought", b.status === 200 && b.data.owned.some((o) => o.itemId === print.id && o.colour === "#112233,#ddeeff"));
+  for (let i = 0; i < 8; i++) await call("POST", "/dev/store/result", { won: true });   // the wallet topped up (hook 2) for the buys below
+  b = await call("POST", "/store/buy", { itemId: "print-gingham", colour: "#1e2a78,#a9c4f7,#ffffff" });
+  check("9b: gingham in three colours of the buyer's", b.status === 200 && b.data.owned.some((o) => o.itemId === "print-gingham" && o.colour === "#1e2a78,#a9c4f7,#ffffff"), `${b.status}`);
+  b = await call("POST", "/store/buy", { itemId: "print-leopard", colour: "" });
+  check("9b: the leopard as Rob painted it (no colours), and refused in a colour", b.status === 200 && (await call("POST", "/store/buy", { itemId: "print-leopard", colour: "#ffffff" })).status === 400, `${b.status}`);
+  b = await call("POST", "/store/buy", { itemId: "print-paisley", colour: "green" });
+  check("9b: paisley in one of Rob's four colourways, and refused in one he did not paint", b.status === 200 && b.data.owned.some((o) => o.itemId === "print-paisley" && o.colour === "green") && (await call("POST", "/store/buy", { itemId: "print-paisley", colour: "purple" })).status === 400, `${b.status}`);
   check("an item that is not in the file is refused", (await call("POST", "/store/buy", { itemId: "no-such-thing", colour: "#ffffff" })).status === 404);
   // 1.2 9a: the sunglasses' lens tint, chosen beside the frame colour.
   const glasses = ITEMS.find((i) => i.slot === "sunglasses");

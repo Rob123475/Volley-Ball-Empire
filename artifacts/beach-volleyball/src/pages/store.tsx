@@ -1,6 +1,7 @@
 /**
  * 1.2 D4 (Rob, 23 Nov): the Store. Its own money (the profile's wallet, never a career's), items
- * from the server's data file, each in the colour the buyer picks (a print takes two). Built but
+ * from the server's data file, each in the colour the buyer picks (1.2 9b: Rob's prints in their own
+ * colours, the buyer's to change when a print has three or fewer, or a colourway). Built but
  * closed: while data/store-settings.json says "open": false the side menu has no Store pill and
  * this page sends the player back to the dashboard. What is bought and worn goes on the player's
  * own side in an exhibition (D6).
@@ -13,8 +14,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ShoppingBag, Coins, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { ColourPicker } from "@/components/colour-picker";
 
-type StoreItem = { id: string; name: string; slot: string; price: number; picture: string; colour: string; lenses?: string[] };
+type PrintOpt = { colours: string[]; colourways?: { id: string; name: string; picture: string }[] };
+type StoreItem = { id: string; name: string; slot: string; price: number; picture: string; colour: string; lenses?: string[]; print?: PrintOpt };
 type Owned = { id: number; itemId: string; colour: string; worn: boolean };
 export type StoreState = { open: false } | { open: true; currency: string; balance: number; items: StoreItem[]; owned: Owned[] };
 
@@ -44,11 +47,14 @@ async function post(path: string, body: unknown) {
 function ItemCard({ item, owned, currency, balance }: { item: StoreItem; owned: Owned[]; currency: string; balance: number }) {
   const qc = useQueryClient();
   const { toast } = useToast();
-  const two = item.slot === "print";
-  const [colours, setColours] = useState<string[]>(item.colour.split(";")[0].split(","));
+  // 1.2 9b: a print's colours (each the buyer's), one of its colourways, or none (as Rob painted it).
+  const kind = !item.print ? "colours" : item.print.colourways ? "colourway" : item.print.colours.length ? "colours" : "fixed";
+  const [colours, setColours] = useState<string[]>(kind === "colours" ? item.colour.split(";")[0].split(",") : []);
+  const [colourway, setColourway] = useState<string>(kind === "colourway" ? item.colour : "");
   const [lens, setLens] = useState<string | undefined>(item.colour.split(";")[1]);
+  const picture = item.print?.colourways?.find((c) => c.id === colourway)?.picture ?? item.picture;
   const buy = useMutation({
-    mutationFn: () => post("/api/store/buy", { itemId: item.id, colour: colours.join(",") + (lens ? `;${lens}` : "") }),
+    mutationFn: () => post("/api/store/buy", { itemId: item.id, colour: kind === "colourway" ? colourway : colours.join(",") + (lens ? `;${lens}` : "") }),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["store"] }); toast({ title: `${item.name} bought` }); },
     onError: (e: Error) => toast({ title: "Not bought", description: e.message, variant: "destructive" }),
   });
@@ -60,7 +66,7 @@ function ItemCard({ item, owned, currency, balance }: { item: StoreItem; owned: 
   return (
     <Card className="flex flex-col overflow-hidden" data-testid={`store-item-${item.id}`}>
       <div className="aspect-square bg-muted overflow-hidden">
-        <img src={item.picture} alt={item.name} className="w-full h-full object-cover" loading="lazy" />
+        <img src={picture} alt={item.name} className="w-full h-full object-cover" loading="lazy" />
       </div>
       <CardContent className="flex flex-col gap-3 p-4 flex-1">
         <div className="flex items-baseline justify-between gap-2">
@@ -69,12 +75,16 @@ function ItemCard({ item, owned, currency, balance }: { item: StoreItem; owned: 
         </div>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Badge variant="secondary" className="shrink-0">{SLOT_LABEL[item.slot] ?? item.slot}</Badge>
-          <span className="ml-auto">{two ? "Colours" : "Colour"}</span>
+          {kind === "colours" && <span className="ml-auto">{colours.length > 1 ? "Colours" : "Colour"}</span>}
           {colours.map((c, i) => (
-            <input key={i} type="color" value={c} aria-label={`${item.name} colour ${i + 1}`}
-              onChange={(e) => setColours((prev) => prev.map((p, j) => (j === i ? e.target.value : p)))}
-              className="h-7 w-9 cursor-pointer rounded border border-border bg-transparent p-0" />
+            <ColourPicker key={i} value={c} label={`${item.name} colour ${i + 1}`} onChange={(hex) => setColours((prev) => prev.map((p, j) => (j === i ? hex : p)))} />
           ))}
+          {kind === "colourway" && (
+            <select value={colourway} aria-label={`${item.name} colourway`} onChange={(e) => setColourway(e.target.value)} className="ml-auto h-8 rounded-md border border-input bg-background px-2 text-sm">
+              {item.print!.colourways!.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+            </select>
+          )}
+          {kind === "fixed" && <span className="ml-auto text-xs">As Rob painted it</span>}
         </div>
         {item.lenses && (
           <select value={lens} aria-label={`${item.name} lenses`} onChange={(e) => setLens(e.target.value)}
@@ -90,7 +100,8 @@ function ItemCard({ item, owned, currency, balance }: { item: StoreItem; owned: 
             <Button key={o.id} variant={o.worn ? "default" : "outline"} size="sm" onClick={() => wear.mutate(o)} data-testid={`wear-${o.id}`}>
               {o.worn && <Check className="h-4 w-4 mr-1" />}
               <span className="flex items-center gap-1">
-                {o.colour.split(";")[0].split(",").map((c) => <span key={c} className="inline-block h-3 w-3 rounded-full border border-border" style={{ background: c }} />)}
+                {o.colour.split(";")[0].split(",").filter((c) => c.startsWith("#")).map((c) => <span key={c} className="inline-block h-3 w-3 rounded-full border border-border" style={{ background: c }} />)}
+                {kind === "colourway" && <span className="text-xs">{item.print!.colourways!.find((c) => c.id === o.colour)?.name}</span>}
                 {o.colour.includes(";") && <span className="text-xs">{LENS_LABEL[o.colour.split(";")[1]] ?? o.colour.split(";")[1]}</span>}
               </span>
               <span className="ml-2">{o.worn ? "Wearing" : "Wear"}</span>

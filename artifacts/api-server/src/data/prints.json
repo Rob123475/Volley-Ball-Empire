@@ -1,0 +1,30 @@
+{
+  "_about": "1.2 9b (Rob, 28 Nov 2026): the swimwear prints, one line each. Rob's own art (his swatches in Game_Dev/VolleyBall Empire/1.2 props/swimwear-prints). A NEW PRINT: put its picture in artifacts/beach-volleyball/public/prints and add a line here; nothing else changes (the court loads the picture by name when a player wears it). Or put Rob's swatch in his folder, name it as 'source', and run node scripts/prepare-prints.mjs, which crops it (crop: x, y, width, height in the swatch's pixels, to a whole number of repeats), caps it at 1024 wide and writes 'file'. 'colours': the print's own colours, Rob's defaults; the player can change each one (3 or fewer). No colours: shown exactly as painted. 'colourways': a print Rob painted in several colours, one picture each, chosen by name. 'wrap': how it repeats across the swimwear, across then down: 'repeat' (it tiles), 'mirror' (each repeat mirrored, so it never shows a join), or 'single' (one picture, not repeated: the tie-dye's spiral). 'scale': how many times it repeats across the width of the swimwear's texture.",
+  "prints": [
+    { "id": "hibiscus-white-on-red", "name": "Hibiscus (white on red)", "file": "hibiscus-white-on-red.png", "source": "hibiscus-white-on-red.png", "colours": ["#cd0205", "#fdfdfc"], "wrap": ["mirror", "mirror"], "scale": 1 },
+    { "id": "hibiscus-red-on-white", "name": "Hibiscus (red on white)", "file": "hibiscus-red-on-white.png", "source": "hibiscus-red-on-white.png", "colours": ["#fdfcfc", "#d20403"], "wrap": ["mirror", "mirror"], "scale": 1 },
+    { "id": "stripes", "name": "Stripes", "file": "stripes-navy-white.png", "source": "stripes-navy-white.png", "crop": [0, 0, 1774, 757], "colours": ["#012a6e", "#fdfdfd"], "wrap": ["repeat", "repeat"], "scale": 1 },
+    { "id": "pinstripe", "name": "Pinstripe", "file": "pinstripe-navy.png", "source": "pinstripe-navy.png", "colours": ["#001639", "#f9f5e5"], "wrap": ["repeat", "mirror"], "scale": 1 },
+    { "id": "polka-dots", "name": "Polka dots", "file": "polka-dots-red-white.png", "source": "polka-dots-red-white.png", "crop": [0, 0, 1646, 840], "colours": ["#c30404", "#fdfcfd"], "wrap": ["repeat", "repeat"], "scale": 1 },
+    { "id": "houndstooth", "name": "Houndstooth", "file": "houndstooth.png", "source": "houndstooth.png", "crop": [0, 0, 1769, 845], "colours": ["#010101", "#fdfdfd"], "wrap": ["repeat", "repeat"], "scale": 1 },
+    { "id": "zebra", "name": "Zebra", "file": "zebra.png", "source": "zebra.png", "colours": ["#fdfdfd", "#020202"], "wrap": ["mirror", "mirror"], "scale": 1 },
+    { "id": "tiger-flat", "name": "Tiger stripes", "file": "tiger-flat.png", "source": "tiger-flat.png", "colours": ["#fd8501", "#020101"], "wrap": ["mirror", "mirror"], "scale": 1 },
+    { "id": "cow", "name": "Cow", "file": "cow.png", "source": "cow.png", "colours": ["#fefdfd", "#000000"], "wrap": ["mirror", "mirror"], "scale": 1 },
+    { "id": "palm-leaves", "name": "Palm leaves", "file": "palm-leaves-green-cream.png", "source": "palm-leaves-green-cream.png", "colours": ["#0b3c17", "#fcf2d2"], "wrap": ["mirror", "mirror"], "scale": 1 },
+    { "id": "gingham", "name": "Gingham", "file": "gingham-red-white.png", "source": "gingham-red-white.png", "crop": [0, 0, 1773, 886], "colours": ["#cc0a0c", "#ea807e", "#fdfcfc"], "wrap": ["repeat", "repeat"], "scale": 1 },
+    { "id": "camouflage", "name": "Camouflage", "file": "camouflage.jpg", "source": "camouflage.png", "colours": [], "wrap": ["repeat", "repeat"], "scale": 1 },
+    { "id": "leopard", "name": "Leopard", "file": "leopard-fur.jpg", "source": "leopard-fur.png", "colours": [], "wrap": ["repeat", "repeat"], "scale": 1 },
+    { "id": "tiger", "name": "Tiger", "file": "tiger-fur.jpg", "source": "tiger-fur.png", "colours": [], "wrap": ["repeat", "mirror"], "scale": 1 },
+    { "id": "snakeskin", "name": "Snakeskin", "file": "snakeskin.jpg", "source": "snakeskin.png", "colours": [], "wrap": ["mirror", "mirror"], "scale": 1 },
+    { "id": "tropical-hibiscus", "name": "Tropical hibiscus", "file": "hibiscus-tropical-on-black.jpg", "source": "hibiscus-tropical-on-black.png", "colours": [], "wrap": ["repeat", "repeat"], "scale": 1 },
+    { "id": "ditsy-floral", "name": "Ditsy floral", "file": "ditsy-floral.jpg", "source": "ditsy-floral.png", "colours": [], "wrap": ["mirror", "mirror"], "scale": 1 },
+    { "id": "retro-floral", "name": "Retro floral", "file": "retro-floral-orange.jpg", "source": "retro-floral-orange.png", "colours": [], "wrap": ["mirror", "mirror"], "scale": 1 },
+    { "id": "tie-dye", "name": "Tie-dye", "file": "tie-dye-rainbow.jpg", "source": "tie-dye-rainbow.png", "colours": [], "wrap": "single", "scale": 0.5 },
+    { "id": "paisley", "name": "Paisley", "colours": [], "wrap": ["mirror", "mirror"], "scale": 1, "colourways": [
+      { "id": "blue", "name": "Blue", "file": "paisley-blue.jpg", "source": "paisley-blue.png" },
+      { "id": "green", "name": "Green", "file": "paisley-green.jpg", "source": "paisley-green.png" },
+      { "id": "pink", "name": "Pink", "file": "paisley-pink.jpg", "source": "paisley-pink.png" },
+      { "id": "orange", "name": "Orange", "file": "paisley-orange.jpg", "source": "paisley-orange.png" }
+    ] }
+  ]
+}

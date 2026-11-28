@@ -1,5 +1,7 @@
 {
-  "_about": "1.2 D4: the Store's items, one line each (Rob, 23 Nov). To add an item from a new pack: import the pack in Unity, put its part on the players' model (Assets/Editor/WardrobeSetup.cs: add the part's name to Wardrobe.Parts), render its picture (StoreThumbs), and add a line here. 'unity' is the part on the model, or for a print 'print:NAME'. 'colour' is the colour it comes in; the buyer can change it (a print has two). 'lenses' (1.2 9a): the lens tints the buyer chooses from beside the frame colour; its colour is then '#rrggbb;tint'.",
+  "_about": "1.2 D4: the Store's items, one line each (Rob, 23 Nov). To add an item from a new pack: import the pack in Unity, put its part on the players' model (Assets/Editor/WardrobeSetup.cs: add the part's name to Wardrobe.Parts), render its picture (StoreThumbs), and add a line here. 'unity' is the part on the model. 'colour' is the colour it comes in; the buyer can change it. 'lenses' (1.2 9a): the lens tints the buyer chooses from beside the frame colour; its colour is then '#rrggbb;tint'.",
+  "_prints": "1.2 9b: the prints are sold too, one each from data/prints.json (Rob's art), at printPrice, in the colours the buyer picks (a print of 3 colours or fewer) or a colourway; no line here.",
+  "printPrice": 200,
   "items": [
     { "id": "sun-hat",        "name": "Sun hat",          "slot": "hat",        "price": 150, "unity": "SK_BG_HAT",          "picture": "/store/sun-hat.png",        "colour": "#e8d8b0" },
     { "id": "sunglasses",     "name": "Sunglasses",       "slot": "sunglasses", "price": 120, "unity": "SK_BG_SUNGLASSES",   "picture": "/store/sunglasses.png",     "colour": "#2a2a2e;black", "lenses": ["black", "brown", "blue-mirror", "amber", "rose"] },
@@ -11,14 +13,6 @@
     { "id": "chain-necklace", "name": "Chain necklace",   "slot": "necklace",   "price": 120, "unity": "SK_BG_NECKLACE_01",  "picture": "/store/chain-necklace.png", "colour": "#d4af37" },
     { "id": "pendant",        "name": "Pendant",          "slot": "necklace",   "price": 110, "unity": "SK_BG_NECKLACE_02",  "picture": "/store/pendant.png",        "colour": "#c0c0c8" },
     { "id": "thigh-chain",    "name": "Ankle chain",      "slot": "legpiece",   "price": 90,  "unity": "SK_BG_LEG_ACS_01",   "picture": "/store/thigh-chain.png",    "colour": "#d4af37" },
-    { "id": "anklet",         "name": "Leg band",         "slot": "legpiece",   "price": 80,  "unity": "SK_BG_LEG_ACS_02",   "picture": "/store/anklet.png",         "colour": "#c0c0c8" },
-    { "id": "print-leopard",      "name": "Leopard print",      "slot": "print", "price": 200, "unity": "print:leopard",     "picture": "/store/print-leopard.png",     "colour": "#d9a441,#2b1d0e" },
-    { "id": "print-hibiscus",     "name": "Hibiscus print",     "slot": "print", "price": 200, "unity": "print:hibiscus",    "picture": "/store/print-hibiscus.png",    "colour": "#1f5fbf,#f26aa3" },
-    { "id": "print-stripes",      "name": "Stripes",            "slot": "print", "price": 200, "unity": "print:stripes",     "picture": "/store/print-stripes.png",     "colour": "#ffffff,#1e3a8a" },
-    { "id": "print-polka-dots",   "name": "Polka dots",         "slot": "print", "price": 200, "unity": "print:polkadots",   "picture": "/store/print-polka-dots.png",  "colour": "#e63946,#ffffff" },
-    { "id": "print-palm-leaves",  "name": "Palm leaves",        "slot": "print", "price": 200, "unity": "print:palmleaves",  "picture": "/store/print-palm-leaves.png", "colour": "#f6efe0,#2e7d32" },
-    { "id": "print-camouflage",   "name": "Camouflage",         "slot": "print", "price": 200, "unity": "print:camouflage",  "picture": "/store/print-camouflage.png",  "colour": "#6b7d4a,#3b3b2b" },
-    { "id": "print-tie-dye",      "name": "Tie-dye",            "slot": "print", "price": 200, "unity": "print:tiedye",      "picture": "/store/print-tie-dye.png",     "colour": "#8e44ad,#f39c12" },
-    { "id": "print-zebra",        "name": "Zebra print",        "slot": "print", "price": 200, "unity": "print:zebra",       "picture": "/store/print-zebra.png",       "colour": "#ffffff,#111111" }
+    { "id": "anklet",         "name": "Leg band",         "slot": "legpiece",   "price": 80,  "unity": "SK_BG_LEG_ACS_02",   "picture": "/store/anklet.png",         "colour": "#c0c0c8" }
   ]
 }
