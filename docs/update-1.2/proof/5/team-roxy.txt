@@ -1,0 +1,64 @@
+THE COMMENTARY TEAM THROUGH A WHOLE MATCH (roxy), V19 IN PLAY MODE (batch), 3x
+      0.0s  [Team] the booth: Kailey and Hukum, with roxy; the sideline reporter on
+      0.3s  [Team] walk-on: Kailey A_guest_roxy_1.mp3 introduces Roxy Calderwood only once Roxy Calderwood's hello is recorded
+      0.3s  [Team] walk-on: Roxy Calderwood C_intro_1.mp3 "Thank you for having me! I've done my own stunts, but I have never done this." -> not recorded: skipped in silence
+      0.3s  [Team] walk-on: Nicole Dupont S_walkon_1.mp3 "Bonjour from the sand! The players are on their way out, and this crowd is ready." -> not recorded: skipped in silence
+      0.3s  [Booth] seat 1: Kailey (casual15_f_highpoly); seat 2: Roxy Calderwood (Girl_44); seat 3: Hukum (business01_m_highpoly); on the sand: Nicole Dupont (casual20_f_highpoly), a microphone in her hand
+      1.7s  [Team] 57 team lines in TEAM.json (15 for Nicole Dupont, 17 for Roxy Calderwood, 17 for Kai Brennock, 6 hand-overs); 0 recorded
+  the booth's seats at (61.6, 1.7, 20.0); the court's centre (47.1, 20.1)
+  -> team-roxy-booth.png
+  -> team-roxy-booth-tv-shot.png
+  Nicole on the sand at (53.6, 26.1)
+  -> team-roxy-sideline.png
+     11.2s  [Match moments] walk-on took 10.9 s
+     17.0s  [Point] awarded: BERLIN SAND QUEENS by Kill after 4 attack(s), 11 touches
+     19.5s  [Team] after the residents' Rally call: Roxy Calderwood C_rally_2.mp3 "I'm exhausted just watching. Somebody yell cut!" -> not recorded: skipped in silence
+     28.0s  [Point] awarded: BARCELONA PLAYA ELITES by Kill after 5 attack(s), 15 touches
+     33.4s  [Point] awarded: BERLIN SAND QUEENS by Kill after 2 attack(s), 4 touches
+     45.4s  [Point] awarded: BARCELONA PLAYA ELITES by Kill after 5 attack(s), 15 touches
+     48.5s  [Team] after the residents' Rally call: Roxy Calderwood C_rally_1.mp3 "This rally has gone on longer than my last film!" -> not recorded: skipped in silence
+     50.7s  [Point] awarded: BERLIN SAND QUEENS by Kill after 2 attack(s), 4 touches
+     73.3s  [Point] awarded: BERLIN SAND QUEENS by Kill after 11 attack(s), 32 touches
+     83.7s  [Point] awarded: BERLIN SAND QUEENS by Kill after 5 attack(s), 14 touches
+     91.9s  [Point] awarded: BARCELONA PLAYA ELITES by AttackError after 3 attack(s), 8 touches
+     91.9s  [Team] after the residents' Error call: Roxy Calderwood C_error_2.mp3 "Long! We've all missed our mark, darling." -> not recorded: skipped in silence
+    115.5s  [Point] awarded: BERLIN SAND QUEENS by Kill after 13 attack(s), 39 touches
+    126.3s  [Point] awarded: BARCELONA PLAYA ELITES by BlockStuff after 4 attack(s), 12 touches
+    132.5s  [Point] awarded: BERLIN SAND QUEENS by Kill after 2 attack(s), 4 touches
+    145.4s  [Point] awarded: BERLIN SAND QUEENS by Kill after 6 attack(s), 17 touches
+    162.4s  [Point] awarded: BERLIN SAND QUEENS by AttackError after 8 attack(s), 24 touches
+    162.4s  [Team] after the residents' Error call: Roxy Calderwood C_error_1.mp3 "Oh, that's a blooper. That one goes on the reel." -> not recorded: skipped in silence
+    176.9s  [Point] awarded: BERLIN SAND QUEENS by AttackError after 7 attack(s), 21 touches
+    187.6s  [Point] awarded: BERLIN SAND QUEENS by Kill after 5 attack(s), 14 touches
+    191.6s  [Team] drinks break: Nicole Dupont S_drinks_1.mp3 "Time for a drink. Believe me, they need it out here." -> not recorded: skipped in silence
+    197.6s  [Match moments] drinks break took 6.0 s
+    205.5s  [Point] awarded: BARCELONA PLAYA ELITES by BlockStuff after 5 attack(s), 15 touches
+    205.5s  [Team] after the residents' Block call: Roxy Calderwood C_block_2.mp3 "What a block! I felt that one from up here." -> not recorded: skipped in silence
+    213.4s  [Point] awarded: BERLIN SAND QUEENS by Kill after 3 attack(s), 7 touches
+    226.8s  [Point] awarded: BARCELONA PLAYA ELITES by BlockStuff after 6 attack(s), 18 touches
+    234.6s  [Point] awarded: BARCELONA PLAYA ELITES by Kill after 3 attack(s), 8 touches
+    237.0s  [Team] after the residents' Rally call: Roxy Calderwood C_rally_2.mp3 "I'm exhausted just watching. Somebody yell cut!" -> not recorded: skipped in silence
+    246.0s  [Point] awarded: BERLIN SAND QUEENS by BlockStuff after 5 attack(s), 15 touches
+    259.2s  [Point] awarded: BERLIN SAND QUEENS by AttackError after 6 attack(s), 18 touches
+    273.0s  [Point] awarded: BARCELONA PLAYA ELITES by AttackError after 7 attack(s), 20 touches
+    273.0s  [Team] after the residents' Error call: Roxy Calderwood C_error_1.mp3 "Oh, that's a blooper. That one goes on the reel." -> not recorded: skipped in silence
+    281.7s  [Point] awarded: BERLIN SAND QUEENS by Kill after 4 attack(s), 12 touches
+    292.5s  [Point] awarded: BERLIN SAND QUEENS by Kill after 5 attack(s), 14 touches
+    310.0s  [Point] awarded: BERLIN SAND QUEENS by Kill after 9 attack(s), 26 touches
+    313.0s  [Team] after the residents' Rally call: Roxy Calderwood C_rally_1.mp3 "This rally has gone on longer than my last film!" -> not recorded: skipped in silence
+    314.8s  [Point] awarded: BERLIN SAND QUEENS by Ace after 1 attack(s), 1 touches
+    326.8s  [Point] awarded: BARCELONA PLAYA ELITES by Kill after 5 attack(s), 13 touches
+    332.0s  [Point] awarded: BERLIN SAND QUEENS by Kill after 2 attack(s), 4 touches
+    332.0s  [Team] after the residents' Point call: Roxy Calderwood C_film_2.mp3 ""Sabotage 3: We Didn't See It Coming". Much like that last serve." -> not recorded: skipped in silence
+    338.7s  [Point] awarded: BERLIN SAND QUEENS by BlockStuff after 2 attack(s), 5 touches
+    346.3s  [Point] awarded: BERLIN SAND QUEENS by Kill after 3 attack(s), 8 touches
+    351.7s  [Point] awarded: BARCELONA PLAYA ELITES by Kill after 2 attack(s), 4 touches
+    351.8s  [Team] after the residents' MatchPoint call: Roxy Calderwood C_matchpoint_1.mp3 "Match point. I can't look. I'm looking." -> not recorded: skipped in silence
+    363.0s  [Point] awarded: BARCELONA PLAYA ELITES by AttackError after 5 attack(s), 15 touches
+    375.4s  [Point] awarded: BERLIN SAND QUEENS by Kill after 6 attack(s), 18 touches
+    375.4s  ERROR [MatchReporter] RESULT NOT SENT: an exhibition game: it touches nothing in a career
+    379.7s  [Team] match won: Roxy Calderwood C_matchwon_1.mp3 "And that's a wrap! What a performance!" -> not recorded: skipped in silence
+    379.7s  [Team] match won: Nicole Dupont S_matchwon_2.mp3 "What a finish! I'm going to try to grab a word with the winners." -> not recorded: skipped in silence
+    384.7s  [Match moments] celebration took 5.0 s
+  SUMMARY: 16 decisions; 0 lines played (their clips were there); the guest Roxy Calderwood; the sideline reporter on
+  guest lines decided: 10; sideline moments: 3

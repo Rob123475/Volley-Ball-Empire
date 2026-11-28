@@ -153,6 +153,7 @@ Brief: `docs/update-1.2/UNITY-REBUILD-BRIEF.md`. Plan: `docs/update-1.2/PLAYABLE
 
 | Item | State | Proof | Commit |
 |---|---|---|---|
+| 5 The commentary team (29 Nov) | Done, PASS: Rob's sheet as data (57 lines, a new guest is data only); career: the reporter on, a guest at random, a Settings switch for guests; exhibition: guest and reporter picked; the three in the commentary tent's front deck, Nicole on the sand with a microphone; missing clips skipped in silence; levelling script (-18.5 dBFS). The booth had been on the tent's roof (9e): fixed | `harness/commentary-team.mjs --unity` 26/26, `proof/5/` | Unity `6eac297b`, game (this commit) |
 | Demo 3 (29 Nov) | Packaged, not installed (install test skipped, as Rob said): 1.2.0-demo3, 458 MB; proof on its own files 21/22, 57 fps; the director's band and booth shots are picked but covered by the point's cutaways (a finding, not changed) | `proof/demo3/`, `DEMO-CHECKLIST.md` | game (this commit) |
 | 9e Commentary tent, 9f Rob's remade props (29 Nov) | Done, PASS: the tent from the yellow tower in blue and white (orange accents only, said plainly), booth fits three; the VIP tent squared and in place, the cart and the shop in, the cart's mashed script covered | `proof/9e/`, `proof/9f/` sheets, `vip-tent-profile.txt` | Unity `ea70a0c5` |
 | 9c The ball in her hand at the serve (29 Nov) | Done, PASS: drawn in her left hand in played and Auto, clear of head and hat; drawing only (A1 18/18, --unity-full 13/13) | `proof/9c/9c-serve-hold-sheet.png`, `proof/D6/d6-player_a2.png` | Unity `252a16b5` |
@@ -2072,3 +2073,76 @@ Rob approved the songs playing from the band's stage and on through the match. H
 - how to install it over demo 2;
 - what is new to show: the Exhibition Game from the title screen, the new prints and sunglasses, the band, V for the TV camera, times of day and weather, the drinks break, the venue;
 - item 1, the real controller test, kept.
+
+### Section 5: the commentary team (29 Nov 2026, after demo 3)
+
+**Rob's team, all from data.** The team is in the career's matches and in exhibitions:
+- **Kailey and Hukum,** the residents, unchanged.
+- **Nicole Dupont,** the sideline reporter.
+- **One celebrity guest per match:** Roxy Calderwood or Kai Brennock. Both are invented, and their voices come from ElevenLabs' stock, never an imitation.
+
+**The lines** are Rob's recording sheet, `docs/update-1.2/COMMENTARY-TEAM-LINES.md`: 57 new lines, the one sheet he records from.
+- `scripts/commentary-team-data.mjs` turns it into the court's data, `StreamingAssets/commentary/TEAM.json`. For each line: its file, voice, moment and words.
+- **A new guest later** is a table in the sheet, this script and a folder of clips. No code.
+- In a career match the court picks the guest by the match's id among the file's guests, so a new one joins the rotation.
+
+**Who is in the booth:**
+- **A career match:** the reporter on, and Roxy or Kai at random per match (`unity.ts`: `commentary: { sideline: true, guest: "random" }`).
+  - One switch in Settings > Match presentation, "Guest commentators" (on), turns the guests off. The court is told on its address (`?guests=0`).
+  - This is my default, for Rob to change.
+- **An exhibition:** the pick screen's "Guest in the booth" (Roxy, Kai, or No guest; read from `TEAM.json`) and "Nicole Dupont on the sand" (on or off).
+
+**When they speak** (`CommentaryTeam.cs`):
+- **Never during a rally, never over anyone.** Every team line waits for the booth to be quiet. A between-points line not started before the next serve is dropped.
+- **The guest** follows the residents' call of the same play: an ace, a block, an error, a long rally, set or match point, a comeback, or now and then a quiet moment.
+  - At most once in three points, never the same line twice in a set.
+  - At the walk-on Kailey introduces the guest, who says hello.
+  - Hukum answers every other guest line ("And that's why we invited you").
+- **The sideline reporter** speaks in breaks only:
+  - at the walk-on (her night line under the lights, her weather line in wind or rain);
+  - at each drinks break (the set's end, the drinks, the band, or before a deciding set);
+  - when the match is won.
+  - A resident hands over to her first ("Let's go down to Nicole on the sand") and Hukum thanks her after, when those lines are recorded.
+- **Until Rob records a line, nothing breaks:**
+  - a missing clip is skipped in silence;
+  - so are the hand-over and the introduction that would lead to it;
+  - the residents carry on;
+  - once the clip is in the folder under its file name, it plays.
+
+**In person** (`CommentaryBooth.cs`, Citizens Pro, the crowd's own people and animators):
+- **In the commentary tent,** at its desk: Kailey, the guest (or an empty seat) and Hukum, seated.
+- **On the sand** on the tent's side: Nicole, standing, with a microphone in her hand (a copy of the band's), facing the court; she talks while she speaks.
+- **The TV's shots:** "the commentary booth" shot shows the three; a new cutaway, "the sideline reporter", is on her for each of her lines.
+
+**Levelling** (`scripts/level-commentary.mjs`): every clip is brought to the existing clips' speech loudness when it is added, run by Rob.
+- Speech RMS over the voiced part: the existing 48 average -18.5 dBFS.
+- A quiet clip's loudest moments are held under -1 dBFS by a short look-ahead limiter.
+- It is read and written with Windows' own media transcoder; nothing installed.
+- **On Rob's four samples** (copies; his files untouched): they spread from -25.5 dBFS (sample 1, Roxy's, the quiet one he named) to -13.8 (sample 4); after levelling, -19.2, -18.4, -18.4 and -18.3.
+
+**Music:** as 9d. The songs are never touched.
+
+**Proof:**
+`harness/commentary-team.mjs --unity`: **26/26 pass** (in the full harness as suite 98zzf, "commentary team").
+- **The sheet and the data agree:** every one of the sheet's 57 lines is in `TEAM.json` with the same file, voice, moment and words, and nothing else is (15 sideline, 17 Roxy, 17 Kai, 8 resident hand-overs).
+- **The match data:** a career match sends the reporter on and a guest at random; an exhibition sends its pick; a guest that is not a key is refused.
+- **Four whole matches on the court** (V19 in Play mode, batch, 3x; `CommentaryTeamProof`), Rob's new clips all missing, so every team line is decided and skipped in silence (`proof/5/team-*.txt`, each moment with its time):
+
+| Match | The booth | On the sand | Team moments decided |
+|---|---|---|---|
+| career | Kailey, Kai (the match's pick), Hukum | Nicole | 24 (17 guest, 4 sideline) |
+| exhibition: Roxy, reporter on | Kailey, Roxy, Hukum | Nicole | 16 (10 guest, 3 sideline) |
+| exhibition: Kai, reporter off | Kailey, Kai, Hukum | nobody | 18 (12 guest, 0 sideline) |
+| exhibition: the residents alone | Kailey, an empty seat, Hukum | nobody | 4 (0 guest, 0 sideline) |
+
+- **Pictures** (`proof/5/`): the booth close (`team-*-booth.png`), the TV's booth shot (`team-*-booth-tv-shot.png`) and the sideline reporter (`team-career-sideline.png`, `team-roxy-sideline.png`).
+
+**Two placing faults the pictures caught, both fixed:**
+- **The booth was on the tent's roof.** 9e's booth measure took the busiest flat level its rays found, which on the tent is the roof's flat eaves (3.0 m). It now takes the lowest level a good share of the rays land on, the platform 1.75 m up, and puts the desk and seats on its front metre, the deck between the cabin and the railing on the court's side: in the cabin itself the walls hid the commentators (`VenueDress`; `proof/D1/venue-dress.txt` lists every level found). The island venue was dressed again with it.
+- **Nicole stood in front of the grandstand, and the booth shots looked at the pond.** The booth's object sits at the venue's origin (its desk and seats carry their own places), and the reporter's side, the commentators' facing and the shots were worked out from it. They now work from the middle of the seats (62.5, 20.0): Nicole stands on the tent's side, on the sand between the sideline and the food van (53.6, 26.1), and the TV's booth shot is from the court's side, a little above the platform (`CameraDirector.BoothShot`).
+
+**The harness's career match is now marked watched first,** as Watch Match does, so the court's progress reports are accepted (before, each was refused with a 409 in the log; the proof's checks did not depend on it).
+
+**On the pictures:** the three sit at a table on the tower's front deck. In the TV's booth shot, from the court a little above the platform, the roof's eaves cut across their heads; the close picture shows them whole.
+
+**What is not proven here:** how the lines sound. No team line is recorded yet, so none was heard; the levelling is proven on Rob's four samples (above).

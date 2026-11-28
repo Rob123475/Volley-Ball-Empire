@@ -185,3 +185,15 @@ export function readCourtBanner(): string {
 export function saveCourtBanner(text: string): void {
   try { localStorage.setItem(COURT_BANNER_KEY, text.slice(0, BANNER_MAX)); } catch { /* not remembered */ }
 }
+
+// ── 1.2 section 5: guest commentators in career matches ──────────────────────
+// Settings > Match presentation, "Guest commentators": on (the default), a celebrity guest joins the two
+// residents in the booth for each career match, Roxy or Kai at random; off, the residents alone. Sent to
+// the court on its address (?guests=0). An exhibition's guest is the pick screen's own choice.
+export const COURT_GUESTS_KEY = "vbe-court-guests";
+export function readCourtGuests(): boolean {
+  try { return localStorage.getItem(COURT_GUESTS_KEY) !== "off"; } catch { return true; }
+}
+export function saveCourtGuests(on: boolean): void {
+  try { localStorage.setItem(COURT_GUESTS_KEY, on ? "on" : "off"); } catch { /* not remembered */ }
+}

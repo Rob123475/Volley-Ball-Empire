@@ -1,5 +1,5 @@
-# Overnight brief 30 Sep, item 21: MP3 -> WAV (16-bit PCM) with Windows' own media transcoder
-# (Windows.Media.Transcoding; nothing to install). Used by elevenlabs-crowd.mjs to read Rob's own crowd clips.
+# 1.2 section 5 (29 Nov 2026): MP3 -> WAV with Windows' own media transcoder (Windows.Media.Transcoding;
+# nothing to install), the reverse of wav-to-mp3.ps1. Used by level-commentary.mjs to read a clip's sound.
 # Usage: powershell -File scripts/mp3-to-wav.ps1 <in.mp3> <outDir> <name.wav>
 param([string]$Src, [string]$OutDir, [string]$Name)
 $ErrorActionPreference = 'Stop'

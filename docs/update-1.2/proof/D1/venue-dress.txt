@@ -1,11 +1,13 @@
 D1 / SECTIONS 3 AND 6: THE OCEANIA VENUE DRESSED
   commentary tent (9e): the light yellow tower's model, a copy of its texture recoloured (215,631 yellow pixels to navy, 7,427 red to orange, of 1,048,576); -> Assets/my assets/Props 1.2/commentary-tent/commentary-tent.prefab
   Feature_commentaryStand: commentary-tent at (62.0, 20.0), 14.9 m from the court
-  Booth: Wooden_Beach_Table at (61.7, 20.0), 14.6 m from the court
-  Booth: Seat at (62.5, 19.4), 15.4 m from the court
-  Booth: Seat at (62.5, 20.0), 15.4 m from the court
-  Booth: Seat at (62.5, 20.6), 15.4 m from the court
-  commentary booth: the platform 3.00 m up, 2.42 m across and 3.00 m deep; a desk and 3 seats of three, facing the court
+  commentary booth: flat levels found 1.75 m (150 rays), 2.27 m (11 rays), 2.29 m (5 rays), 3.00 m (68 rays), 3.05 m (44 rays), 3.10 m (22 rays), 3.15 m (25 rays), 3.20 m (10 rays), 3.25 m (13 rays)
+  commentary booth: the desk on the floor's front 1.0 m, on the court's side
+  Booth: Wooden_Beach_Table at (61.1, 20.0), 14.0 m from the court
+  Booth: Seat at (61.6, 19.4), 14.6 m from the court
+  Booth: Seat at (61.6, 20.0), 14.5 m from the court
+  Booth: Seat at (61.6, 20.7), 14.6 m from the court
+  commentary booth: the platform 1.75 m up, 2.40 m across and 1.06 m deep; a desk and 3 seats of three, facing the court
   drinks: 4 kinds in 5 colours each (the original and 4 hue turns), Assets/Textures/Venue/Drinks
   Feature_juiceBar: tiki-bar at (69.0, 32.0), 24.9 m from the court
   Feature_juiceBar: drink-bottle at (68.8, 32.9), 25.2 m from the court

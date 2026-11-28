@@ -20,7 +20,7 @@ import { SoundSettings } from "@/components/sound-settings";
 import { ControlsSettings } from "@/components/controls-settings";
 import { CameraSettings } from "@/components/camera-settings";
 import { SkipSettings } from "@/components/skip-settings";
-import { BannerSetting } from "@/components/banner-setting";
+import { BannerSetting, GuestsSetting } from "@/components/banner-setting";
 import { ExitGame } from "@/components/exit-game";
 import { readControlMode, saveControlMode, readCourtCamera, saveCourtCamera, readCourtSkips, saveCourtSkips, type ControlMode, type CourtCamera, type CourtSkips } from "@/lib/court-settings";
 
@@ -136,6 +136,7 @@ export default function SettingsPage() {
           <CardContent>
             <SkipSettings skips={skips} onChange={chooseSkips} />
             <div className="mt-5"><BannerSetting /></div>
+            <div className="mt-5"><GuestsSetting /></div>
           </CardContent>
         </Card>
 

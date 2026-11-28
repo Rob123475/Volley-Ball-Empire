@@ -41,6 +41,8 @@ export type ExhibitionSetup = {
   venue: string; timeOfDay: string; weather: string; difficulty: string;
   /** A1, A2, B1, B2: the person (0-3) at this PC playing each, or -1 for the AI. */
   seats: [number, number, number, number];
+  /** 1.2 section 5: the commentary team: the sideline reporter on or off, the guest's key (TEAM.json's, as the pick screen read it) or "none". */
+  commentary?: { sideline: boolean; guest: string };
 };
 
 const games = new Map<string, ExhibitionSetup>();
@@ -96,6 +98,7 @@ function invalid(s: ExhibitionSetup, ids: Set<number>): string | null {
   if (!Array.isArray(s.seats) || s.seats.length !== 4 || !s.seats.every((x) => Number.isInteger(x) && x >= -1 && x <= 3)) return "Each player is a person (1-4) or the AI.";
   const people = [...new Set(s.seats.filter((x) => x >= 0))].sort();
   if (people.some((p, i) => p !== i)) return "People are numbered from 1 with none missed.";
+  if (s.commentary && (typeof s.commentary.sideline !== "boolean" || typeof s.commentary.guest !== "string" || !/^[a-z0-9-]{1,24}$/.test(s.commentary.guest))) return "The commentary is a guest (or none) and the sideline reporter on or off.";
   return null;
 }
 
@@ -136,6 +139,7 @@ router.get("/unity/exhibition-state", (req, res) => {
     players: [...s.home.players.map((p) => player(s.home, p)), ...s.away.players.map((p) => player(s.away, p))],
     gameDifficulty: s.difficulty,
     exhibitionSeats: s.seats,
+    commentary: { sideline: s.commentary?.sideline ?? true, guest: s.commentary && s.commentary.guest !== "none" ? s.commentary.guest : "" },
     manualAllowed: s.seats.some((x) => x >= 0),
   });
 });

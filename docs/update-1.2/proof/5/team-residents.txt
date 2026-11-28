@@ -1,0 +1,66 @@
+THE COMMENTARY TEAM THROUGH A WHOLE MATCH (residents), V19 IN PLAY MODE (batch), 3x
+      0.0s  [Team] the booth: Kailey and Hukum, no guest; the sideline reporter off
+      0.3s  [Team] walk-on: the sideline reporter is off
+      0.3s  [Booth] seat 1: Kailey (casual15_f_highpoly); seat 2: empty (no guest); seat 3: Hukum (Man_33)
+      1.7s  [Team] 57 team lines in TEAM.json (15 for Nicole Dupont, 17 for Roxy Calderwood, 17 for Kai Brennock, 6 hand-overs); 0 recorded
+  the booth's seats at (61.6, 1.7, 20.0); the court's centre (47.1, 20.1)
+  -> team-residents-booth.png
+  -> team-residents-booth-tv-shot.png
+     10.8s  [Match moments] walk-on took 10.5 s
+     20.9s  [Point] awarded: BARCELONA PLAYA ELITES by BlockStuff after 7 attack(s), 21 touches
+     25.8s  [Point] awarded: BARCELONA PLAYA ELITES by Ace after 1 attack(s), 1 touches
+     33.6s  [Point] awarded: BARCELONA PLAYA ELITES by Kill after 3 attack(s), 8 touches
+     40.8s  [Point] awarded: BARCELONA PLAYA ELITES by AttackError after 3 attack(s), 7 touches
+     51.7s  [Point] awarded: BERLIN SAND QUEENS by BlockStuff after 5 attack(s), 15 touches
+     61.7s  [Point] awarded: BARCELONA PLAYA ELITES by BlockStuff after 4 attack(s), 12 touches
+     74.6s  [Point] awarded: BARCELONA PLAYA ELITES by Kill after 6 attack(s), 19 touches
+     84.7s  [Point] awarded: BERLIN SAND QUEENS by BlockStuff after 5 attack(s), 17 touches
+     99.8s  [Point] awarded: BERLIN SAND QUEENS by Kill after 7 attack(s), 20 touches
+    110.6s  [Point] awarded: BARCELONA PLAYA ELITES by AttackError after 5 attack(s), 14 touches
+    128.3s  [Point] awarded: BERLIN SAND QUEENS by Kill after 9 attack(s), 27 touches
+    144.6s  [Point] awarded: BARCELONA PLAYA ELITES by AttackError after 8 attack(s), 23 touches
+    150.0s  [Point] awarded: BARCELONA PLAYA ELITES by AttackError after 2 attack(s), 4 touches
+    158.7s  [Point] awarded: BERLIN SAND QUEENS by AttackError after 4 attack(s), 11 touches
+    164.0s  [Point] awarded: BARCELONA PLAYA ELITES by Kill after 2 attack(s), 4 touches
+    168.8s  [Point] awarded: BARCELONA PLAYA ELITES by Ace after 1 attack(s), 1 touches
+    172.8s  [Team] drinks break: the sideline reporter is off
+    178.8s  [Match moments] drinks break took 6.0 s
+    190.8s  [Point] awarded: BARCELONA PLAYA ELITES by Kill after 8 attack(s), 23 touches
+    201.8s  [Point] awarded: BERLIN SAND QUEENS by AttackError after 5 attack(s), 14 touches
+    213.5s  [Point] awarded: BERLIN SAND QUEENS by BlockStuff after 5 attack(s), 16 touches
+    230.1s  [Point] awarded: BERLIN SAND QUEENS by AttackError after 8 attack(s), 24 touches
+    244.1s  [Point] awarded: BARCELONA PLAYA ELITES by Kill after 7 attack(s), 21 touches
+    250.5s  [Point] awarded: BERLIN SAND QUEENS by Kill after 2 attack(s), 4 touches
+    256.0s  [Point] awarded: BARCELONA PLAYA ELITES by Kill after 2 attack(s), 4 touches
+    264.1s  [Point] awarded: BARCELONA PLAYA ELITES by Kill after 3 attack(s), 8 touches
+    272.2s  [Point] awarded: BARCELONA PLAYA ELITES by AttackError after 4 attack(s), 12 touches
+    283.6s  [Point] awarded: BERLIN SAND QUEENS by AttackError after 5 attack(s), 14 touches
+    287.5s  [Point] awarded: BERLIN SAND QUEENS by Ace after 1 attack(s), 1 touches
+    298.6s  [Point] awarded: BERLIN SAND QUEENS by Kill after 5 attack(s), 16 touches
+    309.4s  [Point] awarded: BARCELONA PLAYA ELITES by Kill after 5 attack(s), 15 touches
+    316.8s  [Point] awarded: BERLIN SAND QUEENS by Kill after 3 attack(s), 7 touches
+    322.1s  [Point] awarded: BERLIN SAND QUEENS by AttackError after 2 attack(s), 4 touches
+    332.4s  [Point] awarded: BERLIN SAND QUEENS by AttackError after 5 attack(s), 15 touches
+    343.8s  [Point] awarded: BARCELONA PLAYA ELITES by Kill after 5 attack(s), 15 touches
+    355.7s  [Point] awarded: BERLIN SAND QUEENS by AttackError after 6 attack(s), 17 touches
+    358.7s  [Team] drinks break: the sideline reporter is off
+    364.7s  [Match moments] drinks break took 6.0 s
+    365.6s  [Point] awarded: BERLIN SAND QUEENS by Ace after 1 attack(s), 1 touches
+    376.5s  [Point] awarded: BARCELONA PLAYA ELITES by Kill after 5 attack(s), 15 touches
+    385.6s  [Point] awarded: BARCELONA PLAYA ELITES by Kill after 4 attack(s), 11 touches
+    393.6s  [Point] awarded: BARCELONA PLAYA ELITES by Kill after 3 attack(s), 8 touches
+    400.8s  [Point] awarded: BARCELONA PLAYA ELITES by Kill after 3 attack(s), 8 touches
+    411.9s  [Point] awarded: BARCELONA PLAYA ELITES by AttackError after 5 attack(s), 15 touches
+    427.0s  [Point] awarded: BERLIN SAND QUEENS by Kill after 7 attack(s), 21 touches
+    440.1s  [Point] awarded: BARCELONA PLAYA ELITES by Kill after 6 attack(s), 18 touches
+    454.3s  [Point] awarded: BERLIN SAND QUEENS by Kill after 7 attack(s), 21 touches
+    464.6s  [Point] awarded: BARCELONA PLAYA ELITES by Kill after 4 attack(s), 10 touches
+    478.6s  [Point] awarded: BARCELONA PLAYA ELITES by Kill after 7 attack(s), 20 touches
+    488.2s  [Point] awarded: BARCELONA PLAYA ELITES by Kill after 4 attack(s), 11 touches
+    500.9s  [Point] awarded: BARCELONA PLAYA ELITES by Kill after 6 attack(s), 17 touches
+    527.9s  [Point] awarded: BARCELONA PLAYA ELITES by Kill after 14 attack(s), 41 touches
+    527.9s  ERROR [MatchReporter] RESULT NOT SENT: an exhibition game: it touches nothing in a career
+    531.4s  [Team] match won: the sideline reporter is off
+    536.4s  [Match moments] celebration took 5.0 s
+  SUMMARY: 4 decisions; 0 lines played (their clips were there); the guest none; the sideline reporter off
+  guest lines decided: 0; sideline moments: 0

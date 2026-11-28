@@ -730,6 +730,12 @@ runSuite("online scaffold", path.join(REPO, "harness", "online-scaffold.mjs"));
 console.log("\n########## 98zze/100  THE EXHIBITION GAME (1.2 D6) ##########");
 runSuite("exhibition", path.join(REPO, "harness", "exhibition.mjs"));
 
+// 1.2 section 5 (28 Nov): the commentary team: Rob's recording sheet and the court's TEAM.json agree line
+// by line (57 lines, each naming its clip), and the team in a career match's and an exhibition's data.
+// Own DB and server (4971).
+console.log("\n########## 98zzf/100  THE COMMENTARY TEAM (1.2 SECTION 5) ##########");
+runSuite("commentary team", path.join(REPO, "harness", "commentary-team.mjs"));
+
 // ── Smoke needs a server; boot one on a throwaway copy of the shipped DB ─────
 console.log("\n########## 99/100  GAMEPLAY SMOKE ##########");
 {

@@ -443,6 +443,9 @@ router.get("/unity/match-state", async (req, res): Promise<void> => {
     weather:              match.weather,
     windSpeed:            match.windSpeed,
     timeOfDay:            timeOfDayFor(match.id),
+    // 1.2 section 5: the commentary team: the sideline reporter on; a guest at random per match (the court
+    // picks among its TEAM.json's guests by the match's id), unless the player's switch says none.
+    commentary:           { sideline: true, guest: "random" },
     crowdSize:            estimateCrowdSize(match.tier),
     commentaryLine:       liveState?.lastAction ?? commentaryLine,
     pointChanceHome,
@@ -657,6 +660,7 @@ function nationsMatchState(careerSaveId: number, id: number) {
       awayScore: progress.filter((s) => s.away > s.home).length,
       weather: null, windSpeed: null, crowdSize: 9000 + (f.id % 7) * 500, commentaryLine: "",
       timeOfDay: timeOfDayFor(f.id),
+      commentary: { sideline: true, guest: "random" },
       pointChanceHome: watchable ? (swap ? 1 - chance : chance) : null,
       players,
       awayKitChanged: away.changed,

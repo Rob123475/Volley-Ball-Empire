@@ -1,0 +1,328 @@
+{
+  "_about": "1.2 section 5: the commentary team, made from docs/update-1.2/COMMENTARY-TEAM-LINES.md by scripts/commentary-team-data.mjs (edit the sheet, not this). A line plays once its clip is in this folder under its file name.",
+  "residents": {
+    "A": "Kailey",
+    "B": "Hukum"
+  },
+  "sideline": {
+    "voice": "S",
+    "name": "Nicole Dupont",
+    "lines": [
+      {
+        "file": "S_walkon_1.mp3",
+        "when": "walkon",
+        "text": "Bonjour from the sand! The players are on their way out, and this crowd is ready."
+      },
+      {
+        "file": "S_walkon_2.mp3",
+        "when": "walkon",
+        "text": "I'm right beside the court, and I can tell you, the sand is hot and so is the mood."
+      },
+      {
+        "file": "S_walkon_3.mp3",
+        "when": "walkon",
+        "text": "Both pairs look relaxed down here. That will not last long!"
+      },
+      {
+        "file": "S_setend_1.mp3",
+        "when": "setend",
+        "text": "That's the set! You could feel that one coming from down here."
+      },
+      {
+        "file": "S_setend_2.mp3",
+        "when": "setend",
+        "text": "Set over, and the winners barely look out of breath. Incroyable."
+      },
+      {
+        "file": "S_setend_3.mp3",
+        "when": "setend",
+        "text": "One set done. I can hear the losing pair talking it over, and they are not happy."
+      },
+      {
+        "file": "S_drinks_1.mp3",
+        "when": "drinks",
+        "text": "Time for a drink. Believe me, they need it out here."
+      },
+      {
+        "file": "S_drinks_2.mp3",
+        "when": "drinks",
+        "text": "A quick drink, a quick word, and then we go again."
+      },
+      {
+        "file": "S_decider_1.mp3",
+        "when": "decider",
+        "text": "One set each! Down here nobody is sitting any more."
+      },
+      {
+        "file": "S_band_1.mp3",
+        "when": "band",
+        "text": "And the band is keeping this beach moving. I love it!"
+      },
+      {
+        "file": "S_weather_1.mp3",
+        "when": "weather",
+        "text": "The wind is picking up down here. That ball is going to dance."
+      },
+      {
+        "file": "S_night_1.mp3",
+        "when": "night",
+        "text": "Under the lights tonight, and it looks magnifique from the sand."
+      },
+      {
+        "file": "S_matchwon_1.mp3",
+        "when": "matchwon",
+        "text": "It's over! The winners are hugging right in front of me!"
+      },
+      {
+        "file": "S_matchwon_2.mp3",
+        "when": "matchwon",
+        "text": "What a finish! I'm going to try to grab a word with the winners."
+      },
+      {
+        "file": "S_matchwon_3.mp3",
+        "when": "matchwon",
+        "text": "That's the match! Back to you in the booth. Merci!"
+      }
+    ]
+  },
+  "guests": [
+    {
+      "key": "roxy",
+      "voice": "C",
+      "name": "Roxy Calderwood",
+      "introducedBy": {
+        "file": "A_guest_roxy_1.mp3",
+        "voice": "A",
+        "text": "And joining us today, film star Roxy Calderwood!"
+      },
+      "lines": [
+        {
+          "file": "C_intro_1.mp3",
+          "when": "intro",
+          "text": "Thank you for having me! I've done my own stunts, but I have never done this."
+        },
+        {
+          "file": "C_intro_2.mp3",
+          "when": "intro",
+          "text": "I'm Roxy Calderwood, and I'm told there is no stunt double for commentary."
+        },
+        {
+          "file": "C_ace_1.mp3",
+          "when": "ace",
+          "text": "Ooh! Nobody moved! I've seen fight scenes with less of a knockout."
+        },
+        {
+          "file": "C_ace_2.mp3",
+          "when": "ace",
+          "text": "An ace! That is what I call a clean take."
+        },
+        {
+          "file": "C_block_1.mp3",
+          "when": "block",
+          "text": "Denied! That's a door slammed right in her face."
+        },
+        {
+          "file": "C_block_2.mp3",
+          "when": "block",
+          "text": "What a block! I felt that one from up here."
+        },
+        {
+          "file": "C_error_1.mp3",
+          "when": "error",
+          "text": "Oh, that's a blooper. That one goes on the reel."
+        },
+        {
+          "file": "C_error_2.mp3",
+          "when": "error",
+          "text": "Long! We've all missed our mark, darling."
+        },
+        {
+          "file": "C_rally_1.mp3",
+          "when": "rally",
+          "text": "This rally has gone on longer than my last film!"
+        },
+        {
+          "file": "C_rally_2.mp3",
+          "when": "rally",
+          "text": "I'm exhausted just watching. Somebody yell cut!"
+        },
+        {
+          "file": "C_setpoint_1.mp3",
+          "when": "setpoint",
+          "text": "Set point? Now this is a cliffhanger."
+        },
+        {
+          "file": "C_matchpoint_1.mp3",
+          "when": "matchpoint",
+          "text": "Match point. I can't look. I'm looking."
+        },
+        {
+          "file": "C_comeback_1.mp3",
+          "when": "comeback",
+          "text": "They're back in it! Now that is a plot twist."
+        },
+        {
+          "file": "C_film_1.mp3",
+          "when": "quiet",
+          "text": "You know, in \"The Dog or Him?\" I picked the dog. Today I'm picking the pair in front."
+        },
+        {
+          "file": "C_film_2.mp3",
+          "when": "quiet",
+          "text": "\"Sabotage 3: We Didn't See It Coming\". Much like that last serve."
+        },
+        {
+          "file": "C_matchwon_1.mp3",
+          "when": "matchwon",
+          "text": "And that's a wrap! What a performance!"
+        },
+        {
+          "file": "C_matchwon_2.mp3",
+          "when": "matchwon",
+          "text": "Roll the credits! I want a sequel!"
+        }
+      ]
+    },
+    {
+      "key": "kai",
+      "voice": "D",
+      "name": "Kai Brennock",
+      "introducedBy": {
+        "file": "A_guest_kai_1.mp3",
+        "voice": "A",
+        "text": "And with us today, a champion in his own right, Kai Brennock!"
+      },
+      "lines": [
+        {
+          "file": "D_intro_1.mp3",
+          "when": "intro",
+          "text": "Good to be here! Different sport, same butterflies. I know that feeling well."
+        },
+        {
+          "file": "D_intro_2.mp3",
+          "when": "intro",
+          "text": "Kai Brennock here. I've retired from winning, so today I just watch."
+        },
+        {
+          "file": "D_ace_1.mp3",
+          "when": "ace",
+          "text": "Ace! When you're in that zone, you don't even hear the crowd."
+        },
+        {
+          "file": "D_ace_2.mp3",
+          "when": "ace",
+          "text": "Clean as you like. That's a champion's serve."
+        },
+        {
+          "file": "D_block_1.mp3",
+          "when": "block",
+          "text": "Big block! That's pure timing, and you can't teach it."
+        },
+        {
+          "file": "D_block_2.mp3",
+          "when": "block",
+          "text": "She read that early. That's hours of training right there."
+        },
+        {
+          "file": "D_error_1.mp3",
+          "when": "error",
+          "text": "Shake it off. Every champion has missed one like that."
+        },
+        {
+          "file": "D_error_2.mp3",
+          "when": "error",
+          "text": "Out. The next point is the only one that matters now."
+        },
+        {
+          "file": "D_rally_1.mp3",
+          "when": "rally",
+          "text": "Look at the legs on these players! That's real fitness."
+        },
+        {
+          "file": "D_rally_2.mp3",
+          "when": "rally",
+          "text": "Whoever wants it more wins this rally. Simple as that."
+        },
+        {
+          "file": "D_setpoint_1.mp3",
+          "when": "setpoint",
+          "text": "Set point. This is where you find out who's got the nerve."
+        },
+        {
+          "file": "D_matchpoint_1.mp3",
+          "when": "matchpoint",
+          "text": "Match point. Breathe. One more good one."
+        },
+        {
+          "file": "D_comeback_1.mp3",
+          "when": "comeback",
+          "text": "Never count a fighter out. I love to see this."
+        },
+        {
+          "file": "D_past_1.mp3",
+          "when": "quiet",
+          "text": "In my day I'd have been icing my knees by now. These two look fresh."
+        },
+        {
+          "file": "D_past_2.mp3",
+          "when": "quiet",
+          "text": "I'll be honest, sand is harder than it looks. I've tried it. Once."
+        },
+        {
+          "file": "D_matchwon_1.mp3",
+          "when": "matchwon",
+          "text": "That's how you close it out! Respect to both pairs."
+        },
+        {
+          "file": "D_matchwon_2.mp3",
+          "when": "matchwon",
+          "text": "Winners! Enjoy it. That feeling never gets old."
+        }
+      ]
+    }
+  ],
+  "handovers": [
+    {
+      "file": "A_tosideline_1.mp3",
+      "voice": "A",
+      "speaker": "Kailey",
+      "when": "tosideline",
+      "text": "Let's go down to Nicole on the sand."
+    },
+    {
+      "file": "A_tosideline_2.mp3",
+      "voice": "A",
+      "speaker": "Kailey",
+      "when": "tosideline",
+      "text": "Nicole Dupont is courtside for us. Nicole?"
+    },
+    {
+      "file": "B_tosideline_1.mp3",
+      "voice": "B",
+      "speaker": "Hukum",
+      "when": "tosideline",
+      "text": "What's it like down there, Nicole?"
+    },
+    {
+      "file": "B_fromsideline_1.mp3",
+      "voice": "B",
+      "speaker": "Hukum",
+      "when": "fromsideline",
+      "text": "Thanks, Nicole."
+    },
+    {
+      "file": "B_guest_react_1.mp3",
+      "voice": "B",
+      "speaker": "Hukum",
+      "when": "guestreact",
+      "text": "Ha! Couldn't have put it better myself."
+    },
+    {
+      "file": "B_guest_react_2.mp3",
+      "voice": "B",
+      "speaker": "Hukum",
+      "when": "guestreact",
+      "text": "And that's why we invited you."
+    }
+  ]
+}

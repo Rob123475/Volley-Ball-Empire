@@ -1,0 +1,95 @@
+THE COMMENTARY TEAM THROUGH A WHOLE MATCH (career), V19 IN PLAY MODE (batch), 3x
+      0.0s  [Team] the booth: Kailey and Hukum, with random; the sideline reporter on
+      0.3s  [Team] walk-on: Kailey A_guest_kai_1.mp3 introduces Kai Brennock only once Kai Brennock's hello is recorded
+      0.3s  [Team] walk-on: Kai Brennock D_intro_2.mp3 "Kai Brennock here. I've retired from winning, so today I just watch." -> not recorded: skipped in silence
+      0.3s  [Team] walk-on: Nicole Dupont S_night_1.mp3 "Under the lights tonight, and it looks magnifique from the sand." -> not recorded: skipped in silence
+      0.3s  [Booth] seat 1: Kailey (casual15_f_highpoly); seat 2: Kai Brennock (Man_33); seat 3: Hukum (business01_m_highpoly); on the sand: Nicole Dupont (casual20_f_highpoly), a microphone in her hand
+      1.8s  [Team] 57 team lines in TEAM.json (15 for Nicole Dupont, 17 for Roxy Calderwood, 17 for Kai Brennock, 6 hand-overs); 0 recorded
+  the booth's seats at (61.6, 1.7, 20.0); the court's centre (47.1, 20.1)
+  -> team-career-booth.png
+  -> team-career-booth-tv-shot.png
+  Nicole on the sand at (53.6, 26.1)
+  -> team-career-sideline.png
+     11.0s  [Match moments] walk-on took 10.7 s
+     15.0s  [Point] awarded: ATHENS AEGEAN STARS by Kill after 3 attack(s), 7 touches
+     15.1s  [Team] after the residents' Point call: Kai Brennock D_past_2.mp3 "I'll be honest, sand is harder than it looks. I've tried it. Once." -> not recorded: skipped in silence
+     23.7s  [Point] awarded: ATHENS AEGEAN STARS by Kill after 3 attack(s), 8 touches
+     33.7s  [Point] awarded: ATHENS AEGEAN STARS by AttackError after 5 attack(s), 13 touches
+     42.5s  [Point] awarded: SYDNEY RIPTIDE by Kill after 4 attack(s), 10 touches
+     44.9s  [Team] after the residents' Rally call: Kai Brennock D_rally_2.mp3 "Whoever wants it more wins this rally. Simple as that." -> not recorded: skipped in silence
+     55.2s  [Point] awarded: SYDNEY RIPTIDE by Kill after 6 attack(s), 19 touches
+     60.9s  [Point] awarded: ATHENS AEGEAN STARS by Kill after 2 attack(s), 4 touches
+     69.1s  [Point] awarded: SYDNEY RIPTIDE by Kill after 3 attack(s), 7 touches
+     70.9s  [Team] after the residents' Rally call: Kai Brennock D_rally_1.mp3 "Look at the legs on these players! That's real fitness." -> not recorded: skipped in silence
+     77.7s  [Point] awarded: SYDNEY RIPTIDE by Kill after 4 attack(s), 11 touches
+     93.4s  [Point] awarded: ATHENS AEGEAN STARS by Kill after 7 attack(s), 21 touches
+    116.5s  [Point] awarded: SYDNEY RIPTIDE by BlockStuff after 12 attack(s), 36 touches
+    116.6s  [Team] after the residents' Block call: Kai Brennock D_block_1.mp3 "Big block! That's pure timing, and you can't teach it." -> not recorded: skipped in silence
+    127.5s  [Point] awarded: SYDNEY RIPTIDE by Kill after 5 attack(s), 14 touches
+    136.6s  [Point] awarded: ATHENS AEGEAN STARS by Kill after 4 attack(s), 10 touches
+    151.6s  [Point] awarded: SYDNEY RIPTIDE by AttackError after 7 attack(s), 20 touches
+    151.6s  [Team] after the residents' Error call: Kai Brennock D_error_1.mp3 "Shake it off. Every champion has missed one like that." -> not recorded: skipped in silence
+    163.8s  [Point] awarded: SYDNEY RIPTIDE by Kill after 6 attack(s), 17 touches
+    168.9s  [Point] awarded: ATHENS AEGEAN STARS by ServeError after 1 attack(s), 1 touches
+    179.8s  [Point] awarded: SYDNEY RIPTIDE by Kill after 5 attack(s), 13 touches
+    193.9s  [Point] awarded: SYDNEY RIPTIDE by Kill after 6 attack(s), 17 touches
+    193.9s  [Team] after the residents' SetPoint call: Kai Brennock D_setpoint_1.mp3 "Set point. This is where you find out who's got the nerve." -> not recorded: skipped in silence
+    204.8s  [Point] awarded: SYDNEY RIPTIDE by AttackError after 5 attack(s), 13 touches
+    207.8s  [Team] drinks break: Nicole Dupont S_drinks_2.mp3 "A quick drink, a quick word, and then we go again." -> not recorded: skipped in silence
+    213.8s  [Match moments] drinks break took 6.0 s
+    219.8s  [Point] awarded: ATHENS AEGEAN STARS by Kill after 4 attack(s), 12 touches
+    226.4s  [Point] awarded: ATHENS AEGEAN STARS by AttackError after 2 attack(s), 4 touches
+    226.4s  [Team] after the residents' Error call: Kai Brennock D_error_2.mp3 "Out. The next point is the only one that matters now." -> not recorded: skipped in silence
+    234.7s  [Point] awarded: SYDNEY RIPTIDE by Kill after 4 attack(s), 12 touches
+    239.6s  [Point] awarded: ATHENS AEGEAN STARS by ServeError after 1 attack(s), 1 touches
+    245.2s  [Point] awarded: ATHENS AEGEAN STARS by AttackError after 2 attack(s), 4 touches
+    245.2s  [Team] after the residents' Error call: Kai Brennock D_error_1.mp3 "Shake it off. Every champion has missed one like that." -> not recorded: skipped in silence
+    249.1s  [Point] awarded: ATHENS AEGEAN STARS by Ace after 1 attack(s), 1 touches
+    266.2s  [Point] awarded: ATHENS AEGEAN STARS by Kill after 8 attack(s), 23 touches
+    277.0s  [Point] awarded: ATHENS AEGEAN STARS by AttackError after 5 attack(s), 13 touches
+    281.0s  [Team] after the residents' Rally call: Kai Brennock D_rally_2.mp3 "Whoever wants it more wins this rally. Simple as that." -> not recorded: skipped in silence
+    293.3s  [Point] awarded: ATHENS AEGEAN STARS by Kill after 8 attack(s), 23 touches
+    303.6s  [Point] awarded: SYDNEY RIPTIDE by Kill after 4 attack(s), 10 touches
+    309.4s  [Point] awarded: SYDNEY RIPTIDE by AttackError after 2 attack(s), 4 touches
+    318.1s  [Point] awarded: SYDNEY RIPTIDE by Kill after 4 attack(s), 11 touches
+    321.9s  [Team] after the residents' Rally call: Kai Brennock D_rally_1.mp3 "Look at the legs on these players! That's real fitness." -> not recorded: skipped in silence
+    339.8s  [Point] awarded: ATHENS AEGEAN STARS by BlockStuff after 10 attack(s), 30 touches
+    351.8s  [Point] awarded: ATHENS AEGEAN STARS by Kill after 5 attack(s), 14 touches
+    359.4s  [Point] awarded: SYDNEY RIPTIDE by Kill after 3 attack(s), 7 touches
+    359.4s  [Team] after the residents' SetPoint call: Kai Brennock D_setpoint_1.mp3 "Set point. This is where you find out who's got the nerve." -> not recorded: skipped in silence
+    369.5s  [Point] awarded: SYDNEY RIPTIDE by Kill after 4 attack(s), 11 touches
+    375.5s  [Point] awarded: SYDNEY RIPTIDE by BlockStuff after 2 attack(s), 5 touches
+    390.5s  [Point] awarded: SYDNEY RIPTIDE by Kill after 7 attack(s), 20 touches
+    403.0s  [Point] awarded: SYDNEY RIPTIDE by Kill after 6 attack(s), 17 touches
+    413.6s  [Point] awarded: SYDNEY RIPTIDE by BlockStuff after 4 attack(s), 13 touches
+    413.6s  [Team] after the residents' Comeback call: Kai Brennock D_comeback_1.mp3 "Never count a fighter out. I love to see this." -> not recorded: skipped in silence
+    419.8s  [Point] awarded: ATHENS AEGEAN STARS by Kill after 2 attack(s), 4 touches
+    430.1s  [Point] awarded: ATHENS AEGEAN STARS by Kill after 5 attack(s), 14 touches
+    434.1s  [Team] drinks break: Nicole Dupont S_decider_1.mp3 "One set each! Down here nobody is sitting any more." -> not recorded: skipped in silence
+    440.1s  [Match moments] drinks break took 6.0 s
+    450.9s  [Point] awarded: SYDNEY RIPTIDE by Kill after 7 attack(s), 21 touches
+    453.7s  [Team] after the residents' Rally call: Kai Brennock D_rally_1.mp3 "Look at the legs on these players! That's real fitness." -> not recorded: skipped in silence
+    456.3s  [Point] awarded: ATHENS AEGEAN STARS by Kill after 2 attack(s), 4 touches
+    467.9s  [Point] awarded: ATHENS AEGEAN STARS by Kill after 5 attack(s), 14 touches
+    474.7s  [Point] awarded: ATHENS AEGEAN STARS by Kill after 3 attack(s), 8 touches
+    474.7s  [Team] after the residents' Point call: Kai Brennock D_past_2.mp3 "I'll be honest, sand is harder than it looks. I've tried it. Once." -> not recorded: skipped in silence
+    479.6s  [Point] awarded: SYDNEY RIPTIDE by ServeError after 1 attack(s), 1 touches
+    490.2s  [Point] awarded: SYDNEY RIPTIDE by Kill after 5 attack(s), 14 touches
+    507.5s  [Point] awarded: ATHENS AEGEAN STARS by AttackError after 8 attack(s), 23 touches
+    507.5s  [Team] after the residents' Error call: Kai Brennock D_error_1.mp3 "Shake it off. Every champion has missed one like that." -> not recorded: skipped in silence
+    518.4s  [Point] awarded: ATHENS AEGEAN STARS by Kill after 5 attack(s), 14 touches
+    528.7s  [Point] awarded: ATHENS AEGEAN STARS by Kill after 4 attack(s), 11 touches
+    537.5s  [Point] awarded: ATHENS AEGEAN STARS by Kill after 4 attack(s), 11 touches
+    540.2s  [Team] after the residents' Rally call: Kai Brennock D_rally_2.mp3 "Whoever wants it more wins this rally. Simple as that." -> not recorded: skipped in silence
+    549.3s  [Point] awarded: SYDNEY RIPTIDE by Kill after 5 attack(s), 15 touches
+    567.4s  [Point] awarded: ATHENS AEGEAN STARS by BlockStuff after 9 attack(s), 27 touches
+    582.7s  [Point] awarded: SYDNEY RIPTIDE by Kill after 7 attack(s), 23 touches
+    582.7s  [Team] after the residents' Point call: Kai Brennock D_past_1.mp3 "In my day I'd have been icing my knees by now. These two look fresh." -> not recorded: skipped in silence
+    588.0s  [Point] awarded: ATHENS AEGEAN STARS by Kill after 2 attack(s), 4 touches
+    592.9s  [Point] awarded: ATHENS AEGEAN STARS by Ace after 1 attack(s), 1 touches
+    601.3s  [Point] awarded: ATHENS AEGEAN STARS by AttackError after 3 attack(s), 7 touches
+    604.8s  [Team] match won: Kai Brennock D_matchwon_1.mp3 "That's how you close it out! Respect to both pairs." -> not recorded: skipped in silence
+    604.8s  [Team] match won: Nicole Dupont S_matchwon_1.mp3 "It's over! The winners are hugging right in front of me!" -> not recorded: skipped in silence
+    609.8s  [Match moments] celebration took 5.0 s
+  SUMMARY: 24 decisions; 0 lines played (their clips were there); the guest Kai Brennock; the sideline reporter on
+  guest lines decided: 17; sideline moments: 4

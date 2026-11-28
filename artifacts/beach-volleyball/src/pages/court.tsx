@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { readControlMode, saveControlMode, courtVolumes, MATCH_VOLUME_EVENT, MATCH_VOLUME_KEY, type ControlMode, readCourtCamera, saveCourtCamera, cameraPrefs, cameraFromCourt, type CourtCamera, readCourtSkips, saveCourtSkips, skipsPrefs, type CourtSkips, readCourtBanner } from "@/lib/court-settings";
+import { readControlMode, saveControlMode, courtVolumes, MATCH_VOLUME_EVENT, MATCH_VOLUME_KEY, type ControlMode, readCourtCamera, saveCourtCamera, cameraPrefs, cameraFromCourt, type CourtCamera, readCourtSkips, saveCourtSkips, skipsPrefs, type CourtSkips, readCourtBanner, readCourtGuests } from "@/lib/court-settings";
 import { SoundSettings } from "@/components/sound-settings";
 import { ControlsSettings } from "@/components/controls-settings";
 import { CameraSettings } from "@/components/camera-settings";
@@ -96,6 +96,7 @@ export default function ThreeDCourt() {
     if (matchId) p.set("matchId", matchId);
     if (nationsMatchId) p.set("nationsMatchId", nationsMatchId);
     if (exhibitionId) p.set("exhibitionId", exhibitionId);
+    if (!exhibitionId && !readCourtGuests()) p.set("guests", "0");   // 1.2 section 5: the player switched the career guests off
     if (openingMode === "manual" && manualAllowed) p.set("mode", "manual");
     const qs = p.toString();
     return qs ? `?${qs}` : "";

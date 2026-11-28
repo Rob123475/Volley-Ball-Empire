@@ -1,0 +1,67 @@
+THE COMMENTARY TEAM THROUGH A WHOLE MATCH (kai), V19 IN PLAY MODE (batch), 3x
+      0.0s  [Team] the booth: Kailey and Hukum, with kai; the sideline reporter off
+      0.3s  [Team] walk-on: Kailey A_guest_kai_1.mp3 introduces Kai Brennock only once Kai Brennock's hello is recorded
+      0.3s  [Team] walk-on: Kai Brennock D_intro_1.mp3 "Good to be here! Different sport, same butterflies. I know that feeling well." -> not recorded: skipped in silence
+      0.3s  [Team] walk-on: the sideline reporter is off
+      0.3s  [Booth] seat 1: Kailey (casual15_f_highpoly); seat 2: Kai Brennock (Man_33); seat 3: Hukum (business01_m_highpoly)
+      1.7s  [Team] 57 team lines in TEAM.json (15 for Nicole Dupont, 17 for Roxy Calderwood, 17 for Kai Brennock, 6 hand-overs); 0 recorded
+  the booth's seats at (61.6, 1.7, 20.0); the court's centre (47.1, 20.1)
+  -> team-kai-booth.png
+  -> team-kai-booth-tv-shot.png
+     10.8s  [Match moments] walk-on took 10.5 s
+     21.2s  [Point] awarded: BARCELONA PLAYA ELITES by BlockStuff after 6 attack(s), 18 touches
+     21.3s  [Team] after the residents' Block call: Kai Brennock D_block_2.mp3 "She read that early. That's hours of training right there." -> not recorded: skipped in silence
+     39.1s  [Point] awarded: BARCELONA PLAYA ELITES by BlockStuff after 8 attack(s), 25 touches
+     43.9s  [Point] awarded: BARCELONA PLAYA ELITES by Ace after 1 attack(s), 1 touches
+     70.2s  [Point] awarded: BERLIN SAND QUEENS by Kill after 13 attack(s), 39 touches
+     72.9s  [Team] after the residents' Rally call: Kai Brennock D_rally_2.mp3 "Whoever wants it more wins this rally. Simple as that." -> not recorded: skipped in silence
+     78.7s  [Point] awarded: BARCELONA PLAYA ELITES by Kill after 4 attack(s), 12 touches
+     96.4s  [Point] awarded: BERLIN SAND QUEENS by BlockStuff after 8 attack(s), 24 touches
+    115.3s  [Point] awarded: BERLIN SAND QUEENS by BlockStuff after 9 attack(s), 28 touches
+    115.3s  [Team] after the residents' Block call: Kai Brennock D_block_1.mp3 "Big block! That's pure timing, and you can't teach it." -> not recorded: skipped in silence
+    123.7s  [Point] awarded: BERLIN SAND QUEENS by BlockStuff after 3 attack(s), 8 touches
+    134.6s  [Point] awarded: BERLIN SAND QUEENS by Kill after 5 attack(s), 14 touches
+    148.4s  [Point] awarded: BERLIN SAND QUEENS by Kill after 7 attack(s), 22 touches
+    151.1s  [Team] after the residents' Rally call: Kai Brennock D_rally_1.mp3 "Look at the legs on these players! That's real fitness." -> not recorded: skipped in silence
+    162.7s  [Point] awarded: BERLIN SAND QUEENS by Kill after 7 attack(s), 20 touches
+    171.6s  [Point] awarded: BARCELONA PLAYA ELITES by Kill after 4 attack(s), 12 touches
+    177.7s  [Point] awarded: BERLIN SAND QUEENS by Kill after 2 attack(s), 4 touches
+    195.6s  [Point] awarded: BARCELONA PLAYA ELITES by Kill after 9 attack(s), 27 touches
+    195.6s  [Team] after the residents' Point call: Kai Brennock D_past_2.mp3 "I'll be honest, sand is harder than it looks. I've tried it. Once." -> not recorded: skipped in silence
+    206.9s  [Point] awarded: BARCELONA PLAYA ELITES by AttackError after 5 attack(s), 15 touches
+    218.0s  [Point] awarded: BERLIN SAND QUEENS by BlockStuff after 5 attack(s), 15 touches
+    224.2s  [Point] awarded: BERLIN SAND QUEENS by AttackError after 2 attack(s), 4 touches
+    224.2s  [Team] after the residents' SetPoint call: Kai Brennock D_setpoint_1.mp3 "Set point. This is where you find out who's got the nerve." -> not recorded: skipped in silence
+    238.6s  [Point] awarded: BERLIN SAND QUEENS by BlockStuff after 7 attack(s), 22 touches
+    242.6s  [Team] drinks break: the sideline reporter is off
+    248.6s  [Match moments] drinks break took 6.0 s
+    254.4s  [Point] awarded: BARCELONA PLAYA ELITES by Kill after 4 attack(s), 12 touches
+    259.5s  [Point] awarded: BERLIN SAND QUEENS by Kill after 2 attack(s), 4 touches
+    259.5s  [Team] after the residents' Point call: Kai Brennock D_past_1.mp3 "In my day I'd have been icing my knees by now. These two look fresh." -> not recorded: skipped in silence
+    274.3s  [Point] awarded: BERLIN SAND QUEENS by AttackError after 7 attack(s), 21 touches
+    284.9s  [Point] awarded: BERLIN SAND QUEENS by Kill after 5 attack(s), 14 touches
+    294.0s  [Point] awarded: BARCELONA PLAYA ELITES by Kill after 4 attack(s), 12 touches
+    296.7s  [Team] after the residents' Rally call: Kai Brennock D_rally_1.mp3 "Look at the legs on these players! That's real fitness." -> not recorded: skipped in silence
+    300.8s  [Point] awarded: BARCELONA PLAYA ELITES by Kill after 3 attack(s), 8 touches
+    307.0s  [Point] awarded: BERLIN SAND QUEENS by Kill after 2 attack(s), 4 touches
+    324.5s  [Point] awarded: BERLIN SAND QUEENS by Kill after 9 attack(s), 28 touches
+    324.5s  [Team] after the residents' Point call: Kai Brennock D_past_2.mp3 "I'll be honest, sand is harder than it looks. I've tried it. Once." -> not recorded: skipped in silence
+    329.4s  [Point] awarded: BARCELONA PLAYA ELITES by ServeError after 1 attack(s), 1 touches
+    336.3s  [Point] awarded: BARCELONA PLAYA ELITES by Kill after 3 attack(s), 8 touches
+    342.7s  [Point] awarded: BERLIN SAND QUEENS by Kill after 2 attack(s), 4 touches
+    351.3s  [Point] awarded: BARCELONA PLAYA ELITES by AttackError after 4 attack(s), 11 touches
+    351.3s  [Team] after the residents' Error call: Kai Brennock D_error_1.mp3 "Shake it off. Every champion has missed one like that." -> not recorded: skipped in silence
+    362.1s  [Point] awarded: BERLIN SAND QUEENS by Kill after 5 attack(s), 15 touches
+    369.8s  [Point] awarded: BERLIN SAND QUEENS by Kill after 3 attack(s), 8 touches
+    391.2s  [Point] awarded: BARCELONA PLAYA ELITES by AttackError after 11 attack(s), 34 touches
+    391.2s  [Team] after the residents' Error call: Kai Brennock D_error_2.mp3 "Out. The next point is the only one that matters now." -> not recorded: skipped in silence
+    398.3s  [Point] awarded: BERLIN SAND QUEENS by Kill after 3 attack(s), 7 touches
+    409.6s  [Point] awarded: BERLIN SAND QUEENS by Kill after 5 attack(s), 14 touches
+    420.2s  [Point] awarded: BERLIN SAND QUEENS by Kill after 5 attack(s), 14 touches
+    420.2s  ERROR [MatchReporter] RESULT NOT SENT: an exhibition game: it touches nothing in a career
+    423.1s  [Team] after the residents' Rally call: Kai Brennock D_rally_2.mp3 "Whoever wants it more wins this rally. Simple as that." -> not recorded: skipped in silence
+    424.5s  [Team] match won: Kai Brennock D_matchwon_1.mp3 "That's how you close it out! Respect to both pairs." -> not recorded: skipped in silence
+    424.5s  [Team] match won: the sideline reporter is off
+    429.5s  [Match moments] celebration took 5.0 s
+  SUMMARY: 18 decisions; 0 lines played (their clips were there); the guest Kai Brennock; the sideline reporter off
+  guest lines decided: 12; sideline moments: 0

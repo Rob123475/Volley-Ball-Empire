@@ -170,6 +170,15 @@ export default function ExhibitionPage() {
   const [time, setTime] = useState("sunset");
   const [weather, setWeather] = useState("sunny");
   const [difficulty, setDifficulty] = useState("medium");
+  // 1.2 section 5: the commentary team: the guest in the booth (TEAM.json's guests, the court's own list) and the sideline reporter.
+  const { data: crew } = useQuery<{ guests: { key: string; name: string }[]; sideline: { name: string } }>({
+    queryKey: ["commentary-team"],
+    queryFn: () => fetch("/unity-build/StreamingAssets/commentary/TEAM.json").then((r) => r.json()),
+    staleTime: Infinity,
+  });
+  const [guest, setGuest] = useState<string | null>(null);
+  const [sideline, setSideline] = useState(true);
+  const guestKey = guest ?? crew?.guests[0]?.key ?? "none";
   const [error, setError] = useState<string | null>(null);
   const [starting, setStarting] = useState(false);
 
@@ -190,7 +199,7 @@ export default function ExhibitionPage() {
     setError(null); setStarting(true);
     const team = (t: PickTeam) => ({ ...t, players: t.players.map(({ seat: _seat, swimwear, ...p }) => ({ ...p, swimwear: t.poolTeamId == null ? swimwear : undefined })) });
     const r = await fetch("/api/exhibition", { method: "POST", credentials: "same-origin", headers: { "content-type": "application/json" },
-      body: JSON.stringify({ home: team(home!), away: team(away!), venue, timeOfDay: time, weather, difficulty, seats }) });
+      body: JSON.stringify({ home: team(home!), away: team(away!), venue, timeOfDay: time, weather, difficulty, seats, commentary: { sideline, guest: guestKey } }) });
     const d = await r.json();
     if (!r.ok) { setError(d.error ?? "Could not start the game."); setStarting(false); return; }
     navigate(`/exhibition/court?exhibitionId=${d.id}${people > 0 ? "&played=1" : ""}`);
@@ -223,6 +232,13 @@ export default function ExhibitionPage() {
             {pick("Time of day", time, setTime, o.times, cap)}
             {pick("Weather", weather, setWeather, o.weathers, (w) => (w === "rain" ? "Light rain" : cap(w)))}
             {pick("Difficulty", difficulty, setDifficulty, o.difficulties, cap)}
+          </CardContent>
+          <CardContent className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {pick("Guest in the booth", guestKey, setGuest, ["none", ...(crew?.guests.map((g) => g.key) ?? [])], (k) => (k === "none" ? "No guest" : crew?.guests.find((g) => g.key === k)?.name ?? k))}
+            <label className="flex items-end gap-2 pb-2 text-sm">
+              <input type="checkbox" checked={sideline} onChange={(e) => setSideline(e.target.checked)} aria-label="Sideline reporter" className="h-4 w-4" />
+              {crew?.sideline.name ?? "The sideline reporter"} on the sand
+            </label>
           </CardContent>
           <CardDescription className="flex items-center gap-2 px-6 pb-4"><Users className="h-4 w-4" />
             {people === 0 ? "Nobody plays: you watch the AI." : `${people} ${people === 1 ? "person plays" : "people play"}. Person 1 has the keyboard; persons 2 to 4 a pad each. Whoever has a whole team, control follows the ball for her.`}
