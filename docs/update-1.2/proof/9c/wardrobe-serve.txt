@@ -1,0 +1,6 @@
+WHAT THE PLAYERS WEAR, CLOSE UP (serve), V19 IN PLAY MODE (batch), A WATCHED MATCH
+  Player_A2 serves: the ball 0.17 m from her left hand, 0.69 m from her head (it was drawn 1.5 m over her feet: 0.82 m from there now)
+    -> 9c-serve-hold-front-no-hat.png
+    -> 9c-serve-hold-side-no-hat.png
+    -> 9c-serve-hold-front-sun-hat.png
+    -> 9c-serve-hold-side-sun-hat.png

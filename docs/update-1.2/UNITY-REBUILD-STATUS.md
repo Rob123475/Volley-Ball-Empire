@@ -153,6 +153,7 @@ Brief: `docs/update-1.2/UNITY-REBUILD-BRIEF.md`. Plan: `docs/update-1.2/PLAYABLE
 
 | Item | State | Proof | Commit |
 |---|---|---|---|
+| 9c The ball in her hand at the serve (29 Nov) | Done, PASS: drawn in her left hand in played and Auto, clear of head and hat; drawing only (A1 18/18, --unity-full 13/13) | `proof/9c/9c-serve-hold-sheet.png`, `proof/D6/d6-player_a2.png` | Unity `252a16b5` |
 | 9d Music: Rob's ruling (29 Nov) | Done, PASS: the control was already there (Settings and the court's settings, remembered); only the court's help text corrected | `scripts/webgl-proof/music-9d.mjs` 8/8, `proof/9d/` | game only |
 | 9b Rob's swimwear prints (29 Nov) | Done, PASS: his 23 swatches as 20 prints (paisley 4 ways), 11 the player recolours by Rob's rule, 9 as painted; a new print is a picture and a line; 42 MB to 3.0 MB; seams cut to whole repeats or mirrored; the palette of brights and pastels | `proof/9b/9b-prints-sheet.png`; store 30/30, exhibition --unity 30/30 | Unity `ace36fd0` |
 | 9a Tinted sunglasses (29 Nov) | Done, PASS: five lens tints beside the frame colour, in the store and on the pick screen; eyes faint behind them; the floodlights light them | `proof/9a/9a-lenses-sheet.png`; store 27/27, exhibition 21/21 | Unity `a7575042` |
@@ -1899,3 +1900,29 @@ Rob approved the songs playing from the band's stage and on through the match. H
 - headless Chrome.
 
 `pages-d4-d6.mjs` uses it too, and passes 11/11 (its hat is now bought in the colour picker's Red).
+
+### 9c: the ball in her hand at the serve (29 Nov 2026)
+
+**Before:** while the server held the ball it was drawn 1.5 m over her feet, at her head.
+- In a played match that is the engine's held-ball position.
+- In Auto, `MatchManager` put it there every frame as she walked to her spot, so it floated beside her head.
+- With a sun hat on, it looked as if it sat on the hat.
+
+**Now:** it is drawn in her left hand, her tossing hand, resting on the palm (`ServeHold.cs`).
+- The palm is found from her own skeleton as it is that frame (between wrist and knuckles), on the side away from her body.
+- It is clear of her head and of any hat, in played and Auto matches alike.
+
+**Drawing only.** The played engine's own held ball (`PlayedEngine.HeldBallPos`) is unchanged, and so are the serve's flight, its start (`BeginServe` still launches from where it did), its timing and every result.
+- A1: 18/18.
+- `harness/played-match.mjs --unity-full`: 13/13. The court played a whole match (28/28, 2-0), reported it, and the game recorded exactly the court's score.
+
+**Proof:**
+- **Auto,** `proof/9c/9c-serve-hold-sheet.png` (`WardrobeProof -mode serve`, a watched match): the server carrying the ball to her spot, from the front and the side, bare-headed and in the sun hat.
+  - The ball is at her hands, 0.69 m from her head.
+- **Played,** `proof/D6/d6-player_a2.png` (`harness/exhibition.mjs --unity`, 30/30): the server, Sophie Müller, the ball in her hands.
+
+**Said plainly: a batch-only effect, now handled in the proofs.**
+- In batch runs nothing counts as seen, so the players' animators (set to cull when unseen) leave their bones in the bind pose.
+- A ball placed by her hand then sat at her bind-pose hand, beside her shoulder.
+- The Unity proofs now make the animators always animate, as the earlier batch proofs did.
+- In the game the camera sees the server, so her bones move.
