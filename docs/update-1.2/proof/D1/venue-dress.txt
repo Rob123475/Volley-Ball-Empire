@@ -1,9 +1,11 @@
 D1 / SECTIONS 3 AND 6: THE OCEANIA VENUE DRESSED
+  commentary tent (9e): the light yellow tower's model, a copy of its texture recoloured (215,631 yellow pixels to navy, 7,427 red to orange, of 1,048,576); -> Assets/my assets/Props 1.2/commentary-tent/commentary-tent.prefab
+  Feature_commentaryStand: commentary-tent at (62.0, 20.0), 14.9 m from the court
   Booth: Wooden_Beach_Table at (61.7, 20.0), 14.6 m from the court
-  Booth: Seat at (62.4, 19.4), 15.4 m from the court
+  Booth: Seat at (62.5, 19.4), 15.4 m from the court
   Booth: Seat at (62.5, 20.0), 15.4 m from the court
   Booth: Seat at (62.5, 20.6), 15.4 m from the court
-  commentary booth: a desk and three seats on the tower's platform, 2.13 m up, facing the court (no commentators: Rob confirms the team first)
+  commentary booth: the platform 3.00 m up, 2.42 m across and 3.00 m deep; a desk and 3 seats of three, facing the court
   drinks: 4 kinds in 5 colours each (the original and 4 hue turns), Assets/Textures/Venue/Drinks
   Feature_juiceBar: tiki-bar at (69.0, 32.0), 24.9 m from the court
   Feature_juiceBar: drink-bottle at (68.8, 32.9), 25.2 m from the court
@@ -16,7 +18,7 @@ D1 / SECTIONS 3 AND 6: THE OCEANIA VENUE DRESSED
   Feature_juiceBar: drink-three at (69.2, 31.1), 24.6 m from the court
   the tiki bar's counter: 8 drinks on a surface 1.31 m up
   Feature_kiosk: kiosk at (66.0, 6.0), 23.6 m from the court
-  kiosk sign: found 2.37 x 0.58 m, 1.40 m up, 1.73 m in front of the kiosk's middle; covered by the game's wordmark
+  kiosk sign: found 4.47 x 0.55 m, 1.39 m up, 1.74 m in front of the middle (783 of 1916 rays on it); covered (WordmarkPanel)
   Feature_kiosk: Wooden_Beach_Table at (65.3, 6.5), 22.7 m from the court
   Feature_kiosk: drink-bottle at (65.1, 6.3), 22.7 m from the court
   Feature_kiosk: drink-jug at (65.0, 6.6), 22.5 m from the court
@@ -25,6 +27,8 @@ D1 / SECTIONS 3 AND 6: THE OCEANIA VENUE DRESSED
   Feature_kiosk: drink-bottle at (65.4, 6.7), 22.7 m from the court
   the table in the kiosk: 5 drinks on a surface 0.57 m up
   Feature_lifeguardTower: lifeguard-tower at (23.0, 37.0), 29.4 m from the court
+  Feature_iceCreamCart: ice-cream-cart at (52.5, 1.5), 19.4 m from the court
+  the cart's far side: found 1.59 x 0.76 m, 0.81 m up, 0.38 m in front of the middle (522 of 1737 rays on it); covered (IceCreamPanel)
   Feature_gulls: seagull at (56.0, 3.0), 19.3 m from the court
   Feature_gulls: seagull at (57.5, 1.8), 21.0 m from the court
   Feature_gulls: seagull at (34.0, 45.0), 28.1 m from the court
@@ -42,6 +46,12 @@ D1 / SECTIONS 3 AND 6: THE OCEANIA VENUE DRESSED
   Always: beach-chair at (73.0, 25.0), 26.4 m from the court
   Always: beach-chair at (71.0, 1.5), 30.3 m from the court
   Always: beach-chair at (62.0, -0.5), 25.4 m from the court
+  the VIP tent: the old one (61c66501) was at (47.2, 32.8), 12.82 m across and 7.53 m tall; out of the scene (its model stays on file)
+  Always: vip-tent at (47.2, 32.8), 12.7 m from the court
+  the VIP tent: Rob's new one, 9.54 x 9.43 m, 7.53 m tall
+  the T-shirt shop: the old one (696a4cae) was at (60.0, 13.0), 4.87 m across and 3.10 m tall; out of the scene (its model stays on file)
+  Always: tshirt-shop at (60.0, 13.0), 14.8 m from the court
+  the T-shirt shop: Rob's new one, 3.85 x 4.66 m, 2.80 m tall
   band: stage Stage_Built_B, 8.5 x 8.5 m, 5.1 m tall, deck 1.03 m up, 39 m from the court's centre
   band: drums (casual18_m_highpoly, the rig carries SM_DrumStick, rig scaled 1.04), guitar (casual12_m_highpoly, the rig carries SM_Guitar, rig scaled 1.05), bass (casual22_m_highpoly, the rig carries SM_BassGuitar, rig scaled 1.04), keyboard (casual09_f_highpoly, rig scaled 0.98), singer at a microphone; 10 animators switched by the music (BandStage)
   band: 284,982 triangles drawn at its nearest

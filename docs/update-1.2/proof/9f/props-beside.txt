@@ -1,0 +1,22 @@
+RECORD OF PropsProof -set beside
+  vip-tent: 3.77 x 3.72 m, 3.00 m tall, beside a player 1.79 m tall
+  -> vip-tent-beside-close.png
+  -> vip-tent-beside-match.png
+  -> vip-tent-close-front.png
+  -> vip-tent-close-back.png
+  -> vip-tent-close-left.png
+  -> vip-tent-close-right.png
+  ice-cream-cart: 3.02 x 1.46 m, 2.20 m tall, beside a player 1.79 m tall
+  -> ice-cream-cart-beside-close.png
+  -> ice-cream-cart-beside-match.png
+  -> ice-cream-cart-close-front.png
+  -> ice-cream-cart-close-back.png
+  -> ice-cream-cart-close-left.png
+  -> ice-cream-cart-close-right.png
+  tshirt-shop: 4.16 x 2.11 m, 2.80 m tall, beside a player 1.79 m tall
+  -> tshirt-shop-beside-close.png
+  -> tshirt-shop-beside-match.png
+  -> tshirt-shop-close-front.png
+  -> tshirt-shop-close-back.png
+  -> tshirt-shop-close-left.png
+  -> tshirt-shop-close-right.png

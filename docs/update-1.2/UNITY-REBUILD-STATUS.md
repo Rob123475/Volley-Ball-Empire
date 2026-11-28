@@ -153,6 +153,7 @@ Brief: `docs/update-1.2/UNITY-REBUILD-BRIEF.md`. Plan: `docs/update-1.2/PLAYABLE
 
 | Item | State | Proof | Commit |
 |---|---|---|---|
+| 9e Commentary tent, 9f Rob's remade props (29 Nov) | Done, PASS: the tent from the yellow tower in blue and white (orange accents only, said plainly), booth fits three; the VIP tent squared and in place, the cart and the shop in, the cart's mashed script covered | `proof/9e/`, `proof/9f/` sheets, `vip-tent-profile.txt` | Unity `ea70a0c5` |
 | 9c The ball in her hand at the serve (29 Nov) | Done, PASS: drawn in her left hand in played and Auto, clear of head and hat; drawing only (A1 18/18, --unity-full 13/13) | `proof/9c/9c-serve-hold-sheet.png`, `proof/D6/d6-player_a2.png` | Unity `252a16b5` |
 | 9d Music: Rob's ruling (29 Nov) | Done, PASS: the control was already there (Settings and the court's settings, remembered); only the court's help text corrected | `scripts/webgl-proof/music-9d.mjs` 8/8, `proof/9d/` | game only |
 | 9b Rob's swimwear prints (29 Nov) | Done, PASS: his 23 swatches as 20 prints (paisley 4 ways), 11 the player recolours by Rob's rule, 9 as painted; a new print is a picture and a line; 42 MB to 3.0 MB; seams cut to whole repeats or mirrored; the palette of brights and pastels | `proof/9b/9b-prints-sheet.png`; store 30/30, exhibition --unity 30/30 | Unity `ace36fd0` |
@@ -1926,3 +1927,76 @@ Rob approved the songs playing from the band's stage and on through the match. H
 - A ball placed by her hand then sat at her bind-pose hand, beside her shoulder.
 - The Unity proofs now make the animators always animate, as the earlier batch proofs did.
 - In the game the camera sees the server, so her bones move.
+
+### 9e: the commentary tent (29 Nov 2026)
+
+**No new model, as Rob asked.** The commentary tent is a second copy of his light yellow lifeguard tower (19,940 triangles).
+- **Recoloured on a copy of its texture,** not repainted (`CommentaryTent`, `Assets/my assets/Props 1.2/commentary-tent/`):
+  - the yellow (215,631 of its 1,048,576 pixels) becomes the T-shirt shop's navy blue, its light and shade kept;
+  - its red (7,427 pixels) becomes orange;
+  - white, wood and black stay.
+- The yellow tower stays as the lifeguard tower, with its own texture.
+
+**Where it stands:** in the scaffolding tower's place (6b), 14.9 m from the court.
+- The scaffolding tower stays on file and in the venue data as a feature of its own, `commentaryScaffold`, switched off in all six venues.
+
+**The booth:**
+- The tent's platform is 3.0 m up, 2.42 m across and 3.0 m deep (measured where rays down onto it land).
+- **The desk and all three seats fit,** facing the court.
+- The TV's "commentary booth" shot looks for `Feature_commentaryStand/Booth`, which is now on the tent.
+
+**Proof:**
+- `proof/9e/9e-tent-shop-tower.png`: the yellow tower, the commentary tent and the T-shirt shop side by side, a player in front.
+- `9e-tent-close.png`: the tent close up.
+- `proof/9f/9f-venue-sheet.png`: the tent in the venue with its booth.
+
+**Said plainly:** the tower's texture has little red, so the orange is accents only. The tent reads blue and white, with the wood of its deck and the shop's timber as the orange.
+
+### 9f: Rob's remade props (29 Nov 2026)
+
+**Imported** into `Assets/my assets/Props 1.2/`, textures capped at 1024 (`TextureCap`):
+- `vip-tent`;
+- `ice-cream-cart` (the light export);
+- `tshirt-shop`: Rob's `tshirt-shop-light.zip` was in the folder, so that one, 33,622 triangles.
+
+`ice-cream-cart.zip` and `tshirt-shop.zip`, the heavier exports, stay on file, unused.
+
+**Each keeps its detail close up** (`MeshReduce`): the full model near the camera, a lighter copy further away, switching by screen size as the palms do.
+
+| Prop | Near | Far | Shape error far |
+|---|---|---|---|
+| VIP tent | 61,196 | 19,666 | 1.4% |
+| ice-cream cart | 32,532 | 9,779 | 1.3% |
+| T-shirt shop | 33,622 | 14,896 | 1.1% |
+
+**In the venue:**
+- **The VIP tent** is in the old one's place (47.2, 32.8) at the old one's size: as large as fits the old one's box. That makes it 9.5 m across and 7.5 m tall.
+  - The old one was 12.8 m across but only 7.5 m tall. Matching its width alone would have made Rob's taller tent 10 m high.
+- **The T-shirt shop** is in the old one's place (60, 13) at real size: 2.8 m tall, 4.7 m wide.
+- **The old two are out of the scene.** Their models stay on file.
+- **The ice-cream cart** is a new venue feature, `iceCreamCart` (on), at (52.5, 1.5), 2.2 m tall.
+- All three turn their good side to the court.
+
+**The AI lettering** (`proof/9f/9f-lettering-sheet.png`, close all round):
+- **The cart:** the side it turns to the court has a clean red "Ice Cream" script. The other side's red script is mashed.
+  - It is now covered, as the kiosk's sign was: a board with "Ice Cream" in the cart's red on its cream, found on that face, 1.59 x 0.76 m.
+- **The T-shirt shop:** its sign "BEACH EVENT T-SHIRT SHOP", the shirts' prints and the counter's picture read cleanly. **Fine as it is.**
+  - Its plain back wall has large dark smears in Rob's texture. The back faces away from the court.
+- **The kiosk's cover:** now found by scanning the whole face above the counter. It spans the full fascia board, 4.47 x 0.55 m; before, the scan stopped at the first gap, at 2.37 m.
+
+**The VIP tent's back, squared up** (`VipTentSquare`, `proof/9f/vip-tent-profile.txt`, the roof's height map before and after):
+- **Measured,** in the model's own axes (1 m tall overall):
+  - the front roof ends 0.38 out, 0.40 high in the middle and 0.34 at its corners;
+  - the back matches it to 0.37 out, then carried on to 0.50, falling to 0.26.
+- **Fixed on a copy of the mesh, by moving vertices only** (13,532 of 53,568; no new geometry, the texture mapping untouched):
+  - the flap past 0.37 is drawn in to a short lip ending 0.396 out, like the front's;
+  - it is made level at the front's own edge height (0.35 at the corners, 0.40 in the middle, against the front's 0.34 and 0.40);
+  - the back third of the roof is lifted gently into it;
+  - the back posts are moved in whole and lengthened to meet the corrected edge, so they stand upright.
+- **The original zip and FBX are untouched.**
+- **Proof:** `proof/9f/9f-vip-tent-sheet.png` shows as sent and squared up, from the side, from behind and from a TV camera's height.
+- **Said plainly:** the canvas of the old flap is pressed into the lip. It doesn't tear, but its texture is squeezed there.
+
+**Beside a player at real size, close and at match distance:** `proof/9f/9f-props-beside-sheet.png`.
+
+**In the venue** (a real match, midday, `proof/9f/9f-venue-sheet.png`): the TV look; the kiosk; both sides of the cart; the commentary tent; the T-shirt shop; the VIP tent.

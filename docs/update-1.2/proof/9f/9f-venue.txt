@@ -1,0 +1,24 @@
+A VENUE IN PICTURES (9f-venue), V19 IN PLAY MODE (batch), A WATCHED MATCH
+  log: [Venue] 'asia' is waiting on Rob; playing at oceania
+  log: [Venue] oceania (Island Beach) in after 0.8s, 0.0 MB; features on 8, off 1
+  log: [Camera] keep-out rebuilt for the venue: 447 boxes, 419 of them props
+  the match's continent: asia; venue loaded: oceania (Island Beach), 0.8 s
+  features: foodStand on, commentaryScaffold off, commentaryStand on, juiceBar on, kiosk on, lifeguardTower on, iceCreamCart on, gulls on, band on
+  the venue's triangles, every level of every LOD counted: 37,342,838
+  keep-out: 447 boxes, 419 props
+  time of day: Midday (the game sent night, the proof asked midday); sun 50 degrees up, 2.00; floodlights 0 on
+  banners: GO SYDNEY RIPTIDE! | GO ATHENS AEGEAN STARS! | ACE IT! | BLOCK PARTY | DIG DEEP | SET. SPIKE. SCORE. | SUN'S OUT, SPIKES OUT | NO SAND, NO GLORY | SIDE OUT! | BEACH VOLLEYBALL FOREVER
+  -> 9f-venue-tv.png
+  the band: idle; the stage's loudness last sent to the page from the TV camera: 0.36
+  -> 9f-venue-kiosk.png
+     the stage from there: 0.50 loud; the band idle
+  -> 9f-venue-cart-near.png
+     the stage from there: 0.42 loud; the band idle
+  -> 9f-venue-cart-far.png
+     the stage from there: 0.37 loud; the band idle
+  -> 9f-venue-booth.png
+     the stage from there: 0.61 loud; the band idle
+  -> 9f-venue-tshirt-shop.png
+     the stage from there: 0.54 loud; the band idle
+  -> 9f-venue-vip-tent.png
+     the stage from there: 0.54 loud; the band idle

@@ -1,0 +1,6 @@
+RECORD OF PropsProof -set tent
+  as Rob sent it (left) and squared up (right), each 3.00 m tall
+  -> vip-tent-side-before.png
+  -> vip-tent-side-after.png
+  -> vip-tent-behind-before-after.png
+  -> vip-tent-tv-before-after.png

@@ -1,0 +1,5 @@
+RECORD OF PropsProof -set trio
+  commentary tent (9e): the light yellow tower's model, a copy of its texture recoloured (215,631 yellow pixels to navy, 7,427 red to orange, of 1,048,576); -> Assets/my assets/Props 1.2/commentary-tent/commentary-tent.prefab
+  the T-shirt shop (left), the commentary tent (middle), the yellow lifeguard tower (right), a player in front
+  -> 9e-tent-shop-tower.png
+  -> 9e-tent-close.png
