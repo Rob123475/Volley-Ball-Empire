@@ -1,42 +1,71 @@
-# 1.2 demo: Rob's checklist
+# 1.2 demo 3: Rob's checklist
 
-The demo is `C:\build\vbe-1.2-demo-2026-11-27\Beach Volleyball Empire 1.2 Demo Setup 1.2.0-demo1.exe` (450 MB). It is installed on this PC already.
+Demo 3 is `C:\build\vbe-1.2-demo-2026-11-28\Beach Volleyball Empire 1.2 Demo Setup 1.2.0-demo3.exe`. It has everything built so far:
+- the band;
+- the venue's features;
+- times of day and weather;
+- the drinks break;
+- crowd banners;
+- the Exhibition Game;
+- Rob's prints and the tinted sunglasses.
+
+**It is not installed.** Rob installs it himself (below). Demo 2 is still the one on this PC.
 
 1. **Plug in a real Xbox or PlayStation controller and play a few points, before the weekend.** No real controller has been tested yet: only the keyboard and Unity's virtual pad in batch proofs.
    - Start Manual from the court's button, or Tab / View / Share.
    - Check that the pad moves her (left stick) and that A/Cross digs, X/Square sets and Y/Triangle spikes.
    - Check that L3 switches camera look, the D-pad steps views and R3 skips between points.
+   - In an Exhibition Game, give person 2 a pad: each person plays on their own device.
    - If the pad does nothing, tell me which pad and what you pressed.
-2. **Installing it on your friend's PC.** Copy the Setup .exe across and run it.
+2. **Installing demo 3 over demo 2.** Run the Setup .exe.
+   - It is the same demo app (the same app id), so it **replaces demo 2 in place**: the same Start-menu and desktop shortcut, the same uninstall entry. There's no need to uninstall demo 2 first.
+   - **The demo's save stays where it is** (`AppData\Roaming\Beach Volleyball Empire 1.2 Demo`): your demo careers carry on in demo 3.
+   - It never touches the Steam version or its save.
    - Windows will warn that it is from an unknown publisher (it is not code-signed): **More info → Run anyway**.
-   - It installs as "Beach Volleyball Empire 1.2 Demo", with its own Start-menu and desktop shortcut, beside the Steam version. It never opens the Steam version's save.
-3. **The title screen.** Along the bottom it says **"Beach Volleyball Empire 1.2 Demo · version 1.2.0-demo1"**. The first run has no managers: it starts from the starter database.
-4. **New Profile, then a new career.** The Day 1 draft as usual: pick 2 or 3 seniors, then Finish.
-5. **Settings → Camera and Match presentation** (gear on the title screen, or Settings in the menu).
-   - Camera: TV look for watched matches, Game look for played ones (the defaults).
-   - Leave both skip switches **off** to show off the presentation. Turn on "Skip to next serve" if your friend wants pace.
-6. **Next match → Watch Match.** The court loads, about 20 s the first time. The **walk-on** follows: the four walk on, then each gets a lower third with her name, nation and club.
-   - The walk-on has no commentary yet: its lines are written but not recorded (`COMMENTARY-NEW-LINES.md`).
-7. **During play:**
-   - **V** (L3) switches between the roaming **TV** camera and the **Game** look.
-   - **1–6** pick a Game view; **+ / −** zoom.
-   - The **1x / 2x / 4x** buttons zoom the camera (they don't change the match's speed).
-8. **Between points** (about 3 s, 4 s for a big one): the score, the umpire's signal, close-ups of the scorer and the other side.
-   - Aces, blocks, diving saves and hard spikes get a slow-motion **REPLAY**.
-   - **Enter** (R3) skips it.
-9. **Played match: Manual** (the button on the court page, or Tab):
-   - Your timing decides the point: **J** dig, **K** set, **L** hold and release to spike (tap L on the serve meter).
-   - **WASD** moves her. **H** hides the controls help.
-   - At 1280×720 the help panel covers the left end of the score bar, so press H once you know the keys.
-   - Be ready for a beating at first: a test bot that only mashes the buttons and never moves lost 0-11, 0-11.
-10. **Set point and match point** get a banner. At the end the winners walk to the net applauding, then the result box shows the sets.
-11. **Continue** on the result box goes back to the dashboard. Recent Results shows the match with WIN or LOSS. **Finances** shows the prize (a loss still pays the runner-up share).
-12. **Leaving:** Settings → Exit game. The save stays in `AppData\Roaming\Beach Volleyball Empire 1.2 Demo`. Uninstalling (Windows Settings → Apps) leaves that folder; delete it by hand to start fresh.
-13. **To show your own career in the demo** (optional): quit the demo, then copy `AppData\Roaming\Beach Volleyball Empire\volleyball-empire.sqlite` into `AppData\Roaming\Beach Volleyball Empire 1.2 Demo\`.
-    - Copy it, never move it. The demo then plays on the copy only.
-    - The test did exactly this, and your real save was byte for byte unchanged afterwards.
+   - On your friend's PC: copy the Setup .exe across and run it there the same way.
+3. **The title screen** says **"Beach Volleyball Empire 1.2 Demo · version 1.2.0-demo3"** along the bottom.
+
+**What is new to show:**
+4. **The Exhibition Game,** from its pill on the title screen beside CONTINUE (a profile is enough; no career needed).
+   - Pick any two of the 60 clubs, or a custom team, and change any names.
+   - **Who plays whom:** the AI, or person 1 on the keyboard and persons 2 to 4 on pads.
+   - Pick the venue, time of day, weather and difficulty.
+   - **A custom team's swimwear:** six cuts, plain, or one of your 20 prints.
+     - The 11 simple prints take colours of your own from the picker (brights and pastels).
+     - The others show as you painted them; paisley comes in your four colourways.
+   - Nothing in an exhibition touches a career.
+5. **The sunglasses:** pick them for a player, then the lens: black, brown, blue mirror, amber or rose. The eyes show faintly behind the dark ones.
+6. **The band:** on its stage behind the court. The songs play from the stage, louder when the camera is near it.
+   - The director's "the band" shot shows them between points.
+   - Turn the music down or off from Settings or from the court's gear during a match; it is remembered.
+7. **V** (L3) switches between the roaming **TV** camera and the **Game** look. **1–6** pick a Game view; **+ / −** zoom.
+8. **Times of day and weather:** each career match has its own time; in an exhibition you pick it.
+   - At night the floodlights come on.
+   - Rain and cloud change the sky and the light; the wind doesn't push the ball.
+9. **The drinks break between sets:** six seconds, a shot of each team drinking. Enter (R3) skips it.
+10. **The venue:**
+    - the commentary tent, blue and white, with its booth;
+    - the VIP tent, squared up;
+    - the T-shirt shop;
+    - the ice-cream cart;
+    - the kiosk;
+    - the juice bar;
+    - the lifeguard tower;
+    - the gulls.
+11. **Crowd banners:** ten slogans, plus your own. Type yours in Settings → Match presentation.
+
+**As before:**
+12. **New Profile, then a new career:** the Day 1 draft as usual (pick 2 or 3 seniors, then Finish). **Next match → Watch Match.**
+    - The walk-on comes first, then the match.
+    - Between points: the score, the umpire's signal, close-ups and replays. Enter skips them.
+13. **Played match, Manual:** J dig, K set, L hold and release to spike (tap L on the serve meter). WASD moves her; H hides the controls help.
+14. **Leaving:** Settings → Exit game.
+    - The save stays in `AppData\Roaming\Beach Volleyball Empire 1.2 Demo`.
+    - Uninstalling leaves that folder; delete it by hand to start fresh.
 
 **Things you may notice, known and not fixed for the demo:**
-- **Commentary:** aces, errors, set and match point, comebacks and match won use an existing point line until the 42 new lines are recorded.
-- **Close-ups:** a scorer close-up is sometimes shot through the net.
-- **Match length:** matches are longer than in 1.1.3, because of the walk-on and 3–4 s between points. Use the skip switches if that drags.
+- **Commentary:** the residents' 42 new lines are written but not recorded; until you record them, an existing line stands in.
+  - The new commentary team (Nicole on the sand, Roxy or Kai in the booth) comes after demo 3, as you asked.
+- **The leopard print and the others are your own art.** Mirrored repeats have no join, but where four repeats meet the pattern turns symmetrical.
+- **The commentary tent's orange** is only accents: the yellow tower's texture has little red to turn orange.
+- **Match length:** matches are longer than in 1.1.3, because of the walk-on, the drinks break and 3–4 s between points. Use the skip switches if that drags.

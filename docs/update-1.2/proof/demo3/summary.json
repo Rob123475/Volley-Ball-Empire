@@ -1,0 +1,176 @@
+{
+  "ok": false,
+  "checks": [
+    {
+      "label": "CONTINUE on the title screen",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "Watch Match on the match day box",
+      "pass": true,
+      "detail": "match 1"
+    },
+    {
+      "label": "the career match started on the court",
+      "pass": true,
+      "detail": "[MatchManager] match starts after 4.1s: match data applied; home point chance 0.4983"
+    },
+    {
+      "label": "the crowd's banners are up, the player's own among them",
+      "pass": true,
+      "detail": "[CrowdBanners] 10 banners up (GO SYDNEY RIPTIDE! | GO AMSTERDAM DUNE RIDERS! | ACE IT! | BLOCK PARTY | DIG DEEP | SET. SPIKE. SCORE. | SUN'S OUT, SPIKES OUT | NO SAND, NO GLORY | SIDE OUT! | BEACH VOLLEYBALL FOREVER), and the player's: WE LOVE THE RIPTIDE"
+    },
+    {
+      "label": "the career match's frame rate (30 s, the TV look)",
+      "pass": true,
+      "detail": "{\"seconds\":30,\"frames\":1711,\"fps\":57,\"p50ms\":17.5,\"p95ms\":18.1,\"over50ms\":1}"
+    },
+    {
+      "label": "the career match showed the band shot",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "the career match showed the commentary booth shot",
+      "pass": false,
+      "detail": ""
+    },
+    {
+      "label": "the career match showed the drinks break",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "the career match showed the crowd shot (banners)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "the career match played to its end",
+      "pass": true,
+      "detail": "[MatchReporter] POST /api/unity/match-result ok: {\"careerSaveId\":1,\"matchId\":1,\"sets\":[{\"home\":11,\"away\":3},{\"home\":8,\"away\":11},{\"home\":5,\"away\":11}]}"
+    },
+    {
+      "label": "and the court reported the result to the career",
+      "pass": true,
+      "detail": "[MatchReporter] POST /api/unity/match-result ok: {\"careerSaveId\":1,\"matchId\":1,\"sets\":[{\"home\":11,\"away\":3},{\"home\":8,\"away\":11},{\"home\":5,\"away\":11}]}"
+    },
+    {
+      "label": "(set-up) a career ceremony is waiting: it opens on the dashboard",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "no career ceremony over the exhibition's pick screen",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "Play: the exhibition starts on the court, the AI playing all four",
+      "pass": true,
+      "detail": "/exhibition/court?exhibitionId=b61abeff-3952-43ce-a918-3ccd5614ea0a"
+    },
+    {
+      "label": "the game's view: Rob's prints and the tinted sunglasses",
+      "pass": true,
+      "detail": "hibiscus-tropical-on-black.jpg [{\"part\":\"SK_BG_SUNGLASSES\",\"colour\":\"#2a2a2e\",\"lens\":\"blue-mirror\"}]; polka-dots-red-white.png #ff2d8a,#fdfcfd [{\"part\":\"SK_BG_SUNGLASSES\",\"colour\":\"#2a2a2e\",\"lens\":\"amber\"}]"
+    },
+    {
+      "label": "the court wears them (Rob's prints loaded from the game)",
+      "pass": true,
+      "detail": "[UnityMatchDataLoader] exhibition: Player_A1 swimwear bikini-2 hibiscus-tropical-on-black as painted | [UnityMatchDataLoader] exhibition: Player_A2 swimwear bikini-2 polka-dots-red-white #FF2D8A,#FDFCFD"
+    },
+    {
+      "label": "and the sunglasses in their tints",
+      "pass": true,
+      "detail": "[UnityMatchDataLoader] exhibition: Player_A1 (Annika Bauer) seat AI; wears bikini-2 plain #808080 + SK_BG_SUNGLASSES (blue-mirror lenses) | [UnityMatchDataLoader] exhibition: Player_A2 (Sophie Müller) seat AI; wears bikini-2 plain #FF2D8A + SK_BG_SUNGLASSES (amber lenses)"
+    },
+    {
+      "label": "no career ceremony over the exhibition match",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "the song plays from the band's stage at its loudness, not full volume",
+      "pass": true,
+      "detail": "player's level 0.4; the song over 30 s: 0.14, 0.14, 0.208, 0.24, 0.336, 0.248, 0.22, 0.188, 0.148, 0.148, 0.152, 0.152"
+    },
+    {
+      "label": "the exhibition's frame rate (30 s, the TV look)",
+      "pass": true,
+      "detail": "{\"seconds\":30,\"frames\":1711,\"fps\":57.1,\"p50ms\":17.6,\"p95ms\":18.2,\"over50ms\":0}"
+    },
+    {
+      "label": "still no career ceremony over the match",
+      "pass": true,
+      "detail": ""
+    }
+  ],
+  "shots": [
+    {
+      "name": "a-tv-in-play.png",
+      "why": "the TV look in play"
+    },
+    {
+      "name": "a-band-1.5s.png",
+      "why": "the band, from the director's shot"
+    },
+    {
+      "name": "a-band-3.5s.png",
+      "why": "the band, from the director's shot"
+    },
+    {
+      "name": "a-band-5.5s.png",
+      "why": "the band, from the director's shot"
+    },
+    {
+      "name": "a-crowd-banners-1.5s.png",
+      "why": "the crowd and its banners"
+    },
+    {
+      "name": "a-crowd-banners-3.5s.png",
+      "why": "the crowd and its banners"
+    },
+    {
+      "name": "a-crowd-banners-5.5s.png",
+      "why": "the crowd and its banners"
+    },
+    {
+      "name": "a-drinks-break.png",
+      "why": "the drinks break"
+    },
+    {
+      "name": "a-result.png",
+      "why": "the end of the match"
+    },
+    {
+      "name": "b-pick-screen.png",
+      "why": "the pick screen: a custom team in Rob's prints, tinted sunglasses"
+    },
+    {
+      "name": "b-tv-in-play.png",
+      "why": "the exhibition in the TV look"
+    },
+    {
+      "name": "b-close-up.png",
+      "why": "a close-up between points"
+    }
+  ],
+  "fpsCareer": {
+    "seconds": 30,
+    "frames": 1711,
+    "fps": 57,
+    "p50ms": 17.5,
+    "p95ms": 18.1,
+    "over50ms": 1
+  },
+  "fpsExhibition": {
+    "seconds": 30,
+    "frames": 1711,
+    "fps": 57.1,
+    "p50ms": 17.6,
+    "p95ms": 18.2,
+    "over50ms": 0
+  }
+}

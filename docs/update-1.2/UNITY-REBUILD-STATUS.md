@@ -153,6 +153,7 @@ Brief: `docs/update-1.2/UNITY-REBUILD-BRIEF.md`. Plan: `docs/update-1.2/PLAYABLE
 
 | Item | State | Proof | Commit |
 |---|---|---|---|
+| Demo 3 (29 Nov) | Packaged, not installed (install test skipped, as Rob said): 1.2.0-demo3, 458 MB; proof on its own files 21/22, 57 fps; the director's band and booth shots are picked but covered by the point's cutaways (a finding, not changed) | `proof/demo3/`, `DEMO-CHECKLIST.md` | game (this commit) |
 | 9e Commentary tent, 9f Rob's remade props (29 Nov) | Done, PASS: the tent from the yellow tower in blue and white (orange accents only, said plainly), booth fits three; the VIP tent squared and in place, the cart and the shop in, the cart's mashed script covered | `proof/9e/`, `proof/9f/` sheets, `vip-tent-profile.txt` | Unity `ea70a0c5` |
 | 9c The ball in her hand at the serve (29 Nov) | Done, PASS: drawn in her left hand in played and Auto, clear of head and hat; drawing only (A1 18/18, --unity-full 13/13) | `proof/9c/9c-serve-hold-sheet.png`, `proof/D6/d6-player_a2.png` | Unity `252a16b5` |
 | 9d Music: Rob's ruling (29 Nov) | Done, PASS: the control was already there (Settings and the court's settings, remembered); only the court's help text corrected | `scripts/webgl-proof/music-9d.mjs` 8/8, `proof/9d/` | game only |
@@ -2000,3 +2001,74 @@ Rob approved the songs playing from the band's stage and on through the match. H
 **Beside a player at real size, close and at match distance:** `proof/9f/9f-props-beside-sheet.png`.
 
 **In the venue** (a real match, midday, `proof/9f/9f-venue-sheet.png`): the TV look; the kiosk; both sides of the cart; the commentary tent; the T-shirt shop; the VIP tent.
+
+### Demo 3, for Rob's friend (section 8, 29 Nov 2026)
+
+**The package:** `C:\build\vbe-1.2-demo-2026-11-28\Beach Volleyball Empire 1.2 Demo Setup 1.2.0-demo3.exe`, 458 MB, version `1.2.0-demo3`.
+- It is the same separate demo app as demo 2 (`electron-builder.demo.cjs`: same app id, its own save folder, no Steam, its own port).
+- It holds everything built so far:
+  - the band;
+  - the venue's features (the commentary tent, the squared VIP tent, the T-shirt shop, the ice-cream cart);
+  - times of day and weather;
+  - the drinks break;
+  - crowd banners;
+  - the Exhibition Game;
+  - Rob's prints, the colour picker and the tinted sunglasses;
+  - the ball in her hand at the serve;
+  - the music's controls.
+- **Not in demo 3, as Rob ordered:** the commentary team (section 5, after demo 3).
+
+**Not installed, and the install test skipped.** Demo 3 has demo 2's app id, so installing it would replace the demo Rob is using, and the install test moves his save aside.
+- Nothing was installed or uninstalled.
+- The demo's save folder (`AppData\Roaming\Beach Volleyball Empire 1.2 Demo`) was not touched.
+- Rob installs demo 3 himself. `DEMO-CHECKLIST.md` says how (over demo 2, which it replaces in place, the save carried on).
+
+**The WebGL export** (Unity at 9e/9f's commit, `ea70a0c5`):
+
+| Piece | Uncompressed | As served (Brotli) |
+|---|---|---|
+| main data | 196.5 MB | 158.0 MB |
+| the island beach venue | 81.1 MB (74.9 before 9e/9f's props) | (LZ4 in the bundle) |
+
+**The proof, on the package's own files** (`scripts/webgl-proof/demo3-proof.mjs`, `proof/demo3/`).
+- The package's server bundle serves the package's own pages, run by the repo's Electron as Node, on a copy of the starter database.
+- The packaged app itself was never launched: it would open its own save folder.
+- Headless Chrome on the PC's GPU, 1920 x 1080.
+
+**Result: 21 of 22 checks pass** (`proof/demo3/summary.json`, the pictures in `demo3-sheet.png`).
+
+**A. A whole watched career match**, opened as Rob opens it (CONTINUE, Watch Match), in Auto.
+- The crowd's ten banners are up, with the player's own "We love the Riptide".
+- **The frame rate:** 57.0 fps over 30 s in the TV look (median frame 17.5 ms). Headless Chrome's own ceiling on this PC is 56.3.
+- The drinks break played.
+- The match ran to its end (three sets), and the result reached the career.
+
+**B. An Exhibition match from the pick screen.**
+- **The set-up:** a custom team; Annika in Rob's tropical hibiscus as he painted it, with blue mirror sunglasses; Sophie in polka dots recoloured hot pink and white from the picker, with amber sunglasses; the AI playing all four.
+- The court wears exactly that, Rob's prints loaded from the game.
+- **The song plays from the band's stage at the band's loudness, not full volume:** sampled every 2.5 s for 30 s, it stayed between 0.14 and 0.25 against the player's own 0.4, moving as the camera moved.
+- **No career ceremony opens over it.** A ceremony was planted waiting in this copy of the database: it opened on the dashboard, then never on the pick screen or over the match.
+  - This is the fix from 28 Nov (`bdbaef5a`), proved in the browser for the first time.
+- **The frame rate:** 57.1 fps.
+
+**The one failure, and a finding.** The proof was to picture the director's "the band", "the commentary booth" and "the crowd" shots between points of the career match.
+- **The director picks them.** Over one match it picked the band 3 times and the booth 6 times (`console.log`).
+- **But they never reach the screen in a watched match with the presentation on.** The point's own cutaways play over them straight away: the scorer's close-up 1.1 s, the other side 0.7 s, then a replay 2.2 s. The next serve's look follows.
+  - The pictures at 1.5, 3.5 and 5.5 s after "the band" was picked show exactly that.
+  - This run never picked the booth after the proof began looking, hence the failure.
+- **This dates from B2** (the point's presentation was laid over B1's between-points shots).
+- With "Skip to next serve" on, the between-points shots do get the screen.
+- **Not changed:** making room for them would change the 3 to 4 s between points that Rob set in B2. Rob to decide. One way: let a band or booth shot replace "the other side" close-up when no replay follows.
+
+**Tests before the full harness** (the suites covering section 9):
+- exhibition `--unity` 30/30;
+- store 30/30;
+- presentation 43/43;
+- played match: A1 18/18 and `--unity-full` 13/13 (9c);
+- the pages proof 11/11 and the music proof 8/8 (9d).
+- **The full harness runs once section 5 is in,** so one run covers section 9, demo 3 and section 5 together (within Rob's cap of 3).
+
+**`DEMO-CHECKLIST.md`** is updated for demo 3:
+- how to install it over demo 2;
+- what is new to show: the Exhibition Game from the title screen, the new prints and sunglasses, the band, V for the TV camera, times of day and weather, the drinks break, the venue;
+- item 1, the real controller test, kept.

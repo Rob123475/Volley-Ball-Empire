@@ -2,10 +2,14 @@
  * 1.2 (29 Nov 2026): the built game in headless Chrome, for the page proofs (pages-d4-d6.mjs,
  * music-9d.mjs, demo3-proof.mjs). Shared so each proof is only its own steps.
  *
- *   - the api-server (development mode, so the harness's store switch exists) on a COPY of the
- *     starter DB, never a save in play;
- *   - a small server here serving the built pages (artifacts/beach-volleyball/dist/public) and
- *     passing /api to it, as the packaged game's one server does;
+ *   - the api-server on a COPY of the starter DB (never a save in play), and the built pages:
+ *       default: development mode (so the harness's store switch exists), and a small server here
+ *       serving artifacts/beach-volleyball/dist/public and passing /api to it;
+ *       production: true: production mode, the api-server serving the synced pages itself
+ *       (artifacts/api-server/dist/public), as the packaged game's one server does;
+ *       packaged: "C:/build/.../win-unpacked": production mode on a package's own server bundle
+ *       (resources/server/dist) and pages (resources/public), run by the repo's Electron as Node (never
+ *       the packaged app itself, which would open its own save folder);
  *   - a profile and a Sydney Riptide career, made as the suites make them (harness-club.mjs);
  *   - Chrome (headless, the music allowed to start on its own, as Electron allows it) driven over
  *     its DevTools protocol: go, js, shot, the page's console lines, waitFor a line.
@@ -27,13 +31,17 @@ const CHROME = ["C:/Program Files/Google/Chrome/Application/chrome.exe", "C:/Pro
 const TYPES = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".png": "image/png", ".webp": "image/webp", ".svg": "image/svg+xml", ".json": "application/json", ".mp3": "audio/mpeg", ".woff2": "font/woff2", ".jpg": "image/jpeg", ".wasm": "application/wasm" };
 export const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-export async function builtGame({ outDir, ports, width = 1600, height = 1000, managerName = "Page Proof" }) {
+export async function builtGame({ outDir, ports, width = 1600, height = 1000, managerName = "Page Proof", production = false, packaged = null }) {
+  if (packaged) production = true;
+  const server = packaged ? path.join(packaged, "resources", "server", "dist", "index.mjs") : SERVER;
+  const pages = packaged ? path.join(packaged, "resources", "public") : path.join(REPO, "artifacts", "api-server", "dist", "public");
   fs.mkdirSync(outDir, { recursive: true });
-  const BASE = `http://localhost:${ports.web}`;
+  const BASE = `http://localhost:${production ? ports.api : ports.web}`;
   const work = fs.mkdtempSync(path.join(os.tmpdir(), "built-game-"));
   const db = path.join(work, "save.sqlite");
   fs.copyFileSync(path.join(REPO, "lib/db/volleyball-empire.sqlite"), db);
-  const server = fork(SERVER, [], { execPath: ELECTRON, env: { ...process.env, ELECTRON_RUN_AS_NODE: "1", NODE_ENV: "development", DB_PATH: db, PORT: String(ports.api), SESSION_SECRET: "pages" },
+  const serverProc = fork(server, [], { execPath: ELECTRON, env: { ...process.env, ELECTRON_RUN_AS_NODE: "1", NODE_ENV: production ? "production" : "development", DB_PATH: db, PORT: String(ports.api), SESSION_SECRET: "pages",
+    ...(production ? { PUBLIC_DIR: pages } : {}) },
     stdio: ["ignore", fs.openSync(path.join(outDir, "server.log"), "w"), "inherit", "ipc"] });
   const web = http.createServer((req, res) => {
     if (req.url.startsWith("/api")) {
@@ -48,7 +56,7 @@ export async function builtGame({ outDir, ports, width = 1600, height = 1000, ma
     res.writeHead(200, { "content-type": TYPES[path.extname(file)] ?? "application/octet-stream" });
     fs.createReadStream(file).pipe(res);
   });
-  web.listen(ports.web);
+  if (!production) web.listen(ports.web);
 
   const summary = { checks: [], shots: [] };
   let ok = true;
@@ -97,7 +105,7 @@ export async function builtGame({ outDir, ports, width = 1600, height = 1000, ma
   await send("Emulation.setDeviceMetricsOverride", { width, height, deviceScaleFactor: 1, mobile: false });
 
   return {
-    BASE, call, send, js, shot, go, lines, waitFor, check, summary,
+    BASE, db, call, send, js, shot, go, lines, waitFor, check, summary,
     get ok() { return ok; }, fail(e) { ok = false; summary.error = String(e?.stack ?? e); console.error(e); },
     /** The title screen's CONTINUE (every fresh session shows it until pressed). */
     async continueTitle() {
@@ -121,7 +129,7 @@ export async function builtGame({ outDir, ports, width = 1600, height = 1000, ma
     async close() {
       fs.writeFileSync(path.join(outDir, "summary.json"), JSON.stringify({ ok, ...summary }, null, 2));
       try { chrome.kill(); } catch { /* gone */ }
-      server.kill(); web.close();
+      serverProc.kill(); if (!production) web.close();
     },
   };
 }
