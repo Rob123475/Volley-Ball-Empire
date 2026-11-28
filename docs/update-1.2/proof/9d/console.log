@@ -1,0 +1,200 @@
+51.2s [UnityMemory] Configuration Parameters - Can be set up in boot.config
+51.2s     "memorysetup-allocator-temp-initial-block-size-main=262144"
+51.2s     "memorysetup-allocator-temp-initial-block-size-worker=262144"
+51.2s     "memorysetup-temp-allocator-size-audio-worker=65536"
+51.2s     "memorysetup-temp-allocator-size-background-worker=32768"
+51.2s     "memorysetup-bucket-allocator-granularity=16"
+51.2s     "memorysetup-bucket-allocator-bucket-count=8"
+51.2s     "memorysetup-bucket-allocator-block-size=4194304"
+51.2s     "memorysetup-bucket-allocator-block-count=1"
+51.2s     "memorysetup-main-allocator-block-size=16777216"
+51.2s     "memorysetup-thread-allocator-block-size=16777216"
+51.2s     "memorysetup-gfx-main-allocator-block-size=16777216"
+51.2s     "memorysetup-gfx-thread-allocator-block-size=16777216"
+51.2s     "memorysetup-cache-allocator-block-size=4194304"
+51.2s     "memorysetup-typetree-allocator-block-size=2097152"
+51.2s     "memorysetup-profiler-bucket-allocator-granularity=16"
+51.2s     "memorysetup-profiler-bucket-allocator-bucket-count=8"
+51.2s     "memorysetup-profiler-bucket-allocator-block-size=4194304"
+51.2s     "memorysetup-profiler-bucket-allocator-block-count=1"
+51.2s     "memorysetup-profiler-allocator-block-size=16777216"
+51.2s     "memorysetup-profiler-editor-allocator-block-size=1048576"
+51.2s     "memorysetup-temp-allocator-size-main=4194304"
+51.2s     "memorysetup-job-temp-allocator-block-size=2097152"
+51.2s     "memorysetup-job-temp-allocator-block-size-background=1048576"
+51.2s     "memorysetup-job-temp-allocator-reduction-small-platforms=262144"
+51.2s Input System module state changed to: Initialized.
+51.2s [Physics::Module] Initialized fallback backend.
+51.2s [Physics::Module] Id: 0xdecafbad
+51.2s Loading player data from data.unity3d
+51.2s Initialize engine version: 6000.3.16f1 (a56f230f6470)
+51.2s [Subsystems] Discovering subsystems at path UnitySubsystems
+51.2s Creating WebGL 2.0 context.
+51.3s Renderer: WebKit WebGL
+51.3s Vendor:   WebKit
+51.3s Version:  OpenGL ES 3.0 (WebGL 2.0 (OpenGL ES 3.0 Chromium))
+51.3s GLES:     3
+51.3s  EXT_clip_control EXT_color_buffer_float EXT_color_buffer_half_float EXT_conservative_depth EXT_depth_clamp EXT_disjoint_timer_query_webgl2 EXT_float_blend EXT_polygon_offset_clamp EXT_render_snorm EXT_texture_compression_bptc EXT_texture_compression_rgtc EXT_texture_filter_anisotropic EXT_texture_mirror_clamp_to_edge EXT_texture_norm16 KHR_parallel_shader_compile NV_shader_noperspective_interpolation OES_draw_buffers_indexed OES_sample_variables OES_shader_multisample_interpolation OES_texture_float_linear OVR_multiview2 WEBGL_blend_func_extended WEBGL_clip_cull_distance WEBGL_compressed_texture_s3tc WEBGL_compressed_texture_s3tc_srgb WEBGL_debug_renderer_info WEBGL_debug_shaders WEBGL_lose_context WEBGL_multi_draw WEBGL_polygon_mode WEBGL_provoking_vertex WEBGL_shader_pixel_local_storage WEBGL_stencil_texturing GL_EXT_clip_control GL_EXT_color_buffer_float GL_EXT_color_buffer_half_float GL_EXT_conservative_depth GL_EXT_depth_clamp GL_EXT_disjoint_timer_query_webgl2 GL_EXT_float_blend GL_EXT_polygon_offset_
+51.3s clamp GL_EXT_render_snorm GL_EXT_texture_compression_bptc GL_EXT_texture_compression_rgtc GL_EXT_texture_filter_anisotropic GL_EXT_texture_mirror_clamp_to_edge GL_EXT_texture_norm16 GL_KHR_parallel_shader_compile GL_NV_shader_noperspective_interpolation GL_OES_draw_buffers_indexed GL_OES_sample_variables GL_OES_shader_multisample_interpolation GL_OES_texture_float_linear GL_OVR_multiview2 GL_WEBGL_blend_func_extended GL_WEBGL_clip_cull_distance GL_WEBGL_compressed_texture_s3tc GL_WEBGL_compressed_texture_s3tc_srgb GL_WEBGL_debug_renderer_info GL_WEBGL_debug_shaders GL_WEBGL_lose_context GL_WEBGL_multi_draw GL_WEBGL_polygon_mode GL_WEBGL_provoking_vertex GL_WEBGL_shader_pixel_local_storage GL_WEBGL_stencil_texturing
+51.3s OPENGL LOG: Creating OpenGL ES 3.0 graphics device ; Context level  <OpenGL ES 3.0> ; Context handle 1
+51.3s [Physics::Module] Selected backend.
+51.3s [Physics::Module] Name: PhysX
+51.3s [Physics::Module] Id: 0xf2b8ea05
+51.3s [Physics::Module] SDK Version: 4.1.2
+51.3s [Physics::Module] Integration Version: 1.0.0
+51.3s [Physics::Module] Threading Mode: Single-Threaded
+51.4s ERROR: Shader 
+51.4s Hidden/CoreSRP/CoreCopy shader is not supported on this GPU (none of subshaders/fallbacks are suitable)
+51.4s ERROR: Shader 
+51.4s Hidden/Universal Render Pipeline/StencilDitherMaskSeed shader is not supported on this GPU (none of subshaders/fallbacks are suitable)
+51.4s ERROR: Shader 
+51.4s Hidden/Universal/HDRDebugView shader is not supported on this GPU (none of subshaders/fallbacks are suitable)
+51.4s <b>[App UI]</b> Unable to find an AppUISettings instance, creating a default one...
+51.4s Input System initialize...
+51.8s Couldn't create a Convex Mesh from source mesh, within the maximum polygons limit (256). The partial hull will be used. Consider simplifying your mesh. Source mesh name: SM_rack_balls_Volleyball_1
+52.4s UnloadTime: 1.200000 ms
+52.4s [CourtsideBoards] 18 boards dressed around the court: 9 Beach Volleyball Empire, 9 GB Sunglasses
+52.4s Audio context resumed after 1.153 seconds.
+52.5s [Sound] crowd volume 1.00
+52.5s [Sound] commentary volume 1.00
+52.5s [Camera] remembered looks from the page: played game:1, watched tv:1
+52.5s [Between points] from the page: skip to next serve off, skip replays off
+53.1s [UnityCache] 'http://localhost:4962/unity-build/Build/Volleyball_WebGL_Uncompressed_2.data' successfully downloaded and stored in the browser cache
+54.5s [BoostUIController] Created Polished Attack and Defence boost buttons.
+54.5s [MatchManager] AudioManager initialized.
+54.5s [UnityMatchDataLoader] careerSaveId 1 (from page URL)
+54.5s [UnityMatchDataLoader] GET /api/unity/match-state?careerSaveId=1&matchId=1
+54.5s WEATHER SUNNY
+54.5s Trying to get length of sound which is not loaded yet.
+54.5s Trying to get length of sound which is not loaded yet.
+54.5s [Director] Serve: beside the server
+54.6s The character with Unicode value \u2600 was not found in the [LiberationSans SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [WeatherText].
+55.3s [UnityMatchDataLoader] point chance for the home pair: 0.4886
+55.3s [UnityMatchDataLoader] continent asia, time of day night, weather rain
+55.3s [UnityMatchDataLoader] game difficulty medium (a played match grades and plays at it)
+55.3s [UnityMatchDataLoader] event (null), kits (null), boards (null) '(null)', manual allowed
+55.3s [UnityMatchDataLoader] Player_A1: skin 'Light' resolved via band 'Light' -> #EEC9B8
+55.3s [UnityMatchDataLoader] Player_A1 <- Camila Santiago | team Sydney Riptide (home) | skinTone Light | kit #1e3a8a/#f59e0b | appearance controller found | applied ovr 80 pwr 85 spd 73 def 78 srv 74 blk 89 sta 79 mor 75 fit 100 fat 0 | (not applied: injured False)
+55.3s [UnityMatchDataLoader] Player_A2: skin 'Light' resolved via band 'Light' -> #EEC9B8
+55.3s [UnityMatchDataLoader] Player_A2 <- Nurul Ain | team Sydney Riptide (home) | skinTone Light | kit #1e3a8a/#f59e0b | appearance controller found | applied ovr 67 pwr 55 spd 74 def 70 srv 78 blk 52 sta 73 mor 75 fit 100 fat 0 | (not applied: injured False)
+55.3s [UnityMatchDataLoader] Player_B1: skin 'Medium' resolved via band 'Medium' -> #AA7339
+55.3s [UnityMatchDataLoader] Player_B1 <- Carmen Ruiz | team Barcelona Playa Elites (away) | skinTone Medium | kit #00A3AD/#0B2545 | appearance controller found | applied ovr 82 pwr 76 spd 86 def 86 srv 80 blk 78 sta 84 mor 68 fit 80 fat 0 | (not applied: injured False)
+55.3s [UnityMatchDataLoader] Player_B2: skin 'Medium Dark' resolved via band 'Medium Dark' -> #7A4626
+55.3s [UnityMatchDataLoader] Player_B2 <- María Alonso | team Barcelona Playa Elites (away) | skinTone Medium Dark | kit #00A3AD/#0B2545 | appearance controller found | applied ovr 81 pwr 78 spd 82 def 84 srv 84 blk 80 sta 80 mor 68 fit 80 fat 0 | (not applied: injured False)
+55.3s [UnityMatchDataLoader] team names: SYDNEY RIPTIDE (home) vs BARCELONA PLAYA ELITES (away)
+55.3s [UnityMatchDataLoader] applied 4 of 4 player(s)
+55.3s [Venue] 'asia' is waiting on Rob; playing at oceania
+55.3s Trying to get length of sound which is not loaded yet.
+55.3s Trying to get length of sound which is not loaded yet.
+55.3s Trying to get length of sound which is not loaded yet.
+55.3s Trying to get length of sound which is not loaded yet.
+55.4s Trying to get length of sound which is not loaded yet.
+55.4s Trying to get length of sound which is not loaded yet.
+55.4s Trying to get length of sound which is not loaded yet.
+55.4s Trying to get length of sound which is not loaded yet.
+55.4s Trying to get length of sound which is not loaded yet.
+55.4s Trying to get length of sound which is not loaded yet.
+55.5s Trying to get length of sound which is not loaded yet.
+55.5s Trying to get length of sound which is not loaded yet.
+55.5s Trying to get length of sound which is not loaded yet.
+55.5s Trying to get length of sound which is not loaded yet.
+55.5s Trying to get length of sound which is not loaded yet.
+55.5s Trying to get length of sound which is not loaded yet.
+55.6s Trying to get length of sound which is not loaded yet.
+55.6s Trying to get length of sound which is not loaded yet.
+55.6s Trying to get length of sound which is not loaded yet.
+55.6s Trying to get length of sound which is not loaded yet.
+55.6s Trying to get length of sound which is not loaded yet.
+55.7s Trying to get length of sound which is not loaded yet.
+55.8s Trying to get length of sound which is not loaded yet.
+55.8s Trying to get length of sound which is not loaded yet.
+55.9s Trying to get length of sound which is not loaded yet.
+55.9s Trying to get length of sound which is not loaded yet.
+55.9s Trying to get length of sound which is not loaded yet.
+56.0s [Venue] oceania (Island Beach) in after 1.5s, 74.9 MB; features on 7, off 0
+56.0s WEATHER LIGHT RAIN
+56.0s [TimeOfDay] Midday in LightRain: sun 50 degrees up, intensity 0.60, shadows 0.30; floodlights off
+56.0s [TimeOfDay] Night in LightRain: sun 40 degrees up, intensity 0.02, shadows 0.17; floodlights on
+56.0s [Camera] keep-out rebuilt for the venue: 454 boxes, 426 of them props
+56.0s [MatchManager] match starts after 4.5s: match data applied; home point chance 0.4886
+56.0s [MatchManager] ratings in play Player_A1 (Camila Santiago): ovr 80 pwr 85 spd 73 def 78 srv 74 blk 89 sta 79 mor 75
+56.0s [MatchManager] ratings in play Player_A2 (Nurul Ain): ovr 67 pwr 55 spd 74 def 70 srv 78 blk 52 sta 73 mor 75
+56.0s [MatchManager] ratings in play Player_B1 (Carmen Ruiz): ovr 82 pwr 76 spd 86 def 86 srv 80 blk 78 sta 84 mor 68
+56.0s [MatchManager] ratings in play Player_B2 (María Alonso): ovr 81 pwr 78 spd 82 def 84 srv 84 blk 80 sta 80 mor 68
+56.0s [Director] cutaway: the walk-on (5.5 s)
+56.0s The character with Unicode value \U0001F327 was not found in the [LiberationSans SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [WeatherText].
+56.5s Trying to get length of sound which is not loaded yet.
+56.7s [Crowd] 34 real people in the front 1 row(s), 170 cards behind, 24 bystanders; 64 team fans (A #1E3A8A, B #00A3AD); 44 different people; cards baked in 213 ms
+56.8s [CrowdBanners] 10 banners up (GO SYDNEY RIPTIDE! | GO BARCELONA PLAYA ELITES! | ACE IT! | BLOCK PARTY | DIG DEEP | SET. SPIKE. SCORE. | SUN'S OUT, SPIKES OUT | NO SAND, NO GLORY | SIDE OUT! | BEACH VOLLEYBALL FOREVER)
+56.8s Trying to get length of sound which is not loaded yet.
+56.9s Trying to get length of sound which is not loaded yet.
+56.9s Trying to get length of sound which is not loaded yet.
+57.0s Trying to get length of sound which is not loaded yet.
+57.0s Trying to get length of sound which is not loaded yet.
+57.1s Trying to get length of sound which is not loaded yet.
+57.1s Trying to get length of sound which is not loaded yet.
+57.2s Trying to get length of sound which is not loaded yet.
+57.2s Trying to get length of sound which is not loaded yet.
+57.2s Trying to get length of sound which is not loaded yet.
+57.3s Trying to get length of sound which is not loaded yet.
+57.3s Trying to get length of sound which is not loaded yet.
+57.4s Trying to get length of sound which is not loaded yet.
+57.4s Trying to get length of sound which is not loaded yet.
+57.4s Trying to get length of sound which is not loaded yet.
+57.5s Trying to get length of sound which is not loaded yet.
+57.5s Trying to get length of sound which is not loaded yet.
+57.6s Trying to get length of sound which is not loaded yet.
+57.6s Trying to get length of sound which is not loaded yet.
+57.7s Trying to get length of sound which is not loaded yet.
+57.7s [Commentary] 48 of 90 clips loaded from http://localhost:4962/unity-build/StreamingAssets/commentary: the 48 its LINES.txt lists (48 recorded before 1.2; B4's 42 are Rob's to record)
+58.9s [UnityCache] 'http://localhost:4962/unity-build/StreamingAssets/Venues/venue-oceania.bundle' successfully downloaded and stored in the browser cache
+60.8s [Director] cutaway: the walk-on: Player_A1 (1.5 s)
+62.4s [Director] cutaway: the walk-on: Player_A2 (1.5 s)
+63.9s [Director] cutaway: the walk-on: Player_B1 (1.5 s)
+65.4s [Director] cutaway: the walk-on: Player_B2 (1.5 s)
+66.9s [Match moments] walk-on took 10.7 s
+66.9s [Director] Serve: low off the sand
+67.3s [Point] decided: BARCELONA PLAYA ELITES by AttackError (server A, final attack by A after 4, chance 0.489)
+67.3s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+67.3s RATING CHECK: Player_A1 Serve 242 SpeedMult:2.11
+67.3s RALLY ACTION: TeamA Player_A1 1 Serve
+67.3s [MatchManager] jump heights: net top 2.24 m, spike lift 0.58 m, block lift 0.46 m
+67.5s [Director] Rally: end-on drift
+67.9s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+67.9s RATING CHECK: Player_B2 Dig 254 JitterMult:0.15
+67.9s RALLY ACTION: TeamB Player_B2 1 Dig
+68.4s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+68.4s RALLY ACTION: TeamB Player_B1 2 Set
+69.2s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+69.2s RATING CHECK: Player_A2 Block 158 Outcome:Touch
+69.2s BLOCK ATTEMPT: Player_A2
+69.2s RATING CHECK: Player_B2 Spike 247 SpeedMult:2.15
+69.2s RALLY ACTION: TeamB Player_B2 3 Spike
+69.3s BLOCK TOUCH: Player_A2
+69.3s [COMMENTARY] Touch! Player_A2 got a hand on the ball, slowing it down. The rally continues!
+69.4s RATING CHECK: Player_A2 Movement 153 SpeedMult:2.04
+69.4s RATING CHECK: Player_A1 Dig 238 JitterMult:0.15
+69.4s RALLY ACTION: TeamA Player_A1 1 Dig
+70.0s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+70.0s RALLY ACTION: TeamA Player_A2 2 Set
+70.6s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+70.6s RATING CHECK: Player_B1 Block 225 Outcome:Controlled
+70.6s BLOCK ATTEMPT: Player_B1
+70.6s RATING CHECK: Player_A1 Spike 252 SpeedMult:2.18
+70.6s RALLY ACTION: TeamA Player_A1 3 Spike
+70.7s BLOCK SUCCESS: Player_B1
+70.7s [COMMENTARY] Controlled block! Player_B1 rebounded the ball back to the attacker's side!
+71.7s RATING CHECK: Player_A1 Movement 160 SpeedMult:2.10
+71.7s RALLY ACTION: TeamA Player_A2 2 Set
+72.4s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+72.4s RATING CHECK: Player_B1 Block 225 Outcome:Touch
+72.4s BLOCK ATTEMPT: Player_B1
+72.4s RATING CHECK: Player_A1 Spike 252 SpeedMult:2.18
+72.4s RALLY ACTION: TeamA Player_A1 3 Spike
+72.4s BLOCK TOUCH: Player_B1
+72.4s [COMMENTARY] Touch! Player_B1 got a hand on the ball, slowing it down. The rally continues!
+72.5s RATING CHECK: Player_B1 Movement 178 SpeedMult:2.28
+72.5s RATING CHECK: Player_B2 Dig 254 JitterMult:0.15
+72.5s RALLY ACTION: TeamB Player_B2 1 Dig
+73.0s RATING CHECK: Player_B2 Movement 170 SpeedMult:2.20
+73.0s RALLY ACTION: TeamB Player_B1 2 Set

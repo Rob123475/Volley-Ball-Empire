@@ -1,4 +1,5 @@
 {
+  "ok": true,
   "checks": [
     {
       "label": "the title screen has the EXHIBITION GAME pill",
@@ -21,9 +22,9 @@
       "detail": ""
     },
     {
-      "label": "bought: the wallet down by the hat's price",
+      "label": "bought in the picker's Red: the wallet down by the hat's price",
       "pass": true,
-      "detail": "1000 coins -> 850 coins"
+      "detail": "1000 coins -> 850 coins; [{\"id\":1,\"itemId\":\"sun-hat\",\"colour\":\"#e11d2a\",\"worn\":true}]"
     },
     {
       "label": "the exhibition's pick screen: the worn hat on the home team's first player",
@@ -38,12 +39,12 @@
     {
       "label": "Play: the court opens the exhibition",
       "pass": true,
-      "detail": "/exhibition/court?exhibitionId=5f419850-673e-48db-863e-889982a06070&played=1"
+      "detail": "/exhibition/court?exhibitionId=cda816e8-51a2-4dee-98a7-5701f896f062&played=1"
     },
     {
       "label": "the court's view of the game: the first player's worn hat",
       "pass": true,
-      "detail": "[{\"part\":\"SK_BG_HAT\",\"colour\":\"#e8d8b0\"}]"
+      "detail": "[{\"part\":\"SK_BG_HAT\",\"colour\":\"#e8d8b0\",\"lens\":null}]"
     },
     {
       "label": "the WebGL court put the hat on the first player",
@@ -53,7 +54,7 @@
     {
       "label": "and started the match",
       "pass": true,
-      "detail": "[MatchManager] match starts after 4.2s: match data applied; home point chance 0.5041\n"
+      "detail": "[MatchManager] match starts after 4.7s: match data applied; home point chance 0.5041"
     }
   ],
   "shots": [

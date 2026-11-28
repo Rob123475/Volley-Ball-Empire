@@ -1,0 +1,55 @@
+{
+  "ok": true,
+  "checks": [
+    {
+      "label": "the song is playing",
+      "pass": true,
+      "detail": "{\"volume\":0.4,\"muted\":false,\"playing\":true,\"src\":\"beach-volleyball-empire.mp3\"}"
+    },
+    {
+      "label": "Settings: the music down to 20% and muted, and the song follows",
+      "pass": true,
+      "detail": "{\"volume\":0.2,\"muted\":true,\"playing\":true,\"src\":\"beach-volleyball-empire.mp3\"} (master 1)"
+    },
+    {
+      "label": "remembered after a reload (bve.music), and the song starts that way",
+      "pass": true,
+      "detail": "{\"volume\":0.2,\"muted\":true}; {\"volume\":0.2,\"muted\":true,\"playing\":true,\"src\":\"beach-volleyball-empire.mp3\"}"
+    },
+    {
+      "label": "a watched match on the court",
+      "pass": true,
+      "detail": "[MatchManager] match starts after 4.5s: match data applied; home point chance 0.4886"
+    },
+    {
+      "label": "on the court the song plays on, at 60% times the stage's loudness (never louder than the player's 60%)",
+      "pass": true,
+      "detail": "{\"volume\":0.216,\"muted\":false,\"playing\":true,\"src\":\"beach-volleyball-empire.mp3\"}; "
+    },
+    {
+      "label": "the court's settings: the music down to nothing mid-match, and the song follows",
+      "pass": true,
+      "detail": "{\"volume\":0,\"muted\":false,\"playing\":true,\"src\":\"beach-volleyball-empire.mp3\"}"
+    },
+    {
+      "label": "and muted there too; the court's settings say the songs play on from the band's stage",
+      "pass": true,
+      "detail": "{\"volume\":0,\"muted\":true,\"playing\":true,\"src\":\"beach-volleyball-empire.mp3\"}; \"The songs play on through the match, from the band's stage.\""
+    },
+    {
+      "label": "the court's choice is remembered",
+      "pass": true,
+      "detail": "{\"volume\":0,\"muted\":true}"
+    }
+  ],
+  "shots": [
+    {
+      "name": "9d-settings-sound.png",
+      "why": "Settings > Sound: music at 20%, muted"
+    },
+    {
+      "name": "9d-court-settings.png",
+      "why": "the court's settings over the match: music at 0%"
+    }
+  ]
+}

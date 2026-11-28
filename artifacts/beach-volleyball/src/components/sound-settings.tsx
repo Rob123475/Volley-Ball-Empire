@@ -52,7 +52,7 @@ export function SoundSettings({ onCourt = false }: { onCourt?: boolean }) {
             onChange={(e) => music.setVolume(Number(e.target.value) / 100)} className="w-full max-w-xs"
             aria-label="Music volume" data-testid="sound-volume" />
           <span className="text-xs text-muted-foreground">
-            {onCourt ? "The songs stop during a match and come back after it. Mute mutes only the songs." : "Mute mutes only the songs."}
+            {onCourt ? "The songs play on through the match, from the band's stage. Mute mutes only the songs." : "Mute mutes only the songs."}
           </span>
         </div>
       ) : (

@@ -153,6 +153,7 @@ Brief: `docs/update-1.2/UNITY-REBUILD-BRIEF.md`. Plan: `docs/update-1.2/PLAYABLE
 
 | Item | State | Proof | Commit |
 |---|---|---|---|
+| 9d Music: Rob's ruling (29 Nov) | Done, PASS: the control was already there (Settings and the court's settings, remembered); only the court's help text corrected | `scripts/webgl-proof/music-9d.mjs` 8/8, `proof/9d/` | game only |
 | 9b Rob's swimwear prints (29 Nov) | Done, PASS: his 23 swatches as 20 prints (paisley 4 ways), 11 the player recolours by Rob's rule, 9 as painted; a new print is a picture and a line; 42 MB to 3.0 MB; seams cut to whole repeats or mirrored; the palette of brights and pastels | `proof/9b/9b-prints-sheet.png`; store 30/30, exhibition --unity 30/30 | Unity `ace36fd0` |
 | 9a Tinted sunglasses (29 Nov) | Done, PASS: five lens tints beside the frame colour, in the store and on the pick screen; eyes faint behind them; the floodlights light them | `proof/9a/9a-lenses-sheet.png`; store 27/27, exhibition 21/21 | Unity `a7575042` |
 | D4-D6 Full harness (28 Nov) | **ALL HARNESSES PASSED** on run 3 of the 3 allowed (144 suites; season rollover 2,266 s). Run 1 stopped at check-starter-db; run 2 failed four source suites only | `pnpm run build`; see "Full harness, Part D" below | game `07503f05`, `bdbaef5a` |
@@ -1869,3 +1870,32 @@ Rob's order: section 9, then demo 3 (section 8), then section 5, then section 10
   - a wrong colour count, colours on a fixed print, and a wrong colourway all refused;
   - on the court, the hibiscus in blue and pink and the paisley in pink, loaded from the game's server (`proof/D6/d6-player_a1.png`, `d6-player_a2.png`).
 - The exhibition suite's server now runs as the game's does (production, the built pages), so the court loads the prints from it.
+
+### 9d: the music, Rob's ruling (29 Nov 2026)
+
+Rob approved the songs playing from the band's stage and on through the match. His condition: the player can turn the music down or off at any time, from Settings and from the court's own settings, and the choice is remembered.
+
+**That control was already there:** music mute and music volume, in Settings > Sound and in the court's gear menu during a match. Both are kept in `bve.music`.
+- So nothing about them changed.
+
+**Changed: one line of help text,** which had become untrue. Under the court's music volume it still said the songs stop during a match and come back after it (Unity brief item 9, replaced by 6e). It now says: "The songs play on through the match, from the band's stage. Mute mutes only the songs."
+
+**The songs themselves:** never changed, trimmed or faded beyond what they already did.
+
+**Proof** (`scripts/webgl-proof/music-9d.mjs`, 8/8, `proof/9d/`): run on the built game, reading the page's own `<audio>` element.
+1. **Settings:** music down to 20% and muted; the song's element follows (volume 0.2, muted) (`9d-settings-sound.png`).
+2. **After a reload:** both remembered (`bve.music`), and the song starts that way.
+3. **On the court, unmuted at 60%:** a watched match. The song plays on at 0.216, that is 60% times the stage's loudness where the camera was (0.36), never louder than the player's own 60%.
+4. **The court's settings, mid-match:**
+   - music volume to 0, and the song is silent;
+   - muted;
+   - the help text says the songs play on from the band's stage (`9d-court-settings.png`);
+   - the choice is remembered.
+
+**Shared:** the page proofs now share `scripts/webgl-proof/built-game.mjs`, which provides:
+- the server on a copy of the starter database;
+- the built pages;
+- a career;
+- headless Chrome.
+
+`pages-d4-d6.mjs` uses it too, and passes 11/11 (its hat is now bought in the colour picker's Red).

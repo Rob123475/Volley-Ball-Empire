@@ -1,0 +1,884 @@
+[22:56:09.724] [32mINFO[39m (38372): [36mschema check: save is up to date, 0 missing columns[39m
+    [35mtablesChecked[39m: 72
+    [35mcolumnsChecked[39m: 909
+[22:56:09.725] [32mINFO[39m (38372): [36mreference data backfill skipped[39m
+    [35mstarterDbPath[39m: null
+    [35mreason[39m: "STARTER_DB_PATH not set"
+[22:56:09.733] [32mINFO[39m (38372): [36mstored Olympic text renamed to the Empire Nations Cup[39m
+    [35mrowsChanged[39m: 6
+    [35mbyColumn[39m: {
+      "staff.specialty": 2,
+      "staff.special_trait": 4
+    }
+[22:56:09.761] [32mINFO[39m (38372): [36mplayers given a development profile or peak shift[39m
+    [35mprofiled[39m: 276
+[22:56:09.775] [32mINFO[39m (38372): [36mServer listening[39m
+    [35mport[39m: 4963
+[22:56:10.011] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 1,
+      "method": "GET",
+      "url": "/api/healthz"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 3
+[22:56:10.024] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 2,
+      "method": "POST",
+      "url": "/api/profiles"
+    }
+    [35mres[39m: {
+      "statusCode": 201
+    }
+    [35mresponseTime[39m: 3
+[22:56:10.030] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 3,
+      "method": "POST",
+      "url": "/api/profiles/1054e623-f8d5-4aae-98c7-428c29e0f985/select"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 1
+[22:56:10.036] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 4,
+      "method": "GET",
+      "url": "/api/club-templates"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 3
+[22:56:10.193] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 5,
+      "method": "POST",
+      "url": "/api/careers"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 142
+[22:56:10.209] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 6,
+      "method": "GET",
+      "url": "/api/day1-draft"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 4
+[22:56:10.217] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 7,
+      "method": "POST",
+      "url": "/api/contracts"
+    }
+    [35mres[39m: {
+      "statusCode": 201
+    }
+    [35mresponseTime[39m: 5
+[22:56:10.224] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 8,
+      "method": "POST",
+      "url": "/api/contracts"
+    }
+    [35mres[39m: {
+      "statusCode": 201
+    }
+    [35mresponseTime[39m: 3
+[22:56:10.240] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 9,
+      "method": "POST",
+      "url": "/api/contracts"
+    }
+    [35mres[39m: {
+      "statusCode": 201
+    }
+    [35mresponseTime[39m: 4
+[22:56:10.702] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 10,
+      "method": "POST",
+      "url": "/api/day1-draft/finish"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 450
+[22:56:11.606] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 11,
+      "method": "GET",
+      "url": "/api/auth/user"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 2
+[22:56:11.609] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 12,
+      "method": "GET",
+      "url": "/api/seasons/current"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 2
+[22:56:11.639] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 13,
+      "method": "GET",
+      "url": "/api/team"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 2
+[22:56:14.275] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 14,
+      "method": "GET",
+      "url": "/api/achievements"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 2
+[22:56:14.279] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 15,
+      "method": "GET",
+      "url": "/api/calendar"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 3
+[22:56:14.281] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 16,
+      "method": "GET",
+      "url": "/api/calendar/round-names"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 1
+[22:56:14.282] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 17,
+      "method": "GET",
+      "url": "/api/ceremonies/pending"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 1
+[22:56:14.284] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 18,
+      "method": "GET",
+      "url": "/api/national-coach"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 2
+[22:56:14.284] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 19,
+      "method": "GET",
+      "url": "/api/store"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 0
+[22:56:14.287] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 20,
+      "method": "GET",
+      "url": "/api/attention-items"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 3
+[22:56:14.288] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 21,
+      "method": "GET",
+      "url": "/api/day1-draft"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 1
+[22:56:14.289] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 22,
+      "method": "GET",
+      "url": "/api/auth/user"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 1
+[22:56:14.291] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 23,
+      "method": "GET",
+      "url": "/api/preseason"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 2
+[22:56:14.292] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 24,
+      "method": "GET",
+      "url": "/api/transfers"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 1
+[22:56:14.298] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 25,
+      "method": "GET",
+      "url": "/api/dashboard"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 4
+[22:56:14.299] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 26,
+      "method": "GET",
+      "url": "/api/seasons/1/ladder"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 1
+[22:56:14.300] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 27,
+      "method": "GET",
+      "url": "/api/seasons/current"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 1
+[22:56:14.302] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 28,
+      "method": "GET",
+      "url": "/api/club-rating"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 2
+[22:56:14.304] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 29,
+      "method": "GET",
+      "url": "/api/facilities"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 1
+[22:56:14.308] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 30,
+      "method": "GET",
+      "url": "/api/news"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 4
+[22:56:14.310] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 31,
+      "method": "GET",
+      "url": "/api/events/upcoming"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 2
+[22:56:14.312] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 32,
+      "method": "GET",
+      "url": "/api/board-confidence"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 2
+[22:56:53.409] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 33,
+      "method": "POST",
+      "url": "/api/calendar/advance"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 210
+[22:56:53.534] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 34,
+      "method": "POST",
+      "url": "/api/calendar/advance"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 121
+[22:56:53.639] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 35,
+      "method": "POST",
+      "url": "/api/calendar/advance"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 101
+[22:56:53.754] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 36,
+      "method": "POST",
+      "url": "/api/calendar/advance"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 106
+[22:56:53.955] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 37,
+      "method": "POST",
+      "url": "/api/calendar/advance"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 197
+[22:56:54.072] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 38,
+      "method": "POST",
+      "url": "/api/calendar/advance"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 111
+[22:56:54.519] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 39,
+      "method": "POST",
+      "url": "/api/calendar/advance"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 435
+[22:56:54.636] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 40,
+      "method": "POST",
+      "url": "/api/calendar/advance"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 112
+[22:56:54.758] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 41,
+      "method": "POST",
+      "url": "/api/calendar/advance"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 110
+[22:56:54.957] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 42,
+      "method": "POST",
+      "url": "/api/calendar/advance"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 183
+[22:56:55.082] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 43,
+      "method": "POST",
+      "url": "/api/calendar/advance"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 123
+[22:56:55.196] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 44,
+      "method": "POST",
+      "url": "/api/calendar/advance"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 108
+[22:56:55.308] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 45,
+      "method": "POST",
+      "url": "/api/calendar/advance"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 109
+[22:56:55.726] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 46,
+      "method": "POST",
+      "url": "/api/calendar/advance"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 401
+[22:56:55.900] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 47,
+      "method": "POST",
+      "url": "/api/calendar/advance"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 171
+[22:56:56.023] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 48,
+      "method": "POST",
+      "url": "/api/calendar/advance"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 106
+[22:56:56.133] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 49,
+      "method": "POST",
+      "url": "/api/calendar/advance"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 106
+[22:56:56.240] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 50,
+      "method": "POST",
+      "url": "/api/calendar/advance"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 105
+[22:56:56.414] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 51,
+      "method": "POST",
+      "url": "/api/calendar/advance"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 172
+[22:56:56.541] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 52,
+      "method": "POST",
+      "url": "/api/calendar/advance"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 110
+[22:56:56.931] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 53,
+      "method": "POST",
+      "url": "/api/calendar/advance"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 388
+[22:56:57.061] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 54,
+      "method": "POST",
+      "url": "/api/calendar/advance"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 117
+[22:56:57.180] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 55,
+      "method": "POST",
+      "url": "/api/calendar/advance"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 111
+[22:56:57.377] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 56,
+      "method": "POST",
+      "url": "/api/calendar/advance"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 183
+[22:56:57.486] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 57,
+      "method": "POST",
+      "url": "/api/calendar/advance"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 107
+[22:56:57.607] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 58,
+      "method": "POST",
+      "url": "/api/calendar/advance"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 104
+[22:56:57.719] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 59,
+      "method": "POST",
+      "url": "/api/calendar/advance"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 106
+[22:56:58.137] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 60,
+      "method": "POST",
+      "url": "/api/calendar/advance"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 415
+[22:56:58.334] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 61,
+      "method": "POST",
+      "url": "/api/calendar/advance"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 191
+[22:56:58.451] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 62,
+      "method": "POST",
+      "url": "/api/calendar/advance"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 105
+[22:56:58.561] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 63,
+      "method": "POST",
+      "url": "/api/calendar/advance"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 107
+[22:56:58.688] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 64,
+      "method": "POST",
+      "url": "/api/calendar/advance"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 111
+[22:56:58.811] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 65,
+      "method": "POST",
+      "url": "/api/calendar/advance"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 110
+[22:56:59.025] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 66,
+      "method": "POST",
+      "url": "/api/calendar/advance"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 201
+[22:56:59.402] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 67,
+      "method": "POST",
+      "url": "/api/calendar/advance"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 360
+[22:56:59.523] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 68,
+      "method": "POST",
+      "url": "/api/calendar/advance"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 107
+[22:56:59.651] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 69,
+      "method": "POST",
+      "url": "/api/calendar/advance"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 110
+[22:56:59.844] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 70,
+      "method": "POST",
+      "url": "/api/calendar/advance"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 177
+[22:56:59.961] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 71,
+      "method": "POST",
+      "url": "/api/calendar/advance"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 110
+[22:57:00.088] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 72,
+      "method": "POST",
+      "url": "/api/calendar/advance"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 111
+[22:57:00.212] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 73,
+      "method": "POST",
+      "url": "/api/calendar/advance"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 108
+[22:57:00.661] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 74,
+      "method": "POST",
+      "url": "/api/calendar/advance"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 433
+[22:57:00.896] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 75,
+      "method": "POST",
+      "url": "/api/calendar/advance"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 218
+[22:57:01.015] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 76,
+      "method": "POST",
+      "url": "/api/calendar/advance"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 117
+[22:57:01.132] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 77,
+      "method": "POST",
+      "url": "/api/calendar/advance"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 113
+[22:57:01.258] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 78,
+      "method": "POST",
+      "url": "/api/calendar/advance"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 112
+[22:57:01.382] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 79,
+      "method": "POST",
+      "url": "/api/calendar/advance"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 111
+[22:57:01.499] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 80,
+      "method": "POST",
+      "url": "/api/calendar/advance"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 102
+[22:57:01.554] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 81,
+      "method": "GET",
+      "url": "/api/auth/user"
+    }
+    [35mres[39m: {
+      "statusCode": 304
+    }
+    [35mresponseTime[39m: 1
+[22:57:01.557] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 82,
+      "method": "GET",
+      "url": "/api/seasons/current"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 1
+[22:57:01.560] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 83,
+      "method": "GET",
+      "url": "/api/team"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 2
+[22:57:01.566] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 84,
+      "method": "GET",
+      "url": "/api/careers"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 1
+[22:57:05.762] [32mINFO[39m (38372): [36munity/match-state career resolved[39m
+    [35mreq[39m: {
+      "id": 85,
+      "method": "GET",
+      "url": "/api/unity/match-state"
+    }
+    [35mcareerSaveId[39m: 1
+    [35mcareerSource[39m: "query"
+    [35mteamId[39m: 1
+[22:57:05.766] [32mINFO[39m (38372): [36munity/match-state served[39m
+    [35mreq[39m: {
+      "id": 85,
+      "method": "GET",
+      "url": "/api/unity/match-state"
+    }
+    [35mmatchId[39m: 1
+    [35mstatus[39m: "scheduled"
+    [35mplayerCount[39m: 4
+[22:57:05.770] [32mINFO[39m (38372): [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 85,
+      "method": "GET",
+      "url": "/api/unity/match-state"
+    }
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 9
