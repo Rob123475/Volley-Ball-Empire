@@ -1,0 +1,118 @@
+== Assets/Rocks and Boulders 2
+  materials 14: 8 draw in URP, 6 do not
+       6  Enviro/BumpedDiffuseOverlaySM2   <- not URP
+       6  Universal Render Pipeline/Lit
+       2  Universal Render Pipeline/Simple Lit
+  models 15
+         770 tris  rig Legacy    clips  0  Rocks/Source/Models/box.fbx
+         577 tris  rig Legacy    clips  0  Rocks/Source/Models/Rock1A.fbx
+          52 tris  rig Legacy    clips  0  Rocks/Source/Models/Rock1B.fbx
+          22 tris  rig Legacy    clips  0  Rocks/Source/Models/Rock1C.fbx
+          22 tris  rig Legacy    clips  0  Rocks/Source/Models/Rock1D.fbx
+          22 tris  rig Legacy    clips  0  Rocks/Source/Models/Rock1E.fbx
+         642 tris  rig Legacy    clips  0  Rocks/Source/Models/Rock2.fbx
+         552 tris  rig Legacy    clips  0  Rocks/Source/Models/Rock3.fbx
+         386 tris  rig Legacy    clips  0  Rocks/Source/Models/Rock4A.fbx
+         206 tris  rig Legacy    clips  0  Rocks/Source/Models/Rock4B.fbx
+         975 tris  rig Legacy    clips  0  Rocks/Source/Models/Rock5A.fbx
+         162 tris  rig Legacy    clips  0  Rocks/Source/Models/Rock5B.fbx
+         538 tris  rig Legacy    clips  0  Rocks/Source/Models/Rock6A.fbx
+          64 tris  rig Legacy    clips  0  Rocks/Source/Models/Rock6B.fbx
+          52 tris  rig Legacy    clips  0  Rocks/Source/Models/Rock6C.fbx
+  animation clips (in models and .anim files): 0 assets
+  prefabs 24, scenes 0, scripts 0: 
+  textures 56; largest: Rock1_ao.png 2048x2048, Rock1_h.png 2048x2048, Rock1_ms.png 2048x2048, Rock2_ao.png 2048x2048
+== Assets/IGBlocks/Pavilion
+  materials 13: 13 draw in URP, 0 do not
+      13  Universal Render Pipeline/Lit
+  models 4
+         196 tris  rig None      clips  0  Models/Lamp.FBX
+       11646 tris  rig None      clips  0  Models/Pavilion.FBX
+           2 tris  rig None      clips  0  Models/Plane_Ground.FBX
+         284 tris  rig None      clips  0  Models/Table_Wood.FBX
+  animation clips (in models and .anim files): 0 assets
+  prefabs 5, scenes 0, scripts 0: 
+  textures 17; largest: Roof.png 2048x2048, Roof1.png 2048x2048, Roof_n.png 2048x2048, Wood_a.png 2048x2048
+== Assets/Beach - resort
+  materials 32: 32 draw in URP, 0 do not
+      30  Universal Render Pipeline/Lit
+       1  Skybox/Cubemap
+       1  Universal Render Pipeline/Terrain/Lit
+  models 20
+        2252 tris  rig Generic   clips  0  Models/Beach_Bag.fbx
+         636 tris  rig Generic   clips  0  Models/Beach_Ball.fbx
+        1562 tris  rig Generic   clips  0  Models/Beach_Toys.fbx
+         504 tris  rig Generic   clips  0  Models/Bigwavegun.fbx
+        2240 tris  rig None      clips  0  Models/Circle.fbx
+         834 tris  rig None      clips  0  Models/DeckChair.fbx
+        3000 tris  rig None      clips  0  Models/Dresser.fbx
+        2332 tris  rig None      clips  0  Models/Duck.fbx
+         832 tris  rig None      clips  0  Models/Hat.fbx
+        8708 tris  rig None      clips  0  Models/IceCream.fbx
+        2850 tris  rig None      clips  0  Models/Lifeguard.fbx
+         575 tris  rig Generic   clips  0  Models/Longboard.fbx
+        6088 tris  rig Generic   clips  0  Models/PalmTree.fbx
+         204 tris  rig None      clips  0  Models/Sign.fbx
+         190 tris  rig Generic   clips  0  Models/Slap_Sandal.fbx
+         710 tris  rig Generic   clips  0  Models/Small_Props.fbx
+        1932 tris  rig None      clips  0  Models/Towel.fbx
+        1298 tris  rig Generic   clips  0  Models/ukulele.fbx
+        2864 tris  rig None      clips  0  Models/Umbrella.fbx
+         588 tris  rig None      clips  0  Models/water.fbx
+  animation clips (in models and .anim files): 0 assets
+  prefabs 33, scenes 0, scripts 0: 
+  textures 89; largest: Beach_bag_tex_AlbedoTransparency.png 2048x2048, Beach_bag_tex_Height.png 2048x2048, Beach_bag_tex_MetallicSmoothness.png 2048x2048, Beach_bag_tex_Normal.png 2048x2048
+== Assets/Hawaii Beach House (PBR, HDRP)
+  materials 52: 51 draw in URP, 1 do not
+      51  Universal Render Pipeline/Lit
+       1  Hidden/InternalErrorShader   <- not URP
+  models 37
+        7100 tris  rig Generic   clips  0  Models/adress.fbx
+        2134 tris  rig Generic   clips  0  Models/Bush_1.fbx
+        2350 tris  rig Generic   clips  0  Models/Bush_2.fbx
+        2950 tris  rig Generic   clips  0  Models/Bush_3.fbx
+        3314 tris  rig Generic   clips  0  Models/Bush_4.fbx
+        3938 tris  rig Generic   clips  0  Models/Bush_5.fbx
+        3548 tris  rig Generic   clips  0  Models/Bush_6.fbx
+        5618 tris  rig Generic   clips  0  Models/Bush_7.fbx
+        4658 tris  rig Generic   clips  0  Models/Bush_8.fbx
+        4898 tris  rig Generic   clips  0  Models/Bush_9.fbx
+        7164 tris  rig Generic   clips  0  Models/Bush_10.fbx
+          28 tris  rig Generic   clips  0  Models/carpet.fbx
+        1244 tris  rig Generic   clips  0  Models/deck_barrier.fbx
+         144 tris  rig Generic   clips  0  Models/deck_barrier_LOD.fbx
+        1754 tris  rig Generic   clips  0  Models/frame.fbx
+           6 tris  rig Generic   clips  0  Models/grass_single_1.fbx
+         244 tris  rig Generic   clips  0  Models/hay.fbx
+        2510 tris  rig Generic   clips  0  Models/Jungle_Plant_2.fbx
+        3450 tris  rig Generic   clips  0  Models/Jungle_Plant_3.fbx
+         650 tris  rig Generic   clips  0  Models/Jungle_Plant_4.fbx
+        4354 tris  rig Generic   clips  0  Models/Jungle_Plant_7.fbx
+        6552 tris  rig Generic   clips  0  Models/Jungle_Plant_8.fbx
+        3976 tris  rig Generic   clips  0  Models/Jungle_Plant_9.fbx
+        1560 tris  rig Generic   clips  0  Models/Jungle_Plant_10.fbx
+        2672 tris  rig Generic   clips  0  Models/lamp.fbx
+        6126 tris  rig Generic   clips  0  Models/leaves.fbx
+         572 tris  rig Generic   clips  0  Models/p1.fbx
+          12 tris  rig Generic   clips  0  Models/p1_lod.fbx
+          44 tris  rig Generic   clips  0  Models/plank_x4.fbx
+        2524 tris  rig Generic   clips  0  Models/sunbed.fbx
+         304 tris  rig Generic   clips  0  Models/wooden_beam.fbx
+         612 tris  rig Generic   clips  0  Models/wooden_beam_part.fbx
+          72 tris  rig Generic   clips  0  Models/wooden_beam_part_LOD.fbx
+         568 tris  rig Generic   clips  0  Models/wooden_beam_x2.fbx
+        1424 tris  rig Generic   clips  0  Models/wooden_stairs_x5_Y.fbx
+         204 tris  rig Generic   clips  0  Models/wooden_stairs_x5_Y_lod.fbx
+          20 tris  rig Generic   clips  0  Models/wooden_stairs_x5_Y_lod_2.fbx
+  animation clips (in models and .anim files): 0 assets
+  prefabs 44, scenes 1, scripts 0: 
+  textures 26; largest: Material.001 Base Color.png 2048x2048, sand_albedo.png 2048x2048, sand_normal.png 2048x2048, carpet_albedo.png 1024x1024
+== Assets/Nokobot/ColonialShip
+  materials 19: 19 draw in URP, 0 do not
+      16  Universal Render Pipeline/Autodesk Interactive/AutodeskInteractive
+       3  Universal Render Pipeline/Lit
+  models 1
+      148932 tris  rig None      clips  0  03_Models/Colonial Ship.FBX
+  animation clips (in models and .anim files): 0 assets
+  prefabs 8, scenes 0, scripts 0: 
+  textures 18; largest: Barrels.png 2048x2048, Boxes+TreasureBoxes.png 2048x2048, Cannons+CannonBalls+Windows.png 2048x2048, Fin+Basket+Doors.png 2048x2048

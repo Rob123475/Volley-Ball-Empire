@@ -1,0 +1,122 @@
+{
+  "ok": true,
+  "checks": [],
+  "shots": [
+    {
+      "name": "fps-oceania-midday.png",
+      "why": "oceania at midday, the TV look"
+    },
+    {
+      "name": "fps-north_america-midday.png",
+      "why": "north_america at midday, the TV look"
+    },
+    {
+      "name": "fps-south_america-midday.png",
+      "why": "south_america at midday, the TV look"
+    },
+    {
+      "name": "fps-europe-midday.png",
+      "why": "europe at midday, the TV look"
+    },
+    {
+      "name": "fps-asia-midday.png",
+      "why": "asia at midday, the TV look"
+    },
+    {
+      "name": "fps-africa_middle_east-midday.png",
+      "why": "africa_middle_east at midday, the TV look"
+    }
+  ],
+  "runs": [
+    {
+      "venue": "oceania",
+      "time": "midday",
+      "loadedVenue": "oceania",
+      "name": "Island Beach",
+      "loadSeconds": 1.3,
+      "bundleMB": 81.1,
+      "seconds": 15,
+      "frames": 854,
+      "fps": 56.9,
+      "p50ms": 17.5,
+      "p95ms": 18.2,
+      "over50ms": 1,
+      "fallback": null
+    },
+    {
+      "venue": "north_america",
+      "time": "midday",
+      "loadedVenue": "north_america",
+      "name": "Surf City Beach",
+      "loadSeconds": 0.7,
+      "bundleMB": 84,
+      "seconds": 15,
+      "frames": 845,
+      "fps": 56.3,
+      "p50ms": 17.6,
+      "p95ms": 18.2,
+      "over50ms": 2,
+      "fallback": null
+    },
+    {
+      "venue": "south_america",
+      "time": "midday",
+      "loadedVenue": "south_america",
+      "name": "Bay City Beach",
+      "loadSeconds": 0.6,
+      "bundleMB": 69.4,
+      "seconds": 15,
+      "frames": 859,
+      "fps": 57.3,
+      "p50ms": 17.4,
+      "p95ms": 18.1,
+      "over50ms": 0,
+      "fallback": null
+    },
+    {
+      "venue": "europe",
+      "time": "midday",
+      "loadedVenue": "europe",
+      "name": "Mediterranean Cove",
+      "loadSeconds": 0.8,
+      "bundleMB": 110.4,
+      "seconds": 15,
+      "frames": 852,
+      "fps": 56.8,
+      "p50ms": 17.6,
+      "p95ms": 18.2,
+      "over50ms": 0,
+      "fallback": null
+    },
+    {
+      "venue": "asia",
+      "time": "midday",
+      "loadedVenue": "asia",
+      "name": "Lagoon Resort",
+      "loadSeconds": 0.7,
+      "bundleMB": 76.5,
+      "seconds": 15,
+      "frames": 857,
+      "fps": 57.2,
+      "p50ms": 17.5,
+      "p95ms": 18.2,
+      "over50ms": 0,
+      "fallback": null
+    },
+    {
+      "venue": "africa_middle_east",
+      "time": "midday",
+      "loadedVenue": "africa_middle_east",
+      "name": "Desert Coast",
+      "loadSeconds": 0.7,
+      "bundleMB": 71,
+      "seconds": 15,
+      "frames": 855,
+      "fps": 57,
+      "p50ms": 17.5,
+      "p95ms": 18.2,
+      "over50ms": 0,
+      "fallback": null
+    }
+  ]
+}

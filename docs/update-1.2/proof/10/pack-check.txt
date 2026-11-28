@@ -1,0 +1,21 @@
+complete      51.0 MB  IG BLOCKS/3D ModelsPropsExterior/Pavilion
+complete      32.0 MB  Lylek Games/3D ModelsEnvironments/Island Assets
+complete     240.0 MB  Bicameral Studios/3D ModelsEnvironmentsLandscapes/Free Island Collection
+complete     320.0 MB  Manufactura K4/3D ModelsPropsExterior/Rock and Boulders 2
+complete     298.0 MB  Mixall/3D ModelsProps/Beach - resort
+complete      69.0 MB  MARCINS ASSETS/3D ModelsEnvironmentsLandscapes/Hawaii Beach House PBR HDRP
+complete     186.0 MB  Nokobot/3D ModelsEnvironmentsHistoric/Colonial Ship
+complete       0.0 MB  BitGem/Shaders/URP Stylized Water Shader - Proto Series
+complete      65.0 MB  Nobiax Yughues/Textures MaterialsNature/Yughues Free Sand Materials
+complete     376.0 MB  Shaded Spectrum/Textures MaterialsNature/Sun Sea Beach Materials Pack
+complete      31.0 MB  Baldinoboy/3D ModelsVegetationTrees/Coconut Palm Tree Pack
+complete      40.0 MB  Nature Library/3D ModelsVegetationTrees/Mobile Palm Pack URP
+complete    1521.0 MB  Gregor Quendel/AudioAmbientUrban/Free General Ambience Sounds
+complete      61.0 MB  Tanuki Digital/Shaders/SUIMONO Water System
+complete       1.0 MB  hardartcore/Shaders/ShoreLine Stylized Water for URP Mobile Desktop
+complete      25.0 MB  Nobiax Yughues/3D ModelsVegetationTrees/Yughues Free Palm Trees
+complete     227.0 MB  ALIyerEdon/3D ModelsVegetationTrees/Palm Tree Pack Free
+complete     141.0 MB  Aliosa/3D ModelsCharactersAnimalsFish/3D Seashell
+complete    1310.0 MB  Game Buffs/Textures Materials/25 Free Realistic Textures - Nature City Home Construction More
+complete     107.0 MB  AbstractOcclusion/Shaders/WebGpu interactive water
+complete      18.0 MB  Nathan Gaur/ScriptingPhysics/Fast Buoyancy

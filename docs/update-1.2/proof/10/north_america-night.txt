@@ -1,0 +1,15 @@
+A VENUE IN PICTURES (north_america-night), V19 IN PLAY MODE (batch), A WATCHED MATCH, venue asked: north_america
+  log: [Venue] north_america (Surf City Beach) in after 2.5s, 0.0 MB; features on 8, off 1
+  log: [Camera] keep-out rebuilt for the venue: 410 boxes, 382 of them props
+  the match's continent: (none sent); venue loaded: north_america (Surf City Beach), 2.5 s
+  features: commentaryStand on, juiceBar on, kiosk on, lifeguardTower on, iceCreamCart on, gulls on, band on, foodStand on, commentaryScaffold off
+  the venue's triangles, every level of every LOD counted: 2,235,642
+  keep-out: 410 boxes, 382 props
+  time of day: Night (the game sent none, the proof asked night); sun 40 degrees up, 0.08; floodlights 5 on
+  banners: GO BLUE SHARKS! | GO RED GIANTS! | ACE IT! | BLOCK PARTY | DIG DEEP | SET. SPIKE. SCORE. | SUN'S OUT, SPIKES OUT | NO SAND, NO GLORY | SIDE OUT! | BEACH VOLLEYBALL FOREVER
+  -> north_america-night-tv.png
+  the band: idle; the stage's loudness last sent to the page from the TV camera: 0.43
+  -> north_america-night-wide.png
+     the stage from there: 0.10 loud; the band idle
+  -> north_america-night-north.png
+     the stage from there: 0.20 loud; the band idle

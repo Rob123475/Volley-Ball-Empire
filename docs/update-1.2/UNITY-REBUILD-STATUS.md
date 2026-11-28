@@ -153,6 +153,7 @@ Brief: `docs/update-1.2/UNITY-REBUILD-BRIEF.md`. Plan: `docs/update-1.2/PLAYABLE
 
 | Item | State | Proof | Commit |
 |---|---|---|---|
+| 10 The five venues, demo 4 (29 Nov) | Done: north_america, south_america, europe, asia (no bungalow), africa_middle_east built from Rob's packs to D1's looks, each its own bundle (69 to 110 MB) with its own terrain and sea; sections 2, 3, 6 applied; sand ripples (a small gain, no cost); 55.5 to 57.2 fps at every venue and time; missing pieces listed for Tripo. Demo 4 packaged, not installed: 1.2.0-demo4, 808.6 MB | `proof/10/` (sheets, per-venue pictures, packs, sand before/after, `fps/`, `packaged/`), `DEMO-CHECKLIST.md` | Unity `3c83948c`, game (this commit) |
 | 5 The commentary team (29 Nov) | Done, PASS: Rob's sheet as data (57 lines, a new guest is data only); career: the reporter on, a guest at random, a Settings switch for guests; exhibition: guest and reporter picked; the three in the commentary tent's front deck, Nicole on the sand with a microphone; missing clips skipped in silence; levelling script (-18.5 dBFS). The booth had been on the tent's roof (9e): fixed | `harness/commentary-team.mjs --unity` 26/26, `proof/5/` | Unity `6eac297b`, game (this commit) |
 | Demo 3 (29 Nov) | Packaged, not installed (install test skipped, as Rob said): 1.2.0-demo3, 458 MB; proof on its own files 21/22, 57 fps; the director's band and booth shots are picked but covered by the point's cutaways (a finding, not changed) | `proof/demo3/`, `DEMO-CHECKLIST.md` | game (this commit) |
 | 9e Commentary tent, 9f Rob's remade props (29 Nov) | Done, PASS: the tent from the yellow tower in blue and white (orange accents only, said plainly), booth fits three; the VIP tent squared and in place, the cart and the shop in, the cart's mashed script covered | `proof/9e/`, `proof/9f/` sheets, `vip-tent-profile.txt` | Unity `ea70a0c5` |
@@ -2146,3 +2147,112 @@ Rob approved the songs playing from the band's stage and on through the match. H
 **On the pictures:** the three sit at a table on the tower's front deck. In the TV's booth shot, from the court a little above the platform, the roof's eaves cut across their heads; the close picture shows them whole.
 
 **What is not proven here:** how the lines sound. No team line is recorded yet, so none was heard; the levelling is proven on Rob's four samples (above).
+
+### Section 10: the five venues (29 Nov 2026, after section 5)
+
+**All six continents now have a venue of their own** (`Resources/venues.json`: all six "built"). Each is its own prefab and its own bundle, loaded only when a match is there. Pictures of all five: `proof/10/venues-sheet.png` (wide, the view north and the TV look at midday, the TV look at night); each picture on its own in `proof/10/`.
+
+| Venue | The look | Built from | How finished |
+|---|---|---|---|
+| north_america, Surf City Beach | timber beach houses behind the sand, a 150 m plank pier into the sea, red lifeguard towers along the shore, umbrellas, deck chairs, longboards | Hawaii Beach House (its house, merged), Beach - resort (towers, umbrellas, chairs, boards, palms) | complete but for ambience |
+| south_america, Bay City Beach | a row of hotel towers on a black-and-white wave-mosaic promenade, palms along it, green hills behind, an 88 m sugarloaf rock in the bay | Rob's seaside and luxury hotels, Rocks and Boulders 2 (in granite), the mosaic made here | complete in its parts; **the towers repeat Rob's two hotel models** (10 towers) |
+| europe, Mediterranean Cove | villas with red roofs up the hillside, two rocky arms round the cove, a stone promenade with pavilions, an old sailing ship at anchor, clear blue water | Rob's luxury hotel at villa size, Rocks and Boulders 2 (in a warm limestone), Pavilion, Colonial Ship | complete in its parts; **the villas are one model repeated** (16) |
+| asia, Lagoon Resort | seven limestone islets with palms on top in turquoise water, wooden pavilions along the sand, the resort's hotel behind, loungers. No over-water bungalow (Rob: do not worry about it) | Rocks and Boulders 2 (its rock pillar, pale), Beach - resort's palms, Pavilion, Rob's luxury hotel, Hawaii's loungers | complete but for ambience |
+| africa_middle_east, Desert Coast | dunes inland, sandstone rocks, shade sails on the beach, a low white resort with pavilions at its edge, a Red Sea blue | Rocks and Boulders 2 (in sandstone), Pavilion, the resort and the sails built here, Rob's palms | **the least finished: the resort is plain white blocks with a window pattern** (no pack had a building) |
+
+**Every venue has:**
+- **The tournament's kit, copied from the island venue:** the venue features, each switched by its data flag (commentary tent with the booth and Nicole, food van, juice bar, kiosk, ice-cream cart, band, gulls, lifeguard tower where the data has it), and the always-there props (Rob's VIP tent and T-shirt shop, the signpost, the surf rack, the chairs). So the band, the commentary team and the drinks break work at every venue.
+- **A ground of its own, a Unity terrain** (760 m square, heights every 3 m). The scene has only the court and the sea, so a venue without the island would have stood on water. Flat sand round the court and out to the shore; the land behind rises into the venue's hills or dunes. It is painted from layers that blend: sand, the Hawaii pack's moss on the hills, rock on slopes over 32 degrees.
+- **Its own sea** (`VenueWater`, new): the scene's sea tinted (a lagoon's turquoise in Asia, a clear blue in Europe) and carried three times as far, its waves kept their size. The scene's sea ends 280 m out, so Asia's islets and Rio's sugarloaf stood over empty sky before.
+  - The island venue is unchanged.
+- **No venue shadows** (section 2): only the players and the ball cast real-time shadows.
+- **Its signature in the TV look's background**, which looks north from the court: the pier, the sugarloaf, the ship, the islets.
+
+**Missing, for Rob to make in Tripo if he wants them** (he buys nothing more):
+- **south_america:** apartment towers of a few different designs (the row repeats his two hotel models).
+- **europe:** a small Mediterranean villa or two (the villas are his luxury hotel, scaled down).
+- **africa_middle_east:** a low white resort building (now plain blocks) and a date palm (his coconut palm stands in).
+- **Every venue:** ambience sound (below).
+
+**The packs** (section 0's checks: `proof/10/packs.txt`, `urp-convert.txt`, `pack-versions.txt`, the sheet `packs-sheet.png`):
+- **Rob's Asset Store cache holds 37 packs; 21 were candidates for the venues**, and every one of those downloads is complete.
+- **Imported, the parts the venues use** (as Unity's own import does, each file with its .meta), then checked in batch: no compile errors. The only import errors were Beach - resort's bag, ukulele and small-props models (their FBX files), which no venue uses and which are not kept.
+
+| Pack | Made in Unity | Draws in URP | Used for | In the project |
+|---|---|---|---|---|
+| Hawaii Beach House (PBR, HDRP) | 2022.2.2f1 | 51 of 52 after conversion (its HDRP materials moved to URP Lit) | the beach house, the pier's wood, the hills' moss, Asia's loungers | whole (80 MB) but its HDRP settings and sample scripts, so the house can be made again from its scene |
+| Beach - resort (Mixall) | 2021.3.15f1 | yes, 32 of 32 | lifeguard towers, umbrellas, deck chairs, longboards, palms | 19 MB of 281 (the rest unused: bags, sandals, toys, big normal maps) |
+| Rock and Boulders 2 | 2017.1.2f1 | 8 of 14 after conversion; the 6 not converted are its legacy blend materials, unused | every venue's rocks, headlands, islets, the sugarloaf | 73 MB of 312 (no snow variants, no demo) |
+| Pavilion (IG Blocks) | 2021.3.45f1 | 13 of 13 after conversion | Europe's promenade, Asia's resort, the desert resort's shade | 18 MB of 48 |
+| Colonial Ship (Nokobot) | 2017.3.1f1 | 19 of 19 after a fix (below) | Europe's ship | whole, 187 MB (one 95 MB model, 149,000 triangles) |
+| Yughues Free Sand Materials | 2022.3.60f1 | (textures only) | the sand's wind ripples | 3 MB: the one normal map used |
+
+- **The ship drew plain white:** URP's own upgrader moves built-in Autodesk Interactive materials to URP's Autodesk graph and drops their colour map. `PackUrpConvert` now moves them to URP Lit with their colour map, as it already did for HDRP Lit; the ship's materials were taken again from its download and converted.
+- **The beach house:** the pack has no house prefab, only a demo scene that builds one from 3,767 pieces, 1.4 million triangles. `BeachHouse` merges it into 13 meshes, one per material, with the 2,072 pieces under 15 cm left out (nails and screws), then cuts it with MeshReduce: 89,306 triangles near, 43,567 far (`proof/10/beach-house.txt`).
+- **Not used, and why:**
+  - Free Island Collection: five 44 MB Unity 5 terrains; the venues have terrains of their own.
+  - Island Assets (Lylek): a stylised demo island with sample scripts, and no islets.
+  - The four water packs (URP Stylized Water, ShoreLine, SUIMONO, WebGPU interactive water): the sea is the scene's, shared by every venue, and tinted per venue instead. A new water shader would be a change to every venue and a frame-rate risk in WebGL; SUIMONO is for the built-in pipeline, and the WebGPU water needs WebGPU.
+  - Sun & Sea Beach Materials: painted, not realistic (big cartoon shells and cracks).
+  - The four palm packs (Coconut Palm, Super Palm Pack (Mobile), Yughues Free Palm Trees, Palm Tree Pack Free): Rob's own palms (the light copies) and Beach - resort's cover it.
+  - Free General Ambience Sounds: 1.5 GB, and the court has no ambience player yet. **Every venue's missing piece.**
+  - 25 Free Realistic Textures: 1.3 GB; nothing a venue lacked.
+  - 3D Seashell (too small to see at match distance); Fast Buoyancy (the ship lies at anchor).
+
+**The sand textures** (`proof/10/sand-before-after.png`, the same shot of the court's surround):
+- Yughues' wind ripples as the relief of the venues' sand, over the island's own sand colours.
+- It is a small but real gain: the sand reads less flat close to the court. It costs no frame rate worth measuring: one normal map on the terrain's sand layer, no extra pass.
+- The island venue keeps its own sand (its ground is one mesh with its own material); the same ripples could go on it, for Rob to say.
+- The Sun & Sea sands were not used (above).
+
+**The frame rate at every time of day, and each bundle's size** (the WebGL build, headless Chrome on the PC's GPU, 1920 x 1080, an exhibition at each venue and time, 30 s in the TV look; `scripts/webgl-proof/venues-fps-10.mjs`, `proof/10/fps/`):
+- **Every venue holds the frame rate at every time of day: 55.5 to 57.2 fps, a median frame of 17.4 to 17.6 ms, the 95th at 18.1 to 18.2 ms.** That is headless Chrome's own ceiling on this PC (an empty page gets 56.3 fps, `proof/D2/fps/blank-page-fps.json`); the island measured 56.8 to 57.1 in D1. The new venues cost no frame rate this PC can show.
+- **Frames over 50 ms:** at most 3 in a 30 s run (about 1,700 frames), in 5 of the 24 runs; none at the others.
+- **Each run loaded the venue asked for** (no fallback to the island). The load is the bundle from the game's own files, 0.6 to 1.3 s; a download over a home line will take longer.
+- Pictures of every run (halved to 960 x 540 for the repository): `proof/10/fps/fps-VENUE-TIME.png`; the numbers: `proof/10/fps/summary.json`.
+
+| Venue | Time | fps | median ms | 95th ms | frames over 50 ms | bundle, load |
+|---|---|---|---|---|---|---|
+| oceania | morning | 56.5 | 17.6 | 18.2 | 3 | 81.1 MB, 1.3 s |
+| oceania | midday | 57.2 | 17.5 | 18.1 | 0 | 81.1 MB, 0.7 s |
+| oceania | sunset | 57.1 | 17.5 | 18.1 | 0 | 81.1 MB, 0.6 s |
+| oceania | night | 56.9 | 17.5 | 18.1 | 0 | 81.1 MB, 0.6 s |
+| north_america | morning | 57.1 | 17.5 | 18.1 | 0 | 84 MB, 0.7 s |
+| north_america | midday | 55.8 | 17.4 | 18.1 | 3 | 84 MB, 0.7 s |
+| north_america | sunset | 57.1 | 17.5 | 18.2 | 0 | 84 MB, 0.7 s |
+| north_america | night | 55.5 | 17.5 | 18.1 | 3 | 84 MB, 0.8 s |
+| south_america | morning | 56.5 | 17.5 | 18.2 | 0 | 69.4 MB, 0.6 s |
+| south_america | midday | 56 | 17.5 | 18.2 | 3 | 69.4 MB, 0.6 s |
+| south_america | sunset | 57.2 | 17.5 | 18.1 | 0 | 69.4 MB, 0.6 s |
+| south_america | night | 57 | 17.5 | 18.2 | 0 | 69.4 MB, 0.7 s |
+| europe | morning | 56.8 | 17.6 | 18.2 | 0 | 110.4 MB, 1 s |
+| europe | midday | 57.1 | 17.5 | 18.1 | 0 | 110.4 MB, 0.8 s |
+| europe | sunset | 57.1 | 17.5 | 18.2 | 0 | 110.4 MB, 0.9 s |
+| europe | night | 57.2 | 17.5 | 18.1 | 0 | 110.4 MB, 0.8 s |
+| asia | morning | 57.2 | 17.4 | 18.1 | 0 | 76.5 MB, 0.7 s |
+| asia | midday | 57.1 | 17.6 | 18.2 | 0 | 76.5 MB, 0.6 s |
+| asia | sunset | 57.1 | 17.5 | 18.1 | 0 | 76.5 MB, 0.7 s |
+| asia | night | 57.1 | 17.5 | 18.2 | 0 | 76.5 MB, 0.6 s |
+| africa_middle_east | morning | 57.2 | 17.5 | 18.1 | 0 | 71 MB, 0.7 s |
+| africa_middle_east | midday | 57 | 17.5 | 18.1 | 1 | 71 MB, 0.6 s |
+| africa_middle_east | sunset | 57.2 | 17.5 | 18.1 | 0 | 71 MB, 0.6 s |
+| africa_middle_east | night | 57 | 17.5 | 18.1 | 0 | 71 MB, 0.7 s |
+
+**Triangles** (every LOD level counted, from the court's own log): north_america 2.2 million (the twelve houses), south_america 3.7 million (the palms on the hills and the towers), europe 1.2 million, asia 1.1 million, africa_middle_east 1.1 million.
+
+**Demo 4:** packaged, **not installed** (as section 8: Rob installs it himself; the demo on this PC and its save folder untouched).
+- `C:\build\vbe-1.2-demo-2026-11-28b\Beach Volleyball Empire 1.2 Demo Setup 1.2.0-demo4.exe`, 808.6 MB (demo 3 was 458 MB: the five new venues' bundles add 351 MB).
+- The same demo app as demo 3 (its app id, its own save folder): it installs over demo 3 in place. Inside the package: version `1.2.0-demo4`, edition `demo`, all six venue bundles; the packaging's own checks passed (starter database alone, no `steam_appid.txt`, steamworks unpacked).
+- **The proof on the package's own files** (its server and pages, on a copy of the starter database; the app itself not opened, so no save folder was touched), every venue at midday, 15 s each (`proof/10/packaged/`): every match loaded its own venue from the package and played.
+
+| Venue | Time | fps | median ms | 95th ms | frames over 50 ms | bundle, load |
+|---|---|---|---|---|---|---|
+| oceania | midday | 56.9 | 17.5 | 18.2 | 1 | 81.1 MB, 1.3 s |
+| north_america | midday | 56.3 | 17.6 | 18.2 | 2 | 84 MB, 0.7 s |
+| south_america | midday | 57.3 | 17.4 | 18.1 | 0 | 69.4 MB, 0.6 s |
+| europe | midday | 56.8 | 17.6 | 18.2 | 0 | 110.4 MB, 0.8 s |
+| asia | midday | 57.2 | 17.5 | 18.2 | 0 | 76.5 MB, 0.7 s |
+| africa_middle_east | midday | 57 | 17.5 | 18.2 | 0 | 71 MB, 0.7 s |
+
+- `DEMO-CHECKLIST.md` is updated for demo 4: the venues and the commentary team at the top of what's new, the repeated pieces under what Rob may notice.
+

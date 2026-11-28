@@ -1,0 +1,6 @@
+SECTION 10: THE HAWAII BEACH HOUSE AS ONE LIGHT PREFAB
+  the demo scene's house: 3220 pieces, 1,349,466 triangles, 19.2 x 16.9 m, 6.1 m tall
+  left out: 2072 pieces under 15 cm (180,544 triangles: nails, screws and the like)
+  merged: 1148 pieces into 13 meshes, one per material, 1,168,922 triangles
+  near (over 25% of the screen's height): 89,306 triangles; far: 43,567 (worst shape error far 42.8%)
+  -> Assets/Venues/north_america/beach-house.prefab

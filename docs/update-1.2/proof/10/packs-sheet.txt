@@ -1,0 +1,16 @@
+  108,786 tris  19.05 x 5.91 x 16.76 m  Assets/Venues/north_america/beach-house.prefab
+   19,480 tris  17.84 x 5.62 x 15.81 m  Assets/Venues/north_america/beach-house.prefab
+    2,850 tris  1.70 x 3.54 x 1.53 m  Assets/Beach - resort/Models/Prefabs/Lifeguard.prefab
+    1,952 tris  3.44 x 3.61 x 3.37 m  Assets/Beach - resort/Models/Prefabs/SM_PalmTree_1.prefab
+    2,152 tris  2.11 x 5.38 x 2.14 m  Assets/Beach - resort/Models/Prefabs/SM_PalmTree_2.prefab
+    2,864 tris  1.81 x 1.60 x 1.81 m  Assets/Beach - resort/Models/Prefabs/Umbrella.prefab
+      834 tris  0.80 x 0.71 x 1.22 m  Assets/Beach - resort/Models/Prefabs/DeckChair.prefab
+      575 tris  0.87 x 2.95 x 0.32 m  Assets/Beach - resort/Models/Prefabs/Longboard.prefab
+   11,646 tris  6.57 x 4.42 x 11.32 m  Assets/IGBlocks/Pavilion/Prefabs/Pavilion.prefab
+  148,932 tris  24.81 x 66.77 x 105.23 m  Assets/Nokobot/ColonialShip/02_Prefabs/Colonial Ship.prefab
+      577 tris  10.81 x 9.42 x 12.41 m  Assets/Rocks and Boulders 2/Rocks/Prefabs/Rock1A.prefab
+      386 tris  4.93 x 3.97 x 5.30 m  Assets/Rocks and Boulders 2/Rocks/Prefabs/Rock4A.prefab
+      975 tris  11.54 x 14.25 x 8.40 m  Assets/Rocks and Boulders 2/Rocks/Prefabs/Rock5A.prefab
+      538 tris  10.91 x 4.85 x 10.78 m  Assets/Rocks and Boulders 2/Rocks/Prefabs/Rock6A.prefab
+   30,068 tris  8.23 x 0.88 x 4.72 m  Assets/Hawaii Beach House (PBR, HDRP)/Prefabs/5x4_floor.prefab
+    2,524 tris  1.75 x 1.45 x 0.95 m  Assets/Hawaii Beach House (PBR, HDRP)/Prefabs/sunbed Variant.prefab

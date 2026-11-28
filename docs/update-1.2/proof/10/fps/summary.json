@@ -1,0 +1,464 @@
+{
+  "ok": true,
+  "checks": [],
+  "shots": [
+    {
+      "name": "fps-oceania-morning.png",
+      "why": "oceania at morning, the TV look"
+    },
+    {
+      "name": "fps-oceania-midday.png",
+      "why": "oceania at midday, the TV look"
+    },
+    {
+      "name": "fps-oceania-sunset.png",
+      "why": "oceania at sunset, the TV look"
+    },
+    {
+      "name": "fps-oceania-night.png",
+      "why": "oceania at night, the TV look"
+    },
+    {
+      "name": "fps-north_america-morning.png",
+      "why": "north_america at morning, the TV look"
+    },
+    {
+      "name": "fps-north_america-midday.png",
+      "why": "north_america at midday, the TV look"
+    },
+    {
+      "name": "fps-north_america-sunset.png",
+      "why": "north_america at sunset, the TV look"
+    },
+    {
+      "name": "fps-north_america-night.png",
+      "why": "north_america at night, the TV look"
+    },
+    {
+      "name": "fps-south_america-morning.png",
+      "why": "south_america at morning, the TV look"
+    },
+    {
+      "name": "fps-south_america-midday.png",
+      "why": "south_america at midday, the TV look"
+    },
+    {
+      "name": "fps-south_america-sunset.png",
+      "why": "south_america at sunset, the TV look"
+    },
+    {
+      "name": "fps-south_america-night.png",
+      "why": "south_america at night, the TV look"
+    },
+    {
+      "name": "fps-europe-morning.png",
+      "why": "europe at morning, the TV look"
+    },
+    {
+      "name": "fps-europe-midday.png",
+      "why": "europe at midday, the TV look"
+    },
+    {
+      "name": "fps-europe-sunset.png",
+      "why": "europe at sunset, the TV look"
+    },
+    {
+      "name": "fps-europe-night.png",
+      "why": "europe at night, the TV look"
+    },
+    {
+      "name": "fps-asia-morning.png",
+      "why": "asia at morning, the TV look"
+    },
+    {
+      "name": "fps-asia-midday.png",
+      "why": "asia at midday, the TV look"
+    },
+    {
+      "name": "fps-asia-sunset.png",
+      "why": "asia at sunset, the TV look"
+    },
+    {
+      "name": "fps-asia-night.png",
+      "why": "asia at night, the TV look"
+    },
+    {
+      "name": "fps-africa_middle_east-morning.png",
+      "why": "africa_middle_east at morning, the TV look"
+    },
+    {
+      "name": "fps-africa_middle_east-midday.png",
+      "why": "africa_middle_east at midday, the TV look"
+    },
+    {
+      "name": "fps-africa_middle_east-sunset.png",
+      "why": "africa_middle_east at sunset, the TV look"
+    },
+    {
+      "name": "fps-africa_middle_east-night.png",
+      "why": "africa_middle_east at night, the TV look"
+    }
+  ],
+  "runs": [
+    {
+      "venue": "oceania",
+      "time": "morning",
+      "loadedVenue": "oceania",
+      "name": "Island Beach",
+      "loadSeconds": 1.3,
+      "bundleMB": 81.1,
+      "seconds": 30,
+      "frames": 1694,
+      "fps": 56.5,
+      "p50ms": 17.6,
+      "p95ms": 18.2,
+      "over50ms": 3,
+      "fallback": null
+    },
+    {
+      "venue": "oceania",
+      "time": "midday",
+      "loadedVenue": "oceania",
+      "name": "Island Beach",
+      "loadSeconds": 0.7,
+      "bundleMB": 81.1,
+      "seconds": 30,
+      "frames": 1716,
+      "fps": 57.2,
+      "p50ms": 17.5,
+      "p95ms": 18.1,
+      "over50ms": 0,
+      "fallback": null
+    },
+    {
+      "venue": "oceania",
+      "time": "sunset",
+      "loadedVenue": "oceania",
+      "name": "Island Beach",
+      "loadSeconds": 0.6,
+      "bundleMB": 81.1,
+      "seconds": 30,
+      "frames": 1714,
+      "fps": 57.1,
+      "p50ms": 17.5,
+      "p95ms": 18.1,
+      "over50ms": 0,
+      "fallback": null
+    },
+    {
+      "venue": "oceania",
+      "time": "night",
+      "loadedVenue": "oceania",
+      "name": "Island Beach",
+      "loadSeconds": 0.6,
+      "bundleMB": 81.1,
+      "seconds": 30,
+      "frames": 1706,
+      "fps": 56.9,
+      "p50ms": 17.5,
+      "p95ms": 18.1,
+      "over50ms": 0,
+      "fallback": null
+    },
+    {
+      "venue": "north_america",
+      "time": "morning",
+      "loadedVenue": "north_america",
+      "name": "Surf City Beach",
+      "loadSeconds": 0.7,
+      "bundleMB": 84,
+      "seconds": 30,
+      "frames": 1713,
+      "fps": 57.1,
+      "p50ms": 17.5,
+      "p95ms": 18.1,
+      "over50ms": 0,
+      "fallback": null
+    },
+    {
+      "venue": "north_america",
+      "time": "midday",
+      "loadedVenue": "north_america",
+      "name": "Surf City Beach",
+      "loadSeconds": 0.7,
+      "bundleMB": 84,
+      "seconds": 30,
+      "frames": 1673,
+      "fps": 55.8,
+      "p50ms": 17.4,
+      "p95ms": 18.1,
+      "over50ms": 3,
+      "fallback": null
+    },
+    {
+      "venue": "north_america",
+      "time": "sunset",
+      "loadedVenue": "north_america",
+      "name": "Surf City Beach",
+      "loadSeconds": 0.7,
+      "bundleMB": 84,
+      "seconds": 30,
+      "frames": 1714,
+      "fps": 57.1,
+      "p50ms": 17.5,
+      "p95ms": 18.2,
+      "over50ms": 0,
+      "fallback": null
+    },
+    {
+      "venue": "north_america",
+      "time": "night",
+      "loadedVenue": "north_america",
+      "name": "Surf City Beach",
+      "loadSeconds": 0.8,
+      "bundleMB": 84,
+      "seconds": 30,
+      "frames": 1664,
+      "fps": 55.5,
+      "p50ms": 17.5,
+      "p95ms": 18.1,
+      "over50ms": 3,
+      "fallback": null
+    },
+    {
+      "venue": "south_america",
+      "time": "morning",
+      "loadedVenue": "south_america",
+      "name": "Bay City Beach",
+      "loadSeconds": 0.6,
+      "bundleMB": 69.4,
+      "seconds": 30,
+      "frames": 1696,
+      "fps": 56.5,
+      "p50ms": 17.5,
+      "p95ms": 18.2,
+      "over50ms": 0,
+      "fallback": null
+    },
+    {
+      "venue": "south_america",
+      "time": "midday",
+      "loadedVenue": "south_america",
+      "name": "Bay City Beach",
+      "loadSeconds": 0.6,
+      "bundleMB": 69.4,
+      "seconds": 30,
+      "frames": 1680,
+      "fps": 56,
+      "p50ms": 17.5,
+      "p95ms": 18.2,
+      "over50ms": 3,
+      "fallback": null
+    },
+    {
+      "venue": "south_america",
+      "time": "sunset",
+      "loadedVenue": "south_america",
+      "name": "Bay City Beach",
+      "loadSeconds": 0.6,
+      "bundleMB": 69.4,
+      "seconds": 30,
+      "frames": 1716,
+      "fps": 57.2,
+      "p50ms": 17.5,
+      "p95ms": 18.1,
+      "over50ms": 0,
+      "fallback": null
+    },
+    {
+      "venue": "south_america",
+      "time": "night",
+      "loadedVenue": "south_america",
+      "name": "Bay City Beach",
+      "loadSeconds": 0.7,
+      "bundleMB": 69.4,
+      "seconds": 30,
+      "frames": 1711,
+      "fps": 57,
+      "p50ms": 17.5,
+      "p95ms": 18.2,
+      "over50ms": 0,
+      "fallback": null
+    },
+    {
+      "venue": "europe",
+      "time": "morning",
+      "loadedVenue": "europe",
+      "name": "Mediterranean Cove",
+      "loadSeconds": 1,
+      "bundleMB": 110.4,
+      "seconds": 30,
+      "frames": 1705,
+      "fps": 56.8,
+      "p50ms": 17.6,
+      "p95ms": 18.2,
+      "over50ms": 0,
+      "fallback": null
+    },
+    {
+      "venue": "europe",
+      "time": "midday",
+      "loadedVenue": "europe",
+      "name": "Mediterranean Cove",
+      "loadSeconds": 0.8,
+      "bundleMB": 110.4,
+      "seconds": 30,
+      "frames": 1714,
+      "fps": 57.1,
+      "p50ms": 17.5,
+      "p95ms": 18.1,
+      "over50ms": 0,
+      "fallback": null
+    },
+    {
+      "venue": "europe",
+      "time": "sunset",
+      "loadedVenue": "europe",
+      "name": "Mediterranean Cove",
+      "loadSeconds": 0.9,
+      "bundleMB": 110.4,
+      "seconds": 30,
+      "frames": 1713,
+      "fps": 57.1,
+      "p50ms": 17.5,
+      "p95ms": 18.2,
+      "over50ms": 0,
+      "fallback": null
+    },
+    {
+      "venue": "europe",
+      "time": "night",
+      "loadedVenue": "europe",
+      "name": "Mediterranean Cove",
+      "loadSeconds": 0.8,
+      "bundleMB": 110.4,
+      "seconds": 30,
+      "frames": 1714,
+      "fps": 57.2,
+      "p50ms": 17.5,
+      "p95ms": 18.1,
+      "over50ms": 0,
+      "fallback": null
+    },
+    {
+      "venue": "asia",
+      "time": "morning",
+      "loadedVenue": "asia",
+      "name": "Lagoon Resort",
+      "loadSeconds": 0.7,
+      "bundleMB": 76.5,
+      "seconds": 30,
+      "frames": 1717,
+      "fps": 57.2,
+      "p50ms": 17.4,
+      "p95ms": 18.1,
+      "over50ms": 0,
+      "fallback": null
+    },
+    {
+      "venue": "asia",
+      "time": "midday",
+      "loadedVenue": "asia",
+      "name": "Lagoon Resort",
+      "loadSeconds": 0.6,
+      "bundleMB": 76.5,
+      "seconds": 30,
+      "frames": 1712,
+      "fps": 57.1,
+      "p50ms": 17.6,
+      "p95ms": 18.2,
+      "over50ms": 0,
+      "fallback": null
+    },
+    {
+      "venue": "asia",
+      "time": "sunset",
+      "loadedVenue": "asia",
+      "name": "Lagoon Resort",
+      "loadSeconds": 0.7,
+      "bundleMB": 76.5,
+      "seconds": 30,
+      "frames": 1713,
+      "fps": 57.1,
+      "p50ms": 17.5,
+      "p95ms": 18.1,
+      "over50ms": 0,
+      "fallback": null
+    },
+    {
+      "venue": "asia",
+      "time": "night",
+      "loadedVenue": "asia",
+      "name": "Lagoon Resort",
+      "loadSeconds": 0.6,
+      "bundleMB": 76.5,
+      "seconds": 30,
+      "frames": 1714,
+      "fps": 57.1,
+      "p50ms": 17.5,
+      "p95ms": 18.2,
+      "over50ms": 0,
+      "fallback": null
+    },
+    {
+      "venue": "africa_middle_east",
+      "time": "morning",
+      "loadedVenue": "africa_middle_east",
+      "name": "Desert Coast",
+      "loadSeconds": 0.7,
+      "bundleMB": 71,
+      "seconds": 30,
+      "frames": 1715,
+      "fps": 57.2,
+      "p50ms": 17.5,
+      "p95ms": 18.1,
+      "over50ms": 0,
+      "fallback": null
+    },
+    {
+      "venue": "africa_middle_east",
+      "time": "midday",
+      "loadedVenue": "africa_middle_east",
+      "name": "Desert Coast",
+      "loadSeconds": 0.6,
+      "bundleMB": 71,
+      "seconds": 30,
+      "frames": 1711,
+      "fps": 57,
+      "p50ms": 17.5,
+      "p95ms": 18.1,
+      "over50ms": 1,
+      "fallback": null
+    },
+    {
+      "venue": "africa_middle_east",
+      "time": "sunset",
+      "loadedVenue": "africa_middle_east",
+      "name": "Desert Coast",
+      "loadSeconds": 0.6,
+      "bundleMB": 71,
+      "seconds": 30,
+      "frames": 1715,
+      "fps": 57.2,
+      "p50ms": 17.5,
+      "p95ms": 18.1,
+      "over50ms": 0,
+      "fallback": null
+    },
+    {
+      "venue": "africa_middle_east",
+      "time": "night",
+      "loadedVenue": "africa_middle_east",
+      "name": "Desert Coast",
+      "loadSeconds": 0.7,
+      "bundleMB": 71,
+      "seconds": 30,
+      "frames": 1710,
+      "fps": 57,
+      "p50ms": 17.5,
+      "p95ms": 18.1,
+      "over50ms": 0,
+      "fallback": null
+    }
+  ]
+}

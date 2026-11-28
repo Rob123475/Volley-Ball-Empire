@@ -1,0 +1,1541 @@
+4.6s [UnityMemory] Configuration Parameters - Can be set up in boot.config
+4.6s     "memorysetup-allocator-temp-initial-block-size-main=262144"
+4.6s     "memorysetup-allocator-temp-initial-block-size-worker=262144"
+4.6s     "memorysetup-temp-allocator-size-audio-worker=65536"
+4.6s     "memorysetup-temp-allocator-size-background-worker=32768"
+4.6s     "memorysetup-bucket-allocator-granularity=16"
+4.6s     "memorysetup-bucket-allocator-bucket-count=8"
+4.6s     "memorysetup-bucket-allocator-block-size=4194304"
+4.6s     "memorysetup-bucket-allocator-block-count=1"
+4.6s     "memorysetup-main-allocator-block-size=16777216"
+4.6s     "memorysetup-thread-allocator-block-size=16777216"
+4.6s     "memorysetup-gfx-main-allocator-block-size=16777216"
+4.6s     "memorysetup-gfx-thread-allocator-block-size=16777216"
+4.6s     "memorysetup-cache-allocator-block-size=4194304"
+4.6s     "memorysetup-typetree-allocator-block-size=2097152"
+4.6s     "memorysetup-profiler-bucket-allocator-granularity=16"
+4.6s     "memorysetup-profiler-bucket-allocator-bucket-count=8"
+4.6s     "memorysetup-profiler-bucket-allocator-block-size=4194304"
+4.6s     "memorysetup-profiler-bucket-allocator-block-count=1"
+4.6s     "memorysetup-profiler-allocator-block-size=16777216"
+4.6s     "memorysetup-profiler-editor-allocator-block-size=1048576"
+4.6s     "memorysetup-temp-allocator-size-main=4194304"
+4.6s     "memorysetup-job-temp-allocator-block-size=2097152"
+4.6s     "memorysetup-job-temp-allocator-block-size-background=1048576"
+4.6s     "memorysetup-job-temp-allocator-reduction-small-platforms=262144"
+4.6s Input System module state changed to: Initialized.
+4.6s [Physics::Module] Initialized fallback backend.
+4.6s [Physics::Module] Id: 0xdecafbad
+4.6s Loading player data from data.unity3d
+4.6s Initialize engine version: 6000.3.16f1 (a56f230f6470)
+4.6s [Subsystems] Discovering subsystems at path UnitySubsystems
+4.6s Creating WebGL 2.0 context.
+4.6s Renderer: WebKit WebGL
+4.6s Vendor:   WebKit
+4.6s Version:  OpenGL ES 3.0 (WebGL 2.0 (OpenGL ES 3.0 Chromium))
+4.6s GLES:     3
+4.6s  EXT_clip_control EXT_color_buffer_float EXT_color_buffer_half_float EXT_conservative_depth EXT_depth_clamp EXT_disjoint_timer_query_webgl2 EXT_float_blend EXT_polygon_offset_clamp EXT_render_snorm EXT_texture_compression_bptc EXT_texture_compression_rgtc EXT_texture_filter_anisotropic EXT_texture_mirror_clamp_to_edge EXT_texture_norm16 KHR_parallel_shader_compile NV_shader_noperspective_interpolation OES_draw_buffers_indexed OES_sample_variables OES_shader_multisample_interpolation OES_texture_float_linear OVR_multiview2 WEBGL_blend_func_extended WEBGL_clip_cull_distance WEBGL_compressed_texture_s3tc WEBGL_compressed_texture_s3tc_srgb WEBGL_debug_renderer_info WEBGL_debug_shaders WEBGL_lose_context WEBGL_multi_draw WEBGL_polygon_mode WEBGL_provoking_vertex WEBGL_shader_pixel_local_storage WEBGL_stencil_texturing GL_EXT_clip_control GL_EXT_color_buffer_float GL_EXT_color_buffer_half_float GL_EXT_conservative_depth GL_EXT_depth_clamp GL_EXT_disjoint_timer_query_webgl2 GL_EXT_float_blend GL_EXT_polygon_offset_
+4.6s clamp GL_EXT_render_snorm GL_EXT_texture_compression_bptc GL_EXT_texture_compression_rgtc GL_EXT_texture_filter_anisotropic GL_EXT_texture_mirror_clamp_to_edge GL_EXT_texture_norm16 GL_KHR_parallel_shader_compile GL_NV_shader_noperspective_interpolation GL_OES_draw_buffers_indexed GL_OES_sample_variables GL_OES_shader_multisample_interpolation GL_OES_texture_float_linear GL_OVR_multiview2 GL_WEBGL_blend_func_extended GL_WEBGL_clip_cull_distance GL_WEBGL_compressed_texture_s3tc GL_WEBGL_compressed_texture_s3tc_srgb GL_WEBGL_debug_renderer_info GL_WEBGL_debug_shaders GL_WEBGL_lose_context GL_WEBGL_multi_draw GL_WEBGL_polygon_mode GL_WEBGL_provoking_vertex GL_WEBGL_shader_pixel_local_storage GL_WEBGL_stencil_texturing
+4.6s OPENGL LOG: Creating OpenGL ES 3.0 graphics device ; Context level  <OpenGL ES 3.0> ; Context handle 1
+4.7s [Physics::Module] Selected backend.
+4.7s [Physics::Module] Name: PhysX
+4.7s [Physics::Module] Id: 0xf2b8ea05
+4.7s [Physics::Module] SDK Version: 4.1.2
+4.7s [Physics::Module] Integration Version: 1.0.0
+4.7s [Physics::Module] Threading Mode: Single-Threaded
+4.7s ERROR: Shader 
+4.7s Hidden/CoreSRP/CoreCopy shader is not supported on this GPU (none of subshaders/fallbacks are suitable)
+4.7s ERROR: Shader 
+4.7s Hidden/Universal Render Pipeline/StencilDitherMaskSeed shader is not supported on this GPU (none of subshaders/fallbacks are suitable)
+4.7s ERROR: Shader 
+4.7s Hidden/Universal/HDRDebugView shader is not supported on this GPU (none of subshaders/fallbacks are suitable)
+4.7s <b>[App UI]</b> Unable to find an AppUISettings instance, creating a default one...
+4.8s Input System initialize...
+5.0s Couldn't create a Convex Mesh from source mesh, within the maximum polygons limit (256). The partial hull will be used. Consider simplifying your mesh. Source mesh name: SM_rack_balls_Volleyball_1
+5.5s UnloadTime: 1.000000 ms
+5.5s [CourtsideBoards] 18 boards dressed around the court: 9 Beach Volleyball Empire, 9 GB Sunglasses
+5.5s Audio context resumed after 0.887 seconds.
+5.6s [Sound] crowd volume 1.00
+5.6s [Sound] commentary volume 1.00
+5.6s [Camera] remembered looks from the page: played game:1, watched tv:1
+5.6s [Between points] from the page: skip to next serve off, skip replays off
+6.0s [UnityCache] 'http://localhost:4251/unity-build/Build/Volleyball_WebGL_Uncompressed_2.data' successfully downloaded and stored in the browser cache
+7.6s [BoostUIController] Created Polished Attack and Defence boost buttons.
+7.6s [MatchManager] AudioManager initialized.
+7.6s [UnityMatchDataLoader] GET /api/unity/exhibition-state?id=70f12b57-0944-4a60-a800-24d3689a4822
+7.6s WEATHER SUNNY
+7.6s Trying to get length of sound which is not loaded yet.
+7.6s Trying to get length of sound which is not loaded yet.
+7.6s [Director] Serve: beside the server
+7.7s The character with Unicode value \u2600 was not found in the [LiberationSans SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [WeatherText].
+8.3s [UnityMatchDataLoader] point chance for the home pair: 0.5041
+8.3s [UnityMatchDataLoader] continent oceania, time of day midday, weather sunny
+8.3s [UnityMatchDataLoader] game difficulty medium (a played match grades and plays at it)
+8.3s [UnityMatchDataLoader] event (null), kits (null), boards (null) '(null)', manual not allowed
+8.3s [UnityMatchDataLoader] Player_A1: skin 'Medium' resolved via band 'Medium' -> #AA7339
+8.3s [UnityMatchDataLoader] Player_A1 <- Annika Bauer | team Berlin Sand Queens (home) | skinTone Medium | kit #5B2C83/#6CC5F0 | appearance controller found | applied ovr 84 pwr 80 spd 84 def 88 srv 86 blk 85 sta 82 mor 75 fit 100 fat 0 | (not applied: injured False)
+8.3s [UnityMatchDataLoader] Player_A2: skin 'Medium' resolved via band 'Medium' -> #AA7339
+8.3s [UnityMatchDataLoader] Player_A2 <- Sophie Müller | team Berlin Sand Queens (home) | skinTone Medium | kit #5B2C83/#6CC5F0 | appearance controller found | applied ovr 83 pwr 74 spd 88 def 90 srv 82 blk 76 sta 86 mor 75 fit 100 fat 0 | (not applied: injured False)
+8.3s [UnityMatchDataLoader] Player_B1: skin 'Medium Dark' resolved via band 'Medium Dark' -> #7A4626
+8.3s [UnityMatchDataLoader] Player_B1 <- María Alonso | team Barcelona Playa Elites (away) | skinTone Medium Dark | kit #00A3AD/#0B2545 | appearance controller found | applied ovr 81 pwr 78 spd 82 def 84 srv 84 blk 80 sta 80 mor 75 fit 100 fat 0 | (not applied: injured False)
+8.3s [UnityMatchDataLoader] Player_B2: skin 'Medium' resolved via band 'Medium' -> #AA7339
+8.3s [UnityMatchDataLoader] Player_B2 <- Carmen Ruiz | team Barcelona Playa Elites (away) | skinTone Medium | kit #00A3AD/#0B2545 | appearance controller found | applied ovr 82 pwr 76 spd 86 def 86 srv 80 blk 78 sta 84 mor 75 fit 100 fat 0 | (not applied: injured False)
+8.3s [UnityMatchDataLoader] team names: BERLIN SAND QUEENS (home) vs BARCELONA PLAYA ELITES (away)
+8.3s [UnityMatchDataLoader] applied 4 of 4 player(s)
+8.3s [UnityMatchDataLoader] exhibition: Player_A1 (Annika Bauer) seat AI; wears 
+8.3s [UnityMatchDataLoader] exhibition: Player_A2 (Sophie Müller) seat AI; wears 
+8.3s [UnityMatchDataLoader] exhibition: Player_B1 (María Alonso) seat AI; wears 
+8.3s [UnityMatchDataLoader] exhibition: Player_B2 (Carmen Ruiz) seat AI; wears 
+8.3s [Team] the booth: Kailey and Hukum, no guest; the sideline reporter on
+8.3s Trying to get length of sound which is not loaded yet.
+8.3s Trying to get length of sound which is not loaded yet.
+8.3s Trying to get length of sound which is not loaded yet.
+8.3s Trying to get length of sound which is not loaded yet.
+8.3s Trying to get length of sound which is not loaded yet.
+8.4s Trying to get length of sound which is not loaded yet.
+8.4s Trying to get length of sound which is not loaded yet.
+8.4s Trying to get length of sound which is not loaded yet.
+8.4s Trying to get length of sound which is not loaded yet.
+8.4s Trying to get length of sound which is not loaded yet.
+8.5s Trying to get length of sound which is not loaded yet.
+8.5s Trying to get length of sound which is not loaded yet.
+8.5s Trying to get length of sound which is not loaded yet.
+8.5s Trying to get length of sound which is not loaded yet.
+8.5s Trying to get length of sound which is not loaded yet.
+8.6s Trying to get length of sound which is not loaded yet.
+8.6s Trying to get length of sound which is not loaded yet.
+8.6s Trying to get length of sound which is not loaded yet.
+8.6s Trying to get length of sound which is not loaded yet.
+8.7s Trying to get length of sound which is not loaded yet.
+8.8s Trying to get length of sound which is not loaded yet.
+8.8s Trying to get length of sound which is not loaded yet.
+8.9s Trying to get length of sound which is not loaded yet.
+8.9s Trying to get length of sound which is not loaded yet.
+8.9s [Venue] oceania (Island Beach) in after 1.3s, 81.1 MB; features on 8, off 1
+8.9s WEATHER SUNNY
+8.9s [TimeOfDay] Midday in Sunny: sun 50 degrees up, intensity 2.00, shadows 1.00; floodlights off
+8.9s [TimeOfDay] Midday in Sunny: sun 50 degrees up, intensity 2.00, shadows 1.00; floodlights off
+8.9s [Camera] keep-out rebuilt for the venue: 447 boxes, 419 of them props
+8.9s [MatchManager] match starts after 4.1s: match data applied; home point chance 0.5041
+8.9s [MatchManager] ratings in play Player_A1 (Annika Bauer): ovr 84 pwr 80 spd 84 def 88 srv 86 blk 85 sta 82 mor 75
+8.9s [MatchManager] ratings in play Player_A2 (Sophie Müller): ovr 83 pwr 74 spd 88 def 90 srv 82 blk 76 sta 86 mor 75
+8.9s [MatchManager] ratings in play Player_B1 (María Alonso): ovr 81 pwr 78 spd 82 def 84 srv 84 blk 80 sta 80 mor 75
+8.9s [MatchManager] ratings in play Player_B2 (Carmen Ruiz): ovr 82 pwr 76 spd 86 def 86 srv 80 blk 78 sta 84 mor 75
+8.9s [Director] cutaway: the walk-on (5.5 s)
+9.5s [Crowd] 34 real people in the front 1 row(s), 170 cards behind, 24 bystanders; 64 team fans (A #5B2C83, B #00A3AD); 42 different people; cards baked in 173 ms
+9.5s [Team] walk-on: Nicole Dupont S_walkon_1.mp3 "Bonjour from the sand! The players are on their way out, and this crowd is ready." -> not recorded: skipped in silence
+9.5s [Booth] seat 1: Kailey (casual15_f_highpoly); seat 2: empty (no guest); seat 3: Hukum (Man_33); on the sand: Nicole Dupont (business01_f_highpoly), a microphone in her hand
+9.5s [CrowdBanners] 10 banners up (GO BERLIN SAND QUEENS! | GO BARCELONA PLAYA ELITES! | ACE IT! | BLOCK PARTY | DIG DEEP | SET. SPIKE. SCORE. | SUN'S OUT, SPIKES OUT | NO SAND, NO GLORY | SIDE OUT! | BEACH VOLLEYBALL FOREVER)
+9.5s Trying to get length of sound which is not loaded yet.
+9.6s Trying to get length of sound which is not loaded yet.
+9.6s Trying to get length of sound which is not loaded yet.
+9.6s Trying to get length of sound which is not loaded yet.
+9.6s Trying to get length of sound which is not loaded yet.
+9.7s Trying to get length of sound which is not loaded yet.
+9.7s Trying to get length of sound which is not loaded yet.
+9.7s Trying to get length of sound which is not loaded yet.
+9.7s Trying to get length of sound which is not loaded yet.
+9.8s Trying to get length of sound which is not loaded yet.
+9.8s Trying to get length of sound which is not loaded yet.
+9.8s Trying to get length of sound which is not loaded yet.
+9.8s Trying to get length of sound which is not loaded yet.
+9.9s Trying to get length of sound which is not loaded yet.
+9.9s Trying to get length of sound which is not loaded yet.
+9.9s Trying to get length of sound which is not loaded yet.
+10.0s Trying to get length of sound which is not loaded yet.
+10.0s [Team] 57 team lines in TEAM.json (15 for Nicole Dupont, 17 for Roxy Calderwood, 17 for Kai Brennock, 6 hand-overs); 0 recorded
+10.0s Trying to get length of sound which is not loaded yet.
+10.0s Trying to get length of sound which is not loaded yet.
+10.0s Trying to get length of sound which is not loaded yet.
+10.0s Trying to get length of sound which is not loaded yet.
+10.1s Trying to get length of sound which is not loaded yet.
+10.1s Trying to get length of sound which is not loaded yet.
+10.1s Trying to get length of sound which is not loaded yet.
+10.1s [Commentary] 48 of 90 clips loaded from http://localhost:4251/unity-build/StreamingAssets/commentary: the 48 its LINES.txt lists (48 recorded before 1.2; B4's 42 are Rob's to record)
+10.6s [UnityCache] 'http://localhost:4251/unity-build/StreamingAssets/Venues/venue-oceania.bundle' successfully downloaded and stored in the browser cache
+13.7s [Director] cutaway: the walk-on: Player_A1 (1.5 s)
+15.2s [Director] cutaway: the walk-on: Player_A2 (1.5 s)
+16.7s [Director] cutaway: the walk-on: Player_B1 (1.5 s)
+18.2s [Director] cutaway: the walk-on: Player_B2 (1.5 s)
+19.7s [Match moments] walk-on took 10.7 s
+19.7s [Director] Serve: low off the sand
+20.0s [Point] decided: BERLIN SAND QUEENS by Kill (server A, final attack by A after 4, chance 0.504)
+20.0s RATING CHECK: Player_B2 Movement 178 SpeedMult:2.28
+20.0s RATING CHECK: Player_A2 Serve 239 SpeedMult:2.10
+20.0s RALLY ACTION: TeamA Player_A2 1 Serve
+20.0s [MatchManager] jump heights: net top 2.24 m, spike lift 0.58 m, block lift 0.46 m
+20.3s [Director] Rally: end-on drift
+20.6s RATING CHECK: Player_B1 Movement 170 SpeedMult:2.20
+20.6s RATING CHECK: Player_B2 Dig 264 JitterMult:0.15
+20.6s RALLY ACTION: TeamB Player_B2 1 Dig
+21.0s RATING CHECK: Player_B2 Movement 178 SpeedMult:2.28
+21.0s RALLY ACTION: TeamB Player_B1 2 Set
+21.7s RATING CHECK: Player_A2 Movement 182 SpeedMult:2.32
+21.7s RATING CHECK: Player_A2 Block 224 Outcome:Touch
+21.7s BLOCK ATTEMPT: Player_A2
+21.7s RATING CHECK: Player_B2 Spike 250 SpeedMult:2.17
+21.7s RALLY ACTION: TeamB Player_B2 3 Spike
+21.8s BLOCK TOUCH: Player_A2
+21.8s [COMMENTARY] Touch! Player_A2 got a hand on the ball, slowing it down. The rally continues!
+21.9s RATING CHECK: Player_A1 Movement 174 SpeedMult:2.24
+21.9s RATING CHECK: Player_A2 Dig 272 JitterMult:0.15
+21.9s RALLY ACTION: TeamA Player_A2 1 Dig
+22.6s RATING CHECK: Player_A2 Movement 182 SpeedMult:2.32
+22.6s RALLY ACTION: TeamA Player_A1 2 Set
+23.4s RATING CHECK: Player_B2 Movement 178 SpeedMult:2.28
+23.4s RATING CHECK: Player_B2 Block 225 Outcome:Controlled
+23.4s BLOCK ATTEMPT: Player_B2
+23.4s RATING CHECK: Player_A2 Spike 251 SpeedMult:2.18
+23.4s RALLY ACTION: TeamA Player_A2 3 Spike
+23.5s BLOCK SUCCESS: Player_B2
+23.5s [COMMENTARY] Controlled block! Player_B2 rebounded the ball back to the attacker's side!
+24.4s RATING CHECK: Player_A2 Movement 182 SpeedMult:2.32
+24.4s RALLY ACTION: TeamA Player_A1 2 Set
+25.1s RATING CHECK: Player_B2 Movement 178 SpeedMult:2.28
+25.1s RATING CHECK: Player_B2 Block 225 Outcome:Touch
+25.1s BLOCK ATTEMPT: Player_B2
+25.1s RATING CHECK: Player_A2 Spike 251 SpeedMult:2.18
+25.1s RALLY ACTION: TeamA Player_A2 3 Spike
+25.2s BLOCK TOUCH: Player_B2
+25.2s [COMMENTARY] Touch! Player_B2 got a hand on the ball, slowing it down. The rally continues!
+25.3s RATING CHECK: Player_B1 Movement 170 SpeedMult:2.20
+25.3s RATING CHECK: Player_B2 Dig 264 JitterMult:0.15
+25.4s RALLY ACTION: TeamB Player_B2 1 Dig
+26.0s RATING CHECK: Player_B2 Movement 178 SpeedMult:2.28
+26.0s RALLY ACTION: TeamB Player_B1 2 Set
+27.0s RATING CHECK: Player_A2 Movement 182 SpeedMult:2.32
+27.0s RATING CHECK: Player_A2 Block 224 Outcome:Controlled
+27.0s BLOCK ATTEMPT: Player_A2
+27.0s RATING CHECK: Player_B2 Spike 250 SpeedMult:2.17
+27.0s RALLY ACTION: TeamB Player_B2 3 Spike
+27.1s BLOCK SUCCESS: Player_A2
+27.1s [COMMENTARY] Controlled block! Player_A2 rebounded the ball back to the attacker's side!
+28.1s RATING CHECK: Player_B2 Movement 178 SpeedMult:2.28
+28.1s RALLY ACTION: TeamB Player_B1 2 Set
+28.8s RATING CHECK: Player_A2 Movement 182 SpeedMult:2.32
+28.8s RATING CHECK: Player_A2 Block 224 Outcome:Controlled
+28.8s BLOCK ATTEMPT: Player_A2
+28.8s RATING CHECK: Player_B2 Spike 250 SpeedMult:2.17
+28.8s RALLY ACTION: TeamB Player_B2 3 Spike
+28.9s BLOCK SUCCESS: Player_A2
+28.9s [COMMENTARY] Controlled block! Player_A2 rebounded the ball back to the attacker's side!
+29.3s RATING CHECK: Player_B2 Movement 178 SpeedMult:2.28
+29.4s RALLY ACTION: TeamB Player_B1 2 Set
+30.1s RATING CHECK: Player_A2 Movement 182 SpeedMult:2.32
+30.1s RATING CHECK: Player_A2 Block 224 Outcome:Controlled
+30.2s BLOCK ATTEMPT: Player_A2
+30.2s RATING CHECK: Player_B2 Spike 250 SpeedMult:2.17
+30.2s RALLY ACTION: TeamB Player_B2 3 Spike
+30.3s BLOCK SUCCESS: Player_A2
+30.3s [COMMENTARY] Controlled block! Player_A2 rebounded the ball back to the attacker's side!
+31.5s RATING CHECK: Player_B2 Movement 178 SpeedMult:2.28
+31.5s RALLY ACTION: TeamB Player_B1 2 Set
+32.2s RATING CHECK: Player_A2 Movement 182 SpeedMult:2.32
+32.2s RATING CHECK: Player_A2 Block 224 Outcome:Controlled
+32.2s BLOCK ATTEMPT: Player_A2
+32.2s RATING CHECK: Player_B2 Spike 250 SpeedMult:2.17
+32.2s RALLY ACTION: TeamB Player_B2 3 Spike
+32.2s BLOCK SUCCESS: Player_A2
+32.2s [COMMENTARY] Controlled block! Player_A2 rebounded the ball back to the attacker's side!
+32.7s RATING CHECK: Player_B2 Movement 178 SpeedMult:2.28
+32.7s RALLY ACTION: TeamB Player_B1 2 Set
+33.4s RATING CHECK: Player_A2 Movement 182 SpeedMult:2.32
+33.4s RATING CHECK: Player_A2 Block 224 Outcome:Controlled
+33.4s BLOCK ATTEMPT: Player_A2
+33.4s RATING CHECK: Player_B2 Spike 250 SpeedMult:2.17
+33.4s RALLY ACTION: TeamB Player_B2 3 Spike
+33.5s BLOCK SUCCESS: Player_A2
+33.5s [COMMENTARY] Controlled block! Player_A2 rebounded the ball back to the attacker's side!
+34.4s RATING CHECK: Player_B2 Movement 178 SpeedMult:2.28
+34.4s RALLY ACTION: TeamB Player_B1 2 Set
+35.2s RATING CHECK: Player_A2 Movement 182 SpeedMult:2.32
+35.2s RATING CHECK: Player_A2 Block 224 Outcome:Controlled
+35.2s BLOCK ATTEMPT: Player_A2
+35.2s RATING CHECK: Player_B2 Spike 250 SpeedMult:2.17
+35.2s RALLY ACTION: TeamB Player_B2 3 Spike
+35.3s BLOCK SUCCESS: Player_A2
+35.3s [COMMENTARY] Controlled block! Player_A2 rebounded the ball back to the attacker's side!
+36.3s RATING CHECK: Player_B2 Movement 178 SpeedMult:2.28
+36.3s RALLY ACTION: TeamB Player_B1 2 Set
+37.1s RATING CHECK: Player_A2 Movement 182 SpeedMult:2.32
+37.1s RATING CHECK: Player_A2 Block 224 Outcome:Controlled
+37.1s BLOCK ATTEMPT: Player_A2
+37.1s RATING CHECK: Player_B2 Spike 250 SpeedMult:2.17
+37.1s RALLY ACTION: TeamB Player_B2 3 Spike
+37.2s BLOCK SUCCESS: Player_A2
+37.2s [COMMENTARY] Controlled block! Player_A2 rebounded the ball back to the attacker's side!
+38.5s RATING CHECK: Player_B2 Movement 178 SpeedMult:2.28
+38.5s RALLY ACTION: TeamB Player_B1 2 Set
+40.0s [UnityMemory] Configuration Parameters - Can be set up in boot.config
+40.0s     "memorysetup-allocator-temp-initial-block-size-main=262144"
+40.0s     "memorysetup-allocator-temp-initial-block-size-worker=262144"
+40.0s     "memorysetup-temp-allocator-size-audio-worker=65536"
+40.0s     "memorysetup-temp-allocator-size-background-worker=32768"
+40.0s     "memorysetup-bucket-allocator-granularity=16"
+40.0s     "memorysetup-bucket-allocator-bucket-count=8"
+40.0s     "memorysetup-bucket-allocator-block-size=4194304"
+40.0s     "memorysetup-bucket-allocator-block-count=1"
+40.0s     "memorysetup-main-allocator-block-size=16777216"
+40.0s     "memorysetup-thread-allocator-block-size=16777216"
+40.0s     "memorysetup-gfx-main-allocator-block-size=16777216"
+40.0s     "memorysetup-gfx-thread-allocator-block-size=16777216"
+40.0s     "memorysetup-cache-allocator-block-size=4194304"
+40.0s     "memorysetup-typetree-allocator-block-size=2097152"
+40.0s     "memorysetup-profiler-bucket-allocator-granularity=16"
+40.0s     "memorysetup-profiler-bucket-allocator-bucket-count=8"
+40.0s     "memorysetup-profiler-bucket-allocator-block-size=4194304"
+40.1s     "memorysetup-profiler-bucket-allocator-block-count=1"
+40.1s     "memorysetup-profiler-allocator-block-size=16777216"
+40.1s     "memorysetup-profiler-editor-allocator-block-size=1048576"
+40.1s     "memorysetup-temp-allocator-size-main=4194304"
+40.1s     "memorysetup-job-temp-allocator-block-size=2097152"
+40.1s     "memorysetup-job-temp-allocator-block-size-background=1048576"
+40.1s     "memorysetup-job-temp-allocator-reduction-small-platforms=262144"
+40.1s Input System module state changed to: Initialized.
+40.1s [Physics::Module] Initialized fallback backend.
+40.1s [Physics::Module] Id: 0xdecafbad
+40.1s Loading player data from data.unity3d
+40.1s Initialize engine version: 6000.3.16f1 (a56f230f6470)
+40.1s [Subsystems] Discovering subsystems at path UnitySubsystems
+40.1s Creating WebGL 2.0 context.
+40.1s Renderer: WebKit WebGL
+40.1s Vendor:   WebKit
+40.1s Version:  OpenGL ES 3.0 (WebGL 2.0 (OpenGL ES 3.0 Chromium))
+40.1s GLES:     3
+40.1s  EXT_clip_control EXT_color_buffer_float EXT_color_buffer_half_float EXT_conservative_depth EXT_depth_clamp EXT_disjoint_timer_query_webgl2 EXT_float_blend EXT_polygon_offset_clamp EXT_render_snorm EXT_texture_compression_bptc EXT_texture_compression_rgtc EXT_texture_filter_anisotropic EXT_texture_mirror_clamp_to_edge EXT_texture_norm16 KHR_parallel_shader_compile NV_shader_noperspective_interpolation OES_draw_buffers_indexed OES_sample_variables OES_shader_multisample_interpolation OES_texture_float_linear OVR_multiview2 WEBGL_blend_func_extended WEBGL_clip_cull_distance WEBGL_compressed_texture_s3tc WEBGL_compressed_texture_s3tc_srgb WEBGL_debug_renderer_info WEBGL_debug_shaders WEBGL_lose_context WEBGL_multi_draw WEBGL_polygon_mode WEBGL_provoking_vertex WEBGL_shader_pixel_local_storage WEBGL_stencil_texturing GL_EXT_clip_control GL_EXT_color_buffer_float GL_EXT_color_buffer_half_float GL_EXT_conservative_depth GL_EXT_depth_clamp GL_EXT_disjoint_timer_query_webgl2 GL_EXT_float_blend GL_EXT_polygon_offset_
+40.1s clamp GL_EXT_render_snorm GL_EXT_texture_compression_bptc GL_EXT_texture_compression_rgtc GL_EXT_texture_filter_anisotropic GL_EXT_texture_mirror_clamp_to_edge GL_EXT_texture_norm16 GL_KHR_parallel_shader_compile GL_NV_shader_noperspective_interpolation GL_OES_draw_buffers_indexed GL_OES_sample_variables GL_OES_shader_multisample_interpolation GL_OES_texture_float_linear GL_OVR_multiview2 GL_WEBGL_blend_func_extended GL_WEBGL_clip_cull_distance GL_WEBGL_compressed_texture_s3tc GL_WEBGL_compressed_texture_s3tc_srgb GL_WEBGL_debug_renderer_info GL_WEBGL_debug_shaders GL_WEBGL_lose_context GL_WEBGL_multi_draw GL_WEBGL_polygon_mode GL_WEBGL_provoking_vertex GL_WEBGL_shader_pixel_local_storage GL_WEBGL_stencil_texturing
+40.1s OPENGL LOG: Creating OpenGL ES 3.0 graphics device ; Context level  <OpenGL ES 3.0> ; Context handle 1
+40.1s [Physics::Module] Selected backend.
+40.1s [Physics::Module] Name: PhysX
+40.1s [Physics::Module] Id: 0xf2b8ea05
+40.1s [Physics::Module] SDK Version: 4.1.2
+40.1s [Physics::Module] Integration Version: 1.0.0
+40.1s [Physics::Module] Threading Mode: Single-Threaded
+40.1s ERROR: Shader 
+40.1s Hidden/CoreSRP/CoreCopy shader is not supported on this GPU (none of subshaders/fallbacks are suitable)
+40.1s ERROR: Shader 
+40.1s Hidden/Universal Render Pipeline/StencilDitherMaskSeed shader is not supported on this GPU (none of subshaders/fallbacks are suitable)
+40.1s ERROR: Shader 
+40.1s Hidden/Universal/HDRDebugView shader is not supported on this GPU (none of subshaders/fallbacks are suitable)
+40.1s <b>[App UI]</b> Unable to find an AppUISettings instance, creating a default one...
+40.1s Input System initialize...
+40.3s Couldn't create a Convex Mesh from source mesh, within the maximum polygons limit (256). The partial hull will be used. Consider simplifying your mesh. Source mesh name: SM_rack_balls_Volleyball_1
+40.7s UnloadTime: 0.200001 ms
+40.7s [CourtsideBoards] 18 boards dressed around the court: 9 Beach Volleyball Empire, 9 GB Sunglasses
+40.7s Audio context resumed after 0.637 seconds.
+40.7s [Sound] crowd volume 1.00
+40.7s [Sound] commentary volume 1.00
+40.7s [Camera] remembered looks from the page: played game:1, watched tv:1
+40.8s [Between points] from the page: skip to next serve off, skip replays off
+41.2s [UnityCache] 'http://localhost:4251/unity-build/Build/Volleyball_WebGL_Uncompressed_2.data' successfully downloaded and stored in the browser cache
+42.8s [BoostUIController] Created Polished Attack and Defence boost buttons.
+42.8s [MatchManager] AudioManager initialized.
+42.8s [UnityMatchDataLoader] GET /api/unity/exhibition-state?id=e4a7b01c-f011-4b58-bb84-fb3333ceff0b
+42.8s WEATHER SUNNY
+42.8s Trying to get length of sound which is not loaded yet.
+42.8s Trying to get length of sound which is not loaded yet.
+42.8s [Director] Serve: beside the server
+42.8s The character with Unicode value \u2600 was not found in the [LiberationSans SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [WeatherText].
+42.9s [UnityMatchDataLoader] point chance for the home pair: 0.5041
+42.9s [UnityMatchDataLoader] continent north_america, time of day midday, weather sunny
+42.9s [UnityMatchDataLoader] game difficulty medium (a played match grades and plays at it)
+42.9s [UnityMatchDataLoader] event (null), kits (null), boards (null) '(null)', manual not allowed
+42.9s [UnityMatchDataLoader] Player_A1: skin 'Medium' resolved via band 'Medium' -> #AA7339
+42.9s [UnityMatchDataLoader] Player_A1 <- Annika Bauer | team Berlin Sand Queens (home) | skinTone Medium | kit #5B2C83/#6CC5F0 | appearance controller found | applied ovr 84 pwr 80 spd 84 def 88 srv 86 blk 85 sta 82 mor 75 fit 100 fat 0 | (not applied: injured False)
+42.9s [UnityMatchDataLoader] Player_A2: skin 'Medium' resolved via band 'Medium' -> #AA7339
+42.9s [UnityMatchDataLoader] Player_A2 <- Sophie Müller | team Berlin Sand Queens (home) | skinTone Medium | kit #5B2C83/#6CC5F0 | appearance controller found | applied ovr 83 pwr 74 spd 88 def 90 srv 82 blk 76 sta 86 mor 75 fit 100 fat 0 | (not applied: injured False)
+42.9s [UnityMatchDataLoader] Player_B1: skin 'Medium Dark' resolved via band 'Medium Dark' -> #7A4626
+42.9s [UnityMatchDataLoader] Player_B1 <- María Alonso | team Barcelona Playa Elites (away) | skinTone Medium Dark | kit #00A3AD/#0B2545 | appearance controller found | applied ovr 81 pwr 78 spd 82 def 84 srv 84 blk 80 sta 80 mor 75 fit 100 fat 0 | (not applied: injured False)
+42.9s [UnityMatchDataLoader] Player_B2: skin 'Medium' resolved via band 'Medium' -> #AA7339
+42.9s [UnityMatchDataLoader] Player_B2 <- Carmen Ruiz | team Barcelona Playa Elites (away) | skinTone Medium | kit #00A3AD/#0B2545 | appearance controller found | applied ovr 82 pwr 76 spd 86 def 86 srv 80 blk 78 sta 84 mor 75 fit 100 fat 0 | (not applied: injured False)
+42.9s [UnityMatchDataLoader] team names: BERLIN SAND QUEENS (home) vs BARCELONA PLAYA ELITES (away)
+42.9s [UnityMatchDataLoader] applied 4 of 4 player(s)
+42.9s [UnityMatchDataLoader] exhibition: Player_A1 (Annika Bauer) seat AI; wears 
+43.0s [UnityMatchDataLoader] exhibition: Player_A2 (Sophie Müller) seat AI; wears 
+43.0s [UnityMatchDataLoader] exhibition: Player_B1 (María Alonso) seat AI; wears 
+43.0s [UnityMatchDataLoader] exhibition: Player_B2 (Carmen Ruiz) seat AI; wears 
+43.0s [Team] the booth: Kailey and Hukum, no guest; the sideline reporter on
+43.0s Trying to get length of sound which is not loaded yet.
+43.0s Trying to get length of sound which is not loaded yet.
+43.0s Trying to get length of sound which is not loaded yet.
+43.0s Trying to get length of sound which is not loaded yet.
+43.0s Trying to get length of sound which is not loaded yet.
+43.0s Trying to get length of sound which is not loaded yet.
+43.0s Trying to get length of sound which is not loaded yet.
+43.1s Trying to get length of sound which is not loaded yet.
+43.1s Trying to get length of sound which is not loaded yet.
+43.1s Trying to get length of sound which is not loaded yet.
+43.1s Trying to get length of sound which is not loaded yet.
+43.1s Trying to get length of sound which is not loaded yet.
+43.1s Trying to get length of sound which is not loaded yet.
+43.2s Trying to get length of sound which is not loaded yet.
+43.2s Trying to get length of sound which is not loaded yet.
+43.2s Trying to get length of sound which is not loaded yet.
+43.3s Trying to get length of sound which is not loaded yet.
+43.3s Trying to get length of sound which is not loaded yet.
+43.4s Trying to get length of sound which is not loaded yet.
+43.4s Trying to get length of sound which is not loaded yet.
+43.4s Trying to get length of sound which is not loaded yet.
+43.4s Trying to get length of sound which is not loaded yet.
+43.4s Trying to get length of sound which is not loaded yet.
+43.5s Trying to get length of sound which is not loaded yet.
+43.5s [Venue] north_america (Surf City Beach) in after 0.7s, 84.0 MB; features on 8, off 1
+43.5s WEATHER SUNNY
+43.5s [TimeOfDay] Midday in Sunny: sun 50 degrees up, intensity 2.00, shadows 1.00; floodlights off
+43.5s [TimeOfDay] Midday in Sunny: sun 50 degrees up, intensity 2.00, shadows 1.00; floodlights off
+43.5s [Camera] keep-out rebuilt for the venue: 398 boxes, 370 of them props
+43.5s [MatchManager] match starts after 3.3s: match data applied; home point chance 0.5041
+43.5s [MatchManager] ratings in play Player_A1 (Annika Bauer): ovr 84 pwr 80 spd 84 def 88 srv 86 blk 85 sta 82 mor 75
+43.5s [MatchManager] ratings in play Player_A2 (Sophie Müller): ovr 83 pwr 74 spd 88 def 90 srv 82 blk 76 sta 86 mor 75
+43.5s [MatchManager] ratings in play Player_B1 (María Alonso): ovr 81 pwr 78 spd 82 def 84 srv 84 blk 80 sta 80 mor 75
+43.5s [MatchManager] ratings in play Player_B2 (Carmen Ruiz): ovr 82 pwr 76 spd 86 def 86 srv 80 blk 78 sta 84 mor 75
+43.5s [Director] cutaway: the walk-on (5.5 s)
+43.7s [Crowd] 34 real people in the front 1 row(s), 170 cards behind, 24 bystanders; 64 team fans (A #5B2C83, B #00A3AD); 42 different people; cards baked in 114 ms
+43.8s [Team] walk-on: Nicole Dupont S_walkon_3.mp3 "Both pairs look relaxed down here. That will not last long!" -> not recorded: skipped in silence
+43.8s [Booth] seat 1: Kailey (casual15_f_highpoly); seat 2: empty (no guest); seat 3: Hukum (Man_33); on the sand: Nicole Dupont (business01_f_highpoly), a microphone in her hand
+43.8s [CrowdBanners] 10 banners up (GO BERLIN SAND QUEENS! | GO BARCELONA PLAYA ELITES! | ACE IT! | BLOCK PARTY | DIG DEEP | SET. SPIKE. SCORE. | SUN'S OUT, SPIKES OUT | NO SAND, NO GLORY | SIDE OUT! | BEACH VOLLEYBALL FOREVER)
+43.8s Trying to get length of sound which is not loaded yet.
+43.8s Trying to get length of sound which is not loaded yet.
+43.9s Trying to get length of sound which is not loaded yet.
+43.9s Trying to get length of sound which is not loaded yet.
+43.9s Trying to get length of sound which is not loaded yet.
+44.0s Trying to get length of sound which is not loaded yet.
+44.0s Trying to get length of sound which is not loaded yet.
+44.0s Trying to get length of sound which is not loaded yet.
+44.1s Trying to get length of sound which is not loaded yet.
+44.1s Trying to get length of sound which is not loaded yet.
+44.1s Trying to get length of sound which is not loaded yet.
+44.1s Trying to get length of sound which is not loaded yet.
+44.1s Trying to get length of sound which is not loaded yet.
+44.2s Trying to get length of sound which is not loaded yet.
+44.2s Trying to get length of sound which is not loaded yet.
+44.2s Trying to get length of sound which is not loaded yet.
+44.2s Trying to get length of sound which is not loaded yet.
+44.2s Trying to get length of sound which is not loaded yet.
+44.2s Trying to get length of sound which is not loaded yet.
+44.3s Trying to get length of sound which is not loaded yet.
+44.3s [Team] 57 team lines in TEAM.json (15 for Nicole Dupont, 17 for Roxy Calderwood, 17 for Kai Brennock, 6 hand-overs); 0 recorded
+44.3s Trying to get length of sound which is not loaded yet.
+44.3s Trying to get length of sound which is not loaded yet.
+44.3s Trying to get length of sound which is not loaded yet.
+44.3s Trying to get length of sound which is not loaded yet.
+44.3s [Commentary] 48 of 90 clips loaded from http://localhost:4251/unity-build/StreamingAssets/commentary: the 48 its LINES.txt lists (48 recorded before 1.2; B4's 42 are Rob's to record)
+44.7s [UnityCache] 'http://localhost:4251/unity-build/StreamingAssets/Venues/venue-north-america.bundle' successfully downloaded and stored in the browser cache
+48.1s [Director] cutaway: the walk-on: Player_A1 (1.5 s)
+49.6s [Director] cutaway: the walk-on: Player_A2 (1.5 s)
+51.1s [Director] cutaway: the walk-on: Player_B1 (1.5 s)
+52.6s [Director] cutaway: the walk-on: Player_B2 (1.5 s)
+54.2s [Match moments] walk-on took 10.7 s
+54.2s [Director] Serve: low off the sand
+54.5s [Point] decided: BERLIN SAND QUEENS by Kill (server A, final attack by A after 4, chance 0.504)
+54.5s RATING CHECK: Player_B2 Movement 178 SpeedMult:2.28
+54.5s RATING CHECK: Player_A2 Serve 239 SpeedMult:2.10
+54.5s RALLY ACTION: TeamA Player_A2 1 Serve
+54.5s [MatchManager] jump heights: net top 2.24 m, spike lift 0.58 m, block lift 0.46 m
+54.8s [Director] Rally: end-on drift
+55.1s RATING CHECK: Player_B1 Movement 170 SpeedMult:2.20
+55.1s RATING CHECK: Player_B2 Dig 264 JitterMult:0.15
+55.1s RALLY ACTION: TeamB Player_B2 1 Dig
+55.6s RATING CHECK: Player_B2 Movement 178 SpeedMult:2.28
+55.6s RALLY ACTION: TeamB Player_B1 2 Set
+56.2s RATING CHECK: Player_A2 Movement 182 SpeedMult:2.32
+56.2s RATING CHECK: Player_A2 Block 224 Outcome:Touch
+56.2s BLOCK ATTEMPT: Player_A2
+56.2s RATING CHECK: Player_B2 Spike 250 SpeedMult:2.17
+56.2s RALLY ACTION: TeamB Player_B2 3 Spike
+56.3s BLOCK TOUCH: Player_A2
+56.3s [COMMENTARY] Touch! Player_A2 got a hand on the ball, slowing it down. The rally continues!
+56.4s RATING CHECK: Player_A1 Movement 174 SpeedMult:2.24
+56.4s RATING CHECK: Player_A2 Dig 272 JitterMult:0.15
+56.4s RALLY ACTION: TeamA Player_A2 1 Dig
+57.1s RATING CHECK: Player_A2 Movement 182 SpeedMult:2.32
+57.1s RALLY ACTION: TeamA Player_A1 2 Set
+57.9s RATING CHECK: Player_B2 Movement 178 SpeedMult:2.28
+57.9s RATING CHECK: Player_B2 Block 225 Outcome:Touch
+58.0s BLOCK ATTEMPT: Player_B2
+58.0s RATING CHECK: Player_A2 Spike 251 SpeedMult:2.18
+58.0s RALLY ACTION: TeamA Player_A2 3 Spike
+58.0s BLOCK TOUCH: Player_B2
+58.1s [COMMENTARY] Touch! Player_B2 got a hand on the ball, slowing it down. The rally continues!
+58.1s RATING CHECK: Player_B1 Movement 170 SpeedMult:2.20
+58.2s RATING CHECK: Player_B2 Dig 264 JitterMult:0.15
+58.2s RALLY ACTION: TeamB Player_B2 1 Dig
+58.9s RATING CHECK: Player_B2 Movement 178 SpeedMult:2.28
+58.9s RALLY ACTION: TeamB Player_B1 2 Set
+59.9s RATING CHECK: Player_A2 Movement 182 SpeedMult:2.32
+59.9s RATING CHECK: Player_A2 Block 224 Outcome:Touch
+59.9s BLOCK ATTEMPT: Player_A2
+59.9s RATING CHECK: Player_B2 Spike 250 SpeedMult:2.17
+59.9s RALLY ACTION: TeamB Player_B2 3 Spike
+60.0s BLOCK TOUCH: Player_A2
+60.0s [COMMENTARY] Touch! Player_A2 got a hand on the ball, slowing it down. The rally continues!
+60.2s RATING CHECK: Player_A1 Movement 174 SpeedMult:2.24
+60.2s RATING CHECK: Player_A2 Dig 272 JitterMult:0.15
+60.2s RALLY ACTION: TeamA Player_A2 1 Dig
+60.9s RATING CHECK: Player_A2 Movement 182 SpeedMult:2.32
+60.9s RALLY ACTION: TeamA Player_A1 2 Set
+61.9s RATING CHECK: Player_B2 Movement 178 SpeedMult:2.28
+61.9s RATING CHECK: Player_A2 Spike 251 SpeedMult:2.18
+61.9s RALLY ACTION: TeamA Player_A2 3 Spike
+62.2s [Point] awarded: BERLIN SAND QUEENS by Kill after 5 attack(s), 16 touches
+62.2s BERLIN SAND QUEENS point: set 1 1-0, sets 0-0
+62.2s Trying to get length of sound which is not loaded yet.
+62.2s Trying to get length of sound which is not loaded yet.
+62.2s Trying to get length of sound which is not loaded yet.
+62.2s [MatchReporter] progress not sent: an exhibition game: it touches nothing in a career
+62.2s [Director] Kill: swoop in close
+62.2s [Director] cutaway: the scorer, Player_A2 (1.1 s)
+63.3s [Director] Between: the commentary booth
+63.3s [Director] cutaway: the other side, Player_B2 (0.7 s)
+64.0s [Director] cutaway: replay (2.2 s)
+66.2s [Between points] 4.0 s: point to A by Kill (big: a diving save) | score BERLIN SAND QUEENS 0 1 - 0 0 BARCELONA PLAYA ELITES | umpire: team to serve | Player_A1 Won_MC2 | Player_A2 Won_ThumbsUp2 | Player_B1 Lost_MC1 | Player_B2 Lost_MC2 | close-up: Player_A2 | the other side: Player_B2 | replay 1.2 s at 0.6x (2.1 s)
+66.2s [Director] Serve: beside the server
+66.5s [Point] decided: BERLIN SAND QUEENS by AttackError (server A, final attack by B after 2, chance 0.504)
+66.5s RATING CHECK: Player_B2 Movement 178 SpeedMult:2.28
+66.5s RATING CHECK: Player_A1 Serve 249 SpeedMult:2.16
+66.5s RALLY ACTION: TeamA Player_A1 1 Serve
+66.8s [Director] Rally: high on the umpire's side
+67.1s RATING CHECK: Player_B1 Movement 170 SpeedMult:2.20
+67.1s RATING CHECK: Player_B2 Dig 264 JitterMult:0.15
+67.1s RALLY ACTION: TeamB Player_B2 1 Dig
+67.5s RATING CHECK: Player_B2 Movement 178 SpeedMult:2.28
+67.5s RALLY ACTION: TeamB Player_B1 2 Set
+68.5s RATING CHECK: Player_A1 Movement 174 SpeedMult:2.24
+68.5s RATING CHECK: Player_A2 Block 224 Outcome:Controlled
+68.5s BLOCK ATTEMPT: Player_A2
+68.5s RATING CHECK: Player_B2 Spike 250 SpeedMult:2.17
+68.5s RALLY ACTION: TeamB Player_B2 3 Spike
+68.6s BLOCK SUCCESS: Player_A2
+68.6s [COMMENTARY] Controlled block! Player_A2 rebounded the ball back to the attacker's side!
+69.6s RATING CHECK: Player_B2 Movement 178 SpeedMult:2.28
+69.6s RALLY ACTION: TeamB Player_B1 2 Set
+70.5s RATING CHECK: Player_A1 Movement 174 SpeedMult:2.24
+70.5s RATING CHECK: Player_B2 Spike 250 SpeedMult:2.17
+70.5s RALLY ACTION: TeamB Player_B2 3 Spike
+70.6s [Point] awarded: BERLIN SAND QUEENS by AttackError after 3 attack(s), 7 touches
+70.6s BERLIN SAND QUEENS point: set 1 2-0, sets 0-0
+70.6s Trying to get length of sound which is not loaded yet.
+70.7s [MatchReporter] progress not sent: an exhibition game: it touches nothing in a career
+70.7s [Director] Between: the band
+70.7s [Director] cutaway: the scorer, Player_A1 (1.7 s)
+72.4s [Director] cutaway: the other side, Player_B1 (1.0 s)
+74.6s [UnityMemory] Configuration Parameters - Can be set up in boot.config
+74.6s     "memorysetup-allocator-temp-initial-block-size-main=262144"
+74.6s     "memorysetup-allocator-temp-initial-block-size-worker=262144"
+74.6s     "memorysetup-temp-allocator-size-audio-worker=65536"
+74.6s     "memorysetup-temp-allocator-size-background-worker=32768"
+74.6s     "memorysetup-bucket-allocator-granularity=16"
+74.6s     "memorysetup-bucket-allocator-bucket-count=8"
+74.6s     "memorysetup-bucket-allocator-block-size=4194304"
+74.6s     "memorysetup-bucket-allocator-block-count=1"
+74.6s     "memorysetup-main-allocator-block-size=16777216"
+74.6s     "memorysetup-thread-allocator-block-size=16777216"
+74.6s     "memorysetup-gfx-main-allocator-block-size=16777216"
+74.6s     "memorysetup-gfx-thread-allocator-block-size=16777216"
+74.6s     "memorysetup-cache-allocator-block-size=4194304"
+74.6s     "memorysetup-typetree-allocator-block-size=2097152"
+74.6s     "memorysetup-profiler-bucket-allocator-granularity=16"
+74.6s     "memorysetup-profiler-bucket-allocator-bucket-count=8"
+74.6s     "memorysetup-profiler-bucket-allocator-block-size=4194304"
+74.6s     "memorysetup-profiler-bucket-allocator-block-count=1"
+74.6s     "memorysetup-profiler-allocator-block-size=16777216"
+74.6s     "memorysetup-profiler-editor-allocator-block-size=1048576"
+74.6s     "memorysetup-temp-allocator-size-main=4194304"
+74.6s     "memorysetup-job-temp-allocator-block-size=2097152"
+74.6s     "memorysetup-job-temp-allocator-block-size-background=1048576"
+74.6s     "memorysetup-job-temp-allocator-reduction-small-platforms=262144"
+74.6s Input System module state changed to: Initialized.
+74.6s [Physics::Module] Initialized fallback backend.
+74.6s [Physics::Module] Id: 0xdecafbad
+74.6s Loading player data from data.unity3d
+74.6s Initialize engine version: 6000.3.16f1 (a56f230f6470)
+74.6s [Subsystems] Discovering subsystems at path UnitySubsystems
+74.6s Creating WebGL 2.0 context.
+74.6s Renderer: WebKit WebGL
+74.6s Vendor:   WebKit
+74.6s Version:  OpenGL ES 3.0 (WebGL 2.0 (OpenGL ES 3.0 Chromium))
+74.6s GLES:     3
+74.6s  EXT_clip_control EXT_color_buffer_float EXT_color_buffer_half_float EXT_conservative_depth EXT_depth_clamp EXT_disjoint_timer_query_webgl2 EXT_float_blend EXT_polygon_offset_clamp EXT_render_snorm EXT_texture_compression_bptc EXT_texture_compression_rgtc EXT_texture_filter_anisotropic EXT_texture_mirror_clamp_to_edge EXT_texture_norm16 KHR_parallel_shader_compile NV_shader_noperspective_interpolation OES_draw_buffers_indexed OES_sample_variables OES_shader_multisample_interpolation OES_texture_float_linear OVR_multiview2 WEBGL_blend_func_extended WEBGL_clip_cull_distance WEBGL_compressed_texture_s3tc WEBGL_compressed_texture_s3tc_srgb WEBGL_debug_renderer_info WEBGL_debug_shaders WEBGL_lose_context WEBGL_multi_draw WEBGL_polygon_mode WEBGL_provoking_vertex WEBGL_shader_pixel_local_storage WEBGL_stencil_texturing GL_EXT_clip_control GL_EXT_color_buffer_float GL_EXT_color_buffer_half_float GL_EXT_conservative_depth GL_EXT_depth_clamp GL_EXT_disjoint_timer_query_webgl2 GL_EXT_float_blend GL_EXT_polygon_offset_
+74.6s clamp GL_EXT_render_snorm GL_EXT_texture_compression_bptc GL_EXT_texture_compression_rgtc GL_EXT_texture_filter_anisotropic GL_EXT_texture_mirror_clamp_to_edge GL_EXT_texture_norm16 GL_KHR_parallel_shader_compile GL_NV_shader_noperspective_interpolation GL_OES_draw_buffers_indexed GL_OES_sample_variables GL_OES_shader_multisample_interpolation GL_OES_texture_float_linear GL_OVR_multiview2 GL_WEBGL_blend_func_extended GL_WEBGL_clip_cull_distance GL_WEBGL_compressed_texture_s3tc GL_WEBGL_compressed_texture_s3tc_srgb GL_WEBGL_debug_renderer_info GL_WEBGL_debug_shaders GL_WEBGL_lose_context GL_WEBGL_multi_draw GL_WEBGL_polygon_mode GL_WEBGL_provoking_vertex GL_WEBGL_shader_pixel_local_storage GL_WEBGL_stencil_texturing
+74.6s OPENGL LOG: Creating OpenGL ES 3.0 graphics device ; Context level  <OpenGL ES 3.0> ; Context handle 1
+74.6s [Physics::Module] Selected backend.
+74.6s [Physics::Module] Name: PhysX
+74.6s [Physics::Module] Id: 0xf2b8ea05
+74.6s [Physics::Module] SDK Version: 4.1.2
+74.6s [Physics::Module] Integration Version: 1.0.0
+74.6s [Physics::Module] Threading Mode: Single-Threaded
+74.7s ERROR: Shader 
+74.7s Hidden/CoreSRP/CoreCopy shader is not supported on this GPU (none of subshaders/fallbacks are suitable)
+74.7s ERROR: Shader 
+74.7s Hidden/Universal Render Pipeline/StencilDitherMaskSeed shader is not supported on this GPU (none of subshaders/fallbacks are suitable)
+74.7s ERROR: Shader 
+74.7s Hidden/Universal/HDRDebugView shader is not supported on this GPU (none of subshaders/fallbacks are suitable)
+74.7s <b>[App UI]</b> Unable to find an AppUISettings instance, creating a default one...
+74.7s Input System initialize...
+74.9s Couldn't create a Convex Mesh from source mesh, within the maximum polygons limit (256). The partial hull will be used. Consider simplifying your mesh. Source mesh name: SM_rack_balls_Volleyball_1
+75.3s UnloadTime: 0.200000 ms
+75.3s [CourtsideBoards] 18 boards dressed around the court: 9 Beach Volleyball Empire, 9 GB Sunglasses
+75.3s Audio context resumed after 0.670 seconds.
+75.4s [Sound] crowd volume 1.00
+75.4s [Sound] commentary volume 1.00
+75.4s [Camera] remembered looks from the page: played game:1, watched tv:1
+75.4s [Between points] from the page: skip to next serve off, skip replays off
+75.8s [UnityCache] 'http://localhost:4251/unity-build/Build/Volleyball_WebGL_Uncompressed_2.data' successfully downloaded and stored in the browser cache
+77.4s [BoostUIController] Created Polished Attack and Defence boost buttons.
+77.4s [MatchManager] AudioManager initialized.
+77.4s [UnityMatchDataLoader] GET /api/unity/exhibition-state?id=c7a77f69-1e2b-4a56-a34e-42029f0f5626
+77.4s WEATHER SUNNY
+77.4s Trying to get length of sound which is not loaded yet.
+77.4s Trying to get length of sound which is not loaded yet.
+77.4s [Director] Serve: beside the server
+77.4s The character with Unicode value \u2600 was not found in the [LiberationSans SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [WeatherText].
+77.5s [UnityMatchDataLoader] point chance for the home pair: 0.5041
+77.5s [UnityMatchDataLoader] continent south_america, time of day midday, weather sunny
+77.5s [UnityMatchDataLoader] game difficulty medium (a played match grades and plays at it)
+77.5s [UnityMatchDataLoader] event (null), kits (null), boards (null) '(null)', manual not allowed
+77.5s [UnityMatchDataLoader] Player_A1: skin 'Medium' resolved via band 'Medium' -> #AA7339
+77.5s [UnityMatchDataLoader] Player_A1 <- Annika Bauer | team Berlin Sand Queens (home) | skinTone Medium | kit #5B2C83/#6CC5F0 | appearance controller found | applied ovr 84 pwr 80 spd 84 def 88 srv 86 blk 85 sta 82 mor 75 fit 100 fat 0 | (not applied: injured False)
+77.5s [UnityMatchDataLoader] Player_A2: skin 'Medium' resolved via band 'Medium' -> #AA7339
+77.5s [UnityMatchDataLoader] Player_A2 <- Sophie Müller | team Berlin Sand Queens (home) | skinTone Medium | kit #5B2C83/#6CC5F0 | appearance controller found | applied ovr 83 pwr 74 spd 88 def 90 srv 82 blk 76 sta 86 mor 75 fit 100 fat 0 | (not applied: injured False)
+77.5s [UnityMatchDataLoader] Player_B1: skin 'Medium Dark' resolved via band 'Medium Dark' -> #7A4626
+77.5s [UnityMatchDataLoader] Player_B1 <- María Alonso | team Barcelona Playa Elites (away) | skinTone Medium Dark | kit #00A3AD/#0B2545 | appearance controller found | applied ovr 81 pwr 78 spd 82 def 84 srv 84 blk 80 sta 80 mor 75 fit 100 fat 0 | (not applied: injured False)
+77.6s [UnityMatchDataLoader] Player_B2: skin 'Medium' resolved via band 'Medium' -> #AA7339
+77.6s [UnityMatchDataLoader] Player_B2 <- Carmen Ruiz | team Barcelona Playa Elites (away) | skinTone Medium | kit #00A3AD/#0B2545 | appearance controller found | applied ovr 82 pwr 76 spd 86 def 86 srv 80 blk 78 sta 84 mor 75 fit 100 fat 0 | (not applied: injured False)
+77.6s [UnityMatchDataLoader] team names: BERLIN SAND QUEENS (home) vs BARCELONA PLAYA ELITES (away)
+77.6s [UnityMatchDataLoader] applied 4 of 4 player(s)
+77.6s [UnityMatchDataLoader] exhibition: Player_A1 (Annika Bauer) seat AI; wears 
+77.6s [UnityMatchDataLoader] exhibition: Player_A2 (Sophie Müller) seat AI; wears 
+77.6s [UnityMatchDataLoader] exhibition: Player_B1 (María Alonso) seat AI; wears 
+77.6s [UnityMatchDataLoader] exhibition: Player_B2 (Carmen Ruiz) seat AI; wears 
+77.6s [Team] the booth: Kailey and Hukum, no guest; the sideline reporter on
+77.6s Trying to get length of sound which is not loaded yet.
+77.6s Trying to get length of sound which is not loaded yet.
+77.6s Trying to get length of sound which is not loaded yet.
+77.6s Trying to get length of sound which is not loaded yet.
+77.6s Trying to get length of sound which is not loaded yet.
+77.6s Trying to get length of sound which is not loaded yet.
+77.6s Trying to get length of sound which is not loaded yet.
+77.7s Trying to get length of sound which is not loaded yet.
+77.7s Trying to get length of sound which is not loaded yet.
+77.7s Trying to get length of sound which is not loaded yet.
+77.7s Trying to get length of sound which is not loaded yet.
+77.7s Trying to get length of sound which is not loaded yet.
+77.7s Trying to get length of sound which is not loaded yet.
+77.8s Trying to get length of sound which is not loaded yet.
+77.9s Trying to get length of sound which is not loaded yet.
+77.9s Trying to get length of sound which is not loaded yet.
+77.9s Trying to get length of sound which is not loaded yet.
+78.0s Trying to get length of sound which is not loaded yet.
+78.0s Trying to get length of sound which is not loaded yet.
+78.0s [Venue] south_america (Bay City Beach) in after 0.6s, 69.4 MB; features on 7, off 2
+78.0s WEATHER SUNNY
+78.0s [TimeOfDay] Midday in Sunny: sun 50 degrees up, intensity 2.00, shadows 1.00; floodlights off
+78.0s [TimeOfDay] Midday in Sunny: sun 50 degrees up, intensity 2.00, shadows 1.00; floodlights off
+78.0s [Camera] keep-out rebuilt for the venue: 398 boxes, 370 of them props
+78.0s [MatchManager] match starts after 3.3s: match data applied; home point chance 0.5041
+78.0s [MatchManager] ratings in play Player_A1 (Annika Bauer): ovr 84 pwr 80 spd 84 def 88 srv 86 blk 85 sta 82 mor 75
+78.0s [MatchManager] ratings in play Player_A2 (Sophie Müller): ovr 83 pwr 74 spd 88 def 90 srv 82 blk 76 sta 86 mor 75
+78.0s [MatchManager] ratings in play Player_B1 (María Alonso): ovr 81 pwr 78 spd 82 def 84 srv 84 blk 80 sta 80 mor 75
+78.0s [MatchManager] ratings in play Player_B2 (Carmen Ruiz): ovr 82 pwr 76 spd 86 def 86 srv 80 blk 78 sta 84 mor 75
+78.0s [Director] cutaway: the walk-on (5.5 s)
+78.2s [Crowd] 34 real people in the front 1 row(s), 170 cards behind, 24 bystanders; 64 team fans (A #5B2C83, B #00A3AD); 42 different people; cards baked in 111 ms
+78.2s [Team] walk-on: Nicole Dupont S_walkon_3.mp3 "Both pairs look relaxed down here. That will not last long!" -> not recorded: skipped in silence
+78.2s [Booth] seat 1: Kailey (casual15_f_highpoly); seat 2: empty (no guest); seat 3: Hukum (Man_33); on the sand: Nicole Dupont (business01_f_highpoly), a microphone in her hand
+78.2s [CrowdBanners] 10 banners up (GO BERLIN SAND QUEENS! | GO BARCELONA PLAYA ELITES! | ACE IT! | BLOCK PARTY | DIG DEEP | SET. SPIKE. SCORE. | SUN'S OUT, SPIKES OUT | NO SAND, NO GLORY | SIDE OUT! | BEACH VOLLEYBALL FOREVER)
+78.2s Trying to get length of sound which is not loaded yet.
+78.3s Trying to get length of sound which is not loaded yet.
+78.3s Trying to get length of sound which is not loaded yet.
+78.3s Trying to get length of sound which is not loaded yet.
+78.3s Trying to get length of sound which is not loaded yet.
+78.3s Trying to get length of sound which is not loaded yet.
+78.4s Trying to get length of sound which is not loaded yet.
+78.4s Trying to get length of sound which is not loaded yet.
+78.4s Trying to get length of sound which is not loaded yet.
+78.4s Trying to get length of sound which is not loaded yet.
+78.4s Trying to get length of sound which is not loaded yet.
+78.4s Trying to get length of sound which is not loaded yet.
+78.5s Trying to get length of sound which is not loaded yet.
+78.5s Trying to get length of sound which is not loaded yet.
+78.5s Trying to get length of sound which is not loaded yet.
+78.5s Trying to get length of sound which is not loaded yet.
+78.5s Trying to get length of sound which is not loaded yet.
+78.6s Trying to get length of sound which is not loaded yet.
+78.6s Trying to get length of sound which is not loaded yet.
+78.6s Trying to get length of sound which is not loaded yet.
+78.6s Trying to get length of sound which is not loaded yet.
+78.6s Trying to get length of sound which is not loaded yet.
+78.6s Trying to get length of sound which is not loaded yet.
+78.7s Trying to get length of sound which is not loaded yet.
+78.7s Trying to get length of sound which is not loaded yet.
+78.7s Trying to get length of sound which is not loaded yet.
+78.7s Trying to get length of sound which is not loaded yet.
+78.7s Trying to get length of sound which is not loaded yet.
+78.7s Trying to get length of sound which is not loaded yet.
+78.8s [Commentary] 48 of 90 clips loaded from http://localhost:4251/unity-build/StreamingAssets/commentary: the 48 its LINES.txt lists (48 recorded before 1.2; B4's 42 are Rob's to record)
+78.8s [Team] 57 team lines in TEAM.json (15 for Nicole Dupont, 17 for Roxy Calderwood, 17 for Kai Brennock, 6 hand-overs); 0 recorded
+78.9s [UnityCache] 'http://localhost:4251/unity-build/StreamingAssets/Venues/venue-south-america.bundle' successfully downloaded and stored in the browser cache
+82.7s [Director] cutaway: the walk-on: Player_A1 (1.5 s)
+84.2s [Director] cutaway: the walk-on: Player_A2 (1.5 s)
+85.7s [Director] cutaway: the walk-on: Player_B1 (1.5 s)
+87.2s [Director] cutaway: the walk-on: Player_B2 (1.5 s)
+88.7s [Match moments] walk-on took 10.7 s
+88.7s [Director] Serve: low off the sand
+89.0s [Point] decided: BARCELONA PLAYA ELITES by ServeError (server A, final attack by A after 0, chance 0.504)
+89.0s RATING CHECK: Player_B2 Movement 178 SpeedMult:2.28
+89.0s RATING CHECK: Player_A2 Serve 239 SpeedMult:2.10
+89.0s RALLY ACTION: TeamA Player_A2 1 Serve
+89.0s [MatchManager] jump heights: net top 2.24 m, spike lift 0.58 m, block lift 0.46 m
+89.3s [Director] Rally: end-on drift
+89.5s [Point] awarded: BARCELONA PLAYA ELITES by ServeError after 1 attack(s), 1 touches
+89.5s BARCELONA PLAYA ELITES point: set 1 0-1, sets 0-0
+89.6s Trying to get length of sound which is not loaded yet.
+89.6s [MatchReporter] progress not sent: an exhibition game: it touches nothing in a career
+89.6s [Director] Between: crane on the scorer
+89.6s [Director] cutaway: the scorer, Player_B2 (1.7 s)
+91.3s [Director] cutaway: the other side, Player_A1 (1.0 s)
+92.3s [Director] Serve: beside the server
+92.6s [Between points] 3.0 s: point to B by ServeError | score BERLIN SAND QUEENS 0 0 - 1 0 BARCELONA PLAYA ELITES [SERVICE ERROR] | umpire: team to serve | Player_B1 Won_ThumbsUp2 | Player_B2 Won_DoublePeace | Player_A1 Lost_MC2 | Player_A2 Lost_MC1 | close-up: Player_B2 | the other side: Player_A1
+93.0s [Point] decided: BERLIN SAND QUEENS by Kill (server B, final attack by A after 4, chance 0.504)
+93.0s RATING CHECK: Player_A1 Movement 174 SpeedMult:2.24
+93.0s RATING CHECK: Player_B1 Serve 245 SpeedMult:2.13
+93.0s RALLY ACTION: TeamB Player_B1 1 Serve
+93.0s [Director] Rally: high on the umpire's side
+93.5s RATING CHECK: Player_A2 Movement 182 SpeedMult:2.32
+93.5s RATING CHECK: Player_A1 Dig 262 JitterMult:0.15
+93.5s RALLY ACTION: TeamA Player_A1 1 Dig
+94.0s RATING CHECK: Player_A1 Movement 174 SpeedMult:2.24
+94.0s RALLY ACTION: TeamA Player_A2 2 Set
+94.7s RATING CHECK: Player_B1 Movement 170 SpeedMult:2.20
+94.7s RATING CHECK: Player_B1 Block 226 Outcome:Touch
+94.7s BLOCK ATTEMPT: Player_B1
+94.7s RATING CHECK: Player_A1 Spike 254 SpeedMult:2.20
+94.7s RALLY ACTION: TeamA Player_A1 3 Spike
+94.8s BLOCK TOUCH: Player_B1
+94.8s [COMMENTARY] Touch! Player_B1 got a hand on the ball, slowing it down. The rally continues!
+94.9s RATING CHECK: Player_B2 Movement 178 SpeedMult:2.28
+94.9s RATING CHECK: Player_B1 Dig 254 JitterMult:0.15
+94.9s RALLY ACTION: TeamB Player_B1 1 Dig
+95.5s RATING CHECK: Player_B1 Movement 170 SpeedMult:2.20
+95.5s RALLY ACTION: TeamB Player_B2 2 Set
+96.3s RATING CHECK: Player_A1 Movement 174 SpeedMult:2.24
+96.3s RATING CHECK: Player_A1 Block 234 Outcome:Controlled
+96.3s BLOCK ATTEMPT: Player_A1
+96.3s RATING CHECK: Player_B1 Spike 247 SpeedMult:2.15
+96.3s RALLY ACTION: TeamB Player_B1 3 Spike
+96.4s BLOCK SUCCESS: Player_A1
+96.4s [COMMENTARY] Controlled block! Player_A1 rebounded the ball back to the attacker's side!
+97.4s RATING CHECK: Player_B1 Movement 170 SpeedMult:2.20
+97.4s RALLY ACTION: TeamB Player_B2 2 Set
+98.2s RATING CHECK: Player_A1 Movement 174 SpeedMult:2.24
+98.2s RATING CHECK: Player_A1 Block 234 Outcome:Touch
+98.3s BLOCK ATTEMPT: Player_A1
+98.3s RATING CHECK: Player_B1 Spike 247 SpeedMult:2.15
+98.3s RALLY ACTION: TeamB Player_B1 3 Spike
+98.3s BLOCK TOUCH: Player_A1
+98.3s [COMMENTARY] Touch! Player_A1 got a hand on the ball, slowing it down. The rally continues!
+98.4s RATING CHECK: Player_A2 Movement 182 SpeedMult:2.32
+98.4s RATING CHECK: Player_A1 Dig 262 JitterMult:0.15
+98.4s RALLY ACTION: TeamA Player_A1 1 Dig
+99.0s RATING CHECK: Player_A1 Movement 174 SpeedMult:2.24
+99.0s RALLY ACTION: TeamA Player_A2 2 Set
+99.8s RATING CHECK: Player_B1 Movement 170 SpeedMult:2.20
+99.8s RATING CHECK: Player_A1 Spike 254 SpeedMult:2.20
+99.8s RALLY ACTION: TeamA Player_A1 3 Spike
+100.1s [Point] awarded: BERLIN SAND QUEENS by Kill after 5 attack(s), 15 touches
+100.1s BERLIN SAND QUEENS point: set 1 1-1, sets 0-0
+100.1s Trying to get length of sound which is not loaded yet.
+100.1s Trying to get length of sound which is not loaded yet.
+100.1s [MatchReporter] progress not sent: an exhibition game: it touches nothing in a career
+100.1s [Director] Kill: swoop in close
+100.1s [Director] cutaway: the scorer, Player_A1 (1.1 s)
+101.2s [Director] cutaway: the other side, Player_B1 (0.7 s)
+101.9s [Director] cutaway: replay (2.2 s)
+104.0s [Between points] 4.0 s: point to A by Kill (big: a hard spike, 49 m/s) | score BERLIN SAND QUEENS 0 1 - 1 0 BARCELONA PLAYA ELITES | umpire: team to serve | Player_A1 Won_Yay | Player_A2 Won_Cheer | Player_B1 Lost_Angry | Player_B2 Lost_MC1 | close-up: Player_A1 | the other side: Player_B1 | replay 1.2 s at 0.6x (2.1 s)
+104.0s [Director] Serve: low off the sand
+104.3s [Point] decided: BERLIN SAND QUEENS by Kill (server A, final attack by A after 1, chance 0.504)
+104.3s RATING CHECK: Player_B2 Movement 178 SpeedMult:2.28
+104.3s RATING CHECK: Player_A2 Serve 239 SpeedMult:2.10
+104.3s RALLY ACTION: TeamA Player_A2 1 Serve
+104.7s [Director] Rally: end-on drift
+105.0s RATING CHECK: Player_B1 Movement 170 SpeedMult:2.20
+105.0s RATING CHECK: Player_B2 Dig 264 JitterMult:0.15
+105.0s RALLY ACTION: TeamB Player_B2 1 Dig
+105.4s RATING CHECK: Player_B2 Movement 178 SpeedMult:2.28
+105.4s RALLY ACTION: TeamB Player_B1 2 Set
+106.2s RATING CHECK: Player_A2 Movement 182 SpeedMult:2.32
+106.2s RATING CHECK: Player_A2 Block 224 Outcome:Touch
+106.2s BLOCK ATTEMPT: Player_A2
+106.3s RATING CHECK: Player_B2 Spike 250 SpeedMult:2.17
+106.3s RALLY ACTION: TeamB Player_B2 3 Spike
+106.3s BLOCK TOUCH: Player_A2
+106.3s [COMMENTARY] Touch! Player_A2 got a hand on the ball, slowing it down. The rally continues!
+106.5s RATING CHECK: Player_A1 Movement 174 SpeedMult:2.24
+106.5s RATING CHECK: Player_A2 Dig 272 JitterMult:0.15
+106.5s RALLY ACTION: TeamA Player_A2 1 Dig
+107.2s RATING CHECK: Player_A2 Movement 182 SpeedMult:2.32
+107.2s RALLY ACTION: TeamA Player_A1 2 Set
+109.2s [UnityMemory] Configuration Parameters - Can be set up in boot.config
+109.2s     "memorysetup-allocator-temp-initial-block-size-main=262144"
+109.2s     "memorysetup-allocator-temp-initial-block-size-worker=262144"
+109.2s     "memorysetup-temp-allocator-size-audio-worker=65536"
+109.2s     "memorysetup-temp-allocator-size-background-worker=32768"
+109.2s     "memorysetup-bucket-allocator-granularity=16"
+109.2s     "memorysetup-bucket-allocator-bucket-count=8"
+109.2s     "memorysetup-bucket-allocator-block-size=4194304"
+109.2s     "memorysetup-bucket-allocator-block-count=1"
+109.2s     "memorysetup-main-allocator-block-size=16777216"
+109.2s     "memorysetup-thread-allocator-block-size=16777216"
+109.2s     "memorysetup-gfx-main-allocator-block-size=16777216"
+109.2s     "memorysetup-gfx-thread-allocator-block-size=16777216"
+109.2s     "memorysetup-cache-allocator-block-size=4194304"
+109.2s     "memorysetup-typetree-allocator-block-size=2097152"
+109.2s     "memorysetup-profiler-bucket-allocator-granularity=16"
+109.2s     "memorysetup-profiler-bucket-allocator-bucket-count=8"
+109.2s     "memorysetup-profiler-bucket-allocator-block-size=4194304"
+109.2s     "memorysetup-profiler-bucket-allocator-block-count=1"
+109.2s     "memorysetup-profiler-allocator-block-size=16777216"
+109.2s     "memorysetup-profiler-editor-allocator-block-size=1048576"
+109.2s     "memorysetup-temp-allocator-size-main=4194304"
+109.2s     "memorysetup-job-temp-allocator-block-size=2097152"
+109.2s     "memorysetup-job-temp-allocator-block-size-background=1048576"
+109.2s     "memorysetup-job-temp-allocator-reduction-small-platforms=262144"
+109.2s Input System module state changed to: Initialized.
+109.3s [Physics::Module] Initialized fallback backend.
+109.3s [Physics::Module] Id: 0xdecafbad
+109.3s Loading player data from data.unity3d
+109.3s Initialize engine version: 6000.3.16f1 (a56f230f6470)
+109.3s [Subsystems] Discovering subsystems at path UnitySubsystems
+109.3s Creating WebGL 2.0 context.
+109.3s Renderer: WebKit WebGL
+109.3s Vendor:   WebKit
+109.3s Version:  OpenGL ES 3.0 (WebGL 2.0 (OpenGL ES 3.0 Chromium))
+109.3s GLES:     3
+109.3s  EXT_clip_control EXT_color_buffer_float EXT_color_buffer_half_float EXT_conservative_depth EXT_depth_clamp EXT_disjoint_timer_query_webgl2 EXT_float_blend EXT_polygon_offset_clamp EXT_render_snorm EXT_texture_compression_bptc EXT_texture_compression_rgtc EXT_texture_filter_anisotropic EXT_texture_mirror_clamp_to_edge EXT_texture_norm16 KHR_parallel_shader_compile NV_shader_noperspective_interpolation OES_draw_buffers_indexed OES_sample_variables OES_shader_multisample_interpolation OES_texture_float_linear OVR_multiview2 WEBGL_blend_func_extended WEBGL_clip_cull_distance WEBGL_compressed_texture_s3tc WEBGL_compressed_texture_s3tc_srgb WEBGL_debug_renderer_info WEBGL_debug_shaders WEBGL_lose_context WEBGL_multi_draw WEBGL_polygon_mode WEBGL_provoking_vertex WEBGL_shader_pixel_local_storage WEBGL_stencil_texturing GL_EXT_clip_control GL_EXT_color_buffer_float GL_EXT_color_buffer_half_float GL_EXT_conservative_depth GL_EXT_depth_clamp GL_EXT_disjoint_timer_query_webgl2 GL_EXT_float_blend GL_EXT_polygon_offset_
+109.3s clamp GL_EXT_render_snorm GL_EXT_texture_compression_bptc GL_EXT_texture_compression_rgtc GL_EXT_texture_filter_anisotropic GL_EXT_texture_mirror_clamp_to_edge GL_EXT_texture_norm16 GL_KHR_parallel_shader_compile GL_NV_shader_noperspective_interpolation GL_OES_draw_buffers_indexed GL_OES_sample_variables GL_OES_shader_multisample_interpolation GL_OES_texture_float_linear GL_OVR_multiview2 GL_WEBGL_blend_func_extended GL_WEBGL_clip_cull_distance GL_WEBGL_compressed_texture_s3tc GL_WEBGL_compressed_texture_s3tc_srgb GL_WEBGL_debug_renderer_info GL_WEBGL_debug_shaders GL_WEBGL_lose_context GL_WEBGL_multi_draw GL_WEBGL_polygon_mode GL_WEBGL_provoking_vertex GL_WEBGL_shader_pixel_local_storage GL_WEBGL_stencil_texturing
+109.3s OPENGL LOG: Creating OpenGL ES 3.0 graphics device ; Context level  <OpenGL ES 3.0> ; Context handle 1
+109.3s [Physics::Module] Selected backend.
+109.3s [Physics::Module] Name: PhysX
+109.3s [Physics::Module] Id: 0xf2b8ea05
+109.3s [Physics::Module] SDK Version: 4.1.2
+109.3s [Physics::Module] Integration Version: 1.0.0
+109.3s [Physics::Module] Threading Mode: Single-Threaded
+109.3s ERROR: Shader 
+109.3s Hidden/CoreSRP/CoreCopy shader is not supported on this GPU (none of subshaders/fallbacks are suitable)
+109.3s ERROR: Shader 
+109.3s Hidden/Universal Render Pipeline/StencilDitherMaskSeed shader is not supported on this GPU (none of subshaders/fallbacks are suitable)
+109.3s ERROR: Shader 
+109.3s Hidden/Universal/HDRDebugView shader is not supported on this GPU (none of subshaders/fallbacks are suitable)
+109.3s <b>[App UI]</b> Unable to find an AppUISettings instance, creating a default one...
+109.3s Input System initialize...
+109.5s Couldn't create a Convex Mesh from source mesh, within the maximum polygons limit (256). The partial hull will be used. Consider simplifying your mesh. Source mesh name: SM_rack_balls_Volleyball_1
+109.9s UnloadTime: 0.099999 ms
+109.9s [CourtsideBoards] 18 boards dressed around the court: 9 Beach Volleyball Empire, 9 GB Sunglasses
+109.9s Audio context resumed after 0.633 seconds.
+109.9s [Sound] crowd volume 1.00
+109.9s [Sound] commentary volume 1.00
+110.0s [Camera] remembered looks from the page: played game:1, watched tv:1
+110.0s [Between points] from the page: skip to next serve off, skip replays off
+110.4s [UnityCache] 'http://localhost:4251/unity-build/Build/Volleyball_WebGL_Uncompressed_2.data' successfully downloaded and stored in the browser cache
+112.0s [BoostUIController] Created Polished Attack and Defence boost buttons.
+112.0s [MatchManager] AudioManager initialized.
+112.0s [UnityMatchDataLoader] GET /api/unity/exhibition-state?id=f7205695-469c-4c06-b7cd-f5b2a61fd799
+112.0s WEATHER SUNNY
+112.0s Trying to get length of sound which is not loaded yet.
+112.0s Trying to get length of sound which is not loaded yet.
+112.0s [Director] Serve: beside the server
+112.0s The character with Unicode value \u2600 was not found in the [LiberationSans SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [WeatherText].
+112.1s [UnityMatchDataLoader] point chance for the home pair: 0.5041
+112.1s [UnityMatchDataLoader] continent europe, time of day midday, weather sunny
+112.1s [UnityMatchDataLoader] game difficulty medium (a played match grades and plays at it)
+112.1s [UnityMatchDataLoader] event (null), kits (null), boards (null) '(null)', manual not allowed
+112.1s [UnityMatchDataLoader] Player_A1: skin 'Medium' resolved via band 'Medium' -> #AA7339
+112.1s [UnityMatchDataLoader] Player_A1 <- Annika Bauer | team Berlin Sand Queens (home) | skinTone Medium | kit #5B2C83/#6CC5F0 | appearance controller found | applied ovr 84 pwr 80 spd 84 def 88 srv 86 blk 85 sta 82 mor 75 fit 100 fat 0 | (not applied: injured False)
+112.1s [UnityMatchDataLoader] Player_A2: skin 'Medium' resolved via band 'Medium' -> #AA7339
+112.1s [UnityMatchDataLoader] Player_A2 <- Sophie Müller | team Berlin Sand Queens (home) | skinTone Medium | kit #5B2C83/#6CC5F0 | appearance controller found | applied ovr 83 pwr 74 spd 88 def 90 srv 82 blk 76 sta 86 mor 75 fit 100 fat 0 | (not applied: injured False)
+112.1s [UnityMatchDataLoader] Player_B1: skin 'Medium Dark' resolved via band 'Medium Dark' -> #7A4626
+112.1s [UnityMatchDataLoader] Player_B1 <- María Alonso | team Barcelona Playa Elites (away) | skinTone Medium Dark | kit #00A3AD/#0B2545 | appearance controller found | applied ovr 81 pwr 78 spd 82 def 84 srv 84 blk 80 sta 80 mor 75 fit 100 fat 0 | (not applied: injured False)
+112.1s [UnityMatchDataLoader] Player_B2: skin 'Medium' resolved via band 'Medium' -> #AA7339
+112.1s [UnityMatchDataLoader] Player_B2 <- Carmen Ruiz | team Barcelona Playa Elites (away) | skinTone Medium | kit #00A3AD/#0B2545 | appearance controller found | applied ovr 82 pwr 76 spd 86 def 86 srv 80 blk 78 sta 84 mor 75 fit 100 fat 0 | (not applied: injured False)
+112.1s [UnityMatchDataLoader] team names: BERLIN SAND QUEENS (home) vs BARCELONA PLAYA ELITES (away)
+112.1s [UnityMatchDataLoader] applied 4 of 4 player(s)
+112.2s [UnityMatchDataLoader] exhibition: Player_A1 (Annika Bauer) seat AI; wears 
+112.2s [UnityMatchDataLoader] exhibition: Player_A2 (Sophie Müller) seat AI; wears 
+112.2s [UnityMatchDataLoader] exhibition: Player_B1 (María Alonso) seat AI; wears 
+112.2s [UnityMatchDataLoader] exhibition: Player_B2 (Carmen Ruiz) seat AI; wears 
+112.2s [Team] the booth: Kailey and Hukum, no guest; the sideline reporter on
+112.2s Trying to get length of sound which is not loaded yet.
+112.2s Trying to get length of sound which is not loaded yet.
+112.2s Trying to get length of sound which is not loaded yet.
+112.2s Trying to get length of sound which is not loaded yet.
+112.2s Trying to get length of sound which is not loaded yet.
+112.2s Trying to get length of sound which is not loaded yet.
+112.3s Trying to get length of sound which is not loaded yet.
+112.3s Trying to get length of sound which is not loaded yet.
+112.3s Trying to get length of sound which is not loaded yet.
+112.3s Trying to get length of sound which is not loaded yet.
+112.3s Trying to get length of sound which is not loaded yet.
+112.3s Trying to get length of sound which is not loaded yet.
+112.4s Trying to get length of sound which is not loaded yet.
+112.4s Trying to get length of sound which is not loaded yet.
+112.4s Trying to get length of sound which is not loaded yet.
+112.4s Trying to get length of sound which is not loaded yet.
+112.4s Trying to get length of sound which is not loaded yet.
+112.5s Trying to get length of sound which is not loaded yet.
+112.5s Trying to get length of sound which is not loaded yet.
+112.6s Trying to get length of sound which is not loaded yet.
+112.6s Trying to get length of sound which is not loaded yet.
+112.7s Trying to get length of sound which is not loaded yet.
+112.7s Trying to get length of sound which is not loaded yet.
+112.7s Trying to get length of sound which is not loaded yet.
+112.8s Trying to get length of sound which is not loaded yet.
+112.8s [Venue] europe (Mediterranean Cove) in after 0.8s, 110.4 MB; features on 7, off 2
+112.8s WEATHER SUNNY
+112.8s [TimeOfDay] Midday in Sunny: sun 50 degrees up, intensity 2.00, shadows 1.00; floodlights off
+112.8s [TimeOfDay] Midday in Sunny: sun 50 degrees up, intensity 2.00, shadows 1.00; floodlights off
+112.8s [Camera] keep-out rebuilt for the venue: 398 boxes, 370 of them props
+112.8s [MatchManager] match starts after 3.4s: match data applied; home point chance 0.5041
+112.8s [MatchManager] ratings in play Player_A1 (Annika Bauer): ovr 84 pwr 80 spd 84 def 88 srv 86 blk 85 sta 82 mor 75
+112.8s [MatchManager] ratings in play Player_A2 (Sophie Müller): ovr 83 pwr 74 spd 88 def 90 srv 82 blk 76 sta 86 mor 75
+112.8s [MatchManager] ratings in play Player_B1 (María Alonso): ovr 81 pwr 78 spd 82 def 84 srv 84 blk 80 sta 80 mor 75
+112.8s [MatchManager] ratings in play Player_B2 (Carmen Ruiz): ovr 82 pwr 76 spd 86 def 86 srv 80 blk 78 sta 84 mor 75
+112.8s [Director] cutaway: the walk-on (5.5 s)
+113.0s [Crowd] 34 real people in the front 1 row(s), 170 cards behind, 24 bystanders; 64 team fans (A #5B2C83, B #00A3AD); 42 different people; cards baked in 108 ms
+113.0s [Team] walk-on: Nicole Dupont S_walkon_1.mp3 "Bonjour from the sand! The players are on their way out, and this crowd is ready." -> not recorded: skipped in silence
+113.0s [Booth] seat 1: Kailey (casual15_f_highpoly); seat 2: empty (no guest); seat 3: Hukum (Man_33); on the sand: Nicole Dupont (business01_f_highpoly), a microphone in her hand
+113.0s [CrowdBanners] 10 banners up (GO BERLIN SAND QUEENS! | GO BARCELONA PLAYA ELITES! | ACE IT! | BLOCK PARTY | DIG DEEP | SET. SPIKE. SCORE. | SUN'S OUT, SPIKES OUT | NO SAND, NO GLORY | SIDE OUT! | BEACH VOLLEYBALL FOREVER)
+113.0s Trying to get length of sound which is not loaded yet.
+113.1s Trying to get length of sound which is not loaded yet.
+113.1s Trying to get length of sound which is not loaded yet.
+113.1s Trying to get length of sound which is not loaded yet.
+113.1s Trying to get length of sound which is not loaded yet.
+113.2s Trying to get length of sound which is not loaded yet.
+113.2s Trying to get length of sound which is not loaded yet.
+113.2s Trying to get length of sound which is not loaded yet.
+113.2s Trying to get length of sound which is not loaded yet.
+113.2s Trying to get length of sound which is not loaded yet.
+113.3s Trying to get length of sound which is not loaded yet.
+113.3s Trying to get length of sound which is not loaded yet.
+113.3s Trying to get length of sound which is not loaded yet.
+113.3s Trying to get length of sound which is not loaded yet.
+113.3s Trying to get length of sound which is not loaded yet.
+113.3s Trying to get length of sound which is not loaded yet.
+113.4s Trying to get length of sound which is not loaded yet.
+113.4s Trying to get length of sound which is not loaded yet.
+113.4s [Team] 57 team lines in TEAM.json (15 for Nicole Dupont, 17 for Roxy Calderwood, 17 for Kai Brennock, 6 hand-overs); 0 recorded
+113.4s Trying to get length of sound which is not loaded yet.
+113.4s Trying to get length of sound which is not loaded yet.
+113.5s Trying to get length of sound which is not loaded yet.
+113.5s Trying to get length of sound which is not loaded yet.
+113.5s Trying to get length of sound which is not loaded yet.
+113.5s [Commentary] 48 of 90 clips loaded from http://localhost:4251/unity-build/StreamingAssets/commentary: the 48 its LINES.txt lists (48 recorded before 1.2; B4's 42 are Rob's to record)
+114.0s [UnityCache] 'http://localhost:4251/unity-build/StreamingAssets/Venues/venue-europe.bundle' successfully downloaded and stored in the browser cache
+117.5s [Director] cutaway: the walk-on: Player_A1 (1.5 s)
+119.0s [Director] cutaway: the walk-on: Player_A2 (1.5 s)
+120.5s [Director] cutaway: the walk-on: Player_B1 (1.5 s)
+122.0s [Director] cutaway: the walk-on: Player_B2 (1.5 s)
+123.5s [Match moments] walk-on took 10.7 s
+123.5s [Director] Serve: low off the sand
+123.8s [Point] decided: BERLIN SAND QUEENS by Kill (server A, final attack by A after 4, chance 0.504)
+123.8s RATING CHECK: Player_B2 Movement 178 SpeedMult:2.28
+123.8s RATING CHECK: Player_A2 Serve 239 SpeedMult:2.10
+123.8s RALLY ACTION: TeamA Player_A2 1 Serve
+123.8s [MatchManager] jump heights: net top 2.24 m, spike lift 0.58 m, block lift 0.46 m
+124.1s [Director] Rally: end-on drift
+124.4s RATING CHECK: Player_B1 Movement 170 SpeedMult:2.20
+124.4s RATING CHECK: Player_B2 Dig 264 JitterMult:0.15
+124.4s RALLY ACTION: TeamB Player_B2 1 Dig
+124.9s RATING CHECK: Player_B2 Movement 178 SpeedMult:2.28
+124.9s RALLY ACTION: TeamB Player_B1 2 Set
+125.7s RATING CHECK: Player_A2 Movement 182 SpeedMult:2.32
+125.7s RATING CHECK: Player_A2 Block 224 Outcome:Controlled
+125.7s BLOCK ATTEMPT: Player_A2
+125.7s RATING CHECK: Player_B2 Spike 250 SpeedMult:2.17
+125.7s RALLY ACTION: TeamB Player_B2 3 Spike
+125.8s BLOCK SUCCESS: Player_A2
+125.8s [COMMENTARY] Controlled block! Player_A2 rebounded the ball back to the attacker's side!
+126.7s RATING CHECK: Player_B2 Movement 178 SpeedMult:2.28
+126.7s RALLY ACTION: TeamB Player_B1 2 Set
+127.4s RATING CHECK: Player_A2 Movement 182 SpeedMult:2.32
+127.4s RATING CHECK: Player_A2 Block 224 Outcome:Controlled
+127.5s BLOCK ATTEMPT: Player_A2
+127.5s RATING CHECK: Player_B2 Spike 250 SpeedMult:2.17
+127.5s RALLY ACTION: TeamB Player_B2 3 Spike
+127.5s BLOCK SUCCESS: Player_A2
+127.5s [COMMENTARY] Controlled block! Player_A2 rebounded the ball back to the attacker's side!
+128.4s RATING CHECK: Player_B2 Movement 178 SpeedMult:2.28
+128.4s RALLY ACTION: TeamB Player_B1 2 Set
+129.2s RATING CHECK: Player_A2 Movement 182 SpeedMult:2.32
+129.2s RATING CHECK: Player_A2 Block 224 Outcome:Controlled
+129.2s BLOCK ATTEMPT: Player_A2
+129.3s RATING CHECK: Player_B2 Spike 250 SpeedMult:2.17
+129.3s RALLY ACTION: TeamB Player_B2 3 Spike
+129.3s BLOCK SUCCESS: Player_A2
+129.3s [COMMENTARY] Controlled block! Player_A2 rebounded the ball back to the attacker's side!
+129.8s RATING CHECK: Player_B2 Movement 178 SpeedMult:2.28
+129.8s RALLY ACTION: TeamB Player_B1 2 Set
+130.4s RATING CHECK: Player_A2 Movement 182 SpeedMult:2.32
+130.5s RATING CHECK: Player_A2 Block 224 Outcome:Touch
+130.5s BLOCK ATTEMPT: Player_A2
+130.5s RATING CHECK: Player_B2 Spike 250 SpeedMult:2.17
+130.5s RALLY ACTION: TeamB Player_B2 3 Spike
+130.5s BLOCK TOUCH: Player_A2
+130.5s [COMMENTARY] Touch! Player_A2 got a hand on the ball, slowing it down. The rally continues!
+130.6s RATING CHECK: Player_A1 Movement 174 SpeedMult:2.24
+130.6s RATING CHECK: Player_A2 Dig 272 JitterMult:0.15
+130.6s RALLY ACTION: TeamA Player_A2 1 Dig
+131.2s RATING CHECK: Player_A2 Movement 182 SpeedMult:2.32
+131.2s RALLY ACTION: TeamA Player_A1 2 Set
+132.1s RATING CHECK: Player_B2 Movement 178 SpeedMult:2.28
+132.1s RATING CHECK: Player_A2 Spike 251 SpeedMult:2.18
+132.1s RALLY ACTION: TeamA Player_A2 3 Spike
+132.3s [Point] awarded: BERLIN SAND QUEENS by Kill after 6 attack(s), 17 touches
+132.3s BERLIN SAND QUEENS point: set 1 1-0, sets 0-0
+132.3s Trying to get length of sound which is not loaded yet.
+132.3s Trying to get length of sound which is not loaded yet.
+132.3s Trying to get length of sound which is not loaded yet.
+132.3s [MatchReporter] progress not sent: an exhibition game: it touches nothing in a career
+132.3s [Director] Kill: swoop in close
+132.3s [Director] cutaway: the scorer, Player_A2 (1.1 s)
+133.4s [Director] Between: the commentary booth
+133.4s [Director] cutaway: the other side, Player_B2 (0.7 s)
+134.1s [Director] cutaway: replay (2.2 s)
+136.3s [Between points] 4.0 s: point to A by Kill (big: a hard spike, 53 m/s) | score BERLIN SAND QUEENS 0 1 - 0 0 BARCELONA PLAYA ELITES | umpire: team to serve | Player_A1 Won_MC2 | Player_A2 Won_ThumbsUp2 | Player_B1 Lost_MC1 | Player_B2 Lost_MC2 | close-up: Player_A2 | the other side: Player_B2 | replay 1.2 s at 0.6x (2.1 s)
+136.3s [Director] Serve: beside the server
+136.6s [Point] decided: BERLIN SAND QUEENS by Kill (server A, final attack by A after 3, chance 0.504)
+136.6s RATING CHECK: Player_B1 Movement 170 SpeedMult:2.20
+136.6s RATING CHECK: Player_A2 Serve 239 SpeedMult:2.10
+136.6s RALLY ACTION: TeamA Player_A2 1 Serve
+136.9s [Director] Rally: high on the umpire's side
+137.2s RATING CHECK: Player_B2 Movement 178 SpeedMult:2.28
+137.2s RATING CHECK: Player_B1 Dig 254 JitterMult:0.15
+137.2s RALLY ACTION: TeamB Player_B1 1 Dig
+137.6s RATING CHECK: Player_B1 Movement 170 SpeedMult:2.20
+137.6s RALLY ACTION: TeamB Player_B2 2 Set
+138.3s RATING CHECK: Player_A2 Movement 182 SpeedMult:2.32
+138.3s RATING CHECK: Player_A1 Block 234 Outcome:Controlled
+138.3s BLOCK ATTEMPT: Player_A1
+138.3s RATING CHECK: Player_B1 Spike 247 SpeedMult:2.15
+138.3s RALLY ACTION: TeamB Player_B1 3 Spike
+138.4s BLOCK SUCCESS: Player_A1
+138.4s [COMMENTARY] Controlled block! Player_A1 rebounded the ball back to the attacker's side!
+139.4s RATING CHECK: Player_B1 Movement 170 SpeedMult:2.20
+139.4s RALLY ACTION: TeamB Player_B2 2 Set
+140.1s RATING CHECK: Player_A2 Movement 182 SpeedMult:2.32
+140.1s RATING CHECK: Player_A1 Block 234 Outcome:Controlled
+140.1s BLOCK ATTEMPT: Player_A1
+140.1s RATING CHECK: Player_B1 Spike 247 SpeedMult:2.15
+140.1s RALLY ACTION: TeamB Player_B1 3 Spike
+140.1s BLOCK SUCCESS: Player_A1
+140.2s [COMMENTARY] Controlled block! Player_A1 rebounded the ball back to the attacker's side!
+141.1s RATING CHECK: Player_B1 Movement 170 SpeedMult:2.20
+141.1s RALLY ACTION: TeamB Player_B2 2 Set
+142.4s RATING CHECK: Player_A2 Movement 182 SpeedMult:2.32
+142.4s RATING CHECK: Player_A1 Block 234 Outcome:Controlled
+142.4s BLOCK ATTEMPT: Player_A1
+142.4s RATING CHECK: Player_B1 Spike 247 SpeedMult:2.15
+142.4s RALLY ACTION: TeamB Player_B1 3 Spike
+142.4s BLOCK SUCCESS: Player_A1
+142.4s [COMMENTARY] Controlled block! Player_A1 rebounded the ball back to the attacker's side!
+143.9s [UnityMemory] Configuration Parameters - Can be set up in boot.config
+143.9s     "memorysetup-allocator-temp-initial-block-size-main=262144"
+143.9s     "memorysetup-allocator-temp-initial-block-size-worker=262144"
+143.9s     "memorysetup-temp-allocator-size-audio-worker=65536"
+143.9s     "memorysetup-temp-allocator-size-background-worker=32768"
+143.9s     "memorysetup-bucket-allocator-granularity=16"
+143.9s     "memorysetup-bucket-allocator-bucket-count=8"
+143.9s     "memorysetup-bucket-allocator-block-size=4194304"
+143.9s     "memorysetup-bucket-allocator-block-count=1"
+143.9s     "memorysetup-main-allocator-block-size=16777216"
+143.9s     "memorysetup-thread-allocator-block-size=16777216"
+143.9s     "memorysetup-gfx-main-allocator-block-size=16777216"
+143.9s     "memorysetup-gfx-thread-allocator-block-size=16777216"
+143.9s     "memorysetup-cache-allocator-block-size=4194304"
+143.9s     "memorysetup-typetree-allocator-block-size=2097152"
+143.9s     "memorysetup-profiler-bucket-allocator-granularity=16"
+143.9s     "memorysetup-profiler-bucket-allocator-bucket-count=8"
+143.9s     "memorysetup-profiler-bucket-allocator-block-size=4194304"
+143.9s     "memorysetup-profiler-bucket-allocator-block-count=1"
+143.9s     "memorysetup-profiler-allocator-block-size=16777216"
+143.9s     "memorysetup-profiler-editor-allocator-block-size=1048576"
+143.9s     "memorysetup-temp-allocator-size-main=4194304"
+143.9s     "memorysetup-job-temp-allocator-block-size=2097152"
+143.9s     "memorysetup-job-temp-allocator-block-size-background=1048576"
+143.9s     "memorysetup-job-temp-allocator-reduction-small-platforms=262144"
+143.9s Input System module state changed to: Initialized.
+143.9s [Physics::Module] Initialized fallback backend.
+143.9s [Physics::Module] Id: 0xdecafbad
+143.9s Loading player data from data.unity3d
+143.9s Initialize engine version: 6000.3.16f1 (a56f230f6470)
+143.9s [Subsystems] Discovering subsystems at path UnitySubsystems
+143.9s Creating WebGL 2.0 context.
+143.9s Renderer: WebKit WebGL
+143.9s Vendor:   WebKit
+143.9s Version:  OpenGL ES 3.0 (WebGL 2.0 (OpenGL ES 3.0 Chromium))
+144.0s GLES:     3
+144.0s  EXT_clip_control EXT_color_buffer_float EXT_color_buffer_half_float EXT_conservative_depth EXT_depth_clamp EXT_disjoint_timer_query_webgl2 EXT_float_blend EXT_polygon_offset_clamp EXT_render_snorm EXT_texture_compression_bptc EXT_texture_compression_rgtc EXT_texture_filter_anisotropic EXT_texture_mirror_clamp_to_edge EXT_texture_norm16 KHR_parallel_shader_compile NV_shader_noperspective_interpolation OES_draw_buffers_indexed OES_sample_variables OES_shader_multisample_interpolation OES_texture_float_linear OVR_multiview2 WEBGL_blend_func_extended WEBGL_clip_cull_distance WEBGL_compressed_texture_s3tc WEBGL_compressed_texture_s3tc_srgb WEBGL_debug_renderer_info WEBGL_debug_shaders WEBGL_lose_context WEBGL_multi_draw WEBGL_polygon_mode WEBGL_provoking_vertex WEBGL_shader_pixel_local_storage WEBGL_stencil_texturing GL_EXT_clip_control GL_EXT_color_buffer_float GL_EXT_color_buffer_half_float GL_EXT_conservative_depth GL_EXT_depth_clamp GL_EXT_disjoint_timer_query_webgl2 GL_EXT_float_blend GL_EXT_polygon_offset_
+144.0s clamp GL_EXT_render_snorm GL_EXT_texture_compression_bptc GL_EXT_texture_compression_rgtc GL_EXT_texture_filter_anisotropic GL_EXT_texture_mirror_clamp_to_edge GL_EXT_texture_norm16 GL_KHR_parallel_shader_compile GL_NV_shader_noperspective_interpolation GL_OES_draw_buffers_indexed GL_OES_sample_variables GL_OES_shader_multisample_interpolation GL_OES_texture_float_linear GL_OVR_multiview2 GL_WEBGL_blend_func_extended GL_WEBGL_clip_cull_distance GL_WEBGL_compressed_texture_s3tc GL_WEBGL_compressed_texture_s3tc_srgb GL_WEBGL_debug_renderer_info GL_WEBGL_debug_shaders GL_WEBGL_lose_context GL_WEBGL_multi_draw GL_WEBGL_polygon_mode GL_WEBGL_provoking_vertex GL_WEBGL_shader_pixel_local_storage GL_WEBGL_stencil_texturing
+144.0s OPENGL LOG: Creating OpenGL ES 3.0 graphics device ; Context level  <OpenGL ES 3.0> ; Context handle 1
+144.0s [Physics::Module] Selected backend.
+144.0s [Physics::Module] Name: PhysX
+144.0s [Physics::Module] Id: 0xf2b8ea05
+144.0s [Physics::Module] SDK Version: 4.1.2
+144.0s [Physics::Module] Integration Version: 1.0.0
+144.0s [Physics::Module] Threading Mode: Single-Threaded
+144.0s ERROR: Shader 
+144.0s Hidden/CoreSRP/CoreCopy shader is not supported on this GPU (none of subshaders/fallbacks are suitable)
+144.0s ERROR: Shader 
+144.0s Hidden/Universal Render Pipeline/StencilDitherMaskSeed shader is not supported on this GPU (none of subshaders/fallbacks are suitable)
+144.0s ERROR: Shader 
+144.0s Hidden/Universal/HDRDebugView shader is not supported on this GPU (none of subshaders/fallbacks are suitable)
+144.0s <b>[App UI]</b> Unable to find an AppUISettings instance, creating a default one...
+144.0s Input System initialize...
+144.2s Couldn't create a Convex Mesh from source mesh, within the maximum polygons limit (256). The partial hull will be used. Consider simplifying your mesh. Source mesh name: SM_rack_balls_Volleyball_1
+144.6s UnloadTime: 0.200000 ms
+144.6s [CourtsideBoards] 18 boards dressed around the court: 9 Beach Volleyball Empire, 9 GB Sunglasses
+144.6s Audio context resumed after 0.636 seconds.
+144.6s [Sound] crowd volume 1.00
+144.6s [Sound] commentary volume 1.00
+144.6s [Camera] remembered looks from the page: played game:1, watched tv:1
+144.6s [Between points] from the page: skip to next serve off, skip replays off
+145.0s [UnityCache] 'http://localhost:4251/unity-build/Build/Volleyball_WebGL_Uncompressed_2.data' successfully downloaded and stored in the browser cache
+146.6s [BoostUIController] Created Polished Attack and Defence boost buttons.
+146.6s [MatchManager] AudioManager initialized.
+146.6s [UnityMatchDataLoader] GET /api/unity/exhibition-state?id=f2e83a18-b359-4da9-aa52-3f04813155a3
+146.6s WEATHER SUNNY
+146.6s Trying to get length of sound which is not loaded yet.
+146.6s Trying to get length of sound which is not loaded yet.
+146.6s [Director] Serve: beside the server
+146.7s The character with Unicode value \u2600 was not found in the [LiberationSans SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [WeatherText].
+146.8s [UnityMatchDataLoader] point chance for the home pair: 0.5041
+146.8s [UnityMatchDataLoader] continent asia, time of day midday, weather sunny
+146.8s [UnityMatchDataLoader] game difficulty medium (a played match grades and plays at it)
+146.8s [UnityMatchDataLoader] event (null), kits (null), boards (null) '(null)', manual not allowed
+146.8s [UnityMatchDataLoader] Player_A1: skin 'Medium' resolved via band 'Medium' -> #AA7339
+146.8s [UnityMatchDataLoader] Player_A1 <- Annika Bauer | team Berlin Sand Queens (home) | skinTone Medium | kit #5B2C83/#6CC5F0 | appearance controller found | applied ovr 84 pwr 80 spd 84 def 88 srv 86 blk 85 sta 82 mor 75 fit 100 fat 0 | (not applied: injured False)
+146.8s [UnityMatchDataLoader] Player_A2: skin 'Medium' resolved via band 'Medium' -> #AA7339
+146.8s [UnityMatchDataLoader] Player_A2 <- Sophie Müller | team Berlin Sand Queens (home) | skinTone Medium | kit #5B2C83/#6CC5F0 | appearance controller found | applied ovr 83 pwr 74 spd 88 def 90 srv 82 blk 76 sta 86 mor 75 fit 100 fat 0 | (not applied: injured False)
+146.8s [UnityMatchDataLoader] Player_B1: skin 'Medium Dark' resolved via band 'Medium Dark' -> #7A4626
+146.8s [UnityMatchDataLoader] Player_B1 <- María Alonso | team Barcelona Playa Elites (away) | skinTone Medium Dark | kit #00A3AD/#0B2545 | appearance controller found | applied ovr 81 pwr 78 spd 82 def 84 srv 84 blk 80 sta 80 mor 75 fit 100 fat 0 | (not applied: injured False)
+146.8s [UnityMatchDataLoader] Player_B2: skin 'Medium' resolved via band 'Medium' -> #AA7339
+146.8s [UnityMatchDataLoader] Player_B2 <- Carmen Ruiz | team Barcelona Playa Elites (away) | skinTone Medium | kit #00A3AD/#0B2545 | appearance controller found | applied ovr 82 pwr 76 spd 86 def 86 srv 80 blk 78 sta 84 mor 75 fit 100 fat 0 | (not applied: injured False)
+146.8s [UnityMatchDataLoader] team names: BERLIN SAND QUEENS (home) vs BARCELONA PLAYA ELITES (away)
+146.8s [UnityMatchDataLoader] applied 4 of 4 player(s)
+146.8s [UnityMatchDataLoader] exhibition: Player_A1 (Annika Bauer) seat AI; wears 
+146.8s [UnityMatchDataLoader] exhibition: Player_A2 (Sophie Müller) seat AI; wears 
+146.8s [UnityMatchDataLoader] exhibition: Player_B1 (María Alonso) seat AI; wears 
+146.8s [UnityMatchDataLoader] exhibition: Player_B2 (Carmen Ruiz) seat AI; wears 
+146.8s [Team] the booth: Kailey and Hukum, no guest; the sideline reporter on
+146.8s Trying to get length of sound which is not loaded yet.
+146.8s Trying to get length of sound which is not loaded yet.
+146.8s Trying to get length of sound which is not loaded yet.
+146.8s Trying to get length of sound which is not loaded yet.
+146.9s Trying to get length of sound which is not loaded yet.
+146.9s Trying to get length of sound which is not loaded yet.
+146.9s Trying to get length of sound which is not loaded yet.
+146.9s Trying to get length of sound which is not loaded yet.
+146.9s Trying to get length of sound which is not loaded yet.
+147.0s Trying to get length of sound which is not loaded yet.
+147.0s Trying to get length of sound which is not loaded yet.
+147.0s Trying to get length of sound which is not loaded yet.
+147.0s Trying to get length of sound which is not loaded yet.
+147.0s Trying to get length of sound which is not loaded yet.
+147.0s Trying to get length of sound which is not loaded yet.
+147.1s Trying to get length of sound which is not loaded yet.
+147.1s Trying to get length of sound which is not loaded yet.
+147.2s Trying to get length of sound which is not loaded yet.
+147.2s Trying to get length of sound which is not loaded yet.
+147.2s Trying to get length of sound which is not loaded yet.
+147.3s Trying to get length of sound which is not loaded yet.
+147.3s [Venue] asia (Lagoon Resort) in after 0.7s, 76.5 MB; features on 7, off 2
+147.3s WEATHER SUNNY
+147.3s [TimeOfDay] Midday in Sunny: sun 50 degrees up, intensity 2.00, shadows 1.00; floodlights off
+147.3s [TimeOfDay] Midday in Sunny: sun 50 degrees up, intensity 2.00, shadows 1.00; floodlights off
+147.3s [Camera] keep-out rebuilt for the venue: 398 boxes, 370 of them props
+147.3s [MatchManager] match starts after 3.3s: match data applied; home point chance 0.5041
+147.3s [MatchManager] ratings in play Player_A1 (Annika Bauer): ovr 84 pwr 80 spd 84 def 88 srv 86 blk 85 sta 82 mor 75
+147.3s [MatchManager] ratings in play Player_A2 (Sophie Müller): ovr 83 pwr 74 spd 88 def 90 srv 82 blk 76 sta 86 mor 75
+147.3s [MatchManager] ratings in play Player_B1 (María Alonso): ovr 81 pwr 78 spd 82 def 84 srv 84 blk 80 sta 80 mor 75
+147.3s [MatchManager] ratings in play Player_B2 (Carmen Ruiz): ovr 82 pwr 76 spd 86 def 86 srv 80 blk 78 sta 84 mor 75
+147.3s [Director] cutaway: the walk-on (5.5 s)
+147.4s Trying to get length of sound which is not loaded yet.
+147.5s [Crowd] 34 real people in the front 1 row(s), 170 cards behind, 24 bystanders; 64 team fans (A #5B2C83, B #00A3AD); 42 different people; cards baked in 110 ms
+147.5s [Team] walk-on: Nicole Dupont S_walkon_3.mp3 "Both pairs look relaxed down here. That will not last long!" -> not recorded: skipped in silence
+147.5s [Booth] seat 1: Kailey (casual15_f_highpoly); seat 2: empty (no guest); seat 3: Hukum (Man_33); on the sand: Nicole Dupont (business01_f_highpoly), a microphone in her hand
+147.5s [CrowdBanners] 10 banners up (GO BERLIN SAND QUEENS! | GO BARCELONA PLAYA ELITES! | ACE IT! | BLOCK PARTY | DIG DEEP | SET. SPIKE. SCORE. | SUN'S OUT, SPIKES OUT | NO SAND, NO GLORY | SIDE OUT! | BEACH VOLLEYBALL FOREVER)
+147.6s Trying to get length of sound which is not loaded yet.
+147.6s Trying to get length of sound which is not loaded yet.
+147.6s Trying to get length of sound which is not loaded yet.
+147.6s Trying to get length of sound which is not loaded yet.
+147.7s Trying to get length of sound which is not loaded yet.
+147.7s Trying to get length of sound which is not loaded yet.
+147.7s Trying to get length of sound which is not loaded yet.
+147.7s Trying to get length of sound which is not loaded yet.
+147.8s Trying to get length of sound which is not loaded yet.
+147.8s Trying to get length of sound which is not loaded yet.
+147.8s Trying to get length of sound which is not loaded yet.
+147.8s Trying to get length of sound which is not loaded yet.
+147.8s Trying to get length of sound which is not loaded yet.
+147.9s Trying to get length of sound which is not loaded yet.
+147.9s Trying to get length of sound which is not loaded yet.
+147.9s Trying to get length of sound which is not loaded yet.
+147.9s Trying to get length of sound which is not loaded yet.
+147.9s Trying to get length of sound which is not loaded yet.
+147.9s Trying to get length of sound which is not loaded yet.
+148.0s Trying to get length of sound which is not loaded yet.
+148.0s Trying to get length of sound which is not loaded yet.
+148.0s Trying to get length of sound which is not loaded yet.
+148.0s Trying to get length of sound which is not loaded yet.
+148.0s Trying to get length of sound which is not loaded yet.
+148.1s Trying to get length of sound which is not loaded yet.
+148.1s [Team] 57 team lines in TEAM.json (15 for Nicole Dupont, 17 for Roxy Calderwood, 17 for Kai Brennock, 6 hand-overs); 0 recorded
+148.1s Trying to get length of sound which is not loaded yet.
+148.1s [Commentary] 48 of 90 clips loaded from http://localhost:4251/unity-build/StreamingAssets/commentary: the 48 its LINES.txt lists (48 recorded before 1.2; B4's 42 are Rob's to record)
+148.5s [UnityCache] 'http://localhost:4251/unity-build/StreamingAssets/Venues/venue-asia.bundle' successfully downloaded and stored in the browser cache
+152.0s [Director] cutaway: the walk-on: Player_A1 (1.5 s)
+153.5s [Director] cutaway: the walk-on: Player_A2 (1.5 s)
+155.0s [Director] cutaway: the walk-on: Player_B1 (1.5 s)
+156.5s [Director] cutaway: the walk-on: Player_B2 (1.5 s)
+158.0s [Match moments] walk-on took 10.7 s
+158.0s [Director] Serve: low off the sand
+158.3s [Point] decided: BARCELONA PLAYA ELITES by Kill (server A, final attack by B after 3, chance 0.504)
+158.3s RATING CHECK: Player_B1 Movement 170 SpeedMult:2.20
+158.3s RATING CHECK: Player_A1 Serve 249 SpeedMult:2.16
+158.3s RALLY ACTION: TeamA Player_A1 1 Serve
+158.3s [MatchManager] jump heights: net top 2.24 m, spike lift 0.58 m, block lift 0.46 m
+158.6s [Director] Rally: end-on drift
+158.9s RATING CHECK: Player_B2 Movement 178 SpeedMult:2.28
+158.9s RATING CHECK: Player_B1 Dig 254 JitterMult:0.15
+158.9s RALLY ACTION: TeamB Player_B1 1 Dig
+159.6s RATING CHECK: Player_B1 Movement 170 SpeedMult:2.20
+159.6s RALLY ACTION: TeamB Player_B2 2 Set
+160.2s RATING CHECK: Player_A1 Movement 174 SpeedMult:2.24
+160.2s RATING CHECK: Player_A1 Block 234 Outcome:Controlled
+160.2s BLOCK ATTEMPT: Player_A1
+160.2s RATING CHECK: Player_B1 Spike 247 SpeedMult:2.15
+160.2s RALLY ACTION: TeamB Player_B1 3 Spike
+160.3s BLOCK SUCCESS: Player_A1
+160.3s [COMMENTARY] Controlled block! Player_A1 rebounded the ball back to the attacker's side!
+161.3s RATING CHECK: Player_B1 Movement 170 SpeedMult:2.20
+161.3s RALLY ACTION: TeamB Player_B2 2 Set
+162.2s RATING CHECK: Player_A1 Movement 174 SpeedMult:2.24
+162.2s RATING CHECK: Player_A1 Block 234 Outcome:Controlled
+162.2s BLOCK ATTEMPT: Player_A1
+162.2s RATING CHECK: Player_B1 Spike 247 SpeedMult:2.15
+162.2s RALLY ACTION: TeamB Player_B1 3 Spike
+162.3s BLOCK SUCCESS: Player_A1
+162.3s [COMMENTARY] Controlled block! Player_A1 rebounded the ball back to the attacker's side!
+163.3s RATING CHECK: Player_B1 Movement 170 SpeedMult:2.20
+163.3s RALLY ACTION: TeamB Player_B2 2 Set
+163.9s RATING CHECK: Player_A1 Movement 174 SpeedMult:2.24
+163.9s RATING CHECK: Player_B1 Spike 247 SpeedMult:2.15
+163.9s RALLY ACTION: TeamB Player_B1 3 Spike
+164.1s [Point] awarded: BARCELONA PLAYA ELITES by Kill after 4 attack(s), 10 touches
+164.1s BARCELONA PLAYA ELITES point: set 1 0-1, sets 0-0
+164.1s Trying to get length of sound which is not loaded yet.
+164.1s Trying to get length of sound which is not loaded yet.
+164.1s [MatchReporter] progress not sent: an exhibition game: it touches nothing in a career
+164.1s [Director] Kill: swoop in close
+164.1s [Director] cutaway: the scorer, Player_B1 (1.1 s)
+165.2s [Director] Between: the commentary booth
+165.2s [Director] cutaway: the other side, Player_A2 (0.7 s)
+165.9s [Director] cutaway: replay (2.2 s)
+168.1s [Between points] 4.0 s: point to B by Kill (big: a hard spike, 60 m/s) | score BERLIN SAND QUEENS 0 0 - 1 0 BARCELONA PLAYA ELITES | umpire: team to serve | Player_B1 Won_MC2 | Player_B2 Won_ThumbsUp2 | Player_A1 Lost_MC1 | Player_A2 Lost_MC2 | close-up: Player_B1 | the other side: Player_A2 | replay 1.2 s at 0.6x (2.1 s)
+168.1s [Director] Serve: beside the server
+168.4s [Point] decided: BERLIN SAND QUEENS by AttackError (server B, final attack by B after 2, chance 0.504)
+168.4s RATING CHECK: Player_A2 Movement 182 SpeedMult:2.32
+168.4s RATING CHECK: Player_B2 Serve 239 SpeedMult:2.09
+168.4s RALLY ACTION: TeamB Player_B2 1 Serve
+168.7s [Director] Rally: high on the umpire's side
+169.0s RATING CHECK: Player_A1 Movement 174 SpeedMult:2.24
+169.0s RATING CHECK: Player_A2 Dig 272 JitterMult:0.15
+169.0s RALLY ACTION: TeamA Player_A2 1 Dig
+169.4s RATING CHECK: Player_A2 Movement 182 SpeedMult:2.32
+169.4s RALLY ACTION: TeamA Player_A1 2 Set
+170.1s RATING CHECK: Player_B2 Movement 178 SpeedMult:2.28
+170.1s RATING CHECK: Player_B2 Block 225 Outcome:Controlled
+170.1s BLOCK ATTEMPT: Player_B2
+170.1s RATING CHECK: Player_A2 Spike 251 SpeedMult:2.18
+170.1s RALLY ACTION: TeamA Player_A2 3 Spike
+170.2s BLOCK SUCCESS: Player_B2
+170.2s [COMMENTARY] Controlled block! Player_B2 rebounded the ball back to the attacker's side!
+171.0s RATING CHECK: Player_A2 Movement 182 SpeedMult:2.32
+171.0s RALLY ACTION: TeamA Player_A1 2 Set
+171.7s RATING CHECK: Player_B2 Movement 178 SpeedMult:2.28
+171.7s RATING CHECK: Player_B2 Block 225 Outcome:Controlled
+171.7s BLOCK ATTEMPT: Player_B2
+171.8s RATING CHECK: Player_A2 Spike 251 SpeedMult:2.18
+171.8s RALLY ACTION: TeamA Player_A2 3 Spike
+171.8s BLOCK SUCCESS: Player_B2
+171.8s [COMMENTARY] Controlled block! Player_B2 rebounded the ball back to the attacker's side!
+172.8s RATING CHECK: Player_A2 Movement 182 SpeedMult:2.32
+172.8s RALLY ACTION: TeamA Player_A1 2 Set
+173.7s RATING CHECK: Player_B2 Movement 178 SpeedMult:2.28
+173.7s RATING CHECK: Player_B2 Block 225 Outcome:Controlled
+173.7s BLOCK ATTEMPT: Player_B2
+173.7s RATING CHECK: Player_A2 Spike 251 SpeedMult:2.18
+173.7s RALLY ACTION: TeamA Player_A2 3 Spike
+173.8s BLOCK SUCCESS: Player_B2
+173.8s [COMMENTARY] Controlled block! Player_B2 rebounded the ball back to the attacker's side!
+174.7s RATING CHECK: Player_A2 Movement 182 SpeedMult:2.32
+174.7s RALLY ACTION: TeamA Player_A1 2 Set
+175.6s RATING CHECK: Player_B2 Movement 178 SpeedMult:2.28
+175.6s RATING CHECK: Player_B2 Block 225 Outcome:Touch
+175.6s BLOCK ATTEMPT: Player_B2
+175.6s RATING CHECK: Player_A2 Spike 251 SpeedMult:2.18
+175.6s RALLY ACTION: TeamA Player_A2 3 Spike
+175.7s BLOCK TOUCH: Player_B2
+175.7s [COMMENTARY] Touch! Player_B2 got a hand on the ball, slowing it down. The rally continues!
+175.8s RATING CHECK: Player_B1 Movement 170 SpeedMult:2.20
+175.8s RATING CHECK: Player_B2 Dig 264 JitterMult:0.15
+175.8s RALLY ACTION: TeamB Player_B2 1 Dig
+176.6s RATING CHECK: Player_B2 Movement 178 SpeedMult:2.28
+176.6s RALLY ACTION: TeamB Player_B1 2 Set
+178.5s [UnityMemory] Configuration Parameters - Can be set up in boot.config
+178.5s     "memorysetup-allocator-temp-initial-block-size-main=262144"
+178.5s     "memorysetup-allocator-temp-initial-block-size-worker=262144"
+178.5s     "memorysetup-temp-allocator-size-audio-worker=65536"
+178.5s     "memorysetup-temp-allocator-size-background-worker=32768"
+178.5s     "memorysetup-bucket-allocator-granularity=16"
+178.5s     "memorysetup-bucket-allocator-bucket-count=8"
+178.5s     "memorysetup-bucket-allocator-block-size=4194304"
+178.5s     "memorysetup-bucket-allocator-block-count=1"
+178.5s     "memorysetup-main-allocator-block-size=16777216"
+178.5s     "memorysetup-thread-allocator-block-size=16777216"
+178.5s     "memorysetup-gfx-main-allocator-block-size=16777216"
+178.5s     "memorysetup-gfx-thread-allocator-block-size=16777216"
+178.5s     "memorysetup-cache-allocator-block-size=4194304"
+178.5s     "memorysetup-typetree-allocator-block-size=2097152"
+178.5s     "memorysetup-profiler-bucket-allocator-granularity=16"
+178.5s     "memorysetup-profiler-bucket-allocator-bucket-count=8"
+178.5s     "memorysetup-profiler-bucket-allocator-block-size=4194304"
+178.5s     "memorysetup-profiler-bucket-allocator-block-count=1"
+178.5s     "memorysetup-profiler-allocator-block-size=16777216"
+178.5s     "memorysetup-profiler-editor-allocator-block-size=1048576"
+178.6s     "memorysetup-temp-allocator-size-main=4194304"
+178.6s     "memorysetup-job-temp-allocator-block-size=2097152"
+178.6s     "memorysetup-job-temp-allocator-block-size-background=1048576"
+178.6s     "memorysetup-job-temp-allocator-reduction-small-platforms=262144"
+178.6s Input System module state changed to: Initialized.
+178.6s [Physics::Module] Initialized fallback backend.
+178.6s [Physics::Module] Id: 0xdecafbad
+178.6s Loading player data from data.unity3d
+178.6s Initialize engine version: 6000.3.16f1 (a56f230f6470)
+178.6s [Subsystems] Discovering subsystems at path UnitySubsystems
+178.6s Creating WebGL 2.0 context.
+178.6s Renderer: WebKit WebGL
+178.6s Vendor:   WebKit
+178.6s Version:  OpenGL ES 3.0 (WebGL 2.0 (OpenGL ES 3.0 Chromium))
+178.6s GLES:     3
+178.6s  EXT_clip_control EXT_color_buffer_float EXT_color_buffer_half_float EXT_conservative_depth EXT_depth_clamp EXT_disjoint_timer_query_webgl2 EXT_float_blend EXT_polygon_offset_clamp EXT_render_snorm EXT_texture_compression_bptc EXT_texture_compression_rgtc EXT_texture_filter_anisotropic EXT_texture_mirror_clamp_to_edge EXT_texture_norm16 KHR_parallel_shader_compile NV_shader_noperspective_interpolation OES_draw_buffers_indexed OES_sample_variables OES_shader_multisample_interpolation OES_texture_float_linear OVR_multiview2 WEBGL_blend_func_extended WEBGL_clip_cull_distance WEBGL_compressed_texture_s3tc WEBGL_compressed_texture_s3tc_srgb WEBGL_debug_renderer_info WEBGL_debug_shaders WEBGL_lose_context WEBGL_multi_draw WEBGL_polygon_mode WEBGL_provoking_vertex WEBGL_shader_pixel_local_storage WEBGL_stencil_texturing GL_EXT_clip_control GL_EXT_color_buffer_float GL_EXT_color_buffer_half_float GL_EXT_conservative_depth GL_EXT_depth_clamp GL_EXT_disjoint_timer_query_webgl2 GL_EXT_float_blend GL_EXT_polygon_offset_
+178.6s clamp GL_EXT_render_snorm GL_EXT_texture_compression_bptc GL_EXT_texture_compression_rgtc GL_EXT_texture_filter_anisotropic GL_EXT_texture_mirror_clamp_to_edge GL_EXT_texture_norm16 GL_KHR_parallel_shader_compile GL_NV_shader_noperspective_interpolation GL_OES_draw_buffers_indexed GL_OES_sample_variables GL_OES_shader_multisample_interpolation GL_OES_texture_float_linear GL_OVR_multiview2 GL_WEBGL_blend_func_extended GL_WEBGL_clip_cull_distance GL_WEBGL_compressed_texture_s3tc GL_WEBGL_compressed_texture_s3tc_srgb GL_WEBGL_debug_renderer_info GL_WEBGL_debug_shaders GL_WEBGL_lose_context GL_WEBGL_multi_draw GL_WEBGL_polygon_mode GL_WEBGL_provoking_vertex GL_WEBGL_shader_pixel_local_storage GL_WEBGL_stencil_texturing
+178.6s OPENGL LOG: Creating OpenGL ES 3.0 graphics device ; Context level  <OpenGL ES 3.0> ; Context handle 1
+178.6s [Physics::Module] Selected backend.
+178.6s [Physics::Module] Name: PhysX
+178.6s [Physics::Module] Id: 0xf2b8ea05
+178.6s [Physics::Module] SDK Version: 4.1.2
+178.6s [Physics::Module] Integration Version: 1.0.0
+178.6s [Physics::Module] Threading Mode: Single-Threaded
+178.6s ERROR: Shader 
+178.6s Hidden/CoreSRP/CoreCopy shader is not supported on this GPU (none of subshaders/fallbacks are suitable)
+178.6s ERROR: Shader 
+178.6s Hidden/Universal Render Pipeline/StencilDitherMaskSeed shader is not supported on this GPU (none of subshaders/fallbacks are suitable)
+178.6s ERROR: Shader 
+178.6s Hidden/Universal/HDRDebugView shader is not supported on this GPU (none of subshaders/fallbacks are suitable)
+178.6s <b>[App UI]</b> Unable to find an AppUISettings instance, creating a default one...
+178.6s Input System initialize...
+178.9s Couldn't create a Convex Mesh from source mesh, within the maximum polygons limit (256). The partial hull will be used. Consider simplifying your mesh. Source mesh name: SM_rack_balls_Volleyball_1
+179.2s UnloadTime: 0.200000 ms
+179.3s [CourtsideBoards] 18 boards dressed around the court: 9 Beach Volleyball Empire, 9 GB Sunglasses
+179.3s Audio context resumed after 0.707 seconds.
+179.3s [Sound] crowd volume 1.00
+179.3s [Sound] commentary volume 1.00
+179.4s [Camera] remembered looks from the page: played game:1, watched tv:1
+179.4s [Between points] from the page: skip to next serve off, skip replays off
+179.8s [UnityCache] 'http://localhost:4251/unity-build/Build/Volleyball_WebGL_Uncompressed_2.data' successfully downloaded and stored in the browser cache
+181.4s [BoostUIController] Created Polished Attack and Defence boost buttons.
+181.4s [MatchManager] AudioManager initialized.
+181.4s [UnityMatchDataLoader] GET /api/unity/exhibition-state?id=50717134-e2c7-4df2-88dd-0d32acf61703
+181.4s WEATHER SUNNY
+181.4s Trying to get length of sound which is not loaded yet.
+181.4s Trying to get length of sound which is not loaded yet.
+181.4s [Director] Serve: beside the server
+181.4s The character with Unicode value \u2600 was not found in the [LiberationSans SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [WeatherText].
+181.5s [UnityMatchDataLoader] point chance for the home pair: 0.5041
+181.5s [UnityMatchDataLoader] continent africa_middle_east, time of day midday, weather sunny
+181.5s [UnityMatchDataLoader] game difficulty medium (a played match grades and plays at it)
+181.5s [UnityMatchDataLoader] event (null), kits (null), boards (null) '(null)', manual not allowed
+181.5s [UnityMatchDataLoader] Player_A1: skin 'Medium' resolved via band 'Medium' -> #AA7339
+181.5s [UnityMatchDataLoader] Player_A1 <- Annika Bauer | team Berlin Sand Queens (home) | skinTone Medium | kit #5B2C83/#6CC5F0 | appearance controller found | applied ovr 84 pwr 80 spd 84 def 88 srv 86 blk 85 sta 82 mor 75 fit 100 fat 0 | (not applied: injured False)
+181.6s [UnityMatchDataLoader] Player_A2: skin 'Medium' resolved via band 'Medium' -> #AA7339
+181.6s [UnityMatchDataLoader] Player_A2 <- Sophie Müller | team Berlin Sand Queens (home) | skinTone Medium | kit #5B2C83/#6CC5F0 | appearance controller found | applied ovr 83 pwr 74 spd 88 def 90 srv 82 blk 76 sta 86 mor 75 fit 100 fat 0 | (not applied: injured False)
+181.6s [UnityMatchDataLoader] Player_B1: skin 'Medium Dark' resolved via band 'Medium Dark' -> #7A4626
+181.6s [UnityMatchDataLoader] Player_B1 <- María Alonso | team Barcelona Playa Elites (away) | skinTone Medium Dark | kit #00A3AD/#0B2545 | appearance controller found | applied ovr 81 pwr 78 spd 82 def 84 srv 84 blk 80 sta 80 mor 75 fit 100 fat 0 | (not applied: injured False)
+181.6s [UnityMatchDataLoader] Player_B2: skin 'Medium' resolved via band 'Medium' -> #AA7339
+181.6s [UnityMatchDataLoader] Player_B2 <- Carmen Ruiz | team Barcelona Playa Elites (away) | skinTone Medium | kit #00A3AD/#0B2545 | appearance controller found | applied ovr 82 pwr 76 spd 86 def 86 srv 80 blk 78 sta 84 mor 75 fit 100 fat 0 | (not applied: injured False)
+181.6s [UnityMatchDataLoader] team names: BERLIN SAND QUEENS (home) vs BARCELONA PLAYA ELITES (away)
+181.6s [UnityMatchDataLoader] applied 4 of 4 player(s)
+181.6s [UnityMatchDataLoader] exhibition: Player_A1 (Annika Bauer) seat AI; wears 
+181.6s [UnityMatchDataLoader] exhibition: Player_A2 (Sophie Müller) seat AI; wears 
+181.6s [UnityMatchDataLoader] exhibition: Player_B1 (María Alonso) seat AI; wears 
+181.6s [UnityMatchDataLoader] exhibition: Player_B2 (Carmen Ruiz) seat AI; wears 
+181.6s [Team] the booth: Kailey and Hukum, no guest; the sideline reporter on
+181.6s Trying to get length of sound which is not loaded yet.
+181.6s Trying to get length of sound which is not loaded yet.
+181.6s Trying to get length of sound which is not loaded yet.
+181.7s Trying to get length of sound which is not loaded yet.
+181.7s Trying to get length of sound which is not loaded yet.
+181.7s Trying to get length of sound which is not loaded yet.
+181.7s Trying to get length of sound which is not loaded yet.
+181.8s Trying to get length of sound which is not loaded yet.
+181.8s Trying to get length of sound which is not loaded yet.
+181.8s Trying to get length of sound which is not loaded yet.
+181.9s Trying to get length of sound which is not loaded yet.
+182.0s Trying to get length of sound which is not loaded yet.
+182.0s Trying to get length of sound which is not loaded yet.
+182.0s Trying to get length of sound which is not loaded yet.
+182.1s Trying to get length of sound which is not loaded yet.
+182.1s [Venue] africa_middle_east (Desert Coast) in after 0.7s, 71.0 MB; features on 7, off 2
+182.1s WEATHER SUNNY
+182.1s [TimeOfDay] Midday in Sunny: sun 50 degrees up, intensity 2.00, shadows 1.00; floodlights off
+182.1s [TimeOfDay] Midday in Sunny: sun 50 degrees up, intensity 2.00, shadows 1.00; floodlights off
+182.1s [Camera] keep-out rebuilt for the venue: 398 boxes, 370 of them props
+182.1s [MatchManager] match starts after 3.4s: match data applied; home point chance 0.5041
+182.1s [MatchManager] ratings in play Player_A1 (Annika Bauer): ovr 84 pwr 80 spd 84 def 88 srv 86 blk 85 sta 82 mor 75
+182.1s [MatchManager] ratings in play Player_A2 (Sophie Müller): ovr 83 pwr 74 spd 88 def 90 srv 82 blk 76 sta 86 mor 75
+182.1s [MatchManager] ratings in play Player_B1 (María Alonso): ovr 81 pwr 78 spd 82 def 84 srv 84 blk 80 sta 80 mor 75
+182.1s [MatchManager] ratings in play Player_B2 (Carmen Ruiz): ovr 82 pwr 76 spd 86 def 86 srv 80 blk 78 sta 84 mor 75
+182.1s [Director] cutaway: the walk-on (5.5 s)
+182.2s Trying to get length of sound which is not loaded yet.
+182.3s [Crowd] 34 real people in the front 1 row(s), 170 cards behind, 24 bystanders; 64 team fans (A #5B2C83, B #00A3AD); 42 different people; cards baked in 110 ms
+182.3s [Team] walk-on: Nicole Dupont S_walkon_2.mp3 "I'm right beside the court, and I can tell you, the sand is hot and so is the mood." -> not recorded: skipped in silence
+182.3s [Booth] seat 1: Kailey (casual15_f_highpoly); seat 2: empty (no guest); seat 3: Hukum (Man_33); on the sand: Nicole Dupont (business01_f_highpoly), a microphone in her hand
+182.3s [CrowdBanners] 10 banners up (GO BERLIN SAND QUEENS! | GO BARCELONA PLAYA ELITES! | ACE IT! | BLOCK PARTY | DIG DEEP | SET. SPIKE. SCORE. | SUN'S OUT, SPIKES OUT | NO SAND, NO GLORY | SIDE OUT! | BEACH VOLLEYBALL FOREVER)
+182.4s Trying to get length of sound which is not loaded yet.
+182.4s Trying to get length of sound which is not loaded yet.
+182.4s Trying to get length of sound which is not loaded yet.
+182.4s Trying to get length of sound which is not loaded yet.
+182.5s Trying to get length of sound which is not loaded yet.
+182.5s Trying to get length of sound which is not loaded yet.
+182.5s Trying to get length of sound which is not loaded yet.
+182.5s Trying to get length of sound which is not loaded yet.
+182.6s Trying to get length of sound which is not loaded yet.
+182.6s Trying to get length of sound which is not loaded yet.
+182.6s Trying to get length of sound which is not loaded yet.
+182.6s Trying to get length of sound which is not loaded yet.
+182.7s Trying to get length of sound which is not loaded yet.
+182.7s Trying to get length of sound which is not loaded yet.
+182.7s Trying to get length of sound which is not loaded yet.
+182.8s Trying to get length of sound which is not loaded yet.
+182.8s Trying to get length of sound which is not loaded yet.
+182.8s Trying to get length of sound which is not loaded yet.
+182.8s Trying to get length of sound which is not loaded yet.
+182.9s Trying to get length of sound which is not loaded yet.
+182.9s Trying to get length of sound which is not loaded yet.
+182.9s [Team] 57 team lines in TEAM.json (15 for Nicole Dupont, 17 for Roxy Calderwood, 17 for Kai Brennock, 6 hand-overs); 0 recorded
+182.9s Trying to get length of sound which is not loaded yet.
+182.9s Trying to get length of sound which is not loaded yet.
+182.9s Trying to get length of sound which is not loaded yet.
+182.9s Trying to get length of sound which is not loaded yet.
+183.0s Trying to get length of sound which is not loaded yet.
+183.0s Trying to get length of sound which is not loaded yet.
+183.0s Trying to get length of sound which is not loaded yet.
+183.0s Trying to get length of sound which is not loaded yet.
+183.0s Trying to get length of sound which is not loaded yet.
+183.0s Trying to get length of sound which is not loaded yet.
+183.1s Trying to get length of sound which is not loaded yet.
+183.1s [Commentary] 48 of 90 clips loaded from http://localhost:4251/unity-build/StreamingAssets/commentary: the 48 its LINES.txt lists (48 recorded before 1.2; B4's 42 are Rob's to record)
+183.4s [UnityCache] 'http://localhost:4251/unity-build/StreamingAssets/Venues/venue-africa-middle-east.bundle' successfully downloaded and stored in the browser cache
+186.8s [Director] cutaway: the walk-on: Player_A1 (1.5 s)
+188.3s [Director] cutaway: the walk-on: Player_A2 (1.5 s)
+189.8s [Director] cutaway: the walk-on: Player_B1 (1.5 s)
+191.3s [Director] cutaway: the walk-on: Player_B2 (1.5 s)
+192.8s [Match moments] walk-on took 10.7 s
+192.8s [Director] Serve: low off the sand
+193.1s [Point] decided: BARCELONA PLAYA ELITES by BlockStuff (server A, final attack by A after 3, chance 0.504)
+193.1s RATING CHECK: Player_B2 Movement 178 SpeedMult:2.28
+193.1s RATING CHECK: Player_A2 Serve 239 SpeedMult:2.10
+193.1s RALLY ACTION: TeamA Player_A2 1 Serve
+193.1s [MatchManager] jump heights: net top 2.24 m, spike lift 0.58 m, block lift 0.46 m
+193.4s [Director] Rally: end-on drift
+193.7s RATING CHECK: Player_B1 Movement 170 SpeedMult:2.20
+193.7s RATING CHECK: Player_B2 Dig 264 JitterMult:0.15
+193.7s RALLY ACTION: TeamB Player_B2 1 Dig
+194.2s RATING CHECK: Player_B2 Movement 178 SpeedMult:2.28
+194.2s RALLY ACTION: TeamB Player_B1 2 Set
+195.1s RATING CHECK: Player_A2 Movement 182 SpeedMult:2.32
+195.1s RATING CHECK: Player_A2 Block 224 Outcome:Touch
+195.1s BLOCK ATTEMPT: Player_A2
+195.1s RATING CHECK: Player_B2 Spike 250 SpeedMult:2.17
+195.1s RALLY ACTION: TeamB Player_B2 3 Spike
+195.2s BLOCK TOUCH: Player_A2
+195.2s [COMMENTARY] Touch! Player_A2 got a hand on the ball, slowing it down. The rally continues!
+195.3s RATING CHECK: Player_A1 Movement 174 SpeedMult:2.24
+195.3s RATING CHECK: Player_A2 Dig 272 JitterMult:0.15
+195.3s RALLY ACTION: TeamA Player_A2 1 Dig
+196.0s RATING CHECK: Player_A2 Movement 182 SpeedMult:2.32
+196.1s RALLY ACTION: TeamA Player_A1 2 Set
+196.9s RATING CHECK: Player_B2 Movement 178 SpeedMult:2.28
+196.9s RATING CHECK: Player_B2 Block 225 Outcome:Controlled
+197.0s BLOCK ATTEMPT: Player_B2
+197.0s RATING CHECK: Player_A2 Spike 251 SpeedMult:2.18
+197.0s RALLY ACTION: TeamA Player_A2 3 Spike
+197.0s BLOCK SUCCESS: Player_B2
+197.0s [COMMENTARY] Controlled block! Player_B2 rebounded the ball back to the attacker's side!
+198.0s RATING CHECK: Player_A2 Movement 182 SpeedMult:2.32
+198.1s RALLY ACTION: TeamA Player_A1 2 Set
+198.8s RATING CHECK: Player_B2 Movement 178 SpeedMult:2.28
+198.8s RATING CHECK: Player_B2 Block 225 Outcome:Stuff
+198.9s BLOCK ATTEMPT: Player_B2
+198.9s RATING CHECK: Player_A2 Spike 251 SpeedMult:2.18
+198.9s RALLY ACTION: TeamA Player_A2 3 Spike
+198.9s BLOCK SUCCESS: Player_B2
+198.9s RALLY ACTION: TeamB Player_B2 1 Block
+198.9s [COMMENTARY] INCREDIBLE BLOCK WINNER! Player_B2 completely shut down the spike straight down!
+199.5s [Point] awarded: BARCELONA PLAYA ELITES by BlockStuff after 4 attack(s), 12 touches
+199.6s Trying to get length of sound which is not loaded yet.
+199.6s Trying to get length of sound which is not loaded yet.
+199.6s BARCELONA PLAYA ELITES point: set 1 0-1, sets 0-0
+199.6s Trying to get length of sound which is not loaded yet.
+199.6s Trying to get length of sound which is not loaded yet.
+199.6s [MatchReporter] progress not sent: an exhibition game: it touches nothing in a career
+199.6s [Director] Kill: swoop in close
+199.6s [Director] cutaway: the scorer, Player_B2 (1.1 s)
+200.7s [Director] cutaway: the other side, Player_A2 (0.7 s)
+201.4s [Director] cutaway: replay (2.2 s)
+203.5s [Between points] 4.0 s: point to B by BlockStuff (big: a block) | score BERLIN SAND QUEENS 0 0 - 1 0 BARCELONA PLAYA ELITES [BLOCK] | umpire: team to serve | Player_B1 Won_MC2 | Player_B2 Won_ThumbsUp2 | Player_A1 Lost_MC1 | Player_A2 Lost_MC2 | close-up: Player_B2 | the other side: Player_A2 | replay 1.2 s at 0.6x (2.1 s)
+203.5s [Director] Serve: beside the server
+203.8s [Point] decided: BARCELONA PLAYA ELITES by Ace (server B, final attack by B after 0, chance 0.504)
+203.8s RATING CHECK: Player_A2 Movement 182 SpeedMult:2.32
+203.8s RATING CHECK: Player_B1 Serve 245 SpeedMult:2.13
+203.8s RALLY ACTION: TeamB Player_B1 1 Serve
+204.1s [Director] Rally: high on the umpire's side
+204.4s [Point] awarded: BARCELONA PLAYA ELITES by Ace after 1 attack(s), 1 touches
+204.4s Trying to get length of sound which is not loaded yet.
+204.4s BARCELONA PLAYA ELITES point: set 1 0-2, sets 0-0
+204.4s Trying to get length of sound which is not loaded yet.
+204.4s [MatchReporter] progress not sent: an exhibition game: it touches nothing in a career
+204.4s [Director] Kill: cut close on the scorer
+204.4s [Director] cutaway: the scorer, Player_B1 (1.1 s)
+205.5s [Director] Between: the commentary booth
+205.5s [Director] cutaway: the other side, Player_A2 (0.7 s)
+206.2s [Director] cutaway: replay (2.2 s)
+208.3s [Between points] 4.0 s: point to B by Ace (big: an ace) | score BERLIN SAND QUEENS 0 0 - 2 0 BARCELONA PLAYA ELITES | umpire: team to serve | Player_B1 Won_Backflip | Player_B2 Won_Yay | Player_A1 Lost_FeelDown | Player_A2 Lost_Angry | close-up: Player_B1 | the other side: Player_A2 | replay 1.2 s at 0.6x (2.1 s)
+208.4s [Director] Serve: low off the sand
+208.6s [Point] decided: BARCELONA PLAYA ELITES by BlockStuff (server B, final attack by A after 3, chance 0.504)
+208.6s RATING CHECK: Player_A1 Movement 174 SpeedMult:2.24
+208.7s RATING CHECK: Player_B2 Serve 239 SpeedMult:2.09
+208.7s RALLY ACTION: TeamB Player_B2 1 Serve
+209.0s [Director] Rally: end-on drift
+209.2s RATING CHECK: Player_A2 Movement 182 SpeedMult:2.32
+209.2s RATING CHECK: Player_A1 Dig 262 JitterMult:0.15
+209.2s RALLY ACTION: TeamA Player_A1 1 Dig
+209.7s RATING CHECK: Player_A1 Movement 174 SpeedMult:2.24
+209.7s RALLY ACTION: TeamA Player_A2 2 Set
+210.5s RATING CHECK: Player_B2 Movement 178 SpeedMult:2.28
+210.5s RATING CHECK: Player_B1 Block 226 Outcome:Controlled
+210.5s BLOCK ATTEMPT: Player_B1
+210.5s RATING CHECK: Player_A1 Spike 254 SpeedMult:2.20
+210.5s RALLY ACTION: TeamA Player_A1 3 Spike
+210.6s BLOCK SUCCESS: Player_B1
+210.6s [COMMENTARY] Controlled block! Player_B1 rebounded the ball back to the attacker's side!
+211.7s RATING CHECK: Player_A1 Movement 174 SpeedMult:2.24

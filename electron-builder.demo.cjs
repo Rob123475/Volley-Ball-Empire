@@ -16,14 +16,14 @@
 const base = require("./package.json").build;
 
 const PRODUCT = "Beach Volleyball Empire 1.2 Demo";
-const VERSION = "1.2.0-demo3";
+const VERSION = "1.2.0-demo4";
 
 module.exports = {
   ...base,
   appId: "com.volleyballempire.desktop.demo-1-2",
   productName: PRODUCT,
   extraMetadata: { version: VERSION, vbeEdition: "demo" },
-  directories: { output: "C:\\build\\vbe-1.2-demo-2026-11-28" },
+  directories: { output: "C:\\build\\vbe-1.2-demo-2026-11-28b" },
   nsis: {
     ...base.nsis,
     artifactName: "Beach Volleyball Empire 1.2 Demo Setup ${version}.${ext}",

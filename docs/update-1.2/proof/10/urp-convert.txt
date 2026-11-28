@@ -1,0 +1,13 @@
+URP material upgraders available: 63
+== Assets/Rocks and Boulders 2: 14 materials; drew in URP before 0; converted 8; now 8; not converted 6
+    not converted: Rock1.mat (Enviro/BumpedDiffuseOverlaySM2 -> Enviro/BumpedDiffuseOverlaySM2)
+    not converted: Rock2.mat (Enviro/BumpedDiffuseOverlaySM2 -> Enviro/BumpedDiffuseOverlaySM2)
+    not converted: Rock3.mat (Enviro/BumpedDiffuseOverlaySM2 -> Enviro/BumpedDiffuseOverlaySM2)
+    not converted: Rock4.mat (Enviro/BumpedDiffuseOverlaySM2 -> Enviro/BumpedDiffuseOverlaySM2)
+    not converted: Rock5.mat (Enviro/BumpedDiffuseOverlaySM2 -> Enviro/BumpedDiffuseOverlaySM2)
+    not converted: Rock6.mat (Enviro/BumpedDiffuseOverlaySM2 -> Enviro/BumpedDiffuseOverlaySM2)
+== Assets/IGBlocks/Pavilion: 13 materials; drew in URP before 0; converted 13; now 13; not converted 0
+== Assets/Beach - resort: 32 materials; drew in URP before 32; converted 0; now 32; not converted 0
+== Assets/Hawaii Beach House (PBR, HDRP): 52 materials; drew in URP before 34; converted 17; now 51; not converted 1
+    not converted: window.mat (Hidden/InternalErrorShader -> Hidden/InternalErrorShader)
+== Assets/Nokobot/ColonialShip: 19 materials; drew in URP before 0; converted 19; now 19; not converted 0

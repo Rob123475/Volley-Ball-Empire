@@ -1,0 +1,61 @@
+SECTION 10: THE FIVE VENUES BUILT
+
+== north_america
+  the tournament's kit copied from the island venue: Dressing (the features by data flag and the always-there props), the food van, the old scaffold
+  ground: a terrain 760 m square (heights every 3 m), the shore 105 m seaward of the court, the land up to 0.0 m; layers sand, rock (the sand with Yughues' wind ripples)
+  the sea: the scene's own sea (VenueWater, x1.00 1.00 1.00 over the sea's own colour), carried out 3 times as far (the scene's sea ends 280 m out, short of this venue's islands and headlands)
+  beach houses (Hawaii Beach House, its house as one prefab): 12
+  pier-deck: 150 m long, 4 m wide
+  a pier: 150 m of plank deck 4 m wide (the Hawaii Beach House's wood), 2.2 m over the sand, with rails and posts every 6 m, from the beach out over the sea (105 pieces)
+  lifeguard towers along the shore (Beach - resort): 4
+  umbrellas, deck chairs and longboards on the sand (Beach - resort): 35
+  palms by the houses (Beach - resort): 10
+  real-time shadows turned off on 154 renderers; 2,095,341 triangles at the nearest levels
+  saved Assets/Venues/north_america/Venue_north_america.prefab
+
+== south_america
+  the tournament's kit copied from the island venue: Dressing (the features by data flag and the always-there props), the food van, the old scaffold
+  ground: a terrain 760 m square (heights every 3 m), the shore 110 m seaward of the court, the land up to 65.0 m; layers sand, grass, rock (the sand with Yughues' wind ripples)
+  the sea: a deep Atlantic blue (VenueWater, x0.90 1.00 1.04 over the sea's own colour), carried out 3 times as far (the scene's sea ends 280 m out, short of this venue's islands and headlands)
+  promenade: 349 m long, 12 m wide
+  hotel towers along the promenade (Rob's seaside and luxury hotels): 10
+  palms along the promenade (Rob's palm, the light copy): 24
+  rocks in granite: the sugarloaf (88 m), a second dome and the north-west headland (Rocks and Boulders 2): 10
+  trees on the hills: 50
+  real-time shadows turned off on 21 renderers; 3,322,718 triangles at the nearest levels
+  saved Assets/Venues/south_america/Venue_south_america.prefab
+
+== europe
+  the tournament's kit copied from the island venue: Dressing (the features by data flag and the always-there props), the food van, the old scaffold
+  ground: a terrain 760 m square (heights every 3 m), the shore 100 m seaward of the court, the land up to 65.0 m; layers sand, grass, rock (the sand with Yughues' wind ripples)
+  the sea: a clear Mediterranean blue (VenueWater, x0.80 1.02 1.12 over the sea's own colour), carried out 3 times as far (the scene's sea ends 280 m out, short of this venue's islands and headlands)
+  promenade: 302 m long, 9 m wide
+  pavilions on the stone promenade (Pavilion): 3
+  red-roofed villas on the slope (Rob's luxury hotel, at villa size): 16
+  rocks on the cove's two arms (Rocks and Boulders 2, in a warm limestone): 20
+  the old sailing ship at anchor in the cove (Colonial Ship), 105 m long, 195 m from the court
+  umbrellas on the beach (Rob's umbrella): 12
+  real-time shadows turned off on 119 renderers; 1,635,307 triangles at the nearest levels
+  saved Assets/Venues/europe/Venue_europe.prefab
+
+== asia
+  the tournament's kit copied from the island venue: Dressing (the features by data flag and the always-there props), the food van, the old scaffold
+  ground: a terrain 760 m square (heights every 3 m), the shore 95 m seaward of the court, the land up to 47.4 m; layers sand, grass, rock (the sand with Yughues' wind ripples)
+  the sea: a lagoon's turquoise (VenueWater, x0.62 1.15 1.06 over the sea's own colour), carried out 3 times as far (the scene's sea ends 280 m out, short of this venue's islands and headlands)
+  limestone islets in the lagoon: 7, 38 to 70 m tall, with palms on top (Rocks and Boulders 2's rock pillar in a pale limestone; Beach - resort's palms)
+  the resort: pavilions along the sand and its hotel behind (Pavilion; Rob's luxury hotel): 7
+  palms (Rob's palm and Beach - resort's): 33
+  sun loungers on the lagoon's sand (Hawaii Beach House): 10
+  real-time shadows turned off on 77 renderers; 1,475,465 triangles at the nearest levels
+  saved Assets/Venues/asia/Venue_asia.prefab
+
+== africa_middle_east
+  the tournament's kit copied from the island venue: Dressing (the features by data flag and the always-there props), the food van, the old scaffold
+  ground: a terrain 760 m square (heights every 3 m), the shore 100 m seaward of the court, the land up to 14.0 m; layers sand, rock (the sand with Yughues' wind ripples)
+  the sea: a clear Red Sea blue (VenueWater, x0.85 1.05 1.08 over the sea's own colour), carried out 3 times as far (the scene's sea ends 280 m out, short of this venue's islands and headlands)
+  sandstone rocks (Rocks and Boulders 2 in sandstone): 16
+  low white resort buildings, flat roofs (built here: a block with windows; no pack had one): 9
+  shade: pavilions on the resort's edge (Pavilion) and shade sails on the beach (built here): 10
+  palms by the resort (Rob's palm): 14
+  real-time shadows turned off on 61 renderers; 1,411,285 triangles at the nearest levels
+  saved Assets/Venues/africa_middle_east/Venue_africa_middle_east.prefab
