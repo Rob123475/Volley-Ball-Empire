@@ -130,24 +130,37 @@ Rob's rule for anything held: only when the ball is not in play. No alcohol, cig
 player's hand.
 Proof: a picture of each team at the break, and the B5 skip check still passing.
 
-## 5. Exhibition commentary (D6): decided so far
-The exhibition is a different event from the World Tour, so it gets its own commentary team.
-- **Celebrity guest commentators (invented by Claude, kept by Rob 27 Nov):**
-  - **Roxy Calderwood**, action-comedy film star. Her films: "The Dog or Him?" and
-    "Sabotage 3: We Didn't See It Coming".
-  - **Kai Brennock**, a retired champion from another sport.
-  Web searches on 27 Nov found no real person named either, and no film called "The Dog or Him?".
-  "Kate Jones" was dropped: a real Queensland ex-minister has that name.
-- **Music:** the soundtrack plays during the match as it does now, with the skip options. No radio object.
-- **Voices:** ElevenLabs stock or designed voices only. Never an imitation of a real person.
+## 5. The commentary team: CONFIRMED by Rob, Sat 28 Nov, 10 pm. Build it.
+Rob's team, for the Exhibition Game AND the main game (career matches):
+- **Kailey and Hukum**, the two resident commentators, as now. Nothing of theirs changes.
+- **Nicole Dupont**, the sideline reporter: a French voice speaking English. She speaks only in breaks: the
+  walk-on, the end of a set, the drinks break, before a deciding set, and when the match is won.
+- **A celebrity guest in the booth, one per match:** **Roxy Calderwood** (action-comedy film star: "The Dog or
+  Him?" and "Sabotage 3: We Didn't See It Coming") or **Kai Brennock** (a retired champion from another sport).
+  Both are invented; no real person. ElevenLabs stock or designed voices only, never an imitation of anyone.
 
-**Proposed by Claude, NOT yet confirmed by Rob:**
-- Four roles: lead caller (every point), analyst (a remark every few points), celebrity guest (small, funny set),
-  sideline reporter (breaks only: set end, time-out, walk-on, winners).
-- The player picks the celebrity guest from three or four. Lead and analyst stay fixed, because every swappable
-  voice needs every one of its lines recorded.
-- Rob floated the alternative of 3 voices (2 plus the celebrity) and 3 or 4 more the player can choose from.
-- The scripts are not written yet. No audio exists. Do not build this until Rob confirms the set-up.
+**The lines** are in `docs/update-1.2/COMMENTARY-TEAM-LINES.md`: 57 new lines with file names, when each is
+said, and where Rob's voice samples are. Nothing is recorded yet. Rob records them.
+
+**What to build:**
+- The court knows the match's team: residents always; the sideline reporter on or off; the guest (Roxy, Kai or
+  none). All from data, so a new guest later is a data change and a folder of clips.
+- **Exhibition:** the player picks the guest on the pick screen (Roxy, Kai or no guest) and can switch the
+  sideline reporter off.
+- **Career matches:** the sideline reporter is on. The guest is Claude's default, for Rob to change: Roxy or
+  Kai at random per match, with one switch in Settings, "Guest commentators", to turn them off.
+- **When they speak.** A guest line follows the residents' call of the same play, never over it, and not on
+  every point: at most one guest line in three points, and never the same line twice in a set. A sideline line
+  is introduced by a resident hand-over line when one is recorded. Nothing is ever said during a rally.
+- **The commentary tent (9e)** now has people in it: three seated at the desk (two residents and the guest)
+  from Citizens Pro, and one more Citizens Pro person standing courtside with a microphone as Nicole. The
+  "commentary booth" shot shows the three; add a "sideline reporter" shot for her lines.
+- **Until Rob records a line, nothing breaks,** exactly as for B4's 42 lines: a missing clip is skipped in
+  silence and the residents carry on. Once a clip is in the folder under its file name, it plays.
+- Level every clip to the existing clips' loudness when it is added (Rob's samples differ by about 8 dB).
+- Music: as section 9d. Never touch the songs.
+- Proof: a harness check that walks every line in the sheet and names the clip it expects; a match log in each
+  mode showing who would speak at each moment with clips missing; and the booth and sideline shots.
 
 ## 6. Venue features Rob wants in (27 Nov, 13:20)
 Rob: "we need commentary, a band and a food stand and maybe a juice bar and I think we're done. Once we can get
@@ -222,3 +235,172 @@ and whether it is a separate object. This feeds the store (D4) and the scenery.
 - **Store items Rob is collecting:** hats (Hats Collection, Santa Hat Pack, a free cowboy hat on his Asset Store
   list), plus ideas for ball skins, ball trails, celebration emotes from the unused KAWAII animations, and
   seasonal sets. When the store is built, produce a fitting sheet: every hat on a player, front and side.
+
+## 8. Demo 3, for Rob's friend (updated Sat 28 Nov, 8 pm)
+Rob wants a demo with everything built so far in it: the band, the venue features, times of day, weather,
+the drinks break, crowd banners, the Exhibition Game, and the three items in section 9 below.
+**Do section 9 first, then make a new WebGL export, then package demo 3.**
+**After demo 3 is packaged and proven, do section 5 (the commentary team), then section 10 (the five venues).**
+- Output: `C:\build\vbe-1.2-demo-2026-11-28\`, version `1.2.0-demo3`, the same separate demo app and its own save
+  folder as before. Never the real game, never Steam, never the live save.
+- **Do NOT install it, uninstall anything, or touch the demo's save folder
+  (`AppData\Roaming\Beach Volleyball Empire 1.2 Demo`).** Demo 3 has the same app id as demo 2, so installing it
+  would replace the demo Rob is using and the install test moves his save aside. Rob installs demo 3 himself.
+  So skip the install test this time and say plainly that it was skipped.
+- Proof, in headless Chrome against the built files only: one whole watched career match (the band and booth
+  shots, the drinks break, a banner in the crowd) and one Exhibition match started from the pick screen with a
+  custom team in one of Rob's new prints and tinted sunglasses. Pictures of each, and the frame rate.
+- In that Exhibition match, also prove the fix from this morning that was never checked in the browser: the
+  songs play from the band's stage at the band's loudness (not full volume), and no career ceremony opens over it.
+- Tests: the suites that cover what section 9 touches first (exhibition, store, played match, presentation),
+  then the full harness, capped at 3 runs. It may run overnight.
+- Update `DEMO-CHECKLIST.md` for demo 3: how to install it over demo 2, and a short "what is new to show"
+  list (Exhibition Game from the title screen, the new prints and sunglasses, the band, V for the TV camera,
+  times of day and weather, the drinks break between sets). Keep item 1, the real controller test.
+
+## 9. Six items from Rob after reading your overnight report (Sat 28 Nov, 8 to 9:15 pm)
+
+**9a. Tint the sunglasses.** The pack's sunglasses have clear lenses. Give them dark tinted lenses that still let
+the eyes show faintly, as real sunglasses do. In the Exhibition pick screen and the store, the lens tint is a
+choice alongside the frame colour: at least black, brown, blue mirror, amber and rose. Proof: a close picture of
+a player in each tint, in sun and under the night lights.
+
+**9b. Rob's swimwear prints** (updated 28 Nov, 9 pm: twenty-three swatches, the last of them, and Rob's colour rule).
+Rob made the swatches himself. They are in
+`C:\Users\rbonn\Game_Dev\VolleyBall Empire\1.2 props\swimwear-prints\` (each 1774 x 887). More may come, so
+build this so that a new print is one picture dropped in a folder and one line in a data file, with no code change.
+
+**Rob's rule: a print with three colours or fewer can have its colours changed by the player. A print with
+more than three colours is shown exactly as painted, with no colour change.** He kept the designs simple for
+this reason. Rob's own colours are each print's default. The pick screen shows a colour picker per colour
+(one, two or three) for the changeable prints and none for the fixed ones.
+
+| File | Colours | Colour change |
+|---|---|---|
+| `hibiscus-white-on-red.png` | 2 | yes |
+| `hibiscus-red-on-white.png` | 2 | yes (the same flower with the colours swapped: one mask covers both) |
+| `stripes-navy-white.png` | 2 | yes |
+| `pinstripe-navy.png` | 2 | yes |
+| `polka-dots-red-white.png` | 2 | yes |
+| `houndstooth.png` | 2 | yes |
+| `zebra.png` | 2 | yes |
+| `tiger-flat.png` | 2 | yes |
+| `cow.png` | 2 | yes |
+| `palm-leaves-green-cream.png` | 2 | yes |
+| `gingham-red-white.png` | 3 (red, pink, white; the pink is the two crossing) | yes |
+| `camouflage.png` | 4 | no |
+| `leopard-fur.png` | full colour | no |
+| `tiger-fur.png` | full colour | no |
+| `snakeskin.png` | full colour | no |
+| `hibiscus-tropical-on-black.png` | full colour | no |
+| `ditsy-floral.png` | full colour | no |
+| `retro-floral-orange.png` | full colour | no |
+| `tie-dye-rainbow.png` | full colour | no |
+| `paisley-blue.png`, `paisley-green.png`, `paisley-pink.png`, `paisley-orange.png` | full colour | no: Rob made the four colourways himself. Show it as ONE print, "Paisley", with these four colour choices. These four are 829 x 464 |
+
+- I counted the colours by eye. Count them properly from each picture and tell Rob if any count differs.
+- **Rob's art replaces every code-drawn print of the same kind:** leopard, hibiscus, stripes, polka dots, palm
+  leaves, camouflage, tie-dye and zebra. Remove the code-drawn versions (no dead code left behind).
+- **Seams.** Measured edge to edge, most of these do not wrap. Close to tiling: `leopard-fur`,
+  `hibiscus-tropical-on-black`, `camouflage`, `pinstripe-navy`. Clearly not: `cow`, `zebra`, both two-colour
+  hibiscus, `palm-leaves`, `gingham`, `houndstooth` top to bottom, `polka-dots` top to bottom, `stripes` top to
+  bottom, `snakeskin`, both tigers, `ditsy-floral`, `retro-floral`, `tie-dye`. No visible seam or hard join may
+  show on a swimsuit. Fix it your way (mirrored repeat, blending the edges, or for the regular patterns
+  cropping to a whole number of repeats) and show it. Do not repaint Rob's art; if a swatch cannot be made to
+  work, say so.
+- **Tie-dye** is one spiral, not a repeat: place a single spiral on the garment, do not tile it.
+- **Scale.** The pattern must read at match distance and not look giant close up: about three or four leopard
+  spots, or one hibiscus flower, across a bikini top; ditsy floral small, as on a real fabric. Show Rob the
+  scale you chose for each.
+- **The colour picker** (for plain swimwear and for every changeable print): offer bright full colours AND
+  pastels, not just one muted set. At least twelve brights (red, orange, yellow, lime, green, teal, cyan, blue,
+  navy, purple, magenta, hot pink) and twelve pastels (their soft versions), plus white, black and grey. Show
+  the palette on the proof sheet.
+- Cap the imported size (512 or 1024) so the download does not grow by the swatches' 40 MB.
+- Proof: a new sheet like `proof/D6/d6-prints.png` with every print on a swimsuit and a bikini, close and at
+  match distance; each changeable print also in a second colourway; and a close-up of a seam area for each.
+
+**9c. The ball at the serve.** In the serve hold the ball rests at her head, so with a sun hat on it looks as if
+the ball sits on the hat. You also noted that in Auto the ball floats beside the server's head before each
+serve. Put the ball in her hand in the serve hold, in both played and Auto matches, clear of her head and of
+any hat. This is where the ball is drawn while she holds it only: do not change the serve's flight, timing or
+any match result. Rerun A1 and `--unity-full`, and show the serve hold with and without a sun hat.
+
+**9d. The music: Rob's ruling.** Rob has approved what you built: the songs play from the band's stage and on
+through the match. His one condition: the player must be able to turn the music down or off whenever they
+choose, from the game's Settings and from the court's own settings during a match, and the choice is
+remembered. If that control already exists and does this, prove it and change nothing. Never change, trim or
+fade the songs themselves.
+
+**9e. The commentary tent.** Rob does not want to generate a new model for this. Take a second copy of his
+yellow lifeguard tower (`lifeguard-tower-yellow`, the light 19,940-triangle copy), recolour it, and use it as
+the commentary tent in place of the scaffolding tower (6b). The yellow one stays as the lifeguard tower.
+- **Colours: blue, white and orange, to match Rob's new T-shirt shop (9f).** Recolour by changing the
+  texture's colours on a copy, not by repainting the model. Show it beside the T-shirt shop and the yellow tower.
+- The desk and three seats go in it, and the TV camera's "commentary booth" shot points at it. If three seats
+  do not fit, say how many do and show it.
+- The scaffolding tower stays on file and in the venue data as an option, switched off.
+
+**9f. Rob's remade props (updated 28 Nov, 9:35 pm).** In
+`C:\Users\rbonn\Game_Dev\VolleyBall Empire\1.2 props\` as zips (FBX + textures, 4096 textures, 1 m as modelled).
+
+| Zip | What | Triangles | Use |
+|---|---|---|---|
+| `vip-tent.zip` | marquee: a pyramid roof on four posts, open sides, white canvas, timber | 61,196 | **use it:** replaces the old VIP tent, which you found too rough up close |
+| `ice-cream-cart-light.zip` | three-wheeled ice-cream cart with a canopy, blue and cream stripes | 32,532 | **use it:** replaces the untextured ice-cream cart; place it in the venue as a prop (data flag, like the others) |
+| `ice-cream-cart.zip` | the same cart, heavier export | 62,898 | not used: on file only |
+| `tshirt-shop.zip` | open timber stall with a pitched roof and shirts on racks, blue, white and orange | 65,576 | **use it:** replaces the old T-shirt shop ("clothing store"), which you found too rough up close. Rob meant to send a 35,000 export; if `tshirt-shop-light.zip` is in the folder when you get here, use that one instead |
+
+- **The cart and the shop:** import into `Assets/my assets/Props 1.2`, cap the textures at 1024, real size.
+  Keep the detail close up, as for the tent: the full model near the camera, a lighter `MeshReduce` copy at
+  distance. Both textures have small patches of AI lettering (the shirts' labels, a red script on the cart):
+  look close, and where lettering is mashed cover it the way you covered the kiosk sign, or say it is fine.
+  The old T-shirt shop model stays on file, out of the scene. Proof: each beside a player at real size, close
+  and at match distance.
+
+**The VIP tent, two jobs:**
+1. **Keep the detail.** Rob could only export it at about 600 or about 35,000 faces and chose detail. Do not
+   replace it with one reduced copy. Use the full model when the camera is close and a lighter copy
+   (`MeshReduce`, about 20,000) further away, switching by screen size as you did for the palms. Cap the
+   textures at 1024. Put it at the old VIP tent's size and place.
+2. **Square up the back.** Rob: "the back of the tent looks a bit drooped, square it up so it doesn't look so
+   dropped off." Measured from the FBX (model units, Z up, 1 m tall, peak at the centre, 0.721 high):
+   - the front (the -Y side) roof ends at Y = -0.40, where its edge is 0.40 high;
+   - the back (the +Y side) roof is the same down to Y = +0.40 (0.399 high), but then carries on out to
+     Y = +0.50 and falls to about 0.30 high: an extra tenth of the tent's length hanging a tenth of its
+     height lower than the front. Along that back edge the corners sit lower again (0.306 against 0.36 mid-edge);
+   - the two sides (X = +/-0.45) end about 0.31 to 0.34 high.
+   Fix it on a copy of the mesh by moving vertices only (no new geometry, the texture mapping untouched): bring
+   the back edge of the roof up and in so the back matches the front, level from corner to corner, and the
+   tent reads as square from the side and from behind. Keep the back posts upright under the corrected edge.
+   If the canvas stretches or tears visibly, say so and show it rather than hiding it.
+   Proof: before and after from the side, from behind and from the TV camera, the two side by side.
+   The original zip stays on file untouched.
+
+- The commentary tent's colours (9e) are blue, white and orange, to match the T-shirt shop.
+- The media tower is no longer needed (9e). **Rob says not to worry about the over-water bungalow: nothing
+  may depend on it.**
+
+## 10. The five venues still to build (Sat 28 Nov, 9 pm) - after demo 3
+Rob has downloaded the packs you listed as missing, "plus a few extras that might help, like sand textures".
+They are NOT imported into the project: as of 9 pm neither `Assets` folder had them. They are in the Asset
+Store cache (`C:\Users\rbonn\AppData\Roaming\Unity\Asset Store-5.x\`), which now holds 36 publishers
+(it held 4 on 27 Nov), among them Lylek Games, Nobiax Yughues, Tanuki Digital, Manufactura K4, Nature Library,
+Baldinoboy, BitGem, RetroStyle Games, Mixall, Falcon3DStudios and 3D Everything.
+- List every pack in the cache that is not in the project yet, check each download is complete, and import
+  the ones a venue will use, with section 0's checks (Unity version, errors, URP). Report the rest unused.
+- Build north_america, south_america, europe, asia and africa_middle_east to the looks in your own D1 audit
+  table, each as its own venue bundle, with sections 2, 3 and 6 applied (one realistic style, the venue
+  features by data flag, frame rate measured at every time of day).
+- No continent faked with the same props recoloured. If a venue still lacks a piece after the new packs, build
+  what you can, list the missing piece for Rob (he will make it in Tripo, he is buying nothing more), and say
+  plainly how finished that venue is.
+- Asia is built WITHOUT the over-water bungalow (Rob: do not worry about it). Use the downloaded packs for
+  its resort lagoon. The VIP tent is Rob's new one (9f).
+- Use the sand textures if they improve the court surround and the beach without costing frame rate; show
+  before and after.
+- Proof per venue: a wide picture, the TV look and one Game view at two times of day, the frame-rate table,
+  and the bundle's size. Then one more demo package, `1.2.0-demo4`, to
+  `C:\build\vbe-1.2-demo-2026-11-28b\`, under the same no-install rule as section 8.
+- The full harness after this section counts toward the same cap of 3 runs.
+

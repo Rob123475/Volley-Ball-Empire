@@ -153,6 +153,7 @@ Brief: `docs/update-1.2/UNITY-REBUILD-BRIEF.md`. Plan: `docs/update-1.2/PLAYABLE
 
 | Item | State | Proof | Commit |
 |---|---|---|---|
+| 9a Tinted sunglasses (29 Nov) | Done, PASS: five lens tints beside the frame colour, in the store and on the pick screen; eyes faint behind them; the floodlights light them | `proof/9a/9a-lenses-sheet.png`; store 27/27, exhibition 21/21 | Unity `a7575042` |
 | D4-D6 Full harness (28 Nov) | **ALL HARNESSES PASSED** on run 3 of the 3 allowed (144 suites; season rollover 2,266 s). Run 1 stopped at check-starter-db; run 2 failed four source suites only | `pnpm run build`; see "Full harness, Part D" below | game `07503f05`, `bdbaef5a` |
 | D6 Exhibition and online scaffold (28 Nov) | Done, PASS: the pick screen, up to four people, custom swimwear in two colours and eight prints (the leopard print poor: Rob to supply art), nothing in a career; RemoteSeat, recording, two engines agree | `proof/D6/` (`d6-exhibition-court.txt`, `d6-prints.png`), `proof/pages/`; `harness/exhibition.mjs` 23/23, `harness/online-scaffold.mjs` 6/6; `ONLINE-SCAFFOLD.md` | Unity `ac3a9af1`, game `80ad1d5f` |
 | D5 Crowd banners (28 Nov) | Done, PASS: ten slogans and the player's own | `proof/D5/` | Unity `ac3a9af1`, game `80ad1d5f` |
@@ -1743,3 +1744,44 @@ Change them, rebuild, no code.
 - These two fixes are in the pages' source and the harness. They are not in a WebGL or desktop proof of their own: the court itself did not change.
 
 **Final commits (28 Nov):** Unity `ac3a9af1` (branch `update-1.2`); game `80ad1d5f` (D4-D6 and the final WebGL export), `07503f05`, `bdbaef5a`, and this status commit.
+
+## Section 9 and demo 3 (Rob's 28 Nov additions, from 29 Nov 2026)
+
+Rob's order: section 9, then demo 3 (section 8), then section 5, then section 10. Nothing installed or uninstalled; the demo's save folder untouched.
+
+### 9a: tinted sunglasses (29 Nov 2026)
+
+**Why the lenses were clear.** IdaFaber's sunglasses keep their lenses in one corner of the pack's texture, a dark, see-through patch. The plain material the store gave them drew the frame only.
+
+**What was done:**
+- **A shader of their own** (`BVE/Sunglasses`, `Assets/Shaders/Sunglasses.shader`):
+  - the frame is solid, in the colour chosen;
+  - the lens is a tint the eyes show through faintly, with the sky's reflection on it.
+- **Five lens tints,** a choice beside the frame colour (`Wardrobe.Lenses`):
+  - black and brown: dark;
+  - blue mirror: a blue sheen;
+  - amber and rose: lighter.
+- **In the store,** the sunglasses card has a lens choice beside its frame colour.
+  - A pair is bought as `#rrggbb;tint`, so the database needs no new column.
+  - A tint that isn't on the list is refused, and so is a pair with no lens.
+- **On the pick screen,** each player's sunglasses have the same lens choice. It goes to the court with the frame colour.
+- **The store's picture** of the sunglasses now shows dark lenses (`public/store/sunglasses.png`).
+
+**Under the floodlights.** The new shader takes the night lights, the stage light and the sun or moon (`Assets/Shaders/BVELighting.hlsl`).
+- By day the lenses reflect the sky. At night that reflection fades with the light; the reflection probe was baked by day and made the lenses milky.
+
+**Found on the way, fixed:** every part hung from the model's root bone was culled as off screen in a close shot of a bent head.
+- That covers her hair, the glasses, the hat and the swimwear.
+- Their bounds were her standing pose's. `WardrobeSetup` now gives those 26 parts her whole body's bounds.
+- This also protects her hair in the presentation close-ups.
+
+**Also changed:** `Wardrobe.Wear` no longer switches a part off and on again when it stays on.
+
+**Proof:**
+- `proof/9a/9a-lenses-sheet.png`: Annika Bauer in a real match, close up, in each of the five tints.
+  - Top row: midday in the sun. Bottom row: night under the floodlights.
+  - `WardrobeProof -mode lenses` via `harness/unity-on-server.mjs`; one picture per tint in `proof/9a/`.
+- `harness/store.mjs` 27/27: sunglasses bought with blue mirror lenses; a wrong lens and no lens refused.
+- `harness/exhibition.mjs` 21/21: the five tints offered; amber lenses reach the court; a lens they don't come in refused.
+
+**Said plainly:** in the night pictures her head is bowed, so the camera looks down on the glasses; the eyes show through the amber and rose lenses.

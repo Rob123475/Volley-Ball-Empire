@@ -14,7 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { ShoppingBag, Coins, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-type StoreItem = { id: string; name: string; slot: string; price: number; picture: string; colour: string };
+type StoreItem = { id: string; name: string; slot: string; price: number; picture: string; colour: string; lenses?: string[] };
 type Owned = { id: number; itemId: string; colour: string; worn: boolean };
 export type StoreState = { open: false } | { open: true; currency: string; balance: number; items: StoreItem[]; owned: Owned[] };
 
@@ -26,6 +26,9 @@ export function useStore() {
     staleTime: 30_000,
   });
 }
+
+/** 1.2 9a: the sunglasses' lens tints, chosen beside the frame colour. */
+const LENS_LABEL: Record<string, string> = { black: "Black", brown: "Brown", "blue-mirror": "Blue mirror", amber: "Amber", rose: "Rose" };
 
 const SLOT_LABEL: Record<string, string> = {
   hat: "Hat", sunglasses: "Sunglasses", shoes: "Shoes", bracelet: "Bracelet", earrings: "Earrings", necklace: "Necklace", legpiece: "Leg piece", print: "Print",
@@ -42,9 +45,10 @@ function ItemCard({ item, owned, currency, balance }: { item: StoreItem; owned: 
   const qc = useQueryClient();
   const { toast } = useToast();
   const two = item.slot === "print";
-  const [colours, setColours] = useState<string[]>(item.colour.split(","));
+  const [colours, setColours] = useState<string[]>(item.colour.split(";")[0].split(","));
+  const [lens, setLens] = useState<string | undefined>(item.colour.split(";")[1]);
   const buy = useMutation({
-    mutationFn: () => post("/api/store/buy", { itemId: item.id, colour: colours.join(",") }),
+    mutationFn: () => post("/api/store/buy", { itemId: item.id, colour: colours.join(",") + (lens ? `;${lens}` : "") }),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["store"] }); toast({ title: `${item.name} bought` }); },
     onError: (e: Error) => toast({ title: "Not bought", description: e.message, variant: "destructive" }),
   });
@@ -72,6 +76,12 @@ function ItemCard({ item, owned, currency, balance }: { item: StoreItem; owned: 
               className="h-7 w-9 cursor-pointer rounded border border-border bg-transparent p-0" />
           ))}
         </div>
+        {item.lenses && (
+          <select value={lens} aria-label={`${item.name} lenses`} onChange={(e) => setLens(e.target.value)}
+            className="h-8 rounded-md border border-input bg-background px-2 text-sm">
+            {item.lenses.map((l) => <option key={l} value={l}>{LENS_LABEL[l] ?? l} lenses</option>)}
+          </select>
+        )}
         <div className="mt-auto flex flex-col gap-2">
           <Button onClick={() => buy.mutate()} disabled={buy.isPending || balance < item.price} data-testid={`buy-${item.id}`}>
             <ShoppingBag className="h-4 w-4 mr-2" />{balance < item.price ? `Needs ${item.price} ${currency}` : "Buy"}
@@ -80,7 +90,8 @@ function ItemCard({ item, owned, currency, balance }: { item: StoreItem; owned: 
             <Button key={o.id} variant={o.worn ? "default" : "outline"} size="sm" onClick={() => wear.mutate(o)} data-testid={`wear-${o.id}`}>
               {o.worn && <Check className="h-4 w-4 mr-1" />}
               <span className="flex items-center gap-1">
-                {o.colour.split(",").map((c) => <span key={c} className="inline-block h-3 w-3 rounded-full border border-border" style={{ background: c }} />)}
+                {o.colour.split(";")[0].split(",").map((c) => <span key={c} className="inline-block h-3 w-3 rounded-full border border-border" style={{ background: c }} />)}
+                {o.colour.includes(";") && <span className="text-xs">{LENS_LABEL[o.colour.split(";")[1]] ?? o.colour.split(";")[1]}</span>}
               </span>
               <span className="ml-2">{o.worn ? "Wearing" : "Wear"}</span>
             </Button>

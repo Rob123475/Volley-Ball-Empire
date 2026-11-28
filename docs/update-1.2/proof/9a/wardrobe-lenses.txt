@@ -1,0 +1,14 @@
+WHAT THE PLAYERS WEAR, CLOSE UP (lenses), V19 IN PLAY MODE (batch), A WATCHED MATCH
+  Midday: sun 2.00; floodlights 0 on
+    Player_A1 wears SK_BG_SUNGLASSES (black lenses)
+    -> 9a-lens-midday-black.png
+    Player_A1 wears SK_BG_SUNGLASSES (brown lenses)
+    -> 9a-lens-midday-brown.png
+    Player_A1 wears SK_BG_SUNGLASSES (blue-mirror lenses)
+    -> 9a-lens-midday-blue-mirror.png
+    Player_A1 wears SK_BG_SUNGLASSES (amber lenses)
+    -> 9a-lens-midday-amber.png
+    Player_A1 wears SK_BG_SUNGLASSES (rose lenses)
+    -> 9a-lens-midday-rose.png
+  Night: sun 0.08; floodlights 5 on
+    her face never came up in 8 s

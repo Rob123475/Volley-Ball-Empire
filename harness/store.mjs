@@ -101,6 +101,11 @@ try {
   b = await call("POST", "/store/buy", { itemId: print.id, colour: "#112233,#ddeeff" });
   check("a print in two colours is bought", b.status === 200 && b.data.owned.some((o) => o.itemId === print.id && o.colour === "#112233,#ddeeff"));
   check("an item that is not in the file is refused", (await call("POST", "/store/buy", { itemId: "no-such-thing", colour: "#ffffff" })).status === 404);
+  // 1.2 9a: the sunglasses' lens tint, chosen beside the frame colour.
+  const glasses = ITEMS.find((i) => i.slot === "sunglasses");
+  b = await call("POST", "/store/buy", { itemId: glasses.id, colour: "#333333;blue-mirror" });
+  check("9a: sunglasses bought in a frame colour with blue mirror lenses", b.status === 200 && b.data.owned.some((o) => o.itemId === glasses.id && o.colour === "#333333;blue-mirror"), `${b.status} ${JSON.stringify(b.data.owned?.filter((o) => o.itemId === glasses.id))}`);
+  check("9a: a lens they do not come in is refused, and so is no lens", (await call("POST", "/store/buy", { itemId: glasses.id, colour: "#333333;purple" })).status === 400 && (await call("POST", "/store/buy", { itemId: glasses.id, colour: "#333333" })).status === 400);
   const firstHat = b.data.owned.find((o) => o.itemId === hat.id);
   let w = await call("POST", "/store/wear", { ownedId: firstHat.id, worn: true });
   check("the hat is worn", w.status === 200 && w.data.owned.find((o) => o.id === firstHat.id).worn === true);

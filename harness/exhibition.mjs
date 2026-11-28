@@ -86,7 +86,7 @@ try {
   const pl = (id) => o.players.find((p) => p.id === id);
   const game = {
     home: { poolTeamId: null, name: "Sunset Sirens", primary: "#ff7a00", secondary: "#ffffff", players: [
-      { poolPlayerId: t1.players[0], name: "Kira Sands", swimwear: { cut: "swimsuit-1", print: "hibiscus", colourA: "#1f5fbf", colourB: "#f26aa3" }, wear: [{ itemId: "sun-hat", colour: "#f4e3c1" }, { itemId: "sunglasses", colour: "#222222" }] },
+      { poolPlayerId: t1.players[0], name: "Kira Sands", swimwear: { cut: "swimsuit-1", print: "hibiscus", colourA: "#1f5fbf", colourB: "#f26aa3" }, wear: [{ itemId: "sun-hat", colour: "#f4e3c1" }, { itemId: "sunglasses", colour: "#222222", lens: "amber" }] },
       { poolPlayerId: t1.players[1], name: pl(t1.players[1]).name, swimwear: { cut: "bikini-3", print: "zebra", colourA: "#ffffff", colourB: "#111111" }, wear: [{ itemId: "bangle", colour: "#d4af37" }] },
     ] },
     away: { poolTeamId: t2.id, name: t2.name, primary: t2.primary, secondary: t2.secondary, players: [
@@ -102,6 +102,7 @@ try {
     ["a print that does not exist", { ...game, home: { ...game.home, players: [{ ...game.home.players[0], swimwear: { ...game.home.players[0].swimwear, print: "tartan" } }, game.home.players[1]] } }],
     ["a person 3 with no person 2", { ...game, seats: [0, 2, -1, -1] }],
     ["a venue that is not one of the six", { ...game, venue: "antarctica" }],
+    ["sunglasses with a lens they do not come in (9a)", { ...game, home: { ...game.home, players: [{ ...game.home.players[0], wear: [{ itemId: "sunglasses", colour: "#222222", lens: "purple" }] }, game.home.players[1]] } }],
   ];
   for (const [what, g] of bad) { const r = await call("POST", "/exhibition", g); check(`refused: ${what}`, r.status === 400, `${r.status} ${JSON.stringify(r.data)}`); }
 
@@ -114,6 +115,8 @@ try {
   check("the custom team's swimwear; a club team keeps its kit", st.players[0].swimwear?.print === "hibiscus" && st.players[1].swimwear?.cut === "bikini-3" && st.players[2].swimwear === null,
     `${JSON.stringify(st.players[0].swimwear)}; away ${st.players[2].primaryColor}/${st.players[2].secondaryColor}`);
   check("the accessories, as model parts and colours", st.players[0].wear.map((w) => w.part).join(",") === "SK_BG_HAT,SK_BG_SUNGLASSES" && st.players[3].wear[0]?.part === "SK_BG_EARRINGS", JSON.stringify(st.players[0].wear));
+  check("9a: the sunglasses with their lens tint", st.players[0].wear[1]?.lens === "amber" && st.players[0].wear[0]?.lens === null, JSON.stringify(st.players[0].wear));
+  check("9a: the sunglasses offer five lens tints", JSON.stringify(o.items.find((i) => i.id === "sunglasses")?.lenses) === JSON.stringify(["black", "brown", "blue-mirror", "amber", "rose"]), JSON.stringify(o.items.find((i) => i.id === "sunglasses")?.lenses));
   check("the seats, the venue, the time, the weather, the difficulty", JSON.stringify(st.exhibitionSeats) === "[0,1,2,-1]" && st.continent === "europe" && st.timeOfDay === "sunset" && st.weather === "cloudy" && st.gameDifficulty === "hard");
   check("the game's own odds for the pair", st.pointChanceHome > 0.3 && st.pointChanceHome < 0.7, `${st.pointChanceHome}`);
   const after = snapshot();

@@ -24,8 +24,10 @@ export type StoreItem = {
   /** What the court shows for it: a part of the players' model (IdaFaber's SK_BG_*), or a print's mask. */
   unity: string;
   picture: string;
-  /** The colour it comes in ("#rrggbb"; a print has two, "#rrggbb,#rrggbb"). */
+  /** The colour it comes in ("#rrggbb"; a print has two, "#rrggbb,#rrggbb"; with lenses, "#rrggbb;tint"). */
   colour: string;
+  /** 1.2 9a: the lens tints it comes in (the sunglasses), chosen beside the frame colour. */
+  lenses?: string[];
 };
 
 export const STORE_SETTINGS = settings as {
@@ -43,9 +45,19 @@ export const STORE_ITEMS: readonly StoreItem[] = (itemsFile as { items: StoreIte
 export const storeItem = (id: string) => STORE_ITEMS.find((i) => i.id === id) ?? null;
 
 const HEX = /^#[0-9a-fA-F]{6}$/;
-/** A colour as the item takes it: one "#rrggbb", or two for a print. Null if it does not fit. */
+/** 1.2 9a: an item's colour and, for the sunglasses, its lens ("#rrggbb;tint"). */
+export function splitLens(colour: string): { colour: string; lens: string | null } {
+  const [c, lens] = colour.split(";");
+  return { colour: c, lens: lens ?? null };
+}
+
+/** A colour as the item takes it: one "#rrggbb", two for a print, and a lens for the sunglasses. Null if it does not fit. */
 export function cleanColour(item: StoreItem, colour: unknown): string | null {
   if (typeof colour !== "string") return null;
+  if (item.lenses) {
+    const { colour: c, lens } = splitLens(colour);
+    return HEX.test(c.trim()) && lens !== null && item.lenses.includes(lens) ? `${c.trim().toLowerCase()};${lens}` : null;
+  }
   const parts = colour.split(",").map((c) => c.trim());
   const want = item.slot === "print" ? 2 : 1;
   if (parts.length !== want || !parts.every((c) => HEX.test(c))) return null;
@@ -90,7 +102,7 @@ export function buy(userId: string, itemId: string, colour: unknown): BuyResult 
   const item = storeItem(itemId);
   if (!item) return { ok: false, status: 404, error: "No such item." };
   const c = cleanColour(item, colour ?? item.colour);
-  if (!c) return { ok: false, status: 400, error: item.slot === "print" ? "A print takes two colours, #rrggbb,#rrggbb." : "A colour is #rrggbb." };
+  if (!c) return { ok: false, status: 400, error: item.slot === "print" ? "A print takes two colours, #rrggbb,#rrggbb." : item.lenses ? `A frame colour and a lens, #rrggbb;${item.lenses.join("|")}.` : "A colour is #rrggbb." };
   const w = walletFor(userId);
   if (w.balance < item.price) return { ok: false, status: 409, error: `Not enough ${STORE_SETTINGS.currency}.` };
   const balance = w.balance - item.price;

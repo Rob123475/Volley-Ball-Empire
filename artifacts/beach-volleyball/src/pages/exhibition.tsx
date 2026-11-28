@@ -22,20 +22,23 @@ import { ArrowLeft, Play, Users } from "lucide-react";
 
 type Player = { id: number; name: string; nationality: string; skinTone: string; imageUrl: string | null; overall: number };
 type Team = { id: number; name: string; continent: string; primary: string; secondary: string; players: number[] };
-type Item = { id: string; name: string; slot: string; picture: string; colour: string };
+type Item = { id: string; name: string; slot: string; picture: string; colour: string; lens: string | null; lenses?: string[] };
+/** 1.2 9a: an accessory as worn: its colour, and for the sunglasses the lens tint. */
+type Worn = { itemId: string; colour: string; lens?: string };
 type Options = {
   teams: Team[]; players: Player[]; venues: { key: string; label: string }[];
   times: string[]; weathers: string[]; difficulties: string[]; cuts: string[]; prints: string[]; items: Item[];
-  worn: { itemId: string; colour: string }[];
+  worn: (Worn & { lens: string | null })[];
 };
 type Swim = { cut: string; print: string; colourA: string; colourB: string };
-type PickPlayer = { poolPlayerId: number; name: string; seat: number; swimwear: Swim; wear: { itemId: string; colour: string }[] };
+type PickPlayer = { poolPlayerId: number; name: string; seat: number; swimwear: Swim; wear: Worn[] };
 type PickTeam = { poolTeamId: number | null; name: string; primary: string; secondary: string; players: [PickPlayer, PickPlayer] };
 
 const SEATS = [{ v: -1, label: "AI" }, { v: 0, label: "Person 1 (keyboard)" }, { v: 1, label: "Person 2 (pad 1)" }, { v: 2, label: "Person 3 (pad 2)" }, { v: 3, label: "Person 4 (pad 3)" }];
 const CUT_LABEL: Record<string, string> = { "bikini-1": "Bikini 1 (with wrap)", "bikini-2": "Bikini 2", "bikini-3": "Bikini 3", "swimsuit-1": "Swimsuit 1", "swimsuit-2": "Swimsuit 2", "swimsuit-3": "Swimsuit 3" };
 const PRINT_LABEL: Record<string, string> = { plain: "Plain", leopard: "Leopard", hibiscus: "Hibiscus", stripes: "Stripes", polkadots: "Polka dots", palmleaves: "Palm leaves", camouflage: "Camouflage", tiedye: "Tie-dye", zebra: "Zebra" };
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+const LENS_LABEL: Record<string, string> = { black: "Black lenses", brown: "Brown lenses", "blue-mirror": "Blue mirror", amber: "Amber lenses", rose: "Rose lenses" };
 const selectClass = "h-9 w-full rounded-md border border-input bg-background px-2 text-sm";
 
 function playerFor(p: Player, seat: number): PickPlayer {
@@ -51,9 +54,10 @@ function PlayerPicker({ o, team, idx, onChange, taken }: { o: Options; team: Pic
   const custom = team.poolTeamId == null;
   const bySlot = useMemo(() => o.items.reduce<Record<string, Item[]>>((m, i) => { (m[i.slot] ??= []).push(i); return m; }, {}), [o.items]);
   const worn = (slot: string) => p.wear.find((w) => o.items.find((i) => i.id === w.itemId)?.slot === slot);
-  const setWear = (slot: string, itemId: string, colour?: string) => {
+  const setWear = (slot: string, itemId: string, colour?: string, lens?: string) => {
     const rest = p.wear.filter((w) => o.items.find((i) => i.id === w.itemId)?.slot !== slot);
-    onChange({ ...p, wear: itemId ? [...rest, { itemId, colour: colour ?? o.items.find((i) => i.id === itemId)!.colour }] : rest });
+    const item = o.items.find((i) => i.id === itemId);
+    onChange({ ...p, wear: item ? [...rest, { itemId, colour: colour ?? item.colour, ...(item.lenses ? { lens: lens ?? item.lens ?? item.lenses[0] } : {}) }] : rest });
   };
   const pl = o.players.find((x) => x.id === p.poolPlayerId);
   return (
@@ -92,7 +96,12 @@ function PlayerPicker({ o, team, idx, onChange, taken }: { o: Options; team: Pic
                 <option value="">{cap(slot === "legpiece" ? "leg piece" : slot)}: none</option>
                 {items.map((i) => <option key={i.id} value={i.id}>{i.name}</option>)}
               </select>
-              {w && <input type="color" aria-label={`${slot} colour`} value={w.colour} onChange={(e) => setWear(slot, w.itemId, e.target.value)} className="h-9 w-9 shrink-0 rounded border" />}
+              {w && <input type="color" aria-label={`${slot} colour`} value={w.colour} onChange={(e) => setWear(slot, w.itemId, e.target.value, w.lens)} className="h-9 w-9 shrink-0 rounded border" />}
+              {w?.lens && (
+                <select className={`${selectClass} w-auto shrink-0`} value={w.lens} aria-label={`${slot} lenses`} onChange={(e) => setWear(slot, w.itemId, w.colour, e.target.value)}>
+                  {(o.items.find((i) => i.id === w.itemId)?.lenses ?? []).map((l) => <option key={l} value={l}>{LENS_LABEL[l] ?? l}</option>)}
+                </select>
+              )}
             </div>
           );
         })}
@@ -145,7 +154,7 @@ export default function ExhibitionPage() {
   useEffect(() => {
     if (!o || home) return;
     const h = teamFrom(o.teams[0], o.players, [0, -1]);
-    h.players[0].wear = o.worn.filter((w) => w.itemId);   // D4: what the profile bought and wears
+    h.players[0].wear = o.worn.filter((w) => w.itemId).map(({ lens, ...w }) => (lens ? { ...w, lens } : w));   // D4: what the profile bought and wears
     setHome(h);
     setAway(teamFrom(o.teams[Math.min(1, o.teams.length - 1)], o.players, [-1, -1]));
   }, [o, home]);

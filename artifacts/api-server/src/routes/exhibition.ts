@@ -16,7 +16,7 @@ import { Router } from "express";
 import { randomUUID } from "node:crypto";
 import { db, continentalPoolTeamsTable, continentalPoolPlayersTable, CONTINENTS, isContinentKey } from "@workspace/db";
 import { pointProbability, sideRating } from "../utils/matchEngine.js";
-import { STORE_ITEMS, storeOpen, wornFor } from "../utils/store.js";
+import { STORE_ITEMS, storeOpen, wornFor, splitLens } from "../utils/store.js";
 
 const router = Router();
 
@@ -31,8 +31,8 @@ type SetupPlayer = {
   poolPlayerId: number; name: string;
   /** A custom team's swimwear: the cut, a print or none ("plain"), and the two colours. */
   swimwear?: { cut: string; print: string; colourA: string; colourB: string };
-  /** Accessories: store items (all free here) in the colour chosen. */
-  wear?: { itemId: string; colour: string }[];
+  /** Accessories: store items (all free here) in the colour chosen, and for the sunglasses their lens (9a). */
+  wear?: { itemId: string; colour: string; lens?: string }[];
 };
 type SetupTeam = { poolTeamId: number | null; name: string; primary: string; secondary: string; players: [SetupPlayer, SetupPlayer] };
 /** The whole game, as one block of data (it could be sent to another PC as it is). */
@@ -64,10 +64,10 @@ router.get("/exhibition/options", (req, res) => {
     })),
     venues: CONTINENTS.map((c) => ({ key: c.key, label: c.label })),
     times: TIMES, weathers: WEATHERS, difficulties: DIFFICULTIES, cuts: CUTS, prints: PRINTS,
-    items: STORE_ITEMS.filter((i) => i.slot !== "print").map((i) => ({ id: i.id, name: i.name, slot: i.slot, picture: i.picture, colour: i.colour })),
+    items: STORE_ITEMS.filter((i) => i.slot !== "print").map((i) => ({ id: i.id, name: i.name, slot: i.slot, picture: i.picture, ...splitLens(i.colour), lenses: i.lenses })),
     // D4: what the profile bought and wears goes on its first player (when the store is open).
     worn: req.isAuthenticated() && storeOpen()
-      ? wornFor(req.user.id).filter((w) => w.slot !== "print").map((w) => ({ itemId: STORE_ITEMS.find((i) => i.unity === w.unity)?.id, colour: w.colour }))
+      ? wornFor(req.user.id).filter((w) => w.slot !== "print").map((w) => ({ itemId: STORE_ITEMS.find((i) => i.unity === w.unity)?.id, ...splitLens(w.colour) }))
       : [],
   });
 });
@@ -82,7 +82,11 @@ function invalid(s: ExhibitionSetup, ids: Set<number>): string | null {
       if (!ids.has(p.poolPlayerId)) return "No such player.";
       if (typeof p.name !== "string" || !p.name.trim() || p.name.length > 30) return "A player needs a name (up to 30 letters).";
       if (p.swimwear && (!CUTS.includes(p.swimwear.cut as never) || !(p.swimwear.print === "plain" || PRINTS.includes(p.swimwear.print as never)) || !HEX.test(p.swimwear.colourA) || !HEX.test(p.swimwear.colourB))) return "Swimwear is a cut, plain or a print, and two colours.";
-      for (const w of p.wear ?? []) if (!STORE_ITEMS.some((i) => i.id === w.itemId && i.slot !== "print") || !HEX.test(w.colour)) return "An accessory is an item and a colour.";
+      for (const w of p.wear ?? []) {
+        const item = STORE_ITEMS.find((i) => i.id === w.itemId && i.slot !== "print");
+        if (!item || !HEX.test(w.colour)) return "An accessory is an item and a colour.";
+        if (w.lens != null && !(item.lenses ?? []).includes(w.lens)) return "Sunglasses' lenses are one of their tints.";
+      }
     }
   }
   const all = [...s.home.players, ...s.away.players].map((p) => p.poolPlayerId);
@@ -119,7 +123,7 @@ router.get("/unity/exhibition-state", (req, res) => {
       morale: 75, fatigue: 0, fitness: 100, injured: false, injuryStatus: null, age: p.baseAge, height: 0,
       primaryColor: t.primary, secondaryColor: t.secondary, skinTone: p.skinTone,
       swimwear: sp.swimwear && t.poolTeamId == null ? sp.swimwear : null,
-      wear: (sp.wear ?? []).map((w) => ({ part: STORE_ITEMS.find((i) => i.id === w.itemId)!.unity, colour: w.colour })),
+      wear: (sp.wear ?? []).map((w) => ({ part: STORE_ITEMS.find((i) => i.id === w.itemId)!.unity, colour: w.colour, lens: w.lens ?? null })),
     };
   };
   const rated = (t: SetupTeam) => t.players.map((sp) => pool.get(sp.poolPlayerId)!);
